@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, createContext, useContext } from "react";
+import attackLookup from "./data/attackLookup.json";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ScatterChart, Scatter, LineChart, Line, ResponsiveContainer, ReferenceLine
@@ -411,24 +412,35 @@ function PersonaTool() {
   const pd = PERSONA_DATA[island];
   const areaPop = area ? pd.areas[area] : null;
 
-  const compute = () => {
-    if (!area || !ageBand || !sex || !occupation) return;
-    const pop = pd.areas[area];
-    // Estimate cell size from synthetic population proportions
-    const ageFrac = 1/18;
-    const sexFrac = 0.5;
-    // Occupation fractions (rough)
-    const occFracs = {
-      "Not employed":0.46,"Managers":0.08,"Professional":0.16,"Associate Prof":0.09,
-      "Admin/Secretarial":0.07,"Skilled Trades":0.06,"Caring/Leisure":0.05,
-      "Sales/CS":0.04,"Process/Plant":0.02,"Elementary":0.05
-    };
-    const occFrac = occFracs[occupation] || 0.05;
-    const estimated = Math.round(pop * ageFrac * sexFrac * occFrac * 18 * 0.7);
-    const uniqueness = estimated <= 1;
-    const nearUnique = estimated <= 3;
-    setResult({ pop, estimated: Math.max(1, estimated), uniqueness, nearUnique, area, ageBand, sex, occupation, island: DATA.islands[island].name });
-  };
+const compute = () => {
+  if (!area || !ageBand || !sex || !occupation) return;
+
+  const rows = attackLookup.filter(
+    r =>
+      r.island === island &&
+      r.area === area &&
+      r.age_band === ageBand &&
+      r.sex === sex &&
+      r.occupation === occupation
+  );
+
+  const estimated = rows.reduce((s, r) => s + r.count, 0);
+  const pop = pd.areas[area];
+  const uniqueness = estimated === 1;
+  const nearUnique = estimated > 1 && estimated <= 3;
+
+  setResult({
+    pop,
+    estimated,
+    uniqueness,
+    nearUnique,
+    area,
+    ageBand,
+    sex,
+    occupation,
+    island: DATA.islands[island].name
+  });
+};
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
@@ -506,7 +518,7 @@ function PersonaTool() {
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:16 }}>
             {[
               {k:"Area population",   v: result.pop.toLocaleString()},
-              {k:"Estimated matches", v: result.estimated === 1 ? "1 person" : `~${result.estimated} people`},
+              {k:"Synthetic matches", v: result.estimated === 1 ? "1 person" : `${result.estimated} people`},
               {k:"Risk level",        v: result.uniqueness?"CRITICAL":result.nearUnique?"HIGH":"MODERATE"},
             ].map(r=>(
               <div key={r.k} style={{ background:"#0f172a", borderRadius:6, padding:12 }}>
@@ -536,6 +548,42 @@ function PersonaTool() {
   );
 }
 
+function getAttackCounts(island, area, ageBand, sex, occupation) {
+  const rows = attackLookup.filter(
+    r =>
+      r.island === island &&
+      r.area === area
+  );
+
+  const n1 = rows.reduce((s, r) => s + r.count, 0);
+
+  const ageRows =
+    rows.filter(r => r.age_band === ageBand);
+
+  const n2 =
+    ageRows.reduce((s, r) => s + r.count, 0);
+
+  const sexRows =
+    ageRows.filter(r => r.sex === sex);
+
+  const n3 =
+    sexRows.reduce((s, r) => s + r.count, 0);
+
+  const occRows =
+    sexRows.filter(r => r.occupation === occupation);
+
+  const n4 =
+    occRows.reduce((s, r) => s + r.count, 0);
+
+  return {
+    n1,
+    n2,
+    n3,
+    n4,
+    n5: n4 
+  };
+}
+
 function AttackSimulator() {
   const [step, setStep] = useState(0);
   const [island, setIsland] = useState("iom");
@@ -554,24 +602,37 @@ function AttackSimulator() {
     setSteps([]);
     setStep(0);
 
-    const pop = pd.areas[area];
-    const ageFrac = 1/18;
-    const sexFrac = 0.5;
-    const occFracs = { "Not employed":0.46,"Managers":0.08,"Professional":0.16,"Associate Prof":0.09,"Admin/Secretarial":0.07,"Skilled Trades":0.06,"Caring/Leisure":0.05,"Sales/CS":0.04,"Process/Plant":0.02,"Elementary":0.05 };
-    const occFrac = occFracs[occupation] || 0.05;
-
-    const n1 = pop;
-    const n2 = Math.round(pop * ageFrac * 18 * 0.85);
-    const n3 = Math.round(n2 * sexFrac);
-    const n4 = Math.max(1, Math.round(n3 * occFrac / 0.46 * (1 - 0.46)));
-    const n5 = Math.max(1, Math.round(n4 * 0.4));
+  const {
+  n1,
+  n2,
+  n3,
+  n4,
+  n5
+} = getAttackCounts(
+  island,
+  area,
+  ageBand,
+  sex,
+  occupation
+);
 
     const simSteps = [
-      { label:"Step 1 — Area identified", desc:`Start with ${area}, ${DATA.islands[island].name}`, candidates:n1, source:"Census Table 6.1 — publicly available", color:"#64748b" },
-      { label:"Step 2 — Age band applied", desc:`Filter to ${ageBand} age group`, candidates:n2, source:"Census Table 4.4.1 — publicly available", color:"#eab308" },
-      { label:"Step 3 — Sex applied", desc:`Filter to ${sex}`, candidates:n3, source:"Census Table 3.1 — publicly available", color:"#f97316" },
-      { label:"Step 4 — Occupation applied", desc:`Filter to ${occupation}`, candidates:n4, source:"Census employment tables — publicly available", color: n4<=3?"#ef4444":"#f97316" },
-      { label:"Step 5 — LinkedIn cross-reference", desc:"Search LinkedIn for matching profile", candidates:n5, source:"linkedin.com — public auxiliary data", color: n5<=1?"#ef4444":"#f97316" },
+      { label:"Step 1 — Area identified", desc:`Start with ${area}, ${DATA.islands[island].name}`, candidates:n1, source:"Published census geography distributions", color:"#64748b" },
+      { label:"Step 2 — Age band applied", desc:`Filter to ${ageBand} age group`, candidates:n2, source:"Published census age-band distributions", color:"#eab308" },
+      { label:"Step 3 — Sex applied", desc:`Filter to ${sex}`, candidates:n3, source:"Published census sex distributions", color:"#f97316" },
+      { label:"Step 4 — Occupation applied", desc:`Filter to ${occupation}`, candidates:n4, source:"Occupation model derived from published census tables", color: n4<=3?"#ef4444":"#f97316" },
+      {
+  label: "Step 5 — Auxiliary attribute applied",
+  desc:
+    n4 === 0
+      ? "No matching synthetic candidates remain for the selected criteria."
+      : n4 === 1
+      ? "Census-derived attributes alone isolate a single synthetic candidate."
+      : `${n4} candidates remain. One additional public attribute (for example employer, company directorship, property ownership, education history or household composition) may distinguish between the remaining records.`,
+  candidates: n5,
+  source: "Publicly available auxiliary attributes",
+  color: n5 <= 1 ? "#ef4444" : "#f97316"
+},
     ];
 
     for (let i = 0; i < simSteps.length; i++) {
@@ -651,7 +712,7 @@ function AttackSimulator() {
                 </div>
                 <div style={{ textAlign:"right", flexShrink:0, marginLeft:16 }}>
                   <div style={{ color:s.color, fontWeight:800, fontSize:28 }}>
-                    {s.candidates === 1 ? "1" : `~${s.candidates}`}
+                    {s.candidates.toLocaleString()}
                   </div>
                   <div style={{ color:"#64748b", fontSize:11 }}>
                     {s.candidates === 1 ? "person remaining" : "candidates remaining"}
@@ -664,7 +725,7 @@ function AttackSimulator() {
             <div style={{ background: steps[4].candidates <= 1 ? "#450a0a" : "#431407",
               borderRadius:8, padding:16, border:`2px solid ${steps[4].candidates<=1?"#ef4444":"#f97316"}` }}>
               <div style={{ color: steps[4].candidates<=1?"#ef4444":"#f97316", fontWeight:800, fontSize:16, marginBottom:8 }}>
-                {steps[4].candidates <= 1 ? "⚠ Re-identification complete" : `⚠ ${steps[4].candidates} candidates remain`}
+                {steps[4].candidates <= 1 ? "⚠ High re-identification risk" : `⚠ ${steps[4].candidates} candidates remain`}
               </div>
               <div style={{ color:"#94a3b8", fontSize:12, lineHeight:1.7 }}>
                 {steps[4].candidates <= 1
