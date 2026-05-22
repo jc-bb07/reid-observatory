@@ -575,18 +575,14 @@ export function AttackSimulator() {
         {activeQIs.includes("manx_language") && island === "iom" && (
           <div style={{
             background:"#0f172a", borderRadius:8, padding:"12px 14px",
-            marginBottom:12, border:`1px solid ${nonWhiteEthnicity ? "#1e293b" : "#334155"}`,
+            marginBottom:12, border:"1px solid #334155",
             display:"flex", alignItems:"center", justifyContent:"space-between",
-            opacity: nonWhiteEthnicity ? 0.4 : 1,
           }}>
             <div>
               <div style={{ ...S.label, marginBottom:2, display:"flex", gap:6, alignItems:"center" }}>
                 Manx Speaker <DataBadge type="published_exact"/>
-                {nonWhiteEthnicity && (
-                  <span style={{ color:"#475569", fontSize:9 }}>— mutually exclusive with ethnicity filter</span>
-                )}
               </div>
-              {manxContext && area && !nonWhiteEthnicity && (
+              {manxContext && area && (
                 <div style={{ color:"#64748b", fontSize:11 }}>
                   {area}: {manxContext.total_any_manx} speakers of {manxContext.area_pop.toLocaleString()} residents
                   ({((manxContext.total_any_manx/manxContext.area_pop)*100).toFixed(1)}%)
@@ -594,15 +590,13 @@ export function AttackSimulator() {
               )}
             </div>
             <button
-              disabled={nonWhiteEthnicity}
               onClick={() => { setManxSpeaker(v => !v); resetResults(); }}
               style={{
                 padding:"6px 14px", borderRadius:20, border:"1px solid",
                 borderColor: manxSpeaker ? "#22c55e" : "#334155",
                 background: manxSpeaker ? "#052e16" : "#1e293b",
                 color: manxSpeaker ? "#22c55e" : "#64748b",
-                fontSize:12, fontWeight:600,
-                cursor: nonWhiteEthnicity ? "not-allowed" : "pointer",
+                fontSize:12, fontWeight:600, cursor:"pointer",
               }}>
               {manxSpeaker ? "✓ Yes" : "Filter on"}
             </button>
@@ -613,40 +607,31 @@ export function AttackSimulator() {
         {activeQIs.includes("ethnicity_nonwhite") && island === "iom" && (
           <div style={{
             background:"#0f172a", borderRadius:8, padding:"12px 14px",
-            marginBottom:12, border:`1px solid ${manxSpeaker ? "#1e293b" : "#334155"}`,
+            marginBottom:12, border:"1px solid #334155",
             display:"flex", alignItems:"center", justifyContent:"space-between",
-            opacity: manxSpeaker ? 0.4 : 1,
           }}>
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ ...S.label, marginBottom:2, display:"flex", gap:6, alignItems:"center" }}>
                 Non-White Ethnicity <DataBadge type="modelled_estimate"/>
-                {manxSpeaker && (
-                  <span style={{ color:"#475569", fontSize:9 }}>— mutually exclusive with Manx filter</span>
-                )}
               </div>
-              {ethContext && area && !manxSpeaker && (
+              {ethContext && area && (
                 <div style={{ color:"#64748b", fontSize:11 }}>
                   {area}: ~{ethContext.non_white_estimate} estimated non-white residents
                   ({((ethContext.non_white_estimate/ethContext.area_pop)*100).toFixed(1)}%)
                 </div>
               )}
-              {!manxSpeaker && (
-                <div style={{ color:"#92400e", fontSize:10, marginTop:3 }}>
-                  ⚠ Area-level estimate — proportional distribution from island total. Rural figures likely overstated.
-                </div>
-              )}
+              <div style={{ color:"#92400e", fontSize:10, marginTop:3 }}>
+                ⚠ Area-level estimate — proportional distribution from island total. Rural figures likely overstated.
+              </div>
             </div>
             <button
-              disabled={manxSpeaker}
               onClick={() => { setNonWhiteEthnicity(v => !v); resetResults(); }}
               style={{
                 padding:"6px 14px", borderRadius:20, border:"1px solid", marginLeft:12,
                 borderColor: nonWhiteEthnicity ? "#f59e0b" : "#334155",
                 background: nonWhiteEthnicity ? "#1c1003" : "#1e293b",
                 color: nonWhiteEthnicity ? "#f59e0b" : "#64748b",
-                fontSize:12, fontWeight:600,
-                cursor: manxSpeaker ? "not-allowed" : "pointer",
-                flexShrink:0,
+                fontSize:12, fontWeight:600, cursor:"pointer", flexShrink:0,
               }}>
               {nonWhiteEthnicity ? "✓ Yes" : "Filter on"}
             </button>
