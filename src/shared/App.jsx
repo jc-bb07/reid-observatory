@@ -3,17 +3,12 @@ import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import { LoginScreen } from "./auth/LoginScreen";
 import { RestrictedArea } from "./restricted/RestrictedArea";
 import { OverviewTab, AreaTab, KAnonTab } from "./public/PublicTabs";
-import DemographicsTab from "./public/DemographicsTab";
-import PopulationPyramids from "./public/PopulationPyramids";
 import { ISLANDS, ISLAND_KEYS } from "./data/constants";
 
 const PUBLIC_TABS = [
-  { id:"overview",    label:"Overview"            },
-  { id:"areas",       label:"Area Explorer"       },
-  { id:"kanon",       label:"k-Anonymity"         },
-  { id:"demographics",label:"Demographics"        },
-  { id:"demographics2",label:"Demographics Explorer" },
-  { id:"pyramids",    label:"Population Structure"},
+  { id:"overview",    label:"Overview"         },
+  { id:"areas",       label:"Area Explorer"    },
+  { id:"kanon",       label:"k-Anonymity"      },
   { id:"restricted",  label:"🔒 Restricted Tools" },
 ];
 
@@ -24,16 +19,10 @@ function AppContent() {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const tabContent = {
-    overview:    <OverviewTab/>,
-    areas:       <AreaTab/>,
-    kanon:       <KAnonTab/>,
-    demographics:<DemographicsTab/>,
-    demographics2: <iframe
-	src="/demographics-explorer.html"
-	style={{ width:"100%", height:"calc(100vh - 120px)", border:"none" }}
-	/>,
-    pyramids:    <PopulationPyramids/>,
-    restricted:  authLoading
+    overview:   <OverviewTab/>,
+    areas:      <AreaTab/>,
+    kanon:      <KAnonTab/>,
+    restricted: authLoading
       ? <div style={{ color:"#64748b", padding:20 }}>Loading…</div>
       : user
         ? <RestrictedArea/>
@@ -46,6 +35,7 @@ function AppContent() {
       background: "#0f172a", minHeight: "100vh",
       color: "#e2e8f0", padding: "20px 24px",
     }}>
+      {/* Header */}
       <div style={{ marginBottom:20 }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:4 }}>
           <div style={{ display:"flex", gap:2 }}>
@@ -64,8 +54,8 @@ function AppContent() {
         </div>
       </div>
 
-      <div style={{ display:"flex", gap:0, marginBottom:20, borderBottom:"1px solid #1e293b",
-        overflowX:"auto" }}>
+      {/* Nav */}
+      <div style={{ display:"flex", gap:0, marginBottom:20, borderBottom:"1px solid #1e293b" }}>
         {PUBLIC_TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: "7px 14px", border: "none", background: "none", cursor: "pointer",
@@ -83,6 +73,7 @@ function AppContent() {
         ))}
       </div>
 
+      {/* Content */}
       <div style={{ maxWidth:960 }}>
         {tabContent[tab]}
       </div>

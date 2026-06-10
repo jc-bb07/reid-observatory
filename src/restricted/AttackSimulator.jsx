@@ -129,7 +129,6 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
 
   let currentPool = areaCount;
 
-  let currentPool = areaCount;
 
   // ── 2. Manx language (if selected, applied early — shrinks pool dramatically) ──
   if (activeQIs.includes("manx_language") && manxSpeaker && island === "iom") {

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Crown Dependencies · Population Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1b2a;--surface:#112036;--surface2:#0f1c30;
+  --border:#1d3148;--border2:#243d58;
+  --text:#e8edf2;--text-m:#8fa8bf;--text-f:#4d6a82;
+  --iom:#4ec9a8;--jer:#f5a623;--gue:#e06b6b;--uk:#8fa8bf;
+  --accent:#4ec9a8;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
+.page{max-width:900px;margin:0 auto;padding:32px 20px}
+.section{margin-bottom:52px}
+.eyebrow{font-family:'Libre Bodoni',serif;font-style:italic;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-f);margin-bottom:12px;}
+h1{font-family:'Libre Bodoni',serif;font-style:italic;font-size:clamp(24px,5vw,36px);font-weight:500;color:var(--text);line-height:1.1;margin-bottom:10px;}
+p{color:var(--text-m);font-size:13px;line-height:1.7;max-width:600px}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;margin-bottom:28px;}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text-f);cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.03em;margin-bottom:-1px;padding:8px 16px;transition:color .15s,border-color .15s;white-space:nowrap;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover:not(.active){color:var(--text-m)}
+.audience-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.aud-label{font-size:11px;color:var(--text-f);letter-spacing:.06em;text-transform:uppercase}
+.toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.toggle-btn{background:none;border:none;color:var(--text-f);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;padding:5px 14px;transition:all .15s;}
+.toggle-btn.active{background:rgba(78,201,168,0.12);color:var(--accent)}
+.plain-box{background:rgba(78,201,168,0.06);border:1px solid rgba(78,201,168,0.18);border-radius:8px;padding:13px 15px;margin-bottom:18px;font-size:12px;color:var(--text-m);line-height:1.7;}
+.plain-box strong{color:var(--text)}
+.plain-box.hidden{display:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin-bottom:20px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px 15px;}
+.card-label{font-size:10px;color:var(--text-f);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.card-value{font-size:21px;font-variant-numeric:tabular-nums;font-weight:500;line-height:1}
+.card-sub{font-size:11px;color:var(--text-f);margin-top:3px}
+.card-up{color:#f5a623;font-size:10px;margin-top:3px}
+.card-dn{color:var(--iom);font-size:10px;margin-top:3px}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 14px 12px;margin-bottom:10px;}
+.chart-canvas-wrap{position:relative;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text-m)}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-sw{width:12px;height:3px;border-radius:1px;display:inline-block}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center}
+.ctrl-label{font-size:10px;color:var(--text-f);text-transform:uppercase;letter-spacing:.08em;margin-right:2px}
+.pill{background:none;border:1px solid var(--border);border-radius:20px;color:var(--text-f);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.03em;padding:4px 12px;transition:all .15s;white-space:nowrap;}
+.pill.active{background:rgba(78,201,168,0.10);border-color:var(--accent);color:var(--accent)}
+.pill:hover:not(.active){border-color:var(--border2);color:var(--text-m)}
+select.pill{appearance:none;padding-right:20px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234ec9a8' opacity='.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-color:var(--surface2);}
+.pyramid-grid{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;align-items:flex-start;}
+.pyramid-grid::-webkit-scrollbar{height:3px}
+.pyramid-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.pyramid-item{flex:1;min-width:160px}
+.pyr-name{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px;display:inline-block}
+.pyr-mf{display:flex;justify-content:space-between;font-size:9px;font-weight:500;margin-bottom:2px;padding:0 6px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;}
+.slider-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text-f);margin-top:2px}
+.year-display{font-family:'Libre Bodoni',serif;font-style:italic;font-size:26px;color:var(--accent);font-weight:500;min-width:50px;text-align:right}
+.animate-btn{background:var(--accent);border:none;border-radius:6px;color:#0d1b2a;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.06em;padding:5px 14px;transition:opacity .15s;}
+.animate-btn.playing{background:rgba(78,201,168,0.12);color:var(--accent);border:1px solid var(--accent)}
+.source-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle}
+.official{background:rgba(78,201,168,0.12);color:var(--iom);border:1px solid rgba(78,201,168,0.25)}
+.estimated{background:rgba(245,166,35,0.10);color:#f5a623;border:1px solid rgba(245,166,35,0.25)}
+.proj-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.proj-table td,.proj-table th{padding:6px 10px;border:1px solid var(--border);text-align:left}
+.proj-table th{color:var(--text-f);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.footer{border-top:1px solid var(--border);padding-top:14px;margin-top:36px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-src{font-size:10px;color:var(--text-f);line-height:1.6}
+.footer-brand{font-family:'Libre Bodoni',serif;font-style:italic;color:var(--text-m);font-size:12px}
+@media(max-width:600px){.page{padding:20px 14px}.cards{grid-template-columns:1fr 1fr}.pyramid-item{min-width:130px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="section" style="margin-bottom:32px">
+    <div class="eyebrow">Coalfinch · Crown Dependencies Observatory</div>
+    <h1>Population &amp; Aging</h1>
+    <p style="margin-bottom:14px">How the three Crown Dependencies are aging — and what that means for public finances, housing, and social services. Published census data, 1951–2021, with projections to 2040.</p>
+    <div class="audience-bar">
+      <span class="aud-label">View</span>
+      <div class="toggle">
+        <button class="toggle-btn active" id="btn-plain" onclick="setAudience('plain')">Plain language</button>
+        <button class="toggle-btn" id="btn-tech" onclick="setAudience('tech')">Technical</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('dependency')">Dependency ratios</button>
+    <button class="tab" onclick="showTab('differential')">vs UK differential</button>
+    <button class="tab" onclick="showTab('pyramids')">Population pyramids</button>
+    <button class="tab" onclick="showTab('structure')">Age structure</button>
+    <button class="tab" onclick="showTab('projections')">Projections</button>
+  </div>
+
+  <!-- ── DEPENDENCY ── -->
+  <div id="tab-dependency" class="section">
+    <div class="plain-box" id="plain-dep">
+      <strong>What is a dependency ratio?</strong> It measures how many retired people exist for every 100 working-age people. A higher number means more pressure on public finances. All three islands now exceed the UK, and all three are rising.
+    </div>
+    <div class="cards">
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">Isle of Man</div><div class="card-value" style="color:var(--iom)">33.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 24.9% in 1991</div></div>
+      <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey</div><div class="card-value" style="color:var(--jer)">27.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 20.1% in 1991</div></div>
+      <div class="card" style="border-top:2px solid var(--gue)"><div class="card-label">Guernsey</div><div class="card-value" style="color:var(--gue)">~34%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ dep. ratio 57% vs UK 56%</div></div>
+      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--text-m)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">All islands now exceed UK</div></div>
+    </div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK (dashed)</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--text-f)">65+ as % of 15–64</span>
+    </div>
+    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="depChart" role="img" aria-label="Aged dependency ratios 1951–2021 for IoM, Jersey, Guernsey and UK">Aged dependency ratios rising across all three islands, now exceeding the UK.</canvas></div></div>
+    <div class="plain-box" id="plain-dep2" style="margin-top:0">
+      <strong>The key pattern:</strong> IoM's ratio was higher than the UK through the 1970s–80s, fell sharply as the finance sector boom attracted working-age incomers, and is now climbing again as that cohort approaches retirement.
+    </div>
+  </div>
+
+  <!-- ── DIFFERENTIAL ── -->
+  <div id="tab-differential" class="section" style="display:none">
+    <div class="plain-box" id="plain-diff">
+      <strong>Island minus UK:</strong> Above zero means the island has a higher aged dependency ratio than the UK — aging faster. Below zero means relatively younger. The Isle of Man was well above the UK in the 1970s, converged through the finance boom years, and is now diverging again.
+    </div>
+    <div class="cards">
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">IoM peak differential</div><div class="card-value" style="color:var(--iom)">+15.8</div><div class="card-sub">pts above UK · 1976</div></div>
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">IoM trough</div><div class="card-value" style="color:var(--iom)">+6.5</div><div class="card-sub">pts above UK · 2001</div></div>
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">IoM 2021</div><div class="card-value" style="color:var(--iom)">+3.6</div><div class="card-sub">pts above UK · re-diverging</div></div>
+      <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey 2021</div><div class="card-value" style="color:var(--jer)">−2.4</div><div class="card-sub">pts below UK · closing fast</div></div>
+    </div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man − UK</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey − UK</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey − UK</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--text-f)">Percentage point difference vs UK</span>
+    </div>
+    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="diffChart" role="img" aria-label="Dependency ratio differential versus UK 1971–2021">Island dependency ratios minus UK from 1971. Zero line = parity with UK.</canvas></div></div>
+    <div class="plain-box" id="plain-diff2" style="margin-top:0">
+      <strong>Jersey tracks below the UK</strong> for most of the period — its larger working-age population has kept it relatively younger. That advantage is now eroding rapidly. Jersey and Guernsey data are sparse — lines span available census years only.
+    </div>
+  </div>
+
+  <!-- ── PYRAMIDS ── -->
+  <div id="tab-pyramids" class="section" style="display:none">
+    <div class="plain-box" id="plain-pyr">
+      <strong>Reading the pyramids:</strong> A healthy growing population looks like a triangle — wide at the bottom. What you see here is a barrel shape — the middle and upper sections are bulging. In side-by-side mode, the centre panel shows the difference between the two islands per age band.
+    </div>
+    <div class="controls">
+      <span class="ctrl-label">View</span>
+      <button class="pill active" id="pyr-single" onclick="setPyrMode('single')">Single island</button>
+      <button class="pill" id="pyr-dual" onclick="setPyrMode('dual')">Side by side + diff</button>
+      <button class="pill" id="pyr-quad" onclick="setPyrMode('quad')">All four</button>
+    </div>
+    <div id="pyr-island-ctrl" class="controls">
+      <span class="ctrl-label">Island</span>
+      <button class="pill active" onclick="setSingleIsland('iom',this)">Isle of Man</button>
+      <button class="pill" onclick="setSingleIsland('jersey',this)">Jersey</button>
+      <button class="pill" onclick="setSingleIsland('guernsey',this)">Guernsey</button>
+      <button class="pill" onclick="setSingleIsland('uk',this)">UK</button>
+    </div>
+    <div id="pyr-dual-ctrl" class="controls" style="display:none">
+      <span class="ctrl-label">Compare</span>
+      <select class="pill" id="dualA" onchange="renderPyramids()"><option value="iom">Isle of Man</option><option value="jersey">Jersey</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
+      <span style="color:var(--text-f);font-size:12px">vs</span>
+      <select class="pill" id="dualB" onchange="renderPyramids()"><option value="jersey">Jersey</option><option value="iom">Isle of Man</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
+    </div>
+    <div class="controls" style="align-items:center">
+      <span class="ctrl-label">Year</span>
+      <button class="pill" onclick="setYear(0)">2011</button>
+      <button class="pill" onclick="setYear(100)">2021</button>
+      <button class="animate-btn" id="animBtn" onclick="toggleAnim()">▶ Animate</button>
+      <div class="year-display" id="yearDisplay">2021</div>
+    </div>
+    <div style="margin-bottom:14px">
+      <input type="range" min="0" max="100" step="0.5" value="100" id="yearSlider" oninput="onSlider(this.value)">
+      <div class="slider-labels"><span>2011</span><span>2021</span></div>
+    </div>
+    <div class="chart-wrap" style="overflow:hidden"><div id="pyrContainer" class="pyramid-grid"></div></div>
+    <div id="pyrStats" class="cards" style="margin-top:10px"></div>
+    <div class="plain-box" id="plain-pyr2" style="margin-top:12px">
+      <strong>Side by side + diff:</strong> The centre panel shows how the two islands differ at each age band — teal bars mean the left island has more people in that band, amber bars mean the right island does. Animate to watch the differences evolve.
+    </div>
+  </div>
+
+  <!-- ── STRUCTURE ── -->
+  <div id="tab-structure" class="section" style="display:none">
+    <div class="plain-box" id="plain-str">
+      <strong>The four groups:</strong> Pre-school (0–4), school-age (5–14), working-age (15–64), and retirement-age (65+). The last group is growing fastest. The working-age share — the people whose taxes fund public services — is shrinking across all three islands.
+    </div>
+    <div class="controls">
+      <span class="ctrl-label">Year</span>
+      <button class="pill active" id="str-2011" onclick="setStrYear(2011,this)">2011</button>
+      <button class="pill" id="str-2021" onclick="setStrYear(2021,this)">2021</button>
+    </div>
+    <div class="controls">
+      <span class="ctrl-label">Island</span>
+      <button class="pill active" onclick="setStrIsland('all',this)">Compare all</button>
+      <button class="pill" onclick="setStrIsland('iom',this)">Isle of Man</button>
+      <button class="pill" onclick="setStrIsland('jersey',this)">Jersey</button>
+      <button class="pill" onclick="setStrIsland('guernsey',this)">Guernsey</button>
+      <button class="pill" onclick="setStrIsland('uk',this)">UK</button>
+    </div>
+    <div class="cards" id="strCards"></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
+      <span id="str-year-label" style="margin-left:auto;font-size:10px;color:var(--text-f)">2011 census data</span>
+    </div>
+    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:270px"><canvas id="strChart" role="img" aria-label="Age structure breakdown by island">Age structure comparison across Crown Dependencies and UK.</canvas></div></div>
+    <div class="plain-box" id="plain-str2" style="margin-top:0">
+      <strong>Compare 2011 vs 2021</strong> to see the working-age share shrink and retirement-age share grow across all islands. The shift is sharpest in IoM and Guernsey.
+    </div>
+  </div>
+
+  <!-- ── PROJECTIONS ── -->
+  <div id="tab-projections" class="section" style="display:none">
+    <div class="plain-box" id="plain-proj">
+      <strong>What happens next?</strong> Even with continued inward migration, the dependency ratio will rise sharply by 2040 across all three islands. Jersey and Guernsey projections are from official published sources. IoM figures are estimated from the Cabinet Office trajectory — no equivalent official publication exists yet.
+    </div>
+
+    <table class="proj-table" style="margin-bottom:20px">
+      <tr>
+        <th>Island</th><th>2021 ratio</th><th>2040 projection</th><th>Scenario</th><th>Source</th>
+      </tr>
+      <tr>
+        <td style="color:var(--iom)">Isle of Man</td><td>58.3%</td><td>~71%</td>
+        <td>Cabinet Office trajectory</td>
+        <td><span class="source-tag estimated">Estimated</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--jer)">Jersey</td><td>52.0%</td><td>58–64%</td>
+        <td>Net nil / +400 / +800 migration</td>
+        <td><span class="source-tag official">Official</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--gue)">Guernsey</td><td>55.0%</td><td>~69%</td>
+        <td>Central (net +150/yr)</td>
+        <td><span class="source-tag official">Official</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--uk)">UK</td><td>56.0%</td><td>~62%</td>
+        <td>ONS principal projection</td>
+        <td><span class="source-tag official">Official</span></td>
+      </tr>
+    </table>
+
+    <div class="controls">
+      <span class="ctrl-label">Jersey scenario</span>
+      <button class="pill active" id="scen-nil" onclick="setScenario('nil',this)">Net nil migration</button>
+      <button class="pill" id="scen-400" onclick="setScenario('400',this)">+400/yr</button>
+      <button class="pill" id="scen-800" onclick="setScenario('800',this)">+800/yr</button>
+    </div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--text-f);margin-left:2px">(est.)</span></span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
+    </div>
+    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="projChart" role="img" aria-label="Projected total dependency ratios to 2040">Projected dependency ratios to 2040.</canvas></div></div>
+    <div style="font-size:11px;color:var(--text-f);line-height:1.6;margin-top:8px;border-left:2px solid rgba(78,201,168,0.22);padding-left:10px;">
+      Jersey: Statistics Jersey Population Projections 2025–2080 (Feb 2026) — official. 
+      Guernsey: Annual Population Projection Bulletin (Jun 2024) — official. 
+      UK: ONS 2022-based national projections — official. 
+      IoM: estimated from Cabinet Office demographic trajectory — no equivalent official publication.
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-src">Sources: IoM Cabinet Office Census Table 1.2 (1976–2021) · Statistics Jersey / Policy Centre Jersey (1951–2021) · Guernsey Data &amp; Analysis (gov.gg) · ONS Census 2021 · World Bank age dependency series · Statistics Jersey Population Projections 2025–2080 · Guernsey Annual Population Projection Bulletin 2024</div>
+    <div class="footer-brand">Coalfinch</div>
+  </div>
+
+</div>
+
+<script>
+const BANDS=["0–4","5–9","10–14","15–19","20–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60–64","65–69","70–74","75–79","80+"];
+const PYR={
+  iom:{
+    2011:{m:[2.89,2.95,3.16,3.21,2.80,2.77,3.10,3.82,4.06,4.08,3.71,3.32,2.99,2.23,1.81,1.48,1.93],f:[2.72,2.77,2.98,3.02,2.64,2.61,2.92,3.59,3.82,3.84,3.50,3.12,2.82,2.10,1.71,1.40,2.13]},
+    2021:{m:[2.41,2.67,2.81,2.72,2.45,2.56,2.89,3.22,3.44,3.61,4.02,4.06,3.61,2.99,2.51,1.72,2.09],f:[2.41,2.66,2.80,2.72,2.44,2.56,2.89,3.22,3.43,3.60,4.01,4.05,3.61,2.99,2.50,1.72,2.59]},
+  },
+  jersey:{
+    2011:{m:[2.84,2.77,2.89,3.10,3.02,3.20,3.62,4.06,3.97,3.92,3.59,3.15,2.80,2.17,1.74,1.40,2.01],f:[2.68,2.61,2.72,2.93,2.85,3.01,3.40,3.83,3.74,3.70,3.39,2.97,2.64,2.04,1.64,1.31,2.29]},
+    2021:{m:[2.35,2.65,2.55,2.57,2.84,2.89,3.19,3.54,3.64,3.65,4.10,3.97,3.15,2.47,2.21,1.52,2.12],f:[2.16,2.59,2.64,2.44,2.63,2.96,3.19,3.57,3.65,3.70,4.08,3.96,3.34,2.66,2.43,1.71,2.03]},
+  },
+  guernsey:{
+    2011:{m:[2.71,2.84,2.99,3.11,2.90,2.95,3.38,3.78,3.88,3.82,3.44,3.01,2.78,2.09,1.72,1.31,1.89],f:[2.61,2.74,2.88,3.00,2.80,2.85,3.26,3.65,3.74,3.68,3.32,2.91,2.68,2.02,1.66,1.26,2.11]},
+    2021:{m:[2.34,2.56,2.36,2.64,2.65,2.81,3.22,3.51,3.59,3.67,3.95,3.72,3.26,2.94,2.49,1.71,2.27],f:[2.34,2.55,2.35,2.64,2.64,2.80,3.22,3.51,3.59,3.66,3.94,3.72,3.26,2.94,2.49,1.70,2.96]},
+  },
+  uk:{
+    2011:{m:[3.14,3.09,2.94,3.18,3.51,3.57,3.56,3.68,3.57,3.54,3.20,2.84,2.48,1.97,1.52,1.12,1.49],f:[2.99,2.94,2.80,3.03,3.34,3.40,3.39,3.51,3.41,3.38,3.07,2.73,2.42,2.02,1.65,1.33,2.01]},
+    2021:{m:[2.76,3.12,3.05,2.94,3.28,3.51,3.68,3.57,3.23,3.28,3.57,3.42,2.99,2.54,2.26,1.58,1.90],f:[2.65,2.99,2.93,2.83,3.16,3.37,3.54,3.44,3.11,3.16,3.45,3.29,2.89,2.45,2.18,1.53,2.33]},
+  },
+};
+const META={
+  iom:     {label:'Isle of Man',color:'#4ec9a8',pop:{2011:84497,2021:84069},median:{2011:42,2021:45}},
+  jersey:  {label:'Jersey',    color:'#f5a623',pop:{2011:97857,2021:103267},median:{2011:40,2021:43}},
+  guernsey:{label:'Guernsey',  color:'#e06b6b',pop:{2011:63085,2021:63463},median:{2011:41,2021:44}},
+  uk:      {label:'UK',        color:'#8fa8bf',pop:{2011:53107169,2021:56489800},median:{2011:39,2021:40}},
+};
+// Age structure data for both years
+const STR={
+  iom:    {2011:{pre:5.61,school:11.86,work:57.11,ret:15.73}, 2021:{pre:4.82,school:10.94,work:56.12,ret:19.11}},
+  jersey: {2011:{pre:5.52,school:11.00,work:69.70,ret:14.80}, 2021:{pre:4.51,school:10.43,work:66.90,ret:18.15}},
+  guernsey:{2011:{pre:5.35,school:11.14,work:66.71,ret:15.80},2021:{pre:4.68,school:9.82,work:65.27,ret:20.23}},
+  uk:     {2011:{pre:6.13,school:11.72,work:65.75,ret:16.40}, 2021:{pre:5.41,school:11.10,work:65.09,ret:18.40}},
+};
+const DEP_L=[1951,1961,1971,1976,1981,1986,1991,1996,2001,2006,2011,2016,2021];
+const DEP={
+  iom:   [null,null,null,45.3,42.8,42.2,37.2,34.6,31.3,32.3,34.6,35.9,33.1],
+  jersey:[18.7,19.9,21.4,null,22.0,null,20.1,null,20.5,null,21.2,null,27.1],
+  gue:   [null,null,null,null,null,null,null,null,null,null,26.0,28.0,34.0],
+  uk:    [null,null,17.9,18.9,23.0,23.8,24.3,24.4,24.8,25.5,26.5,28.1,29.5],
+};
+const PROJ_L=[2021,2025,2030,2035,2040];
+const PROJ={
+  iom:[58.3,60.0,63.0,67.0,71.0],
+  jersey_nil:[52.0,54.5,57.8,61.0,64.2],jersey_400:[52.0,53.8,56.0,58.0,60.0],jersey_800:[52.0,53.0,54.5,56.5,58.0],
+  gue:[55.0,57.5,61.0,65.0,69.0],uk:[56.0,57.0,58.5,60.5,62.0],
+};
+
+const gc='rgba(255,255,255,0.05)',tc='rgba(200,220,235,0.5)',zc='rgba(200,220,235,0.20)';
+const lerp=(a,b,t)=>a+(b-a)*t;
+const lerpDS=(d1,d2,t)=>({m:d1.m.map((v,i)=>lerp(v,d2.m[i],t)),f:d1.f.map((v,i)=>lerp(v,d2.f[i],t))});
+
+let audience='plain',pyrMode='single',singleIsland='iom';
+let sliderVal=100,animPlaying=false,animRaf=null;
+let strIsland='all',strYear=2011,scenario='nil';
+let depCI=null,diffCI=null,strCI=null,projCI=null;
+
+function setAudience(a){
+  audience=a;
+  document.getElementById('btn-plain').classList.toggle('active',a==='plain');
+  document.getElementById('btn-tech').classList.toggle('active',a==='tech');
+  document.querySelectorAll('.plain-box').forEach(el=>el.classList.toggle('hidden',a==='tech'));
+}
+
+const TAB_IDS=['dependency','differential','pyramids','structure','projections'];
+function showTab(id){
+  TAB_IDS.forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'':'none');
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',TAB_IDS[i]===id));
+  if(id==='differential'&&!diffCI)initDiffChart();
+  if(id==='structure')renderStructure();
+  if(id==='projections')renderProjections();
+}
+
+function cOpts(yLabel,yMin,yMax,stepSize,xMin,xMax){
+  return{responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'#0d1b2a',borderColor:'rgba(78,201,168,0.25)',borderWidth:1,
+      titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
+      callbacks:{label:ctx=>ctx.parsed.y!=null?` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`:null}
+    }},
+    scales:{
+      x:{type:'linear',min:xMin||1951,max:xMax||2021,ticks:{color:tc,font:{size:10},stepSize:10,maxRotation:0,callback:v=>v},grid:{color:gc},border:{color:'#1d3148'}},
+      y:{min:yMin,max:yMax,ticks:{color:tc,font:{size:10},callback:v=>v+'%',stepSize:stepSize||5},grid:{color:gc},border:{color:'#1d3148'},title:{display:true,text:yLabel,color:tc,font:{size:10}}}
+    }
+  };
+}
+
+function initDepChart(){
+  if(depCI)depCI.destroy();
+  depCI=new Chart(document.getElementById('depChart'),{
+    type:'line',
+    data:{labels:DEP_L,datasets:[
+      {label:'Isle of Man',data:DEP.iom,borderColor:'#4ec9a8',pointBackgroundColor:'#4ec9a8',pointRadius:4,borderWidth:2.5,spanGaps:false,tension:0.35,fill:false},
+      {label:'Jersey',data:DEP.jersey,borderColor:'#f5a623',pointBackgroundColor:'#f5a623',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
+      {label:'Guernsey',data:DEP.gue,borderColor:'#e06b6b',pointBackgroundColor:'#e06b6b',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
+      {label:'UK',data:DEP.uk,borderColor:'#8fa8bf',pointBackgroundColor:'#8fa8bf',pointRadius:3,borderWidth:1.5,borderDash:[5,4],spanGaps:false,tension:0.35,fill:false},
+    ]},
+    options:cOpts('65+ as % of 15–64',15,50,5,1951,2021),
+  });
+}
+
+function initDiffChart(){
+  if(diffCI)diffCI.destroy();
+  // Only include years from 1971 onwards
+  const filteredLabels=DEP_L.filter(y=>y>=1971);
+  const diff=k=>filteredLabels.map(y=>{
+    const i=DEP_L.indexOf(y);
+    const iv=DEP[k][i],uv=DEP.uk[i];
+    return (iv!=null&&uv!=null)?+(iv-uv).toFixed(2):null;
+  });
+  const opts=cOpts('Island − UK (percentage points)',-12,20,5,1971,2021);
+  opts.scales.y.ticks.callback=v=>(v>0?'+':'')+v+' pts';
+  opts.scales.y.grid={color:ctx=>ctx.tick.value===0?zc:gc,lineWidth:ctx=>ctx.tick.value===0?1.5:1};
+  opts.plugins.tooltip.callbacks.label=ctx=>{
+    if(ctx.parsed.y==null)return null;
+    const v=ctx.parsed.y;
+    return ` ${ctx.dataset.label}: ${v>0?'+':''}${v.toFixed(1)} pts`;
+  };
+  diffCI=new Chart(document.getElementById('diffChart'),{
+    type:'line',
+    data:{labels:filteredLabels,datasets:[
+      {label:'Isle of Man − UK',data:diff('iom'),borderColor:'#4ec9a8',pointBackgroundColor:'#4ec9a8',
+       fill:{target:{value:0},above:'rgba(78,201,168,0.10)',below:'rgba(224,107,107,0.08)'},
+       pointRadius:4,borderWidth:2.5,spanGaps:true,tension:0.35},
+      {label:'Jersey − UK',data:diff('jersey'),borderColor:'#f5a623',pointBackgroundColor:'#f5a623',
+       fill:false,pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35},
+      {label:'Guernsey − UK',data:diff('gue'),borderColor:'#e06b6b',pointBackgroundColor:'#e06b6b',
+       fill:false,pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35},
+    ]},
+    options:opts,
+  });
+}
+
+// ── PYRAMIDS ──────────────────────────────────────────────────────────────────
+function setPyrMode(m){
+  pyrMode=m;
+  ['single','dual','quad'].forEach(x=>document.getElementById('pyr-'+x).classList.toggle('active',x===m));
+  document.getElementById('pyr-island-ctrl').style.display=m==='single'?'flex':'none';
+  document.getElementById('pyr-dual-ctrl').style.display=m==='dual'?'flex':'none';
+  renderPyramids();
+}
+function setSingleIsland(k,btn){
+  singleIsland=k;
+  document.querySelectorAll('#pyr-island-ctrl .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderPyramids();
+}
+function setYear(v){sliderVal=v;document.getElementById('yearSlider').value=v;updateYearDisplay();renderPyramids();}
+function onSlider(v){
+  animPlaying=false;
+  const btn=document.getElementById('animBtn');
+  btn.classList.remove('playing');btn.textContent='▶ Animate';
+  if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}
+  sliderVal=+v;updateYearDisplay();renderPyramids();
+}
+function updateYearDisplay(){document.getElementById('yearDisplay').textContent=Math.round(lerp(2011,2021,sliderVal/100));}
+function toggleAnim(){
+  if(animPlaying){
+    animPlaying=false;
+    const btn=document.getElementById('animBtn');btn.classList.remove('playing');btn.textContent='▶ Animate';
+    if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}return;
+  }
+  animPlaying=true;
+  const btn=document.getElementById('animBtn');btn.classList.add('playing');btn.textContent='■ Stop';
+  const from=sliderVal,to=sliderVal<50?100:0,start=performance.now(),dur=1800;
+  const tick=now=>{
+    const raw=Math.min((now-start)/dur,1);
+    const e=raw<0.5?2*raw*raw:-1+(4-2*raw)*raw;
+    sliderVal=lerp(from,to,e);
+    document.getElementById('yearSlider').value=sliderVal;
+    updateYearDisplay();renderPyramids();
+    if(raw<1&&animPlaying)animRaf=requestAnimationFrame(tick);
+    else{animPlaying=false;btn.classList.remove('playing');btn.textContent='▶ Animate';}
+  };
+  animRaf=requestAnimationFrame(tick);
+}
+
+function renderPyramids(){
+  const t=sliderVal/100;
+  const showOv=sliderVal>4&&sliderVal<96;
+  const container=document.getElementById('pyrContainer');
+  container.innerHTML='';
+
+  if(pyrMode==='single'){
+    const d=lerpDS(PYR[singleIsland][2011],PYR[singleIsland][2021],t);
+    container.appendChild(makePyr(singleIsland,d,showOv?PYR[singleIsland][2011]:null,false));
+  } else if(pyrMode==='dual'){
+    const kA=document.getElementById('dualA').value;
+    const kB=document.getElementById('dualB').value;
+    const dA=lerpDS(PYR[kA][2011],PYR[kA][2021],t);
+    const dB=lerpDS(PYR[kB][2011],PYR[kB][2021],t);
+    container.appendChild(makePyr(kA,dA,null,true));
+    container.appendChild(makeDiffPyr(kA,kB,dA,dB));
+    container.appendChild(makePyr(kB,dB,null,true));
+  } else {
+    Object.keys(PYR).forEach(k=>{
+      const d=lerpDS(PYR[k][2011],PYR[k][2021],t);
+      container.appendChild(makePyr(k,d,null,true));
+    });
+  }
+
+  // Stats
+  const stats=document.getElementById('pyrStats');
+  stats.innerHTML='';
+  const keys=pyrMode==='single'?[singleIsland]:pyrMode==='dual'?
+    [document.getElementById('dualA').value,document.getElementById('dualB').value]:Object.keys(PYR);
+  keys.forEach(k=>{
+    const m=META[k];
+    const d=lerpDS(PYR[k][2011],PYR[k][2021],t);
+    const over65=[...d.m.slice(13),...d.f.slice(13)].reduce((a,b)=>a+b,0);
+    const med=lerp(m.median[2011],m.median[2021],t);
+    const pop=Math.round(lerp(m.pop[2011],m.pop[2021],t));
+    const div=document.createElement('div');
+    div.className='card';div.style.borderTop=`2px solid ${m.color}`;
+    div.innerHTML=`<div class="card-label">${m.label}</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
+        <div><div style="font-size:10px;color:var(--text-f)">Pop</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${k==='uk'?(pop/1e6).toFixed(1)+'M':pop.toLocaleString()}</div></div>
+        <div><div style="font-size:10px;color:var(--text-f)">Median age</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:${m.color}">${med.toFixed(1)} yrs</div></div>
+        <div><div style="font-size:10px;color:var(--text-f)">65+</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${over65.toFixed(1)}%</div></div>
+      </div>`;
+    stats.appendChild(div);
+  });
+}
+
+function makePyr(key,data,ov,compact){
+  const m=META[key];
+  const maxV=5.5,barH=compact?10:14,gap=2,totalH=BANDS.length*(barH+gap);
+  const svgW=compact?260:320,lw=32,cw=(svgW-lw*2-6)/2,cx=lw+cw+3;
+  const ns='http://www.w3.org/2000/svg';
+  const wrap=document.createElement('div');wrap.className='pyramid-item';
+  wrap.innerHTML=`<div style="text-align:center;margin-bottom:6px"><span class="pyr-name" style="color:${m.color}">${m.label}</span></div>
+    <div class="pyr-mf"><span style="color:#8fa8bf">◀ M</span><span style="color:#f5a623">F ▶</span></div>`;
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('width','100%');svg.setAttribute('viewBox',`0 0 ${svgW} ${totalH}`);
+  svg.style.cssText='display:block;overflow:visible';
+  BANDS.forEach((band,i)=>{
+    const y=(BANDS.length-1-i)*(barH+gap);
+    const mW=Math.max(0,(data.m[i]/maxV)*cw),fW=Math.max(0,(data.f[i]/maxV)*cw);
+    const mkR=(x,w,fill,op)=>{if(w<=0)return null;const r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',barH);r.setAttribute('fill',fill);r.setAttribute('opacity',op);r.setAttribute('rx','1');return r;};
+    const r1=mkR(cx-mW,mW,'#8fa8bf','0.75');if(r1)svg.appendChild(r1);
+    const r2=mkR(cx,fW,'#f5a623','0.75');if(r2)svg.appendChild(r2);
+    if(ov){
+      const moW=Math.max(0,(ov.m[i]/maxV)*cw),foW=Math.max(0,(ov.f[i]/maxV)*cw);
+      const mkO=(x,w,stroke)=>{if(w<=0)return null;const r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',barH);r.setAttribute('fill','none');r.setAttribute('stroke',stroke);r.setAttribute('stroke-width','0.8');r.setAttribute('stroke-dasharray','3 2');r.setAttribute('opacity','0.4');r.setAttribute('rx','1');return r;};
+      const o1=mkO(cx-moW,moW,'#8fa8bf');if(o1)svg.appendChild(o1);
+      const o2=mkO(cx,foW,'#f5a623');if(o2)svg.appendChild(o2);
+    }
+    const txt=document.createElementNS(ns,'text');
+    txt.setAttribute('x',cx-3);txt.setAttribute('y',y+barH*0.74);txt.setAttribute('text-anchor','end');
+    txt.setAttribute('fill','rgba(143,168,191,0.4)');txt.setAttribute('font-size',compact?7:9);
+    txt.textContent=band;svg.appendChild(txt);
+  });
+  const line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',cx);line.setAttribute('y1',0);line.setAttribute('x2',cx);line.setAttribute('y2',totalH);
+  line.setAttribute('stroke','#1d3148');line.setAttribute('stroke-width','1');svg.appendChild(line);
+  wrap.appendChild(svg);
+  if(ov){const leg=document.createElement('div');leg.style.cssText='display:flex;justify-content:center;gap:10px;font-size:9px;color:rgba(143,168,191,0.4);margin-top:4px';leg.innerHTML='<span>── 2021</span><span>╌╌ 2011</span>';wrap.appendChild(leg);}
+  return wrap;
+}
+
+function makeDiffPyr(kA,kB,dA,dB){
+  // Shows (A - B) per band, total population share
+  // Positive = A has more, negative = B has more
+  const mA=META[kA],mB=META[kB];
+  const barH=10,gap=2,totalH=BANDS.length*(barH+gap);
+  const svgW=180,maxDiff=2.0;
+  const halfW=(svgW-20)/2,cx=svgW/2;
+  const ns='http://www.w3.org/2000/svg';
+  const wrap=document.createElement('div');
+  wrap.className='pyramid-item';
+  wrap.style.minWidth='140px';
+  wrap.innerHTML=`<div style="text-align:center;margin-bottom:6px">
+    <span style="font-size:9px;color:rgba(200,220,235,0.4);letter-spacing:.05em;text-transform:uppercase">Difference</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:8px;margin-bottom:2px;padding:0 4px">
+    <span style="color:${mA.color}">◀ ${mA.label}</span>
+    <span style="color:${mB.color}">${mB.label} ▶</span>
+  </div>`;
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('width','100%');svg.setAttribute('viewBox',`0 0 ${svgW} ${totalH}`);
+  svg.style.cssText='display:block;overflow:visible';
+
+  BANDS.forEach((band,i)=>{
+    const y=(BANDS.length-1-i)*(barH+gap);
+    // combined % (m+f) for each island per band
+    const totA=dA.m[i]+dA.f[i];
+    const totB=dB.m[i]+dB.f[i];
+    const diff=totA-totB;
+    const barW=Math.min(Math.abs(diff)/maxDiff*halfW, halfW);
+    const fill=diff>0?mA.color:mB.color;
+    const x=diff>0?cx-barW:cx;
+    const r=document.createElementNS(ns,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',barW);r.setAttribute('height',barH);
+    r.setAttribute('fill',fill);r.setAttribute('opacity','0.75');r.setAttribute('rx','1');
+    svg.appendChild(r);
+    // band label
+    const txt=document.createElementNS(ns,'text');
+    txt.setAttribute('x',cx);txt.setAttribute('y',y+barH*0.74);txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('fill','rgba(143,168,191,0.3)');txt.setAttribute('font-size','6.5');
+    txt.textContent=band;svg.appendChild(txt);
+  });
+  // centre line
+  const line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',cx);line.setAttribute('y1',0);line.setAttribute('x2',cx);line.setAttribute('y2',totalH);
+  line.setAttribute('stroke','#1d3148');line.setAttribute('stroke-width','1');svg.appendChild(line);
+  wrap.appendChild(svg);
+  const leg=document.createElement('div');
+  leg.style.cssText='text-align:center;font-size:9px;color:rgba(143,168,191,0.35);margin-top:4px;line-height:1.4';
+  leg.textContent='% point difference per band';wrap.appendChild(leg);
+  return wrap;
+}
+
+// ── STRUCTURE ─────────────────────────────────────────────────────────────────
+function setStrYear(y,btn){
+  strYear=y;
+  ['2011','2021'].forEach(x=>document.getElementById('str-'+x).classList.toggle('active',+x===y));
+  document.getElementById('str-year-label').textContent=y+' census data';
+  renderStructure();
+}
+function setStrIsland(k,btn){
+  strIsland=k;
+  document.querySelectorAll('#tab-structure .pill:not(#str-2011):not(#str-2021)').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderStructure();
+}
+function renderStructure(){
+  const keys=strIsland==='all'?['iom','jersey','guernsey','uk']:[strIsland];
+  const yr=strYear;
+  const cards=document.getElementById('strCards');
+  cards.innerHTML='';
+  keys.forEach(k=>{
+    const s=STR[k][yr],m=META[k];
+    const d=document.createElement('div');d.className='card';d.style.borderTop=`2px solid ${m.color}`;
+    d.innerHTML=`<div class="card-label">${m.label}</div>
+      <div class="card-value" style="color:${m.color}">${(s.ret/s.work*100).toFixed(1)}%</div>
+      <div class="card-sub">aged dep. ratio · ${yr}</div>
+      <div style="margin-top:6px;font-size:10px;color:var(--text-f)">65+: ${s.ret}% &nbsp;|&nbsp; 15–64: ${s.work}%</div>`;
+    cards.appendChild(d);
+  });
+  if(strCI)strCI.destroy();
+  const cats=['Pre-school (0–4)','School age (5–14)','Working age (15–64)','Retirement age (65+)'];
+  strCI=new Chart(document.getElementById('strChart'),{
+    type:'bar',
+    data:{labels:cats,datasets:keys.map(k=>({
+      label:META[k].label,
+      data:[STR[k][yr].pre,STR[k][yr].school,STR[k][yr].work,STR[k][yr].ret],
+      backgroundColor:META[k].color+'55',borderColor:META[k].color,borderWidth:1,borderRadius:2,
+    }))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#0d1b2a',borderColor:'rgba(78,201,168,0.25)',borderWidth:1,
+        titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
+        callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
+      }},
+      scales:{
+        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc},border:{color:'#1d3148'}},
+        y:{min:0,max:75,ticks:{color:tc,font:{size:10},callback:v=>v+'%'},grid:{color:gc},border:{color:'#1d3148'}}
+      }
+    }
+  });
+}
+
+// ── PROJECTIONS ───────────────────────────────────────────────────────────────
+function setScenario(s,btn){
+  scenario=s;
+  ['nil','400','800'].forEach(x=>document.getElementById('scen-'+x).classList.toggle('active',x===s));
+  renderProjections();
+}
+function renderProjections(){
+  if(projCI)projCI.destroy();
+  projCI=new Chart(document.getElementById('projChart'),{
+    type:'line',
+    data:{labels:PROJ_L,datasets:[
+      {label:'Isle of Man (est.)',data:PROJ.iom,borderColor:'#4ec9a8',pointBackgroundColor:'#4ec9a8',pointRadius:4,borderWidth:2,borderDash:[6,3],fill:false,tension:0.3},
+      {label:'Jersey',data:PROJ['jersey_'+scenario],borderColor:'#f5a623',pointBackgroundColor:'#f5a623',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
+      {label:'Guernsey',data:PROJ.gue,borderColor:'#e06b6b',pointBackgroundColor:'#e06b6b',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
+      {label:'UK',data:PROJ.uk,borderColor:'#8fa8bf',pointBackgroundColor:'#8fa8bf',pointRadius:3,borderWidth:1.5,borderDash:[4,3],fill:false,tension:0.3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#0d1b2a',borderColor:'rgba(78,201,168,0.25)',borderWidth:1,
+        titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
+        callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
+      }},
+      scales:{
+        x:{type:'linear',min:2021,max:2040,
+           ticks:{color:tc,font:{size:10},stepSize:5,maxRotation:0,callback:v=>[2021,2025,2030,2035,2040].includes(v)?v:''},
+           grid:{color:gc},border:{color:'#1d3148'}},
+        y:{min:45,max:80,ticks:{color:tc,font:{size:10},callback:v=>v+'%',stepSize:5},
+           grid:{color:gc},border:{color:'#1d3148'},
+           title:{display:true,text:'Total dependency ratio',color:tc,font:{size:10}}}
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initDepChart();updateYearDisplay();renderPyramids();
+  renderStructure();
+});
+</script>
+</body>
+</html>
