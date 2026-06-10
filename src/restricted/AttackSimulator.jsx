@@ -125,9 +125,26 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
   const usePublished = dataMode === "published";
   const steps = [];
 
+  // ── 1. Area ──
+  if (!area) return steps;
 
+  const areaPop = ISLANDS[island]?.areas.find(a => a.name === area)?.population ?? 0;
+  const areaCount = usePublished ? getAreaTotal(island, area) : (() => {
+    const rows = attackLookup.filter(r => r.island === island && r.area === area);
+    return rows.reduce((s, r) => s + r.count, 0);
+  })();
 
-  let currentPool = areaCount;
+  if (activeQIs.includes("area")) {
+    steps.push({
+      qi: "area",
+      label: "Area identified",
+      desc: `${area}, ${ISLANDS[island].name}`,
+      count: areaCount,
+      dataType: usePublished ? (island === "iom" ? "published_exact" : "modelled_estimate") : "synthetic",
+      source: QI_DEFINITIONS.area.source,
+      citation: QI_DEFINITIONS.area.censusTable,
+    });
+  }
 
   let currentPool = areaCount;
 
@@ -177,24 +194,27 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
 
     if (activeQIs.includes("manx_language") && manxSpeaker) {
       // Age breakdown within Manx speakers not published — apply island-wide age rate
-      const islandTotal = Object.values(IOM_CENSUS_CELLS).reduce((s, a) =>
-        s + (a[ageBand]?.All ?? 0), 0);
-      count = Math.round(currentPool * (islandTotal / ISLANDS[island].population));
+      const islandAgeCells = IOM_CENSUS_CELLS;
+      const islandTotal = Object.values(islandAgeCells).reduce((s, area) =>
+        s + (area[ageBand]?.All ?? 0), 0);
+      const islandPop = ISLANDS[island].population;
+      const ageRate = islandTotal / islandPop;
+      count = Math.round(currentPool * ageRate);
       dataType = "modelled_estimate";
     } else if (activeQIs.includes("ethnicity_nonwhite") && nonWhiteEthnicity) {
       // Age breakdown within non-white not published — apply island-wide rate
-      const islandTotal = Object.values(IOM_CENSUS_CELLS).reduce((s, a) =>
-        s + (a[ageBand]?.All ?? 0), 0);
+      const islandAgeCells = IOM_CENSUS_CELLS;
+      const islandTotal = Object.values(islandAgeCells).reduce((s, area) =>
+        s + (area[ageBand]?.All ?? 0), 0);
       count = Math.round(currentPool * (islandTotal / ISLANDS[island].population));
       dataType = "modelled_estimate";
-    } else if (hasIomCells) {
-      // Always use published census cells for IoM age/sex — regardless of data mode
+    } else if (usePublished && island === "iom") {
       count = getCensusCount(island, area, ageBand, null);
       dataType = "published_exact";
     } else {
       const s = getSyntheticCount(island, area, ageBand, null, null, null);
       count = s.n2;
-      dataType = "modelled_estimate";
+      dataType = usePublished ? "modelled_estimate" : "synthetic";
     }
 
     steps.push({
@@ -221,18 +241,20 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
       // Apply ~50/50 sex split as approximation (no published cross-tab)
       count = Math.round(currentPool * 0.5);
       dataType = "modelled_estimate";
-    } else if (hasIomCells && ageBand) {
-      // Always use published census cells for IoM — regardless of data mode
+    } else if (usePublished && island === "iom" && ageBand) {
       count = getCensusCount(island, area, ageBand, sex);
       dataType = "published_exact";
-    } else if (hasIomCells && !ageBand) {
+    } else if (usePublished && island === "iom" && !ageBand) {
+      // Sex without age — use area totals from cells
       const areaCells = IOM_CENSUS_CELLS[area];
-      count = Object.values(areaCells).reduce((s, bands) => s + (bands[sex] ?? 0), 0);
+      count = areaCells
+        ? Object.values(areaCells).reduce((s, bands) => s + (bands[sex] ?? 0), 0)
+        : Math.round(currentPool * 0.5);
       dataType = "published_exact";
     } else {
       const s = getSyntheticCount(island, area, ageBand, sex, null, null);
       count = s.n3;
-      dataType = "modelled_estimate";
+      dataType = usePublished ? "modelled_estimate" : "synthetic";
     }
 
     steps.push({
