@@ -147,6 +147,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span style="border-left:2px solid rgba(78,201,168,0.4);padding-left:6px">IoM finance sector boom 1986–2006 drove steeper growth than Channel Islands</span>
       <span style="border-left:2px solid rgba(245,166,35,0.4);padding-left:6px">Jersey grew 20% 2001–2021; IoM grew just 10%</span>
       <span style="border-left:2px solid rgba(224,107,107,0.4);padding-left:6px">Guernsey broadly flat since 1991</span>
+      <span style="border-left:2px solid rgba(200,220,235,0.2);padding-left:6px;font-style:italic">All (1821–) view indexes all series to 100 at start year for comparable growth rates</span>
     </div>
 
     <div class="plain-box" id="plain-pop2" style="margin-top:14px">
@@ -971,44 +972,42 @@ function renderPopChart() {
 
   const maxYear = 2026;
   const minYear = maxYear - popRange;
+  const useIndex = popRange >= 200; // index to 100 at start year for long view
   const gc = 'rgba(255,255,255,0.05)', tc = 'rgba(200,220,235,0.5)';
 
   const islandMeta = {
     iom:      { label:'Isle of Man', color:'#4ec9a8' },
     jersey:   { label:'Jersey',      color:'#f5a623' },
     guernsey: { label:'Guernsey',    color:'#e06b6b' },
+    uk:       { label:'UK',          color:'#8fa8bf' },
   };
 
-  function filterData(pairs) {
-    return pairs
-      .filter(([y]) => y >= minYear && y <= maxYear)
-      .map(([y, v]) => ({ x: y, y: v }));
+  function filterPairs(pairs) {
+    return pairs.filter(([y]) => y >= minYear && y <= maxYear);
   }
 
-  function pointStyles(pairs) {
-    return pairs
-      .filter(([y]) => y >= minYear && y <= maxYear)
-      .map(([y]) => POP_EST_YEARS.has(y) ? 'circle' : 'circle');
+  function toIndexed(pairs) {
+    const filtered = filterPairs(pairs);
+    if (!filtered.length) return [];
+    const base = filtered[0][1];
+    return filtered.map(([y, v]) => ({ x: y, y: parseFloat((v / base * 100).toFixed(1)) }));
   }
 
-  function pointRadius(pairs) {
-    return pairs
-      .filter(([y]) => y >= minYear && y <= maxYear)
-      .map(([y]) => 4);
-  }
-
-  function borderDash(pairs) {
-    // Make the segment to 2026 dashed
-    return undefined;
+  function toAbsolute(pairs) {
+    return filterPairs(pairs).map(([y, v]) => ({ x: y, y: v }));
   }
 
   const datasets = [];
+  const allKeys = useIndex
+    ? [...popIslands, ...(showUK ? ['uk'] : [])]
+    : [...popIslands];
 
-  // Island datasets (left axis)
-  [...popIslands].forEach(key => {
+  allKeys.forEach(key => {
     const meta = islandMeta[key];
-    const data = filterData(POP_DATA[key]);
-    // Separate solid (actual) and estimated (2026) points
+    const raw = POP_DATA[key];
+    const data = useIndex ? toIndexed(raw) : toAbsolute(raw);
+    const isUK = key === 'uk';
+
     datasets.push({
       label: meta.label,
       data,
@@ -1016,24 +1015,24 @@ function renderPopChart() {
       backgroundColor: meta.color,
       pointBackgroundColor: data.map(d => POP_EST_YEARS.has(d.x) ? 'transparent' : meta.color),
       pointBorderColor: meta.color,
-      pointRadius: data.map(d => POP_EST_YEARS.has(d.x) ? 5 : 4),
+      pointRadius: data.map(d => POP_EST_YEARS.has(d.x) ? 5 : isUK ? 3 : 4),
       pointBorderWidth: data.map(d => POP_EST_YEARS.has(d.x) ? 2 : 1),
-      borderWidth: 2.5,
+      borderWidth: isUK ? 1.5 : 2.5,
       tension: 0.3,
       spanGaps: false,
-      yAxisID: 'y',
+      yAxisID: (!useIndex && isUK) ? 'y2' : 'y',
       segment: {
         borderDash: ctx => {
-          const x = ctx.p1.parsed.x;
-          return x >= 2021 ? [5,4] : undefined;
+          if (isUK && !useIndex) return ctx.p1.parsed.x >= 2021 ? [3,2] : [5,4];
+          return ctx.p1.parsed.x >= 2021 ? [5,4] : undefined;
         }
       }
     });
   });
 
-  // UK dataset (right axis)
-  if (showUK) {
-    const ukData = filterData(POP_DATA.uk);
+  // UK on separate axis only in absolute (non-indexed) mode
+  if (!useIndex && showUK) {
+    const ukData = toAbsolute(POP_DATA.uk);
     datasets.push({
       label: 'UK (millions)',
       data: ukData,
@@ -1043,30 +1042,35 @@ function renderPopChart() {
       pointBorderColor: '#8fa8bf',
       pointRadius: 3,
       borderWidth: 1.5,
-      borderDash: [5,4],
       tension: 0.3,
       spanGaps: false,
       yAxisID: 'y2',
-      segment: {
-        borderDash: ctx => ctx.p1.parsed.x >= 2021 ? [3,2] : [5,4],
-      }
+      segment: { borderDash: ctx => ctx.p1.parsed.x >= 2021 ? [3,2] : [5,4] }
     });
+    // Remove the one we added in allKeys loop (it was added as y axis)
+    const idx = datasets.findIndex(d => d.label === 'UK' && d.yAxisID === 'y');
+    if (idx > -1) datasets.splice(idx, 1);
   }
+
+  const yLabel = useIndex ? 'Index (start year = 100)' : 'Population';
+  const yCallback = useIndex
+    ? v => v
+    : v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v;
 
   const scales = {
     x: {
       type: 'linear', min: minYear, max: maxYear,
-      ticks: { color: tc, font: { size: 10 }, stepSize: popRange > 100 ? 25 : 10, maxRotation: 0, callback: v => v },
+      ticks: { color: tc, font: { size: 10 }, stepSize: popRange >= 200 ? 25 : popRange > 75 ? 10 : 10, maxRotation: 0, callback: v => v },
       grid: { color: gc }, border: { color: '#1d3148' }
     },
     y: {
-      ticks: { color: tc, font: { size: 10 }, callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v },
+      ticks: { color: tc, font: { size: 10 }, callback: yCallback },
       grid: { color: gc }, border: { color: '#1d3148' },
-      title: { display: true, text: 'Population', color: tc, font: { size: 10 } }
+      title: { display: true, text: yLabel, color: tc, font: { size: 10 } }
     }
   };
 
-  if (showUK) {
+  if (!useIndex && showUK) {
     scales.y2 = {
       position: 'right',
       ticks: { color: '#8fa8bf', font: { size: 10 }, callback: v => v + 'M' },
@@ -1075,6 +1079,16 @@ function renderPopChart() {
       title: { display: true, text: 'UK (millions)', color: '#8fa8bf', font: { size: 10 } }
     };
   }
+
+  // Tooltip label
+  const tooltipLabel = useIndex
+    ? ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)} (index)${POP_EST_YEARS.has(ctx.parsed.x) ? ' ~' : ''}`
+    : ctx => {
+        const v = ctx.parsed.y;
+        const est = POP_EST_YEARS.has(ctx.parsed.x) ? ' ~' : '';
+        if (ctx.dataset.yAxisID === 'y2') return ` ${ctx.dataset.label}: ${v.toFixed(1)}M${est}`;
+        return ` ${ctx.dataset.label}: ${v >= 1000 ? v.toLocaleString() : v}${est}`;
+      };
 
   popCI = new Chart(document.getElementById('popChart'), {
     type: 'line',
@@ -1088,14 +1102,7 @@ function renderPopChart() {
           backgroundColor: '#0d1b2a',
           borderColor: 'rgba(78,201,168,0.25)', borderWidth: 1,
           titleColor: tc, bodyColor: 'rgba(200,220,235,0.85)', padding: 10,
-          callbacks: {
-            label: ctx => {
-              const v = ctx.parsed.y;
-              const est = POP_EST_YEARS.has(ctx.parsed.x) ? ' ~' : '';
-              if (ctx.dataset.yAxisID === 'y2') return ` ${ctx.dataset.label}: ${v.toFixed(1)}M${est}`;
-              return ` ${ctx.dataset.label}: ${v >= 1000 ? v.toLocaleString() : v}${est}`;
-            }
-          }
+          callbacks: { label: tooltipLabel }
         }
       },
       scales
