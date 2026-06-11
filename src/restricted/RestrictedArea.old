@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { AttackSimulator } from "./AttackSimulator";
+import { KBATool } from "./KBATool";
 
 export function RestrictedArea() {
   const { user, signOut } = useAuth();
+  const [tool, setTool] = useState("attack");
+
+  const tools = [
+    { id:"attack", label:"Attack Simulator" },
+    { id:"kba",    label:"KBA Tool" },
+    // Future tools added here:
+    // { id:"datajoin", label:"🔴 Jersey Data Join" },
+  ];
 
   return (
     <div>
@@ -39,8 +48,23 @@ export function RestrictedArea() {
         </div>
       </div>
 
-      <AttackSimulator/>
+      {/* Tool tabs */}
+      <div style={{ display:"flex", gap:0, marginBottom:16, borderBottom:"1px solid #1e293b" }}>
+        {tools.map(({ id, label }) => (
+          <button key={id} onClick={() => setTool(id)} style={{
+            padding:"7px 14px", border:"none", background:"none", cursor:"pointer",
+            color: tool === id ? "#a78bfa" : "#64748b",
+            borderBottom: tool === id ? "2px solid #a78bfa" : "2px solid transparent",
+            fontSize:12, fontWeight: tool === id ? 600 : 400,
+            marginBottom:-1, whiteSpace:"nowrap",
+          }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tool === "attack" && <AttackSimulator/>}
+      {tool === "kba"    && <KBATool/>}
     </div>
   );
 }
-

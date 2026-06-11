@@ -5,28 +5,28 @@ import {
 } from "../data/constants";
 import attackLookup from "../data/attackLookup.json";
 
-// -- Jersey sensitive data (2021 census published figures) ---------------------
+// ── Jersey sensitive data (2021 census published figures) ─────────────────────
 // Sexual orientation: island-wide ~3.2% LGB+
 // Long-term health condition: island-wide ~19.8%
-// Religion: island-wide -- Christian 46%, No religion 37%, Other 6%, Not stated 11%
+// Religion: island-wide — Christian 46%, No religion 37%, Other 6%, Not stated 11%
 const JSY_SENSITIVE = {
   sexual_orientation: {
     lgbplus_p: 0.032,
     label: "LGB+ sexual orientation",
-    source: "Jersey 2021 Census, Table P09 -- Sexual Orientation",
+    source: "Jersey 2021 Census, Table P09 — Sexual Orientation",
     badge: "published_exact",
     note: "Jersey is the only Crown Dependency to collect sexual orientation data in the census.",
   },
   health_condition: {
     condition_p: 0.198,
     label: "Long-term health condition / disability",
-    source: "Jersey 2021 Census, Table P11 -- Long-term Health Conditions",
+    source: "Jersey 2021 Census, Table P11 — Long-term Health Conditions",
     badge: "published_exact",
     note: "~19.8% of Jersey residents reported a long-term health condition or disability.",
   },
 };
 
-// -- Styles --------------------------------------------------------------------
+// ── Styles ────────────────────────────────────────────────────────────────────
 const S = {
   select: {
     width:"100%", background:"#0f172a", border:"1px solid #334155",
@@ -40,7 +40,7 @@ const S = {
   card:  { background:"#1e293b", borderRadius:10, padding:20 },
 };
 
-// -- Data badge ----------------------------------------------------------------
+// ── Data badge ────────────────────────────────────────────────────────────────
 function DataBadge({ type }) {
   const cfg = {
     published_exact:   { label:"Published exact",   color:"#22c55e", bg:"#052e16" },
@@ -56,9 +56,41 @@ function DataBadge({ type }) {
   );
 }
 
-// QIPill removed -- inline render used instead
+// ── QI pill ───────────────────────────────────────────────────────────────────
+function QIPill({ qi, active, available, islandKey, onToggle }) {
+  const def = QI_DEFINITIONS[qi];
+  const wrongIsland = def.iomOnly && islandKey !== "iom";
+  const jsyOnly = def.jsyOnly && islandKey !== "jsy";
+  const locked = (!available || wrongIsland || jsyOnly) && !active;
+  const lockedReason = wrongIsland ? "IoM only"
+    : jsyOnly ? "Jersey only — not available for other islands"
+    : def.additionalDataNote ? "Requires Additional Data mode"
+    : null;
 
-// -- Count helpers -------------------------------------------------------------
+  return (
+    <button
+      onClick={() => !locked && onToggle(qi)}
+      title={locked ? lockedReason : (def.description || def.label)}
+      style={{
+        padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:600,
+        border:`1px solid ${active ? "#60a5fa" : locked ? "#1e293b" : "#334155"}`,
+        background: active ? "#1d4ed8" : locked ? "#0a0f1a" : "#1e293b",
+        color: active ? "#fff" : locked ? "#334155" : "#94a3b8",
+        cursor: locked ? "not-allowed" : "pointer",
+        transition:"all 0.15s",
+        display:"flex", alignItems:"center", gap:5,
+      }}
+    >
+      {def.label}
+      {locked && <span style={{ fontSize:9, color:"#475569" }}>🔒</span>}
+      {!locked && def.requiresAdditionalData && (
+        <span style={{ fontSize:9, color: active ? "#93c5fd" : "#64748b" }}>~</span>
+      )}
+    </button>
+  );
+}
+
+// ── Count helpers ─────────────────────────────────────────────────────────────
 function getCensusCount(island, area, ageBand, sex) {
   if (island !== "iom") return null;
   const areaCells = IOM_CENSUS_CELLS[area];
@@ -97,7 +129,7 @@ function getSyntheticCount(island, area, ageBand, sex, occupation, hhSize) {
   return { n1, n2, n3, n4, n5 };
 }
 
-// -- Step builder --------------------------------------------------------------
+// ── Step builder ──────────────────────────────────────────────────────────────
 function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
                       manxSpeaker, nonWhiteEthnicity,
                       jsySexualOrientation, jsyHealthCondition,
@@ -110,7 +142,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
   const steps = [];
   let currentPool = areaCount;
 
-  // Step 1 -- Area
+  // Step 1 — Area
   steps.push({
     qi: "area",
     label: "Area / Parish selected",
@@ -121,7 +153,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     citation: hasIomCells ? QI_DEFINITIONS.area.censusTable : null,
   });
 
-  // Step 2 -- Manx language (IoM only)
+  // Step 2 — Manx language (IoM only)
   if (activeQIs.includes("manx_language") && manxSpeaker && island === "iom") {
     const langData = IOM_MANX_LANGUAGE[area];
     if (langData) {
@@ -140,7 +172,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     }
   }
 
-  // Step 3 -- Non-white ethnicity (IoM only)
+  // Step 3 — Non-white ethnicity (IoM only)
   if (activeQIs.includes("ethnicity_nonwhite") && nonWhiteEthnicity && island === "iom") {
     const ethData = IOM_ETHNICITY[area];
     if (ethData) {
@@ -160,7 +192,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     }
   }
 
-  // Step 4 -- Jersey: sexual orientation
+  // Step 4 — Jersey: sexual orientation
   if (activeQIs.includes("jsy_sexual_orientation") && jsySexualOrientation && island === "jsy") {
     const lgbCount = Math.round(currentPool * JSY_SENSITIVE.sexual_orientation.lgbplus_p);
     steps.push({
@@ -176,7 +208,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = lgbCount;
   }
 
-  // Step 5 -- Jersey: long-term health condition
+  // Step 5 — Jersey: long-term health condition
   if (activeQIs.includes("jsy_health_condition") && jsyHealthCondition && island === "jsy") {
     const healthCount = Math.round(currentPool * JSY_SENSITIVE.health_condition.condition_p);
     steps.push({
@@ -192,7 +224,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = healthCount;
   }
 
-  // Step 6 -- Age band
+  // Step 6 — Age band
   if (activeQIs.includes("age") && ageBand) {
     let count, dataType;
     const hasSpecialFilter = (activeQIs.includes("manx_language") && manxSpeaker)
@@ -223,7 +255,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = Math.max(0, count);
   }
 
-  // Step 7 -- Sex
+  // Step 7 — Sex
   if (activeQIs.includes("sex") && sex) {
     let count, dataType;
     const hasSpecialFilter = (activeQIs.includes("manx_language") && manxSpeaker)
@@ -255,7 +287,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = Math.max(0, count);
   }
 
-  // Step 8 -- Occupation (synthetic)
+  // Step 8 — Occupation (synthetic)
   if (activeQIs.includes("occupation") && occupation) {
     const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
     steps.push({
@@ -267,7 +299,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = s.n4;
   }
 
-  // Step 9 -- Household size (synthetic)
+  // Step 9 — Household size (synthetic)
   if (activeQIs.includes("hh_size") && hhSize) {
     const prevOcc = activeQIs.includes("occupation") ? occupation : null;
     const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
@@ -283,7 +315,7 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
   return steps;
 }
 
-// -- Step colour ---------------------------------------------------------------
+// ── Step colour ───────────────────────────────────────────────────────────────
 function stepColor(count, isLast) {
   if (!isLast) return "#64748b";
   if (count <= 1)  return "#ef4444";
@@ -292,29 +324,7 @@ function stepColor(count, isLast) {
   return "#22c55e";
 }
 
-// -- Jersey-only QI definitions (not in constants.js) -------------------------
-const JSY_QI_DEFS = {
-  jsy_sexual_orientation: {
-    id: "jsy_sexual_orientation",
-    label: "Sexual Orientation",
-    jsyOnly: true,
-    requiresAdditionalData: false,
-    description: "Jersey only -- LGB+ identification from 2021 Jersey census",
-  },
-  jsy_health_condition: {
-    id: "jsy_health_condition",
-    label: "Health Condition",
-    jsyOnly: true,
-    requiresAdditionalData: false,
-    description: "Jersey only -- long-term health condition / disability from 2021 Jersey census",
-  },
-};
-
-// All QI keys and definitions merged -- stable module-level reference
-const ALL_QI_KEYS = [...Object.keys(QI_DEFINITIONS), ...Object.keys(JSY_QI_DEFS)];
-const ALL_QI_DEFS = { ...QI_DEFINITIONS, ...JSY_QI_DEFS };
-
-// -- Main component ------------------------------------------------------------
+// ── Main component ────────────────────────────────────────────────────────────
 export function AttackSimulator() {
   const [island,              setIsland]              = useState("iom");
   const [area,                setArea]                = useState("");
@@ -337,15 +347,14 @@ export function AttackSimulator() {
   const useAdditional = dataMode === "additional";
 
   const availableQIs = useMemo(() => {
-    return ALL_QI_KEYS.filter(qi => {
-      const def = ALL_QI_DEFS[qi];
-      if (!def) return false;
-      if (def.iomOnly && island !== "iom") return false;
-      if (def.jsyOnly && island !== "jsy") return false;
+    return Object.keys(QI_DEFINITIONS).filter(qi => {
+      const def = QI_DEFINITIONS[qi];
+      if (def.iomOnly  && island !== "iom") return false;
+      if (def.jsyOnly  && island !== "jsy") return false;
       if (def.requiresAdditionalData && !useAdditional) return false;
       return true;
     });
-  }, [dataMode, island, useAdditional]);
+  }, [dataMode, island]);
 
   const handleDataModeChange = (mode) => {
     setDataMode(mode);
@@ -370,13 +379,11 @@ export function AttackSimulator() {
   };
 
   const toggleQI = (qi) => {
-    const isAdding = !activeQIs.includes(qi);
-    setActiveQIs(prev => isAdding ? [...prev, qi] : prev.filter(q => q !== qi));
-    // Auto-enable toggle when pill is activated; disable when removed
-    if (qi === "manx_language")          setManxSpeaker(isAdding);
-    if (qi === "ethnicity_nonwhite")     setNonWhiteEthnicity(isAdding);
-    if (qi === "jsy_sexual_orientation") setJsySexualOrientation(isAdding);
-    if (qi === "jsy_health_condition")   setJsyHealthCondition(isAdding);
+    setActiveQIs(prev => prev.includes(qi) ? prev.filter(q => q !== qi) : [...prev, qi]);
+    if (qi === "manx_language")           setManxSpeaker(false);
+    if (qi === "ethnicity_nonwhite")      setNonWhiteEthnicity(false);
+    if (qi === "jsy_sexual_orientation")  setJsySexualOrientation(false);
+    if (qi === "jsy_health_condition")    setJsyHealthCondition(false);
     setSteps([]); setHasRun(false);
   };
 
@@ -402,6 +409,26 @@ export function AttackSimulator() {
   const finalCount = steps.length > 0 ? steps[steps.length - 1].count : null;
   const manxContext = area && island === "iom" ? IOM_MANX_LANGUAGE[area]  : null;
   const ethContext  = area && island === "iom" ? IOM_ETHNICITY[area]       : null;
+
+  // All QI keys to show — merge standard + Jersey sensitive
+  const allQIKeys = [
+    ...Object.keys(QI_DEFINITIONS),
+    "jsy_sexual_orientation",
+    "jsy_health_condition",
+  ];
+
+  // Fake QI_DEFINITIONS entries for Jersey sensitive
+  const jsyQIDefs = {
+    jsy_sexual_orientation: {
+      label:"Sexual Orientation", jsyOnly:true, requiresAdditionalData:false,
+      description:"Jersey only — LGB+ identification from 2021 census",
+    },
+    jsy_health_condition: {
+      label:"Health Condition", jsyOnly:true, requiresAdditionalData:false,
+      description:"Jersey only — long-term health condition / disability from 2021 census",
+    },
+  };
+  const allQIDefs = { ...QI_DEFINITIONS, ...jsyQIDefs };
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
@@ -446,57 +473,39 @@ export function AttackSimulator() {
         <div style={{ color:"#94a3b8", fontSize:11, fontWeight:600, marginBottom:8,
           textTransform:"uppercase", letterSpacing:"0.05em" }}>Quasi-Identifiers</div>
         <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:6 }}>
-          {ALL_QI_KEYS.map(qi => {
-            const def = ALL_QI_DEFS[qi];
-            const isActive = activeQIs.includes(qi);
-            const isIomOnly = !!def.iomOnly;
-            const isJsyOnly = !!def.jsyOnly;
-            // Use availableQIs as the single source of truth for lock state
-            const locked = !isActive && !availableQIs.includes(qi);
-
-            const islandTag = isIomOnly
-              ? { label:"IoM only",    color:"#3b82f6", bg:"rgba(59,130,246,0.12)" }
-              : isJsyOnly
-              ? { label:"Jersey only", color:"#f59e0b", bg:"rgba(245,158,11,0.12)" }
-              : null;
-
-            const activeColor  = isJsyOnly ? "#f59e0b" : isIomOnly ? "#3b82f6" : "#60a5fa";
-            const activeBg     = isJsyOnly ? "#1c0f00" : isIomOnly ? "#0f1f3d" : "#1d4ed8";
-            const unlockedBorder = isJsyOnly ? "#78350f" : isIomOnly ? "#1e3a5f" : "#334155";
-
+          {allQIKeys.map(qi => {
+            const def = allQIDefs[qi];
+            const wrongIsland = def.iomOnly && island !== "iom";
+            const jsyOnly     = def.jsyOnly && island !== "jsy";
+            const locked      = (!availableQIs.includes(qi) || wrongIsland || jsyOnly) && !activeQIs.includes(qi);
             return (
               <button key={qi} onClick={() => !locked && toggleQI(qi)}
                 title={locked
-                  ? (isIomOnly ? "Isle of Man only" : isJsyOnly ? "Jersey only" : "Requires Additional Data mode")
+                  ? (wrongIsland ? "IoM only" : jsyOnly ? "Jersey only" : "Requires Additional Data")
                   : (def.description || def.label)}
                 style={{
                   padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:600,
-                  border:`1px solid ${isActive ? activeColor : locked ? "#1e293b" : unlockedBorder}`,
-                  background: isActive ? activeBg : locked ? "#0a0f1a" : "#1e293b",
-                  color: isActive ? "#fff" : locked ? "#1e293b" : "#94a3b8",
+                  border:`1px solid ${activeQIs.includes(qi) ? "#60a5fa" : locked ? "#1e293b" : "#334155"}`,
+                  background: activeQIs.includes(qi) ? "#1d4ed8" : locked ? "#0a0f1a" : "#1e293b",
+                  color: activeQIs.includes(qi) ? "#fff" : locked ? "#334155" : "#94a3b8",
                   cursor: locked ? "not-allowed" : "pointer", transition:"all 0.15s",
                   display:"flex", alignItems:"center", gap:5,
                 }}>
                 {def.label}
-                {locked && <span style={{ fontSize:9, color:"#334155" }}>locked</span>}
+                {locked && <span style={{ fontSize:9, color:"#475569" }}>🔒</span>}
                 {!locked && def.requiresAdditionalData && (
-                  <span style={{ fontSize:9, color: isActive ? "#93c5fd" : "#64748b" }}>~</span>
+                  <span style={{ fontSize:9, color: activeQIs.includes(qi) ? "#93c5fd" : "#64748b" }}>~</span>
                 )}
-                {islandTag && (
-                  <span style={{ fontSize:9, fontWeight:700,
-                    color: locked ? "#334155" : islandTag.color,
-                    background: locked ? "transparent" : islandTag.bg,
-                    padding:"1px 4px", borderRadius:3 }}>
-                    {islandTag.label}
-                  </span>
+                {def.jsyOnly && !locked && (
+                  <span style={{ fontSize:9, color:"#f59e0b" }}>JSY</span>
                 )}
               </button>
             );
           })}
         </div>
         <div style={{ color:"#475569", fontSize:10 }}>
-          ~ synthetic model &nbsp;.&nbsp; ? requires Additional Data or island-specific &nbsp;.&nbsp;
-          <span style={{ color:"#f59e0b" }}>JSY</span> Jersey only -- sensitive census data
+          ~ synthetic model &nbsp;·&nbsp; 🔒 requires Additional Data or island-specific &nbsp;·&nbsp;
+          <span style={{ color:"#f59e0b" }}>JSY</span> Jersey only — sensitive census data
         </div>
       </div>
 
@@ -593,7 +602,7 @@ export function AttackSimulator() {
             context={ethContext && area && !manxSpeaker
               ? `${area}: ~${ethContext.non_white_estimate} estimated non-white residents (${((ethContext.non_white_estimate/ethContext.area_pop)*100).toFixed(1)}%)`
               : null}
-            warning="Area-level estimate -- proportional distribution from island total. Rural figures likely overstated."
+            warning="Area-level estimate — proportional distribution from island total. Rural figures likely overstated."
           />
         )}
 
@@ -641,7 +650,7 @@ export function AttackSimulator() {
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:2 }}>
                       <span style={{ color:"#f1f5f9", fontWeight:600, fontSize:13 }}>
-                        Step {i+1} -- {s.label}
+                        Step {i+1} — {s.label}
                       </span>
                       <DataBadge type={s.dataType}/>
                     </div>
@@ -651,12 +660,12 @@ export function AttackSimulator() {
                     )}
                     <div style={{ color:"#475569", fontSize:11, marginTop:4 }}>
                       <strong style={{ color:"#334155" }}>Source:</strong>{" "}{s.source}
-                      {s.citation && <span style={{ color:"#3b82f6" }}> -- {s.citation}</span>}
+                      {s.citation && <span style={{ color:"#3b82f6" }}> — {s.citation}</span>}
                     </div>
                     {s.caveat && (
                       <div style={{ color:"#92400e", fontSize:10, marginTop:4, background:"#1c1003",
                         padding:"4px 8px", borderRadius:4, border:"1px solid #92400e44" }}>
-                        ! {s.caveat}
+                        ⚠ {s.caveat}
                       </div>
                     )}
                   </div>
@@ -680,8 +689,8 @@ export function AttackSimulator() {
                 color: finalCount <= 1 ? "#ef4444" : finalCount <= 5 ? "#f97316" : "#eab308",
                 fontWeight:800, fontSize:15, marginBottom:8,
               }}>
-                {finalCount <= 1 ? "! Single individual identified"
-                  : finalCount <= 5 ? `! ${finalCount} candidates -- near-unique`
+                {finalCount <= 1 ? "⚠ Single individual identified"
+                  : finalCount <= 5 ? `⚠ ${finalCount} candidates — near-unique`
                   : `${finalCount} candidates remain`}
               </div>
               <div style={{ color:"#94a3b8", fontSize:12, lineHeight:1.7 }}>
@@ -698,7 +707,7 @@ export function AttackSimulator() {
                 border:`1px solid ${dataMode === "published" ? "#22c55e44" : "#a78bfa44"}`,
               }}>
                 {dataMode === "published"
-                  ? "v Published census data only. All counts directly citable."
+                  ? "✓ Published census data only. All counts directly citable."
                   : "~ Steps marked Synthetic model use population model counts, not published exact figures."}
               </div>
             </div>
@@ -709,7 +718,7 @@ export function AttackSimulator() {
   );
 }
 
-// -- Reusable toggle filter row ------------------------------------------------
+// ── Reusable toggle filter row ────────────────────────────────────────────────
 function ToggleFilter({ label, badge, disabled, disabledReason, active, onToggle, context, warning, warningColor }) {
   return (
     <div style={{
@@ -722,7 +731,7 @@ function ToggleFilter({ label, badge, disabled, disabledReason, active, onToggle
         <div style={{ ...S.label, marginBottom:2, display:"flex", gap:6, alignItems:"center", flexWrap:"wrap" }}>
           {label} <DataBadge type={badge}/>
           {disabled && disabledReason && (
-            <span style={{ color:"#475569", fontSize:9 }}>-- {disabledReason}</span>
+            <span style={{ color:"#475569", fontSize:9 }}>— {disabledReason}</span>
           )}
         </div>
         {context && !disabled && (
@@ -730,7 +739,7 @@ function ToggleFilter({ label, badge, disabled, disabledReason, active, onToggle
         )}
         {warning && !disabled && (
           <div style={{ color: warningColor || "#92400e", fontSize:10, marginTop:3 }}>
-            ! {warning}
+            ⚠ {warning}
           </div>
         )}
       </div>
@@ -745,7 +754,7 @@ function ToggleFilter({ label, badge, disabled, disabledReason, active, onToggle
           fontSize:12, fontWeight:600,
           cursor: disabled ? "not-allowed" : "pointer",
         }}>
-        {active ? "Yes" : "Filter on"}
+        {active ? "✓ Yes" : "Filter on"}
       </button>
     </div>
   );

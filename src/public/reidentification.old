@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import { LoginScreen } from "./auth/LoginScreen";
 import { RestrictedArea } from "./restricted/RestrictedArea";
@@ -24,8 +24,6 @@ const C = {
 const TABS = [
   { id: "home",       label: "About"                },
   { id: "reid",       label: "Re-identification"    },
-  { id: "kanon",      label: "k-Anonymity"          },
-  { id: "areas",      label: "Area Rankings"        },
   { id: "demog",      label: "Demographics Explorer"},
   { id: "restricted", label: "🔒 Restricted"        },
 ];
@@ -48,7 +46,7 @@ function HomeTab() {
   );
 
   return (
-    <div style={{ maxWidth: 780, margin: "0 auto" }}>
+    <div style={{ maxWidth: 780 }}>
 
       {/* Hero statement */}
       <div style={{
@@ -165,50 +163,6 @@ function HomeTab() {
   );
 }
 
-// ── Centred wrapper for login / loading ───────────────────────────────────────
-function Centred({ children }) {
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", justifyContent: "center",
-      minHeight: "60vh",
-    }}>
-      {children}
-    </div>
-  );
-}
-
-// ── Auto-sizing iframe ────────────────────────────────────────────────────────
-function AutoIframe({ src, title }) {
-  const [height, setHeight] = useState("calc(100vh - 120px)");
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.data && e.data.type === "resize") {
-        setHeight(e.data.height + "px");
-      }
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, []);
-
-  return (
-    <iframe
-      ref={ref}
-      src={src}
-      title={title}
-      scrolling="no"
-      style={{
-        width: "100%",
-        height,
-        border: "none",
-        display: "block",
-        overflow: "hidden",
-      }}
-    />
-  );
-}
-
 // ── Main app ──────────────────────────────────────────────────────────────────
 function AppContent() {
   const { user, authLoading } = useAuth();
@@ -216,78 +170,37 @@ function AppContent() {
 
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
+  const iframeStyle = {
+    width: "100%",
+    height: "calc(100vh - 120px)",
+    border: "none",
+    display: "block",
+  };
+
   const tabContent = {
     home: <HomeTab />,
 
     reid: (
-      <AutoIframe
+      <iframe
         src="/reidentification.html"
+        style={iframeStyle}
         title="Re-identification Observatory"
       />
     ),
 
-    kanon: (
-      <AutoIframe
-        src="/kanonymity.html"
-        title="k-Anonymity Explorer"
-      />
-    ),
-
-    areas: (
-      <AutoIframe
-        src="/arealist.html"
-        title="Area Risk Rankings"
-      />
-    ),
-
     demog: (
-      <AutoIframe
+      <iframe
         src="/demographics-explorer.html"
+        style={iframeStyle}
         title="Demographics Explorer"
       />
     ),
 
     restricted: authLoading
-      ? <Centred><div style={{ color: C.muted, fontSize: 12 }}>Loading…</div></Centred>
+      ? <div style={{ color: C.muted, padding: 20, fontSize: 12 }}>Loading…</div>
       : user
         ? <RestrictedArea />
-        : <Centred><LoginScreen /></Centred>,
-  };
-
-  // Tab button style — note: backgroundImage:none prevents the select arrow
-  // SVG from the global stylesheet bleeding into <button> elements
-  const tabBtn = (t) => {
-    const isRestricted = t.id === "restricted";
-    const isActive = tab === t.id;
-    return (
-      <button
-        key={t.id}
-        onClick={() => setTab(t.id)}
-        style={{
-          padding: "7px 14px",
-          border: "none",
-          background: "none",
-          backgroundImage: "none",
-          cursor: "pointer",
-          fontFamily: "'Inter', system-ui, sans-serif",
-          appearance: "none",
-          WebkitAppearance: "none",
-          color: isRestricted
-            ? (isActive ? C.purple : "#7c3aed")
-            : (isActive ? C.blue : C.muted),
-          borderBottom: isActive
-            ? `2px solid ${isRestricted ? C.purple : C.blue}`
-            : "2px solid transparent",
-          fontSize: 12,
-          fontWeight: isActive ? 600 : 400,
-          marginBottom: -1,
-          whiteSpace: "nowrap",
-          transition: "color 0.15s",
-        }}
-      >
-        {t.label}
-      </button>
-    );
+        : <LoginScreen />,
   };
 
   return (
@@ -329,14 +242,40 @@ function AppContent() {
         borderBottom: `1px solid ${C.border}`,
         overflowX: "auto",
       }}>
-        {TABS.map(t => tabBtn(t))}
+        {TABS.map(t => {
+          const isRestricted = t.id === "restricted";
+          const isActive = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              style={{
+                padding: "7px 14px",
+                border: "none", background: "none", cursor: "pointer",
+                color: isRestricted
+                  ? (isActive ? C.purple : "#7c3aed")
+                  : (isActive ? C.blue : C.muted),
+                borderBottom: isActive
+                  ? `2px solid ${isRestricted ? C.purple : C.blue}`
+                  : "2px solid transparent",
+                fontSize: 12,
+                fontWeight: isActive ? 600 : 400,
+                marginBottom: -1,
+                whiteSpace: "nowrap",
+                transition: "color 0.15s",
+              }}
+            >
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Content — iframes get full bleed, other tabs centred with max-width */}
+      {/* Content — iframes get full bleed, other tabs get max-width */}
       <div style={
-        tab === "reid" || tab === "demog" || tab === "kanon" || tab === "areas"
+        tab === "reid" || tab === "demog"
           ? {}
-          : { maxWidth: 960, margin: "0 auto" }
+          : { maxWidth: 960 }
       }>
         {tabContent[tab]}
       </div>

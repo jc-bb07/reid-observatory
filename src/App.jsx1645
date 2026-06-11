@@ -24,8 +24,6 @@ const C = {
 const TABS = [
   { id: "home",       label: "About"                },
   { id: "reid",       label: "Re-identification"    },
-  { id: "kanon",      label: "k-Anonymity"          },
-  { id: "areas",      label: "Area Rankings"        },
   { id: "demog",      label: "Demographics Explorer"},
   { id: "restricted", label: "🔒 Restricted"        },
 ];
@@ -226,20 +224,6 @@ function AppContent() {
       />
     ),
 
-    kanon: (
-      <AutoIframe
-        src="/kanonymity.html"
-        title="k-Anonymity Explorer"
-      />
-    ),
-
-    areas: (
-      <AutoIframe
-        src="/arealist.html"
-        title="Area Risk Rankings"
-      />
-    ),
-
     demog: (
       <AutoIframe
         src="/demographics-explorer.html"
@@ -334,7 +318,7 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, other tabs centred with max-width */}
       <div style={
-        tab === "reid" || tab === "demog" || tab === "kanon" || tab === "areas"
+        tab === "reid" || tab === "demog"
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>

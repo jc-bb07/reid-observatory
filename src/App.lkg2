@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import { LoginScreen } from "./auth/LoginScreen";
 import { RestrictedArea } from "./restricted/RestrictedArea";
@@ -24,8 +24,6 @@ const C = {
 const TABS = [
   { id: "home",       label: "About"                },
   { id: "reid",       label: "Re-identification"    },
-  { id: "kanon",      label: "k-Anonymity"          },
-  { id: "areas",      label: "Area Rankings"        },
   { id: "demog",      label: "Demographics Explorer"},
   { id: "restricted", label: "🔒 Restricted"        },
 ];
@@ -179,31 +177,15 @@ function Centred({ children }) {
 
 // ── Auto-sizing iframe ────────────────────────────────────────────────────────
 function AutoIframe({ src, title }) {
-  const [height, setHeight] = useState("calc(100vh - 120px)");
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.data && e.data.type === "resize") {
-        setHeight(e.data.height + "px");
-      }
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, []);
-
   return (
     <iframe
-      ref={ref}
       src={src}
       title={title}
-      scrolling="no"
       style={{
         width: "100%",
-        height,
+        height: "calc(100vh - 100px)",
         border: "none",
         display: "block",
-        overflow: "hidden",
       }}
     />
   );
@@ -223,20 +205,6 @@ function AppContent() {
       <AutoIframe
         src="/reidentification.html"
         title="Re-identification Observatory"
-      />
-    ),
-
-    kanon: (
-      <AutoIframe
-        src="/kanonymity.html"
-        title="k-Anonymity Explorer"
-      />
-    ),
-
-    areas: (
-      <AutoIframe
-        src="/arealist.html"
-        title="Area Risk Rankings"
       />
     ),
 
@@ -334,8 +302,8 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, other tabs centred with max-width */}
       <div style={
-        tab === "reid" || tab === "demog" || tab === "kanon" || tab === "areas"
-          ? {}
+        tab === "reid" || tab === "demog"
+          ? { margin: "0 -24px" }
           : { maxWidth: 960, margin: "0 auto" }
       }>
         {tabContent[tab]}
