@@ -305,58 +305,28 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = Math.max(0, count);
   }
 
-  // Detect if sensitive filters have narrowed the pool beyond what the lookup knows about
-  const hasSensitiveFilter = (activeQIs.includes("manx_language") && manxSpeaker)
-    || (activeQIs.includes("ethnicity_nonwhite") && nonWhiteEthnicity)
-    || (activeQIs.includes("jsy_sexual_orientation") && !!jsySexualOrientation)
-    || (activeQIs.includes("jsy_health_condition") && !!jsyHealthCondition)
-    || !!jsyVingtaine;
-
   // Step 8 -- Occupation (synthetic)
   if (activeQIs.includes("occupation") && occupation) {
-    let count, caveat;
-    if (hasSensitiveFilter) {
-      // Lookup doesn't know about sensitive filters -- apply occupation proportion to current pool
-      const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
-      const basePool = getSyntheticCount(island, area, ageBand, sex, null, null).n3 || 1;
-      const occP = s.n4 / basePool;
-      count = Math.max(1, Math.round(currentPool * occP));
-      caveat = "Occupation proportion applied to sensitive-filter pool. " + QI_DEFINITIONS.occupation.additionalDataNote;
-    } else {
-      const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
-      count = s.n4;
-      caveat = QI_DEFINITIONS.occupation.additionalDataNote;
-    }
+    const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
     steps.push({
       qi: "occupation", label: "Occupation applied", desc: `Filter to ${occupation}`,
-      count: count, dataType: "synthetic",
-      source: QI_DEFINITIONS.occupation.source, citation: null, caveat,
+      count: s.n4, dataType: "synthetic",
+      source: QI_DEFINITIONS.occupation.source, citation: null,
+      caveat: QI_DEFINITIONS.occupation.additionalDataNote,
     });
-    currentPool = count;
+    currentPool = s.n4;
   }
 
   // Step 9 -- Household size (synthetic)
   if (activeQIs.includes("hh_size") && hhSize) {
-    let count, caveat;
-    if (hasSensitiveFilter) {
-      // Apply household size proportion to current pool
-      const prevOcc = activeQIs.includes("occupation") ? occupation : null;
-      const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
-      const basePool = getSyntheticCount(island, area, ageBand, sex, prevOcc, null).n4 || 1;
-      const hhP = s.n5 / basePool;
-      count = Math.max(1, Math.round(currentPool * hhP));
-      caveat = "Household size proportion applied to sensitive-filter pool. " + QI_DEFINITIONS.hh_size.additionalDataNote;
-    } else {
-      const prevOcc = activeQIs.includes("occupation") ? occupation : null;
-      const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
-      count = s.n5;
-      caveat = QI_DEFINITIONS.hh_size.additionalDataNote;
-    }
+    const prevOcc = activeQIs.includes("occupation") ? occupation : null;
+    const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
     steps.push({
       qi: "hh_size", label: "Household size applied",
       desc: `Filter to household of ${hhSize}${hhSize === "6" ? " or more" : ""}`,
-      count: count, dataType: "synthetic",
-      source: QI_DEFINITIONS.hh_size.source, citation: null, caveat,
+      count: s.n5, dataType: "synthetic",
+      source: QI_DEFINITIONS.hh_size.source, citation: null,
+      caveat: QI_DEFINITIONS.hh_size.additionalDataNote,
     });
   }
 

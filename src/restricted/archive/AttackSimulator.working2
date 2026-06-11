@@ -305,58 +305,28 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
     currentPool = Math.max(0, count);
   }
 
-  // Detect if sensitive filters have narrowed the pool beyond what the lookup knows about
-  const hasSensitiveFilter = (activeQIs.includes("manx_language") && manxSpeaker)
-    || (activeQIs.includes("ethnicity_nonwhite") && nonWhiteEthnicity)
-    || (activeQIs.includes("jsy_sexual_orientation") && !!jsySexualOrientation)
-    || (activeQIs.includes("jsy_health_condition") && !!jsyHealthCondition)
-    || !!jsyVingtaine;
-
   // Step 8 -- Occupation (synthetic)
   if (activeQIs.includes("occupation") && occupation) {
-    let count, caveat;
-    if (hasSensitiveFilter) {
-      // Lookup doesn't know about sensitive filters -- apply occupation proportion to current pool
-      const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
-      const basePool = getSyntheticCount(island, area, ageBand, sex, null, null).n3 || 1;
-      const occP = s.n4 / basePool;
-      count = Math.max(1, Math.round(currentPool * occP));
-      caveat = "Occupation proportion applied to sensitive-filter pool. " + QI_DEFINITIONS.occupation.additionalDataNote;
-    } else {
-      const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
-      count = s.n4;
-      caveat = QI_DEFINITIONS.occupation.additionalDataNote;
-    }
+    const s = getSyntheticCount(island, area, ageBand, sex, occupation, null);
     steps.push({
       qi: "occupation", label: "Occupation applied", desc: `Filter to ${occupation}`,
-      count: count, dataType: "synthetic",
-      source: QI_DEFINITIONS.occupation.source, citation: null, caveat,
+      count: s.n4, dataType: "synthetic",
+      source: QI_DEFINITIONS.occupation.source, citation: null,
+      caveat: QI_DEFINITIONS.occupation.additionalDataNote,
     });
-    currentPool = count;
+    currentPool = s.n4;
   }
 
   // Step 9 -- Household size (synthetic)
   if (activeQIs.includes("hh_size") && hhSize) {
-    let count, caveat;
-    if (hasSensitiveFilter) {
-      // Apply household size proportion to current pool
-      const prevOcc = activeQIs.includes("occupation") ? occupation : null;
-      const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
-      const basePool = getSyntheticCount(island, area, ageBand, sex, prevOcc, null).n4 || 1;
-      const hhP = s.n5 / basePool;
-      count = Math.max(1, Math.round(currentPool * hhP));
-      caveat = "Household size proportion applied to sensitive-filter pool. " + QI_DEFINITIONS.hh_size.additionalDataNote;
-    } else {
-      const prevOcc = activeQIs.includes("occupation") ? occupation : null;
-      const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
-      count = s.n5;
-      caveat = QI_DEFINITIONS.hh_size.additionalDataNote;
-    }
+    const prevOcc = activeQIs.includes("occupation") ? occupation : null;
+    const s = getSyntheticCount(island, area, ageBand, sex, prevOcc, hhSize);
     steps.push({
       qi: "hh_size", label: "Household size applied",
       desc: `Filter to household of ${hhSize}${hhSize === "6" ? " or more" : ""}`,
-      count: count, dataType: "synthetic",
-      source: QI_DEFINITIONS.hh_size.source, citation: null, caveat,
+      count: s.n5, dataType: "synthetic",
+      source: QI_DEFINITIONS.hh_size.source, citation: null,
+      caveat: QI_DEFINITIONS.hh_size.additionalDataNote,
     });
   }
 
@@ -595,7 +565,7 @@ export function AttackSimulator() {
 
           <div>
             <div style={S.label}>Area / Parish</div>
-            <select value={area} onChange={e => { setArea(e.target.value); setJsyVingtaine(""); resetResults(); }} style={S.select}>
+            <select value={area} onChange={e => { setArea(e.target.value); resetResults(); }} style={S.select}>
               <option value="">Select area...</option>
               {[...islandData.areas].sort((a,b) => a.population - b.population).map(a => (
                 <option key={a.name} value={a.name}>{a.name} (pop {a.population.toLocaleString()})</option>
@@ -677,7 +647,7 @@ export function AttackSimulator() {
           />
         )}
 
-        {/* Jersey: vingtaine selector -- filtered by selected parish */}
+        {/* Jersey: vingtaine selector */}
         {island === "jersey" && (
           <div style={{ marginBottom:12 }}>
             <div style={{ ...S.label, display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
@@ -689,31 +659,16 @@ export function AttackSimulator() {
               <span style={{ fontSize:10, color:"#475569", fontWeight:400,
                 textTransform:"none", letterSpacing:0 }}>optional -- finer than parish</span>
             </div>
-            {(() => {
-              // Parishes that have vingtaine breakdowns
-              const vingtaineParishes = ["St Helier", "St Saviour", "St Brelade"];
-              // Filter by selected area if it has vingtaines, otherwise show all
-              const filtered = area && vingtaineParishes.includes(area)
-                ? JSY_VINGTAINES_SIM.filter(v => v.parish === area)
-                : area && !vingtaineParishes.includes(area)
-                ? [] // selected parish has no vingtaines
-                : JSY_VINGTAINES_SIM; // no parish selected -- show all
-              return (
-                <select value={jsyVingtaine}
-                  onChange={e => { setJsyVingtaine(e.target.value); resetResults(); }}
-                  style={S.select}>
-                  <option value="">-- skip (use parish level) --</option>
-                  {filtered.length === 0 && area && (
-                    <option value="" disabled>No vingtaine breakdown for {area}</option>
-                  )}
-                  {filtered.map(v => (
-                    <option key={v.name} value={v.name}>
-                      {v.name} (pop ~{v.pop.toLocaleString()})
-                    </option>
-                  ))}
-                </select>
-              );
-            })()}
+            <select value={jsyVingtaine}
+              onChange={e => { setJsyVingtaine(e.target.value); resetResults(); }}
+              style={S.select}>
+              <option value="">-- skip (use parish level) --</option>
+              {JSY_VINGTAINES_SIM.map(v => (
+                <option key={v.name} value={v.name}>
+                  {v.name} (pop ~{v.pop.toLocaleString()})
+                </option>
+              ))}
+            </select>
           </div>
         )}
 
