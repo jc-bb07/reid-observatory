@@ -250,7 +250,7 @@ function AppContent() {
 
     iomfiscal: (
 	      <AutoIframe
-         src="/iomg-sankeyvis1.hmtl"
+         src="/iomg-sankeyvis1.html
          title="IoM Government Fiscal Flows"
       />
     ),
