@@ -27,6 +27,7 @@ const TABS = [
   { id: "kanon",      label: "k-Anonymity"          },
   { id: "areas",      label: "Area Rankings"        },
   { id: "demog",      label: "Demographics Explorer"},
+  { id: "iomfiscal",  label: "IOM Fiscal Flows"     },
   { id: "restricted", label: "🔒 Restricted"        },
 ];
 
@@ -244,6 +245,13 @@ function AppContent() {
       <AutoIframe
         src="/demographics-explorer.html"
         title="Demographics Explorer"
+      />
+    ),
+
+    iomfiscal: (
+	      <AutoIframe
+         src="/iomg-sankeyvis1.hmtl"
+         title="IoM Government Fiscal Flows"
       />
     ),
 
