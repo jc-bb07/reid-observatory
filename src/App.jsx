@@ -155,11 +155,11 @@ function HomeTab() {
       {/* Contact */}
       <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
         Prototype v0.1 · Built at{" "}
-        <a href="https://gynennym.com" target="_blank"
-          style={{ color: C.muted, textDecoration: "none" }}>gynennym.com</a>
+        <a href="https://observatory.coalfinch.com" target="_blank"
+          style={{ color: C.muted, textDecoration: "none" }}>observatory.coalfinch.com</a>
         {" "}· Contact:{" "}
-        <a href="mailto:hello@gynennym.com"
-          style={{ color: C.muted, textDecoration: "none" }}>hello@gynennym.com</a>
+        <a href="mailto:observatory@coalfinch.com"
+          style={{ color: C.muted, textDecoration: "none" }}>observatory@coalfinch.com</a>
       </div>
 
     </div>
