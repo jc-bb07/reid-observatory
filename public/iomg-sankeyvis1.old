@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IoM Fiscal Flows · Crown Dependencies Re-Identification Observatory</title>
+<title>IoM Government — Sources & Uses of Funds</title>
 <style>
 :root {
-  --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
-  --border:#1e293b; --border2:#334155;
-  --text:#e2e8f0; --muted:#64748b; --muted2:#475569;
-  --blue:#60a5fa; --blue-dim:rgba(96,165,250,0.15);
-  --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa;
-  --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b;
-  /* sankey-specific */
-  --teal:#34d399; --violet:#a78bfa;
-  --font: 'Inter', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
+  --bg: #08080e;
+  --surface: #0f0f18;
+  --surface2: #16161f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e2e2ec;
+  --text-muted: #a0a0c4;
+  --text-dim: #6868a0;
+  --blue: #4a9eff;
+  --blue-dim: rgba(74,158,255,0.15);
+  --teal: #2dd4a0;
+  --amber: #f5a623;
+  --violet: #9b7cf4;
+  --font: -apple-system,'SF Pro Display','Segoe UI',system-ui,sans-serif;
+  --mono: 'SF Mono','Fira Code',monospace;
   --radius: 6px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -139,22 +142,7 @@ h1 em{font-style:normal;color:var(--text-muted);font-weight:400}
   .stocks-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:480px){.stocks-grid{grid-template-columns:1fr}}
-
-    .page-footer {
-      margin-top: 32px; padding-top: 16px;
-      border-top: 1px solid var(--border2);
-      font-size: 10px; color: var(--muted2);
-      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .page-footer a { color: var(--muted); text-decoration: none; }
-    .page-footer a:hover { color: var(--text); }
-  </style>
-  <!-- Privacy-friendly analytics by Plausible -->
-  <script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
-  <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
-  </script>
+</style>
 </head>
 <body>
 <div id="app">
@@ -207,11 +195,6 @@ h1 em{font-style:normal;color:var(--text-muted);font-weight:400}
 <div id="tt"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <div class="page-footer">
-    <span>observatory.coalfinch.com · Crown Dependencies Re-Identification Observatory · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
-    <span>IoM fiscal flows · 2024–25 · <a href="https://coalfinch.com">Coalfinch</a></span>
-  </div>
-
 <script>
 // ═══════════════════════════════════════════════════════════════════════════════
 // DATA

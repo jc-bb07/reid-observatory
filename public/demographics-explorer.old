@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Demographics Explorer · Crown Dependencies Re-Identification Observatory</title>
+<title>Crown Dependencies · Population Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?Inter:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root {
-      --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
-      --border:#1e293b; --border2:#334155;
-      --text:#e2e8f0; --muted:#64748b; --muted2:#475569;
-      --blue:#60a5fa; --blue-dim:#1d4ed8;
-      --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --orange:#fb923c;
-      --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b;
-      /* demographics aliases */
-      --accent:#60a5fa; --text-m:#64748b; --text-f:#475569;
-    }
+:root{
+  --bg:#0d1b2a;--surface:#112036;--surface2:#0f1c30;
+  --border:#1d3148;--border2:#243d58;
+  --text:#e8edf2;--text-m:#8fa8bf;--text-f:#4d6a82;
+  --iom:#4ec9a8;--jer:#f5a623;--gue:#e06b6b;--uk:#8fa8bf;
+  --accent:#4ec9a8;
+}
 html{scroll-behavior:smooth}
-body{background:var(--bg); color:var(--text);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
+body{background:var(--bg);color:var(--text);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
 .page{max-width:900px;margin:0 auto;padding:32px 20px}
 .section{margin-bottom:52px}
 .eyebrow{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-f);margin-bottom:12px;}
@@ -83,23 +78,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .footer-brand{font-family:'Inter',sans-serif;color:var(--text-m);font-size:12px}
 @media(max-width:600px){.page{padding:20px 14px}.cards{grid-template-columns:1fr 1fr}.pyramid-item{min-width:130px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-
-    .page-footer {
-      margin-top: 32px; padding-top: 16px;
-      border-top: 1px solid var(--border2);
-      font-size: 10px; color: var(--muted2);
-      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .page-footer a { color: var(--muted); text-decoration: none; }
-    .page-footer a:hover { color: var(--text); }
-  </style>
+</style>
 <style>::-webkit-scrollbar{display:none!important}*{scrollbar-width:none!important}</style>
-  <!-- Privacy-friendly analytics by Plausible -->
-  <script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
-  <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
-  </script>
 </head>
 <body>
 <div class="page">
@@ -419,11 +399,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   </div>
 
 </div>
-
-  <div class="page-footer">
-    <span>observatory.coalfinch.com · Crown Dependencies Re-Identification Observatory · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
-    <span>Demographics explorer · 2021 census · <a href="https://coalfinch.com">Coalfinch</a></span>
-  </div>
 
 <script>
 const BANDS=["0–4","5–9","10–14","15–19","20–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60–64","65–69","70–74","75–79","80+"];
