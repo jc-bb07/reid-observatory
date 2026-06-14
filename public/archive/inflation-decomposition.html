@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IoM Inflation — Differential & Housing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{
+  --bg:#08080e; --sf:#0f0f18; --sf2:#16161f;
+  --b:rgba(255,255,255,.07); --b2:rgba(255,255,255,.13);
+  --tx:#e2e2ec; --txm:#a0a0c4; --txd:#5a5a84;
+  --iom:#4ec9a8; --uk:#7b9ff5; --hous:#e06b6b;
+  --pos:rgba(78,201,168,.12); --neg:rgba(123,159,245,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',system-ui,sans-serif;font-size:13px;line-height:1.5;}
+
+.hdr{padding:28px 32px 0;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.hdr h1{font-size:22px;font-weight:600;letter-spacing:-.5px;}
+.hdr p{font-size:12px;color:var(--txm);margin-top:3px;}
+.badge{font-size:10px;color:var(--txd);background:var(--sf2);border:1px solid var(--b);border-radius:4px;padding:3px 8px;letter-spacing:.5px;text-transform:uppercase;}
+
+.nav{padding:10px 32px 0;display:flex;gap:8px;flex-wrap:wrap;}
+.nav a{font-size:11px;color:var(--txd);text-decoration:none;padding:4px 10px;border:1px solid var(--b);border-radius:4px;background:var(--sf);transition:color .15s;}
+.nav a:hover{color:var(--txm);} .nav a.active{color:var(--txm);border-color:var(--b2);}
+
+.ctrl{padding:16px 32px 0;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;}
+.cg{display:flex;flex-direction:column;gap:5px;}
+.cl{font-size:10px;color:var(--txd);text-transform:uppercase;letter-spacing:.8px;font-weight:500;}
+.pills{display:flex;gap:4px;}
+.pill{padding:4px 11px;border-radius:20px;border:1px solid var(--b2);background:var(--sf);color:var(--txm);cursor:pointer;font-size:11.5px;font-weight:500;transition:all .15s;user-select:none;}
+.pill:hover{color:var(--tx);border-color:rgba(255,255,255,.22);}
+.pill.on{background:var(--sf2);border-color:var(--b2);color:var(--tx);}
+
+.rw{display:flex;flex-direction:column;gap:5px;min-width:260px;flex:1;}
+.rr{display:flex;align-items:center;gap:8px;}
+.ry{font-size:11px;color:var(--txm);min-width:62px;font-variant-numeric:tabular-nums;}
+.ry.r{text-align:right;}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--sf2);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--tx);border:2px solid var(--bg);cursor:pointer;}
+
+/* Cards */
+.cards{padding:14px 32px 0;display:flex;flex-wrap:wrap;gap:10px;}
+.card{background:var(--sf);border:1px solid var(--b);border-radius:6px;padding:10px 14px;min-width:140px;flex:1;}
+.ck{font-size:10px;color:var(--txd);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;}
+.cv{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
+.cs{font-size:10.5px;color:var(--txm);margin-top:2px;}
+
+/* Charts */
+.section{padding:18px 32px 0;font-size:10px;color:var(--txd);text-transform:uppercase;letter-spacing:1px;font-weight:500;}
+.co{padding:6px 32px 0;}
+svg{width:100%;display:block;}
+
+/* Legend */
+.leg{padding:8px 32px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txm);}
+.ll{width:18px;height:2px;border-radius:1px;}
+
+/* Tooltip */
+.tt{position:fixed;background:var(--sf2);border:1px solid var(--b2);border-radius:6px;padding:10px 14px;pointer-events:none;opacity:0;transition:opacity .1s;z-index:100;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.5);}
+.tt.vis{opacity:1;}
+.ttd{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--b);}
+.ttr{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:2px 0;font-size:11.5px;}
+.ttl{color:var(--txm);display:flex;align-items:center;gap:5px;}
+.ttv{font-weight:600;font-variant-numeric:tabular-nums;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.ttn{font-size:10px;color:var(--txd);margin-top:5px;padding-top:4px;border-top:1px solid var(--b);}
+
+/* Footer */
+.ftr{margin:18px 32px 28px;padding:12px 14px;background:var(--sf);border:1px solid var(--b);border-radius:6px;font-size:10.5px;color:var(--txd);line-height:1.7;}
+.ftr strong{color:var(--txm);}
+
+@media(max-width:600px){
+  .hdr,.ctrl,.co,.leg,.ftr,.cards,.nav,.section{padding-left:14px;padding-right:14px;}
+  .hdr h1{font-size:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>IoM vs UK — Differential &amp; Housing</h1>
+    <p>Monthly 12-month rates &nbsp;·&nbsp; 1989–2025</p>
+  </div>
+  <div class="badge">Fiscal Observatory</div>
+</div>
+
+<div class="nav">
+  <a href="inflation-explorer.html">Headline rates</a>
+  <a href="inflation-differential.html">Annual differential</a>
+  <a href="inflation-monthly.html">Monthly (all)</a>
+  <a href="inflation-decomposition.html" class="active">Differential &amp; housing</a>
+</div>
+
+<div class="ctrl">
+  <div class="cg">
+    <div class="cl">IoM series</div>
+    <div class="pills">
+      <div class="pill on" id="m-both" onclick="setMeas('both')">RPI→CPI</div>
+      <div class="pill"    id="m-rpi"  onclick="setMeas('rpi')">RPI only</div>
+      <div class="pill"    id="m-cpi"  onclick="setMeas('cpi')">CPI only</div>
+    </div>
+  </div>
+  <div class="cg rw">
+    <div class="cl">Timeline</div>
+    <div class="rr">
+      <span class="ry"   id="lf">Jan 1989</span>
+      <input type="range" id="rf" min="0" max="443" value="0"   oninput="onRange()">
+      <input type="range" id="rt" min="1" max="443" value="443" oninput="onRange()">
+      <span class="ry r" id="lt">Dec 2025</span>
+    </div>
+  </div>
+</div>
+
+<div class="cards" id="cards"></div>
+
+<!-- Chart 1: IoM minus UK -->
+<div class="section">Chart 1 — IoM inflation minus UK CPI (percentage points)</div>
+<div class="co"><svg id="svg1"></svg></div>
+<div class="leg" id="leg1"></div>
+
+<!-- Chart 2: Housing vs all-items -->
+<div class="section" style="margin-top:10px">Chart 2 — IoM housing (Group 04) vs IoM all-items CPI (2014+)</div>
+<div class="co"><svg id="svg2"></svg></div>
+<div class="leg" id="leg2"></div>
+
+<div class="tt" id="tt"></div>
+
+<div class="ftr">
+  <strong>Chart 1:</strong> IoM monthly 12-month rate minus UK CPI monthly 12-month rate.
+  Positive = IoM running hotter. Uses IoM RPI (Digest of Economic &amp; Social Statistics 2009, Table 4.2)
+  for 1977–2008 joined to IoM CPI (Statistics IoM Historic Datasets Dec 2025) from 2009.
+  UK = ONS D7G7 monthly CPI annual rate. Series break at Jan 2009 marked.<br><br>
+  <strong>Chart 2:</strong> IoM CPI Group 04 (Housing, water, electricity, gas &amp; other fuels) YoY%
+  against the IoM all-items CPI YoY%. Available from January 2014. The gap between the two lines
+  shows when housing costs are pulling the IoM basket above or below its general price level.
+  Note Group 04 bundles energy with shelter — it is not pure housing cost.
+</div>
+
+<script>
+const RAW = [{"d":"1977-03","y":1977,"mn":3,"iom":14.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-04","y":1977,"mn":4,"iom":14.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-05","y":1977,"mn":5,"iom":14.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-06","y":1977,"mn":6,"iom":14.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-07","y":1977,"mn":7,"iom":14.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-08","y":1977,"mn":8,"iom":13.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-09","y":1977,"mn":9,"iom":13.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-10","y":1977,"mn":10,"iom":13.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-11","y":1977,"mn":11,"iom":12.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1977-12","y":1977,"mn":12,"iom":11.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-01","y":1978,"mn":1,"iom":11.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-02","y":1978,"mn":2,"iom":10.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-03","y":1978,"mn":3,"iom":10.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-04","y":1978,"mn":4,"iom":9.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-05","y":1978,"mn":5,"iom":9.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-06","y":1978,"mn":6,"iom":9.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-07","y":1978,"mn":7,"iom":8.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-08","y":1978,"mn":8,"iom":8.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-09","y":1978,"mn":9,"iom":8.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-10","y":1978,"mn":10,"iom":8.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-11","y":1978,"mn":11,"iom":8.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1978-12","y":1978,"mn":12,"iom":8.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-01","y":1979,"mn":1,"iom":8.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-02","y":1979,"mn":2,"iom":8.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-03","y":1979,"mn":3,"iom":9.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-04","y":1979,"mn":4,"iom":9.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-05","y":1979,"mn":5,"iom":10.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-06","y":1979,"mn":6,"iom":10.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-07","y":1979,"mn":7,"iom":16.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-08","y":1979,"mn":8,"iom":18.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-09","y":1979,"mn":9,"iom":17.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-10","y":1979,"mn":10,"iom":17.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-11","y":1979,"mn":11,"iom":18.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1979-12","y":1979,"mn":12,"iom":18.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-01","y":1980,"mn":1,"iom":19.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-02","y":1980,"mn":2,"iom":20.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-03","y":1980,"mn":3,"iom":21.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-04","y":1980,"mn":4,"iom":22.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-05","y":1980,"mn":5,"iom":22.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-06","y":1980,"mn":6,"iom":22.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-07","y":1980,"mn":7,"iom":16.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-08","y":1980,"mn":8,"iom":15.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-09","y":1980,"mn":9,"iom":15.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-10","y":1980,"mn":10,"iom":14.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-11","y":1980,"mn":11,"iom":14.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1980-12","y":1980,"mn":12,"iom":14.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-01","y":1981,"mn":1,"iom":13.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-02","y":1981,"mn":2,"iom":12.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-03","y":1981,"mn":3,"iom":11.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-04","y":1981,"mn":4,"iom":12.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-05","y":1981,"mn":5,"iom":12.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-06","y":1981,"mn":6,"iom":11.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-07","y":1981,"mn":7,"iom":11.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-08","y":1981,"mn":8,"iom":11.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-09","y":1981,"mn":9,"iom":12.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-10","y":1981,"mn":10,"iom":12.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-11","y":1981,"mn":11,"iom":13.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1981-12","y":1981,"mn":12,"iom":12.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-01","y":1982,"mn":1,"iom":13.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-02","y":1982,"mn":2,"iom":12.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-03","y":1982,"mn":3,"iom":12.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-04","y":1982,"mn":4,"iom":9.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-05","y":1982,"mn":5,"iom":9.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-06","y":1982,"mn":6,"iom":9.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-07","y":1982,"mn":7,"iom":9.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-08","y":1982,"mn":8,"iom":9.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-09","y":1982,"mn":9,"iom":8.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-10","y":1982,"mn":10,"iom":8.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-11","y":1982,"mn":11,"iom":7.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1982-12","y":1982,"mn":12,"iom":7.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-01","y":1983,"mn":1,"iom":6.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-02","y":1983,"mn":2,"iom":6.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-03","y":1983,"mn":3,"iom":6.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-04","y":1983,"mn":4,"iom":6.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-05","y":1983,"mn":5,"iom":5.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-06","y":1983,"mn":6,"iom":4.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-07","y":1983,"mn":7,"iom":5.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-08","y":1983,"mn":8,"iom":4.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-09","y":1983,"mn":9,"iom":5.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-10","y":1983,"mn":10,"iom":4.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-11","y":1983,"mn":11,"iom":4.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1983-12","y":1983,"mn":12,"iom":4.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-01","y":1984,"mn":1,"iom":5.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-02","y":1984,"mn":2,"iom":5.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-03","y":1984,"mn":3,"iom":4.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-04","y":1984,"mn":4,"iom":5.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-05","y":1984,"mn":5,"iom":5.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-06","y":1984,"mn":6,"iom":5.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-07","y":1984,"mn":7,"iom":5.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-08","y":1984,"mn":8,"iom":6.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-09","y":1984,"mn":9,"iom":5.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-10","y":1984,"mn":10,"iom":5.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-11","y":1984,"mn":11,"iom":5.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1984-12","y":1984,"mn":12,"iom":5.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-01","y":1985,"mn":1,"iom":6.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-02","y":1985,"mn":2,"iom":6.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-03","y":1985,"mn":3,"iom":7.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-04","y":1985,"mn":4,"iom":7.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-05","y":1985,"mn":5,"iom":6.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-06","y":1985,"mn":6,"iom":6.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-07","y":1985,"mn":7,"iom":6.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-08","y":1985,"mn":8,"iom":5.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-09","y":1985,"mn":9,"iom":5.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-10","y":1985,"mn":10,"iom":5.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-11","y":1985,"mn":11,"iom":5.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1985-12","y":1985,"mn":12,"iom":5.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-01","y":1986,"mn":1,"iom":5.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-02","y":1986,"mn":2,"iom":4.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-03","y":1986,"mn":3,"iom":2.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-04","y":1986,"mn":4,"iom":2.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-05","y":1986,"mn":5,"iom":2.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-06","y":1986,"mn":6,"iom":1.9,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-07","y":1986,"mn":7,"iom":2.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-08","y":1986,"mn":8,"iom":2.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-09","y":1986,"mn":9,"iom":2.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-10","y":1986,"mn":10,"iom":2.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-11","y":1986,"mn":11,"iom":2.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1986-12","y":1986,"mn":12,"iom":2.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-01","y":1987,"mn":1,"iom":2.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-02","y":1987,"mn":2,"iom":3.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-03","y":1987,"mn":3,"iom":3.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-04","y":1987,"mn":4,"iom":3.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-05","y":1987,"mn":5,"iom":4.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-06","y":1987,"mn":6,"iom":4.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-07","y":1987,"mn":7,"iom":4.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-08","y":1987,"mn":8,"iom":5.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-09","y":1987,"mn":9,"iom":5.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-10","y":1987,"mn":10,"iom":5.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-11","y":1987,"mn":11,"iom":5.1,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1987-12","y":1987,"mn":12,"iom":4.8,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-01","y":1988,"mn":1,"iom":4.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-02","y":1988,"mn":2,"iom":4.5,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-03","y":1988,"mn":3,"iom":4.7,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-04","y":1988,"mn":4,"iom":5.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-05","y":1988,"mn":5,"iom":5.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-06","y":1988,"mn":6,"iom":5.0,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-07","y":1988,"mn":7,"iom":4.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-08","y":1988,"mn":8,"iom":4.3,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-09","y":1988,"mn":9,"iom":4.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-10","y":1988,"mn":10,"iom":4.4,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-11","y":1988,"mn":11,"iom":4.6,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1988-12","y":1988,"mn":12,"iom":5.2,"uk":null,"ser":"RPI","diff":null,"h04":null,"hdiff":null},{"d":"1989-01","y":1989,"mn":1,"iom":5.8,"uk":4.9,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1989-02","y":1989,"mn":2,"iom":6.0,"uk":5.0,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1989-03","y":1989,"mn":3,"iom":6.2,"uk":5.0,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"1989-04","y":1989,"mn":4,"iom":6.2,"uk":5.3,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1989-05","y":1989,"mn":5,"iom":6.3,"uk":5.3,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1989-06","y":1989,"mn":6,"iom":6.8,"uk":5.2,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"1989-07","y":1989,"mn":7,"iom":7.3,"uk":5.2,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"1989-08","y":1989,"mn":8,"iom":7.4,"uk":5.0,"ser":"RPI","diff":2.4,"h04":null,"hdiff":null},{"d":"1989-09","y":1989,"mn":9,"iom":7.5,"uk":5.2,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"1989-10","y":1989,"mn":10,"iom":7.8,"uk":5.5,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"1989-11","y":1989,"mn":11,"iom":7.6,"uk":5.5,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"1989-12","y":1989,"mn":12,"iom":7.7,"uk":5.5,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"1990-01","y":1990,"mn":1,"iom":7.9,"uk":5.7,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"1990-02","y":1990,"mn":2,"iom":8.0,"uk":5.9,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"1990-03","y":1990,"mn":3,"iom":8.2,"uk":6.0,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"1990-04","y":1990,"mn":4,"iom":8.6,"uk":6.4,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"1990-05","y":1990,"mn":5,"iom":8.7,"uk":6.8,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"1990-06","y":1990,"mn":6,"iom":8.4,"uk":6.9,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"1990-07","y":1990,"mn":7,"iom":8.3,"uk":6.8,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"1990-08","y":1990,"mn":8,"iom":9.1,"uk":7.7,"ser":"RPI","diff":1.4,"h04":null,"hdiff":null},{"d":"1990-09","y":1990,"mn":9,"iom":9.0,"uk":8.1,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1990-10","y":1990,"mn":10,"iom":9.8,"uk":8.1,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"1990-11","y":1990,"mn":11,"iom":9.5,"uk":7.8,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"1990-12","y":1990,"mn":12,"iom":9.1,"uk":7.6,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"1991-01","y":1991,"mn":1,"iom":8.3,"uk":7.1,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"1991-02","y":1991,"mn":2,"iom":8.3,"uk":7.0,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"1991-03","y":1991,"mn":3,"iom":7.9,"uk":6.9,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1991-04","y":1991,"mn":4,"iom":8.1,"uk":8.4,"ser":"RPI","diff":-0.3,"h04":null,"hdiff":null},{"d":"1991-05","y":1991,"mn":5,"iom":7.7,"uk":8.2,"ser":"RPI","diff":-0.5,"h04":null,"hdiff":null},{"d":"1991-06","y":1991,"mn":6,"iom":7.4,"uk":8.4,"ser":"RPI","diff":-1.0,"h04":null,"hdiff":null},{"d":"1991-07","y":1991,"mn":7,"iom":8.1,"uk":8.3,"ser":"RPI","diff":-0.2,"h04":null,"hdiff":null},{"d":"1991-08","y":1991,"mn":8,"iom":7.3,"uk":7.9,"ser":"RPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"1991-09","y":1991,"mn":9,"iom":6.9,"uk":7.1,"ser":"RPI","diff":-0.2,"h04":null,"hdiff":null},{"d":"1991-10","y":1991,"mn":10,"iom":6.5,"uk":6.8,"ser":"RPI","diff":-0.3,"h04":null,"hdiff":null},{"d":"1991-11","y":1991,"mn":11,"iom":6.5,"uk":7.1,"ser":"RPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"1991-12","y":1991,"mn":12,"iom":6.0,"uk":7.2,"ser":"RPI","diff":-1.2,"h04":null,"hdiff":null},{"d":"1992-01","y":1992,"mn":1,"iom":5.7,"uk":7.0,"ser":"RPI","diff":-1.3,"h04":null,"hdiff":null},{"d":"1992-02","y":1992,"mn":2,"iom":5.5,"uk":6.9,"ser":"RPI","diff":-1.4,"h04":null,"hdiff":null},{"d":"1992-03","y":1992,"mn":3,"iom":5.5,"uk":7.1,"ser":"RPI","diff":-1.6,"h04":null,"hdiff":null},{"d":"1992-04","y":1992,"mn":4,"iom":4.2,"uk":4.7,"ser":"RPI","diff":-0.5,"h04":null,"hdiff":null},{"d":"1992-05","y":1992,"mn":5,"iom":4.6,"uk":4.3,"ser":"RPI","diff":0.3,"h04":null,"hdiff":null},{"d":"1992-06","y":1992,"mn":6,"iom":4.8,"uk":3.8,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1992-07","y":1992,"mn":7,"iom":4.0,"uk":3.6,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1992-08","y":1992,"mn":8,"iom":3.6,"uk":3.0,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1992-09","y":1992,"mn":9,"iom":3.7,"uk":3.0,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"1992-10","y":1992,"mn":10,"iom":3.1,"uk":2.9,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1992-11","y":1992,"mn":11,"iom":3.3,"uk":2.6,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"1992-12","y":1992,"mn":12,"iom":3.2,"uk":2.6,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1993-01","y":1993,"mn":1,"iom":3.4,"uk":2.2,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"1993-02","y":1993,"mn":2,"iom":2.6,"uk":2.4,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1993-03","y":1993,"mn":3,"iom":2.5,"uk":2.5,"ser":"RPI","diff":0.0,"h04":null,"hdiff":null},{"d":"1993-04","y":1993,"mn":4,"iom":2.8,"uk":2.5,"ser":"RPI","diff":0.3,"h04":null,"hdiff":null},{"d":"1993-05","y":1993,"mn":5,"iom":1.8,"uk":2.5,"ser":"RPI","diff":-0.7,"h04":null,"hdiff":null},{"d":"1993-06","y":1993,"mn":6,"iom":1.7,"uk":2.4,"ser":"RPI","diff":-0.7,"h04":null,"hdiff":null},{"d":"1993-07","y":1993,"mn":7,"iom":1.6,"uk":2.6,"ser":"RPI","diff":-1.0,"h04":null,"hdiff":null},{"d":"1993-08","y":1993,"mn":8,"iom":2.0,"uk":2.9,"ser":"RPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"1993-09","y":1993,"mn":9,"iom":2.2,"uk":3.1,"ser":"RPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"1993-10","y":1993,"mn":10,"iom":2.5,"uk":2.6,"ser":"RPI","diff":-0.1,"h04":null,"hdiff":null},{"d":"1993-11","y":1993,"mn":11,"iom":2.1,"uk":2.3,"ser":"RPI","diff":-0.2,"h04":null,"hdiff":null},{"d":"1993-12","y":1993,"mn":12,"iom":2.2,"uk":2.4,"ser":"RPI","diff":-0.2,"h04":null,"hdiff":null},{"d":"1994-01","y":1994,"mn":1,"iom":2.1,"uk":2.7,"ser":"RPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"1994-02","y":1994,"mn":2,"iom":2.7,"uk":2.5,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1994-03","y":1994,"mn":3,"iom":2.4,"uk":2.2,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1994-04","y":1994,"mn":4,"iom":2.9,"uk":2.0,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1994-05","y":1994,"mn":5,"iom":3.0,"uk":2.0,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1994-06","y":1994,"mn":6,"iom":3.0,"uk":2.0,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1994-07","y":1994,"mn":7,"iom":3.0,"uk":1.7,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"1994-08","y":1994,"mn":8,"iom":2.8,"uk":1.9,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1994-09","y":1994,"mn":9,"iom":2.5,"uk":1.5,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1994-10","y":1994,"mn":10,"iom":2.2,"uk":1.5,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"1994-11","y":1994,"mn":11,"iom":2.2,"uk":1.8,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1994-12","y":1994,"mn":12,"iom":2.2,"uk":2.0,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1995-01","y":1995,"mn":1,"iom":2.6,"uk":2.4,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1995-02","y":1995,"mn":2,"iom":2.6,"uk":2.4,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1995-03","y":1995,"mn":3,"iom":3.1,"uk":2.6,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1995-04","y":1995,"mn":4,"iom":2.2,"uk":2.3,"ser":"RPI","diff":-0.1,"h04":null,"hdiff":null},{"d":"1995-05","y":1995,"mn":5,"iom":3.0,"uk":2.5,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1995-06","y":1995,"mn":6,"iom":3.0,"uk":2.6,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1995-07","y":1995,"mn":7,"iom":2.8,"uk":2.7,"ser":"RPI","diff":0.1,"h04":null,"hdiff":null},{"d":"1995-08","y":1995,"mn":8,"iom":2.9,"uk":2.6,"ser":"RPI","diff":0.3,"h04":null,"hdiff":null},{"d":"1995-09","y":1995,"mn":9,"iom":2.9,"uk":3.0,"ser":"RPI","diff":-0.1,"h04":null,"hdiff":null},{"d":"1995-10","y":1995,"mn":10,"iom":3.1,"uk":2.9,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1995-11","y":1995,"mn":11,"iom":3.2,"uk":2.8,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1995-12","y":1995,"mn":12,"iom":3.1,"uk":3.0,"ser":"RPI","diff":0.1,"h04":null,"hdiff":null},{"d":"1996-01","y":1996,"mn":1,"iom":3.1,"uk":2.6,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1996-02","y":1996,"mn":2,"iom":2.9,"uk":2.7,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1996-03","y":1996,"mn":3,"iom":3.1,"uk":2.6,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1996-04","y":1996,"mn":4,"iom":3.1,"uk":2.5,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1996-05","y":1996,"mn":5,"iom":2.9,"uk":2.3,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1996-06","y":1996,"mn":6,"iom":2.8,"uk":2.3,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1996-07","y":1996,"mn":7,"iom":3.1,"uk":2.2,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1996-08","y":1996,"mn":8,"iom":2.8,"uk":2.3,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1996-09","y":1996,"mn":9,"iom":2.6,"uk":2.3,"ser":"RPI","diff":0.3,"h04":null,"hdiff":null},{"d":"1996-10","y":1996,"mn":10,"iom":2.9,"uk":2.5,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1996-11","y":1996,"mn":11,"iom":2.9,"uk":2.6,"ser":"RPI","diff":0.3,"h04":null,"hdiff":null},{"d":"1996-12","y":1996,"mn":12,"iom":3.4,"uk":2.3,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"1997-01","y":1997,"mn":1,"iom":2.9,"uk":2.1,"ser":"RPI","diff":0.8,"h04":null,"hdiff":null},{"d":"1997-02","y":1997,"mn":2,"iom":2.8,"uk":1.9,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1997-03","y":1997,"mn":3,"iom":2.3,"uk":1.7,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1997-04","y":1997,"mn":4,"iom":2.3,"uk":1.6,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"1997-05","y":1997,"mn":5,"iom":1.7,"uk":1.6,"ser":"RPI","diff":0.1,"h04":null,"hdiff":null},{"d":"1997-06","y":1997,"mn":6,"iom":1.6,"uk":1.7,"ser":"RPI","diff":-0.1,"h04":null,"hdiff":null},{"d":"1997-07","y":1997,"mn":7,"iom":1.6,"uk":2.0,"ser":"RPI","diff":-0.4,"h04":null,"hdiff":null},{"d":"1997-08","y":1997,"mn":8,"iom":1.8,"uk":2.0,"ser":"RPI","diff":-0.2,"h04":null,"hdiff":null},{"d":"1997-09","y":1997,"mn":9,"iom":2.7,"uk":1.8,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1997-10","y":1997,"mn":10,"iom":2.5,"uk":1.9,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1997-11","y":1997,"mn":11,"iom":2.7,"uk":1.9,"ser":"RPI","diff":0.8,"h04":null,"hdiff":null},{"d":"1997-12","y":1997,"mn":12,"iom":2.6,"uk":1.7,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1998-01","y":1998,"mn":1,"iom":2.8,"uk":1.5,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"1998-02","y":1998,"mn":2,"iom":3.0,"uk":1.6,"ser":"RPI","diff":1.4,"h04":null,"hdiff":null},{"d":"1998-03","y":1998,"mn":3,"iom":2.8,"uk":1.7,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"1998-04","y":1998,"mn":4,"iom":3.0,"uk":1.8,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"1998-05","y":1998,"mn":5,"iom":3.3,"uk":2.0,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"1998-06","y":1998,"mn":6,"iom":3.5,"uk":1.7,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"1998-07","y":1998,"mn":7,"iom":3.3,"uk":1.4,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"1998-08","y":1998,"mn":8,"iom":3.0,"uk":1.3,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"1998-09","y":1998,"mn":9,"iom":2.4,"uk":1.4,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"1998-10","y":1998,"mn":10,"iom":2.3,"uk":1.4,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1998-11","y":1998,"mn":11,"iom":2.3,"uk":1.4,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"1998-12","y":1998,"mn":12,"iom":2.0,"uk":1.6,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1999-01","y":1999,"mn":1,"iom":1.6,"uk":1.6,"ser":"RPI","diff":0.0,"h04":null,"hdiff":null},{"d":"1999-02","y":1999,"mn":2,"iom":1.5,"uk":1.4,"ser":"RPI","diff":0.1,"h04":null,"hdiff":null},{"d":"1999-03","y":1999,"mn":3,"iom":1.9,"uk":1.7,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"1999-04","y":1999,"mn":4,"iom":2.2,"uk":1.5,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"1999-05","y":1999,"mn":5,"iom":1.8,"uk":1.3,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"1999-06","y":1999,"mn":6,"iom":1.7,"uk":1.3,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"1999-07","y":1999,"mn":7,"iom":2.0,"uk":1.3,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"1999-08","y":1999,"mn":8,"iom":2.0,"uk":1.2,"ser":"RPI","diff":0.8,"h04":null,"hdiff":null},{"d":"1999-09","y":1999,"mn":9,"iom":2.3,"uk":1.2,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"1999-10","y":1999,"mn":10,"iom":2.2,"uk":1.1,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"1999-11","y":1999,"mn":11,"iom":1.8,"uk":1.2,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"1999-12","y":1999,"mn":12,"iom":2.2,"uk":1.1,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"2000-01","y":2000,"mn":1,"iom":2.4,"uk":0.8,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2000-02","y":2000,"mn":2,"iom":2.7,"uk":0.9,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2000-03","y":2000,"mn":3,"iom":2.6,"uk":0.6,"ser":"RPI","diff":2.0,"h04":null,"hdiff":null},{"d":"2000-04","y":2000,"mn":4,"iom":2.5,"uk":0.6,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2000-05","y":2000,"mn":5,"iom":2.6,"uk":0.5,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2000-06","y":2000,"mn":6,"iom":2.7,"uk":0.8,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2000-07","y":2000,"mn":7,"iom":2.6,"uk":0.9,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2000-08","y":2000,"mn":8,"iom":2.9,"uk":0.6,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"2000-09","y":2000,"mn":9,"iom":3.3,"uk":1.0,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"2000-10","y":2000,"mn":10,"iom":3.2,"uk":1.0,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"2000-11","y":2000,"mn":11,"iom":3.2,"uk":1.1,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2000-12","y":2000,"mn":12,"iom":2.6,"uk":0.8,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2001-01","y":2001,"mn":1,"iom":2.7,"uk":0.9,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2001-02","y":2001,"mn":2,"iom":2.4,"uk":0.8,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2001-03","y":2001,"mn":3,"iom":2.4,"uk":0.9,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"2001-04","y":2001,"mn":4,"iom":2.7,"uk":1.2,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"2001-05","y":2001,"mn":5,"iom":2.8,"uk":1.7,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"2001-06","y":2001,"mn":6,"iom":2.5,"uk":1.7,"ser":"RPI","diff":0.8,"h04":null,"hdiff":null},{"d":"2001-07","y":2001,"mn":7,"iom":1.9,"uk":1.4,"ser":"RPI","diff":0.5,"h04":null,"hdiff":null},{"d":"2001-08","y":2001,"mn":8,"iom":1.5,"uk":1.8,"ser":"RPI","diff":-0.3,"h04":null,"hdiff":null},{"d":"2001-09","y":2001,"mn":9,"iom":1.2,"uk":1.3,"ser":"RPI","diff":-0.1,"h04":null,"hdiff":null},{"d":"2001-10","y":2001,"mn":10,"iom":0.4,"uk":1.2,"ser":"RPI","diff":-0.8,"h04":null,"hdiff":null},{"d":"2001-11","y":2001,"mn":11,"iom":0.2,"uk":0.8,"ser":"RPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"2001-12","y":2001,"mn":12,"iom":0.3,"uk":1.1,"ser":"RPI","diff":-0.8,"h04":null,"hdiff":null},{"d":"2002-01","y":2002,"mn":1,"iom":0.8,"uk":1.6,"ser":"RPI","diff":-0.8,"h04":null,"hdiff":null},{"d":"2002-02","y":2002,"mn":2,"iom":0.9,"uk":1.5,"ser":"RPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"2002-03","y":2002,"mn":3,"iom":1.4,"uk":1.5,"ser":"RPI","diff":-0.1,"h04":null,"hdiff":null},{"d":"2002-04","y":2002,"mn":4,"iom":1.4,"uk":1.4,"ser":"RPI","diff":0.0,"h04":null,"hdiff":null},{"d":"2002-05","y":2002,"mn":5,"iom":1.4,"uk":0.8,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"2002-06","y":2002,"mn":6,"iom":1.6,"uk":0.6,"ser":"RPI","diff":1.0,"h04":null,"hdiff":null},{"d":"2002-07","y":2002,"mn":7,"iom":2.4,"uk":1.1,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"2002-08","y":2002,"mn":8,"iom":2.9,"uk":1.0,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2002-09","y":2002,"mn":9,"iom":2.6,"uk":1.0,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2002-10","y":2002,"mn":10,"iom":3.8,"uk":1.4,"ser":"RPI","diff":2.4,"h04":null,"hdiff":null},{"d":"2002-11","y":2002,"mn":11,"iom":4.0,"uk":1.5,"ser":"RPI","diff":2.5,"h04":null,"hdiff":null},{"d":"2002-12","y":2002,"mn":12,"iom":4.0,"uk":1.7,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"2003-01","y":2003,"mn":1,"iom":3.7,"uk":1.3,"ser":"RPI","diff":2.4,"h04":null,"hdiff":null},{"d":"2003-02","y":2003,"mn":2,"iom":4.0,"uk":1.6,"ser":"RPI","diff":2.4,"h04":null,"hdiff":null},{"d":"2003-03","y":2003,"mn":3,"iom":3.6,"uk":1.5,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2003-04","y":2003,"mn":4,"iom":2.6,"uk":1.4,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2003-05","y":2003,"mn":5,"iom":2.7,"uk":1.3,"ser":"RPI","diff":1.4,"h04":null,"hdiff":null},{"d":"2003-06","y":2003,"mn":6,"iom":2.8,"uk":1.1,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2003-07","y":2003,"mn":7,"iom":3.0,"uk":1.3,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2003-08","y":2003,"mn":8,"iom":2.9,"uk":1.4,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"2003-09","y":2003,"mn":9,"iom":3.0,"uk":1.4,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2003-10","y":2003,"mn":10,"iom":3.0,"uk":1.4,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2003-11","y":2003,"mn":11,"iom":3.1,"uk":1.3,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2003-12","y":2003,"mn":12,"iom":3.2,"uk":1.3,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2004-01","y":2004,"mn":1,"iom":3.5,"uk":1.4,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2004-02","y":2004,"mn":2,"iom":3.5,"uk":1.3,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"2004-03","y":2004,"mn":3,"iom":3.5,"uk":1.1,"ser":"RPI","diff":2.4,"h04":null,"hdiff":null},{"d":"2004-04","y":2004,"mn":4,"iom":5.1,"uk":1.1,"ser":"RPI","diff":4.0,"h04":null,"hdiff":null},{"d":"2004-05","y":2004,"mn":5,"iom":5.5,"uk":1.5,"ser":"RPI","diff":4.0,"h04":null,"hdiff":null},{"d":"2004-06","y":2004,"mn":6,"iom":5.5,"uk":1.6,"ser":"RPI","diff":3.9,"h04":null,"hdiff":null},{"d":"2004-07","y":2004,"mn":7,"iom":4.8,"uk":1.4,"ser":"RPI","diff":3.4,"h04":null,"hdiff":null},{"d":"2004-08","y":2004,"mn":8,"iom":5.1,"uk":1.3,"ser":"RPI","diff":3.8,"h04":null,"hdiff":null},{"d":"2004-09","y":2004,"mn":9,"iom":6.0,"uk":1.1,"ser":"RPI","diff":4.9,"h04":null,"hdiff":null},{"d":"2004-10","y":2004,"mn":10,"iom":5.9,"uk":1.2,"ser":"RPI","diff":4.7,"h04":null,"hdiff":null},{"d":"2004-11","y":2004,"mn":11,"iom":6.3,"uk":1.5,"ser":"RPI","diff":4.8,"h04":null,"hdiff":null},{"d":"2004-12","y":2004,"mn":12,"iom":6.4,"uk":1.7,"ser":"RPI","diff":4.7,"h04":null,"hdiff":null},{"d":"2005-01","y":2005,"mn":1,"iom":5.9,"uk":1.6,"ser":"RPI","diff":4.3,"h04":null,"hdiff":null},{"d":"2005-02","y":2005,"mn":2,"iom":5.3,"uk":1.7,"ser":"RPI","diff":3.6,"h04":null,"hdiff":null},{"d":"2005-03","y":2005,"mn":3,"iom":5.3,"uk":1.9,"ser":"RPI","diff":3.4,"h04":null,"hdiff":null},{"d":"2005-04","y":2005,"mn":4,"iom":4.3,"uk":1.9,"ser":"RPI","diff":2.4,"h04":null,"hdiff":null},{"d":"2005-05","y":2005,"mn":5,"iom":3.7,"uk":1.9,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2005-06","y":2005,"mn":6,"iom":4.0,"uk":2.0,"ser":"RPI","diff":2.0,"h04":null,"hdiff":null},{"d":"2005-07","y":2005,"mn":7,"iom":4.4,"uk":2.3,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2005-08","y":2005,"mn":8,"iom":3.9,"uk":2.4,"ser":"RPI","diff":1.5,"h04":null,"hdiff":null},{"d":"2005-09","y":2005,"mn":9,"iom":3.2,"uk":2.5,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"2005-10","y":2005,"mn":10,"iom":3.6,"uk":2.3,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"2005-11","y":2005,"mn":11,"iom":3.4,"uk":2.1,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"2005-12","y":2005,"mn":12,"iom":3.3,"uk":1.9,"ser":"RPI","diff":1.4,"h04":null,"hdiff":null},{"d":"2006-01","y":2006,"mn":1,"iom":3.3,"uk":1.9,"ser":"RPI","diff":1.4,"h04":null,"hdiff":null},{"d":"2006-02","y":2006,"mn":2,"iom":3.2,"uk":2.0,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2006-03","y":2006,"mn":3,"iom":3.0,"uk":1.8,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2006-04","y":2006,"mn":4,"iom":2.9,"uk":2.0,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"2006-05","y":2006,"mn":5,"iom":3.3,"uk":2.2,"ser":"RPI","diff":1.1,"h04":null,"hdiff":null},{"d":"2006-06","y":2006,"mn":6,"iom":2.9,"uk":2.5,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"2006-07","y":2006,"mn":7,"iom":2.8,"uk":2.4,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"2006-08","y":2006,"mn":8,"iom":2.9,"uk":2.5,"ser":"RPI","diff":0.4,"h04":null,"hdiff":null},{"d":"2006-09","y":2006,"mn":9,"iom":3.3,"uk":2.4,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"2006-10","y":2006,"mn":10,"iom":2.6,"uk":2.4,"ser":"RPI","diff":0.2,"h04":null,"hdiff":null},{"d":"2006-11","y":2006,"mn":11,"iom":2.7,"uk":2.7,"ser":"RPI","diff":0.0,"h04":null,"hdiff":null},{"d":"2006-12","y":2006,"mn":12,"iom":3.1,"uk":3.0,"ser":"RPI","diff":0.1,"h04":null,"hdiff":null},{"d":"2007-01","y":2007,"mn":1,"iom":3.4,"uk":2.7,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"2007-02","y":2007,"mn":2,"iom":3.7,"uk":2.8,"ser":"RPI","diff":0.9,"h04":null,"hdiff":null},{"d":"2007-03","y":2007,"mn":3,"iom":3.8,"uk":3.1,"ser":"RPI","diff":0.7,"h04":null,"hdiff":null},{"d":"2007-04","y":2007,"mn":4,"iom":4.0,"uk":2.8,"ser":"RPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2007-05","y":2007,"mn":5,"iom":4.2,"uk":2.5,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2007-06","y":2007,"mn":6,"iom":4.4,"uk":2.4,"ser":"RPI","diff":2.0,"h04":null,"hdiff":null},{"d":"2007-07","y":2007,"mn":7,"iom":4.1,"uk":1.9,"ser":"RPI","diff":2.2,"h04":null,"hdiff":null},{"d":"2007-08","y":2007,"mn":8,"iom":4.1,"uk":1.8,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"2007-09","y":2007,"mn":9,"iom":3.9,"uk":1.8,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2007-10","y":2007,"mn":10,"iom":4.1,"uk":2.1,"ser":"RPI","diff":2.0,"h04":null,"hdiff":null},{"d":"2007-11","y":2007,"mn":11,"iom":4.0,"uk":2.1,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2007-12","y":2007,"mn":12,"iom":4.0,"uk":2.1,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2008-01","y":2008,"mn":1,"iom":4.2,"uk":2.2,"ser":"RPI","diff":2.0,"h04":null,"hdiff":null},{"d":"2008-02","y":2008,"mn":2,"iom":4.1,"uk":2.5,"ser":"RPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2008-03","y":2008,"mn":3,"iom":4.3,"uk":2.5,"ser":"RPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2008-04","y":2008,"mn":4,"iom":4.9,"uk":3.0,"ser":"RPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2008-05","y":2008,"mn":5,"iom":5.6,"uk":3.3,"ser":"RPI","diff":2.3,"h04":null,"hdiff":null},{"d":"2008-06","y":2008,"mn":6,"iom":6.3,"uk":3.8,"ser":"RPI","diff":2.5,"h04":null,"hdiff":null},{"d":"2008-07","y":2008,"mn":7,"iom":6.5,"uk":4.4,"ser":"RPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2008-08","y":2008,"mn":8,"iom":6.4,"uk":4.7,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2008-09","y":2008,"mn":9,"iom":6.5,"uk":5.2,"ser":"RPI","diff":1.3,"h04":null,"hdiff":null},{"d":"2008-10","y":2008,"mn":10,"iom":6.2,"uk":4.5,"ser":"RPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2008-11","y":2008,"mn":11,"iom":4.7,"uk":4.1,"ser":"RPI","diff":0.6,"h04":null,"hdiff":null},{"d":"2008-12","y":2008,"mn":12,"iom":2.8,"uk":3.1,"ser":"RPI","diff":-0.3,"h04":null,"hdiff":null},{"d":"2009-01","y":2009,"mn":1,"iom":3.3,"uk":3.0,"ser":"CPI","diff":0.3,"h04":null,"hdiff":null},{"d":"2009-02","y":2009,"mn":2,"iom":2.3,"uk":3.2,"ser":"CPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"2009-03","y":2009,"mn":3,"iom":2.3,"uk":2.9,"ser":"CPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"2009-04","y":2009,"mn":4,"iom":2.8,"uk":2.3,"ser":"CPI","diff":0.5,"h04":null,"hdiff":null},{"d":"2009-05","y":2009,"mn":5,"iom":1.2,"uk":2.2,"ser":"CPI","diff":-1.0,"h04":null,"hdiff":null},{"d":"2009-06","y":2009,"mn":6,"iom":0.5,"uk":1.8,"ser":"CPI","diff":-1.3,"h04":null,"hdiff":null},{"d":"2009-07","y":2009,"mn":7,"iom":1.0,"uk":1.8,"ser":"CPI","diff":-0.8,"h04":null,"hdiff":null},{"d":"2009-08","y":2009,"mn":8,"iom":1.1,"uk":1.6,"ser":"CPI","diff":-0.5,"h04":null,"hdiff":null},{"d":"2009-09","y":2009,"mn":9,"iom":1.3,"uk":1.1,"ser":"CPI","diff":0.2,"h04":null,"hdiff":null},{"d":"2009-10","y":2009,"mn":10,"iom":1.2,"uk":1.5,"ser":"CPI","diff":-0.3,"h04":null,"hdiff":null},{"d":"2009-11","y":2009,"mn":11,"iom":1.9,"uk":1.9,"ser":"CPI","diff":0.0,"h04":null,"hdiff":null},{"d":"2009-12","y":2009,"mn":12,"iom":3.1,"uk":2.9,"ser":"CPI","diff":0.2,"h04":null,"hdiff":null},{"d":"2010-01","y":2010,"mn":1,"iom":3.9,"uk":3.5,"ser":"CPI","diff":0.4,"h04":null,"hdiff":null},{"d":"2010-02","y":2010,"mn":2,"iom":4.1,"uk":3.0,"ser":"CPI","diff":1.1,"h04":null,"hdiff":null},{"d":"2010-03","y":2010,"mn":3,"iom":3.6,"uk":3.4,"ser":"CPI","diff":0.2,"h04":null,"hdiff":null},{"d":"2010-04","y":2010,"mn":4,"iom":4.0,"uk":3.7,"ser":"CPI","diff":0.3,"h04":null,"hdiff":null},{"d":"2010-05","y":2010,"mn":5,"iom":4.6,"uk":3.4,"ser":"CPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2010-06","y":2010,"mn":6,"iom":4.2,"uk":3.2,"ser":"CPI","diff":1.0,"h04":null,"hdiff":null},{"d":"2010-07","y":2010,"mn":7,"iom":4.2,"uk":3.1,"ser":"CPI","diff":1.1,"h04":null,"hdiff":null},{"d":"2010-08","y":2010,"mn":8,"iom":3.9,"uk":3.1,"ser":"CPI","diff":0.8,"h04":null,"hdiff":null},{"d":"2010-09","y":2010,"mn":9,"iom":4.1,"uk":3.1,"ser":"CPI","diff":1.0,"h04":null,"hdiff":null},{"d":"2010-10","y":2010,"mn":10,"iom":4.7,"uk":3.2,"ser":"CPI","diff":1.5,"h04":null,"hdiff":null},{"d":"2010-11","y":2010,"mn":11,"iom":5.2,"uk":3.3,"ser":"CPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2010-12","y":2010,"mn":12,"iom":4.9,"uk":3.7,"ser":"CPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2011-01","y":2011,"mn":1,"iom":5.8,"uk":4.0,"ser":"CPI","diff":1.8,"h04":null,"hdiff":null},{"d":"2011-02","y":2011,"mn":2,"iom":5.6,"uk":4.4,"ser":"CPI","diff":1.2,"h04":null,"hdiff":null},{"d":"2011-03","y":2011,"mn":3,"iom":6.6,"uk":4.0,"ser":"CPI","diff":2.6,"h04":null,"hdiff":null},{"d":"2011-04","y":2011,"mn":4,"iom":6.4,"uk":4.5,"ser":"CPI","diff":1.9,"h04":null,"hdiff":null},{"d":"2011-05","y":2011,"mn":5,"iom":6.1,"uk":4.5,"ser":"CPI","diff":1.6,"h04":null,"hdiff":null},{"d":"2011-06","y":2011,"mn":6,"iom":6.3,"uk":4.2,"ser":"CPI","diff":2.1,"h04":null,"hdiff":null},{"d":"2011-07","y":2011,"mn":7,"iom":6.1,"uk":4.4,"ser":"CPI","diff":1.7,"h04":null,"hdiff":null},{"d":"2011-08","y":2011,"mn":8,"iom":6.7,"uk":4.5,"ser":"CPI","diff":2.2,"h04":null,"hdiff":null},{"d":"2011-09","y":2011,"mn":9,"iom":5.9,"uk":5.2,"ser":"CPI","diff":0.7,"h04":null,"hdiff":null},{"d":"2011-10","y":2011,"mn":10,"iom":5.7,"uk":5.0,"ser":"CPI","diff":0.7,"h04":null,"hdiff":null},{"d":"2011-11","y":2011,"mn":11,"iom":5.2,"uk":4.8,"ser":"CPI","diff":0.4,"h04":null,"hdiff":null},{"d":"2011-12","y":2011,"mn":12,"iom":5.0,"uk":4.2,"ser":"CPI","diff":0.8,"h04":null,"hdiff":null},{"d":"2012-01","y":2012,"mn":1,"iom":3.7,"uk":3.6,"ser":"CPI","diff":0.1,"h04":null,"hdiff":null},{"d":"2012-02","y":2012,"mn":2,"iom":3.9,"uk":3.4,"ser":"CPI","diff":0.5,"h04":null,"hdiff":null},{"d":"2012-03","y":2012,"mn":3,"iom":2.5,"uk":3.5,"ser":"CPI","diff":-1.0,"h04":null,"hdiff":null},{"d":"2012-04","y":2012,"mn":4,"iom":2.1,"uk":3.0,"ser":"CPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"2012-05","y":2012,"mn":5,"iom":2.3,"uk":2.8,"ser":"CPI","diff":-0.5,"h04":null,"hdiff":null},{"d":"2012-06","y":2012,"mn":6,"iom":1.8,"uk":2.4,"ser":"CPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"2012-07","y":2012,"mn":7,"iom":1.4,"uk":2.6,"ser":"CPI","diff":-1.2,"h04":null,"hdiff":null},{"d":"2012-08","y":2012,"mn":8,"iom":1.3,"uk":2.5,"ser":"CPI","diff":-1.2,"h04":null,"hdiff":null},{"d":"2012-09","y":2012,"mn":9,"iom":1.8,"uk":2.2,"ser":"CPI","diff":-0.4,"h04":null,"hdiff":null},{"d":"2012-10","y":2012,"mn":10,"iom":2.1,"uk":2.7,"ser":"CPI","diff":-0.6,"h04":null,"hdiff":null},{"d":"2012-11","y":2012,"mn":11,"iom":1.8,"uk":2.7,"ser":"CPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"2012-12","y":2012,"mn":12,"iom":1.4,"uk":2.7,"ser":"CPI","diff":-1.3,"h04":null,"hdiff":null},{"d":"2013-01","y":2013,"mn":1,"iom":1.1,"uk":2.7,"ser":"CPI","diff":-1.6,"h04":null,"hdiff":null},{"d":"2013-02","y":2013,"mn":2,"iom":1.4,"uk":2.8,"ser":"CPI","diff":-1.4,"h04":null,"hdiff":null},{"d":"2013-03","y":2013,"mn":3,"iom":1.9,"uk":2.8,"ser":"CPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"2013-04","y":2013,"mn":4,"iom":1.9,"uk":2.4,"ser":"CPI","diff":-0.5,"h04":null,"hdiff":null},{"d":"2013-05","y":2013,"mn":5,"iom":1.2,"uk":2.7,"ser":"CPI","diff":-1.5,"h04":null,"hdiff":null},{"d":"2013-06","y":2013,"mn":6,"iom":1.5,"uk":2.9,"ser":"CPI","diff":-1.4,"h04":null,"hdiff":null},{"d":"2013-07","y":2013,"mn":7,"iom":2.1,"uk":2.8,"ser":"CPI","diff":-0.7,"h04":null,"hdiff":null},{"d":"2013-08","y":2013,"mn":8,"iom":1.6,"uk":2.7,"ser":"CPI","diff":-1.1,"h04":null,"hdiff":null},{"d":"2013-09","y":2013,"mn":9,"iom":1.6,"uk":2.7,"ser":"CPI","diff":-1.1,"h04":null,"hdiff":null},{"d":"2013-10","y":2013,"mn":10,"iom":0.9,"uk":2.2,"ser":"CPI","diff":-1.3,"h04":null,"hdiff":null},{"d":"2013-11","y":2013,"mn":11,"iom":1.2,"uk":2.1,"ser":"CPI","diff":-0.9,"h04":null,"hdiff":null},{"d":"2013-12","y":2013,"mn":12,"iom":1.5,"uk":2.0,"ser":"CPI","diff":-0.5,"h04":null,"hdiff":null},{"d":"2014-01","y":2014,"mn":1,"iom":2.0,"uk":1.9,"ser":"CPI","diff":0.1,"h04":1.0,"hdiff":-1.0},{"d":"2014-02","y":2014,"mn":2,"iom":1.8,"uk":1.7,"ser":"CPI","diff":0.1,"h04":0.85,"hdiff":-0.95},{"d":"2014-03","y":2014,"mn":3,"iom":1.6,"uk":1.6,"ser":"CPI","diff":0.0,"h04":1.16,"hdiff":-0.44},{"d":"2014-04","y":2014,"mn":4,"iom":1.0,"uk":1.8,"ser":"CPI","diff":-0.8,"h04":0.98,"hdiff":-0.02},{"d":"2014-05","y":2014,"mn":5,"iom":1.6,"uk":1.5,"ser":"CPI","diff":0.1,"h04":-0.52,"hdiff":-2.12},{"d":"2014-06","y":2014,"mn":6,"iom":1.8,"uk":1.9,"ser":"CPI","diff":-0.1,"h04":-2.69,"hdiff":-4.49},{"d":"2014-07","y":2014,"mn":7,"iom":1.9,"uk":1.6,"ser":"CPI","diff":0.3,"h04":-4.91,"hdiff":-6.81},{"d":"2014-08","y":2014,"mn":8,"iom":1.3,"uk":1.5,"ser":"CPI","diff":-0.2,"h04":-0.15,"hdiff":-1.45},{"d":"2014-09","y":2014,"mn":9,"iom":1.0,"uk":1.2,"ser":"CPI","diff":-0.2,"h04":-1.13,"hdiff":-2.13},{"d":"2014-10","y":2014,"mn":10,"iom":0.8,"uk":1.3,"ser":"CPI","diff":-0.5,"h04":-0.68,"hdiff":-1.48},{"d":"2014-11","y":2014,"mn":11,"iom":1.1,"uk":1.0,"ser":"CPI","diff":0.1,"h04":-2.34,"hdiff":-3.44},{"d":"2014-12","y":2014,"mn":12,"iom":0.2,"uk":0.5,"ser":"CPI","diff":-0.3,"h04":-2.81,"hdiff":-3.01},{"d":"2015-01","y":2015,"mn":1,"iom":-0.2,"uk":0.3,"ser":"CPI","diff":-0.5,"h04":-2.6,"hdiff":-2.4},{"d":"2015-02","y":2015,"mn":2,"iom":-1.0,"uk":0.0,"ser":"CPI","diff":-1.0,"h04":-1.68,"hdiff":-0.68},{"d":"2015-03","y":2015,"mn":3,"iom":-0.5,"uk":0.0,"ser":"CPI","diff":-0.5,"h04":-1.83,"hdiff":-1.33},{"d":"2015-04","y":2015,"mn":4,"iom":0.1,"uk":-0.1,"ser":"CPI","diff":0.2,"h04":-2.55,"hdiff":-2.65},{"d":"2015-05","y":2015,"mn":5,"iom":-1.0,"uk":0.1,"ser":"CPI","diff":-1.1,"h04":-2.54,"hdiff":-1.54},{"d":"2015-06","y":2015,"mn":6,"iom":-1.2,"uk":0.0,"ser":"CPI","diff":-1.2,"h04":-1.87,"hdiff":-0.67},{"d":"2015-07","y":2015,"mn":7,"iom":-1.5,"uk":0.1,"ser":"CPI","diff":-1.6,"h04":-1.72,"hdiff":-0.22},{"d":"2015-08","y":2015,"mn":8,"iom":-0.8,"uk":0.0,"ser":"CPI","diff":-0.8,"h04":-1.21,"hdiff":-0.41},{"d":"2015-09","y":2015,"mn":9,"iom":-0.8,"uk":-0.1,"ser":"CPI","diff":-0.7,"h04":-0.76,"hdiff":0.04},{"d":"2015-10","y":2015,"mn":10,"iom":-0.8,"uk":-0.1,"ser":"CPI","diff":-0.7,"h04":-0.15,"hdiff":0.65},{"d":"2015-11","y":2015,"mn":11,"iom":-1.2,"uk":0.1,"ser":"CPI","diff":-1.3,"h04":0.85,"hdiff":2.05},{"d":"2015-12","y":2015,"mn":12,"iom":-1.6,"uk":0.2,"ser":"CPI","diff":-1.8,"h04":2.57,"hdiff":4.17},{"d":"2016-01","y":2016,"mn":1,"iom":-1.2,"uk":0.3,"ser":"CPI","diff":-1.5,"h04":3.45,"hdiff":4.65},{"d":"2016-02","y":2016,"mn":2,"iom":-0.7,"uk":0.3,"ser":"CPI","diff":-1.0,"h04":3.27,"hdiff":3.97},{"d":"2016-03","y":2016,"mn":3,"iom":-0.6,"uk":0.5,"ser":"CPI","diff":-1.1,"h04":3.65,"hdiff":4.25},{"d":"2016-04","y":2016,"mn":4,"iom":-0.2,"uk":0.3,"ser":"CPI","diff":-0.5,"h04":3.54,"hdiff":3.74},{"d":"2016-05","y":2016,"mn":5,"iom":-0.2,"uk":0.3,"ser":"CPI","diff":-0.5,"h04":3.45,"hdiff":3.65},{"d":"2016-06","y":2016,"mn":6,"iom":-0.2,"uk":0.5,"ser":"CPI","diff":-0.7,"h04":3.73,"hdiff":3.93},{"d":"2016-07","y":2016,"mn":7,"iom":-0.3,"uk":0.6,"ser":"CPI","diff":-0.9,"h04":3.27,"hdiff":3.57},{"d":"2016-08","y":2016,"mn":8,"iom":-0.5,"uk":0.6,"ser":"CPI","diff":-1.1,"h04":3.83,"hdiff":4.33},{"d":"2016-09","y":2016,"mn":9,"iom":1.2,"uk":1.0,"ser":"CPI","diff":0.2,"h04":4.07,"hdiff":2.87},{"d":"2016-10","y":2016,"mn":10,"iom":0.9,"uk":0.9,"ser":"CPI","diff":0.0,"h04":3.74,"hdiff":2.84},{"d":"2016-11","y":2016,"mn":11,"iom":1.0,"uk":1.2,"ser":"CPI","diff":-0.2,"h04":4.52,"hdiff":3.52},{"d":"2016-12","y":2016,"mn":12,"iom":1.0,"uk":1.6,"ser":"CPI","diff":-0.6,"h04":3.57,"hdiff":2.57},{"d":"2017-01","y":2017,"mn":1,"iom":1.6,"uk":1.8,"ser":"CPI","diff":-0.2,"h04":4.17,"hdiff":2.57},{"d":"2017-02","y":2017,"mn":2,"iom":1.9,"uk":2.3,"ser":"CPI","diff":-0.4,"h04":6.33,"hdiff":4.43},{"d":"2017-03","y":2017,"mn":3,"iom":2.2,"uk":2.3,"ser":"CPI","diff":-0.1,"h04":5.78,"hdiff":3.58},{"d":"2017-04","y":2017,"mn":4,"iom":2.1,"uk":2.7,"ser":"CPI","diff":-0.6,"h04":5.42,"hdiff":3.32},{"d":"2017-05","y":2017,"mn":5,"iom":3.9,"uk":2.9,"ser":"CPI","diff":1.0,"h04":6.0,"hdiff":2.1},{"d":"2017-06","y":2017,"mn":6,"iom":4.0,"uk":2.6,"ser":"CPI","diff":1.4,"h04":5.58,"hdiff":1.58},{"d":"2017-07","y":2017,"mn":7,"iom":4.6,"uk":2.6,"ser":"CPI","diff":2.0,"h04":5.97,"hdiff":1.37},{"d":"2017-08","y":2017,"mn":8,"iom":4.1,"uk":2.9,"ser":"CPI","diff":1.2,"h04":6.49,"hdiff":2.39},{"d":"2017-09","y":2017,"mn":9,"iom":4.2,"uk":3.0,"ser":"CPI","diff":1.2,"h04":6.71,"hdiff":2.51},{"d":"2017-10","y":2017,"mn":10,"iom":3.3,"uk":3.0,"ser":"CPI","diff":0.3,"h04":7.13,"hdiff":3.83},{"d":"2017-11","y":2017,"mn":11,"iom":3.8,"uk":3.1,"ser":"CPI","diff":0.7,"h04":6.97,"hdiff":3.17},{"d":"2017-12","y":2017,"mn":12,"iom":4.1,"uk":3.0,"ser":"CPI","diff":1.1,"h04":5.36,"hdiff":1.26},{"d":"2018-01","y":2018,"mn":1,"iom":3.8,"uk":3.0,"ser":"CPI","diff":0.8,"h04":4.08,"hdiff":0.28},{"d":"2018-02","y":2018,"mn":2,"iom":4.4,"uk":2.7,"ser":"CPI","diff":1.7,"h04":1.42,"hdiff":-2.98},{"d":"2018-03","y":2018,"mn":3,"iom":4.4,"uk":2.5,"ser":"CPI","diff":1.9,"h04":0.99,"hdiff":-3.41},{"d":"2018-04","y":2018,"mn":4,"iom":4.0,"uk":2.4,"ser":"CPI","diff":1.6,"h04":0.56,"hdiff":-3.44},{"d":"2018-05","y":2018,"mn":5,"iom":2.2,"uk":2.4,"ser":"CPI","diff":-0.2,"h04":-0.56,"hdiff":-2.76},{"d":"2018-06","y":2018,"mn":6,"iom":2.6,"uk":2.4,"ser":"CPI","diff":0.2,"h04":-0.84,"hdiff":-3.44},{"d":"2018-07","y":2018,"mn":7,"iom":1.6,"uk":2.5,"ser":"CPI","diff":-0.9,"h04":-0.97,"hdiff":-2.57},{"d":"2018-08","y":2018,"mn":8,"iom":2.3,"uk":2.7,"ser":"CPI","diff":-0.4,"h04":-0.28,"hdiff":-2.58},{"d":"2018-09","y":2018,"mn":9,"iom":2.4,"uk":2.4,"ser":"CPI","diff":0.0,"h04":-0.9,"hdiff":-3.3},{"d":"2018-10","y":2018,"mn":10,"iom":3.5,"uk":2.4,"ser":"CPI","diff":1.1,"h04":-1.3,"hdiff":-4.8},{"d":"2018-11","y":2018,"mn":11,"iom":3.2,"uk":2.3,"ser":"CPI","diff":0.9,"h04":0.0,"hdiff":-3.2},{"d":"2018-12","y":2018,"mn":12,"iom":2.5,"uk":2.1,"ser":"CPI","diff":0.4,"h04":1.6,"hdiff":-0.9},{"d":"2019-01","y":2019,"mn":1,"iom":2.54,"uk":1.8,"ser":"CPI","diff":0.74,"h04":1.89,"hdiff":-0.65},{"d":"2019-02","y":2019,"mn":2,"iom":1.88,"uk":1.9,"ser":"CPI","diff":-0.02,"h04":-0.77,"hdiff":-2.65},{"d":"2019-03","y":2019,"mn":3,"iom":1.32,"uk":1.9,"ser":"CPI","diff":-0.58,"h04":-1.62,"hdiff":-2.94},{"d":"2019-04","y":2019,"mn":4,"iom":1.85,"uk":2.1,"ser":"CPI","diff":-0.25,"h04":-3.78,"hdiff":-5.63},{"d":"2019-05","y":2019,"mn":5,"iom":1.79,"uk":2.0,"ser":"CPI","diff":-0.21,"h04":-5.2,"hdiff":-6.99},{"d":"2019-06","y":2019,"mn":6,"iom":1.78,"uk":2.0,"ser":"CPI","diff":-0.22,"h04":-5.4,"hdiff":-7.18},{"d":"2019-07","y":2019,"mn":7,"iom":2.1,"uk":2.1,"ser":"CPI","diff":0.0,"h04":-4.78,"hdiff":-6.88},{"d":"2019-08","y":2019,"mn":8,"iom":2.49,"uk":1.7,"ser":"CPI","diff":0.79,"h04":-4.03,"hdiff":-6.52},{"d":"2019-09","y":2019,"mn":9,"iom":1.14,"uk":1.7,"ser":"CPI","diff":-0.56,"h04":-3.63,"hdiff":-4.77},{"d":"2019-10","y":2019,"mn":10,"iom":0.84,"uk":1.5,"ser":"CPI","diff":-0.66,"h04":-3.89,"hdiff":-4.73},{"d":"2019-11","y":2019,"mn":11,"iom":3.14,"uk":1.5,"ser":"CPI","diff":1.64,"h04":-5.42,"hdiff":-8.56},{"d":"2019-12","y":2019,"mn":12,"iom":2.1,"uk":1.3,"ser":"CPI","diff":0.8,"h04":-5.28,"hdiff":-7.38},{"d":"2020-01","y":2020,"mn":1,"iom":2.6,"uk":1.8,"ser":"CPI","diff":0.8,"h04":-3.91,"hdiff":-6.51},{"d":"2020-02","y":2020,"mn":2,"iom":2.6,"uk":1.7,"ser":"CPI","diff":0.9,"h04":-0.56,"hdiff":-3.16},{"d":"2020-03","y":2020,"mn":3,"iom":1.8,"uk":1.5,"ser":"CPI","diff":0.3,"h04":1.0,"hdiff":-0.8},{"d":"2020-04","y":2020,"mn":4,"iom":0.8,"uk":0.8,"ser":"CPI","diff":0.0,"h04":3.78,"hdiff":2.98},{"d":"2020-05","y":2020,"mn":5,"iom":0.1,"uk":0.5,"ser":"CPI","diff":-0.4,"h04":6.96,"hdiff":6.86},{"d":"2020-06","y":2020,"mn":6,"iom":-0.3,"uk":0.6,"ser":"CPI","diff":-0.9,"h04":7.12,"hdiff":7.42},{"d":"2020-07","y":2020,"mn":7,"iom":-0.2,"uk":1.0,"ser":"CPI","diff":-1.2,"h04":7.23,"hdiff":7.43},{"d":"2020-08","y":2020,"mn":8,"iom":-0.3,"uk":0.2,"ser":"CPI","diff":-0.5,"h04":6.15,"hdiff":6.45},{"d":"2020-09","y":2020,"mn":9,"iom":-1.7,"uk":0.5,"ser":"CPI","diff":-2.2,"h04":6.3,"hdiff":8.0},{"d":"2020-10","y":2020,"mn":10,"iom":-0.7,"uk":0.7,"ser":"CPI","diff":-1.4,"h04":7.53,"hdiff":8.23},{"d":"2020-11","y":2020,"mn":11,"iom":-0.3,"uk":0.3,"ser":"CPI","diff":-0.6,"h04":10.95,"hdiff":11.25},{"d":"2020-12","y":2020,"mn":12,"iom":-0.2,"uk":0.6,"ser":"CPI","diff":-0.8,"h04":10.79,"hdiff":10.99},{"d":"2021-01","y":2021,"mn":1,"iom":-0.9,"uk":0.7,"ser":"CPI","diff":-1.6,"h04":9.94,"hdiff":10.84},{"d":"2021-02","y":2021,"mn":2,"iom":-1.0,"uk":0.4,"ser":"CPI","diff":-1.4,"h04":8.79,"hdiff":9.79},{"d":"2021-03","y":2021,"mn":3,"iom":-0.2,"uk":0.7,"ser":"CPI","diff":-0.9,"h04":10.74,"hdiff":10.94},{"d":"2021-04","y":2021,"mn":4,"iom":0.8,"uk":1.5,"ser":"CPI","diff":-0.7,"h04":23.7,"hdiff":22.9},{"d":"2021-05","y":2021,"mn":5,"iom":3.5,"uk":2.1,"ser":"CPI","diff":1.4,"h04":24.79,"hdiff":21.29},{"d":"2021-06","y":2021,"mn":6,"iom":3.6,"uk":2.5,"ser":"CPI","diff":1.1,"h04":24.79,"hdiff":21.19},{"d":"2021-07","y":2021,"mn":7,"iom":4.5,"uk":2.0,"ser":"CPI","diff":2.5,"h04":28.89,"hdiff":24.39},{"d":"2021-08","y":2021,"mn":8,"iom":3.1,"uk":3.2,"ser":"CPI","diff":-0.1,"h04":27.49,"hdiff":24.39},{"d":"2021-09","y":2021,"mn":9,"iom":5.0,"uk":3.1,"ser":"CPI","diff":1.9,"h04":33.56,"hdiff":28.56},{"d":"2021-10","y":2021,"mn":10,"iom":4.4,"uk":4.2,"ser":"CPI","diff":0.2,"h04":31.63,"hdiff":27.23},{"d":"2021-11","y":2021,"mn":11,"iom":4.6,"uk":5.1,"ser":"CPI","diff":-0.5,"h04":23.53,"hdiff":18.93},{"d":"2021-12","y":2021,"mn":12,"iom":6.0,"uk":5.4,"ser":"CPI","diff":0.6,"h04":22.88,"hdiff":16.88},{"d":"2022-01","y":2022,"mn":1,"iom":6.4,"uk":5.5,"ser":"CPI","diff":0.9,"h04":22.5,"hdiff":16.1},{"d":"2022-02","y":2022,"mn":2,"iom":6.5,"uk":6.2,"ser":"CPI","diff":0.3,"h04":20.2,"hdiff":13.7},{"d":"2022-03","y":2022,"mn":3,"iom":6.7,"uk":7.0,"ser":"CPI","diff":-0.3,"h04":13.85,"hdiff":7.15},{"d":"2022-04","y":2022,"mn":4,"iom":9.0,"uk":9.0,"ser":"CPI","diff":0.0,"h04":7.71,"hdiff":-1.29},{"d":"2022-05","y":2022,"mn":5,"iom":8.1,"uk":9.1,"ser":"CPI","diff":-1.0,"h04":4.55,"hdiff":-3.55},{"d":"2022-06","y":2022,"mn":6,"iom":9.2,"uk":9.4,"ser":"CPI","diff":-0.2,"h04":4.16,"hdiff":-5.04},{"d":"2022-07","y":2022,"mn":7,"iom":10.8,"uk":10.1,"ser":"CPI","diff":0.7,"h04":2.13,"hdiff":-8.67},{"d":"2022-08","y":2022,"mn":8,"iom":10.4,"uk":9.9,"ser":"CPI","diff":0.5,"h04":4.01,"hdiff":-6.39},{"d":"2022-09","y":2022,"mn":9,"iom":9.8,"uk":10.1,"ser":"CPI","diff":-0.3,"h04":0.1,"hdiff":-9.7},{"d":"2022-10","y":2022,"mn":10,"iom":10.1,"uk":11.1,"ser":"CPI","diff":-1.0,"h04":1.74,"hdiff":-8.36},{"d":"2022-11","y":2022,"mn":11,"iom":7.9,"uk":10.7,"ser":"CPI","diff":-2.8,"h04":5.24,"hdiff":-2.66},{"d":"2022-12","y":2022,"mn":12,"iom":7.4,"uk":10.5,"ser":"CPI","diff":-3.1,"h04":5.85,"hdiff":-1.55},{"d":"2023-01","y":2023,"mn":1,"iom":8.0,"uk":10.1,"ser":"CPI","diff":-2.1,"h04":3.82,"hdiff":-4.18},{"d":"2023-02","y":2023,"mn":2,"iom":9.0,"uk":10.4,"ser":"CPI","diff":-1.4,"h04":6.02,"hdiff":-2.98},{"d":"2023-03","y":2023,"mn":3,"iom":9.1,"uk":10.1,"ser":"CPI","diff":-1.0,"h04":9.53,"hdiff":0.43},{"d":"2023-04","y":2023,"mn":4,"iom":8.5,"uk":8.7,"ser":"CPI","diff":-0.2,"h04":1.89,"hdiff":-6.61},{"d":"2023-05","y":2023,"mn":5,"iom":7.6,"uk":8.7,"ser":"CPI","diff":-1.1,"h04":1.75,"hdiff":-5.85},{"d":"2023-06","y":2023,"mn":6,"iom":6.9,"uk":7.9,"ser":"CPI","diff":-1.0,"h04":2.45,"hdiff":-4.45},{"d":"2023-07","y":2023,"mn":7,"iom":5.8,"uk":6.8,"ser":"CPI","diff":-1.0,"h04":-0.16,"hdiff":-5.96},{"d":"2023-08","y":2023,"mn":8,"iom":5.4,"uk":6.7,"ser":"CPI","diff":-1.3,"h04":-2.06,"hdiff":-7.46},{"d":"2023-09","y":2023,"mn":9,"iom":5.7,"uk":6.7,"ser":"CPI","diff":-1.0,"h04":-3.46,"hdiff":-9.16},{"d":"2023-10","y":2023,"mn":10,"iom":5.7,"uk":4.6,"ser":"CPI","diff":1.1,"h04":-5.23,"hdiff":-10.93},{"d":"2023-11","y":2023,"mn":11,"iom":5.7,"uk":3.9,"ser":"CPI","diff":1.8,"h04":-5.33,"hdiff":-11.03},{"d":"2023-12","y":2023,"mn":12,"iom":5.2,"uk":4.0,"ser":"CPI","diff":1.2,"h04":-5.33,"hdiff":-10.53},{"d":"2024-01","y":2024,"mn":1,"iom":4.4,"uk":4.0,"ser":"CPI","diff":0.4,"h04":-4.5,"hdiff":-8.9},{"d":"2024-02","y":2024,"mn":2,"iom":3.5,"uk":3.4,"ser":"CPI","diff":0.1,"h04":-4.29,"hdiff":-7.79},{"d":"2024-03","y":2024,"mn":3,"iom":3.2,"uk":3.2,"ser":"CPI","diff":0.0,"h04":-4.25,"hdiff":-7.45},{"d":"2024-04","y":2024,"mn":4,"iom":2.2,"uk":2.3,"ser":"CPI","diff":-0.1,"h04":-0.98,"hdiff":-3.18},{"d":"2024-05","y":2024,"mn":5,"iom":2.7,"uk":2.0,"ser":"CPI","diff":0.7,"h04":-0.52,"hdiff":-3.22},{"d":"2024-06","y":2024,"mn":6,"iom":3.0,"uk":2.0,"ser":"CPI","diff":1.0,"h04":-0.73,"hdiff":-3.73},{"d":"2024-07","y":2024,"mn":7,"iom":2.0,"uk":2.2,"ser":"CPI","diff":-0.2,"h04":1.31,"hdiff":-0.69},{"d":"2024-08","y":2024,"mn":8,"iom":2.1,"uk":2.2,"ser":"CPI","diff":-0.1,"h04":1.68,"hdiff":-0.42},{"d":"2024-09","y":2024,"mn":9,"iom":2.2,"uk":1.7,"ser":"CPI","diff":0.5,"h04":1.95,"hdiff":-0.25},{"d":"2024-10","y":2024,"mn":10,"iom":1.9,"uk":2.3,"ser":"CPI","diff":-0.4,"h04":2.76,"hdiff":0.86},{"d":"2024-11","y":2024,"mn":11,"iom":1.8,"uk":2.6,"ser":"CPI","diff":-0.8,"h04":2.81,"hdiff":1.01},{"d":"2024-12","y":2024,"mn":12,"iom":2.4,"uk":2.5,"ser":"CPI","diff":-0.1,"h04":2.76,"hdiff":0.36},{"d":"2025-01","y":2025,"mn":1,"iom":2.5,"uk":3.0,"ser":"CPI","diff":-0.5,"h04":0.0,"hdiff":-2.5},{"d":"2025-02","y":2025,"mn":2,"iom":2.6,"uk":2.8,"ser":"CPI","diff":-0.2,"h04":0.0,"hdiff":-2.6},{"d":"2025-03","y":2025,"mn":3,"iom":2.8,"uk":2.6,"ser":"CPI","diff":0.2,"h04":0.0,"hdiff":-2.8},{"d":"2025-04","y":2025,"mn":4,"iom":2.3,"uk":3.5,"ser":"CPI","diff":-1.2,"h04":0.0,"hdiff":-2.3},{"d":"2025-05","y":2025,"mn":5,"iom":2.6,"uk":3.4,"ser":"CPI","diff":-0.8,"h04":0.0,"hdiff":-2.6},{"d":"2025-06","y":2025,"mn":6,"iom":2.6,"uk":3.6,"ser":"CPI","diff":-1.0,"h04":0.0,"hdiff":-2.6},{"d":"2025-07","y":2025,"mn":7,"iom":2.8,"uk":3.8,"ser":"CPI","diff":-1.0,"h04":0.0,"hdiff":-2.8},{"d":"2025-08","y":2025,"mn":8,"iom":3.3,"uk":3.8,"ser":"CPI","diff":-0.5,"h04":0.0,"hdiff":-3.3},{"d":"2025-09","y":2025,"mn":9,"iom":2.9,"uk":3.8,"ser":"CPI","diff":-0.9,"h04":0.0,"hdiff":-2.9},{"d":"2025-10","y":2025,"mn":10,"iom":2.8,"uk":3.6,"ser":"CPI","diff":-0.8,"h04":0.0,"hdiff":-2.8},{"d":"2025-11","y":2025,"mn":11,"iom":2.8,"uk":3.2,"ser":"CPI","diff":-0.4,"h04":0.0,"hdiff":-2.8},{"d":"2025-12","y":2025,"mn":12,"iom":3.3,"uk":3.4,"ser":"CPI","diff":-0.1,"h04":0.0,"hdiff":-3.3},{"d":"2026-01","y":2026,"mn":1,"iom":null,"uk":3.0,"ser":null,"diff":null,"h04":null,"hdiff":null},{"d":"2026-02","y":2026,"mn":2,"iom":null,"uk":3.0,"ser":null,"diff":null,"h04":null,"hdiff":null},{"d":"2026-03","y":2026,"mn":3,"iom":null,"uk":3.3,"ser":null,"diff":null,"h04":null,"hdiff":null},{"d":"2026-04","y":2026,"mn":4,"iom":null,"uk":2.8,"ser":null,"diff":null,"h04":null,"hdiff":null}];
+const MN  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Indices into RAW where we have IoM–UK overlap
+const DIFF = RAW.filter(r => r.diff !== null);
+let fi = 0, ti = DIFF.length - 1;
+let meas = 'both';
+
+function getIoM(r) {
+  if (meas === 'rpi') return r.iom_rpi_annual_pct ?? null;
+  if (meas === 'cpi') return r.iom_cpi_annual_pct ?? null;
+  return r.iom;
+}
+
+// For chart 1 we plot IoM, UK, and differential on same axes
+// For chart 2 we plot housing and all-items IoM
+
+function fmtD(r) { return MN[r.mn-1] + ' ' + r.y; }
+function r1(v)   { return v != null ? Math.round(v*10)/10 : null; }
+
+// ── CARDS ───────────────────────────────────────────────────────────────────
+function updateCards() {
+  const data = DIFF.slice(fi, ti+1);
+  const diffs = data.map(r=>r.diff).filter(v=>v!=null);
+  if (!diffs.length) { document.getElementById('cards').innerHTML=''; return; }
+
+  const avg   = r1(diffs.reduce((a,b)=>a+b,0)/diffs.length);
+  const peak  = r1(Math.max(...diffs));
+  const pkR   = data.find(r=>r1(r.diff)===peak);
+  const trough= r1(Math.min(...diffs));
+  const trR   = data.find(r=>r1(r.diff)===trough);
+  const pctAb = Math.round(100*diffs.filter(v=>v>0).length/diffs.length);
+  const latR  = [...data].reverse().find(r=>r.diff!=null);
+
+  document.getElementById('cards').innerHTML =
+    card('Latest differential', latR ? (r1(latR.diff)>=0?'+':'')+r1(latR.diff)+'pp' : '—',
+         latR ? `${fmtD(latR)} · IoM ${latR.iom?.toFixed(1)||'—'}% vs UK ${latR.uk?.toFixed(1)||'—'}%` : '',
+         latR && r1(latR.diff)>=0 ? '#4ec9a8' : '#7b9ff5') +
+    card('Average differential', (avg>=0?'+':'')+avg+'pp',
+         `IoM above UK in ${pctAb}% of months`, 'rgba(255,255,255,0.3)') +
+    card('Peak (IoM hottest)', `+${peak}pp`, pkR ? fmtD(pkR) : '', '#4ec9a8') +
+    card('Trough (IoM coolest)', `${trough}pp`, trR ? fmtD(trR) : '', '#7b9ff5');
+}
+
+function card(label, val, sub, col) {
+  return `<div class="card" style="border-top:2px solid ${col}">
+    <div class="ck">${label}</div>
+    <div class="cv" style="color:${col}">${val}</div>
+    <div class="cs">${sub}</div>
+  </div>`;
+}
+
+// ── SHARED DRAWING HELPERS ──────────────────────────────────────────────────
+const M = {top:14, right:24, bottom:28, left:46};
+
+function makeScales(data, valueArrays, svgId) {
+  const W = document.getElementById(svgId).parentElement.clientWidth;
+  const H = Math.min(280, Math.max(180, W*0.25));
+  const iW = W - M.left - M.right;
+  const iH = H - M.top - M.bottom;
+  const allV = valueArrays.flat().filter(v=>v!=null);
+  const yMin = Math.min(0, d3.min(allV)) - 1;
+  const yMax = d3.max(allV) + 2;
+  const xSc  = d3.scaleLinear().domain([0, data.length-1]).range([0, iW]);
+  const ySc  = d3.scaleLinear().domain([yMin, yMax]).range([iH, 0]).nice();
+  return {W, H, iW, iH, xSc, ySc};
+}
+
+function drawFrame(g, sc, data, sp) {
+  const {iW, iH, xSc, ySc} = sc;
+  // Grid
+  g.append('g').selectAll('line').data(ySc.ticks(6)).join('line')
+    .attr('x1',0).attr('x2',iW).attr('y1',d=>ySc(d)).attr('y2',d=>ySc(d))
+    .attr('stroke','rgba(255,255,255,0.04)');
+  // Zero
+  const y0 = ySc(0);
+  if (y0 >= 0 && y0 <= iH)
+    g.append('line').attr('x1',0).attr('x2',iW).attr('y1',y0).attr('y2',y0)
+      .attr('stroke','rgba(255,255,255,0.18)').attr('stroke-width',1);
+  // 2% reference
+  const y2 = ySc(2);
+  if (y2 >= 0 && y2 <= iH) {
+    g.append('line').attr('x1',0).attr('x2',iW).attr('y1',y2).attr('y2',y2)
+      .attr('stroke','rgba(255,255,255,0.1)').attr('stroke-dasharray','4,4');
+    g.append('text').attr('x',iW-3).attr('y',y2-4).attr('text-anchor','end')
+      .attr('fill','rgba(255,255,255,0.2)').attr('font-size','9px').attr('font-family','system-ui').text('2%');
+  }
+  // X axis years
+  const step = data.length > 200 ? 10 : data.length > 100 ? 5 : 2;
+  const ytx  = [];
+  data.forEach((r,i) => { if (r.mn===1 && r.y%step===0) ytx.push({i, y:r.y}); });
+  if (!ytx.length || ytx[0].i > 0) ytx.unshift({i:0, y:data[0].y});
+  g.append('g').attr('transform',`translate(0,${iH})`).selectAll('g').data(ytx).join('g')
+    .attr('transform',d=>`translate(${xSc(d.i)},0)`)
+    .call(s=>{
+      s.append('line').attr('y2',3).attr('stroke','rgba(255,255,255,.1)');
+      s.append('text').attr('y',12).attr('text-anchor','middle')
+        .attr('fill','#5a5a84').attr('font-size','10px').attr('font-family','system-ui').text(d=>d.y);
+    });
+  // Y axis
+  g.append('g').call(d3.axisLeft(ySc).ticks(6).tickFormat(d=>d+'%').tickSize(-iW))
+    .call(a=>{a.select('.domain').remove();
+      a.selectAll('line').attr('stroke','rgba(255,255,255,0.04)');
+      a.selectAll('text').attr('fill','#5a5a84').attr('font-size','10px').attr('font-family','system-ui');});
+}
+
+function drawLine(g, sc, vals, col, sw, animate) {
+  const {xSc, ySc} = sc;
+  const lg = d3.line().x((_,i)=>xSc(i)).y(v=>ySc(v)).defined(v=>v!=null).curve(d3.curveMonotoneX);
+  const p  = g.append('path').datum(vals)
+    .attr('fill','none').attr('stroke',col).attr('stroke-width',sw).attr('opacity',.9).attr('d',lg);
+  if (animate) anim(p);
+}
+
+function drawFill(g, sc, vals, col) {
+  const {xSc, ySc, iH} = sc;
+  const y0 = ySc(0);
+  const aP = d3.area().x((_,i)=>xSc(i)).y0(y0).y1(v=>ySc(Math.max(0,v||0))).defined(v=>v!=null).curve(d3.curveMonotoneX);
+  const aN = d3.area().x((_,i)=>xSc(i)).y0(y0).y1(v=>ySc(Math.min(0,v||0))).defined(v=>v!=null).curve(d3.curveMonotoneX);
+  g.append('path').datum(vals).attr('fill',col).attr('opacity',.13).attr('d',aP);
+  g.append('path').datum(vals).attr('fill','var(--uk)').attr('opacity',.08).attr('d',aN);
+}
+
+function anim(p) {
+  const l = p.node().getTotalLength();
+  p.attr('stroke-dasharray',`${l} ${l}`).attr('stroke-dashoffset',l)
+   .transition().duration(600).ease(d3.easeCubicOut).attr('stroke-dashoffset',0)
+   .on('end',()=>p.attr('stroke-dasharray',null));
+}
+
+function initSvg(id, W, H) {
+  const svgEl = d3.select('#'+id);
+  svgEl.attr('viewBox',`0 0 ${W} ${H}`).attr('height',H).selectAll('*').remove();
+  return svgEl.append('g').attr('transform',`translate(${M.left},${M.top})`);
+}
+
+// ── CHART 1: DIFFERENTIAL ──────────────────────────────────────────────────
+function drawChart1(animate=true) {
+  const data  = DIFF.slice(fi, ti+1);
+  const dvals = data.map(r=>r.diff);
+  const ivals = data.map(r=>r.iom);
+  const uvals = data.map(r=>r.uk);
+  const sc    = makeScales(data, [dvals, ivals, uvals], 'svg1');
+  const g     = initSvg('svg1', sc.W, sc.H);
+
+  drawFrame(g, sc, data);
+
+  // Fill above/below zero for differential
+  drawFill(g, sc, dvals, 'var(--iom)');
+
+  // Series break
+  if (meas === 'both') {
+    const bi = data.findIndex(r=>r.y===2009&&r.mn===1);
+    if (bi > 0) {
+      const bx = sc.xSc(bi);
+      g.append('line').attr('x1',bx).attr('x2',bx).attr('y1',0).attr('y2',sc.iH)
+        .attr('stroke','rgba(78,201,168,.2)').attr('stroke-width',1).attr('stroke-dasharray','2,4');
+      g.append('text').attr('x',bx+3).attr('y',10)
+        .attr('fill','rgba(78,201,168,.28)').attr('font-size','8px').attr('font-family','system-ui').text('RPI→CPI');
+    }
+  }
+
+  // IoM and UK lines (lighter, behind)
+  drawLine(g, sc, ivals, 'var(--iom)', 1.2, false);
+  drawLine(g, sc, uvals, 'var(--uk)',  1.2, false);
+  // Differential line (bold, front)
+  drawLine(g, sc, dvals, '#fff', 2, animate);
+
+  // Zero label
+  const y0 = sc.ySc(0);
+  g.append('text').attr('x',3).attr('y',y0-4)
+    .attr('fill','rgba(255,255,255,.22)').attr('font-size','9px').attr('font-family','system-ui')
+    .text('0 = parity');
+
+  // Hover
+  addHover(g, sc, data, 'svg1', (ev,r) => {
+    let h = `<div class="ttd">${fmtD(r)}</div>`;
+    if (r.iom!=null) h+=`<div class="ttr"><span class="ttl"><span class="dot" style="background:var(--iom)"></span>IoM ${r.ser||''}</span><span class="ttv" style="color:var(--iom)">${r.iom.toFixed(1)}%</span></div>`;
+    if (r.uk!=null)  h+=`<div class="ttr"><span class="ttl"><span class="dot" style="background:var(--uk)"></span>UK CPI</span><span class="ttv" style="color:var(--uk)">${r.uk.toFixed(1)}%</span></div>`;
+    if (r.diff!=null){
+      const d=r1(r.diff);
+      h+=`<div class="ttr" style="border-top:1px solid var(--b);margin-top:4px;padding-top:4px">
+        <span class="ttl">Differential (IoM−UK)</span>
+        <span class="ttv" style="color:${d>=0?'var(--iom)':'var(--uk)'}">${d>=0?'+':''}${d}pp</span></div>`;
+    }
+    if (r.ser==='RPI') h+=`<div class="ttn">IoM: RPI (General Index of Retail Prices)</div>`;
+    return h;
+  });
+
+  document.getElementById('leg1').innerHTML =
+    `<div class="li"><div class="ll" style="background:var(--iom)"></div>IoM rate</div>
+     <div class="li"><div class="ll" style="background:var(--uk)"></div>UK CPI rate</div>
+     <div class="li"><div class="ll" style="background:#fff"></div>Differential (IoM−UK)</div>
+     <div class="li" style="margin-left:auto;font-size:10px;color:var(--txd)">Above zero = IoM hotter · Below = IoM cooler</div>`;
+}
+
+// ── CHART 2: HOUSING vs ALL-ITEMS ──────────────────────────────────────────
+function drawChart2(animate=true) {
+  // Only data where housing is available AND in the user's timeline window
+  const fromD = DIFF[fi] ? DIFF[fi].d : '0000';
+  const toD   = DIFF[ti] ? DIFF[ti].d : '9999';
+  const data  = RAW.filter(r => r.h04 != null && r.d >= fromD && r.d <= toD);
+
+  if (!data.length) {
+    const svgEl = d3.select('#svg2');
+    const W = document.getElementById('svg2').parentElement.clientWidth;
+    svgEl.attr('viewBox',`0 0 ${W} 60`).attr('height',60).selectAll('*').remove();
+    svgEl.append('text').attr('x',M.left).attr('y',35)
+      .attr('fill','#5a5a84').attr('font-size','11px').attr('font-family','system-ui')
+      .text('Housing data (Group 04) available from Jan 2014 — extend timeline to include this period');
+    document.getElementById('leg2').innerHTML='';
+    return;
+  }
+
+  const hvals = data.map(r=>r.h04);
+  const ivals = data.map(r=>r.iom);
+  const sc    = makeScales(data, [hvals, ivals], 'svg2');
+  const g     = initSvg('svg2', sc.W, sc.H);
+
+  drawFrame(g, sc, data);
+
+  // Fill between housing and all-items to show the gap
+  // Area where housing > all-items (housing pulling up)
+  const {xSc, ySc} = sc;
+  const areaGap = d3.area()
+    .x((_,i) => xSc(i))
+    .y0((d,i) => ySc(ivals[i] ?? d))
+    .y1(d => ySc(d))
+    .defined((d,i) => d != null && ivals[i] != null)
+    .curve(d3.curveMonotoneX);
+
+  // Split into above/below for colour
+  data.forEach((r,i) => {
+    if (r.h04 != null && r.iom != null) {
+      const x0 = xSc(i > 0 ? i-0.5 : 0);
+      const x1 = xSc(i < data.length-1 ? i+0.5 : i);
+      const ya  = ySc(Math.max(r.h04, r.iom));
+      const yb  = ySc(Math.min(r.h04, r.iom));
+      if (ya !== yb)
+        g.append('rect').attr('x',x0).attr('width',x1-x0).attr('y',ya).attr('height',yb-ya)
+          .attr('fill', r.h04 > r.iom ? 'rgba(224,107,107,.15)' : 'rgba(78,201,168,.1)');
+    }
+  });
+
+  // All-items line
+  drawLine(g, sc, ivals, 'var(--iom)', 2, animate);
+  // Housing line
+  drawLine(g, sc, hvals, 'var(--hous)', 2, animate);
+
+  // Hover
+  addHover(g, sc, data, 'svg2', (ev,r) => {
+    const gap = r.h04 != null && r.iom != null ? r1(r.h04 - r.iom) : null;
+    let h = `<div class="ttd">${fmtD(r)}</div>`;
+    h+=`<div class="ttr"><span class="ttl"><span class="dot" style="background:var(--hous)"></span>Housing (Grp 04)</span><span class="ttv" style="color:var(--hous)">${r.h04?.toFixed(1)||'—'}%</span></div>`;
+    h+=`<div class="ttr"><span class="ttl"><span class="dot" style="background:var(--iom)"></span>IoM all-items</span><span class="ttv" style="color:var(--iom)">${r.iom?.toFixed(1)||'—'}%</span></div>`;
+    if (gap!=null) h+=`<div class="ttr" style="border-top:1px solid var(--b);margin-top:4px;padding-top:4px">
+      <span class="ttl">Housing vs all-items</span>
+      <span class="ttv" style="color:${gap>=0?'var(--hous)':'var(--iom)'}">${gap>=0?'+':''}${gap}pp</span></div>`;
+    return h;
+  });
+
+  // Stats for leg
+  const hAbove = data.filter(r=>r.h04!=null&&r.iom!=null&&r.h04>r.iom).length;
+  const pct    = Math.round(100*hAbove/data.filter(r=>r.h04!=null&&r.iom!=null).length);
+  document.getElementById('leg2').innerHTML =
+    `<div class="li"><div class="ll" style="background:var(--hous)"></div>IoM Housing &amp; energy (Group 04)</div>
+     <div class="li"><div class="ll" style="background:var(--iom)"></div>IoM all-items CPI</div>
+     <div class="li" style="margin-left:auto;font-size:10px;color:var(--txd)">Housing above all-items in ${pct}% of months shown</div>`;
+}
+
+// ── HOVER HELPER ────────────────────────────────────────────────────────────
+function addHover(g, sc, data, svgId, buildTT) {
+  const {xSc, iW, iH} = sc;
+  const vl = g.append('line').attr('y1',0).attr('y2',iH)
+    .attr('stroke','rgba(255,255,255,.14)').attr('display','none');
+  g.append('rect').attr('width',iW).attr('height',iH).attr('fill','transparent').attr('cursor','crosshair')
+    .on('mousemove', function(ev) {
+      const [mx] = d3.pointer(ev, this);
+      const idx  = Math.max(0, Math.min(data.length-1, Math.round(xSc.invert(mx))));
+      const r    = data[idx];
+      vl.attr('display',null).attr('x1',xSc(idx)).attr('x2',xSc(idx));
+      const ttE  = document.getElementById('tt');
+      ttE.innerHTML = buildTT(ev, r);
+      ttE.classList.add('vis');
+      ttE.style.left = Math.min(ev.clientX+16, window.innerWidth-220)+'px';
+      ttE.style.top  = Math.min(ev.clientY-20,  window.innerHeight-ttE.offsetHeight-10)+'px';
+    })
+    .on('mouseleave', () => {
+      vl.attr('display','none');
+      document.getElementById('tt').classList.remove('vis');
+    });
+}
+
+// ── CONTROLS ────────────────────────────────────────────────────────────────
+function setMeas(m) {
+  meas = m;
+  ['both','rpi','cpi'].forEach(k => document.getElementById('m-'+k).classList.toggle('on', k===m));
+  drawAll();
+}
+
+function onRange() {
+  let f = +document.getElementById('rf').value;
+  let t = +document.getElementById('rt').value;
+  if (f >= t-2) { f = Math.max(0,t-3); document.getElementById('rf').value=f; }
+  fi=f; ti=t;
+  document.getElementById('lf').textContent = fmtD(DIFF[f]);
+  document.getElementById('lt').textContent = fmtD(DIFF[t]);
+  drawAll(false);
+}
+
+function drawAll(animate=true) {
+  updateCards();
+  drawChart1(animate);
+  drawChart2(animate);
+}
+
+window.addEventListener('resize', ()=>drawAll(false));
+drawAll();
+</script>
+</body>
+</html>
