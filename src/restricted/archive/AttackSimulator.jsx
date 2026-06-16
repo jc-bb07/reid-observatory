@@ -5,28 +5,6 @@ import {
 } from "../data/constants";
 import attackLookup from "../data/attackLookup.json";
 
-// Colour tokens — keep in sync with App.jsx and observatory.css
-const C = {
-  bg:      "#0f172a",
-  surface: "#1e293b",
-  surface2:"#162032",
-  border:  "#1e293b",
-  border2: "#334155",
-  text:    "#e2e8f0",
-  muted:   "#64748b",
-  muted2:  "#94a3b8",
-  blue:    "#60a5fa",
-  blueDim: "#1d4ed8",
-  green:   "#34d399",
-  amber:   "#fbbf24",
-  red:     "#f87171",
-  orange:  "#fb923c",
-  purple:  "#a78bfa",
-  iom:     "#3b82f6",
-  gsy:     "#10b981",
-  jsy:     "#f59e0b",
-};
-
 // -- Jersey sensitive data (2021 census published figures) ---------------------
 const JSY_SENSITIVE = {
   sexual_orientation: {
@@ -78,7 +56,7 @@ const JSY_VINGTAINES_SIM = [
 const S = {
   select: {
     width:"100%", background:"#0f172a", border:"1px solid #334155",
-    borderRadius:6, padding:"8px 10px", color:"#e2e8f0", fontSize:13,
+    borderRadius:6, padding:"8px 10px", color:"#f1f5f9", fontSize:13,
     fontFamily:"inherit", appearance:"none", WebkitAppearance:"none",
     backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E\")",
     backgroundRepeat:"no-repeat", backgroundPosition:"right 10px center",
@@ -91,9 +69,9 @@ const S = {
 // -- Data badge ----------------------------------------------------------------
 function DataBadge({ type }) {
   const cfg = {
-    published_exact:   { label:"Published exact",   color:"#34d399", bg:"rgba(52,211,153,0.1)" },
-    modelled_estimate: { label:"Modelled estimate", color:"#f59e0b", bg:"rgba(251,191,36,0.08)" },
-    synthetic:         { label:"Synthetic model",   color:"#a78bfa", bg:"rgba(167,139,250,0.12)" },
+    published_exact:   { label:"Published exact",   color:"#22c55e", bg:"#052e16" },
+    modelled_estimate: { label:"Modelled estimate", color:"#f59e0b", bg:"#1c1003" },
+    synthetic:         { label:"Synthetic model",   color:"#a78bfa", bg:"#1e1040" },
   }[type] ?? { label:type, color:"#64748b", bg:"#1e293b" };
   return (
     <span style={{
@@ -388,10 +366,10 @@ function buildSteps({ island, area, ageBand, sex, occupation, hhSize,
 // -- Step colour ---------------------------------------------------------------
 function stepColor(count, isLast) {
   if (!isLast) return "#64748b";
-  if (count <= 1)  return "#f87171";
-  if (count <= 5)  return "#fb923c";
-  if (count <= 20) return "#fbbf24";
-  return "#34d399";
+  if (count <= 1)  return "#ef4444";
+  if (count <= 5)  return "#f97316";
+  if (count <= 20) return "#eab308";
+  return "#22c55e";
 }
 
 // -- Jersey-only QI definitions (not in constants.js) -------------------------
@@ -533,13 +511,13 @@ export function AttackSimulator() {
             <button key={opt.id} onClick={() => handleDataModeChange(opt.id)} style={{
               flex:1, padding:"10px 14px", borderRadius:8, border:"1px solid",
               borderColor: dataMode === opt.id ? "#60a5fa" : "#334155",
-              background:  dataMode === opt.id ? "rgba(96,165,250,0.08)" : "#0f172a",
+              background:  dataMode === opt.id ? "#0f2340" : "#0f172a",
               color:       dataMode === opt.id ? "#e2e8f0" : "#64748b",
               cursor:"pointer", textAlign:"left",
             }}>
               <div style={{ fontWeight:600, fontSize:12, marginBottom:3 }}>{opt.label}</div>
               <div style={{ fontSize:10, lineHeight:1.5,
-                color: dataMode === opt.id ? "#94a3b8" : "#94a3b8" }}>{opt.desc}</div>
+                color: dataMode === opt.id ? "#94a3b8" : "#475569" }}>{opt.desc}</div>
             </button>
           ))}
         </div>
@@ -563,8 +541,8 @@ export function AttackSimulator() {
               : null;
 
             const activeColor  = isJsyOnly ? "#f59e0b" : isIomOnly ? "#3b82f6" : "#60a5fa";
-            const activeBg     = isJsyOnly ? "rgba(251,191,36,0.08)" : isIomOnly ? "rgba(59,130,246,0.12)" : "#1d4ed8";
-            const unlockedBorder = isJsyOnly ? "rgba(245,158,11,0.4)" : isIomOnly ? "rgba(96,165,250,0.12)" : "#334155";
+            const activeBg     = isJsyOnly ? "#1c0f00" : isIomOnly ? "#0f1f3d" : "#1d4ed8";
+            const unlockedBorder = isJsyOnly ? "#78350f" : isIomOnly ? "#1e3a5f" : "#334155";
 
             return (
               <button key={qi} onClick={() => !locked && toggleQI(qi)}
@@ -574,7 +552,7 @@ export function AttackSimulator() {
                 style={{
                   padding:"5px 12px", borderRadius:20, fontSize:11, fontWeight:600,
                   border:`1px solid ${isActive ? activeColor : locked ? "#1e293b" : unlockedBorder}`,
-                  background: isActive ? activeBg : locked ? "#0f172a" : "#1e293b",
+                  background: isActive ? activeBg : locked ? "#0a0f1a" : "#1e293b",
                   color: isActive ? "#fff" : locked ? "#1e293b" : "#94a3b8",
                   cursor: locked ? "not-allowed" : "pointer", transition:"all 0.15s",
                   display:"flex", alignItems:"center", gap:5,
@@ -582,7 +560,7 @@ export function AttackSimulator() {
                 {def.label}
                 {locked && <span style={{ fontSize:9, color:"#334155" }}>locked</span>}
                 {!locked && def.requiresAdditionalData && (
-                  <span style={{ fontSize:9, color: isActive ? "#60a5fa" : "#64748b" }}>~</span>
+                  <span style={{ fontSize:9, color: isActive ? "#93c5fd" : "#64748b" }}>~</span>
                 )}
                 {islandTag && (
                   <span style={{ fontSize:9, fontWeight:700,
@@ -596,7 +574,7 @@ export function AttackSimulator() {
             );
           })}
         </div>
-        <div style={{ color:"#94a3b8", fontSize:10 }}>
+        <div style={{ color:"#475569", fontSize:10 }}>
           ~ synthetic model &nbsp;.&nbsp; ? requires Additional Data or island-specific &nbsp;.&nbsp;
           <span style={{ color:"#f59e0b" }}>JSY</span> Jersey only -- sensitive census data
         </div>
@@ -708,7 +686,7 @@ export function AttackSimulator() {
                 background:"rgba(245,158,11,0.12)", padding:"1px 5px", borderRadius:3 }}>
                 Jersey only
               </span>
-              <span style={{ fontSize:10, color:"#94a3b8", fontWeight:400,
+              <span style={{ fontSize:10, color:"#475569", fontWeight:400,
                 textTransform:"none", letterSpacing:0 }}>optional -- finer than parish</span>
             </div>
             {(() => {
@@ -758,7 +736,7 @@ export function AttackSimulator() {
                 </option>
               ))}
             </select>
-            <div style={{ color:"#a78bfa", fontSize:10, marginTop:6 }}>
+            <div style={{ color:"#7c3aed", fontSize:10, marginTop:6 }}>
               Sensitive attribute. Jersey is the only Crown Dependency to collect this data.
               Its presence creates significant re-identification risk.
             </div>
@@ -792,7 +770,7 @@ export function AttackSimulator() {
 
         <button onClick={runSimulation} disabled={!canRun || running} style={{
           padding:"10px 24px", border:"none", borderRadius:6,
-          background: (!canRun || running) ? "rgba(96,165,250,0.12)" : "#a78bfa",
+          background: (!canRun || running) ? "#1e3a5f" : "#7c3aed",
           color:"#fff", fontSize:13, fontWeight:600,
           cursor: (!canRun || running) ? "not-allowed" : "pointer",
         }}>
@@ -811,21 +789,21 @@ export function AttackSimulator() {
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:2 }}>
-                      <span style={{ color:"#e2e8f0", fontWeight:600, fontSize:13 }}>
+                      <span style={{ color:"#f1f5f9", fontWeight:600, fontSize:13 }}>
                         Step {i+1} -- {s.label}
                       </span>
                       <DataBadge type={s.dataType}/>
                     </div>
                     <div style={{ color:"#64748b", fontSize:12, marginTop:2 }}>{s.desc}</div>
                     {s.contextNote && (
-                      <div style={{ color:"#94a3b8", fontSize:11, marginTop:2, fontStyle:"italic" }}>{s.contextNote}</div>
+                      <div style={{ color:"#475569", fontSize:11, marginTop:2, fontStyle:"italic" }}>{s.contextNote}</div>
                     )}
-                    <div style={{ color:"#94a3b8", fontSize:11, marginTop:4 }}>
+                    <div style={{ color:"#475569", fontSize:11, marginTop:4 }}>
                       <strong style={{ color:"#334155" }}>Source:</strong>{" "}{s.source}
                       {s.citation && <span style={{ color:"#3b82f6" }}> -- {s.citation}</span>}
                     </div>
                     {s.caveat && (
-                      <div style={{ color:"#fbbf24", fontSize:10, marginTop:4, background:"rgba(251,191,36,0.08)",
+                      <div style={{ color:"#92400e", fontSize:10, marginTop:4, background:"#1c1003",
                         padding:"4px 8px", borderRadius:4, border:"1px solid #92400e44" }}>
                         ! {s.caveat}
                       </div>
@@ -844,11 +822,11 @@ export function AttackSimulator() {
           {hasRun && finalCount !== null && (
             <div style={{
               borderRadius:8, padding:16,
-              background: finalCount <= 1 ? "rgba(248,113,113,0.15)" : finalCount <= 5 ? "rgba(251,146,60,0.12)" : "rgba(251,191,36,0.08)",
-              border:`2px solid ${finalCount <= 1 ? "#f87171" : finalCount <= 5 ? "#fb923c" : "#fbbf24"}`,
+              background: finalCount <= 1 ? "#450a0a" : finalCount <= 5 ? "#431407" : "#1c1003",
+              border:`2px solid ${finalCount <= 1 ? "#ef4444" : finalCount <= 5 ? "#f97316" : "#eab308"}`,
             }}>
               <div style={{
-                color: finalCount <= 1 ? "#f87171" : finalCount <= 5 ? "#fb923c" : "#fbbf24",
+                color: finalCount <= 1 ? "#ef4444" : finalCount <= 5 ? "#f97316" : "#eab308",
                 fontWeight:800, fontSize:15, marginBottom:8,
               }}>
                 {finalCount <= 1 ? "! Single individual identified"
@@ -864,9 +842,9 @@ export function AttackSimulator() {
               </div>
               <div style={{
                 marginTop:10, fontSize:11, padding:"6px 10px", borderRadius:4,
-                color: dataMode === "published" ? "#34d399" : "#a78bfa",
-                background: dataMode === "published" ? "rgba(52,211,153,0.1)" : "rgba(167,139,250,0.12)",
-                border:`1px solid ${dataMode === "published" ? "rgba(52,211,153,0.27)" : "rgba(167,139,250,0.27)"}`,
+                color: dataMode === "published" ? "#22c55e" : "#a78bfa",
+                background: dataMode === "published" ? "#052e16" : "#1e1040",
+                border:`1px solid ${dataMode === "published" ? "#22c55e44" : "#a78bfa44"}`,
               }}>
                 {dataMode === "published"
                   ? "v Published census data only. All counts directly citable."
@@ -893,14 +871,14 @@ function ToggleFilter({ label, badge, disabled, disabledReason, active, onToggle
         <div style={{ ...S.label, marginBottom:2, display:"flex", gap:6, alignItems:"center", flexWrap:"wrap" }}>
           {label} <DataBadge type={badge}/>
           {disabled && disabledReason && (
-            <span style={{ color:"#94a3b8", fontSize:9 }}>-- {disabledReason}</span>
+            <span style={{ color:"#475569", fontSize:9 }}>-- {disabledReason}</span>
           )}
         </div>
         {context && !disabled && (
           <div style={{ color:"#64748b", fontSize:11 }}>{context}</div>
         )}
         {warning && !disabled && (
-          <div style={{ color: warningColor || "#fbbf24", fontSize:10, marginTop:3 }}>
+          <div style={{ color: warningColor || "#92400e", fontSize:10, marginTop:3 }}>
             ! {warning}
           </div>
         )}
@@ -910,9 +888,9 @@ function ToggleFilter({ label, badge, disabled, disabledReason, active, onToggle
         onClick={onToggle}
         style={{
           padding:"6px 14px", borderRadius:20, border:"1px solid", marginLeft:12, flexShrink:0,
-          borderColor: active ? "#34d399" : "#334155",
-          background:  active ? "rgba(52,211,153,0.1)" : "#1e293b",
-          color:       active ? "#34d399" : "#64748b",
+          borderColor: active ? "#22c55e" : "#334155",
+          background:  active ? "#052e16" : "#1e293b",
+          color:       active ? "#22c55e" : "#64748b",
           fontSize:12, fontWeight:600,
           cursor: disabled ? "not-allowed" : "pointer",
         }}>
