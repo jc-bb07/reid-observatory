@@ -2,99 +2,687 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Demographics Explorer · Crown Dependencies Re-Identification Observatory</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/observatory.css"/>
+<style>
+/* observatory.css — inlined for self-contained operation */
+/*
+ * observatory.css
+ * Crown Dependencies Re-Identification Observatory
+ * Shared design tokens and component styles — link from every iframe page.
+ * https://observatory.coalfinch.com · Coalfinch
+ *
+ * EDITING THIS FILE affects all pages. Do not introduce new hex values —
+ * add an alias in :root pointing at an existing token instead.
+ */
+
+/* ─────────────────────────────────────────────
+   RESET
+───────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+
+:root {
+
+  /* Backgrounds */
+  --bg:       #0f172a;   /* page background */
+  --surface:  #1e293b;   /* card / panel surface */
+  --surface2: #162032;   /* recessed surface (inside a card, code blocks) */
+
+  /* Borders */
+  --border:   #1e293b;   /* subtle — same as surface, nearly invisible */
+  --border2:  #334155;   /* visible divider */
+
+  /* Text */
+  --text:     #e2e8f0;   /* primary — headings, values */
+  --muted:    #64748b;   /* de-emphasised labels, decorative eyebrows */
+  --muted2:   #94a3b8;   /* body copy, descriptions, secondary UI chrome.
+                            NOTE: muted2 is LIGHTER than muted. Do not swap. */
+
+  /* Accents */
+  --blue:     #60a5fa;
+  --blue-dim: #1d4ed8;   /* active button fill */
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;   /* risk / error states only — never use for islands */
+  --purple:   #a78bfa;   /* restricted / auth-gated areas */
+  --orange:   #fb923c;
+
+  /* ── Island colours ──────────────────────────
+     These are canonical. Never substitute.
+     IoM  = blue   (the sea)
+     GSY  = green  (the fields)
+     JSY  = amber  (Jersey Royal — orange jelly)
+     UK   = #94a3b8 (John Major grey)
+  ────────────────────────────────────────────── */
+  --iom: #3b82f6;   /* Isle of Man   */
+  --gsy: #10b981;   /* Guernsey      */
+  --jsy: #f59e0b;   /* Jersey        */
+  --uk:  #94a3b8;   /* United Kingdom */
+
+}
+
+
+/* ─────────────────────────────────────────────
+   BASE
+───────────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Suppress scrollbars — height is managed by parent iframe via postMessage.
+   Only apply on pages that are truly single-view with no internal tabs.
+   Pages with internal tabs must NOT set overflow:hidden — tab switching
+   changes content height and notifyHeight() needs a real scrollHeight. */
+body.single-view {
+  overflow: hidden;
+}
+
+/* Scrollbar hiding for inner scrollable elements (e.g. tab rows) */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+/* ─────────────────────────────────────────────
+   SHELL
+───────────────────────────────────────────── */
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+}
+
+@media (max-width: 600px) {
+  .shell { padding: 16px 14px 32px; }
+}
+
+
+/* ─────────────────────────────────────────────
+   TYPOGRAPHY HELPERS
+───────────────────────────────────────────── */
+
+h1 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.7;
+  max-width: 640px;
+}
+
+
+/* ─────────────────────────────────────────────
+   INTRO STRIP
+   Accent colour via border-left — override per page:
+   .intro { border-left-color: var(--iom); }
+───────────────────────────────────────────── */
+
+.intro {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 22px;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.7;
+}
+.intro strong { color: var(--text); }
+.intro em     { color: var(--muted2); font-style: normal; }
+.intro .caveat {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+
+/* ─────────────────────────────────────────────
+   PLAIN / METHOD BOXES
+───────────────────────────────────────────── */
+
+.plain-box {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 13px 15px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.7;
+}
+.plain-box strong { color: var(--text); }
+.plain-box.hidden { display: none; }
+
+.method-note {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 11px;
+  color: var(--muted2);
+  line-height: 1.7;
+}
+.method-note strong { color: var(--muted); }
+
+
+/* ─────────────────────────────────────────────
+   CONTROLS BAR
+───────────────────────────────────────────── */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.ctrl-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+
+/* ─────────────────────────────────────────────
+   PILL BUTTONS  (mutually-exclusive toggle groups)
+───────────────────────────────────────────── */
+
+.pill {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  color: var(--muted2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 4px 12px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.pill.active {
+  background: var(--blue-dim);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.pill:hover:not(.active) {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+
+/* ─────────────────────────────────────────────
+   TOGGLE BUTTONS  (binary on/off, e.g. Plain / Technical)
+───────────────────────────────────────────── */
+
+.toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--muted2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 14px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.toggle-btn.active {
+  background: var(--blue-dim);
+  color: var(--blue);
+}
+.toggle-btn:hover:not(.active) {
+  color: var(--text);
+}
+
+
+/* ─────────────────────────────────────────────
+   SELECT DROPDOWNS
+───────────────────────────────────────────── */
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 7px 28px 7px 10px;
+  transition: border-color 0.15s;
+}
+select:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+/* Selected / has-value state */
+select.has-value {
+  border-color: #1e40af;
+  background-color: #0f1f3d;
+}
+
+
+/* ─────────────────────────────────────────────
+   INTERNAL TAB NAVIGATION
+   (within an iframe page, not the app shell tabs)
+───────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 24px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted2);        /* #94a3b8 — minimum for legibility on --bg */
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  margin-bottom: -1px;
+  padding: 8px 16px;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+  font-weight: 600;
+}
+.tab:hover:not(.active) {
+  color: var(--text);
+}
+
+
+/* ─────────────────────────────────────────────
+   STAT CARDS
+───────────────────────────────────────────── */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-top: 3px solid var(--border2); /* override per island: border-top-color: var(--iom) */
+  border-radius: 8px;
+  padding: 13px 15px;
+}
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted2);
+  margin-bottom: 5px;
+}
+.card-value {
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  line-height: 1;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--muted2);
+  margin-top: 3px;
+}
+.card-up   { color: var(--amber); font-size: 10px; margin-top: 3px; }
+.card-dn   { color: var(--iom);   font-size: 10px; margin-top: 3px; }
+
+
+/* ─────────────────────────────────────────────
+   CHART WRAPPER
+───────────────────────────────────────────── */
+
+.chart-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 18px 14px 12px;
+  margin-bottom: 10px;
+}
+
+.chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--muted2);
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.leg-sw {
+  width: 12px;
+  height: 3px;
+  border-radius: 1px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+
+/* ─────────────────────────────────────────────
+   AUDIENCE TOGGLE  (Plain language / Technical)
+───────────────────────────────────────────── */
+
+.audience-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.aud-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+
+/* ─────────────────────────────────────────────
+   SOURCE / STATUS TAGS
+───────────────────────────────────────────── */
+
+.source-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.source-tag.official {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--gsy);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.source-tag.estimated {
+  background: rgba(251, 191, 36, 0.10);
+  color: var(--amber);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+
+/* ─────────────────────────────────────────────
+   PANEL  (bordered content block with header)
+───────────────────────────────────────────── */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.panel-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border2);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-body {
+  padding: 14px 16px;
+}
+
+
+/* ─────────────────────────────────────────────
+   PAGE FOOTER
+───────────────────────────────────────────── */
+
+.page-footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border2);
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.page-footer a {
+  color: var(--muted2);
+  text-decoration: none;
+}
+.page-footer a:hover {
+  color: var(--text);
+}
+
+
+/* ─────────────────────────────────────────────
+   RANGE SLIDERS
+───────────────────────────────────────────── */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--border2);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  border: none;
+}
+
+
+/* ─────────────────────────────────────────────
+   UTILITY
+───────────────────────────────────────────── */
+
+.monospace {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.text-iom    { color: var(--iom); }
+.text-gsy    { color: var(--gsy); }
+.text-jsy    { color: var(--jsy); }
+.text-uk     { color: var(--uk);  }
+.text-muted  { color: var(--muted);  }
+.text-muted2 { color: var(--muted2); }
+.text-amber  { color: var(--amber); }
+.text-red    { color: var(--red);   }
+.text-green  { color: var(--green); }
+.text-blue   { color: var(--blue);  }
+
+.border-iom { border-color: var(--iom); }
+.border-gsy { border-color: var(--gsy); }
+.border-jsy { border-color: var(--jsy); }
+
+
+/* ─────────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root {
-      --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
-      --border:#1e293b; --border2:#334155;
-      --text:#e2e8f0; --muted:#64748b; --muted2:#475569;
-      --blue:#60a5fa; --blue-dim:#1d4ed8;
-      --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --orange:#fb923c;
-      --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b;
-      /* demographics aliases */
-      --accent:#60a5fa; --text-m:#64748b; --text-f:#475569;
-      --gue:#f87171; --jer:#f59e0b; --uk:#94a3b8;
-    }
-html{scroll-behavior:smooth}
-body{background:var(--bg); color:var(--text);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
-.page{max-width:1100px;margin:0 auto;padding:20px 20px 40px}
-.section{margin-bottom:52px}
-.eyebrow{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-f);margin-bottom:12px;}
-h1{font-family:'Inter',sans-serif;font-size:20px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:8px;}
-p{color:var(--text-m);font-size:13px;line-height:1.7;max-width:600px}
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;margin-bottom:28px;}
-.tabs::-webkit-scrollbar{display:none}
-.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text-f);cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.03em;margin-bottom:-1px;padding:8px 16px;transition:color .15s,border-color .15s;white-space:nowrap;}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.tab:hover:not(.active){color:var(--text-m)}
-.audience-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
-.aud-label{font-size:11px;color:var(--text-f);letter-spacing:.06em;text-transform:uppercase}
-.toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
-.toggle-btn{background:none;border:none;color:var(--text-f);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;padding:5px 14px;transition:all .15s;}
-.toggle-btn.active{background:var(--blue-dim);color:var(--blue)}
-.plain-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:13px 15px;margin-bottom:18px;font-size:12px;color:var(--text-m);line-height:1.7;}
-.plain-box strong{color:var(--text)}
-.plain-box.hidden{display:none}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin-bottom:20px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px 15px;}
-.card-label{font-size:10px;color:var(--text-f);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
-.card-value{font-size:21px;font-variant-numeric:tabular-nums;font-weight:500;line-height:1}
-.card-sub{font-size:11px;color:var(--text-f);margin-top:3px}
-.card-up{color:#f5a623;font-size:10px;margin-top:3px}
-.card-dn{color:var(--iom);font-size:10px;margin-top:3px}
-.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 14px 12px;margin-bottom:10px;}
-.chart-canvas-wrap{position:relative;width:100%}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:11px;color:var(--text-m)}
-.leg-item{display:flex;align-items:center;gap:5px}
-.leg-sw{width:12px;height:3px;border-radius:1px;display:inline-block}
-.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center}
-.ctrl-label{font-size:10px;color:var(--text-f);text-transform:uppercase;letter-spacing:.08em;margin-right:2px}
-.pill{background:none;border:1px solid var(--border);border-radius:20px;color:var(--text-f);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.03em;padding:4px 12px;transition:all .15s;white-space:nowrap;}
-.pill.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
-.pill:hover:not(.active){border-color:var(--border2);color:var(--text-m)}
-select.pill{appearance:none;padding-right:20px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-color:var(--surface2);}
-.pyramid-grid{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;align-items:flex-start;}
-.pyramid-grid::-webkit-scrollbar{height:3px}
-.pyramid-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.pyramid-item{flex:1;min-width:160px;max-width:380px}
-.pyr-name{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px;display:inline-block}
-.pyr-mf{display:flex;justify-content:space-between;font-size:9px;font-weight:500;margin-bottom:2px;padding:0 6px}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;}
-.slider-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text-f);margin-top:2px}
-.year-display{font-family:'Inter',sans-serif;font-size:26px;color:var(--accent);font-weight:500;min-width:50px;text-align:right}
-.animate-btn{background:var(--accent);border:none;border-radius:6px;color:#0d1b2a;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.06em;padding:5px 14px;transition:opacity .15s;}
-.animate-btn.playing{background:rgba(78,201,168,0.12);color:var(--accent);border:1px solid var(--accent)}
-.source-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle}
-.official{background:rgba(78,201,168,0.12);color:var(--iom);border:1px solid rgba(78,201,168,0.25)}
-.estimated{background:rgba(245,166,35,0.10);color:#f5a623;border:1px solid rgba(245,166,35,0.25)}
-.proj-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
-.proj-table td,.proj-table th{padding:6px 10px;border:1px solid var(--border);text-align:left}
-.proj-table th{color:var(--text-f);font-weight:400;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
-.footer{border-top:1px solid var(--border);padding-top:14px;margin-top:36px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.footer-src{font-size:10px;color:var(--text-f);line-height:1.6}
-.footer-brand{font-family:'Inter',sans-serif;color:var(--text-m);font-size:12px}
-@media(max-width:600px){.page{padding:20px 14px}.cards{grid-template-columns:1fr 1fr}.pyramid-item{min-width:130px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ── Page-specific aliases ── */
+  :root {
+    --accent: var(--blue);
+    --gue:    var(--gsy);
+    --jer:    var(--jsy);
+  }
 
-    .page-footer {
-      margin-top: 32px; padding-top: 16px;
-      border-top: 1px solid var(--border2);
-      font-size: 10px; color: var(--muted2);
-      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .page-footer a { color: var(--muted); text-decoration: none; }
-    .page-footer a:hover { color: var(--text); }
-  </style>
-<style>::-webkit-scrollbar{display:none!important}*{scrollbar-width:none!important}</style>
+  /* ── Layout ── */
+  
+  .page    { max-width: 1100px; margin: 0 auto; padding: 20px 20px 40px; }
+  .section { margin-bottom: 52px; }
+
+  /* ── Population pyramids (unique to this page) ── */
+  .pyramid-grid {
+    display: flex; gap: 10px; flex-wrap: nowrap;
+    overflow-x: auto; padding-bottom: 4px; align-items: flex-start;
+  }
+  .pyramid-grid::-webkit-scrollbar { height: 3px; }
+  .pyramid-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .pyramid-item { flex: 1; min-width: 160px; max-width: 380px; }
+  .pyr-name {
+    font-size: 10px; font-weight: 500; letter-spacing: .07em;
+    text-transform: uppercase; border-bottom: 1px solid currentColor;
+    padding-bottom: 2px; display: inline-block;
+  }
+  .pyr-mf {
+    display: flex; justify-content: space-between;
+    font-size: 9px; font-weight: 500; margin-bottom: 2px; padding: 0 6px;
+  }
+
+  /* ── Pyramid year slider ── */
+  .slider-labels {
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: var(--muted2); margin-top: 2px;
+  }
+  .year-display {
+    font-size: 26px; color: var(--blue);
+    font-weight: 500; min-width: 50px; text-align: right;
+  }
+  .animate-btn {
+    background: var(--blue); border: none; border-radius: 6px;
+    color: #0d1b2a; cursor: pointer; font-family: inherit;
+    font-size: 11px; font-weight: 500; letter-spacing: .06em;
+    padding: 5px 14px; transition: opacity .15s;
+  }
+  .animate-btn.playing {
+    background: rgba(96,165,250,0.12);
+    color: var(--blue); border: 1px solid var(--blue);
+  }
+
+  /* ── Select used as pill (dropdowns in controls bars) ── */
+  select
+
+  /* ── Projections table ── */
+  .proj-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+  .proj-table td, .proj-table th { padding: 6px 10px; border: 1px solid var(--border2); text-align: left; }
+  .proj-table th {
+    color: var(--muted2); font-weight: 500;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  }
+
+  /* ── Sources footer (distinct from .page-footer) ── */
+  .footer {
+    border-top: 1px solid var(--border2); padding-top: 14px;
+    margin-top: 36px; display: flex; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .footer-src  { font-size: 10px; color: var(--muted2); line-height: 1.6; }
+  .footer-brand { color: var(--muted2); font-size: 12px; }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    .page { padding: 20px 14px; }
+    
+    .pyramid-item { min-width: 130px; }
+  }
+</style>
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
   <script>
@@ -141,7 +729,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill" id="range-75"  onclick="setRange(75,this)">75 yrs</button>
       <button class="pill" id="range-100" onclick="setRange(100,this)">100 yrs</button>
       <button class="pill" id="range-200" onclick="setRange(200,this)">All (1821–)</button>
-      <span style="color:var(--text-f);font-size:10px;margin-left:8px">or drag to zoom</span>
+      <span style="color:var(--muted2);font-size:10px;margin-left:8px">or drag to zoom</span>
+    </div>
+
+    <div class="controls" style="align-items:center;flex-wrap:wrap;gap:8px">
+      <span class="ctrl-label">View</span>
+      <button class="pill active" id="view-absolute" onclick="setPopView('absolute',this)">Absolute</button>
+      <button class="pill" id="view-index" onclick="setPopView('index',this)">Index (start = 100)</button>
     </div>
 
     <div class="controls" style="align-items:center;gap:8px;flex-wrap:wrap">
@@ -150,7 +744,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill active" id="pop-jersey"   onclick="togglePopIsland('jersey',this)">Jersey</button>
       <button class="pill active" id="pop-guernsey" onclick="togglePopIsland('guernsey',this)">Guernsey</button>
       <div style="display:flex;align-items:center;gap:6px;margin-left:4px">
-        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--text-m)">
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--muted2)">
           <input type="checkbox" id="pop-uk-toggle" onchange="toggleUK(this.checked)"
             style="accent-color:var(--uk);cursor:pointer">
           UK (right axis)
@@ -164,19 +758,19 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       </div>
     </div>
 
-    <div id="pop-annotations" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--text-f)">
-      <span style="border-left:2px solid rgba(78,201,168,0.4);padding-left:6px">IoM finance sector boom 1986–2006 drove steeper growth than Channel Islands</span>
-      <span style="border-left:2px solid rgba(245,166,35,0.4);padding-left:6px">Jersey grew 20% 2001–2021; IoM grew just 10%</span>
-      <span style="border-left:2px solid rgba(224,107,107,0.4);padding-left:6px">Guernsey broadly flat since 1991</span>
-      <span style="border-left:2px solid rgba(200,220,235,0.2);padding-left:6px;font-style:italic">All (1821–) view indexes all series to 100 at start year for comparable growth rates</span>
+    <div id="pop-annotations" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--muted2)">
+      <span style="border-left:2px solid rgba(59,130,246,0.5);padding-left:6px">IoM finance sector boom 1986–2006 drove steeper growth than Channel Islands</span>
+      <span style="border-left:2px solid rgba(245,158,11,0.5);padding-left:6px">Jersey grew 20% 2001–2021; IoM grew just 10%</span>
+      <span style="border-left:2px solid rgba(16,185,129,0.5);padding-left:6px">Guernsey broadly flat since 1991</span>
+      <span style="border-left:2px solid rgba(200,220,235,0.2);padding-left:6px;font-style:italic">Use <em>Index</em> view to compare growth rates on a common baseline (start year = 100)</span>
     </div>
 
     <div class="plain-box" id="plain-pop2" style="margin-top:14px">
       <strong>The stagnation story:</strong> All three islands are aging rapidly, but their population trajectories differ. Jersey continues modest growth. IoM and Guernsey have effectively plateaued — population in 2021 is barely above 1991 levels once you account for the composition. The implication: dependency ratio pressure cannot be relieved by population growth alone.
     </div>
 
-    <div style="margin-top:8px;font-size:10px;color:var(--text-f);line-height:1.6">
-      <span style="color:rgba(245,166,35,0.6)">◆ 2026 = estimated</span> &nbsp;·&nbsp;
+    <div style="margin-top:8px;font-size:10px;color:var(--muted2);line-height:1.6">
+      <span style="color:rgba(251,191,36,0.6)">◆ 2026 = estimated</span> &nbsp;·&nbsp;
       Sources: IoM Cabinet Office census Table 1 (1821–2021) · Jersey Census 1996 Table 1 (1821–2021) · Guernsey Historic Population xlsx gov.gg (1821–2021) · ONS long-run population estimates (UK)
     </div>
   </div>
@@ -190,14 +784,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">Isle of Man</div><div class="card-value" style="color:var(--iom)">33.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 24.9% in 1991</div></div>
       <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey</div><div class="card-value" style="color:var(--jer)">27.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 20.1% in 1991</div></div>
       <div class="card" style="border-top:2px solid var(--gue)"><div class="card-label">Guernsey</div><div class="card-value" style="color:var(--gue)">~34%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ dep. ratio 57% vs UK 56%</div></div>
-      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--text-m)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">All islands now exceed UK</div></div>
+      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--muted2)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">All islands now exceed UK</div></div>
     </div>
     <div class="legend">
       <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK (dashed)</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--text-f)">65+ as % of 15–64</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted2)">65+ as % of 15–64</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="depChart" role="img" aria-label="Aged dependency ratios 1951–2021 for IoM, Jersey, Guernsey and UK">Aged dependency ratios rising across all three islands, now exceeding the UK.</canvas></div></div>
     <div class="plain-box" id="plain-dep2" style="margin-top:0">
@@ -220,7 +814,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man − UK</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey − UK</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey − UK</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--text-f)">Percentage point difference vs UK</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted2)">Percentage point difference vs UK</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="diffChart" role="img" aria-label="Dependency ratio differential versus UK 1971–2021">Island dependency ratios minus UK from 1971. Zero line = parity with UK.</canvas></div></div>
     <div class="plain-box" id="plain-diff2" style="margin-top:0">
@@ -249,21 +843,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div id="pyr-dual-ctrl" class="controls" style="display:none">
       <span class="ctrl-label">Compare</span>
       <select class="pill" id="dualA" onchange="renderPyramids()"><option value="iom">Isle of Man</option><option value="jersey">Jersey</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
-      <span style="color:var(--text-f);font-size:12px">vs</span>
+      <span style="color:var(--muted2);font-size:12px">vs</span>
       <select class="pill" id="dualB" onchange="renderPyramids()"><option value="jersey">Jersey</option><option value="iom">Isle of Man</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
     </div>
     <div class="controls" style="gap:16px;margin-bottom:6px">
       <span class="ctrl-label">Age groups</span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-m)">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
         <span style="display:inline-flex;gap:2px">
-          <span style="width:10px;height:8px;background:#8fa8bf;opacity:0.82;border-radius:1px;display:inline-block"></span>
-          <span style="width:10px;height:8px;background:#f5a623;opacity:0.82;border-radius:1px;display:inline-block"></span>
+          <span style="width:10px;height:8px;background:#3b82f6;opacity:0.82;border-radius:1px;display:inline-block"></span>
+          <span style="width:10px;height:8px;background:#f59e0b;opacity:0.82;border-radius:1px;display:inline-block"></span>
         </span>Working age (15–64)
       </span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-m)">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
         <span style="display:inline-flex;gap:2px">
           <span style="width:10px;height:8px;background:#7b9ea8;opacity:0.60;border-radius:1px;display:inline-block"></span>
-          <span style="width:10px;height:8px;background:#e06b6b;opacity:0.60;border-radius:1px;display:inline-block"></span>
+          <span style="width:10px;height:8px;background:#10b981;opacity:0.60;border-radius:1px;display:inline-block"></span>
         </span>Dependent (under 15 &amp; 65+)
       </span>
     </div>
@@ -273,9 +867,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill" onclick="setYear(17)">2001</button>
       <button class="pill" onclick="setYear(37)">2011</button>
       <button class="pill" onclick="setYear(57)">2021</button>
-      <button class="pill" style="border-color:rgba(245,166,35,0.4);color:rgba(245,166,35,0.6)" onclick="setYear(71)">2026~</button>
-      <button class="pill" style="border-color:rgba(245,166,35,0.4);color:rgba(245,166,35,0.6)" onclick="setYear(86)">2031~</button>
-      <button class="pill" style="border-color:rgba(245,166,35,0.4);color:rgba(245,166,35,0.6)" onclick="setYear(100)">2041~</button>
+      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(71)">2026~</button>
+      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(86)">2031~</button>
+      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(100)">2041~</button>
       <button class="animate-btn" id="animBtn" onclick="toggleAnim()">▶ Animate</button>
       <div class="year-display" id="yearDisplay">2021</div>
     </div>
@@ -283,15 +877,15 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span class="ctrl-label">Speed</span>
       <input type="range" min="1" max="5" step="1" value="3" id="speedSlider"
         style="width:90px;flex:none" oninput="updateSpeed(this.value)">
-      <span id="speedLabel" style="font-size:10px;color:var(--text-f);min-width:36px">Normal</span>
+      <span id="speedLabel" style="font-size:10px;color:var(--muted2);min-width:36px">Normal</span>
     </div>
     <div style="margin-bottom:14px">
       <input type="range" min="0" max="100" step="0.5" value="100" id="yearSlider" oninput="onSlider(this.value)">
       <div class="slider-labels">
         <span>1996</span><span>2001</span><span>2011</span>
-        <span>2021</span><span style="color:rgba(245,166,35,0.6)">2026~</span>
-        <span style="color:rgba(245,166,35,0.6)">2031~</span>
-        <span style="color:rgba(245,166,35,0.6)">2041~</span>
+        <span>2021</span><span style="color:rgba(251,191,36,0.6)">2026~</span>
+        <span style="color:rgba(251,191,36,0.6)">2031~</span>
+        <span style="color:rgba(251,191,36,0.6)">2041~</span>
       </div>
     </div>
     <div class="chart-wrap" style="overflow:hidden">
@@ -300,7 +894,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div id="pyrStats" class="cards" style="margin-top:10px"></div>
     <div class="plain-box" id="plain-pyr2" style="margin-top:12px">
       <strong>Side by side + diff:</strong> The centre panel shows how the two islands differ at each age band. Animate to watch the differences evolve across 1996–2040.
-      <span style="color:rgba(245,166,35,0.75)"> Years marked ~ are projected estimates</span> — cohort-shift model consistent with Statistics Jersey projections, Guernsey Population Projection Bulletin 2024, and ONS principal projections. IoM estimated from Cabinet Office demographic trajectory. Not census data.
+      <span style="color:rgba(251,191,36,0.75)"> Years marked ~ are projected estimates</span> — cohort-shift model consistent with Statistics Jersey projections, Guernsey Population Projection Bulletin 2024, and ONS principal projections. IoM estimated from Cabinet Office demographic trajectory. Not census data.
     </div>
   </div>
 
@@ -330,7 +924,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
-      <span id="str-year-label" style="margin-left:auto;font-size:10px;color:var(--text-f)">2011 census data</span>
+      <span id="str-year-label" style="margin-left:auto;font-size:10px;color:var(--muted2)">2011 census data</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:270px"><canvas id="strChart" role="img" aria-label="Age structure breakdown by island">Age structure comparison across Crown Dependencies and UK.</canvas></div></div>
     <div class="plain-box" id="plain-str2" style="margin-top:0">
@@ -345,7 +939,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <br><br>
       <strong>2026 estimates:</strong> IoM quinary age-band estimates calibrated from the 2021 census baseline using the Statistics IoM Population Report 2025, migration-age patterns and school-roll checks (Q1 2025 anchor: 84,975). Jersey 65+ trend from published Statistics Jersey projections. Guernsey working-age and 85+ from published projection reporting. UK from ONS census anchors and projection framework.
       <br><br>
-      <strong>2031–2041:</strong> Cohort-shift model consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. <span style="color:rgba(245,166,35,0.75)">These are estimates, not census data.</span>
+      <strong>2031–2041:</strong> Cohort-shift model consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. <span style="color:rgba(251,191,36,0.75)">These are estimates, not census data.</span>
     </div>
 
     <table class="proj-table" style="margin-bottom:20px">
@@ -381,13 +975,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill" id="scen-800" onclick="setScenario('800',this)">+800/yr</button>
     </div>
     <div class="legend">
-      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--text-f);margin-left:2px">(est.)</span></span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--muted2);margin-left:2px">(est.)</span></span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="projChart" role="img" aria-label="Projected total dependency ratios to 2040">Projected dependency ratios to 2040.</canvas></div></div>
-    <div style="font-size:11px;color:var(--text-f);line-height:1.6;margin-top:8px;border-left:2px solid rgba(78,201,168,0.22);padding-left:10px;">
+    <div style="font-size:11px;color:var(--muted2);line-height:1.6;margin-top:8px;border-left:2px solid rgba(96,165,250,0.25);padding-left:10px;">
       Jersey: Statistics Jersey Population Projections 2025–2080 (Feb 2026) — official. 
       Guernsey: Annual Population Projection Bulletin (Jun 2024) — official. 
       UK: ONS 2022-based national projections — official. 
@@ -397,25 +991,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
   <div class="footer">
     <div class="footer-src">
-      <strong style="color:var(--text-m)">Actual data:</strong>
+      <strong style="color:var(--muted2)">Actual data:</strong>
       IoM Cabinet Office Census 2021 (Tables 2.1–2.3) · IoM Census 1996 Table 3; 2001 Table 6 · Statistics Jersey Census 2021 CSV (opendata.gov.je) · Jersey Census 1996 Table 3; 2001 CSV · Guernsey Historic Population xlsx (gov.gg, OGL) · ONS Census 2011 &amp; 2021 (OGL) · IoM Cabinet Office Table 1.2, Dependency Ratios 1976–2021
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (IoM):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (IoM):</strong>
       Quinary age-band deltas calibrated from 2021 census baseline using Statistics Isle of Man Population Report 2025 and Manx Radio summary (Q1 2025 anchor: 84,975); migration-age patterns and school-roll checks applied per band. Population total anchors: 84,523 per Manx Radio (2024); 84,975 per IoM Population Report 2025.
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (Jersey):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (Jersey):</strong>
       65+ ageing trend from Statistics Jersey published population projections document. 2021 census characteristics: statistics.gov.je.
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (Guernsey):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (Guernsey):</strong>
       Working-age and 85+ trends from published Guernsey population projection reporting. 2021 electronic census: BBC coverage and gov.gg.
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (UK):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (UK):</strong>
       2021 census median age and age shares from ONS; 2022–2026 path from UK ageing/projection support sources consistent with ONS principal projection.
       <br>
-      <strong style="color:var(--text-m)">2031–2041 projections:</strong>
+      <strong style="color:var(--muted2)">2031–2041 projections:</strong>
       Cohort-shift model from 2026 estimated baseline; consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. Not census data.
       <br>
-      <em style="color:var(--text-f)">"IoM quinary age-band estimates were calibrated from the 2021 census baseline using the Statistics Isle of Man 2025 population report, migration-age patterns and school-roll checks; Jersey and Guernsey ageing trends were drawn from published population projection documents; UK estimates use census anchors and official ageing/projection support."</em>
+      <em style="color:var(--muted2)">"IoM quinary age-band estimates were calibrated from the 2021 census baseline using the Statistics Isle of Man 2025 population report, migration-age patterns and school-roll checks; Jersey and Guernsey ageing trends were drawn from published population projection documents; UK estimates use census anchors and official ageing/projection support."</em>
     </div>
   </div>
 
@@ -476,10 +1070,10 @@ const PYR_QUALITY={
   uk:      {1996:'official',2001:'official',2011:'official',2021:'official'},
 };
 const META={
-  iom:     {label:'Isle of Man',color:'#4ec9a8',pop:{1996:71714,2001:76315,2011:84497,2021:84069,2026:85125,2031:85400,2041:85900},median:{1996:36,2001:37,2011:42,2021:45,2026:47,2031:48,2041:50}},
-  jersey:  {label:'Jersey',    color:'#f5a623',pop:{1996:85150,2001:87186,2011:97857,2021:103267,2026:104820,2031:105400,2041:106200},median:{1996:36,2001:37,2011:40,2021:43,2026:45,2031:46,2041:48}},
-  guernsey:{label:'Guernsey',  color:'#e06b6b',pop:{1996:58681,2001:59807,2011:62915,2021:63448,2026:64420,2031:64600,2041:65000},median:{1996:37,2001:38,2011:41,2021:44,2026:46,2031:47,2041:49}},
-  uk:      {label:'UK',        color:'#8fa8bf',pop:{1996:56712700,2001:58941000,2011:63258400,2021:67026292,2026:68500000,2031:70000000,2041:72500000},median:{1996:37,2001:38,2011:39,2021:40,2026:41,2031:42,2041:44}},
+  iom:     {label:'Isle of Man',color:'#3b82f6',pop:{1996:71714,2001:76315,2011:84497,2021:84069,2026:85125,2031:85400,2041:85900},median:{1996:36,2001:37,2011:42,2021:45,2026:47,2031:48,2041:50}},
+  jersey:  {label:'Jersey',    color:'#f59e0b',pop:{1996:85150,2001:87186,2011:97857,2021:103267,2026:104820,2031:105400,2041:106200},median:{1996:36,2001:37,2011:40,2021:43,2026:45,2031:46,2041:48}},
+  guernsey:{label:'Guernsey',  color:'#10b981',pop:{1996:58681,2001:59807,2011:62915,2021:63448,2026:64420,2031:64600,2041:65000},median:{1996:37,2001:38,2011:41,2021:44,2026:46,2031:47,2041:49}},
+  uk:      {label:'UK',        color:'#94a3b8',pop:{1996:56712700,2001:58941000,2011:63258400,2021:67026292,2026:68500000,2031:70000000,2041:72500000},median:{1996:37,2001:38,2011:39,2021:40,2026:41,2031:42,2041:44}},
 };
 // Age structure data for all four years
 const STR={
@@ -596,13 +1190,14 @@ function showTab(id){
   if(id==='differential'&&!diffCI)initDiffChart();
   if(id==='structure')renderStructure();
   if(id==='projections')renderProjections();
+  setTimeout(notifyHeight, 100);
 }
 
 function cOpts(yLabel,yMin,yMax,stepSize,xMin,xMax){
   return{responsive:true,maintainAspectRatio:false,
     interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{
-      backgroundColor:'#0d1b2a',borderColor:'rgba(78,201,168,0.25)',borderWidth:1,
+      backgroundColor:'#0d1b2a',borderColor:'rgba(96,165,250,0.25)',borderWidth:1,
       titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
       callbacks:{label:ctx=>ctx.parsed.y!=null?` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`:null}
     }},
@@ -618,10 +1213,10 @@ function initDepChart(){
   depCI=new Chart(document.getElementById('depChart'),{
     type:'line',
     data:{labels:DEP_L,datasets:[
-      {label:'Isle of Man',data:DEP.iom,borderColor:'#4ec9a8',pointBackgroundColor:'#4ec9a8',pointRadius:4,borderWidth:2.5,spanGaps:false,tension:0.35,fill:false},
-      {label:'Jersey',data:DEP.jersey,borderColor:'#f5a623',pointBackgroundColor:'#f5a623',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
-      {label:'Guernsey',data:DEP.gue,borderColor:'#e06b6b',pointBackgroundColor:'#e06b6b',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
-      {label:'UK',data:DEP.uk,borderColor:'#8fa8bf',pointBackgroundColor:'#8fa8bf',pointRadius:3,borderWidth:1.5,borderDash:[5,4],spanGaps:false,tension:0.35,fill:false},
+      {label:'Isle of Man',data:DEP.iom,borderColor:'#3b82f6',pointBackgroundColor:'#3b82f6',pointRadius:4,borderWidth:2.5,spanGaps:false,tension:0.35,fill:false},
+      {label:'Jersey',data:DEP.jersey,borderColor:'#f59e0b',pointBackgroundColor:'#f59e0b',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
+      {label:'Guernsey',data:DEP.gue,borderColor:'#10b981',pointBackgroundColor:'#10b981',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
+      {label:'UK',data:DEP.uk,borderColor:'#94a3b8',pointBackgroundColor:'#94a3b8',pointRadius:3,borderWidth:1.5,borderDash:[5,4],spanGaps:false,tension:0.35,fill:false},
     ]},
     options:cOpts('65+ as % of 15–64',15,50,5,1951,2026),
   });
@@ -647,12 +1242,12 @@ function initDiffChart(){
   diffCI=new Chart(document.getElementById('diffChart'),{
     type:'line',
     data:{labels:filteredLabels,datasets:[
-      {label:'Isle of Man − UK',data:diff('iom'),borderColor:'#4ec9a8',pointBackgroundColor:'#4ec9a8',
-       fill:{target:{value:0},above:'rgba(78,201,168,0.10)',below:'rgba(224,107,107,0.08)'},
+      {label:'Isle of Man − UK',data:diff('iom'),borderColor:'#3b82f6',pointBackgroundColor:'#3b82f6',
+       fill:{target:{value:0},above:'rgba(59,130,246,0.10)',below:'rgba(16,185,129,0.08)'},
        pointRadius:4,borderWidth:2.5,spanGaps:true,tension:0.35},
-      {label:'Jersey − UK',data:diff('jersey'),borderColor:'#f5a623',pointBackgroundColor:'#f5a623',
+      {label:'Jersey − UK',data:diff('jersey'),borderColor:'#f59e0b',pointBackgroundColor:'#f59e0b',
        fill:false,pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35},
-      {label:'Guernsey − UK',data:diff('gue'),borderColor:'#e06b6b',pointBackgroundColor:'#e06b6b',
+      {label:'Guernsey − UK',data:diff('gue'),borderColor:'#10b981',pointBackgroundColor:'#10b981',
        fill:false,pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35},
     ]},
     options:opts,
@@ -685,7 +1280,7 @@ function updateYearDisplay(){
   const isEst=yr>2021;
   const el=document.getElementById('yearDisplay');
   el.textContent=yr+(isEst?' ~':'');
-  el.style.color=isEst?'rgba(245,166,35,0.75)':'var(--accent)';
+  el.style.color=isEst?'rgba(251,191,36,0.75)':'var(--blue)';
 }
 function toggleAnim(){
   if(animPlaying){
@@ -756,11 +1351,11 @@ function renderPyramids(){
     const qual=PYR_QUALITY[k][CENSUS_YEARS[Math.min(Math.floor(sliderVal/100*(CENSUS_YEARS.length-1)),CENSUS_YEARS.length-2)]];
     const div=document.createElement('div');
     div.className='card';div.style.borderTop=`2px solid ${m.color}`;
-    div.innerHTML=`<div class="card-label">${m.label}${qual==='estimated'?'<span style="font-size:9px;color:#f5a623;margin-left:5px">est.</span>':''}</div>
+    div.innerHTML=`<div class="card-label">${m.label}${qual==='estimated'?'<span style="font-size:9px;color:#f59e0b;margin-left:5px">est.</span>':''}</div>
       <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
-        <div><div style="font-size:10px;color:var(--text-f)">Pop</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${k==='uk'?(pop/1e6).toFixed(1)+'M':pop.toLocaleString()}</div></div>
-        <div><div style="font-size:10px;color:var(--text-f)">Median age</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:${m.color}">${med.toFixed(1)} yrs</div></div>
-        <div><div style="font-size:10px;color:var(--text-f)">65+</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${over65.toFixed(1)}%</div></div>
+        <div><div style="font-size:10px;color:var(--muted2)">Pop</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${k==='uk'?(pop/1e6).toFixed(1)+'M':pop.toLocaleString()}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2)">Median age</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:${m.color}">${med.toFixed(1)} yrs</div></div>
+        <div><div style="font-size:10px;color:var(--muted2)">65+</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${over65.toFixed(1)}%</div></div>
       </div>`;
     stats.appendChild(div);
   });
@@ -774,7 +1369,7 @@ function makePyr(key,data,ov,compact){
   const wrap=document.createElement('div');wrap.className='pyramid-item';
   wrap.style.alignSelf='flex-start';
   wrap.innerHTML=`<div style="text-align:center;margin-bottom:6px;height:22px;display:flex;align-items:center;justify-content:center"><span class="pyr-name" style="color:${m.color}">${m.label}</span></div>
-    <div class="pyr-mf" style="height:16px"><span style="color:#8fa8bf">◀ M</span><span style="color:#f5a623">F ▶</span></div>`;
+    <div class="pyr-mf" style="height:16px"><span style="color:#94a3b8">◀ M</span><span style="color:#f59e0b">F ▶</span></div>`;
   const svg=document.createElementNS(ns,'svg');
   svg.setAttribute('width','100%');
   svg.setAttribute('height',totalH);
@@ -786,8 +1381,8 @@ function makePyr(key,data,ov,compact){
     const mW=Math.max(0,(data.m[i]/maxV)*cw),fW=Math.max(0,(data.f[i]/maxV)*cw);
     // Working age (15-64) = bands 3-12, dependent = 0-2 (under 15) and 13-16 (65+)
     const isWorking = i>=3 && i<=12;
-    const maleCol   = isWorking ? '#8fa8bf' : '#7b9ea8';
-    const femaleCol = isWorking ? '#f5a623' : '#e06b6b';
+    const maleCol   = isWorking ? '#94a3b8' : '#7b9ea8';
+    const femaleCol = isWorking ? '#f59e0b' : '#10b981';
     const opacity   = isWorking ? '0.85' : '0.60';
     const mkR=(x,w,fill,op)=>{if(w<=0)return null;const r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',barH);r.setAttribute('fill',fill);r.setAttribute('opacity',op);r.setAttribute('rx','1');return r;};
     const r1=mkR(cx-mW,mW,maleCol,opacity);if(r1)svg.appendChild(r1);
@@ -795,8 +1390,8 @@ function makePyr(key,data,ov,compact){
     if(ov){
       const moW=Math.max(0,(ov.m[i]/maxV)*cw),foW=Math.max(0,(ov.f[i]/maxV)*cw);
       const mkO=(x,w,stroke)=>{if(w<=0)return null;const r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',barH);r.setAttribute('fill','none');r.setAttribute('stroke',stroke);r.setAttribute('stroke-width','0.8');r.setAttribute('stroke-dasharray','3 2');r.setAttribute('opacity','0.4');r.setAttribute('rx','1');return r;};
-      const o1=mkO(cx-moW,moW,'#8fa8bf');if(o1)svg.appendChild(o1);
-      const o2=mkO(cx,foW,'#f5a623');if(o2)svg.appendChild(o2);
+      const o1=mkO(cx-moW,moW,'#94a3b8');if(o1)svg.appendChild(o1);
+      const o2=mkO(cx,foW,'#f59e0b');if(o2)svg.appendChild(o2);
     }
     const txt=document.createElementNS(ns,'text');
     txt.setAttribute('x',cx-3);txt.setAttribute('y',y+barH*0.74);txt.setAttribute('text-anchor','end');
@@ -894,7 +1489,7 @@ function renderStructure(){
     d.innerHTML=`<div class="card-label">${m.label}</div>
       <div class="card-value" style="color:${m.color}">${(s.ret/s.work*100).toFixed(1)}%</div>
       <div class="card-sub">aged dep. ratio · ${yr}</div>
-      <div style="margin-top:6px;font-size:10px;color:var(--text-f)">65+: ${s.ret}% &nbsp;|&nbsp; 15–64: ${s.work}%</div>`;
+      <div style="margin-top:6px;font-size:10px;color:var(--muted2)">65+: ${s.ret}% &nbsp;|&nbsp; 15–64: ${s.work}%</div>`;
     cards.appendChild(d);
   });
   if(strCI)strCI.destroy();
@@ -908,7 +1503,7 @@ function renderStructure(){
     }))},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{
-        backgroundColor:'#0d1b2a',borderColor:'rgba(78,201,168,0.25)',borderWidth:1,
+        backgroundColor:'#0d1b2a',borderColor:'rgba(96,165,250,0.25)',borderWidth:1,
         titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
         callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
       }},
@@ -931,15 +1526,15 @@ function renderProjections(){
   projCI=new Chart(document.getElementById('projChart'),{
     type:'line',
     data:{labels:PROJ_L,datasets:[
-      {label:'Isle of Man (est.)',data:PROJ.iom,borderColor:'#4ec9a8',pointBackgroundColor:'#4ec9a8',pointRadius:4,borderWidth:2,borderDash:[6,3],fill:false,tension:0.3},
-      {label:'Jersey',data:PROJ['jersey_'+scenario],borderColor:'#f5a623',pointBackgroundColor:'#f5a623',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
-      {label:'Guernsey',data:PROJ.gue,borderColor:'#e06b6b',pointBackgroundColor:'#e06b6b',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
-      {label:'UK',data:PROJ.uk,borderColor:'#8fa8bf',pointBackgroundColor:'#8fa8bf',pointRadius:3,borderWidth:1.5,borderDash:[4,3],fill:false,tension:0.3},
+      {label:'Isle of Man (est.)',data:PROJ.iom,borderColor:'#3b82f6',pointBackgroundColor:'#3b82f6',pointRadius:4,borderWidth:2,borderDash:[6,3],fill:false,tension:0.3},
+      {label:'Jersey',data:PROJ['jersey_'+scenario],borderColor:'#f59e0b',pointBackgroundColor:'#f59e0b',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
+      {label:'Guernsey',data:PROJ.gue,borderColor:'#10b981',pointBackgroundColor:'#10b981',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
+      {label:'UK',data:PROJ.uk,borderColor:'#94a3b8',pointBackgroundColor:'#94a3b8',pointRadius:3,borderWidth:1.5,borderDash:[4,3],fill:false,tension:0.3},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{
-        backgroundColor:'#0d1b2a',borderColor:'rgba(78,201,168,0.25)',borderWidth:1,
+        backgroundColor:'#0d1b2a',borderColor:'rgba(96,165,250,0.25)',borderWidth:1,
         titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
         callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
       }},
@@ -970,10 +1565,18 @@ let popRange = 50;
 let popIslands = new Set(['iom','jersey','guernsey']);
 let showUK = false;
 let popCI = null;
+let popViewIndex = false; // explicit toggle: false = absolute, true = index
 
 function setRange(yrs, btn) {
   popRange = yrs;
   document.querySelectorAll('[id^="range-"]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPopChart();
+}
+
+function setPopView(mode, btn) {
+  popViewIndex = (mode === 'index');
+  document.querySelectorAll('[id^="view-"]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderPopChart();
 }
@@ -997,14 +1600,14 @@ function renderPopChart() {
 
   const maxYear = 2026;
   const minYear = maxYear - popRange;
-  const useIndex = popRange >= 200; // index to 100 at start year for long view
+  const useIndex = popViewIndex; // controlled by Index/Absolute toggle
   const gc = 'rgba(255,255,255,0.05)', tc = 'rgba(200,220,235,0.5)';
 
   const islandMeta = {
-    iom:      { label:'Isle of Man', color:'#4ec9a8' },
-    jersey:   { label:'Jersey',      color:'#f5a623' },
-    guernsey: { label:'Guernsey',    color:'#e06b6b' },
-    uk:       { label:'UK',          color:'#8fa8bf' },
+    iom:      { label:'Isle of Man', color:'#3b82f6' },
+    jersey:   { label:'Jersey',      color:'#f59e0b' },
+    guernsey: { label:'Guernsey',    color:'#10b981' },
+    uk:       { label:'UK',          color:'#94a3b8' },
   };
 
   function filterPairs(pairs) {
@@ -1061,10 +1664,10 @@ function renderPopChart() {
     datasets.push({
       label: 'UK (millions)',
       data: ukData,
-      borderColor: '#8fa8bf',
-      backgroundColor: '#8fa8bf',
-      pointBackgroundColor: ukData.map(d => POP_EST_YEARS.has(d.x) ? 'transparent' : '#8fa8bf'),
-      pointBorderColor: '#8fa8bf',
+      borderColor: '#94a3b8',
+      backgroundColor: '#94a3b8',
+      pointBackgroundColor: ukData.map(d => POP_EST_YEARS.has(d.x) ? 'transparent' : '#94a3b8'),
+      pointBorderColor: '#94a3b8',
       pointRadius: 3,
       borderWidth: 1.5,
       tension: 0.3,
@@ -1098,10 +1701,10 @@ function renderPopChart() {
   if (!useIndex && showUK) {
     scales.y2 = {
       position: 'right',
-      ticks: { color: '#8fa8bf', font: { size: 10 }, callback: v => v + 'M' },
+      ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => v + 'M' },
       grid: { drawOnChartArea: false },
       border: { color: '#1d3148' },
-      title: { display: true, text: 'UK (millions)', color: '#8fa8bf', font: { size: 10 } }
+      title: { display: true, text: 'UK (millions)', color: '#94a3b8', font: { size: 10 } }
     };
   }
 
@@ -1125,7 +1728,7 @@ function renderPopChart() {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#0d1b2a',
-          borderColor: 'rgba(78,201,168,0.25)', borderWidth: 1,
+          borderColor: 'rgba(96,165,250,0.25)', borderWidth: 1,
           titleColor: tc, bodyColor: 'rgba(200,220,235,0.85)', padding: 10,
           callbacks: { label: tooltipLabel }
         }
@@ -1173,7 +1776,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderPyramids();
   strYear=1996;
   renderStructure();
+  notifyHeight();
+  setTimeout(notifyHeight, 500); // re-fire after Chart.js renders settle
 });
+
+function notifyHeight() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+window.addEventListener('resize', notifyHeight);
 </script>
 </body>
 </html>

@@ -30,7 +30,7 @@ const C = {
 
 const TAB_GROUPS = [
   { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted"] },
-  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal"] },
 ];
 
 const TABS = [
@@ -38,10 +38,9 @@ const TABS = [
   { id: "reid",       label: "Re-identification"    },
   { id: "kanon",      label: "k-Anonymity"          },
   { id: "areas",      label: "Area Rankings"        },
-  { id: "econHome",   label: "About"                },
+  { id: "econHome",   label: "About"                }, // Economy & Society landing
   { id: "demog",      label: "Demographics Explorer"},
   { id: "iomfiscal",  label: "IOM Fiscal Flows"     },
-  { id: "inflation",  label: "Inflation Explorer"   },
   { id: "restricted", label: "🔒 Restricted"        },
 ];
 
@@ -261,17 +260,6 @@ function EconHomeTab({ onNavigate }) {
         )}
       </div>
 
-      <div onClick={() => onNavigate("inflation")} style={{ cursor: "pointer" }}>
-        {card(
-          "Inflation Explorer",
-          `CPI and RPI inflation across the Isle of Man, Jersey, Guernsey and the UK —
-          annual rates, monthly series, and housing differentials. Covers 1950–2026,
-          with IoM monthly data from 1977. Data sourced from Statistics IoM, Statistics
-          Jersey, and ONS.`,
-          C.green
-        )}
-      </div>
-
       {/* Systems dynamics note */}
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
@@ -386,13 +374,6 @@ function AppContent() {
       <AutoIframe
          src="/iomg-sankeyvis1.html"
          title="IoM Government Fiscal Flows"
-      />
-    ),
-
-    inflation: (
-      <AutoIframe
-        src="/inflation-explorer.html"
-        title="Inflation Explorer"
       />
     ),
 
@@ -528,7 +509,7 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, about pages get max-width */}
       <div style={
-        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation"].includes(tab)
+        ["reid", "demog", "kanon", "areas", "iomfiscal"].includes(tab)
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>

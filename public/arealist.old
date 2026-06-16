@@ -606,116 +606,119 @@ input[type="range"]::-moz-range-thumb {
   <title>Area Risk Rankings · Crown Dependencies Re-Identification Observatory</title>
 
 <style>
-  /* ── Page-specific overrides ── */
-  :root {
-    --gue: var(--gsy);
-    --jer: var(--jsy);
-  }
+:root {
+      --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
+      --border:#1e293b; --border2:#334155;
+      --text:#e2e8f0; --muted:#64748b; --muted2: #94a3b8;
+      --blue:#60a5fa; --blue-dim:#1d4ed8;
+      --green:#34d399; --amber:#fbbf24; --red:#f87171; --orange:#fb923c;
+      --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b;
+    }
+    html, 
+    
 
-  /* Intro accent colour */
-  .intro { border-left-color: var(--iom); }
+    
+    
 
-  /* Controls layout */
-  .ctrl-group {
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .ctrl-group label {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--muted);
-  }
+    /* Controls */
+    
+    .ctrl-grou
+    .ctrl-group label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted);
+    }
+    .ctrl-group 
+    .ctrl-group 
 
-  /* Island toggle buttons */
-  .island-toggle {
-    display: flex; gap: 4px;
-  }
+    /* Toggle: all islands or single */
+    .island-toggle {
+      display: flex; gap: 4px;
+    }
+    
+    
 
-  /* Profile selector */
-  .profile-bar {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
-  }
-  .profile-label {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .profile-fields {
-    display: flex; gap: 10px; flex-wrap: wrap;
-  }
-  .profile-hint { font-size: 10px; color: var(--muted2); margin-top: 8px; }
+    /* Profile selector */
+    .profile-bar {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+    }
+    .profile-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .profile-fields {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .profile-fields 
+    .profile-hint { font-size: 10px; color: var(--muted2); margin-top: 8px; }
 
-  /* Summary stat chips */
-  .summary-row {
-    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
-  }
-  .stat-chip {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 8px; padding: 12px 16px; flex: 1 1 140px;
-  }
-  .stat-chip .sc-label {
-    font-size: 9px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px;
-  }
-  .stat-chip .sc-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 18px; font-weight: 600; line-height: 1;
-  }
-  .stat-chip .sc-sub { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+    /* Summary row */
+    .summary-row {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .stat-chi
+    .stat-chip .sc-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px;
+    }
+    .stat-chip .sc-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px; font-weight: 600; line-height: 1;
+    }
+    .stat-chip .sc-sub { font-size: 10px; color: var(--muted2); margin-top: 2px; }
 
-  /* Ranking table */
-  .ranking-wrap { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-  .ranking-wrap table { width: 100%; border-collapse: collapse; }
-  .ranking-wrap thead th {
-    padding: 10px 14px; text-align: left;
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--muted);
-    background: var(--surface2); border-bottom: 1px solid var(--border2);
-    cursor: pointer; user-select: none;
-  }
-  .ranking-wrap thead th:hover { color: var(--blue); }
-  .ranking-wrap thead th.sorted { color: var(--blue); }
-  .ranking-wrap tbody tr { transition: background 0.1s; }
-  .ranking-wrap tbody tr:hover { background: rgba(255,255,255,0.03); }
-  .ranking-wrap tbody td {
-    padding: 9px 14px; font-size: 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted2);
-  }
-  .ranking-wrap tbody tr:last-child td { border-bottom: none; }
+    /* Ranking table */
+    .ranking-wra
+    .ranking-wrap table { width: 100%; border-collapse: collapse; }
+    .ranking-wrap thead th {
+      padding: 10px 14px; text-align: left;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted);
+      background: var(--surface2); border-bottom: 1px solid var(--border2);
+      cursor: pointer; user-select: none;
+    }
+    .ranking-wrap thead th:hover { color: var(--blue); }
+    .ranking-wrap thead th.sorted { color: var(--blue); }
+    .ranking-wrap tbody tr { transition: background 0.1s; }
+    .ranking-wrap tbody tr:hover { background: rgba(255,255,255,0.03); }
+    .ranking-wrap tbody td {
+      padding: 9px 14px; font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .ranking-wrap tbody tr:last-child td { border-bottom: none; }
 
-  .rank-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; color: var(--muted2); width: 30px;
-  }
-  .area-name { color: var(--text); font-weight: 600; }
-  .island-tag {
-    font-size: 9px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.05em; padding: 2px 6px; border-radius: 3px;
-    display: inline-block;
-  }
-  .pop-count {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  }
-  .risk-bar-cell { width: 120px; }
-  .risk-bar-wrap { background: var(--border2); border-radius: 3px; height: 6px; overflow: hidden; }
-  .risk-bar { height: 100%; border-radius: 3px; }
-  .risk-pct-cell {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; font-weight: 600; text-align: right;
-  }
-  .pool-cell {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  }
-  .risk-badge {
-    font-size: 9px; font-weight: 700; padding: 2px 6px;
-    border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em;
-    white-space: nowrap;
-  }
-  .pool-desc { font-size: 9px; color: var(--muted2); margin-top: 2px; }
-
-  @media (max-width: 700px) {
-    .risk-bar-cell, .pool-cell { display: none; }
-  }
+    .rank-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted2); width: 30px;
+    }
+    .area-name { color: var(--text); font-weight: 600; }
+    .island-tag {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; padding: 2px 6px; border-radius: 3px;
+      display: inline-block;
+    }
+    .pop-count {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    }
+    .risk-bar-cell { width: 120px; }
+    .risk-bar-wra
+    .risk-bar { height: 100%; border-radius: 3px; }
+    .risk-pct-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600;
+      text-align: right;
+    }
+    .pool-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .risk-badge {
+      font-size: 9px; font-weight: 700; padding: 2px 6px;
+      border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
 </style>
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>

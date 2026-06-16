@@ -6,94 +6,90 @@
 <title>Demographics Explorer · Crown Dependencies Re-Identification Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/observatory.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root {
-      --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
-      --border:#1e293b; --border2:#334155;
-      --text:#e2e8f0; --muted:#64748b; --muted2:#475569;
-      --blue:#60a5fa; --blue-dim:#1d4ed8;
-      --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --orange:#fb923c;
-      --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b;
-      /* demographics aliases — all point at existing tokens */
-      --accent:var(--blue); --text-m:var(--muted); --text-f:var(--muted2);
-      --ui:#94a3b8;   /* interactive chrome — tabs, pills, labels — legible on --bg */
-      --gue:var(--gsy); --jer:var(--jsy); --uk:#94a3b8;
-    }
-html{scroll-behavior:smooth}
-body{background:var(--bg); color:var(--text);font-family:'Inter',ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
-.page{max-width:1100px;margin:0 auto;padding:20px 20px 40px}
-.section{margin-bottom:52px}
-.eyebrow{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ui);margin-bottom:12px;}
-h1{font-family:'Inter',sans-serif;font-size:20px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:8px;}
-p{color:var(--text-m);font-size:13px;line-height:1.7;max-width:600px}
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;margin-bottom:28px;}
-.tabs::-webkit-scrollbar{display:none}
-.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--ui);cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.03em;margin-bottom:-1px;padding:8px 16px;transition:color .15s,border-color .15s;white-space:nowrap;}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.tab:hover:not(.active){color:var(--text)}
-.audience-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
-.aud-label{font-size:11px;color:var(--ui);letter-spacing:.06em;text-transform:uppercase}
-.toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;}
-.toggle-btn{background:none;border:none;color:var(--ui);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;padding:5px 14px;transition:all .15s;}
-.toggle-btn.active{background:var(--blue-dim);color:var(--blue)}
-.plain-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:13px 15px;margin-bottom:18px;font-size:12px;color:var(--text-m);line-height:1.7;}
-.plain-box strong{color:var(--text)}
-.plain-box.hidden{display:none}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin-bottom:20px;}
-.card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:13px 15px;}
-.card-label{font-size:10px;color:var(--ui);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
-.card-value{font-size:21px;font-variant-numeric:tabular-nums;font-weight:500;line-height:1}
-.card-sub{font-size:11px;color:var(--text-m);margin-top:3px}
-.card-up{color:var(--amber);font-size:10px;margin-top:3px}
-.card-dn{color:var(--iom);font-size:10px;margin-top:3px}
-.chart-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:18px 14px 12px;margin-bottom:10px;}
-.chart-canvas-wrap{position:relative;width:100%}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:11px;color:var(--ui)}
-.leg-item{display:flex;align-items:center;gap:5px}
-.leg-sw{width:12px;height:3px;border-radius:1px;display:inline-block}
-.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center}
-.ctrl-label{font-size:10px;color:var(--ui);text-transform:uppercase;letter-spacing:.08em;margin-right:2px}
-.pill{background:none;border:1px solid var(--border2);border-radius:20px;color:var(--ui);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.03em;padding:4px 12px;transition:all .15s;white-space:nowrap;}
-.pill.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
-.pill:hover:not(.active){border-color:var(--muted);color:var(--text)}
-select.pill{appearance:none;padding-right:20px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-color:var(--surface2);}
-.pyramid-grid{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;align-items:flex-start;}
-.pyramid-grid::-webkit-scrollbar{height:3px}
-.pyramid-grid::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.pyramid-item{flex:1;min-width:160px;max-width:380px}
-.pyr-name{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid currentColor;padding-bottom:2px;display:inline-block}
-.pyr-mf{display:flex;justify-content:space-between;font-size:9px;font-weight:500;margin-bottom:2px;padding:0 6px}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border2);border-radius:2px;outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;border:none;}
-.slider-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--ui);margin-top:2px}
-.year-display{font-family:'Inter',sans-serif;font-size:26px;color:var(--accent);font-weight:500;min-width:50px;text-align:right}
-.animate-btn{background:var(--accent);border:none;border-radius:6px;color:#0d1b2a;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.06em;padding:5px 14px;transition:opacity .15s;}
-.animate-btn.playing{background:rgba(96,165,250,0.12);color:var(--blue);border:1px solid var(--blue)}
-.source-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle}
-.official{background:rgba(16,185,129,0.12);color:var(--gsy);border:1px solid rgba(16,185,129,0.25)}
-.estimated{background:rgba(251,191,36,0.10);color:var(--amber);border:1px solid rgba(251,191,36,0.25)}
-.proj-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
-.proj-table td,.proj-table th{padding:6px 10px;border:1px solid var(--border2);text-align:left}
-.proj-table th{color:var(--ui);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
-.footer{border-top:1px solid var(--border2);padding-top:14px;margin-top:36px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.footer-src{font-size:10px;color:var(--text-m);line-height:1.6}
-.footer-brand{font-family:'Inter',sans-serif;color:var(--ui);font-size:12px}
-@media(max-width:600px){.page{padding:20px 14px}.cards{grid-template-columns:1fr 1fr}.pyramid-item{min-width:130px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  /* ── Page-specific aliases ── */
+  :root {
+    --accent: var(--blue);
+    --gue:    var(--gsy);
+    --jer:    var(--jsy);
+  }
 
-    .page-footer {
-      margin-top: 32px; padding-top: 16px;
-      border-top: 1px solid var(--border2);
-      font-size: 10px; color: var(--muted2);
-      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .page-footer a { color: var(--muted); text-decoration: none; }
-    .page-footer a:hover { color: var(--text); }
-  </style>
-<style>::-webkit-scrollbar{display:none!important}*{scrollbar-width:none!important}</style>
+  /* ── Layout ── */
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .page    { max-width: 1100px; margin: 0 auto; padding: 20px 20px 40px; }
+  .section { margin-bottom: 52px; }
+
+  /* ── Population pyramids (unique to this page) ── */
+  .pyramid-grid {
+    display: flex; gap: 10px; flex-wrap: nowrap;
+    overflow-x: auto; padding-bottom: 4px; align-items: flex-start;
+  }
+  .pyramid-grid::-webkit-scrollbar { height: 3px; }
+  .pyramid-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .pyramid-item { flex: 1; min-width: 160px; max-width: 380px; }
+  .pyr-name {
+    font-size: 10px; font-weight: 500; letter-spacing: .07em;
+    text-transform: uppercase; border-bottom: 1px solid currentColor;
+    padding-bottom: 2px; display: inline-block;
+  }
+  .pyr-mf {
+    display: flex; justify-content: space-between;
+    font-size: 9px; font-weight: 500; margin-bottom: 2px; padding: 0 6px;
+  }
+
+  /* ── Pyramid year slider ── */
+  .slider-labels {
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: var(--muted2); margin-top: 2px;
+  }
+  .year-display {
+    font-size: 26px; color: var(--blue);
+    font-weight: 500; min-width: 50px; text-align: right;
+  }
+  .animate-btn {
+    background: var(--blue); border: none; border-radius: 6px;
+    color: #0d1b2a; cursor: pointer; font-family: inherit;
+    font-size: 11px; font-weight: 500; letter-spacing: .06em;
+    padding: 5px 14px; transition: opacity .15s;
+  }
+  .animate-btn.playing {
+    background: rgba(96,165,250,0.12);
+    color: var(--blue); border: 1px solid var(--blue);
+  }
+
+  /* ── Select used as pill (dropdowns in controls bars) ── */
+  select.pill {
+    padding-right: 20px;
+    background-position: right 7px center;
+    background-color: var(--surface2);
+  }
+
+  /* ── Projections table ── */
+  .proj-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+  .proj-table td, .proj-table th { padding: 6px 10px; border: 1px solid var(--border2); text-align: left; }
+  .proj-table th {
+    color: var(--muted2); font-weight: 500;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  }
+
+  /* ── Sources footer (distinct from .page-footer) ── */
+  .footer {
+    border-top: 1px solid var(--border2); padding-top: 14px;
+    margin-top: 36px; display: flex; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .footer-src  { font-size: 10px; color: var(--muted2); line-height: 1.6; }
+  .footer-brand { color: var(--muted2); font-size: 12px; }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    .page { padding: 20px 14px; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    .pyramid-item { min-width: 130px; }
+  }
+</style>
   <!-- Privacy-friendly analytics by Plausible -->
   <script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
   <script>
@@ -140,7 +136,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill" id="range-75"  onclick="setRange(75,this)">75 yrs</button>
       <button class="pill" id="range-100" onclick="setRange(100,this)">100 yrs</button>
       <button class="pill" id="range-200" onclick="setRange(200,this)">All (1821–)</button>
-      <span style="color:var(--ui);font-size:10px;margin-left:8px">or drag to zoom</span>
+      <span style="color:var(--muted2);font-size:10px;margin-left:8px">or drag to zoom</span>
     </div>
 
     <div class="controls" style="align-items:center;flex-wrap:wrap;gap:8px">
@@ -155,7 +151,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill active" id="pop-jersey"   onclick="togglePopIsland('jersey',this)">Jersey</button>
       <button class="pill active" id="pop-guernsey" onclick="togglePopIsland('guernsey',this)">Guernsey</button>
       <div style="display:flex;align-items:center;gap:6px;margin-left:4px">
-        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--text-m)">
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--muted2)">
           <input type="checkbox" id="pop-uk-toggle" onchange="toggleUK(this.checked)"
             style="accent-color:var(--uk);cursor:pointer">
           UK (right axis)
@@ -169,7 +165,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       </div>
     </div>
 
-    <div id="pop-annotations" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--ui)">
+    <div id="pop-annotations" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--muted2)">
       <span style="border-left:2px solid rgba(59,130,246,0.5);padding-left:6px">IoM finance sector boom 1986–2006 drove steeper growth than Channel Islands</span>
       <span style="border-left:2px solid rgba(245,158,11,0.5);padding-left:6px">Jersey grew 20% 2001–2021; IoM grew just 10%</span>
       <span style="border-left:2px solid rgba(16,185,129,0.5);padding-left:6px">Guernsey broadly flat since 1991</span>
@@ -180,7 +176,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <strong>The stagnation story:</strong> All three islands are aging rapidly, but their population trajectories differ. Jersey continues modest growth. IoM and Guernsey have effectively plateaued — population in 2021 is barely above 1991 levels once you account for the composition. The implication: dependency ratio pressure cannot be relieved by population growth alone.
     </div>
 
-    <div style="margin-top:8px;font-size:10px;color:var(--ui);line-height:1.6">
+    <div style="margin-top:8px;font-size:10px;color:var(--muted2);line-height:1.6">
       <span style="color:rgba(251,191,36,0.6)">◆ 2026 = estimated</span> &nbsp;·&nbsp;
       Sources: IoM Cabinet Office census Table 1 (1821–2021) · Jersey Census 1996 Table 1 (1821–2021) · Guernsey Historic Population xlsx gov.gg (1821–2021) · ONS long-run population estimates (UK)
     </div>
@@ -195,14 +191,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">Isle of Man</div><div class="card-value" style="color:var(--iom)">33.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 24.9% in 1991</div></div>
       <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey</div><div class="card-value" style="color:var(--jer)">27.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 20.1% in 1991</div></div>
       <div class="card" style="border-top:2px solid var(--gue)"><div class="card-label">Guernsey</div><div class="card-value" style="color:var(--gue)">~34%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ dep. ratio 57% vs UK 56%</div></div>
-      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--text-m)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">All islands now exceed UK</div></div>
+      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--muted2)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">All islands now exceed UK</div></div>
     </div>
     <div class="legend">
       <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK (dashed)</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--ui)">65+ as % of 15–64</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted2)">65+ as % of 15–64</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="depChart" role="img" aria-label="Aged dependency ratios 1951–2021 for IoM, Jersey, Guernsey and UK">Aged dependency ratios rising across all three islands, now exceeding the UK.</canvas></div></div>
     <div class="plain-box" id="plain-dep2" style="margin-top:0">
@@ -225,7 +221,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man − UK</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey − UK</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey − UK</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--ui)">Percentage point difference vs UK</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted2)">Percentage point difference vs UK</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="diffChart" role="img" aria-label="Dependency ratio differential versus UK 1971–2021">Island dependency ratios minus UK from 1971. Zero line = parity with UK.</canvas></div></div>
     <div class="plain-box" id="plain-diff2" style="margin-top:0">
@@ -254,18 +250,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div id="pyr-dual-ctrl" class="controls" style="display:none">
       <span class="ctrl-label">Compare</span>
       <select class="pill" id="dualA" onchange="renderPyramids()"><option value="iom">Isle of Man</option><option value="jersey">Jersey</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
-      <span style="color:var(--ui);font-size:12px">vs</span>
+      <span style="color:var(--muted2);font-size:12px">vs</span>
       <select class="pill" id="dualB" onchange="renderPyramids()"><option value="jersey">Jersey</option><option value="iom">Isle of Man</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
     </div>
     <div class="controls" style="gap:16px;margin-bottom:6px">
       <span class="ctrl-label">Age groups</span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-m)">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
         <span style="display:inline-flex;gap:2px">
           <span style="width:10px;height:8px;background:#3b82f6;opacity:0.82;border-radius:1px;display:inline-block"></span>
           <span style="width:10px;height:8px;background:#f59e0b;opacity:0.82;border-radius:1px;display:inline-block"></span>
         </span>Working age (15–64)
       </span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-m)">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
         <span style="display:inline-flex;gap:2px">
           <span style="width:10px;height:8px;background:#7b9ea8;opacity:0.60;border-radius:1px;display:inline-block"></span>
           <span style="width:10px;height:8px;background:#10b981;opacity:0.60;border-radius:1px;display:inline-block"></span>
@@ -288,7 +284,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span class="ctrl-label">Speed</span>
       <input type="range" min="1" max="5" step="1" value="3" id="speedSlider"
         style="width:90px;flex:none" oninput="updateSpeed(this.value)">
-      <span id="speedLabel" style="font-size:10px;color:var(--ui);min-width:36px">Normal</span>
+      <span id="speedLabel" style="font-size:10px;color:var(--muted2);min-width:36px">Normal</span>
     </div>
     <div style="margin-bottom:14px">
       <input type="range" min="0" max="100" step="0.5" value="100" id="yearSlider" oninput="onSlider(this.value)">
@@ -335,7 +331,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
-      <span id="str-year-label" style="margin-left:auto;font-size:10px;color:var(--ui)">2011 census data</span>
+      <span id="str-year-label" style="margin-left:auto;font-size:10px;color:var(--muted2)">2011 census data</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:270px"><canvas id="strChart" role="img" aria-label="Age structure breakdown by island">Age structure comparison across Crown Dependencies and UK.</canvas></div></div>
     <div class="plain-box" id="plain-str2" style="margin-top:0">
@@ -386,13 +382,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <button class="pill" id="scen-800" onclick="setScenario('800',this)">+800/yr</button>
     </div>
     <div class="legend">
-      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--ui);margin-left:2px">(est.)</span></span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--muted2);margin-left:2px">(est.)</span></span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
     </div>
     <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="projChart" role="img" aria-label="Projected total dependency ratios to 2040">Projected dependency ratios to 2040.</canvas></div></div>
-    <div style="font-size:11px;color:var(--ui);line-height:1.6;margin-top:8px;border-left:2px solid rgba(96,165,250,0.25);padding-left:10px;">
+    <div style="font-size:11px;color:var(--muted2);line-height:1.6;margin-top:8px;border-left:2px solid rgba(96,165,250,0.25);padding-left:10px;">
       Jersey: Statistics Jersey Population Projections 2025–2080 (Feb 2026) — official. 
       Guernsey: Annual Population Projection Bulletin (Jun 2024) — official. 
       UK: ONS 2022-based national projections — official. 
@@ -402,25 +398,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
   <div class="footer">
     <div class="footer-src">
-      <strong style="color:var(--text-m)">Actual data:</strong>
+      <strong style="color:var(--muted2)">Actual data:</strong>
       IoM Cabinet Office Census 2021 (Tables 2.1–2.3) · IoM Census 1996 Table 3; 2001 Table 6 · Statistics Jersey Census 2021 CSV (opendata.gov.je) · Jersey Census 1996 Table 3; 2001 CSV · Guernsey Historic Population xlsx (gov.gg, OGL) · ONS Census 2011 &amp; 2021 (OGL) · IoM Cabinet Office Table 1.2, Dependency Ratios 1976–2021
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (IoM):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (IoM):</strong>
       Quinary age-band deltas calibrated from 2021 census baseline using Statistics Isle of Man Population Report 2025 and Manx Radio summary (Q1 2025 anchor: 84,975); migration-age patterns and school-roll checks applied per band. Population total anchors: 84,523 per Manx Radio (2024); 84,975 per IoM Population Report 2025.
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (Jersey):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (Jersey):</strong>
       65+ ageing trend from Statistics Jersey published population projections document. 2021 census characteristics: statistics.gov.je.
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (Guernsey):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (Guernsey):</strong>
       Working-age and 85+ trends from published Guernsey population projection reporting. 2021 electronic census: BBC coverage and gov.gg.
       <br>
-      <strong style="color:var(--text-m)">2022–2026 estimates (UK):</strong>
+      <strong style="color:var(--muted2)">2022–2026 estimates (UK):</strong>
       2021 census median age and age shares from ONS; 2022–2026 path from UK ageing/projection support sources consistent with ONS principal projection.
       <br>
-      <strong style="color:var(--text-m)">2031–2041 projections:</strong>
+      <strong style="color:var(--muted2)">2031–2041 projections:</strong>
       Cohort-shift model from 2026 estimated baseline; consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. Not census data.
       <br>
-      <em style="color:var(--ui)">"IoM quinary age-band estimates were calibrated from the 2021 census baseline using the Statistics Isle of Man 2025 population report, migration-age patterns and school-roll checks; Jersey and Guernsey ageing trends were drawn from published population projection documents; UK estimates use census anchors and official ageing/projection support."</em>
+      <em style="color:var(--muted2)">"IoM quinary age-band estimates were calibrated from the 2021 census baseline using the Statistics Isle of Man 2025 population report, migration-age patterns and school-roll checks; Jersey and Guernsey ageing trends were drawn from published population projection documents; UK estimates use census anchors and official ageing/projection support."</em>
     </div>
   </div>
 
@@ -691,7 +687,7 @@ function updateYearDisplay(){
   const isEst=yr>2021;
   const el=document.getElementById('yearDisplay');
   el.textContent=yr+(isEst?' ~':'');
-  el.style.color=isEst?'rgba(251,191,36,0.75)':'var(--accent)';
+  el.style.color=isEst?'rgba(251,191,36,0.75)':'var(--blue)';
 }
 function toggleAnim(){
   if(animPlaying){
@@ -764,9 +760,9 @@ function renderPyramids(){
     div.className='card';div.style.borderTop=`2px solid ${m.color}`;
     div.innerHTML=`<div class="card-label">${m.label}${qual==='estimated'?'<span style="font-size:9px;color:#f59e0b;margin-left:5px">est.</span>':''}</div>
       <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
-        <div><div style="font-size:10px;color:var(--ui)">Pop</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${k==='uk'?(pop/1e6).toFixed(1)+'M':pop.toLocaleString()}</div></div>
-        <div><div style="font-size:10px;color:var(--ui)">Median age</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:${m.color}">${med.toFixed(1)} yrs</div></div>
-        <div><div style="font-size:10px;color:var(--ui)">65+</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${over65.toFixed(1)}%</div></div>
+        <div><div style="font-size:10px;color:var(--muted2)">Pop</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${k==='uk'?(pop/1e6).toFixed(1)+'M':pop.toLocaleString()}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2)">Median age</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:${m.color}">${med.toFixed(1)} yrs</div></div>
+        <div><div style="font-size:10px;color:var(--muted2)">65+</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${over65.toFixed(1)}%</div></div>
       </div>`;
     stats.appendChild(div);
   });
@@ -900,7 +896,7 @@ function renderStructure(){
     d.innerHTML=`<div class="card-label">${m.label}</div>
       <div class="card-value" style="color:${m.color}">${(s.ret/s.work*100).toFixed(1)}%</div>
       <div class="card-sub">aged dep. ratio · ${yr}</div>
-      <div style="margin-top:6px;font-size:10px;color:var(--ui)">65+: ${s.ret}% &nbsp;|&nbsp; 15–64: ${s.work}%</div>`;
+      <div style="margin-top:6px;font-size:10px;color:var(--muted2)">65+: ${s.ret}% &nbsp;|&nbsp; 15–64: ${s.work}%</div>`;
     cards.appendChild(d);
   });
   if(strCI)strCI.destroy();
