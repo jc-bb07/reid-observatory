@@ -30,21 +30,19 @@ const C = {
 
 const TAB_GROUPS = [
   { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted"] },
-  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation", "unemployment", "nobles"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation"] },
 ];
 
 const TABS = [
-  { id: "home",         label: "About"                },
-  { id: "reid",         label: "Re-identification"    },
-  { id: "kanon",        label: "k-Anonymity"          },
-  { id: "areas",        label: "Area Rankings"        },
-  { id: "econHome",     label: "About"                },
-  { id: "demog",        label: "Demographics"         },
-  { id: "iomfiscal",    label: "IoM Fiscal Flows"     },
-  { id: "inflation",    label: "Inflation"            },
-  { id: "unemployment", label: "Unemployment"         },
-  { id: "nobles",       label: "Noble's Hospital"     },
-  { id: "restricted",   label: "🔒 Restricted"        },
+  { id: "home",       label: "About"                },
+  { id: "reid",       label: "Re-identification"    },
+  { id: "kanon",      label: "k-Anonymity"          },
+  { id: "areas",      label: "Area Rankings"        },
+  { id: "econHome",   label: "About"                },
+  { id: "demog",      label: "Demographics Explorer"},
+  { id: "iomfiscal",  label: "IOM Fiscal Flows"     },
+  { id: "inflation",  label: "Inflation Explorer"   },
+  { id: "restricted", label: "🔒 Restricted"        },
 ];
 
 // ── Landing / explainer tab ───────────────────────────────────────────────────
@@ -241,6 +239,7 @@ function EconHomeTab({ onNavigate }) {
         Tools in this section
       </div>
 
+      {/* Clickable tool cards */}
       <div onClick={() => onNavigate("demog")} style={{ cursor: "pointer" }}>
         {card(
           "Demographics Explorer",
@@ -269,17 +268,6 @@ function EconHomeTab({ onNavigate }) {
           annual rates, monthly series, and housing differentials. Covers 1950–2026,
           with IoM monthly data from 1977. Data sourced from Statistics IoM, Statistics
           Jersey, and ONS.`,
-          C.green
-        )}
-      </div>
-
-      <div onClick={() => onNavigate("unemployment")} style={{ cursor: "pointer" }}>
-        {card(
-          "Unemployment",
-          `Long-run registered unemployment across all three Crown Dependencies and the UK,
-          as far back as records allow — IoM from 1975, Guernsey from 1982, Jersey from 2001.
-          Data from IoM Digest 2009 (Table 3.6), Statistics IoM Labour Market Reports,
-          the Guernsey supplementary data spreadsheet (Q4 2023), and ONS BCJE.`,
           C.green
         )}
       </div>
@@ -405,20 +393,6 @@ function AppContent() {
       <AutoIframe
         src="/inflation-explorer.html"
         title="Inflation Explorer"
-      />
-    ),
-
-    unemployment: (
-      <AutoIframe
-        src="/unemployment-explorer.html"
-        title="Unemployment Explorer"
-      />
-    ),
-
-    nobles: (
-      <AutoIframe
-        src="/nobles-hospital-sim.html"
-        title="Noble's Hospital — Bed Capacity"
       />
     ),
 
@@ -554,7 +528,7 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, about pages get max-width */}
       <div style={
-        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation", "unemployment", "nobles"].includes(tab)
+        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation"].includes(tab)
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>
@@ -572,3 +546,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

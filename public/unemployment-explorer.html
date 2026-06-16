@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unemployment Explorer · Crown Dependencies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#0f172a; --surface:#1e293b; --surf2:#263347; --border:#334155; --border2:#3d5068;
+    --text:#e2e8f0; --muted:#94a3b8; --muted2:#64748b;
+    --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b; --uk:#9ca3af; --amber:#fbbf24; --red:#f87171;
+  }
+  body { background:var(--bg); color:var(--text); font-family:'Inter','Helvetica Neue',sans-serif; font-size:13px; padding:24px 24px 40px; min-height:100vh; }
+  .eyebrow { font-size:10px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
+  h1 { font-size:21px; font-weight:800; letter-spacing:-0.02em; line-height:1.2; color:var(--text); margin-bottom:4px; }
+  .subtitle { font-size:12px; color:var(--muted); margin-bottom:20px; }
+  .tab-bar { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:20px; overflow-x:auto; scrollbar-width:none; }
+  .tab { padding:7px 16px; background:none; border:none; cursor:pointer; font-family:inherit; font-size:12px; font-weight:500; color:#94a3b8; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; transition:color 0.15s; }
+  .tab:hover:not(.active){color:#cbd5e1;}
+  .tab.active{color:#93c5fd; font-weight:600; border-bottom-color:#93c5fd;}
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:20px;}
+  .controls-label{font-size:10px; color:var(--muted2); text-transform:uppercase; letter-spacing:0.07em; flex-shrink:0;}
+  .pill{padding:4px 12px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; font-family:inherit; cursor:pointer; transition:all 0.15s; white-space:nowrap;}
+  .pill.active{border-color:var(--iom); background:rgba(59,130,246,0.13); color:var(--iom); font-weight:600;}
+  .divider-v{width:1px; height:20px; background:var(--border); margin:0 4px; flex-shrink:0;}
+  .chart-wrap{width:100%; height:400px; position:relative; margin-bottom:24px;}
+  .caveat-box{background:rgba(248,113,113,0.07); border:1px solid rgba(248,113,113,0.25); border-left:3px solid var(--red); border-radius:8px; padding:14px 16px; margin-bottom:20px; font-size:12px; color:var(--muted); line-height:1.8;}
+  .caveat-box strong{color:#fca5a5;}
+  .plain-box{background:var(--surf2); border:1px solid var(--border2); border-radius:8px; padding:14px 16px; margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.8;}
+  .plain-box strong{color:var(--muted);}
+  .notes-head{font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;}
+  .note{background:var(--surf2); border:1px solid var(--border2); border-radius:6px; padding:8px 12px; font-size:11px; color:var(--muted2); line-height:1.65; margin-bottom:7px;}
+  .note strong{color:var(--muted);}
+  .footer{border-top:1px solid var(--border); margin-top:16px; padding-top:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px; font-size:10px; color:var(--muted2);}
+  .footer a{color:var(--muted2); text-decoration:none;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Crown Dependencies · Labour Market</div>
+<h1>Long-run unemployment</h1>
+<div class="subtitle">Registered unemployment — JSA claimant counts and rates — as far back as records allow</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('annual',this)">Annual series</button>
+  <button class="tab"        onclick="switchTab('monthly',this)">Monthly IoM (2001–2026)</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- ANNUAL                                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="panel-annual" class="panel active">
+  <div class="controls">
+    <span class="controls-label">From</span>
+    <div id="annual-range-controls" style="display:flex;gap:8px;">
+      <button class="pill active" onclick="setAnnualRange(1971,this)">All (1971)</button>
+      <button class="pill"        onclick="setAnnualRange(1980,this)">1980</button>
+      <button class="pill"        onclick="setAnnualRange(1994,this)">1994</button>
+      <button class="pill"        onclick="setAnnualRange(2001,this)">2001</button>
+    </div>
+    <div class="divider-v"></div>
+    <button class="pill active" id="btn-uk"     onclick="toggleAnnualSeries('uk',this)">UK baseline</button>
+    <button class="pill"        id="btn-gsy_wu" onclick="toggleAnnualSeries('gsy_wu',this)">Gsy wholly unemployed</button>
+    <button class="pill active" id="btn-events" onclick="toggleEvents(this)">Events</button>
+  </div>
+
+  <div class="chart-wrap"><canvas id="chart-annual"></canvas></div>
+
+  <div class="caveat-box">
+    <strong>The headline rate measures JSA claimants — not unemployment.</strong>
+    The Isle of Man's published "registered unemployment" figure counts only people who are
+    actively claiming Job Seekers Allowance (JSA) from the Department of Health and Social
+    Security. As the IoM's own Labour Market Reports state: "there is no legal requirement
+    to register to receive Job Seekers Allowance." Separately, the IoM government publishes
+    an ILO-method estimate of total unemployment — in October 2025 this stood at
+    <span class="mono" style="color:var(--text)">706 people</span>, while the JSA claimant
+    count was approximately <span class="mono" style="color:var(--text)">261</span>.
+    The ILO estimate is <strong>2.7 times larger</strong> than the claimant count.
+    Roughly <strong>445 people</strong> on the island were unemployed in October 2025 by any
+    reasonable definition — but were invisible to the headline statistic because they were not
+    claiming Job Seekers Allowance. The rate shown in this chart is the JSA claimant rate.
+    A COMIN press release citing "0.6% unemployment" is citing JSA claimants — a floor, not a ceiling.
+  </div>
+
+  <div class="plain-box">
+    <strong>Why so few people qualify for or claim JSA.</strong>
+    Job Seekers Allowance on the Isle of Man has two forms. Contribution-based JSA requires
+    sufficient National Insurance contributions in the previous two tax years — someone who
+    has been self-employed, worked part-time, or recently arrived on the island may not
+    qualify. Income-based JSA is means-tested: you and your partner must have less income
+    than the legally defined minimum, and savings, a working partner's earnings, or a
+    redundancy payment can all disqualify you. People who are between jobs, supported by
+    a partner, living off savings, or winding down a business will typically not qualify for
+    either form. This is not a failing of those individuals — it is a structural feature
+    of the benefit system that makes the claimant count a systematically narrow measure of
+    labour market distress, particularly in a high-income, high-savings, high-homeownership
+    island economy.
+  </div>
+
+  <div class="notes-head">Series definitions</div>
+
+  <div class="note">
+    <strong>Isle of Man — three segments, one continuous series.</strong>
+    1975–1998: ILOSTAT national estimate (World Bank/ILO, Dec 2019 vintage), used as the best available proxy before the native series was consistently published in machine-readable form. 1999–2008: Isle of Man Digest of Economic and Social Statistics 2009, Table 3.6 — monthly JSA claimant rate published by the DHSS Employment Section; annual averages computed here. 2001–2026: "Historic Isle of Man Registered Unemployment" table from the IoM Labour Market Report April 2026 — the source of truth for the full monthly count series. These are the same underlying series; the Digest rates and the count-based rates from the April 2026 table are consistent to within rounding. Two ILOSTAT outliers discarded: 2001 (ILOSTAT 1.6% vs native 0.49%) and 2006 (ILOSTAT 2.42% vs native 1.45%).
+  </div>
+
+  <div class="note">
+    <strong>Guernsey — from the States of Guernsey supplementary data spreadsheet (Q4 2023).</strong>
+    Quarterly end-of-period snapshots Q1 1994–Q3 2024. "Total registered unemployed" (pre-2014 headline) includes people in part-time/casual work still eligible to claim Job Seekers Benefit as a supplement — runs roughly 40–50% above the narrower "wholly unemployed" series. "Wholly unemployed" (current headline, Q2 2011 onwards) is people with no work at all. Annual averages are means of four quarterly snapshots. Pre-1994 figures are approximate from Quarterly Bulletin narrative references (Dec 1983 peak ≈ 770 people; Dec 1992 ≈ 760 people).
+  </div>
+
+  <div class="note">
+    <strong>Jersey — "Actively Seeking Work" (ASW) registrants as % of workforce.</strong>
+    Includes people in partial employment seeking more work — closer in concept to Guernsey's "total registered" than to "wholly unemployed". 2001–2008: approximate from States press releases. 2009–2024: Statistics Jersey open data. Census ILO snapshots were materially higher: approximately 4.7% at the 2011 census and 3.5% at 2021, against ASW rates of around 2% and 1.5% at those times — the gap is unregistered job-seekers invisible to the claimant count.
+  </div>
+
+  <div class="note">
+    <strong>UK — ONS series BCJE, claimant count rate, seasonally adjusted, all persons, annual average.</strong>
+    Before 2013: Job Seekers Allowance claimants only — the closest like-for-like comparator to the island measures. From 2013 onwards: also includes people claiming Universal Credit principally because they are out of work, as Universal Credit progressively replaced Job Seekers Allowance across Great Britain. This definitional expansion mechanically inflates the post-2013 UK rate by roughly 0.5–1 percentage point relative to the islands' measures, which remain on a JSA-equivalent definition. Toggle off if distracting.
+  </div>
+
+  <div class="notes-head" style="margin-top:16px;">Why island rates are structurally lower — and what that conceals</div>
+
+  <div class="note">
+    <strong>The migration buffer — the most important structural factor.</strong>
+    All three islands operate flexible immigration systems that function as a labour market pressure valve in ways mainland Britain cannot replicate. A significant share of the employed workforce — particularly in construction, hospitality, and finance support roles — consists of people who came specifically for work and have no long-term attachment to the island. When work dries up, many leave. They exit the labour force entirely: no longer in the denominator of the unemployment rate, and certainly not registering for Job Seekers Allowance on their way out. The unemployment rate falls not because the economy has adjusted smoothly, but partly because the population has contracted to match available work. This is arguably the primary mechanism by which the islands absorb economic shocks, and it produces unemployment rates that systematically understate the true degree of labour market distress during downturns.
+  </div>
+
+  <div class="note">
+    <strong>Recent IoM context — what the headline misses.</strong>
+    The JSA claimant count for the Isle of Man in recent years (2022–2025) is running at approximately 260–370 people per month — historic lows by any measure. But the ILO estimate published alongside the same report was 706 in October 2025, more than 2.7 times the JSA count. This gap — roughly 445 people — represents the unregistered unemployed: people who are out of work and looking but who either do not qualify for Job Seekers Allowance or have chosen not to claim it. This is the figure that matters if you are trying to understand actual labour market conditions rather than benefit caseload. Separately: the IoM aircraft registry has experienced significant contraction following sanctions-related deregistrations and exit of Russia/Belarus business; public sector departments have been managing budget pressure; and the Post Office has restructured. Whether these developments are visible in the claimant count depends largely on whether affected workers qualify for and claim JSA.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MONTHLY                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="panel-monthly" class="panel">
+  <div class="controls">
+    <span class="controls-label">Period</span>
+    <div id="monthly-range-controls" style="display:flex;gap:8px;">
+      <button class="pill active" onclick="setMonthlyRange('all',this)">All (2001–2026)</button>
+      <button class="pill"        onclick="setMonthlyRange('pre',this)">Pre-GFC (2001–2008)</button>
+      <button class="pill"        onclick="setMonthlyRange('post',this)">Post-GFC (2009–2026)</button>
+    </div>
+  </div>
+
+  <div class="chart-wrap"><canvas id="chart-monthly"></canvas></div>
+
+  <div class="caveat-box">
+    <strong>These are JSA claimant counts — people actually claiming Job Seekers Allowance.</strong>
+    Source: "Historic Isle of Man Registered Unemployment", Isle of Man Labour Market Report,
+    April 2026. The counts shown are raw monthly end-of-period headcounts, not seasonally adjusted.
+    The COVID spike in April 2020 (1,347) reflects registrations under emergency schemes including
+    the Manx Earnings Replacement Allowance (MERA) alongside regular JSA — making it not directly
+    comparable to the surrounding series.
+    Note also: the ILO estimate of total unemployment is consistently
+    <strong>2–3 times larger</strong> than these JSA counts.
+    The chart Y-axis shows raw headcount, not a rate.
+  </div>
+
+  <div class="note">
+    <strong>What the monthly series shows.</strong>
+    The 2001–2008 period shows very low counts (150–750) with a clear trough in 2001 and a
+    sustained rise from mid-2003 through 2008 as the financial services sector experienced
+    structural pressure. The October–December 2008 uptick (reaching 721 in December) is the
+    first signal of the post-GFC deterioration, which peaked in January 2013 at 1,208 — the
+    highest point in this series. The recovery from 2014 to 2019 was steep, with counts falling
+    below 400 by late 2017 and reaching historic lows of around 290–310 in early 2018. The
+    COVID spike in spring 2020 was sharp but brief; by late 2021 counts were back below 300.
+    Since 2022 the series has been running at 240–380, broadly similar to the pre-2003 trough.
+  </div>
+
+  <div class="note">
+    <strong>Seasonality.</strong>
+    A modest but consistent seasonal pattern is visible: counts tend to rise in November–February
+    and fall in May–September, consistent with the seasonal nature of hospitality, tourism, and
+    construction on the island. This is most clearly visible in the 2003–2008 and 2014–2019
+    sections of the series.
+  </div>
+
+  <div class="note">
+    <strong>COVID anomaly (March–December 2020).</strong>
+    The spike from 389 in February to 850 in March and 1,347 in April 2020 reflects registrations
+    under the Manx Earnings Replacement Allowance (MERA) scheme as well as regular JSA.
+    MERA was a temporary COVID income support scheme; approximately 50% of unemployed survey
+    respondents in 2020 were on MERA versus 35% on JSA. The 2020 figures are therefore not
+    fully comparable to the rest of the series and will overstate the JSA-equivalent claimant
+    count for that period.
+  </div>
+</div>
+
+<div class="footer">
+  <span>Sources: IoM Labour Market Report April 2026 (historic count table) · IoM Digest of Economic &amp; Social Statistics 2009 (Table 3.6) · States of Guernsey supplementary data Q4 2023 · Statistics Jersey (ASW open data) · ONS BCJE · ILOSTAT</span>
+  <span>observatory.coalfinch.com · <a href="https://coalfinch.com" target="_blank">Coalfinch</a></span>
+</div>
+
+<script>
+// ── ANNUAL DATA ───────────────────────────────────────────────────────────────
+const ANNUAL = [
+  {y:1971,                                                  uk:2.6},
+  {y:1972,                                                  uk:2.7},
+  {y:1973,                                                  uk:1.9},
+  {y:1974,                                                  uk:2.1},
+  {y:1975, iom:3.1,                                         uk:3.1},
+  {y:1976, iom:3.5,                                         uk:4.1},
+  {y:1977, iom:3.7,                                         uk:4.5},
+  {y:1978, iom:3.1,                                         uk:4.3},
+  {y:1979, iom:2.3,                                         uk:4.0},
+  {y:1980, iom:2.9,                                         uk:5.3},
+  {y:1981, iom:4.6,                                         uk:8.0},
+  {y:1982, iom:5.9,  gsy_reg:2.5,                           uk:9.5},
+  {y:1983, iom:7.1,  gsy_reg:2.6,                           uk:10.5},
+  {y:1984, iom:7.4,  gsy_reg:2.2,                           uk:10.7},
+  {y:1985, iom:8.0,  gsy_reg:1.9,                           uk:10.8},
+  {y:1986, iom:7.7,  gsy_reg:1.7,                           uk:10.8},
+  {y:1987, iom:5.8,  gsy_reg:1.4,                           uk:9.7},
+  {y:1988, iom:3.3,  gsy_reg:1.1,                           uk:7.8},
+  {y:1989, iom:2.0,  gsy_reg:0.8,                           uk:6.1},
+  {y:1990, iom:2.1,  gsy_reg:0.7,                           uk:5.8},
+  {y:1991, iom:4.1,  gsy_reg:1.3,                           uk:7.7},
+  {y:1992, iom:4.3,  gsy_reg:2.6,                           uk:9.6},
+  {y:1993, iom:4.9,  gsy_reg:2.0,                           uk:10.3},
+  {y:1994, iom:4.7,  gsy_reg:1.31,                          uk:9.3},
+  {y:1995, iom:4.4,  gsy_reg:0.99,                          uk:8.0},
+  {y:1996, iom:3.54, gsy_reg:0.75,                          uk:7.3},
+  {y:1997, iom:2.4,  gsy_reg:0.66,                          uk:5.6},
+  {y:1998, iom:1.8,  gsy_reg:0.46,                          uk:4.6},
+  {y:1999, iom_d:0.74, gsy_reg:0.40,                        uk:4.0},
+  {y:2000, iom_d:0.57, gsy_reg:0.39,                        uk:3.6},
+  // From 2001: annual averages computed from the April 2026 monthly count table
+  // Rate = avg monthly count / estimated economically active population
+  // Workforce denominator cross-checked against Digest Table 3.6 rates (consistent to <0.05pp)
+  {y:2001, iom_d:0.49, gsy_reg:0.29, jsy:1.0,               uk:3.3},
+  {y:2002, iom_d:0.55, gsy_reg:0.31, jsy:0.9,               uk:3.1},
+  {y:2003, iom_d:0.73, gsy_reg:0.31, jsy:0.9,               uk:3.0},
+  {y:2004, iom_d:0.98, gsy_reg:0.45, jsy:1.0,               uk:2.7},
+  {y:2005, iom_d:1.39, gsy_reg:0.58, jsy:1.1,               uk:2.7},
+  {y:2006, iom_d:1.45, gsy_reg:0.62, jsy:1.1,               uk:2.9},
+  {y:2007, iom_d:1.43, gsy_reg:0.77, jsy:1.1,               uk:2.6},
+  {y:2008, iom_d:1.42, gsy_reg:0.95, jsy:1.2,               uk:3.0},
+  {y:2009, iom_c:2.14, gsy_reg:1.42, jsy:1.6,               uk:4.7},
+  {y:2010, iom_c:1.93, gsy_reg:1.51, jsy:1.8,               uk:4.5},
+  {y:2011, iom_c:2.04, gsy_reg:1.53, gsy_wu:1.01, jsy:2.0,  uk:4.7},
+  {y:2012, iom_c:2.37, gsy_reg:1.86, gsy_wu:1.25, jsy:2.4,  uk:4.9},
+  {y:2013, iom_c:2.56, gsy_reg:2.04, gsy_wu:1.36, jsy:2.8,  uk:4.5},
+  {y:2014, iom_c:2.22, gsy_reg:2.08, gsy_wu:1.23, jsy:2.5,  uk:3.4},
+  {y:2015, iom_c:1.91, gsy_reg:2.09, gsy_wu:1.25, jsy:2.2,  uk:2.5},
+  {y:2016, iom_c:1.55, gsy_reg:2.11, gsy_wu:1.24, jsy:2.0,  uk:2.2},
+  {y:2017, iom_c:0.99, gsy_reg:1.92, gsy_wu:1.02, jsy:1.7,  uk:2.3},
+  {y:2018, iom_c:0.81, gsy_reg:2.16, gsy_wu:0.92, jsy:1.5,  uk:2.7},
+  {y:2019, iom_c:0.78, gsy_reg:2.43, gsy_wu:1.02, jsy:1.4,  uk:3.1},
+  {y:2020, iom_c:2.07, gsy_reg:3.55, gsy_wu:2.17, jsy:3.2,  uk:6.1},
+  {y:2021, iom_c:1.31, gsy_reg:2.75, gsy_wu:1.50, jsy:2.5,  uk:5.4},
+  {y:2022, iom_c:0.67, gsy_reg:1.95, gsy_wu:0.86, jsy:1.6,  uk:3.9},
+  {y:2023, iom_c:0.62, gsy_reg:1.84, gsy_wu:0.90, jsy:1.4,  uk:4.0},
+  {y:2024, iom_c:0.66, gsy_reg:1.26, gsy_wu:0.78, jsy:1.2,  uk:4.7},
+  {y:2025, iom_c:0.69,                                        uk:4.3},
+  {y:2026, iom_c:0.68},
+];
+
+const EVENTS = [
+  {year:1980, label:'UK recession'},
+  {year:1985, label:'IoM peak 8%'},
+  {year:1991, label:'Early 90s'},
+  {year:2008, label:'GFC'},
+  {year:2013, label:'IoM peak (count)'},
+  {year:2020, label:'COVID'},
+];
+
+// ── MONTHLY DATA — IoM JSA claimant counts ────────────────────────────────────
+// Source: "Historic Isle of Man Registered Unemployment", IoM Labour Market Report April 2026
+// Raw monthly end-of-period headcounts (not seasonally adjusted)
+const MONTHLY_COUNTS = [
+  // 2001
+  {t:'2001-01',v:255},{t:'2001-02',v:229},{t:'2001-03',v:192},{t:'2001-04',v:173},
+  {t:'2001-05',v:154},{t:'2001-06',v:157},{t:'2001-07',v:178},{t:'2001-08',v:182},
+  {t:'2001-09',v:149},{t:'2001-10',v:165},{t:'2001-11',v:187},{t:'2001-12',v:211},
+  // 2002
+  {t:'2002-01',v:244},{t:'2002-02',v:266},{t:'2002-03',v:224},{t:'2002-04',v:198},
+  {t:'2002-05',v:183},{t:'2002-06',v:184},{t:'2002-07',v:202},{t:'2002-08',v:195},
+  {t:'2002-09',v:189},{t:'2002-10',v:195},{t:'2002-11',v:219},{t:'2002-12',v:235},
+  // 2003
+  {t:'2003-01',v:263},{t:'2003-02',v:284},{t:'2003-03',v:293},{t:'2003-04',v:249},
+  {t:'2003-05',v:236},{t:'2003-06',v:273},{t:'2003-07',v:332},{t:'2003-08',v:369},
+  {t:'2003-09',v:301},{t:'2003-10',v:329},{t:'2003-11',v:334},{t:'2003-12',v:327},
+  // 2004
+  {t:'2004-01',v:386},{t:'2004-02',v:416},{t:'2004-03',v:376},{t:'2004-04',v:363},
+  {t:'2004-05',v:364},{t:'2004-06',v:315},{t:'2004-07',v:351},{t:'2004-08',v:390},
+  {t:'2004-09',v:378},{t:'2004-10',v:423},{t:'2004-11',v:452},{t:'2004-12',v:487},
+  // 2005
+  {t:'2005-01',v:543},{t:'2005-02',v:552},{t:'2005-03',v:542},{t:'2005-04',v:561},
+  {t:'2005-05',v:556},{t:'2005-06',v:517},{t:'2005-07',v:582},{t:'2005-08',v:569},
+  {t:'2005-09',v:577},{t:'2005-10',v:563},{t:'2005-11',v:589},{t:'2005-12',v:591},
+  // 2006
+  {t:'2006-01',v:622},{t:'2006-02',v:646},{t:'2006-03',v:615},{t:'2006-04',v:563},
+  {t:'2006-05',v:545},{t:'2006-06',v:544},{t:'2006-07',v:602},{t:'2006-08',v:600},
+  {t:'2006-09',v:571},{t:'2006-10',v:604},{t:'2006-11',v:568},{t:'2006-12',v:577},
+  // 2007
+  {t:'2007-01',v:586},{t:'2007-02',v:616},{t:'2007-03',v:552},{t:'2007-04',v:624},
+  {t:'2007-05',v:569},{t:'2007-06',v:594},{t:'2007-07',v:614},{t:'2007-08',v:633},
+  {t:'2007-09',v:593},{t:'2007-10',v:611},{t:'2007-11',v:562},{t:'2007-12',v:571},
+  // 2008
+  {t:'2008-01',v:627},{t:'2008-02',v:596},{t:'2008-03',v:532},{t:'2008-04',v:543},
+  {t:'2008-05',v:550},{t:'2008-06',v:519},{t:'2008-07',v:591},{t:'2008-08',v:595},
+  {t:'2008-09',v:605},{t:'2008-10',v:667},{t:'2008-11',v:641},{t:'2008-12',v:721},
+  // 2009
+  {t:'2009-01',v:926},{t:'2009-02',v:980},{t:'2009-03',v:947},{t:'2009-04',v:925},
+  {t:'2009-05',v:915},{t:'2009-06',v:922},{t:'2009-07',v:967},{t:'2009-08',v:981},
+  {t:'2009-09',v:901},{t:'2009-10',v:888},{t:'2009-11',v:885},{t:'2009-12',v:878},
+  // 2010
+  {t:'2010-01',v:1029},{t:'2010-02',v:970},{t:'2010-03',v:924},{t:'2010-04',v:867},
+  {t:'2010-05',v:792},{t:'2010-06',v:794},{t:'2010-07',v:822},{t:'2010-08',v:771},
+  {t:'2010-09',v:748},{t:'2010-10',v:753},{t:'2010-11',v:735},{t:'2010-12',v:795},
+  // 2011
+  {t:'2011-01',v:856},{t:'2011-02',v:867},{t:'2011-03',v:891},{t:'2011-04',v:843},
+  {t:'2011-05',v:806},{t:'2011-06',v:846},{t:'2011-07',v:890},{t:'2011-08',v:830},
+  {t:'2011-09',v:890},{t:'2011-10',v:910},{t:'2011-11',v:971},{t:'2011-12',v:979},
+  // 2012
+  {t:'2012-01',v:1100},{t:'2012-02',v:1043},{t:'2012-03',v:1031},{t:'2012-04',v:1037},
+  {t:'2012-05',v:956},{t:'2012-06',v:992},{t:'2012-07',v:1017},{t:'2012-08',v:992},
+  {t:'2012-09',v:1014},{t:'2012-10',v:1065},{t:'2012-11',v:1014},{t:'2012-12',v:1020},
+  // 2013
+  {t:'2013-01',v:1176},{t:'2013-02',v:1181},{t:'2013-03',v:1208},{t:'2013-04',v:1108},
+  {t:'2013-05',v:1072},{t:'2013-06',v:1056},{t:'2013-07',v:1055},{t:'2013-08',v:1028},
+  {t:'2013-09',v:1022},{t:'2013-10',v:1064},{t:'2013-11',v:1117},{t:'2013-12',v:1159},
+  // 2014
+  {t:'2014-01',v:1182},{t:'2014-02',v:1146},{t:'2014-03',v:1061},{t:'2014-04',v:986},
+  {t:'2014-05',v:890},{t:'2014-06',v:918},{t:'2014-07',v:934},{t:'2014-08',v:904},
+  {t:'2014-09',v:859},{t:'2014-10',v:866},{t:'2014-11',v:864},{t:'2014-12',v:882},
+  // 2015
+  {t:'2015-01',v:973},{t:'2015-02',v:930},{t:'2015-03',v:865},{t:'2015-04',v:834},
+  {t:'2015-05',v:768},{t:'2015-06',v:768},{t:'2015-07',v:790},{t:'2015-08',v:776},
+  {t:'2015-09',v:765},{t:'2015-10',v:774},{t:'2015-11',v:786},{t:'2015-12',v:861},
+  // 2016
+  {t:'2016-01',v:873},{t:'2016-02',v:828},{t:'2016-03',v:794},{t:'2016-04',v:711},
+  {t:'2016-05',v:663},{t:'2016-06',v:636},{t:'2016-07',v:620},{t:'2016-08',v:596},
+  {t:'2016-09',v:592},{t:'2016-10',v:552},{t:'2016-11',v:573},{t:'2016-12',v:579},
+  // 2017
+  {t:'2017-01',v:601},{t:'2017-02',v:574},{t:'2017-03',v:507},{t:'2017-04',v:462},
+  {t:'2017-05',v:440},{t:'2017-06',v:407},{t:'2017-07',v:420},{t:'2017-08',v:393},
+  {t:'2017-09',v:338},{t:'2017-10',v:336},{t:'2017-11',v:319},{t:'2017-12',v:335},
+  // 2018
+  {t:'2018-01',v:361},{t:'2018-02',v:373},{t:'2018-03',v:399},{t:'2018-04',v:407},
+  {t:'2018-05',v:330},{t:'2018-06',v:313},{t:'2018-07',v:321},{t:'2018-08',v:336},
+  {t:'2018-09',v:331},{t:'2018-10',v:325},{t:'2018-11',v:330},{t:'2018-12',v:354},
+  // 2019
+  {t:'2019-01',v:368},{t:'2019-02',v:371},{t:'2019-03',v:349},{t:'2019-04',v:314},
+  {t:'2019-05',v:305},{t:'2019-06',v:302},{t:'2019-07',v:334},{t:'2019-08',v:337},
+  {t:'2019-09',v:320},{t:'2019-10',v:332},{t:'2019-11',v:337},{t:'2019-12',v:376},
+  // 2020 — COVID; Apr–Dec includes MERA scheme registrations, not comparable
+  {t:'2020-01',v:404},{t:'2020-02',v:389},{t:'2020-03',v:850},{t:'2020-04',v:1347},
+  {t:'2020-05',v:1283},{t:'2020-06',v:1133},{t:'2020-07',v:1100},{t:'2020-08',v:1000},
+  {t:'2020-09',v:885},{t:'2020-10',v:797},{t:'2020-11',v:770},{t:'2020-12',v:756},
+  // 2021
+  {t:'2021-01',v:1034},{t:'2021-02',v:822},{t:'2021-03',v:938},{t:'2021-04',v:751},
+  {t:'2021-05',v:607},{t:'2021-06',v:495},{t:'2021-07',v:445},{t:'2021-08',v:395},
+  {t:'2021-09',v:365},{t:'2021-10',v:326},{t:'2021-11',v:293},{t:'2021-12',v:291},
+  // 2022
+  {t:'2022-01',v:309},{t:'2022-02',v:297},{t:'2022-03',v:262},{t:'2022-04',v:257},
+  {t:'2022-05',v:264},{t:'2022-06',v:285},{t:'2022-07',v:302},{t:'2022-08',v:313},
+  {t:'2022-09',v:307},{t:'2022-10',v:290},{t:'2022-11',v:277},{t:'2022-12',v:292},
+  // 2023
+  {t:'2023-01',v:297},{t:'2023-02',v:313},{t:'2023-03',v:291},{t:'2023-04',v:262},
+  {t:'2023-05',v:246},{t:'2023-06',v:228},{t:'2023-07',v:245},{t:'2023-08',v:237},
+  {t:'2023-09',v:256},{t:'2023-10',v:286},{t:'2023-11',v:283},{t:'2023-12',v:285},
+  // 2024
+  {t:'2024-01',v:322},{t:'2024-02',v:306},{t:'2024-03',v:292},{t:'2024-04',v:281},
+  {t:'2024-05',v:263},{t:'2024-06',v:250},{t:'2024-07',v:247},{t:'2024-08',v:265},
+  {t:'2024-09',v:260},{t:'2024-10',v:284},{t:'2024-11',v:321},{t:'2024-12',v:345},
+  // 2025
+  {t:'2025-01',v:370},{t:'2025-02',v:313},{t:'2025-03',v:322},{t:'2025-04',v:319},
+  {t:'2025-05',v:296},{t:'2025-06',v:283},{t:'2025-07',v:292},{t:'2025-08',v:277},
+  {t:'2025-09',v:273},{t:'2025-10',v:261},{t:'2025-11',v:269},{t:'2025-12',v:260},
+  // 2026 (partial)
+  {t:'2026-01',v:286},{t:'2026-02',v:310},{t:'2026-03',v:298},{t:'2026-04',v:290},
+];
+
+// ── Colour constants ──────────────────────────────────────────────────────────
+const COL = {IOM:'#3b82f6',GSY:'#10b981',JSY:'#f59e0b',UK:'#9ca3af',MUTED:'#64748b',SURF:'#1e293b',BDR:'#334155'};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let annualRangeStart=1971, showEvents=true, hiddenAnnual=new Set(), monthlyRange='all';
+
+// ── ANNUAL CHART ──────────────────────────────────────────────────────────────
+const ANNUAL_DS_DEF = [
+  {key:'iom',     label:'IoM (ILOSTAT 1975–98)',        color:COL.IOM, dash:[],    w:2,   op:1   },
+  {key:'iom_d',   label:'IoM (JSA claimant 1999–2008)', color:COL.IOM, dash:[],    w:2,   op:1   },
+  {key:'iom_c',   label:'IoM (JSA claimant 2009+)',     color:COL.IOM, dash:[6,3], w:2,   op:1   },
+  {key:'jsy',     label:'Jersey (ASW)',                  color:COL.JSY, dash:[],    w:2,   op:1   },
+  {key:'gsy_reg', label:'Guernsey (total registered)',   color:COL.GSY, dash:[],    w:2,   op:1   },
+  {key:'gsy_wu',  label:'Guernsey (wholly unemployed)',  color:COL.GSY, dash:[4,2], w:1.5, op:0.75},
+  {key:'uk',      label:'UK (claimant count, BCJE)',     color:COL.UK,  dash:[],    w:1.5, op:0.6 },
+];
+
+const annualChart = new Chart(document.getElementById('chart-annual').getContext('2d'), {
+  type:'line',
+  data:{labels:[], datasets:ANNUAL_DS_DEF.map(d=>({
+    label:d.label, data:[], borderColor:d.color, borderWidth:d.w,
+    borderDash:d.dash, pointRadius:0, pointHoverRadius:4,
+    spanGaps:false, tension:0.15, _key:d.key, backgroundColor:d.color+'10',
+  }))},
+  options:{
+    responsive:true, maintainAspectRatio:false, animation:{duration:250},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{position:'bottom', labels:{color:COL.MUTED, font:{size:10,family:'Inter,sans-serif'}, boxWidth:20, boxHeight:2, padding:12, usePointStyle:false,
+        generateLabels(c){return c.data.datasets.map((ds,i)=>({text:ds.label,fillStyle:'transparent',strokeStyle:ds.borderColor,lineWidth:ds.borderWidth,lineDash:ds.borderDash,hidden:ds.hidden,datasetIndex:i}));}
+      }, onClick(){}},
+      tooltip:{backgroundColor:COL.SURF, borderColor:COL.BDR, borderWidth:1, titleColor:'#94a3b8', bodyColor:'#94a3b8', padding:10,
+        callbacks:{title:items=>String(items[0].label), label:item=>item.raw==null?null:` ${item.dataset.label}: ${item.raw.toFixed(2)}%`},
+        filter:item=>item.raw!=null},
+    },
+    scales:{
+      x:{ticks:{color:COL.MUTED,font:{size:10},maxRotation:0}, grid:{color:COL.BDR,lineWidth:0.5}, border:{color:COL.BDR}},
+      y:{min:0, ticks:{color:COL.MUTED,font:{size:10},callback:v=>v+'%'}, grid:{color:COL.BDR,lineWidth:0.5}, border:{display:false}},
+    },
+  },
+  plugins:[{id:'evLines', afterDraw(chart){
+    if(!showEvents) return;
+    const {ctx,scales:{x,y}}=chart; ctx.save();
+    EVENTS.filter(e=>e.year>=annualRangeStart).forEach(ev=>{
+      if(!chart.data.labels.includes(ev.year)) return;
+      const xPx=x.getPixelForValue(ev.year);
+      ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(100,116,139,0.4)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(xPx,y.top); ctx.lineTo(xPx,y.bottom); ctx.stroke();
+      ctx.setLineDash([]); ctx.fillStyle='rgba(100,116,139,0.65)';
+      ctx.font='9px Inter,sans-serif'; ctx.textAlign='center';
+      ctx.fillText(ev.label,xPx,y.top-4);
+    }); ctx.restore();
+  }}],
+});
+
+function redrawAnnual(){
+  const rows=ANNUAL.filter(d=>d.y>=annualRangeStart);
+  annualChart.data.labels=rows.map(d=>d.y);
+  annualChart.data.datasets.forEach(ds=>{ds.data=rows.map(r=>r[ds._key]??null); ds.hidden=hiddenAnnual.has(ds._key);});
+  annualChart.update(); notifyResize();
+}
+
+function setAnnualRange(yr,btn){
+  annualRangeStart=yr;
+  document.querySelectorAll('#annual-range-controls .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); redrawAnnual();
+}
+function toggleAnnualSeries(key,btn){
+  if(hiddenAnnual.has(key)){hiddenAnnual.delete(key);btn.classList.add('active');}
+  else{hiddenAnnual.add(key);btn.classList.remove('active');}
+  redrawAnnual();
+}
+function toggleEvents(btn){
+  showEvents=!showEvents; btn.classList.toggle('active',showEvents); annualChart.update();
+}
+
+// ── MONTHLY CHART ─────────────────────────────────────────────────────────────
+// COVID months get a distinct point colour to flag non-comparability
+const covidMonths = new Set(['2020-03','2020-04','2020-05','2020-06','2020-07','2020-08','2020-09','2020-10','2020-11','2020-12','2021-01','2021-02','2021-03']);
+
+const monthlyChart = new Chart(document.getElementById('chart-monthly').getContext('2d'), {
+  type:'line',
+  data:{labels:[], datasets:[{
+    label:'IoM JSA claimants (monthly count)',
+    data:[], borderColor:COL.IOM, borderWidth:1.5,
+    pointRadius:0, pointHoverRadius:4, spanGaps:false, tension:0.1,
+    fill:false, segment:{
+      borderColor: ctx => {
+        const lbl = MONTHLY_COUNTS[ctx.p0DataIndex]?.t;
+        return covidMonths.has(lbl) ? '#f87171' : COL.IOM;
+      }
+    }
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false, animation:{duration:250},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{position:'bottom', labels:{color:COL.MUTED, font:{size:10,family:'Inter,sans-serif'}, boxWidth:20, boxHeight:2, padding:12}},
+      tooltip:{backgroundColor:COL.SURF, borderColor:COL.BDR, borderWidth:1, titleColor:'#94a3b8', bodyColor:'#94a3b8', padding:10,
+        callbacks:{
+          title:items=>{const[y,m]=items[0].label.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]+' '+y;},
+          label:item=>` JSA claimants: ${item.raw.toLocaleString()}`,
+        }
+      },
+    },
+    scales:{
+      x:{ticks:{color:COL.MUTED,font:{size:9},maxRotation:0,maxTicksLimit:20,
+          callback(val){const lbl=this.getLabelForValue(val); return lbl&&lbl.endsWith('-01')?lbl.slice(0,4):'';}},
+        grid:{color:COL.BDR,lineWidth:0.5}, border:{color:COL.BDR}},
+      y:{min:0, ticks:{color:COL.MUTED,font:{size:10},callback:v=>v.toLocaleString()}, grid:{color:COL.BDR,lineWidth:0.5}, border:{display:false}},
+    },
+  },
+});
+
+function redrawMonthly(){
+  let d=MONTHLY_COUNTS;
+  if(monthlyRange==='pre') d=d.filter(x=>x.t<'2009');
+  if(monthlyRange==='post') d=d.filter(x=>x.t>='2009');
+  monthlyChart.data.labels=d.map(x=>x.t);
+  monthlyChart.data.datasets[0].data=d.map(x=>x.v);
+  monthlyChart.update(); notifyResize();
+}
+function setMonthlyRange(range,btn){
+  monthlyRange=range;
+  document.querySelectorAll('#monthly-range-controls .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); redrawMonthly();
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='monthly'){monthlyChart.resize();redrawMonthly();}
+  else{annualChart.resize();redrawAnnual();}
+  notifyResize();
+}
+function notifyResize(){setTimeout(()=>{window.parent.postMessage({type:'resize',height:document.body.scrollHeight},'*');},50);}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.getElementById('btn-gsy_wu').classList.remove('active');
+hiddenAnnual.add('gsy_wu');
+redrawAnnual();
+new ResizeObserver(()=>notifyResize()).observe(document.body);
+</script>
+</body>
+</html>
