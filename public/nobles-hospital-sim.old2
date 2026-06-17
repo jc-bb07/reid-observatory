@@ -817,12 +817,6 @@ const state = {
   delayedPatientsStock: 18,
   electiveBacklog: 120,
   EDPressure: 0.9,
-  // REVOLVING DOOR STOCK: recently discharged patients in community.
-  // Demand is conserved — discharged patients accumulate here, deteriorate
-  // at a rate driven by age profile and social care quality, and re-present to ED.
-  // Fix the hospital processes without fixing community capacity and this
-  // stock reloads the system within 12–18 months. Story B.
-  communityStock: 280,
   history: { weeks: [], occupancy: [], edWait: [], delayed: [], elective: [] }
 };
 
@@ -858,46 +852,13 @@ function demandMultiplier() {
 function adjustedAdmissions() {
   const elderlyEffect = 1 + (P.elderly - 0.21) * 2.5;
   const demandMult = elderlyEffect * P.seasonal;
-
-  // DEMAND CONSERVATION: streaming and OOH cover do not destroy demand.
-  // They reroute patients to primary care / urgent care / community.
-  // A proportion of those rerouted patients still need care — some return
-  // to ED within days or weeks having received inadequate alternative treatment,
-  // or deteriorate because the alternate pathway couldn't manage their acuity.
-  //
-  // streamingReduction: what fraction of daily ED presentations become ward admissions.
-  // Better streaming reduces inappropriate conversion — but the underlying presenting
-  // population doesn't shrink. Those patients exist in communityStock and deteriorate
-  // at a rate driven by social care adequacy and elderly demographics.
+  // Streaming diverts non-admission-appropriate patients before they consume ward beds.
   const streamingReduction = 1 - (P.streaming / 100) * 0.4;
-
-  // OOH senior cover: reduces unnecessary bed admissions (junior risk aversion),
-  // but again does not make those patients disappear. They go home and may return.
-  const oohReduction = 1 - ((P.oohCover - 0.30) / 0.70) * 0.15;
-
-  // Base admissions from fresh ED presentations
-  const freshAdmissions = P.admissions * demandMult * streamingReduction * Math.max(0.7, oohReduction);
-
-  // REVOLVING DOOR: community stock re-presentations.
-  // Rate driven by: how many recently discharged patients are in community,
-  // how fast they deteriorate (age profile), and how good social care is at
-  // keeping them stable. At baseline social care (65%), ~15%/month deteriorate
-  // enough to re-present. Community investment (virtual ward, admission avoidance)
-  // reduces this rate. Without it, fixing hospital flow just spins the door faster.
-  const monthlyDeterioration = 0.15; // baseline: 15%/month re-present
-  const socialCareModifier = 1 - (P.socialCare / 100) * 0.55; // good social care slows deterioration
-  const communityModifier = 1 - (P.communityResilience / 100) * 0.45; // virtual ward, admission avoidance
-  const dailyRevolvingDoor = state.communityStock * (monthlyDeterioration / 30) * socialCareModifier * communityModifier * elderlyEffect;
-
-  return freshAdmissions + dailyRevolvingDoor;
-}
-
-function revolvingDoorFlow() {
-  // Exposed separately so the flow diagram can show it
-  const elderlyEffect = 1 + (P.elderly - 0.21) * 2.5;
-  const socialCareModifier = 1 - (P.socialCare / 100) * 0.55;
-  const communityModifier = 1 - (P.communityResilience / 100) * 0.45;
-  return state.communityStock * (0.15 / 30) * socialCareModifier * communityModifier * elderlyEffect;
+  // OOH senior cover: Gent notes 2/3 of admissions happen OOH with juniors defaulting to beds.
+  // Better senior cover reduces unnecessary OOH admissions.
+  // At 30% cover (baseline): some unnecessary admissions. At 90%: most are appropriate.
+  const oohReduction = 1 - ((P.oohCover - 0.30) / 0.70) * 0.15; // max 15% reduction at full cover
+  return P.admissions * demandMult * streamingReduction * Math.max(0.7, oohReduction);
 }
 
 function edQueuePressureMultiplier() {
@@ -1057,17 +1018,6 @@ function tickRaw() {
     Math.min(eff * 1.08, state.occupiedBeds + admitted + r1 + r2 - naturalOut - delayedOut)
   );
 
-  // COMMUNITY STOCK — the revolving door accumulator.
-  // Inflow: patients discharged from wards (naturalOut + delayedOut).
-  // Outflow: deterioration/re-presentation to ED (already counted in adjustedAdmissions
-  //   via revolvingDoorFlow), plus genuine resolution (patients who stabilise long-term).
-  // This stock drives the demand that returns after process fixes.
-  const revolving = revolvingDoorFlow() * dt;
-  const genuineResolution = state.communityStock * 0.005 * dt; // ~1.5%/month genuinely recover/move to LTC
-  state.communityStock = Math.max(0, Math.min(800,
-    state.communityStock + (naturalOut + delayedOut) * dt - revolving - genuineResolution
-  ));
-
   state.electiveBacklog = Math.max(0, Math.min(2000, state.electiveBacklog + electiveBacklogDelta() * dt));
   state.EDPressure += (Math.min(1, occ) - state.EDPressure) * 0.1;
   state.week += dt / 7;
@@ -1193,15 +1143,12 @@ function drawFlowDiagram(w, h) {
 
   const edWaitStr = edWait < 4 ? edWait.toFixed(1) + 'h wait' : edWait.toFixed(1) + 'h ⚠';
 
-  // Community — now shows actual communityStock accumulator (revolving door pool)
-  // Fill represents how loaded the pool is relative to a 500-patient reference level.
-  // When high, expect sustained demand reload after process fixes.
-  const commFill = Math.min(1, state.communityStock / 500);
-  const commFillColor = commFill > 0.65 ? T.amber : T.blue;
+  // Community — border blue (identity), fill green always (community demand isn't itself a crisis metric)
+  const commFill = 0.4 + (1 - P.socialCare / 100) * 0.3;
   drawCompartment(commX, commW,
-    'COMMUNITY',       'revolving door pool',
-    commFill, T.blue,  commFillColor,
-    Math.round(state.communityStock) + ' patients', 'recently discharged');
+    'COMMUNITY',       'unmet demand',
+    commFill, T.blue,  T.blue,
+    'presenting to services', '');
 
   // ED — border amber (identity), fill traffic-light on wait time
   const edFillColor = trafficColor(edOcc, 0.4, 0.7);
@@ -1280,45 +1227,12 @@ function drawFlowDiagram(w, h) {
     fctx.setLineDash([]);
   }
 
-  // REVOLVING DOOR: community → ED re-presentation.
-  // This is always active — demand is conserved, not destroyed by discharge.
-  // Strength scales with community stock and deterioration rate.
-  // This is why process fixes alone don't hold: they discharge faster,
-  // community stock grows, revolving door accelerates.
-  {
-    const revRate = revolvingDoorFlow();
-    const revStrength = Math.min(1, revRate / 8); // normalise: 8/day = full strength
-    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 600 + 2);
-    const alpha = 0.25 + revStrength * 0.55 + pulse * 0.1 * revStrength;
-    fctx.setLineDash([5, 4]);
-    fctx.strokeStyle = `rgba(251,191,36,${alpha})`;
-    fctx.lineWidth = 1.5 + revStrength;
-    fctx.beginPath();
-    fctx.moveTo(commX + commW * 0.5, compY + compH);
-    fctx.quadraticCurveTo(
-      (commX + commW * 0.5 + edX + edW * 0.5) / 2,
-      compY + compH + 52,
-      edX + edW * 0.5, compY + compH
-    );
-    fctx.stroke();
+  if (state.electiveBacklog > 150) {
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 600 + 1);
+    fctx.setLineDash([3, 5]);
+    drawArrow(commX + commW * 0.5, compY + compH + 5, edX + edW * 0.5, compY + compH + 5,
+      `rgba(251,191,36,${0.3 + pulse * 0.5})`, 'R2 deterioration', false);
     fctx.setLineDash([]);
-    // arrowhead
-    fctx.fillStyle = `rgba(251,191,36,${alpha})`;
-    fctx.beginPath();
-    fctx.moveTo(edX + edW * 0.5, compY + compH);
-    fctx.lineTo(edX + edW * 0.5 - 6, compY + compH + 8);
-    fctx.lineTo(edX + edW * 0.5 + 6, compY + compH + 8);
-    fctx.closePath();
-    fctx.fill();
-    // label
-    fctx.fillStyle = `rgba(251,191,36,${alpha + 0.1})`;
-    fctx.font = `600 9px "JetBrains Mono"`;
-    fctx.textAlign = 'center';
-    fctx.fillText(
-      `R2 revolving door — ${Math.round(revRate * 30)}/mo re-present`,
-      (commX + commW * 0.5 + edX + edW * 0.5) / 2,
-      compY + compH + 64
-    );
   }
 
   // Status message
@@ -1926,19 +1840,19 @@ function updateNarrative(occ, wait) {
 // ─────────────────────────────────────────────────────────────────────────────
 const scenarios = [
   { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
-    initOcc:0.90, initDelayed:18, initBacklog:120, initPressure:0.6, initCommunity:280, label: "Current Noble's (Gent 2026)" },
+    initOcc:0.90, initDelayed:18, initBacklog:120, initPressure:0.6, label: "Current Noble's (Gent 2026)" },
   { beds:283, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
-    initOcc:0.80, initDelayed:18, initBacklog:120, initPressure:0.3, initCommunity:280, label: "HMC proposal: +50 beds" },
+    initOcc:0.80, initDelayed:18, initBacklog:120, initPressure:0.3, label: "HMC proposal: +50 beds" },
   { beds:233, admissions:20, los:4.8, delayed:7,  socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:55, ooh:30, community:20,
-    initOcc:0.78, initDelayed:8,  initBacklog:60,  initPressure:0.2, initCommunity:280, label: "Gent fix: flow & processes" },
+    initOcc:0.78, initDelayed:8,  initBacklog:60,  initPressure:0.2, label: "Gent fix: flow & processes" },
   { beds:233, admissions:24, los:7.0, delayed:22, socialCare:60, staffed:85, elderly:26, seasonal:1.0, streaming:20, ooh:30, community:15,
-    initOcc:0.94, initDelayed:30, initBacklog:280, initPressure:0.8, initCommunity:360, label: "Demographic pressure 2030" },
+    initOcc:0.94, initDelayed:30, initBacklog:280, initPressure:0.8, label: "Demographic pressure 2030" },
   { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.4, streaming:20, ooh:30, community:20,
-    initOcc:0.97, initDelayed:28, initBacklog:180, initPressure:0.9, initCommunity:280, label: "Winter OPEL 4 crisis" },
+    initOcc:0.97, initDelayed:28, initBacklog:180, initPressure:0.9, label: "Winter OPEL 4 crisis" },
   { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
-    initOcc:0.01, initDelayed:0,  initBacklog:0,   initPressure:0.0, initCommunity:50,  label: "✓ Start empty (validation)" },
+    initOcc:0.01, initDelayed:0,  initBacklog:0,   initPressure:0.0, label: "✓ Start empty (validation)" },
   { beds:243, admissions:20, los:4.5, delayed:5,  socialCare:80, staffed:90, elderly:21, seasonal:1.0, streaming:65, ooh:80, community:70,
-    initOcc:0.68, initDelayed:4,  initBacklog:40,  initPressure:0.1, initCommunity:180, label: "★ Gent recommendations implemented" },
+    initOcc:0.68, initDelayed:4,  initBacklog:40,  initPressure:0.1, label: "★ Gent recommendations implemented" },
 ];
 
 function loadScenario(i) {
@@ -1962,7 +1876,6 @@ function loadScenario(i) {
   state.EDPressure = s.initOcc;
   state.pressureMemory = s.initPressure || 0;
   state.frailtyBedLoad = 0;  // will build toward equilibrium from tick 1
-  state.communityStock = s.initCommunity !== undefined ? s.initCommunity : 280;
   state.week = 0;
   state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[] };
   ['R1','R2','B2'].forEach(k => { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; });
@@ -2031,7 +1944,6 @@ document.getElementById('btnReset').onclick = () => {
   state.EDPressure = 0.9;
   state.pressureMemory = 0.5;
   state.frailtyBedLoad = 0;
-  state.communityStock = 280;
   state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[] };
   ['R1','R2','B2','B3'].forEach(k => { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; });
   document.getElementById('stepAnnotation').style.display = 'none';
