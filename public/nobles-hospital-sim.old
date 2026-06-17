@@ -306,96 +306,7 @@
   .loop-item em { color: var(--muted2); font-style: italic; }
   .loop-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
 
-  /* ── MOBILE OVERLAY ── */
-  #mobile-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 9999;
-    padding: 28px 24px;
-    overflow-y: auto;
-  }
-  #mobile-overlay h2 {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text);
-    line-height: 1.3;
-    margin-bottom: 6px;
-  }
-  #mobile-overlay h2 span { color: var(--blue); }
-  #mobile-overlay .mo-sub {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-  #mobile-overlay .mo-card {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
-  #mobile-overlay .mo-card-title {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-  #mobile-overlay .mo-stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 5px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--muted);
-  }
-  #mobile-overlay .mo-stat:last-child { border-bottom: none; }
-  #mobile-overlay .mo-stat-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    font-size: 13px;
-  }
-  #mobile-overlay .mo-loop {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.65;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  #mobile-overlay .mo-loop:last-child { border-bottom: none; }
-  #mobile-overlay .mo-cta {
-    background: var(--surface2);
-    border: 1px solid var(--blue);
-    border-radius: 8px;
-    padding: 14px;
-    margin-top: 16px;
-    font-size: 12px;
-    color: var(--blue);
-    line-height: 1.6;
-    text-align: center;
-  }
-  #mobile-overlay .mo-dismiss {
-    display: block;
-    width: 100%;
-    margin-top: 12px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 10px;
-    background: transparent;
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    color: var(--muted);
-    cursor: pointer;
-    text-align: center;
-  }
-  @media (max-width: 700px) {
-    #mobile-overlay { display: block; }
-  }
+  /* ── FOOTER ── */
   .page-footer {
     margin-top: 28px;
     padding-top: 14px;
@@ -413,48 +324,6 @@
 </head>
 <body>
 <div class="shell">
-
-  <!-- MOBILE OVERLAY -->
-  <div id="mobile-overlay">
-    <h2>Noble's Hospital: <span>why counting beds misses the point</span></h2>
-    <div class="mo-sub">An interactive system dynamics model — best experienced on a desktop or laptop. Here's what the model shows.</div>
-
-    <div class="mo-card">
-      <div class="mo-card-title">Key figures — Gent Review, May 2026</div>
-      <div class="mo-stat"><span>Inpatient beds</span><span class="mo-stat-val" style="color:var(--red);">233</span></div>
-      <div class="mo-stat"><span>Beds in 2003 (hospital opened)</span><span class="mo-stat-val">313</span></div>
-      <div class="mo-stat"><span>Average bed occupancy</span><span class="mo-stat-val" style="color:var(--red);">90%</span></div>
-      <div class="mo-stat"><span>Safe operating threshold</span><span class="mo-stat-val" style="color:var(--green);">85%</span></div>
-      <div class="mo-stat"><span>Daily ED attendances</span><span class="mo-stat-val">~120</span></div>
-      <div class="mo-stat"><span>Daily emergency admissions</span><span class="mo-stat-val">~20</span></div>
-      <div class="mo-stat"><span>4-hour A&amp;E performance</span><span class="mo-stat-val" style="color:var(--amber);">59.5%</span></div>
-      <div class="mo-stat"><span>Medical patients in surgical beds</span><span class="mo-stat-val" style="color:var(--amber);">8–12 daily</span></div>
-    </div>
-
-    <div class="mo-card">
-      <div class="mo-card-title">What the Gent review found</div>
-      <div class="mo-loop"><strong style="color:var(--red);">Adding beds alone won't fix it.</strong> The reviewer explicitly does not recommend increasing bed capacity without first optimising processes, flow, and community pathways.</div>
-      <div class="mo-loop"><strong style="color:var(--amber);">The primary problems are flow failures:</strong> No ED streaming, no functioning Acute Medical Unit, discharge planning starting too late, and flow dropping sharply at weekends.</div>
-      <div class="mo-loop"><strong style="color:var(--amber);">8–12 medical patients occupy surgical beds every day</strong> — the "safari model" — because Medicine is full.</div>
-      <div class="mo-loop"><strong style="color:var(--muted);">The review raises governance concerns:</strong> "questionable consultant job plans, silo-planning and circumvention of normal governance systems" — and warns that Manx Care risks becoming ungovernable.</div>
-      <div class="mo-loop"><strong style="color:var(--green);">Community investment is higher priority than beds.</strong> Virtual ward, community rehabilitation, and frailty services could reduce daily acute admissions significantly.</div>
-    </div>
-
-    <div class="mo-card">
-      <div class="mo-card-title">The three feedback loops</div>
-      <div class="mo-loop"><span style="color:var(--red); font-weight:700;">R1 — ED Spiral (active now):</span> High occupancy → long ED waits → patient deterioration → readmissions → higher occupancy. Self-reinforcing above 85%.</div>
-      <div class="mo-loop"><span style="color:var(--amber); font-weight:700;">R2 — Elective Trap:</span> Full wards → cancelled planned ops → patients deteriorate at home → emergency readmission → occupies the very bed freed by the cancellation.</div>
-      <div class="mo-loop"><span style="color:var(--green); font-weight:700;">B2 — Community Release (currently weak):</span> When community and discharge pathways work, medically fit patients leave promptly → beds free → pressure eases. Currently suppressed by flow failures and DTOCs.</div>
-    </div>
-
-    <div class="mo-cta">
-      For the full interactive model with adjustable parameters, causal loop diagram, and scenario explorer — open this page on a <strong>desktop or laptop</strong>.
-    </div>
-
-    <button class="mo-dismiss" onclick="document.getElementById('mobile-overlay').style.display='none'">
-      Try the interactive version anyway →
-    </button>
-  </div>
 
   <!-- HEADER -->
   <div class="page-header">
@@ -507,7 +376,7 @@
       <!-- TIME SERIES -->
       <div class="canvas-panel">
         <div class="panel-header">System behaviour over time — occupancy &amp; pressure indicators</div>
-        <canvas id="timeChart" height="150"></canvas>
+        <canvas id="timeChart" height="120"></canvas>
       </div>
 
       <!-- UNIFIED CAUSAL LOOP DIAGRAM — split with legend -->
@@ -532,10 +401,6 @@
               <span style="font-size:10px; color:var(--muted2);">
                 <span style="display:inline-block; width:20px; height:2px; background:var(--green); vertical-align:middle; margin-right:4px;"></span>
                 <span style="color:var(--green); font-weight:600;">B2</span> Social Care Release
-              </span>
-              <span style="font-size:10px; color:var(--muted2);">
-                <span style="display:inline-block; width:20px; height:2px; background:var(--purple); vertical-align:middle; margin-right:4px;"></span>
-                <span style="color:var(--purple); font-weight:600;">B3</span> OOH Senior Cover
               </span>
             </div>
             <canvas id="cldUnified" height="290"></canvas>
@@ -571,16 +436,6 @@
               </div>
               <div style="font-size:11px; color:var(--muted); line-height:1.65;">
                 Crisis triggers short-term fixes — escalation beds, agency staff — which absorb immediate pressure but drive up costs → financial constraints force future cuts → capacity shrinks → the next crisis hits harder.
-              </div>
-            </div>
-
-            <div>
-              <div style="color:var(--purple); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
-                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--purple); flex-shrink:0;"></span>
-                B3 — OOH Senior Cover <span style="font-weight:400; color:var(--muted2); font-size:10px;">(balancing)</span>
-              </div>
-              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
-                Gent finding: two-thirds of admissions occur out-of-hours when junior staff are on. Junior doctors, risk-averse without senior support, default to admitting patients who could safely be managed otherwise. Better OOH senior cover → fewer unnecessary admissions → lower occupancy. <em style="color:var(--muted2);">Currently weak: Noble's OOH senior decision support is limited.</em>
               </div>
             </div>
 
@@ -625,20 +480,7 @@
             <button id="btnStep" style="border-color:var(--blue); color:var(--blue); width:100%; margin-top:4px;" title="Advance exactly one week">⏭ Step 1 week</button>
             <button id="btnReset" style="width:100%; margin-top:2px;">↺ Reset</button>
           </div>
-          <div class="sim-meta" style="margin-top:10px;">Week: <span id="simWeek">0</span></div>
-
-          <!-- Speed slider -->
-          <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border2);">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-              <span style="font-size:11px; color:var(--text);">Animation speed</span>
-              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--blue);" id="v-speed">1 week / 2s</span>
-            </div>
-            <input type="range" id="s-speed" min="1" max="5" value="2" step="1" style="width:100%;">
-            <div style="display:flex; justify-content:space-between; font-size:9px; color:var(--muted2); margin-top:2px;">
-              <span>slower</span><span>faster</span>
-            </div>
-          </div>
-
+          <div class="sim-meta" style="margin-top:8px;">Week: <span id="simWeek">0</span></div>
           <div id="stepHint" style="margin-top:6px; padding:6px 8px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:6px; font-size:10px; color:var(--blue); line-height:1.5; display:none;">
             <strong>Step</strong> advances one week — watch the electron move and the graph update together
           </div>
@@ -648,13 +490,13 @@
         <div class="panel-section">
           <div class="panel-section-title">Scenarios</div>
           <div class="scenario-list">
-            <button class="scenario-chip active" id="sc0" onclick="loadScenario(0)">Current Noble's (Gent 2026)</button>
-            <button class="scenario-chip" id="sc1" onclick="loadScenario(1)">HMC proposal: +50 beds</button>
-            <button class="scenario-chip" id="sc2" onclick="loadScenario(2)">Gent fix: flow &amp; processes</button>
+            <button class="scenario-chip active" id="sc0" onclick="loadScenario(0)">Current Noble's (2025)</button>
+            <button class="scenario-chip" id="sc1" onclick="loadScenario(1)">MSC: +30 beds</button>
+            <button class="scenario-chip" id="sc2" onclick="loadScenario(2)">Social care fix</button>
             <button class="scenario-chip" id="sc3" onclick="loadScenario(3)">Demographics 2030</button>
-            <button class="scenario-chip" id="sc4" onclick="loadScenario(4)">Winter OPEL 4 crisis</button>
+            <button class="scenario-chip" id="sc4" onclick="loadScenario(4)">Staff shortage</button>
             <button class="scenario-chip" id="sc5" onclick="loadScenario(5)" style="border-color:var(--purple); color:var(--purple);">✓ Start empty</button>
-            <button class="scenario-chip" id="sc6" onclick="loadScenario(6)" style="border-color:var(--green); color:var(--green);">★ Gent recommendations</button>
+            <button class="scenario-chip" id="sc6" onclick="loadScenario(6)" style="border-color:var(--green); color:var(--green);">★ Optimised</button>
           </div>
         </div>
 
@@ -669,8 +511,8 @@
             <span class="slider-name">Total beds</span>
             <span class="slider-val" id="v-beds">288</span>
           </div>
-          <input type="range" id="s-beds" min="180" max="420" value="233" step="2">
-          <div class="slider-desc">Commissioned inpatient beds. Noble's had 313 beds in 2003, 279 at Manx Care takeover (2021), 233 as of May 2026 (Gent review).</div>
+          <input type="range" id="s-beds" min="180" max="420" value="288" step="2">
+          <div class="slider-desc">Commissioned inpatient beds. Noble's had ~288 before recent reductions.</div>
         </div>
 
         <div class="slider-row">
@@ -678,8 +520,8 @@
             <span class="slider-name">Daily admissions</span>
             <span class="slider-val" id="v-admissions">52</span>
           </div>
-          <input type="range" id="s-admissions" min="10" max="60" value="20" step="1">
-          <div class="slider-desc">Emergency admissions/day. Gent review: 12–25 range, averaging ~20. Around 120 total daily ED attendances but admission conversion &lt;20%.</div>
+          <input type="range" id="s-admissions" min="30" max="90" value="52" step="1">
+          <div class="slider-desc">Emergency + elective daily admissions combined.</div>
         </div>
 
         <div class="slider-row">
@@ -687,8 +529,8 @@
             <span class="slider-name">Avg. length of stay (days)</span>
             <span class="slider-val" id="v-los">5.5</span>
           </div>
-          <input type="range" id="s-los" min="2" max="12" value="6.5" step="0.1">
-          <div class="slider-desc">Mean length of stay. Gent: sustained increase from Dec 2025 through Apr 2026. Slow discharges, exit block and DTOCs cited as drivers.</div>
+          <input type="range" id="s-los" min="2" max="12" value="5.5" step="0.1">
+          <div class="slider-desc">Mean LOS across all admitted patients.</div>
         </div>
 
       </div>
@@ -699,37 +541,28 @@
 
         <div class="slider-row">
           <div class="slider-label">
-            <span class="slider-name">ED streaming efficiency</span>
-            <span class="slider-val" id="v-streaming">20%</span>
-          </div>
-          <input type="range" id="s-streaming" min="0" max="80" value="20" step="5">
-          <div class="slider-desc">% of ED attendances diverted away from admission pathway via streaming — to urgent care, minor injuries, GP, or direct-to-specialty. Gent: Noble's currently has <strong>no streaming function</strong>. ~120 daily attendances but only ~20 admitted; better streaming reduces inappropriate bed demand and shortens waits for genuine emergencies.</div>
-        </div>
-
-        <div class="slider-row">
-          <div class="slider-label">
             <span class="slider-name">Delayed discharges (%)</span>
-            <span class="slider-val" id="v-delayed">15%</span>
+            <span class="slider-val" id="v-delayed">18%</span>
           </div>
-          <input type="range" id="s-delayed" min="0" max="50" value="15" step="1">
-          <div class="slider-desc">% of patients medically fit but not discharged. Gent: DTOCs cited alongside late discharge planning, no criteria-led discharge, and weekend flow drop-off. 8–12 medical patients daily in surgical beds.</div>
+          <input type="range" id="s-delayed" min="0" max="50" value="18" step="1">
+          <div class="slider-desc">% of patients ready to leave but blocked by social care unavailability.</div>
         </div>
 
         <div class="slider-row">
           <div class="slider-label">
             <span class="slider-name">Social care capacity</span>
-            <span class="slider-val" id="v-socialcare">65%</span>
+            <span class="slider-val" id="v-socialcare">55%</span>
           </div>
-          <input type="range" id="s-socialcare" min="10" max="100" value="65" step="1">
-          <div class="slider-desc">Community & discharge pathway capacity. Gent: not the primary driver — flow processes, AMU dysfunction and discharge planning failures are more significant. Community investment flagged as higher priority than bed numbers.</div>
+          <input type="range" id="s-socialcare" min="10" max="100" value="55" step="1">
+          <div class="slider-desc">% of adequate community/care home places available for discharge.</div>
         </div>
 
         <div class="slider-row">
           <div class="slider-label">
             <span class="slider-name">Staffed bed ratio (%)</span>
-            <span class="slider-val" id="v-staffed">88%</span>
+            <span class="slider-val" id="v-staffed">82%</span>
           </div>
-          <input type="range" id="s-staffed" min="40" max="100" value="88" step="1">
+          <input type="range" id="s-staffed" min="40" max="100" value="82" step="1">
           <div class="slider-desc">% of total beds that are actively staffed. Vacancies reduce this.</div>
         </div>
 
@@ -738,24 +571,6 @@
       <!-- DEMAND -->
       <div class="panel-section">
         <div class="panel-section-title">Demand &amp; Demographic</div>
-
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-name">OOH senior decision cover</span>
-            <span class="slider-val" id="v-ooh">30%</span>
-          </div>
-          <input type="range" id="s-ooh" min="0" max="100" value="30" step="5">
-          <div class="slider-desc">% of out-of-hours period with senior clinical decision-maker available. Gent: two-thirds of admissions occur OOH; junior staff are risk-averse and default to beds. Better senior cover reduces unnecessary admissions without reducing appropriate ones.</div>
-        </div>
-
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-name">Community resilience</span>
-            <span class="slider-val" id="v-community">20%</span>
-          </div>
-          <input type="range" id="s-community" min="0" max="100" value="20" step="5">
-          <div class="slider-desc">Admission avoidance and community care capacity — virtual ward, community frailty teams, rapid access support. Gent: no virtual ward exists; consultant geriatricians, AHPs and nurses are lobbying hard for this investment. Directly reduces the frail/elderly bed load that structurally blocks discharge.</div>
-        </div>
 
         <div class="slider-row">
           <div class="slider-label">
@@ -797,8 +612,8 @@ const T = {
   surface2: '#162032',
   border2:  '#334155',
   text:     '#e2e8f0',
-  muted:    '#94a3b8',   // was #64748b — lightened for better canvas readability
-  muted2:   '#64748b',
+  muted:    '#64748b',
+  muted2:   '#475569',
   blue:     '#60a5fa',
   green:    '#34d399',
   amber:    '#fbbf24',
@@ -813,28 +628,22 @@ const state = {
   running: false,
   week: 0,
   dt: 1/7,
-  occupiedBeds: 184,    // ~90% of 205 staffed beds (233 × 0.88) — Gent baseline
-  delayedPatientsStock: 18,
+  occupiedBeds: 230,
+  delayedPatientsStock: 30,
   electiveBacklog: 120,
-  EDPressure: 0.9,
+  EDPressure: 0.3,
   history: { weeks: [], occupancy: [], edWait: [], delayed: [], elective: [] }
 };
 
 const P = {
-  totalBeds: 233,      // Gent review: 233 beds as of May 2026 (was 313 in 2003, 279 at Manx Care takeover)
-  admissions: 20,      // Gent review: averaging ~20 emergency admissions/day
-  los: 6.5,            // Gent review: LoS increasing since Dec 2025, sustained rise through Apr 2026
-  delayedPct: 0.15,    // Gent: DTOCs cited but secondary to flow/process issues
-  socialCare: 65,      // Gent: community capacity issue but not primary driver per review
-  staffedRatio: 0.88,  // Gent: some vacancies but staffing not the headline issue
+  totalBeds: 288,
+  admissions: 52,
+  los: 5.5,
+  delayedPct: 0.18,
+  socialCare: 55,
+  staffedRatio: 0.82,
   elderly: 0.21,
-  seasonal: 1.0,
-  streaming: 0.20,     // Gent: Noble's currently has NO streaming — default 20% = status quo baseline
-  oohCover: 0.30,           // Gent: 2/3 admissions OOH, juniors default to beds — 30% senior cover = current poor state
-  communityResilience: 20,  // Gent: NO virtual ward, limited community frailty/admission avoidance — very low baseline
-  // Flow efficiency factors (not in original model — added per Gent findings)
-  amufunc: 0.4,        // AMU functionality (0=broken, 1=ideal) — Gent: "does not operate as one"
-  weekendDrop: 0.6,    // Weekend discharge rate relative to weekday — Gent: flow "drops at weekends"
+  seasonal: 1.0
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -850,90 +659,23 @@ function demandMultiplier() {
 }
 
 function adjustedAdmissions() {
-  const elderlyEffect = 1 + (P.elderly - 0.21) * 2.5;
-  const demandMult = elderlyEffect * P.seasonal;
-  // Streaming diverts non-admission-appropriate patients before they consume ward beds.
-  const streamingReduction = 1 - (P.streaming / 100) * 0.4;
-  // OOH senior cover: Gent notes 2/3 of admissions happen OOH with juniors defaulting to beds.
-  // Better senior cover reduces unnecessary OOH admissions.
-  // At 30% cover (baseline): some unnecessary admissions. At 90%: most are appropriate.
-  const oohReduction = 1 - ((P.oohCover - 0.30) / 0.70) * 0.15; // max 15% reduction at full cover
-  return P.admissions * demandMult * streamingReduction * Math.max(0.7, oohReduction);
-}
-
-function edQueuePressureMultiplier() {
-  // Streaming also reduces ED crowding — fewer inappropriate attendances means
-  // genuine emergencies get seen faster, reducing R1 feedback loop strength.
-  // At 0% streaming: full crowding effect. At 80%: significantly less crowding.
-  return 1 - (P.streaming / 100) * 0.5;
-}
-
-// ── NEW STATE: persistent pressure accumulator and frailty bed load ──────────
-// These make the model structurally unstable at high occupancy (as real hospitals are)
-// rather than self-correcting.
-//
-// pressureMemory: institutional/operational degradation from sustained high occupancy.
-// Once high, it takes weeks to recover — discharge planning, staff morale, AMU dysfunction
-// all persist. Range 0–1.
-//
-// frailtyBedLoad: beds effectively permanently occupied by frail/elderly patients
-// with very long LOS who cannot be discharged without significant community support.
-// Gent: medical beds "predominantly occupied with elderly and frail patients."
-// This accumulates with the elderly demographic and depletes slowly with community investment.
-
-if (typeof state.pressureMemory === 'undefined') state.pressureMemory = 0.0;
-if (typeof state.frailtyBedLoad === 'undefined') state.frailtyBedLoad = 0;
-
-function frailtyBedLoadEquilibrium() {
-  // How many beds are structurally consumed by frail/elderly long-stay patients
-  // who cannot be discharged quickly regardless of flow interventions.
-  // Driven by: elderly population %, community resilience (admission avoidance),
-  // and the current delayed discharge stock.
-  const elderlyFactor = Math.pow(P.elderly / 0.21, 2.2);  // superlinear — small demographic rises, big impact
-  const communityFactor = 1 - (P.communityResilience / 100) * 0.5; // community avoidance halves it at max
-  const eff = effectiveBeds();
-  return eff * 0.18 * elderlyFactor * communityFactor;  // ~18% of beds at baseline IoM demographics
+  return P.admissions * demandMultiplier();
 }
 
 function adjustedLOS() {
-  const eff = effectiveBeds();
-  const occRate = state.occupiedBeds / eff;
-
-  // Immediate occupancy pressure — LOS rises non-linearly above 85%
-  const immediatePressure = Math.max(0, (occRate - 0.85) / 0.15);
-
-  // Persistent pressure memory — accumulated operational degradation.
-  // This represents: staff exhaustion, delayed discharge planning, AMU dysfunction,
-  // discharge coordinators overwhelmed. Takes weeks to recover.
-  const totalPressure = immediatePressure * 0.4 + state.pressureMemory * 0.8;
-
-  // LOS multiplier: more aggressive than before, and driven by persistent memory
-  // At sustained 90%: LOS ~1.8×. At sustained 95%+: LOS ~2.5×.
-  return P.los * (1 + totalPressure * 1.2);
+  const occRate = state.occupiedBeds / effectiveBeds();
+  const pressure = Math.max(0, (occRate - 0.85) / 0.15);
+  return P.los * (1 + pressure * 0.6);
 }
 
 function naturalDischargeRate() {
-  const eff = effectiveBeds();
-  // Discharge is constrained — you can't discharge faster than care processes allow.
-  // Maximum daily discharge capacity: ~15% of bed stock (hard ceiling from rounds, transport, social care)
-  // This is the key fix — previously this was uncapped, allowing the model to self-heal.
-  const maxDailyDischarge = eff * 0.15;
-
-  const occupiedNonDelayed = Math.max(0, state.occupiedBeds - state.delayedPatientsStock - state.frailtyBedLoad);
-  const rawRate = occupiedNonDelayed / adjustedLOS();
-
-  // Frailty patients discharge at a much slower rate — ~1/3 the normal rate
-  const frailtyDischargeRate = state.frailtyBedLoad / (adjustedLOS() * 3.5);
-
-  return Math.min(maxDailyDischarge, rawRate + frailtyDischargeRate);
+  const occupiedNonDelayed = Math.max(0, state.occupiedBeds - state.delayedPatientsStock);
+  return occupiedNonDelayed / adjustedLOS();
 }
 
 function delayedDischargeRate() {
   const potentialDelayed = state.occupiedBeds * P.delayedPct;
-  // Release rate slowed by pressure memory — when system is overwhelmed,
-  // discharge coordination breaks down (weekend drop-off, coordinator capacity)
-  const coordinationFactor = 1 - state.pressureMemory * 0.5;
-  const releaseRate = state.delayedPatientsStock * (P.socialCare / 100) * 0.15 * coordinationFactor;
+  const releaseRate = state.delayedPatientsStock * (P.socialCare / 100) * 0.15;
   const accumulationRate = Math.max(0, potentialDelayed - state.delayedPatientsStock) * 0.3;
   return { accum: accumulationRate, release: releaseRate };
 }
@@ -942,14 +684,9 @@ function edWaitHours() {
   const eff = effectiveBeds();
   if (eff <= 0) return 48;
   const occ = state.occupiedBeds / eff;
-  // Base wait from occupancy
-  let baseWait;
-  if (occ < 0.85) baseWait = 2 + occ * 3;
-  else if (occ < 0.95) baseWait = 5 + (occ - 0.85) * 80;
-  else baseWait = 13 + (occ - 0.95) * 300;
-  // Streaming reduces crowding — fewer inappropriate attenders means genuine
-  // emergencies move faster through the queue
-  return baseWait * edQueuePressureMultiplier();
+  if (occ < 0.85) return 2 + occ * 3;
+  if (occ < 0.95) return 5 + (occ - 0.85) * 80;
+  return 13 + (occ - 0.95) * 300;
 }
 
 function r1ReadmissionFlow() {
@@ -978,60 +715,31 @@ function tick() {
 function tickRaw() {
   const dt = state.dt;
   const eff = effectiveBeds();
-  const occ = state.occupiedBeds / eff;
-
-  // ── Update pressure memory ──
-  // Builds up fast when occ > 85%, decays slowly (weeks, not days).
-  // Represents: staff exhaustion, discharge planning backlog, AMU dysfunction.
-  const targetPressure = Math.max(0, (occ - 0.85) / 0.15);
-  const buildRate  = 0.04 * dt;   // builds in days under pressure
-  const decayRate  = 0.008 * dt;  // decays in weeks once pressure lifts
-  if (targetPressure > state.pressureMemory) {
-    state.pressureMemory = Math.min(1, state.pressureMemory + (targetPressure - state.pressureMemory) * buildRate * 50);
-  } else {
-    state.pressureMemory = Math.max(0, state.pressureMemory - decayRate);
-  }
-
-  // ── Update frailty bed load ──
-  // Frail/elderly patients accumulate in beds. Admission avoidance (community resilience)
-  // slows the inflow. Social care capacity and community investment enables outflow.
-  // This is structurally persistent — it doesn't clear quickly.
-  const frailtyEquil = frailtyBedLoadEquilibrium();
-  const frailtyGap = frailtyEquil - state.frailtyBedLoad;
-  // Moves toward equilibrium slowly (weeks timescale)
-  state.frailtyBedLoad = Math.max(0, state.frailtyBedLoad + frailtyGap * 0.01 * dt);
-
-  const admitted  = adjustedAdmissions() * dt;
+  const admitted = adjustedAdmissions() * dt;
   const naturalOut = naturalDischargeRate() * dt;
   const dd = delayedDischargeRate();
-  const delayedIn  = dd.accum * dt;
+  const delayedIn = dd.accum * dt;
   const delayedOut = dd.release * dt;
   const r1 = r1ReadmissionFlow() * dt;
   const r2 = r2ElectiveAdmissionFlow() * dt;
 
-  state.delayedPatientsStock = Math.max(0, Math.min(eff * 0.45, state.delayedPatientsStock + delayedIn - delayedOut));
-
-  // Occupied beds: frailty load is additive — these patients are IN beds already,
-  // they just don't discharge at normal rates (handled in naturalDischargeRate)
-  state.occupiedBeds = Math.max(
-    state.frailtyBedLoad,  // can never fall below frailty load (they're in there)
-    Math.min(eff * 1.08, state.occupiedBeds + admitted + r1 + r2 - naturalOut - delayedOut)
-  );
-
+  state.delayedPatientsStock = Math.max(0, Math.min(eff * 0.4, state.delayedPatientsStock + delayedIn - delayedOut));
+  state.occupiedBeds = Math.max(0, Math.min(eff * 1.05, state.occupiedBeds + admitted + r1 + r2 - naturalOut - delayedOut));
   state.electiveBacklog = Math.max(0, Math.min(2000, state.electiveBacklog + electiveBacklogDelta() * dt));
-  state.EDPressure += (Math.min(1, occ) - state.EDPressure) * 0.1;
+  state.EDPressure += (Math.min(1, state.occupiedBeds / eff) - state.EDPressure) * 0.1;
   state.week += dt / 7;
 
   if (state.history.weeks.length === 0 || state.week - (state.history.weeks[state.history.weeks.length - 1] || 0) >= 1) {
+    const occ = state.occupiedBeds / eff;
     state.history.weeks.push(Math.round(state.week));
-    state.history.occupancy.push(state.occupiedBeds / eff);
+    state.history.occupancy.push(occ);
     state.history.edWait.push(edWaitHours());
     state.history.delayed.push(state.delayedPatientsStock);
     state.history.elective.push(state.electiveBacklog);
     if (state.history.weeks.length > 52) {
       Object.keys(state.history).forEach(k => state.history[k].shift());
     }
-    onWeekRecorded();
+    onWeekRecorded();  // advance electron positions in sync with the graph
   }
 }
 
@@ -1260,7 +968,7 @@ const tctx = timeCanvas.getContext('2d');
 function initTimeCanvas() {
   const dpr = window.devicePixelRatio || 1;
   const w = timeCanvas.parentElement.clientWidth;
-  const h = 150;
+  const h = 120;
   timeCanvas.style.width = w + 'px';
   timeCanvas.style.height = h + 'px';
   timeCanvas.width = w * dpr;
@@ -1271,140 +979,83 @@ function initTimeCanvas() {
 function drawTimeChart(w, h) {
   tctx.clearRect(0, 0, w, h);
   const hist = state.history;
+  if (hist.occupancy.length < 2) return;
 
-  const pad = { top: 14, right: 90, bottom: 22, left: 42 };
+  const pad = { top: 10, right: 12, bottom: 20, left: 38 };
   const cw = w - pad.left - pad.right;
   const ch = h - pad.top - pad.bottom;
   const n = hist.occupancy.length;
 
-  // ── Zone bands ──
-  // Safe zone (green tint below 85%)
-  tctx.fillStyle = 'rgba(52,211,153,0.04)';
-  tctx.fillRect(pad.left, pad.top + ch * 0.15, cw, ch * 0.85);
-
-  // Amber zone (85–92%)
-  const y85 = pad.top + ch - 0.85 * ch;
-  const y92 = pad.top + ch - 0.92 * ch;
-  tctx.fillStyle = 'rgba(251,191,36,0.07)';
-  tctx.fillRect(pad.left, y92, cw, y85 - y92);
-
-  // Red zone (above 92%)
-  tctx.fillStyle = 'rgba(248,113,113,0.07)';
-  tctx.fillRect(pad.left, pad.top, cw, y92 - pad.top);
-
-  // ── Threshold lines ──
-  function threshLine(val, col, label) {
-    const y = pad.top + ch - val * ch;
-    tctx.strokeStyle = col;
-    tctx.lineWidth = 1;
-    tctx.setLineDash([4, 4]);
+  // Background grid
+  [0.85, 0.92, 1.0].forEach(v => {
+    const y = pad.top + ch - v * ch;
     tctx.beginPath();
+    tctx.setLineDash(v === 0.85 ? [4, 4] : [2, 4]);
+    tctx.strokeStyle = v === 0.92 ? 'rgba(248,113,113,0.2)' : 'rgba(51,65,85,0.8)';
+    tctx.lineWidth = 1;
     tctx.moveTo(pad.left, y);
     tctx.lineTo(pad.left + cw, y);
     tctx.stroke();
     tctx.setLineDash([]);
-    tctx.fillStyle = col;
-    tctx.font = '9px Inter';
-    tctx.textAlign = 'left';
-    tctx.fillText(label, pad.left + cw + 4, y + 3);
+    tctx.fillStyle = v === 0.92 ? 'rgba(248,113,113,0.5)' : T.muted2;
     tctx.font = '8px "JetBrains Mono"';
     tctx.textAlign = 'right';
-    tctx.fillText((val * 100) + '%', pad.left - 4, y + 3);
-  }
-
-  threshLine(0.92, 'rgba(248,113,113,0.7)', '← crisis');
-  threshLine(0.85, 'rgba(251,191,36,0.7)',  '← warning');
-
-  if (n < 2) {
-    // No data yet — placeholder
-    tctx.fillStyle = T.muted2;
-    tctx.font = '11px Inter';
-    tctx.textAlign = 'center';
-    tctx.fillText('Run simulation to see bed occupancy over time', pad.left + cw / 2, pad.top + ch / 2);
-    return;
-  }
-
-  // ── Area fill ──
-  tctx.beginPath();
-  hist.occupancy.forEach((v, i) => {
-    const x = pad.left + (i / (n - 1)) * cw;
-    const y = pad.top + ch - v * ch;
-    i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
+    tctx.fillText((v * 100).toFixed(0) + '%', pad.left - 4, y + 3);
   });
-  tctx.lineTo(pad.left + cw * ((n-1)/(n-1)), pad.top + ch);
-  tctx.lineTo(pad.left, pad.top + ch);
-  tctx.closePath();
-  const aGrad = tctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-  aGrad.addColorStop(0, 'rgba(96,165,250,0.18)');
-  aGrad.addColorStop(1, 'rgba(96,165,250,0.02)');
-  tctx.fillStyle = aGrad;
-  tctx.fill();
 
-  // ── Occupancy line — colour-segmented ──
-  for (let i = 1; i < n; i++) {
-    const x0 = pad.left + ((i-1) / (n-1)) * cw;
-    const y0 = pad.top + ch - hist.occupancy[i-1] * ch;
-    const x1 = pad.left + (i / (n-1)) * cw;
-    const y1 = pad.top + ch - hist.occupancy[i] * ch;
-    const v = hist.occupancy[i];
-    const segCol = v >= 0.92 ? T.red : v >= 0.85 ? T.amber : T.green;
-    tctx.strokeStyle = segCol;
-    tctx.lineWidth = 2;
+  function drawLine(data, maxVal, color, lineWidth) {
+    tctx.strokeStyle = color;
+    tctx.lineWidth = lineWidth || 1.5;
     tctx.beginPath();
-    tctx.moveTo(x0, y0);
-    tctx.lineTo(x1, y1);
+    data.forEach((v, i) => {
+      const x = pad.left + (i / (n - 1)) * cw;
+      const y = pad.top + ch - (v / maxVal) * ch;
+      i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
+    });
     tctx.stroke();
   }
 
-  // ── Delayed discharge line (secondary, dashed) ──
-  const maxDelayed = Math.max(...hist.delayed, 40);
-  tctx.strokeStyle = 'rgba(248,113,113,0.5)';
-  tctx.lineWidth = 1.5;
-  tctx.setLineDash([3, 3]);
+  // Area fill under occupancy
   tctx.beginPath();
-  hist.delayed.forEach((v, i) => {
-    const x = pad.left + (i / (n-1)) * cw;
-    const y = pad.top + ch - (v / maxDelayed) * ch;
+  hist.occupancy.forEach((v, i) => {
+    const x = pad.left + (i / (n - 1)) * cw;
+    const y = pad.top + ch - (v / 1.0) * ch;
     i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
   });
-  tctx.stroke();
-  tctx.setLineDash([]);
+  tctx.lineTo(pad.left + cw, pad.top + ch);
+  tctx.lineTo(pad.left, pad.top + ch);
+  tctx.closePath();
+  const areaGrad = tctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  areaGrad.addColorStop(0, 'rgba(96,165,250,0.15)');
+  areaGrad.addColorStop(1, 'rgba(96,165,250,0)');
+  tctx.fillStyle = areaGrad;
+  tctx.fill();
 
-  // ── Current week cursor ──
-  const cx2 = pad.left + cw;
-  const curOcc = hist.occupancy[n-1];
-  const curY = pad.top + ch - curOcc * ch;
-  tctx.strokeStyle = T.muted2;
-  tctx.lineWidth = 1;
-  tctx.setLineDash([2, 3]);
-  tctx.beginPath(); tctx.moveTo(cx2, pad.top); tctx.lineTo(cx2, pad.top + ch); tctx.stroke();
-  tctx.setLineDash([]);
-  // Dot at current value
-  const dotCol = curOcc >= 0.92 ? T.red : curOcc >= 0.85 ? T.amber : T.green;
-  tctx.fillStyle = dotCol;
-  tctx.beginPath(); tctx.arc(cx2, curY, 4, 0, Math.PI*2); tctx.fill();
+  drawLine(hist.occupancy, 1.0, T.blue, 2);
+  const edNorm = hist.edWait.map(v => Math.min(1, v / 20));
+  drawLine(edNorm, 1.0, 'rgba(248,113,113,0.65)', 1.5);
 
-  // ── X axis — week labels ──
+  // X labels
   tctx.fillStyle = T.muted2;
   tctx.font = '8px "JetBrains Mono"';
   tctx.textAlign = 'center';
   const wk = hist.weeks;
-  const step = Math.max(1, Math.floor(n / 6));
-  for (let i = 0; i < n; i += step) {
-    const x = pad.left + (i / (n-1)) * cw;
-    tctx.fillText('w' + wk[i], x, h - 5);
+  if (wk.length > 0) {
+    [0, Math.floor(n / 2), n - 1].forEach(i => {
+      if (i < wk.length) {
+        const x = pad.left + (i / Math.max(1, n - 1)) * cw;
+        tctx.fillText('w' + wk[i], x, h - 4);
+      }
+    });
   }
 
-  // ── Legend (right side) ──
-  const legX = pad.left + cw + 4;
-  tctx.font = '9px Inter';
+  // Legend
+  tctx.font = '9px "JetBrains Mono"';
   tctx.textAlign = 'left';
   tctx.fillStyle = T.blue;
-  tctx.fillText('— Bed', legX, pad.top + 22);
-  tctx.fillText('occupancy', legX, pad.top + 33);
-  tctx.fillStyle = 'rgba(248,113,113,0.7)';
-  tctx.fillText('- - Fit,', legX, pad.top + 50);
-  tctx.fillText('waiting', legX, pad.top + 61);
+  tctx.fillText('── occupancy', pad.left, pad.top + 10);
+  tctx.fillStyle = 'rgba(248,113,113,0.75)';
+  tctx.fillText('── ED wait (norm.)', pad.left + 90, pad.top + 10);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1422,45 +1073,31 @@ function drawTimeChart(w, h) {
 // We'll compute positions in drawCLD based on canvas size
 
 const CLD_NODES = {
-  OCC:   { label: 'Bed\nOccupancy',            fx: 0.50, fy: 0.46 },   // centre
-  ED:    { label: 'ED Boarding\n& Wait Time',   fx: 0.50, fy: 0.10 },   // top
-  HARM:  { label: 'Patient\nDeterioration',     fx: 0.82, fy: 0.26 },   // top-right
-  READM: { label: 'Emergency\nReadmissions',    fx: 0.82, fy: 0.64 },   // bottom-right
-  CANC:  { label: 'Cancelled\nElectives',       fx: 0.18, fy: 0.10 },   // top-left
-  DETN:  { label: 'Elective Patient\nDeterioration', fx: 0.18, fy: 0.64 }, // bottom-left
-  SC:    { label: 'Social Care\nCapacity',      fx: 0.22, fy: 0.88 },   // bottom-left
-  DD:    { label: 'Delayed\nDischarge',         fx: 0.78, fy: 0.88 },   // bottom-right
-  OOH:   { label: 'OOH Senior\nDecision Cover', fx: 0.50, fy: 0.82 },  // bottom-centre
+  OCC:   { label: 'Bed\nOccupancy',          fx: 0.50, fy: 0.48 },   // centre
+  ED:    { label: 'ED Queue\nPressure',       fx: 0.50, fy: 0.12 },   // top
+  HARM:  { label: 'Patient\nDeterioration',   fx: 0.85, fy: 0.30 },   // top-right
+  READM: { label: 'Emergency\nReadmissions',  fx: 0.85, fy: 0.68 },   // bottom-right
+  CANC:  { label: 'Cancelled\nElectives',     fx: 0.15, fy: 0.12 },   // top-left
+  DETN:  { label: 'Elective\nDeterioration',  fx: 0.15, fy: 0.68 },   // bottom-left
+  SC:    { label: 'Social Care\nCapacity',    fx: 0.20, fy: 0.88 },   // bottom-left
+  DD:    { label: 'Delayed\nDischarge',       fx: 0.80, fy: 0.88 },   // bottom-right
 };
 
-// Arcs — checked against Lane/Monefeldt/Rosenhead and Gent review
-// R1: High occupancy → ED boarding/wait → patient deterioration → readmissions → higher occupancy (reinforcing)
-// R2: High occupancy → cancelled electives → elective patients deteriorate → emergency admission → higher occupancy (reinforcing)
-// B2: Social care capacity reduces delayed discharge reduces occupancy (balancing)
-// B3: Senior OOH cover reduces unnecessary admissions reduces occupancy (balancing) — Gent: 2/3 admissions OOH, juniors default to beds
+// Arcs: each has from, to, loop id, sign, and a perp offset direction for routing
+// Loops: R1 = OCC→ED→HARM→READM→OCC, R2 = OCC→CANC→DETN→OCC, B2 = SC→DD→OCC (balancing: SC reduces DD reduces OCC)
 const CLD_ARCS = [
-  // R1 — red: all + signs, reinforcing loop
-  { from:'OCC',  to:'ED',   loop:'R1', sign:'+', color:'red',   perp: 0.28 },  // more occupancy → more boarding
-  { from:'ED',   to:'HARM', loop:'R1', sign:'+', color:'red',   perp: 0.28 },  // longer waits → deterioration
-  { from:'HARM', to:'READM',loop:'R1', sign:'+', color:'red',   perp: 0.28 },  // deterioration → readmissions
-  { from:'READM',to:'OCC',  loop:'R1', sign:'+', color:'red',   perp: 0.28 },  // readmissions → higher occupancy
-
-  // R2 — amber: all + signs, reinforcing loop
-  { from:'OCC',  to:'CANC', loop:'R2', sign:'+', color:'amber', perp:-0.28 },  // high occ → cancel electives
-  { from:'CANC', to:'DETN', loop:'R2', sign:'+', color:'amber', perp:-0.28 },  // cancellations → deterioration
-  { from:'DETN', to:'OCC',  loop:'R2', sign:'+', color:'amber', perp:-0.28 },  // deterioration → emergency admit → occupancy
-
-  // B2 — green: balancing via social care
-  // More SC capacity → FEWER delayed discharges (−), fewer delayed discharges → lower occupancy (+)
-  // Net: SC ↑ → DD ↓ → OCC ↓ = balancing
-  { from:'SC',   to:'DD',   loop:'B2', sign:'−', color:'green', perp: 0.22 },  // more SC → fewer stuck patients
-  { from:'DD',   to:'OCC',  loop:'B2', sign:'+', color:'green', perp:-0.22 },  // more stuck → higher occupancy
-
-  // B3 — purple: balancing via OOH senior cover (Gent: 2/3 admissions OOH, juniors risk-averse → unnecessary beds)
-  // More OOH senior cover → FEWER unnecessary admissions (−) → lower occupancy (+)
-  // Net: OOH ↑ → unnecessary admissions ↓ → OCC ↓ = balancing
-  { from:'OOH',  to:'OCC',  loop:'B3', sign:'−', color:'purple', perp: 0.0 },  // senior cover → fewer unnecessary admissions
-  { from:'OCC',  to:'OOH',  loop:'B3', sign:'+', color:'purple', perp: 0.0 },  // higher occ → pressure to improve OOH cover
+  // R1 — red
+  { from:'OCC',  to:'ED',   loop:'R1', sign:'+', color:'red',   perp: 0.3  },
+  { from:'ED',   to:'HARM', loop:'R1', sign:'+', color:'red',   perp: 0.3  },
+  { from:'HARM', to:'READM',loop:'R1', sign:'+', color:'red',   perp: 0.3  },
+  { from:'READM',to:'OCC',  loop:'R1', sign:'+', color:'red',   perp: 0.3  },
+  // R2 — amber
+  { from:'OCC',  to:'CANC', loop:'R2', sign:'+', color:'amber', perp:-0.3  },
+  { from:'CANC', to:'DETN', loop:'R2', sign:'+', color:'amber', perp:-0.3  },
+  { from:'DETN', to:'OCC',  loop:'R2', sign:'+', color:'amber', perp:-0.3  },
+  // B2 — green
+  { from:'SC',   to:'DD',   loop:'B2', sign:'-', color:'green', perp: 0.25 },
+  { from:'DD',   to:'OCC',  loop:'B2', sign:'+', color:'green', perp:-0.25 },
 ];
 
 // Electron state: one per loop, position = fractional arc index (0..numArcs)
@@ -1469,10 +1106,10 @@ const cldElectrons = {
   R1: { pos: 0, targetPos: 0, arcCount: 4 },
   R2: { pos: 0, targetPos: 0, arcCount: 3 },
   B2: { pos: 0, targetPos: 0, arcCount: 2 },
-  B3: { pos: 0, targetPos: 0, arcCount: 2 },
 };
 let lastRecordedWeek = 0;
 
+// Called from tickRaw when a new week is recorded — advance electrons one arc
 function onWeekRecorded() {
   const eff = effectiveBeds();
   const occ = state.occupiedBeds / eff;
@@ -1481,17 +1118,17 @@ function onWeekRecorded() {
 
   if (r1Active) cldElectrons.R1.targetPos += 1;
   if (r2Active) cldElectrons.R2.targetPos += 1;
-  cldElectrons.B2.targetPos += 1;
-  cldElectrons.B3.targetPos += 1;  // B3 always ticks — OOH pressure is always present
+  cldElectrons.B2.targetPos += 1;  // B2 always ticks
 }
 
 // Smoothly interpolate electron positions each render frame
 function tickCLDElectrons(dtMs) {
-  const speed = dtMs * 0.006;
-  ['R1','R2','B2','B3'].forEach(k => {
+  const speed = dtMs * 0.006;  // lerp speed — smooth glide between arcs
+  ['R1','R2','B2'].forEach(k => {
     const e = cldElectrons[k];
     const diff = e.targetPos - e.pos;
     e.pos += diff * Math.min(1, speed);
+    // Wrap both together when they exceed arcCount
     if (e.pos > e.arcCount * 100) { e.pos -= e.arcCount * 100; e.targetPos -= e.arcCount * 100; }
   });
 }
@@ -1527,18 +1164,14 @@ function drawUnifiedCLD() {
     return true; // B2 always shown
   }
 
-  const loopColor = { R1: T.red, R2: T.amber, B2: T.green, B3: T.purple };
+  const loopColor = { R1: T.red, R2: T.amber, B2: T.green };
 
   function hexToRgba(hex, a) {
     const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
     return `rgba(${r},${g},${b},${a})`;
   }
 
-  function isLoopActive(loop) {
-    if (loop === 'R1') return r1Active;
-    if (loop === 'R2') return r2Active;
-    return true; // B2, B3 always shown
-  }
+  // Resolve node pixel positions
   const nodePos = {};
   Object.entries(CLD_NODES).forEach(([id, n]) => {
     nodePos[id] = { x: n.fx * w, y: n.fy * h, label: n.label };
@@ -1589,102 +1222,105 @@ function drawUnifiedCLD() {
     ctx.closePath();
     ctx.fill();
 
-    // +/− sign placed near the arrowhead (80% along the bezier curve)
-    const st = 0.80;
-    const signX = (1-st)*(1-st)*sx + 2*(1-st)*st*mx + st*st*ex;
-    const signY = (1-st)*(1-st)*sy + 2*(1-st)*st*my + st*st*ey;
-    // Offset perpendicular to arc direction at that point so it doesn't overlap the line
-    const tangX = 2*(1-st)*(mx-sx) + 2*st*(ex-mx);
-    const tangY = 2*(1-st)*(my-sy) + 2*st*(ey-my);
-    const tLen = Math.sqrt(tangX*tangX + tangY*tangY) || 1;
-    const perpX = -tangY/tLen * 8;
-    const perpY =  tangX/tLen * 8;
-    ctx.fillStyle = hexToRgba(col, alpha * 0.9);
-    ctx.font = `700 10px "JetBrains Mono"`;
+    // +/− sign at midpoint
+    ctx.fillStyle = hexToRgba(col, alpha * 0.8);
+    ctx.font = `700 9px "JetBrains Mono"`;
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(arc.sign, signX + perpX, signY + perpY);
-    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(arc.sign, mx, my - 4);
   });
 
   // ── Draw electrons ──
-  const loopArcIndices = { R1: [], R2: [], B2: [], B3: [] };
-  CLD_ARCS.forEach((arc, i) => { if (loopArcIndices[arc.loop]) loopArcIndices[arc.loop].push(i); });
+  // Map loop→arc indices in CLD_ARCS order
+  const loopArcIndices = { R1: [], R2: [], B2: [] };
+  CLD_ARCS.forEach((arc, i) => loopArcIndices[arc.loop].push(i));
 
-  ['R1','R2','B2','B3'].forEach(loopKey => {
-    if (!isLoopActive(loopKey)) return;
+  ['R1','R2','B2'].forEach(loopKey => {
+    if (!isLoopActive(loopKey) && loopKey !== 'B2') return;
     const e = cldElectrons[loopKey];
     const arcIdxList = loopArcIndices[loopKey];
-    if (!arcIdxList || arcIdxList.length === 0) return;
     const n = arcIdxList.length;
     const col = loopColor[loopKey];
 
+    // Fractional position within the loop's arcs
     const loopPos = e.pos % n;
     const segI = Math.floor(loopPos) % n;
     const segT = loopPos - Math.floor(loopPos);
+
     const geom = arcGeom[arcIdxList[segI]];
-    if (!geom) return;
     const { sx, sy, mx, my, ex, ey } = geom;
+
+    // Bezier point at t
     const t = segT;
     const px = (1-t)*(1-t)*sx + 2*(1-t)*t*mx + t*t*ex;
     const py = (1-t)*(1-t)*sy + 2*(1-t)*t*my + t*t*ey;
 
+    // Glow halo
     const grd = ctx.createRadialGradient(px, py, 0, px, py, 10);
     grd.addColorStop(0, hexToRgba(col, 0.9));
     grd.addColorStop(0.5, hexToRgba(col, 0.4));
     grd.addColorStop(1, hexToRgba(col, 0));
     ctx.fillStyle = grd;
-    ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(px, py, 10, 0, Math.PI*2);
+    ctx.fill();
+
+    // Core
     ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(px, py, 2.8, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(px, py, 2.8, 0, Math.PI*2);
+    ctx.fill();
   });
 
   // ── Draw nodes ──
   Object.entries(nodePos).forEach(([id, np]) => {
     const isCentre = id === 'OCC';
+
+    // Which loops touch this node?
     const touchingLoops = CLD_ARCS.filter(a => (a.from === id || a.to === id) && isLoopActive(a.loop));
     const isActive = touchingLoops.length > 0;
 
+    // Pick dominant colour (R1 > R2 > B2 > muted)
     let borderCol = T.border2;
     let fillCol = T.surface2;
     if (isActive) {
-      if (touchingLoops.some(a => a.loop === 'R1'))      { borderCol = T.red;    fillCol = hexToRgba(T.red,    0.14); }
-      else if (touchingLoops.some(a => a.loop === 'R2')) { borderCol = T.amber;  fillCol = hexToRgba(T.amber,  0.12); }
-      else if (touchingLoops.some(a => a.loop === 'B3')) { borderCol = T.purple; fillCol = hexToRgba(T.purple, 0.12); }
-      else                                                { borderCol = T.green;  fillCol = hexToRgba(T.green,  0.12); }
+      if (touchingLoops.some(a => a.loop === 'R1')) { borderCol = T.red;   fillCol = hexToRgba(T.red, 0.12); }
+      else if (touchingLoops.some(a => a.loop === 'R2')) { borderCol = T.amber; fillCol = hexToRgba(T.amber, 0.10); }
+      else { borderCol = T.green; fillCol = hexToRgba(T.green, 0.10); }
     }
-    if (isCentre) { borderCol = T.blue; fillCol = hexToRgba(T.blue, 0.18); }
+    if (isCentre) { borderCol = T.blue; fillCol = hexToRgba(T.blue, 0.15); }
 
     ctx.beginPath();
-    ctx.ellipse(np.x, np.y, isCentre ? NR+5 : NR, isCentre ? NH+5 : NH, 0, 0, Math.PI*2);
-    ctx.fillStyle = fillCol; ctx.fill();
-    ctx.strokeStyle = borderCol; ctx.lineWidth = isCentre ? 2 : 1.2; ctx.stroke();
+    ctx.ellipse(np.x, np.y, isCentre ? NR+4 : NR, isCentre ? NH+4 : NH, 0, 0, Math.PI*2);
+    ctx.fillStyle = fillCol;
+    ctx.fill();
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth = isCentre ? 2 : 1;
+    ctx.stroke();
 
-    // Always readable text — active nodes get T.text (light), inactive get T.muted (still readable)
-    ctx.fillStyle = isCentre ? T.blue : (isActive ? T.text : T.muted);
-    ctx.font = `${isCentre ? '700' : '500'} 9px Inter`;
+    ctx.fillStyle = isCentre ? T.blue : (isActive ? T.text : hexToRgba(T.muted, 0.5));
+    ctx.font = `${isCentre ? '700' : '500'} 8.5px Inter`;
     ctx.textAlign = 'center';
-    np.label.split('\n').forEach((line, li, arr) => {
-      ctx.fillText(line, np.x, np.y + (li - (arr.length-1)/2) * 11 + 3);
+    const lines = np.label.split('\n');
+    lines.forEach((line, li) => {
+      ctx.fillText(line, np.x, np.y + (li - (lines.length-1)/2) * 10 + 3);
     });
   });
 
   // ── Loop labels ──
   function loopLabel(x, y, key, active) {
     const col = loopColor[key];
-    ctx.fillStyle = active ? col : hexToRgba(col, 0.28);
+    ctx.fillStyle = active ? col : hexToRgba(col, 0.18);
     ctx.font = `700 10px "JetBrains Mono"`;
     ctx.textAlign = 'center';
     ctx.fillText(key, x, y);
     ctx.font = `9px Inter`;
-    ctx.fillStyle = active ? hexToRgba(col, 0.75) : hexToRgba(col, 0.22);
+    ctx.fillStyle = active ? hexToRgba(col, 0.6) : hexToRgba(col, 0.15);
     ctx.fillText(active ? 'ACTIVE' : 'dormant', x, y + 13);
   }
 
-  loopLabel(w*0.70, h*0.46, 'R1', r1Active);
-  loopLabel(w*0.30, h*0.38, 'R2', r2Active);
-  loopLabel(w*0.10, h*0.80, 'B2', true);
-  loopLabel(w*0.50, h*0.63, 'B3', true);
+  loopLabel(w*0.74, h*0.50, 'R1', r1Active);
+  loopLabel(w*0.26, h*0.44, 'R2', r2Active);
+  loopLabel(w*0.50, h*0.84, 'B2', true);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1839,20 +1475,27 @@ function updateNarrative(occ, wait) {
 // SCENARIOS
 // ─────────────────────────────────────────────────────────────────────────────
 const scenarios = [
-  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
-    initOcc:0.90, initDelayed:18, initBacklog:120, initPressure:0.6, label: "Current Noble's (Gent 2026)" },
-  { beds:283, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
-    initOcc:0.80, initDelayed:18, initBacklog:120, initPressure:0.3, label: "HMC proposal: +50 beds" },
-  { beds:233, admissions:20, los:4.8, delayed:7,  socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:55, ooh:30, community:20,
-    initOcc:0.78, initDelayed:8,  initBacklog:60,  initPressure:0.2, label: "Gent fix: flow & processes" },
-  { beds:233, admissions:24, los:7.0, delayed:22, socialCare:60, staffed:85, elderly:26, seasonal:1.0, streaming:20, ooh:30, community:15,
-    initOcc:0.94, initDelayed:30, initBacklog:280, initPressure:0.8, label: "Demographic pressure 2030" },
-  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.4, streaming:20, ooh:30, community:20,
-    initOcc:0.97, initDelayed:28, initBacklog:180, initPressure:0.9, label: "Winter OPEL 4 crisis" },
-  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
-    initOcc:0.01, initDelayed:0,  initBacklog:0,   initPressure:0.0, label: "✓ Start empty (validation)" },
-  { beds:243, admissions:20, los:4.5, delayed:5,  socialCare:80, staffed:90, elderly:21, seasonal:1.0, streaming:65, ooh:80, community:70,
-    initOcc:0.68, initDelayed:4,  initBacklog:40,  initPressure:0.1, label: "★ Gent recommendations implemented" },
+  // 0: Current Noble's
+  { beds:288, admissions:52,  los:5.5, delayed:18, socialCare:55, staffed:82, elderly:21, seasonal:1.0,
+    initOcc:0.80, initDelayed:30,  initBacklog:120 },
+  // 1: MSC +30 beds
+  { beds:318, admissions:52,  los:5.5, delayed:18, socialCare:55, staffed:82, elderly:21, seasonal:1.0,
+    initOcc:0.72, initDelayed:25,  initBacklog:120 },
+  // 2: Social care fix
+  { beds:288, admissions:52,  los:5.0, delayed:8,  socialCare:85, staffed:82, elderly:21, seasonal:1.0,
+    initOcc:0.70, initDelayed:10,  initBacklog:80  },
+  // 3: Demographics 2030
+  { beds:288, admissions:62,  los:6.2, delayed:24, socialCare:50, staffed:79, elderly:26, seasonal:1.0,
+    initOcc:0.88, initDelayed:45,  initBacklog:400 },
+  // 4: Staff shortage
+  { beds:288, admissions:52,  los:6.0, delayed:22, socialCare:55, staffed:66, elderly:21, seasonal:1.0,
+    initOcc:0.92, initDelayed:40,  initBacklog:200 },
+  // 5: Start empty — validation scenario, all stocks near zero
+  { beds:288, admissions:52,  los:5.5, delayed:18, socialCare:55, staffed:82, elderly:21, seasonal:1.0,
+    initOcc:0.01, initDelayed:0,   initBacklog:0   },
+  // 6: Optimised — best plausible combination for IoM
+  { beds:340, admissions:52,  los:4.8, delayed:6,  socialCare:88, staffed:90, elderly:21, seasonal:1.0,
+    initOcc:0.65, initDelayed:5,   initBacklog:60  },
 ];
 
 function loadScenario(i) {
@@ -1866,16 +1509,11 @@ function loadScenario(i) {
   setSlider('staffed', s.staffed);
   setSlider('elderly', s.elderly);
   setSlider('seasonal', s.seasonal);
-  setSlider('streaming', s.streaming);
-  setSlider('ooh', s.ooh);
-  setSlider('community', s.community);
   const eff = Math.floor(s.beds * s.staffed / 100);
   state.occupiedBeds = eff * s.initOcc;
   state.delayedPatientsStock = s.initDelayed;
   state.electiveBacklog = s.initBacklog;
   state.EDPressure = s.initOcc;
-  state.pressureMemory = s.initPressure || 0;
-  state.frailtyBedLoad = 0;  // will build toward equilibrium from tick 1
   state.week = 0;
   state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[] };
   ['R1','R2','B2'].forEach(k => { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; });
@@ -1905,29 +1543,6 @@ wireSlider('socialcare', v => { P.socialCare  = v;    document.getElementById('v
 wireSlider('staffed',    v => { P.staffedRatio= v/100; document.getElementById('v-staffed').textContent   = Math.round(v) + '%'; });
 wireSlider('elderly',    v => { P.elderly     = v/100; document.getElementById('v-elderly').textContent   = v.toFixed(1) + '%'; });
 wireSlider('seasonal',   v => { P.seasonal    = v;    document.getElementById('v-seasonal').textContent   = v.toFixed(2) + '×'; });
-wireSlider('streaming',  v => { P.streaming   = v;    document.getElementById('v-streaming').textContent  = Math.round(v) + '%'; });
-wireSlider('ooh',        v => { P.oohCover           = v/100; document.getElementById('v-ooh').textContent       = Math.round(v) + '%'; });
-wireSlider('community',  v => { P.communityResilience = v;    document.getElementById('v-community').textContent  = Math.round(v) + '%'; });
-
-// Speed slider — maps 1..5 to interval/ticks presets
-// 1 = very slow (1 week per 4s), 2 = slow (1 week per 2s, default),
-// 3 = medium (1 week per 1s), 4 = fast, 5 = very fast
-const SPEED_PRESETS = [
-  { interval: 800,  ticks: 1, label: '1 week / 4s'  },  // 1 — very slow
-  { interval: 400,  ticks: 1, label: '1 week / 2s'  },  // 2 — slow (default)
-  { interval: 200,  ticks: 1, label: '1 week / 1s'  },  // 3 — medium
-  { interval: 80,   ticks: 2, label: '~2 weeks / s' },  // 4 — fast
-  { interval: 40,   ticks: 3, label: '~5 weeks / s' },  // 5 — very fast
-];
-let simSpeed = SPEED_PRESETS[1]; // default: slow
-
-document.getElementById('s-speed').addEventListener('input', e => {
-  const idx = parseInt(e.target.value) - 1;
-  simSpeed = SPEED_PRESETS[idx];
-  document.getElementById('v-speed').textContent = simSpeed.label;
-});
-// Init label
-document.getElementById('v-speed').textContent = simSpeed.label;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONTROLS
@@ -1938,31 +1553,36 @@ document.getElementById('btnStep').onclick  = () => { doStep(); };
 document.getElementById('btnReset').onclick = () => {
   state.running = false;
   state.week = 0;
-  state.occupiedBeds = 184;
-  state.delayedPatientsStock = 18;
+  state.occupiedBeds = 230;
+  state.delayedPatientsStock = 30;
   state.electiveBacklog = 120;
-  state.EDPressure = 0.9;
-  state.pressureMemory = 0.5;
-  state.frailtyBedLoad = 0;
+  state.EDPressure = 0.3;
   state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[] };
-  ['R1','R2','B2','B3'].forEach(k => { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; });
+  // Reset electrons
+  ['R1','R2','B2'].forEach(k => { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; });
   document.getElementById('stepAnnotation').style.display = 'none';
   document.getElementById('stepHint').style.display = 'none';
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RENDER LOOP — speed driven by simSpeed object set from slider
+// RENDER LOOP
+// Speed presets (TICK_INTERVAL ms, TICKS_PER_FRAME sim-days per frame):
+//   Fast:   40ms, 3  → ~10 weeks/sec
+//   Medium: 80ms, 1  → ~2 weeks/sec
+//   Slow:  200ms, 1  → ~1 week/sec  ← current
 // ─────────────────────────────────────────────────────────────────────────────
 let lastTick = 0;
 let lastTs = 0;
+const TICK_INTERVAL = 200;
+const TICKS_PER_FRAME = 1;
 
 function renderLoop(ts) {
   const dtMs = ts - (lastTs || ts);
   lastTs = ts;
 
-  if (ts - lastTick > simSpeed.interval) {
+  if (ts - lastTick > TICK_INTERVAL) {
     if (state.running) {
-      for (let i = 0; i < simSpeed.ticks; i++) tick();
+      for (let i = 0; i < TICKS_PER_FRAME; i++) tick();
     }
     lastTick = ts;
 
@@ -1971,7 +1591,7 @@ function renderLoop(ts) {
     const fw = flowCanvas.parentElement.clientWidth;
     drawFlowDiagram(fw, 360);
     const tw = timeCanvas.parentElement.clientWidth;
-    drawTimeChart(tw, 150);
+    drawTimeChart(tw, 120);
     drawUnifiedCLD();
     updateStats();
   }
