@@ -42,9 +42,9 @@
 
   /* ── SHELL ── */
   .shell {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 20px 20px 40px;
+    padding: 20px 24px 40px;
   }
 
   /* ── HEADER ── */
@@ -91,11 +91,19 @@
   /* ── LAYOUT ── */
   .main {
     display: grid;
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: 1fr 620px;
     gap: 16px;
   }
-  @media (max-width: 860px) {
+  @media (max-width: 1100px) {
     .main { grid-template-columns: 1fr; }
+  }
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 700px) {
+    .param-grid { grid-template-columns: 1fr; }
   }
 
   .sim-area { display: flex; flex-direction: column; gap: 14px; }
@@ -299,6 +307,48 @@
   }
   .scenario-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
   .scenario-chip.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+  /* ── INFO TOOLTIP (click-to-toggle, works on touch + desktop) ── */
+  .info-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--blue);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .info-link:hover { color: #93c5fd; }
+  .info-link .info-icon {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-style: italic;
+    flex-shrink: 0;
+  }
+  .info-popover {
+    display: none;
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .info-popover.open { display: block; }
+  .info-popover strong { color: var(--purple); }
 
   /* ── LOOP LEGEND ── */
   .loop-legend { display: flex; flex-direction: column; gap: 12px; }
@@ -613,8 +663,8 @@
     <!-- RIGHT: CONTROLS -->
     <div class="controls-panel">
 
-      <!-- SIMULATION + SCENARIOS side by side -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <!-- SIMULATION + SCENARIOS + ISOLATION & SPECIALIST DEPTH, three across -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
 
         <!-- PLAYBACK -->
         <div class="panel-section">
@@ -659,7 +709,50 @@
           </div>
         </div>
 
+        <!-- ISOLATION & SPECIALIST DEPTH -->
+        <div class="panel-section" style="border-color:var(--purple);">
+          <div class="panel-section-title" style="color:var(--purple);">Isolation &amp; Specialist Depth</div>
+          <div style="font-size:11px; color:var(--muted); line-height:1.6; margin-bottom:12px;">
+            An island has no land-based mutual aid, and workforce <em>specialisation depth</em> is distinct from OOH timing alone.
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label">
+              <span class="slider-name">Specialist decision depth</span>
+              <span class="slider-val" id="v-specialistdepth">35%</span>
+            </div>
+            <input type="range" id="s-specialistdepth" min="10" max="95" value="35" step="5">
+            <div class="slider-desc">% of clinical decisions made with full independent specialist input, at any hour. Distinct from OOH cover — drives LOS and complications directly. Low depth → delayed decisions → longer stays, more transfers abroad.</div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label">
+              <span class="slider-name">Air bridge status</span>
+              <span class="slider-val" id="v-airbridge">OPEN</span>
+            </div>
+            <div class="btn-row" style="margin-top:4px;">
+              <button id="btnAirOpen" style="border-color:var(--green); color:var(--green);">✓ Open</button>
+              <button id="btnAirClosed" style="border-color:var(--red); color:var(--red);">✕ Closed (storm)</button>
+            </div>
+            <div class="slider-desc">Off-island transfer to Liverpool/Manchester — Noble's only release valve. No land-based neighbour to absorb pressure. When closed, complications stay on-island.</div>
+
+            <button class="info-link" onclick="toggleInfo('airbridge-info')" style="margin-top:8px;">
+              <span class="info-icon">i</span> How this is modelled
+            </button>
+            <div class="info-popover" id="airbridge-info">
+              <strong>Placeholder, not real data:</strong><br><br>
+              When <strong>open</strong>, the air bridge is assumed to absorb a small daily trickle of the most complex overflow cases — modelled as <strong>1.2% of effective staffed beds per day</strong>. This figure is an illustrative estimate, not a measured transfer rate.<br><br>
+              Of the daily "complications" generated by low specialist depth (see above), only <strong>30%</strong> are assumed tertiary-transfer-appropriate — i.e. genuinely requiring off-island specialist care rather than being manageable on-island. The remaining 70% stay at Noble's regardless of air bridge status.<br><br>
+              When <strong>closed</strong>, this relief drops to zero. Nothing else in the model changes — admissions, LOS and specialist depth behave identically — so the marginal effect you see running the "Storm: air bridge closed" scenario against the baseline is purely the loss of this relief valve.<br><br>
+              <strong>What's missing:</strong> there is currently no real data behind any of these figures — no actual count of urgent off-island transfers, no specialty breakdown, no record of weather-related delays or their clinical impact, and no measured ceiling on transfer capacity when the bridge is operating normally. A data request has been sent to obtain this; until it's back, treat this mechanism as directionally correct but not numerically calibrated.
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <!-- REMAINING PARAMETER PANELS — two across to cut scroll length -->
+      <div class="param-grid">
 
       <!-- CAPACITY PARAMETERS -->
       <div class="panel-section">
@@ -778,42 +871,7 @@
 
       </div>
 
-      <!-- ISOLATION & SPECIALIST DEPTH -->
-      <div class="panel-section" style="border-color:var(--purple);">
-        <div class="panel-section-title" style="color:var(--purple);">Isolation &amp; Specialist Depth</div>
-        <div style="font-size:11px; color:var(--muted); line-height:1.6; margin-bottom:12px;">
-          Added in response to clinician feedback (June 2026): an island has no land-based mutual aid, and workforce <em>specialisation depth</em> is distinct from OOH timing alone.
-        </div>
-
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-name">Specialist decision depth</span>
-            <span class="slider-val" id="v-specialistdepth">35%</span>
-          </div>
-          <input type="range" id="s-specialistdepth" min="10" max="95" value="35" step="5">
-          <div class="slider-desc">% of clinical decisions made with full independent specialist input, at any hour. Distinct from OOH cover — this drives LOS and complication rate directly. Low depth → delayed definitive decisions → longer stays, more complications, more transfers abroad.</div>
-        </div>
-
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-name">Air bridge status</span>
-            <span class="slider-val" id="v-airbridge">OPEN</span>
-          </div>
-          <div class="btn-row" style="margin-top:4px;">
-            <button id="btnAirOpen" style="border-color:var(--green); color:var(--green);">✓ Open</button>
-            <button id="btnAirClosed" style="border-color:var(--red); color:var(--red);">✕ Closed (storm)</button>
-          </div>
-          <div class="slider-desc">Off-island transfer to Liverpool/Manchester. Noble's only release valve for the most complex overflow — unlike mainland trusts, there is no land-based neighbour to absorb pressure. When closed, this relief is zero and complications stay on-island.</div>
-
-          <div style="margin-top:10px; padding:10px 12px; background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.25); border-radius:6px; font-size:11px; color:var(--muted); line-height:1.65;">
-            <strong style="color:var(--purple);">How this is modelled (placeholder, not real data):</strong><br><br>
-            When <strong>open</strong>, the air bridge is assumed to absorb a small daily trickle of the most complex overflow cases — modelled as <strong>1.2% of effective staffed beds per day</strong>. This figure is an illustrative estimate, not a measured transfer rate.<br><br>
-            Of the daily "complications" generated by low specialist depth (see above), only <strong>30%</strong> are assumed tertiary-transfer-appropriate — i.e. genuinely requiring off-island specialist care rather than being manageable on-island. The remaining 70% stay at Noble's regardless of air bridge status.<br><br>
-            When <strong>closed</strong>, this relief drops to zero. Nothing else in the model changes — admissions, LOS and specialist depth behave identically — so the marginal effect you see running the "Storm: air bridge closed" scenario against the baseline is purely the loss of this relief valve.<br><br>
-            <strong>What's missing:</strong> there is currently no real data behind any of these figures — no actual count of urgent off-island transfers, no specialty breakdown, no record of weather-related delays or their clinical impact, and no measured ceiling on transfer capacity when the bridge is operating normally. A data request has been sent to obtain this; until it's back, treat this mechanism as directionally correct but not numerically calibrated.
-          </div>
-        </div>
-      </div>
+      </div><!-- /param-grid -->
 
     </div>
   </div>
@@ -2139,6 +2197,15 @@ function setAirBridge(open) {
 document.getElementById('btnAirOpen').onclick = () => setAirBridge(true);
 document.getElementById('btnAirClosed').onclick = () => setAirBridge(false);
 setAirBridge(true); // init
+
+// Click-to-toggle info popover — used for "How this is modelled" notes.
+// Click-based rather than CSS :hover so it works the same on touch devices
+// as on desktop, and stays open for reading rather than vanishing on
+// mouse-out mid-sentence.
+function toggleInfo(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
 
 // Speed slider — maps 1..5 to interval/ticks presets
 // 1 = very slow (1 week per 4s), 2 = slow (1 week per 2s, default),
