@@ -30,7 +30,7 @@ const C = {
 
 const TAB_GROUPS = [
   { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted"] },
-  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation", "unemployment", "nobles"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation", "unemployment", "nobles","nobles-v6"] },
 ];
 
 const TABS = [
@@ -44,6 +44,7 @@ const TABS = [
   { id: "inflation",    label: "Inflation"            },
   { id: "unemployment", label: "Unemployment"         },
   { id: "nobles",       label: "Noble's Hospital"     },
+  { id: "nobles-v6",	label: "Noble's Hospital-v6"  },
   { id: "restricted",   label: "🔒 Restricted"        },
 ];
 
@@ -422,7 +423,14 @@ function AppContent() {
       />
     ),
 
-    restricted: authLoading
+    "nobles-v6": (
+      <AutoIframe
+	 src="/nobles-hospital-sim-v6.html"
+	 title="Noble's Hospital - Bed Capacity - Airbridge Feedback"
+       />
+    ),
+
+	  restricted: authLoading
       ? <Centred><div style={{ color: C.muted, fontSize: 12 }}>Loading…</div></Centred>
       : user
         ? <RestrictedArea />
@@ -554,7 +562,7 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, about pages get max-width */}
       <div style={
-        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation", "unemployment", "nobles"].includes(tab)
+        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation", "unemployment", "nobles", "nobles-v6"].includes(tab)
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>
