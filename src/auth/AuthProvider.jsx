@@ -13,8 +13,9 @@ const sb = {
     const data = await res.json();
     if (data.access_token) {
       sessionStorage.setItem("sb_token", data.access_token);
-      sessionStorage.setItem("sb_email", data.user?.email || email);
-      return { ok: true, email: data.user?.email };
+      // Keep the FULL user object (id, email, app_metadata, user_metadata, etc.)
+      // rather than discarding everything except email.
+      return { ok: true, user: data.user };
     }
     return { ok: false, error: data.error_description || "Invalid credentials" };
   },
@@ -27,13 +28,22 @@ const sb = {
       }).catch(() => {});
     }
     sessionStorage.removeItem("sb_token");
-    sessionStorage.removeItem("sb_email");
   },
-  getSession() {
-    const token = sessionStorage.getItem("sb_token");
-    const email = sessionStorage.getItem("sb_email");
-    return token ? { token, email } : null;
-  }
+  getToken() {
+    return sessionStorage.getItem("sb_token");
+  },
+  // Re-fetch the current user's live record from Supabase using the stored
+  // token, instead of trusting a cached value. This is what makes a fresh
+  // page load (not just a full sign-out/sign-in) pick up permission changes
+  // made in the database, and what lets an expired/revoked token actually
+  // log the user out instead of leaving a stale "logged in" state forever.
+  async getUser(token) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  },
 };
 
 const AuthCtx = createContext(null);
@@ -43,14 +53,24 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    const s = sb.getSession();
-    if (s) setUser({ email: s.email });
-    setAuthLoading(false);
+    (async () => {
+      const token = sb.getToken();
+      if (token) {
+        const liveUser = await sb.getUser(token);
+        if (liveUser && !liveUser.error) {
+          setUser(liveUser);
+        } else {
+          // Token expired or invalid — don't keep treating this as a logged-in session.
+          sessionStorage.removeItem("sb_token");
+        }
+      }
+      setAuthLoading(false);
+    })();
   }, []);
 
   const signIn = async (email, password) => {
     const r = await sb.signIn(email, password);
-    if (r.ok) setUser({ email: r.email });
+    if (r.ok) setUser(r.user);
     return r;
   };
 

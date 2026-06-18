@@ -5,6 +5,7 @@ import { RestrictedArea } from "./restricted/RestrictedArea";
 import { ISLANDS, ISLAND_KEYS } from "./data/constants";
 
 // ── Colour constants ──────────────────────────────────────────────────────────
+// Keep in sync with observatory.css :root tokens
 const C = {
   bg:       "#0f172a",
   surface:  "#1e293b",
@@ -12,24 +13,39 @@ const C = {
   border:   "#1e293b",
   border2:  "#334155",
   text:     "#e2e8f0",
-  muted:    "#64748b",
-  muted2:   "#475569",
+  muted:    "#64748b",   // de-emphasised labels only
+  muted2:   "#94a3b8",   // body copy & secondary UI — lighter than muted, do not swap
   blue:     "#60a5fa",
+  blueDim:  "#1d4ed8",
   green:    "#34d399",
   amber:    "#fbbf24",
   purple:   "#a78bfa",
   red:      "#f87171",
+  // Island colours — canonical
+  iom:      "#3b82f6",   // Isle of Man — blue
+  gsy:      "#10b981",   // Guernsey    — green
+  jsy:      "#f59e0b",   // Jersey      — amber (orange jelly)
+  uk:       "#94a3b8",   // UK          — John Major grey
 };
 
+const TAB_GROUPS = [
+  { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation", "unemployment", "nobles","nobles-v6"] },
+];
+
 const TABS = [
-  { id: "home",       label: "About"                },
-  { id: "reid",       label: "Re-identification"    },
-  { id: "kanon",      label: "k-Anonymity"          },
-  { id: "areas",      label: "Area Rankings"        },
-  { id: "demog",      label: "Demographics Explorer"},
-  { id: "iomfiscal",  label: "IOM Fiscal Flows"     },
-  { id: "inflation",  label: "Inflation Explorer"   },
-  { id: "restricted", label: "🔒 Restricted"        },
+  { id: "home",         label: "About"                },
+  { id: "reid",         label: "Re-identification"    },
+  { id: "kanon",        label: "k-Anonymity"          },
+  { id: "areas",        label: "Area Rankings"        },
+  { id: "econHome",     label: "About"                },
+  { id: "demog",        label: "Demographics"         },
+  { id: "iomfiscal",    label: "IoM Fiscal Flows"     },
+  { id: "inflation",    label: "Inflation"            },
+  { id: "unemployment", label: "Unemployment"         },
+  { id: "nobles",       label: "Noble's Hospital"     },
+  { id: "nobles-v6",	label: "Noble's Hospital-v6"  },
+  { id: "restricted",   label: "🔒 Restricted"        },
 ];
 
 // ── Landing / explainer tab ───────────────────────────────────────────────────
@@ -44,7 +60,7 @@ function HomeTab() {
       <div style={{ height: 3, background: accent }}/>
       <div style={{ padding: "16px 18px" }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
-        <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.7 }}>{body}</div>
+        <div style={{ fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>{body}</div>
       </div>
     </div>
   );
@@ -62,7 +78,7 @@ function HomeTab() {
           letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
           How anonymous are you, really?
         </div>
-        <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.8 }}>
+        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.8 }}>
           Across the Crown Dependencies — <span style={{ color: C.text }}>Isle of Man</span>,{" "}
           <span style={{ color: C.text }}>Guernsey</span>, and{" "}
           <span style={{ color: C.text }}>Jersey</span> — a combined population of just{" "}
@@ -121,8 +137,8 @@ function HomeTab() {
           style={{ color: C.blue, textDecoration: "none" }}>Observatory of Anonymity (ooa.world)</a>,
         applied to Crown Dependencies census data. Marginal distributions come from the
         2021 census for each island. Attribute correlations are estimated from UK census
-        microdata as a proxy. Results are illustrative — this is a prototype pending
-        calibration data from Statistics IoM, Statistics Jersey, and Statistics Guernsey.
+        microdata as a proxy. Results are illustrative — pending calibration data from
+        Statistics IoM, Statistics Jersey, and Statistics Guernsey.
       </div>
 
       {/* Island stats */}
@@ -142,7 +158,7 @@ function HomeTab() {
               marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               {ISLANDS[k].name}
             </div>
-            <div style={{ fontFamily: "monospace", fontSize: 20, fontWeight: 700,
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700,
               color: C.text, lineHeight: 1, marginBottom: 4 }}>
               {ISLANDS[k].population.toLocaleString()}
             </div>
@@ -155,19 +171,148 @@ function HomeTab() {
 
       {/* Contact */}
       <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
-        Prototype v0.1 · Built at{" "}
-        <a href="https://observatory.coalfinch.com" target="_blank"
-          style={{ color: C.muted, textDecoration: "none" }}>observatory.coalfinch.com</a>
-        {" "}· Contact:{" "}
-        <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.muted, textDecoration: "none" }}>observatory@coalfinch.com</a>
+        <a href="https://coalfinch.com" target="_blank"
+          style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
+        {" "}· <a href="mailto:observatory@coalfinch.com"
+          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
       </div>
 
     </div>
   );
 }
 
-// ── Centred wrapper for login / loading ───────────────────────────────────────
+// ── Economy & Society landing tab ────────────────────────────────────────────
+function EconHomeTab({ onNavigate }) {
+
+  const card = (title, body, accent) => (
+    <div style={{
+      background: C.surface, border: `1px solid ${C.border2}`,
+      borderRadius: 10, overflow: "hidden", marginBottom: 14,
+    }}>
+      <div style={{ height: 3, background: accent }}/>
+      <div style={{ padding: "16px 18px" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
+        <div style={{ fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>{body}</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 780, margin: "0 auto" }}>
+
+      {/* Hero */}
+      <div style={{
+        background: C.surface2, border: `1px solid ${C.border2}`,
+        borderLeft: `3px solid ${C.green}`,
+        borderRadius: 10, padding: "20px 22px", marginBottom: 28,
+      }}>
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc",
+          letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
+          Small islands, complex systems
+        </div>
+        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.8 }}>
+          The same small populations that make re-identification risk acute also create
+          unusual fiscal and demographic dynamics. A dependency ratio that would be a
+          footnote in a nation of millions becomes a structural problem in an island of 85,000.
+          This section explores those dynamics — population aging, fiscal flows, and the
+          feedback loops between them.
+        </div>
+      </div>
+
+      {/* WIP notice */}
+      <div style={{
+        background: C.surface2, border: `1px solid ${C.amber}44`,
+        borderLeft: `3px solid ${C.amber}`,
+        borderRadius: 8, padding: "14px 16px", marginBottom: 24,
+        fontSize: 12, color: C.muted2, lineHeight: 1.7,
+      }}>
+        <span style={{ color: C.amber, fontWeight: 700 }}>Work in progress · </span>
+        This is an early-stage <strong style={{ color: C.text }}>systems dynamics model</strong> of
+        the Crown Dependencies' fiscal position, currently being built out. The tools here
+        are useful for orientation but the underlying data deserves scrutiny —
+        much of it has been extracted from government PDFs, which is
+        exactly as error-prone as it sounds. If you spot something wrong,{" "}
+        <a href="mailto:observatory@coalfinch.com"
+          style={{ color: C.green, textDecoration: "none" }}>please tell us</a>.
+      </div>
+
+      {/* What's here */}
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
+        letterSpacing: "0.08em", marginBottom: 12 }}>
+        Tools in this section
+      </div>
+
+      <div onClick={() => onNavigate("demog")} style={{ cursor: "pointer" }}>
+        {card(
+          "Demographics Explorer",
+          `Population aging across all three Crown Dependencies, 1821–2040. Census data plus
+          cohort-shift projections. Dependency ratios, population pyramids, age structure,
+          and what the trajectory looks like under different migration scenarios.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("iomfiscal")} style={{ cursor: "pointer" }}>
+        {card(
+          "IoM Fiscal Flows",
+          `A Sankey diagram of Isle of Man government income and expenditure — where money
+          comes from (income tax, VAT sharing, duties, company tax) and where it goes
+          (health, education, social security, infrastructure). Data extracted from
+          Treasury published accounts. Check the numbers.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("inflation")} style={{ cursor: "pointer" }}>
+        {card(
+          "Inflation Explorer",
+          `CPI and RPI inflation across the Isle of Man, Jersey, Guernsey and the UK —
+          annual rates, monthly series, and housing differentials. Covers 1950–2026,
+          with IoM monthly data from 1977. Data sourced from Statistics IoM, Statistics
+          Jersey, and ONS.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("unemployment")} style={{ cursor: "pointer" }}>
+        {card(
+          "Unemployment",
+          `Long-run registered unemployment across all three Crown Dependencies and the UK,
+          as far back as records allow — IoM from 1975, Guernsey from 1982, Jersey from 2001.
+          Data from IoM Digest 2009 (Table 3.6), Statistics IoM Labour Market Reports,
+          the Guernsey supplementary data spreadsheet (Q4 2023), and ONS BCJE.`,
+          C.green
+        )}
+      </div>
+
+      {/* Systems dynamics note */}
+      <div style={{
+        background: C.surface2, border: `1px solid ${C.border2}`,
+        borderRadius: 8, padding: "14px 16px", marginBottom: 24,
+        fontSize: 11, color: C.muted2, lineHeight: 1.7,
+      }}>
+        <span style={{ color: C.muted, fontWeight: 600 }}>Why systems dynamics? · </span>
+        Fiscal sustainability in small islands isn't a static spreadsheet problem — it's a
+        set of feedback loops. An aging population increases health and pension expenditure
+        while shrinking the working-age tax base, which constrains the public investment
+        that might attract working-age incomers, which further strains the ratio. Modelling
+        these loops explicitly, rather than extrapolating trend lines, is the point.
+        The model is in active development — more loops, more islands, more data as we go.
+      </div>
+
+      {/* Contact */}
+      <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
+        <a href="https://coalfinch.com" target="_blank"
+          style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
+        {" "}· <a href="mailto:observatory@coalfinch.com"
+          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
+      </div>
+
+    </div>
+  );
+}
+
+
 function Centred({ children }) {
   return (
     <div style={{
@@ -219,7 +364,8 @@ function AppContent() {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const tabContent = {
-    home: <HomeTab />,
+    home:     <HomeTab />,
+    econHome: <EconHomeTab onNavigate={setTab} />,
 
     reid: (
       <AutoIframe
@@ -251,8 +397,8 @@ function AppContent() {
 
     iomfiscal: (
       <AutoIframe
-        src="/iomg-sankeyvis1.html"
-        title="IoM Government Fiscal Flows"
+         src="/iomg-sankeyvis1.html"
+         title="IoM Government Fiscal Flows"
       />
     ),
 
@@ -263,16 +409,43 @@ function AppContent() {
       />
     ),
 
-    restricted: authLoading
+    unemployment: (
+      <AutoIframe
+        src="/unemployment-explorer.html"
+        title="Unemployment Explorer"
+      />
+    ),
+
+    nobles: (
+      <AutoIframe
+        src="/nobles-hospital-sim.html"
+        title="Noble's Hospital — Bed Capacity"
+      />
+    ),
+
+    "nobles-v6": (
+      <AutoIframe
+	 src="/nobles-hospital-sim-v6.html"
+	 title="Noble's Hospital - Bed Capacity - Airbridge Feedback"
+       />
+    ),
+
+	  restricted: authLoading
       ? <Centred><div style={{ color: C.muted, fontSize: 12 }}>Loading…</div></Centred>
       : user
         ? <RestrictedArea />
         : <Centred><LoginScreen /></Centred>,
   };
 
+  // Find which group a tab belongs to
+  const groupOf = (id) => TAB_GROUPS.find(g => g.tabs.includes(id));
+
+  // Tab button — accent colour comes from the tab's group
   const tabBtn = (t) => {
     const isRestricted = t.id === "restricted";
     const isActive = tab === t.id;
+    const group = groupOf(t.id);
+    const accentColor = isRestricted ? C.purple : (group?.color ?? C.blue);
     return (
       <button
         key={t.id}
@@ -288,9 +461,9 @@ function AppContent() {
           WebkitAppearance: "none",
           color: isRestricted
             ? (isActive ? C.purple : "#7c3aed")
-            : (isActive ? C.blue : C.muted),
+            : (isActive ? accentColor : C.muted2),
           borderBottom: isActive
-            ? `2px solid ${isRestricted ? C.purple : C.blue}`
+            ? `2px solid ${accentColor}`
             : "2px solid transparent",
           fontSize: 12,
           fontWeight: isActive ? 600 : 400,
@@ -337,18 +510,59 @@ function AppContent() {
         </div>
       </div>
 
-      {/* Nav */}
+      {/* Nav — clickable supertabs + coloured tab strip */}
       <div style={{
-        display: "flex", gap: 0, marginBottom: 20,
-        borderBottom: `1px solid ${C.border}`,
-        overflowX: "auto",
+        display: "flex", alignItems: "flex-end", gap: 0,
+        borderBottom: `1px solid ${C.border2}`,
+        marginBottom: 20, overflowX: "auto", scrollbarWidth: "none",
       }}>
-        {TABS.map(t => tabBtn(t))}
+        {TAB_GROUPS.map((group, gi) => {
+          const groupActive = group.tabs.includes(tab);
+          return (
+            <div key={group.id} style={{ display: "flex", flexDirection: "column" }}>
+
+              {/* Supertab label — clickable, jumps to group's home tab */}
+              <button
+                onClick={() => setTab(group.homeTab)}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontSize: 10, fontWeight: 700,
+                  textTransform: "uppercase", letterSpacing: "0.09em",
+                  color: groupActive ? group.color : C.muted,
+                  padding: "0 16px 5px",
+                  whiteSpace: "nowrap",
+                  transition: "color 0.15s",
+                  textAlign: "left",
+                }}
+              >
+                {group.label}
+              </button>
+
+              {/* Tab strip for this group */}
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                {gi > 0 && (
+                  <div style={{
+                    width: 1, background: C.border2,
+                    height: 20, flexShrink: 0, marginRight: 4, alignSelf: "center",
+                  }} />
+                )}
+                {group.tabs
+                  .map(id => {
+                    const t = TABS.find(x => x.id === id);
+                    if (!t) return null;
+                    return tabBtn(t);
+                  })}
+              </div>
+
+            </div>
+          );
+        })}
       </div>
 
-      {/* Content — full-bleed for iframe tabs */}
+      {/* Content — iframes get full bleed, about pages get max-width */}
       <div style={
-        ["reid", "demog", "kanon", "areas", "inflation"].includes(tab)
+        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation", "unemployment", "nobles", "nobles-v6"].includes(tab)
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>

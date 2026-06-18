@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import { LoginScreen } from "./auth/LoginScreen";
 import { RestrictedArea } from "./restricted/RestrictedArea";
+import { ComplianceArea } from "./restricted/compliance/ComplianceArea";
 import { ISLANDS, ISLAND_KEYS } from "./data/constants";
 
 // ── Colour constants ──────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ const C = {
 };
 
 const TAB_GROUPS = [
-  { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted"] },
+  { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted", "compliance"] },
   { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation", "unemployment", "nobles","nobles-v6"] },
 ];
 
@@ -43,10 +44,25 @@ const TABS = [
   { id: "iomfiscal",    label: "IoM Fiscal Flows"     },
   { id: "inflation",    label: "Inflation"            },
   { id: "unemployment", label: "Unemployment"         },
-  { id: "nobles",       label: "Noble's Hospital"     },
-  { id: "nobles-v6",	label: "Noble's Hospital-v6"  },
+  { id: "nobles",       label: "Nobles Hospital"     },
+  { id: "nobles-v6",	label: "Nobles Hospital-v6"  },
   { id: "restricted",   label: "🔒 Restricted"        },
+  { id: "compliance",   label: "📋 Compliance"        },
 ];
+
+// ── Permission helper ─────────────────────────────────────────────────────────
+// Reads Supabase app_metadata (NOT user_metadata). app_metadata can only be set
+// by an admin — via the SQL editor or the Admin API — never by the signed-in
+// user themselves, so it's the safe place to check for access control.
+//   update auth.users
+//   set raw_app_meta_data = raw_app_meta_data || '{"permissions": ["restricted","compliance"]}'::jsonb
+//   where email = '...';
+// After granting, the user must sign out and back in (or refresh the session)
+// — the JWT is issued at sign-in, so an already-open session won't see the change.
+function hasPermission(user, perm) {
+  const perms = user?.app_metadata?.permissions;
+  return Array.isArray(perms) && perms.includes(perm);
+}
 
 // ── Landing / explainer tab ───────────────────────────────────────────────────
 function HomeTab() {
@@ -419,22 +435,32 @@ function AppContent() {
     nobles: (
       <AutoIframe
         src="/nobles-hospital-sim.html"
-        title="Noble's Hospital — Bed Capacity"
+        title="Nobles Hospital — Bed Capacity"
       />
     ),
 
     "nobles-v6": (
       <AutoIframe
 	 src="/nobles-hospital-sim-v6.html"
-	 title="Noble's Hospital - Bed Capacity - Airbridge Feedback"
+	 title="Nobles Hospital - Bed Capacity - Airbridge Feedback"
        />
     ),
 
 	  restricted: authLoading
       ? <Centred><div style={{ color: C.muted, fontSize: 12 }}>Loading…</div></Centred>
-      : user
-        ? <RestrictedArea />
-        : <Centred><LoginScreen /></Centred>,
+      : !user
+        ? <Centred><LoginScreen /></Centred>
+        : hasPermission(user, "restricted")
+          ? <RestrictedArea />
+          : <Centred><div style={{ color: C.muted2, fontSize: 12 }}>Your account doesn't have access to this area.</div></Centred>,
+
+    compliance: authLoading
+      ? <Centred><div style={{ color: C.muted, fontSize: 12 }}>Loading…</div></Centred>
+      : !user
+        ? <Centred><LoginScreen /></Centred>
+        : hasPermission(user, "compliance")
+          ? <ComplianceArea />
+          : <Centred><div style={{ color: C.muted2, fontSize: 12 }}>Your account doesn't have access to this area.</div></Centred>,
   };
 
   // Find which group a tab belongs to
@@ -442,10 +468,10 @@ function AppContent() {
 
   // Tab button — accent colour comes from the tab's group
   const tabBtn = (t) => {
-    const isRestricted = t.id === "restricted";
+    const isGated = t.id === "restricted" || t.id === "compliance";
     const isActive = tab === t.id;
     const group = groupOf(t.id);
-    const accentColor = isRestricted ? C.purple : (group?.color ?? C.blue);
+    const accentColor = isGated ? C.purple : (group?.color ?? C.blue);
     return (
       <button
         key={t.id}
@@ -459,7 +485,7 @@ function AppContent() {
           fontFamily: "'Inter', system-ui, sans-serif",
           appearance: "none",
           WebkitAppearance: "none",
-          color: isRestricted
+          color: isGated
             ? (isActive ? C.purple : "#7c3aed")
             : (isActive ? accentColor : C.muted2),
           borderBottom: isActive
@@ -569,6 +595,26 @@ function AppContent() {
         {tabContent[tab]}
       </div>
 
+      {/* Global footer — plain links, not tab state, so they're real crawlable URLs */}
+      <div style={{
+        maxWidth: 960, margin: "32px auto 0", padding: "16px 0 4px",
+        borderTop: `1px solid ${C.border}`,
+        fontSize: 11, color: C.muted2,
+        display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8,
+      }}>
+        <span>
+          <a href="https://coalfinch.com" target="_blank" rel="noopener"
+            style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
+          {" "}·{" "}
+          <a href="mailto:observatory@coalfinch.com"
+            style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
+        </span>
+        <span>
+          <a href="/privacy.html"
+            style={{ color: C.muted2, textDecoration: "none" }}>Privacy Policy</a>
+        </span>
+      </div>
+
     </div>
   );
 }
@@ -580,3 +626,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+
