@@ -42,7 +42,7 @@ h1{font-size:19px;font-weight:800;letter-spacing:-0.01em;color:var(--text);margi
 .pill.on-upper{background:rgba(167,139,250,.15);border-color:#a78bfa;color:#a78bfa}
 .ctrl-divider{width:1px;background:var(--border2);height:36px;align-self:flex-end;margin:0 2px}
 .chart-wrap{position:relative;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:16px}
-canvas{display:block;width:100%!important}
+.chart-canvas-wrap{position:relative;width:100%}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:10px;align-items:center}
 .legend-item{display:flex;align-items:center;gap:5px}
 .ldash{width:22px;height:2px;flex-shrink:0}
@@ -103,7 +103,7 @@ canvas{display:block;width:100%!important}
   <div class="stat-grid" id="stats-abs"></div>
   <div class="chart-wrap">
     <div class="legend" id="legend-abs"></div>
-    <canvas id="chart-abs" height="380"></canvas>
+    <div class="chart-canvas-wrap" style="height:380px"><canvas id="chart-abs"></canvas></div>
     <p class="chart-note">IoM census dots: public administration sector only (1961–2021, Statistics IoM). IoM FTE line: OHR payroll (2015–2024), includes health, education, police, fire — not comparable with census dots. Upper bound (optional): public admin + professional/educational/medical/scientific sector combined — ceiling that includes private sector. Jersey: core GOJ jobs (Statistics Jersey, Dec 2002–2023). Guernsey: States FTE (Annual Accounts, 2021–22 only). UK excluded from absolute view — see Indexed tab.</p>
   </div>
 </div>
@@ -132,7 +132,7 @@ canvas{display:block;width:100%!important}
   </div>
   <div class="chart-wrap">
     <div class="legend" id="legend-idx"></div>
-    <canvas id="chart-idx" height="380"></canvas>
+    <div class="chart-canvas-wrap" style="height:380px"><canvas id="chart-idx"></canvas></div>
     <p class="chart-note">Indexed: each series = 100 at the selected base year. IoM uses OHR FTE (2015+). Jersey = core GOJ jobs (Dec). Guernsey = States FTE (2021–22, two points). UK = ONS G7G3 total public sector FTE. Base year must fall within each series' date range — Guernsey and Jersey unavailable for 2015 base.</p>
   </div>
 </div>
@@ -191,19 +191,19 @@ canvas{display:block;width:100%!important}
 
   <div class="chart-wrap">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px">IoM: public administration sector as % of total employed (census 1961–2021)</div>
-    <canvas id="chart-share-iom" height="200"></canvas>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-share-iom"></canvas></div>
     <p class="chart-note">Source: IoM in Numbers 2025, Table 3. Public administration sector only — excludes govt employees in health, education, police. True government share is substantially higher (see OHR FTE ~16% in 2021). The dip in 1971 reflects census classification rather than a real contraction. Denominator is total employed from the same table.</p>
   </div>
 
   <div class="chart-wrap">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px">Jersey: core GOJ jobs as % of total jobs (Dec 2002–2023)</div>
-    <canvas id="chart-share-jsy" height="200"></canvas>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-share-jsy"></canvas></div>
     <p class="chart-note">Source: Statistics Jersey Labour Market report, December snapshot, Appendix 1. Core GOJ = permanent + fixed-term only. Dip 2014–17 partly reflects ~100 jobs reclassified to arms-length bodies (Andium Homes, Visit Jersey).</p>
   </div>
 
   <div class="chart-wrap">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px">UK: public sector FTE as % of total employment (1999–2025)</div>
-    <canvas id="chart-share-uk" height="200"></canvas>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-share-uk"></canvas></div>
     <p class="chart-note">Source: ONS G7G3 (public sector FTE, SA) / ONS LFS total employment. 2009–13 peak inflated by inclusion of Lloyds/RBS as public sector. Royal Mail reclassified to private Dec 2013 (~150k). NatWest returned to private Q1 2024 (~15k).</p>
   </div>
 </div>
@@ -333,9 +333,9 @@ function idx(arr,base){
 function pts(arr){return arr.map(d=>({x:d.y,y:d.v}));}
 function pct(arr,tf){return arr.map(d=>({x:d.y,y:+(d.v/tf(d)*100).toFixed(2)}));}
 
-function baseOpts(yLabel,tickFn){
+function baseOpts(yLabel,tickFn,xMin,xMax,yMin,yMax){
   return{
-    responsive:true,maintainAspectRatio:false,animation:{duration:200},
+    responsive:true,maintainAspectRatio:false,animation:false,
     plugins:{legend:{display:false},tooltip:{
       backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
       titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
@@ -343,10 +343,13 @@ function baseOpts(yLabel,tickFn){
       callbacks:{label(c){return ` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString('en-GB',{maximumFractionDigits:1}):'–'}`}}
     }},
     scales:{
-      x:{type:'linear',grid:{color:'rgba(51,65,85,.4)',drawTicks:false},
+      x:{type:'linear',
+         ...(xMin!=null?{min:xMin}:{}), ...(xMax!=null?{max:xMax}:{}),
+         grid:{color:'rgba(51,65,85,.4)',drawTicks:false},
          ticks:{color:'#64748b',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:14,
                 callback:v=>v}},
-      y:{grid:{color:'rgba(51,65,85,.4)',drawTicks:false},
+      y:{...(yMin!=null?{min:yMin}:{}), ...(yMax!=null?{max:yMax}:{}),
+         grid:{color:'rgba(51,65,85,.4)',drawTicks:false},
          ticks:{color:'#64748b',font:{size:10},callback:tickFn||(v=>v.toLocaleString())},
          title:{display:!!yLabel,text:yLabel,color:'#64748b',font:{size:10}}}
     }
@@ -414,8 +417,7 @@ function renderAbs(){
     li.push({c:C.gsy,label:'Guernsey States FTE (2 points)'});
   }
 
-  const opts=baseOpts('FTE / jobs / persons');
-  opts.scales.x.min=1960; opts.scales.x.max=2025;
+  const opts=baseOpts('FTE / jobs / persons',null,1958,2026,0,14000);
   mk('chart-abs','scatter',ds,opts);
   legend('legend-abs',li);
 
@@ -468,9 +470,7 @@ function renderIdx(){
     if(d) li.push({c:C.uk,label:'UK ONS G7G3',dashed:true});
   }
 
-  const opts=baseOpts(`Index (${baseYear} = 100)`,v=>`${v}`);
-  opts.plugins.annotation={annotations:{zero:{type:'line',yMin:100,yMax:100,
-    borderColor:'rgba(255,255,255,.3)',borderWidth:1.5}}};
+  const opts=baseOpts(`Index (${baseYear} = 100)`,v=>`${v}`,2014,2026,80,140);
   mk('chart-idx','line',ds,opts);
   legend('legend-idx',li);
 }
@@ -483,12 +483,7 @@ function renderShare(){
     label:'IoM pub. admin % of total employed',data:iomPct,
     borderColor:C.iom,backgroundColor:C.iomA,borderWidth:2,
     pointRadius:5,pointBackgroundColor:C.iom,fill:true,tension:0.2,showLine:true,
-  }],{...baseOpts('% of total employed',v=>`${v}%`),
-    scales:{x:{type:'linear',min:1960,max:2022,grid:{color:'rgba(51,65,85,.4)'},
-              ticks:{color:'#64748b',font:{size:10},maxRotation:0}},
-            y:{min:0,max:12,grid:{color:'rgba(51,65,85,.4)'},
-              ticks:{color:'#64748b',font:{size:10},callback:v=>`${v}%`}}},
-    responsive:true,maintainAspectRatio:false,animation:{duration:200},
+  }],{...baseOpts('% of total employed',v=>`${v}%`,1958,2024,0,12),
     plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
       titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
       callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}}
@@ -500,12 +495,7 @@ function renderShare(){
     label:'Jersey core GOJ %',data:jsyPct,
     borderColor:C.jsy,backgroundColor:C.jsyA,borderWidth:2,
     pointRadius:3,pointBackgroundColor:C.jsy,fill:true,tension:0.2,
-  }],{...baseOpts('% of total jobs',v=>`${v}%`),
-    scales:{x:{type:'linear',min:2001,max:2024,grid:{color:'rgba(51,65,85,.4)'},
-              ticks:{color:'#64748b',font:{size:10},maxRotation:0}},
-            y:{min:10,max:15,grid:{color:'rgba(51,65,85,.4)'},
-              ticks:{color:'#64748b',font:{size:10},callback:v=>`${v}%`}}},
-    responsive:true,maintainAspectRatio:false,animation:{duration:200},
+  }],{...baseOpts('% of total jobs',v=>`${v}%`,2001,2024,10,15),
     plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
       titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
       callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}}
@@ -517,12 +507,7 @@ function renderShare(){
     label:'UK public sector FTE %',data:ukPct,
     borderColor:C.uk,backgroundColor:C.ukA,borderWidth:2,
     pointRadius:2,pointBackgroundColor:C.uk,fill:true,tension:0.2,
-  }],{...baseOpts('Public sector FTE as % of LFS employment',v=>`${v}%`),
-    scales:{x:{type:'linear',min:1998,max:2026,grid:{color:'rgba(51,65,85,.4)'},
-              ticks:{color:'#64748b',font:{size:10},maxRotation:0}},
-            y:{min:12,max:20,grid:{color:'rgba(51,65,85,.4)'},
-              ticks:{color:'#64748b',font:{size:10},callback:v=>`${v}%`}}},
-    responsive:true,maintainAspectRatio:false,animation:{duration:200},
+  }],{...baseOpts('Public sector FTE as % of LFS employment',v=>`${v}%`,1998,2026,12,20),
     plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
       titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
       callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}}
@@ -572,3 +557,4 @@ setTimeout(h,500);
 </script>
 </body>
 </html>
+
