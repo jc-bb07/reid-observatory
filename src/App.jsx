@@ -31,7 +31,7 @@ const C = {
 
 const TAB_GROUPS = [
   { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted", "compliance"] },
-  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "inflation", "unemployment", "nobles","nobles-v6"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "econmix", "inflation", "unemployment", "workforce", "nobles","nobles-v6"] },
 ];
 
 const TABS = [
@@ -42,8 +42,10 @@ const TABS = [
   { id: "econHome",     label: "About"                },
   { id: "demog",        label: "Demographics"         },
   { id: "iomfiscal",    label: "IoM Fiscal Flows"     },
+  { id: "econmix",     label: "Productivity"         },
   { id: "inflation",    label: "Inflation"            },
   { id: "unemployment", label: "Unemployment"         },
+  { id: "workforce",    label: "Public Sector"        },
   { id: "nobles",       label: "Nobles Hospital"     },
   { id: "nobles-v6",	label: "Nobles Hospital-v6"  },
   { id: "restricted",   label: "🔒 Restricted"        },
@@ -279,6 +281,17 @@ function EconHomeTab({ onNavigate }) {
         )}
       </div>
 
+      <div onClick={() => onNavigate("econmix")} style={{ cursor: "pointer" }}>
+        {card(
+          "Productivity by Sector",
+          `National income and employment by sector — contribution to GDP versus share of
+          the workforce, revealing which sectors drive economic output relative to their
+          size. Covers financial services, eGaming, ICT, health, education and the public
+          sector. Data from IoM National Income reports and the Digest employment series.`,
+          C.green
+        )}
+      </div>
+
       <div onClick={() => onNavigate("inflation")} style={{ cursor: "pointer" }}>
         {card(
           "Inflation Explorer",
@@ -297,6 +310,17 @@ function EconHomeTab({ onNavigate }) {
           as far back as records allow — IoM from 1975, Guernsey from 1982, Jersey from 2001.
           Data from IoM Digest 2009 (Table 3.6), Statistics IoM Labour Market Reports,
           the Guernsey supplementary data spreadsheet (Q4 2023), and ONS BCJE.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("workforce")} style={{ cursor: "pointer" }}>
+        {card(
+          "Public Sector Employment",
+          `Government workforce size across the Crown Dependencies and the UK — absolute FTE
+          and jobs counts, indexed change from a base year, and share of total employment.
+          IoM from 1961 (Digest sector data) and 2015 (OHR FTE); Jersey core GOJ jobs
+          2002–2023; Guernsey States FTE 2021–22; UK ONS G7G3 1999–2025.`,
           C.green
         )}
       </div>
@@ -429,6 +453,20 @@ function AppContent() {
       <AutoIframe
         src="/unemployment-explorer.html"
         title="Unemployment Explorer"
+      />
+    ),
+
+    econmix: (
+      <AutoIframe
+        src="/iom-economic-mix.html"
+        title="Productivity by Sector"
+      />
+    ),
+
+    workforce: (
+      <AutoIframe
+        src="/public-sector-employment.html"
+        title="Public Sector Employment"
       />
     ),
 
@@ -588,7 +626,7 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, about pages get max-width */}
       <div style={
-        ["reid", "demog", "kanon", "areas", "iomfiscal", "inflation", "unemployment", "nobles", "nobles-v6"].includes(tab)
+        ["reid", "demog", "kanon", "areas", "iomfiscal", "econmix", "inflation", "unemployment", "workforce", "nobles", "nobles-v6"].includes(tab)
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>
