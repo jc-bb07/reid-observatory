@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+Done
+TYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -19,7 +20,8 @@ h1{font-size:16px;font-weight:800;letter-spacing:-0.01em}
 .tab{padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--mu);
      border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;white-space:nowrap}
 .tab:hover{color:var(--tx)}.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.ctrl-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center;flex-shrink:0;min-height:28px}
+.tab-lock{color:var(--red)!important}.tab-lock.active{border-bottom-color:var(--red)!important}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center;flex-shrink:0;min-height:26px}
 .cg{display:flex;align-items:center;gap:5px}
 .cl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);white-space:nowrap}
 select{background:var(--sf);border:1px solid var(--b2);color:var(--tx);padding:3px 7px;border-radius:5px;font-size:11px;font-family:inherit;cursor:pointer}
@@ -28,8 +30,29 @@ select:focus{outline:none;border-color:var(--blue)}
 .pb{padding:3px 10px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--mu);transition:all .15s;white-space:nowrap}
 .pb.active{background:var(--bdim);color:#fff}
 .cw{flex:1;min-height:0;position:relative;background:var(--sf2);border:1px solid var(--b2);border-radius:8px;padding:10px 10px 6px;margin:8px 0 0}
-.ci{position:relative;height:calc(100% - 4px)}
+.ci{position:relative;height:100%}
 canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.lock-overlay{position:absolute;inset:0;background:rgba(15,23,42,0.96);border-radius:7px;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:10}
+.lock-icon{font-size:34px;opacity:.6}
+.lock-title{font-size:12px;font-weight:600;color:var(--mu2);text-align:center;max-width:260px;line-height:1.6}
+.lock-form{display:flex;gap:6px}
+.lock-input{background:var(--sf);border:1px solid var(--b2);color:var(--tx);padding:6px 10px;
+             border-radius:5px;font-size:12px;font-family:'JetBrains Mono',monospace;width:160px}
+.lock-input:focus{outline:none;border-color:var(--red)}
+.lock-btn{padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:5px;
+           font-size:11px;font-weight:700;cursor:pointer}
+.lock-btn:hover{opacity:.85}
+.lock-err{font-size:10px;color:var(--red);min-height:13px;text-align:center}
+.lock-sub{font-size:9px;color:var(--mu);text-align:center;max-width:240px;line-height:1.5}
+.ctx-panel{background:var(--sf2);border:1px solid #f8717133;border-radius:6px;padding:7px 10px;
+            margin-top:6px;flex-shrink:0;display:none}
+.ctx-panel.show{display:block}
+.ctx-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:5px}
+.ctx-events{display:flex;flex-direction:column;gap:3px}
+.ctx-ev{display:flex;gap:8px;font-size:10px;line-height:1.4}
+.ctx-yr{font-family:'JetBrains Mono',monospace;color:var(--amb);flex-shrink:0;min-width:52px}
+.ctx-txt{color:var(--mu2)}
 .pbar{display:flex;align-items:center;gap:7px;padding-top:6px;border-top:1px solid var(--b2);margin-top:5px;flex-shrink:0}
 .bplay{padding:3px 11px;font-size:10px;font-weight:700;border:none;border-radius:5px;cursor:pointer;background:var(--bdim);color:#fff;min-width:64px}
 .bplay:hover{background:var(--iom)}
@@ -58,38 +81,35 @@ canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
   <button class="tab active" data-tab="abs">Absolute</button>
   <button class="tab" data-tab="rel">Relative</button>
   <button class="tab" data-tab="mix">Mix</button>
-  <button class="tab" data-tab="prod">Productivity</button>
+  <button class="tab tab-lock" data-tab="comp">Comparative &#128274;</button>
 </div>
 <div class="ctrl-row" id="main-ctrl">
-  <div class="cg" id="yr-ctrl">
-    <span class="cl">From</span><select id="yr-from"></select>
-    <span class="cl">to</span><select id="yr-to"></select>
-  </div>
-  <div class="cg" id="view-ctrl">
-    <span class="cl">View</span>
-    <div class="pill">
-      <button class="pb active" data-view="groups">Groups</button>
-      <button class="pb" data-view="sectors">Sectors</button>
-    </div>
+  <div class="cg" id="yr-ctrl"><span class="cl">From</span><select id="yr-from"></select><span class="cl">to</span><select id="yr-to"></select></div>
+  <div class="cg" id="view-ctrl"><span class="cl">View</span>
+    <div class="pill"><button class="pb active" data-view="groups">Groups</button><button class="pb" data-view="sectors">Sectors</button></div>
   </div>
   <div class="cg" id="real-ctrl">
-    <div class="pill">
-      <button class="pb active" data-real="nom">Nominal</button>
-      <button class="pb" data-real="real">Real (2024/25)</button>
-    </div>
+    <div class="pill"><button class="pb active" data-real="nom">Nominal</button><button class="pb" data-real="real">Real (2024/25)</button></div>
   </div>
 </div>
-<div class="ctrl-row" id="prod-ctrl" style="display:none">
-  <div class="cg"><span class="cl">Industry</span><select id="prod-sel"></select></div>
+<div class="ctrl-row" id="comp-ctrl" style="display:none">
+  <div class="cg"><span class="cl">Industry</span><select id="comp-sel"></select></div>
   <div class="cg">
-    <div class="pill">
-      <button class="pb active" data-preal="nom">Nominal</button>
-      <button class="pb" data-preal="real">Real (2024/25)</button>
-    </div>
+    <div class="pill"><button class="pb active" data-preal="nom">Nominal</button><button class="pb" data-preal="real">Real (2024/25)</button></div>
   </div>
 </div>
 <div class="cw">
   <div class="ci"><canvas id="mc"></canvas></div>
+  <div class="lock-overlay" id="lock-overlay" style="display:none">
+    <div class="lock-icon">&#128274;</div>
+    <div class="lock-title">GVA per worker comparisons with regulatory integrity context.<br>Restricted access.</div>
+    <div class="lock-form">
+      <input type="password" class="lock-input" id="lock-input" placeholder="Password" autocomplete="off">
+      <button class="lock-btn" id="lock-btn">Unlock</button>
+    </div>
+    <div class="lock-err" id="lock-err"></div>
+    <div class="lock-sub">Contact the Observatory administrator for access.</div>
+  </div>
   <div class="pbar" id="pbar" style="display:none">
     <button class="bplay" id="pbtn">&#9654; Play</button>
     <input type="range" class="scrub" id="scrub" min="0" value="26">
@@ -104,10 +124,11 @@ canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
 <div class="legrow" id="legrow">
   <span class="legtitle" id="ltitle">Groups</span>
   <div class="legscroll" id="leg"></div>
-  <div class="lacts">
-    <button class="lnk" id="show-all">All</button>
-    <button class="lnk" id="hide-all">None</button>
-  </div>
+  <div class="lacts"><button class="lnk" id="show-all">All</button><button class="lnk" id="hide-all">None</button></div>
+</div>
+<div class="ctx-panel" id="ctx-panel">
+  <div class="ctx-title">&#9888; Regulatory &amp; Integrity Context</div>
+  <div class="ctx-events" id="ctx-events"></div>
 </div>
 <div class="note" id="note"></div>
 <script>
@@ -121,22 +142,31 @@ const IOM_PROD={"Finance & eGaming":{"1997/98":46803,"1998/99":53261,"1999/00":5
 const UK_PROD={"Finance & eGaming":{"1997/98":42000,"1998/99":46667,"1999/00":51333,"2000/01":56000,"2001/02":61400,"2002/03":66800,"2003/04":72200,"2004/05":77600,"2005/06":83000,"2006/07":94000,"2007/08":105000,"2008/09":88000,"2009/10":93000,"2010/11":98000,"2011/12":102000,"2012/13":106000,"2013/14":110000,"2014/15":115000,"2015/16":120000,"2016/17":123750,"2017/18":127500,"2018/19":131250,"2019/20":135000,"2020/21":140000,"2021/22":149000,"2022/23":158000,"2023/24":165000},"Construction":{"1997/98":22000,"1998/99":23333,"1999/00":24667,"2000/01":26000,"2001/02":27200,"2002/03":28400,"2003/04":29600,"2004/05":30800,"2005/06":32000,"2006/07":33200,"2007/08":34400,"2008/09":35600,"2009/10":36800,"2010/11":38000,"2011/12":39200,"2012/13":40400,"2013/14":41600,"2014/15":42800,"2015/16":44000,"2016/17":45000,"2017/18":46000,"2018/19":47000,"2019/20":48000,"2020/21":50333,"2021/22":52667,"2022/23":55000,"2023/24":58000},"Agriculture":{"1997/98":11000,"1998/99":11333,"1999/00":11667,"2000/01":12000,"2001/02":12800,"2002/03":13600,"2003/04":14400,"2004/05":15200,"2005/06":16000,"2006/07":16800,"2007/08":17600,"2008/09":18400,"2009/10":19200,"2010/11":20000,"2011/12":21000,"2012/13":22000,"2013/14":23000,"2014/15":24000,"2015/16":25000,"2016/17":26500,"2017/18":28000,"2018/19":29500,"2019/20":31000,"2020/21":34667,"2021/22":38333,"2022/23":42000,"2023/24":43000},"Distribution":{"1997/98":24000,"1998/99":25333,"1999/00":26667,"2000/01":28000,"2001/02":28800,"2002/03":29600,"2003/04":30400,"2004/05":31200,"2005/06":32000,"2006/07":32800,"2007/08":33600,"2008/09":34400,"2009/10":35200,"2010/11":36000,"2011/12":36800,"2012/13":37600,"2013/14":38400,"2014/15":39200,"2015/16":40000,"2016/17":41000,"2017/18":42000,"2018/19":43000,"2019/20":44000,"2020/21":46000,"2021/22":48000,"2022/23":50000,"2023/24":52000},"Tourism & Hospitality":{"1997/98":12000,"1998/99":12333,"1999/00":12667,"2000/01":13000,"2001/02":13200,"2002/03":13400,"2003/04":13600,"2004/05":13800,"2005/06":14000,"2006/07":14400,"2007/08":14800,"2008/09":15200,"2009/10":15600,"2010/11":16000,"2011/12":16400,"2012/13":16800,"2013/14":17200,"2014/15":17600,"2015/16":18000,"2016/17":19000,"2017/18":20000,"2018/19":21000,"2019/20":22000,"2020/21":14000,"2021/22":18500,"2022/23":23000,"2023/24":25000},"Public Administration":{"1997/98":27000,"1998/99":28333,"1999/00":29667,"2000/01":31000,"2001/02":32200,"2002/03":33400,"2003/04":34600,"2004/05":35800,"2005/06":37000,"2006/07":39000,"2007/08":41000,"2008/09":43000,"2009/10":45000,"2010/11":47000,"2011/12":48000,"2012/13":49000,"2013/14":50000,"2014/15":51000,"2015/16":52000,"2016/17":53250,"2017/18":54500,"2018/19":55750,"2019/20":57000,"2020/21":59000,"2021/22":61000,"2022/23":63000,"2023/24":65000},"Prof & Ed & Health":{"1997/98":32000,"1998/99":33333,"1999/00":34667,"2000/01":36000,"2001/02":37200,"2002/03":38400,"2003/04":39600,"2004/05":40800,"2005/06":42000,"2006/07":44000,"2007/08":46000,"2008/09":48000,"2009/10":50000,"2010/11":52000,"2011/12":53600,"2012/13":55200,"2013/14":56800,"2014/15":58400,"2015/16":60000,"2016/17":62000,"2017/18":64000,"2018/19":66000,"2019/20":68000,"2020/21":70333,"2021/22":72667,"2022/23":75000,"2023/24":78000},"Utilities & Transport":{"1997/98":32000,"1998/99":34000,"1999/00":36000,"2000/01":38000,"2001/02":40000,"2002/03":42000,"2003/04":44000,"2004/05":46000,"2005/06":48000,"2006/07":50000,"2007/08":52000,"2008/09":54000,"2009/10":56000,"2010/11":58000,"2011/12":59400,"2012/13":60800,"2013/14":62200,"2014/15":63600,"2015/16":65000,"2016/17":67500,"2017/18":70000,"2018/19":72500,"2019/20":75000,"2020/21":79333,"2021/22":83667,"2022/23":88000,"2023/24":90000}};
 const PROD_UK={"Finance & eGaming":"Finance & Insurance (SIC K)","Construction":"Construction (SIC F)","Agriculture":"Agriculture (SIC A)","Distribution":"Wholesale & Retail (SIC G)","Tourism & Hospitality":"Accommodation & Food (SIC I)","Public Administration":"Public Admin (SIC O)","Prof & Ed & Health":"Professional & Public Services (SIC M-Q)","Utilities & Transport":"Utilities & Transport (SIC D-H)"};
 const CENSUS_YRS=[1996,2001,2006,2011,2016,2021];
+const PWD_HASH="c1f335bd26f38663ef418e00e905a47035eb20ba4250555e8225aa8ffd286f6e";
+const COMP_EVENTS=[{"yr":"2008/09","label":"eGaming first split from ICT in NI data","type":"method"},{"yr":"2013/14","label":"eGaming ~800 workers (BBC/govt estimate)","type":"data"},{"yr":"2017/18","label":"King Gaming licensed (GSC Jun 2017)","type":"warn"},{"yr":"2022/23","label":"King Gaming raided; OFAC sanctions on Prince Group","type":"warn"},{"yr":"2023/24","label":"UN report; Bloomberg investigation; FBI Onchan raid","type":"warn"}];
+const NOTE_COMP="GVA per worker (current prices): IoM GVA from National Income Reports divided by census employment interpolated between anchor years. Finance & eGaming employment uses the census 'Insurance, banking, finance and business services' aggregate. UK: ONS Output per job by SIC section (approximate). Warning markers indicate IoM Constabulary / OFAC / FBI / UN / Bloomberg investigations 2024-2026 that have raised questions about the integrity of a subset of eGaming GVA attributed to IoM. High GVA/worker ratios reflect offshore financial centre structure (licence domicile, minimal local headcount relative to global GVA throughput) not worker productivity.";
+const NOTE_STD="GVA at current prices. Source: Statistics IoM, National Income Reports 1997/98-2023/24. ESA10 break 2007/08: Finance, Professional Services and Manufacturing were single aggregates pre-break. Real terms (2024/25): pre-2008/09 uses UK CPI as IoM proxy - indicative only.";
+
 const SPEEDS=[700,330,120];
 const GO=Object.keys(GROUP_META).sort((a,b)=>GROUP_META[a].order-GROUP_META[b].order);
 const PGS=Object.keys(IOM_PROD);
 const ANNS=[
   {year:'1999/00',label:'ICT first reported',pos:'top'},
   {year:'2007/08',label:'ESA10 break',pos:'top',type:'break'},
-  {year:'2008/09',label:'eGaming split \u00b7 GFC',pos:'bot'},
+  {year:'2008/09',label:'eGaming split · GFC',pos:'bot'},
   {year:'2020/21',label:'COVID-19',pos:'top'},
   {year:'2021/22',label:'General Election',pos:'bot'},
 ];
-const NOTE_PROD="IoM: GVA (current prices) divided by employment interpolated linearly between census years 1996-2021. Finance & eGaming employment uses census 'Insurance, banking, finance and business services' -- eGaming workers cannot be separated from this bucket. UK: ONS Output per job by SIC section, current prices, approximate (verify at ons.gov.uk). Census interpolation dates shown as amber markers.";
-const NOTE_STD="GVA at current prices. Source: Statistics IoM, National Income Reports 1997/98-2023/24. ESA10 break 2007/08: Finance, Professional Services and Manufacturing were single aggregates pre-break. Real terms (2024/25 prices): pre-2008/09 uses UK CPI as IoM proxy -- indicative only.";
+const COMP_ANNS=[
+  {year:'2017/18',label:'King Gaming licensed',pos:'top',type:'warn'},
+  {year:'2022/23',label:'Raids begin · OFAC Prince Group',pos:'bot',type:'warn'},
+  {year:'2023/24',label:'UN report · Bloomberg · FBI Onchan',pos:'top',type:'warn'},
+];
 
-let tab='abs',view='groups',realM='nom',prodR='nom';
-let hidden=new Set(),pgrp=PGS[0];
+tab='abs',view='groups',realM='nom',compR='nom';
+let hidden=new Set(),compGrp=PGS[0];
 let pf=ALL_YEARS.length-1,play=false,ptimer=null,spdi=1;
+let unlocked=false;
 
 const yrF=document.getElementById('yr-from');
 const yrT=document.getElementById('yr-to');
@@ -144,9 +174,31 @@ ALL_YEARS.forEach(y=>{yrF.add(new Option(y,y));yrT.add(new Option(y,y));});
 yrF.value=ALL_YEARS[0]; yrT.value=ALL_YEARS[ALL_YEARS.length-1];
 const scrub=document.getElementById('scrub');scrub.max=ALL_YEARS.length-1;
 
-const psel=document.getElementById('prod-sel');
-PGS.forEach(g=>psel.add(new Option(g,g)));
-psel.value=pgrp; psel.onchange=()=>{pgrp=psel.value;render();};
+const csel=document.getElementById('comp-sel');
+PGS.forEach(g=>csel.add(new Option(g,g)));
+csel.value=compGrp; csel.onchange=()=>{compGrp=csel.value;render();};
+
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+document.getElementById('lock-btn').onclick=async()=>{
+  const v=document.getElementById('lock-input').value;
+  const h=await sha256(v);
+  if(h===PWD_HASH){
+    unlocked=true;
+    document.getElementById('lock-overlay').style.display='none';
+    document.getElementById('lock-err').textContent='';
+    render();
+  } else {
+    document.getElementById('lock-err').textContent='Incorrect.';
+    document.getElementById('lock-input').value='';
+    document.getElementById('lock-input').focus();
+  }
+};
+document.getElementById('lock-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('lock-btn').click();
+});
 
 function vYrs(){
   if(tab==='mix') return ALL_YEARS;
@@ -170,7 +222,7 @@ function sItems(){
 function its(){return view==='groups'?gItems():sItems();}
 function getV(yr,key,isG){
   if(hidden.has(key))return 0;
-  if(isG){return gTot(yr)[key]||0;}
+  if(isG)return gTot(yr)[key]||0;
   return DATA[yr]?.[key]?.v||0;
 }
 
@@ -186,11 +238,7 @@ function relDS(yrs){
   const isG=view==='groups';
   return its().filter(({key})=>!hidden.has(key)&&(isG||!hidden.has(SECTOR_META[key]?.g)))
     .map(({key,label,c})=>{
-      const data=yrs.map(yr=>{
-        const r=getV(yr,key,isG);
-        const tot=Object.values(DATA[yr]||{}).reduce((a,b)=>a+b.v,0);
-        return tot?parseFloat((r/tot*100).toFixed(2)):0;
-      });
+      const data=yrs.map(yr=>{const r=getV(yr,key,isG);const tot=Object.values(DATA[yr]||{}).reduce((a,b)=>a+b.v,0);return tot?parseFloat((r/tot*100).toFixed(2)):0;});
       return {label,data,backgroundColor:c+'cc',borderColor:c,borderWidth:0.5};
     });
 }
@@ -198,20 +246,16 @@ function mixDS(){
   const isG=view==='groups';
   return its().filter(({key})=>!hidden.has(key)&&(isG||!hidden.has(SECTOR_META[key]?.g)))
     .map(({key,label,c})=>{
-      const data=ALL_YEARS.map(yr=>{
-        const r=getV(yr,key,isG);
-        const tot=Object.values(DATA[yr]||{}).reduce((a,b)=>a+b.v,0);
-        return tot?parseFloat((r/tot*100).toFixed(2)):0;
-      });
+      const data=ALL_YEARS.map(yr=>{const r=getV(yr,key,isG);const tot=Object.values(DATA[yr]||{}).reduce((a,b)=>a+b.v,0);return tot?parseFloat((r/tot*100).toFixed(2)):0;});
       return {label,data,borderColor:c,backgroundColor:c+'cc',borderWidth:1,fill:true,tension:0.35,pointRadius:0,stack:'mix',type:'line'};
     });
 }
-function prodDS(yrs){
-  const im=yrs.map(yr=>{const v=IOM_PROD[pgrp]?.[yr];return v?toR(v,yr,prodR):null;});
-  const um=yrs.map(yr=>{const v=UK_PROD[pgrp]?.[yr];return v?toR(v,yr,prodR):null;});
+function compDS(yrs){
+  const im=yrs.map(yr=>{const v=IOM_PROD[compGrp]?.[yr];return v?toR(v,yr,compR):null;});
+  const um=yrs.map(yr=>{const v=UK_PROD[compGrp]?.[yr];return v?toR(v,yr,compR):null;});
   return [
-    {label:'IoM \u2014 '+pgrp,data:im,borderColor:'#3b82f6',backgroundColor:'#3b82f622',borderWidth:2.5,pointRadius:2,pointHoverRadius:5,fill:false,tension:0.35,spanGaps:false},
-    {label:'UK \u2014 '+PROD_UK[pgrp],data:um,borderColor:'#94a3b8',backgroundColor:'#94a3b811',borderWidth:2,pointRadius:2,pointHoverRadius:4,fill:false,tension:0.35,spanGaps:false,borderDash:[5,3]},
+    {label:'IoM — '+coGrp,data:im,borderColor:'#3b82f6',backgroundColor:'#3b82f622',borderWidth:2.5,pointRadius:3,pointHoverRadius:5,fill:false,tension:0.35,spanGaps:false},
+    {label:'UK — '+PROD_UK[compGrp],data:um,borderColor:'#94a3b8',backgroundColor:'#94a3b811',borderWidth:2,pointRadius:2,pointHoverRadius:4,fill:false,tension:0.35,spanGaps:false,borderDash:[5,3]},
   ];
 }
 
@@ -220,7 +264,7 @@ const revP={
   beforeDatasetsDraw(ch){
     if(tab!=='mix')return;
     const{ctx,chartArea:ca,scales:sc}=ch;if(!sc.x||!ca)return;
-    const px=sc.x.getPixelForValue(pf);
+    const =sc.x.getPixelForValue(pf);
     ctx.save();ctx.beginPath();ctx.rect(ca.left,ca.top-2,px-ca.left+1,ca.height+4);ctx.clip();
   },
   afterDatasetsDraw(ch){
@@ -236,27 +280,33 @@ const revP={
   afterDraw(ch){
     const{ctx,chartArea:ca,scales:sc}=ch;if(!sc.x||!ca)return;
     ctx.save();
-    const anns=tab==='prod'
-      ?CENSUS_YRS.map(cy=>{
-          const fy=ALL_YEARS.find(y=>y.startsWith(String(cy)))||'';
-          return{year:fy,label:'Census '+cy,pos:'top',type:'census'};
-        })
-      :ANNS;
+    const isComp=tab==='comp';
+    const anns=isComp?COMP_ANNS:ANNS;
     anns.forEach(ann=>{
       const idx=ch.data.labels.indexOf(ann.year);if(idx===-1)return;
       const x=sc.x.getPixelForValue(idx);
-      const isCen=ann.type==='census',isBrk=ann.type==='break';
+      const isWarn=ann.type==='warn',isBrk=ann.type==='break';
       ctx.globalAlpha=(tab!=='mix'||idx<=pf)?1:0.2;
-      ctx.strokeStyle=isBrk?'#f8717166':isCen?'#fbbf2455':'#94a3b833';
-      ctx.lineWidth=isBrk||isCen?1.5:1;ctx.setLineDash([4,3]);
+      ctx.strokeStyle=isWarn?'#f8717188':isBrk?'#f8717166':'#94a3b833';
+      ctx.lineWidth=isWarn||isBrk?2:1;ctx.setLineDash([4,3]);
       ctx.beginPath();ctx.moveTo(x,ca.top);ctx.lineTo(x,ca.bottom);ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle=isBrk?'#f87171':isCen?'#fbbf24':'#64748b';
-      ctx.font='bold 8px Inter,sans-serif';ctx.textAlign='center';
-      const lx=Math.max(ca.left+28,Math.min(ca.right-28,x));
+      ctx.fillStyle=isWarn?'#f87171':isBrk?'#f87171':'#64748b';
+      ctx.font='bold 9px Inter,sans-serif';ctx.textAlign='center';
+      const lx=Math.max(ca.left+32,Math.min(ca.right-32,x));
       ctx.fillText(ann.label,lx,ann.pos==='top'?ca.top+9:ca.bottom-4);
       ctx.globalAlpha=1;
     });
+    if(isComp){
+      CENSUS_YRS.forEach(cy=>{
+        const fy=ALL_YEARS.find(y=>y.startsWith(String(cy)));if(!fy)return;
+        const idx=ch.data.labels.indexOf(fy);if(idx===-1)return;
+        const x=sc.x.getPixelForValue(idx);
+        ctx.strokeStyle='#fbbf2433';ctx.lineWidth=1;ctx.setLineDash([2,4]);
+        ctx.beginPath();ctx.moveTo(x,ca.top);ctx.lineTo(x,ca.bottom);ctx.stroke();
+        ctx.setLineDash([]);
+      });
+    }
     ctx.restore();
   }
 };
@@ -270,34 +320,34 @@ function buildChart(){
   let ds,type='bar',stacked=false,yMax,yTitle,yfmt;
   if(tab==='abs'){
     type='line';ds=lineDS(yrs);
-    yTitle=realM==='real'?'GVA \u00a3m (2024/25)':'GVA \u00a3m (current)';
-    yfmt=v=>v===null?'':'\u00a3'+v.toLocaleString()+'m';
+    yTitle=realM==='real'?'GVA £m (2024/25)':'GVA £m (current)';
+    yfmt=v=>v===null?'':'£'+v.toLocaleString()+'m';
   }else if(tab==='rel'){
-    ds=relDS(yrs);stacked=true;yMax=100;yTitle='Share of GVA %';yfmt=v=>v+'%';
+    ds=relDS(yrs);stacked=true;yMax=100;yTitle='Share oVA %';yfmt=v=>v+'%';
   }else if(tab==='mix'){
     ds=mixDS();type='line';stacked=true;yMax=100;yTitle='Share of GVA %';yfmt=v=>v+'%';
   }else{
-    type='line';ds=prodDS(yrs);
-    yTitle=prodR==='real'?'GVA per worker \u00a3 (2024/25)':'GVA per worker \u00a3 (current)';
-    yfmt=v=>v===null?'':'\u00a3'+v.toLocaleString();
+    type='line';ds=compDS(yrs);
+    yTitle=compR==='real'?'GVA per worker £ (2024/25)':'GVA per worker £ (current)';
+    yfmt=v=>v===null?'':'£'+v.toLocaleString();
   }
   const cfg={
     type,data:{labels:tab==='mix'?ALL_YEARS:yrs,datasets:ds},
     options:{
       responsive:true,maintainAspectRatio:false,
       animation:{duration:tab==='mix'?0:220},
-      interaction:{mode:'index',intersect:false},
+      interaon:{mode:'index',intersect:false},
       plugins:{
-        legend:{display:false},
+        legend:{display:tab==='comp',labels:{color:'#e2e8f0',font:{size:10},boxWidth:20}},
         tooltip:{
           backgroundColor:'#1e293b',borderColor:'#334155',borderWidth:1,
-          titleColor:'#e2e8f0',bodyColor:'#94a3b8',footerColor:'#fbbf24',
+          titleColor:'#e2e8f0',bodyColor:'#94a3b8',footerColor:'#f87171',
           callbacks:{
             label(c){const v=c.raw;if(v===null||v===undefined)return c.dataset.label+': n/a';return c.dataset.label+': '+yfmt(v);},
             footer(items){
-              if(tab==='prod')return['Employment: census interpolation','UK: ONS approx, current prices'];
+              if(tab==='comp')return['⚠ Employment: census interpolation','UK: ONS approx (current prices)'];
               const yr=items[0]?.label,m=DATA[yr]?Object.values(DATA[yr])[0]?.m:'';
-              return m==='pre-ESA10'?['\u26a0 Pre-ESA10: sectors aggregated']:[];
+              return m==='pre-ESA10'?['⚠ Pre-ESA10: sectors aggregated']:[];
             }
           }
         }
@@ -305,7 +355,7 @@ function buildChart(){
       scales:{
         x:{stacked,ticks:{color:'#64748b',font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:14},grid:{color:'#1e293b00'}},
         y:{stacked,min:0,max:yMax,
-           title:{display:true,text:yTitle,color:'#64748b',font:{size:9}},
+           title:{display:true,text:le,color:'#64748b',font:{size:9}},
            ticks:{color:'#64748b',font:{size:9},callback:v=>yfmt(v)},
            grid:{color:'#334155'}}
       }
@@ -317,9 +367,9 @@ function buildChart(){
 
 function renderLeg(){
   const el=document.getElementById('leg');el.innerHTML='';
-  const isProd=tab==='prod';
-  document.getElementById('legrow').style.display=isProd?'none':'flex';
-  if(isProd)return;
+  const isComp=tab==='comp';
+  document.getElementById('legrow').style.display=isComp?'none':'flex';
+  if(isComp)return;
   document.getElementById('ltitle').textContent=view==='groups'?'Groups':'Sectors';
   its().forEach(({key,label,c})=>{
     const d=document.createElement('div');
@@ -330,26 +380,52 @@ function renderLeg(){
   });
 }
 
-function updateNote(){
-  document.getElementById('note').textContent=tab==='prod'?NOTE_PROD:NOTE_STD;
+function renderCtx(){
+  const panel=document.getElementById('ctx-panel');
+  const show=tab==='comp'&&unlocked;
+  panel.classList.toggle('show',show);
+  if(!show)return;
+  const container=document.getElementById('ctx-events');
+  container.innerHTML='';
+  COMP_EVENTS.forEach(ev=>{
+    const div=document.createElement('div');
+    div.className='ctx-ev';
+    div.innerHTML=`<span class="ctx-yr">${ev.yr}</span><span class="ctx-txt">${ev.label}</span>`;
+    container.appendChild(div);
+  });
 }
 
-function render(){buildChart();renderLeg();updateNote();}
+function updateNote(){
+  document.getElementById('note').textContent=tab==='comp'?NOTE_COMP:NOTE_STD;
+}
 
-// ── tabs ───────────────────────────â──────────────────────────
+function render(){
+  const isComp=tab==='comp';
+  const lo=document.getElementById('lock-overlay');
+  if(isComp&&!unlocked){
+    lo.style.display='flex';
+    if(chart){chart.destroy();chart=null;}
+  }else{
+    lo.style.display='none';
+    buildChart();
+  }
+  renderLeg();renderCtx();updateNote();
+}
+
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');tab=t.dataset.tab;
-  const isMix=tab==='mix',isProd=tab==='prod';
-  document.getElementById('main-ctrl').style.display=isProd?'none':'';
-  document.getElementById('prod-ctrl').style.display=isProd?'flex':'none';
-  document.getElementById('yr-ctrlle.display=(isMix||isProd)?'none':'';
-  document.getElementById('view-ctrl').style.display=isProd?'none':'';
+  const isMix=tab==='mix',isComp=tab==='comp';
+  document.getElementById('main-ctrl').style.display=isComp?'none':'';
+  document.getElementById('comp-ctrl').style.display=isComp?'flex':'none';
+  document.getElementById('yr-ctrl').style.display=(isMix||isComp)?'none':'';
+  document.getElementById('view-ctrl').style.display=isComp?'none':'';
   document.getElementById('real-ctrl').style.display=tab==='abs'?'':'none';
   document.getElementById('pbar').style.display=isMix?'flex':'none';
   if(!isMix)stopPl();
   render();
 }));
+
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-view]').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');view=b.dataset.view;hidden.clear();render();
@@ -360,7 +436,7 @@ document.querySelectorAll('[data-real]').forEach(b=>b.addEventListener('click',(
 }));
 document.querySelectorAll('[data-preal]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-preal]').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');prodR=b.dataset.preal;render();
+  b.classList.add('active');compR=b.dataset.preal;render();
 }));
 [yrF,yrT].forEach(s=>s.addEventListener('change',()=>{
   if(ALL_YEARS.indexOf(yrF.value)>ALL_YEARS.indexOf(yrT.value))yrT.value=yrF.value;
@@ -369,7 +445,7 @@ document.querySelectorAll('[data-preal]').forEach(b=>b.addEventListener('click',
 document.getElementById('show-all').onclick=()=>{hidden.clear();render();};
 document.getElementById('hide-all').onclick=()=>{its().forEach(({key})=>hidden.add(key));render();};
 
-// ── play ──────────────────────────────────────────────────────────ânst pbtn=document.getElementById('pbtn'),ybdg=document.getElementById('ybdg');
+const pbtn=document.getElementById('pbtn'),ybdg=document.getElementById('ybdg');
 function setF(i){
   pf=Math.max(0,Math.min(i,ALL_YEARS.length-1));
   scrub.value=pf;ybdg.textContent=ALL_YEARS[pf];
@@ -390,9 +466,8 @@ document.querySelectorAll('[data-spd]').forEach(b=>b.addEventListener('click',()
     ptimer=setInterval(()=>{if(pf>=ALL_YEARS.length-1){stopPl();return;}setF(pf+1);},SPEEDS[spdi]);
   }
 }));
+
 render();
-
-
 </script>
 </body>
 </html>
