@@ -6,49 +6,20 @@ import { ComplianceArea } from "./restricted/compliance/ComplianceArea";
 import { ISLANDS, ISLAND_KEYS } from "./data/constants";
 
 // ── Colour themes ─────────────────────────────────────────────────────────────
-// C is computed dynamically in AppContent from the active theme.
 const THEMES = {
   dark: {
-    bg:       "#0f172a",
-    surface:  "#1e293b",
-    surface2: "#162032",
-    border:   "#1e293b",
-    border2:  "#334155",
-    text:     "#e2e8f0",
-    muted:    "#64748b",
-    muted2:   "#94a3b8",
-    blue:     "#60a5fa",
-    blueDim:  "#1d4ed8",
-    green:    "#34d399",
-    amber:    "#fbbf24",
-    purple:   "#a78bfa",
-    red:      "#f87171",
-    gold:     "#C9A24A",
-    iom:      "#3b82f6",
-    gsy:      "#10b981",
-    jsy:      "#f59e0b",
-    uk:       "#94a3b8",
+    bg:"#0f172a", surface:"#1e293b", surface2:"#162032", border:"#1e293b", border2:"#334155",
+    text:"#e2e8f0", muted:"#64748b", muted2:"#94a3b8",
+    blue:"#60a5fa", blueDim:"#1d4ed8", green:"#34d399", amber:"#fbbf24",
+    purple:"#a78bfa", red:"#f87171", gold:"#C9A24A",
+    iom:"#3b82f6", gsy:"#10b981", jsy:"#f59e0b", uk:"#94a3b8",
   },
   light: {
-    bg:       "#f8fafc",
-    surface:  "#ffffff",
-    surface2: "#f1f5f9",
-    border:   "#e2e8f0",
-    border2:  "#cbd5e1",
-    text:     "#0f172a",
-    muted:    "#475569",
-    muted2:   "#64748b",
-    blue:     "#2563eb",
-    blueDim:  "#1d4ed8",
-    green:    "#059669",
-    amber:    "#d97706",
-    purple:   "#7c3aed",
-    red:      "#dc2626",
-    gold:     "#92600a",
-    iom:      "#1d4ed8",
-    gsy:      "#059669",
-    jsy:      "#d97706",
-    uk:       "#64748b",
+    bg:"#f8fafc", surface:"#ffffff", surface2:"#f1f5f9", border:"#e2e8f0", border2:"#cbd5e1",
+    text:"#0f172a", muted:"#475569", muted2:"#64748b",
+    blue:"#2563eb", blueDim:"#1d4ed8", green:"#059669", amber:"#d97706",
+    purple:"#7c3aed", red:"#dc2626", gold:"#92600a",
+    iom:"#1d4ed8", gsy:"#059669", jsy:"#d97706", uk:"#64748b",
   },
 };
 
@@ -428,8 +399,7 @@ function AppContent() {
 
   // ── Theme ──────────────────────────────────────────────────────────────────
   const [themeName, setThemeName] = useState(() => {
-    try { return localStorage.getItem("observatory-theme") || "dark"; }
-    catch { return "dark"; }
+    try { return localStorage.getItem("observatory-theme") || "dark"; } catch { return "dark"; }
   });
   const C = THEMES[themeName];
   const toggleTheme = () => {
@@ -437,24 +407,29 @@ function AppContent() {
     setThemeName(next);
     try { localStorage.setItem("observatory-theme", next); } catch {}
     document.querySelectorAll("iframe").forEach(f => {
-      try { f.contentWindow.postMessage({ type: "theme", theme: next }, "*"); } catch {}
+      try { f.contentWindow.postMessage({ type:"theme", theme:next }, "*"); } catch {}
     });
   };
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "reid", "demog", "kanon", "areas",
-    "iomfiscal", "econmix", "inflation", "unemployment", "suicide",
-    "workforce", "nobles", "nobles-v15",
+    "reid","demog","kanon","areas","iomfiscal","econmix","inflation",
+    "unemployment","suicide","workforce","nobles","nobles-v15",
   ]);
   const [loadedTabs, setLoadedTabs] = useState(() => new Set(["home"]));
   useEffect(() => {
     setLoadedTabs(prev => {
       if (prev.has(tab)) return prev;
-      const next = new Set(prev);
-      next.add(tab);
-      return next;
+      const next = new Set(prev); next.add(tab); return next;
     });
+    // Ping newly-visible iframe to reinit canvases (fixes flash after display:none→block)
+    if (IFRAME_TABS.has(tab)) {
+      setTimeout(() => {
+        document.querySelectorAll("iframe").forEach(f => {
+          try { f.contentWindow.postMessage({ type:"tabVisible", tabId:tab }, "*"); } catch {}
+        });
+      }, 50);
+    }
   }, [tab]);
 
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
@@ -614,48 +589,29 @@ function AppContent() {
 
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 4 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ display: "flex", gap: 3 }}>
+        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:4 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <div style={{ display:"flex", gap:3 }}>
               {ISLAND_KEYS.map((k, i) => (
-                <div key={i} style={{
-                  width: 4, height: 28,
-                  background: ISLANDS[k].color, borderRadius: 2,
-                }}/>
+                <div key={i} style={{ width:4, height:28, background:ISLANDS[k].color, borderRadius:2 }}/>
               ))}
             </div>
             <div>
-              <h1 style={{
-                margin: 0, fontSize: 19, fontWeight: 800,
-                color: C.text, letterSpacing: "-0.01em",
-              }}>
+              <h1 style={{ margin:0, fontSize:19, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>
                 Crown Dependencies Re-Identification Observatory
               </h1>
-              <div style={{ color: C.muted2, fontSize: 11, marginTop: 2 }}>
+              <div style={{ color:C.muted2, fontSize:11, marginTop:2 }}>
                 Isle of Man · Guernsey · Jersey — 2021 census ·{" "}
                 {totalPop.toLocaleString()} residents · 47 areas
               </div>
             </div>
           </div>
-          <button
-            onClick={toggleTheme}
-            title={themeName === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            style={{
-              background: "none",
-              border: `1px solid ${C.border2}`,
-              borderRadius: 6,
-              color: C.muted2,
-              cursor: "pointer",
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: 11,
-              padding: "5px 10px",
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-              transition: "border-color 0.15s, color 0.15s",
-              marginTop: 2,
-            }}
-          >
-            {themeName === "dark" ? "☀ Light" : "◑ Dark"}
+          <button onClick={toggleTheme} title={themeName==="dark"?"Switch to light mode":"Switch to dark mode"}
+            style={{ background:"none", border:`1px solid ${C.border2}`, borderRadius:6, color:C.muted2,
+              cursor:"pointer", fontFamily:"'Inter',system-ui,sans-serif", fontSize:11,
+              padding:"5px 10px", whiteSpace:"nowrap", flexShrink:0,
+              transition:"border-color 0.15s,color 0.15s", marginTop:2 }}>
+            {themeName==="dark" ? "☀ Light" : "◑ Dark"}
           </button>
         </div>
       </div>
@@ -710,17 +666,13 @@ function AppContent() {
         })}
       </div>
 
-      {/* Iframe tabs: full-bleed, lazy-loaded, kept alive with display:none.
-           Non-iframe tabs: centred with max-width, mount/unmount normally. */}
       {[...loadedTabs].filter(id => IFRAME_TABS.has(id)).map(id => (
-        <div key={id} style={{ display: id === tab ? "block" : "none" }}>
+        <div key={id} style={{ display: id===tab ? "block" : "none" }}>
           {tabContent[id]}
         </div>
       ))}
       {!IFRAME_TABS.has(tab) && (
-        <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          {tabContent[tab]}
-        </div>
+        <div style={{ maxWidth:960, margin:"0 auto" }}>{tabContent[tab]}</div>
       )}
 
       {/* Global footer — plain links, not tab state, so they're real crawlable URLs */}

@@ -29,7 +29,6 @@
     --purple:   #a78bfa;
     --orange:   #fb923c;
     --gold:     #C9A24A;
-    --gold-dim: rgba(201,162,74,0.12);
     --iom:      #3b82f6;
   }
 
@@ -40,8 +39,7 @@
     line-height: 1.5;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
-    width: 100%;
-    min-height: 100vh;
+    width: 100%;          /* critical: gives child elements a containing block */
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -92,11 +90,10 @@
     flex-wrap: nowrap;
     gap: 6px;
     align-items: center;
-    overflow-x: auto;
-    scrollbar-width: none;
+    overflow-x: auto; scrollbar-width: none;
   }
-  .sim-controls-row::-webkit-scrollbar { display: none; }
-  .sim-controls-row button { white-space: nowrap; flex-shrink: 0; padding: 5px 10px; font-size: 10.5px; }
+  .sim-controls-row::-webkit-scrollbar{display:none}
+  .sim-controls-row button{white-space:nowrap;flex-shrink:0;padding:5px 10px;font-size:10.5px;}
   .speed-inline {
     display: flex;
     align-items: center;
@@ -129,14 +126,12 @@
   .stat-card {
     background: var(--surface);
     border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 8px 10px;
-    min-width: 0;
+    border-radius: 8px; padding: 8px 10px; min-width: 0;
     transition: border-color 0.4s, box-shadow 0.4s;
   }
-  .stat-card.danger  { border-color: rgba(248,113,113,0.35); box-shadow: 0 0 0 1px rgba(248,113,113,0.1) inset; }
-  .stat-card.warning { border-color: rgba(251,191,36,0.35);  box-shadow: 0 0 0 1px rgba(251,191,36,0.1) inset; }
-  .stat-card.ok      { border-color: rgba(52,211,153,0.35);  box-shadow: 0 0 0 1px rgba(52,211,153,0.1) inset; }
+  .stat-card.danger  { border-color:rgba(248,113,113,0.35); box-shadow:0 0 0 1px rgba(248,113,113,0.1) inset; }
+  .stat-card.warning { border-color:rgba(251,191,36,0.35);  box-shadow:0 0 0 1px rgba(251,191,36,0.1) inset; }
+  .stat-card.ok      { border-color:rgba(52,211,153,0.35);  box-shadow:0 0 0 1px rgba(52,211,153,0.1) inset; }
   .stat-label {
     font-size: 9px;
     font-weight: 700;
@@ -417,15 +412,8 @@
     font-weight: 600;
   }
   button.primary:hover { background: #93c5fd; border-color: #93c5fd; color: var(--bg); }
-  button.primary.running {
-    background: var(--green);
-    border-color: var(--green);
-    animation: pulse-run 2s ease-in-out infinite;
-  }
-  @keyframes pulse-run {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
-    50%       { box-shadow: 0 0 0 4px rgba(52,211,153,0); }
-  }
+  button.primary.running { background:var(--green); border-color:var(--green); animation:pulse-run 2s ease-in-out infinite; }
+  @keyframes pulse-run { 0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,0.4)} 50%{box-shadow:0 0 0 4px rgba(52,211,153,0)} }
 
   .sim-meta {
     margin-top: 10px;
@@ -701,9 +689,9 @@
       <div class="canvas-panel">
         <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Causal loop diagram — how the system reinforces itself</span>
-          <span style="font-size:10px;color:var(--muted2);font-weight:400;">electrons advance one arc per week</span>
+          <span style="font-size:10px;color:var(--muted2);font-weight:400;">electrons not to scale</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 170px;border-top:1px solid var(--border2);">
+        <div style="display:grid;grid-template-columns:1fr 200px;border-top:1px solid var(--border2);">
           <div style="border-right:1px solid var(--border2);">
             <div style="display:flex;gap:10px;padding:5px 10px 4px;border-bottom:1px solid var(--border2);flex-wrap:wrap;">
               <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--red);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--red);font-weight:600;">R1</span> ED Spiral</span>
@@ -714,7 +702,7 @@
             </div>
             <canvas id="cldUnified" height="340"></canvas>
           </div>
-          <div style="padding:8px;display:flex;flex-direction:column;gap:8px;font-size:9.5px;color:var(--muted);line-height:1.4;overflow:hidden;">
+          <div style="padding:10px;display:flex;flex-direction:column;gap:10px;font-size:10px;color:var(--muted);line-height:1.5;">
             <div><span style="color:var(--red);font-weight:700;">R1 — ED Spiral</span><br>↑ occupancy → longer waits → deterioration → readmissions → ↑ occupancy. Active above ~85%.</div>
             <div><span style="color:var(--amber);font-weight:700;">R2 — Elective Trap</span><br>Full wards → cancelled ops → deterioration at home → emergency admission → same beds.</div>
             <div><span style="color:var(--green);font-weight:700;">B2 — Social Care</span><br>↑ social care → faster discharge → ↓ DTOC → beds free → ↓ occupancy. Currently suppressed.</div>
@@ -1918,7 +1906,7 @@ function onWeekRecorded() {
 
 // Smoothly interpolate electron positions each render frame
 function tickCLDElectrons(dtMs) {
-  const speed = dtMs * 0.006;
+  const speed = dtMs * 0.030;
   ['R1','R2','B2','B3','R3'].forEach(k => {
     const e = cldElectrons[k];
     const diff = e.targetPos - e.pos;
@@ -2172,34 +2160,24 @@ function updateStats() {
   const occ = state.occupiedBeds / eff;
   const pct = Math.round(occ * 100);
   const wait = edWaitHours();
-
-  function colorClass(val, warn, danger) {
-    return val >= danger ? 'danger' : val >= warn ? 'warning' : 'ok';
-  }
+  function colorClass(val, warn, danger) { return val >= danger ? 'danger' : val >= warn ? 'warning' : 'ok'; }
   function setStat(id, text, cls) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = text;
-    el.className = 'stat-value ' + cls;
-    if (el.parentElement && el.parentElement.classList.contains('stat-card')) {
+    const el = document.getElementById(id); if (!el) return;
+    el.textContent = text; el.className = 'stat-value ' + cls;
+    if (el.parentElement && el.parentElement.classList.contains('stat-card'))
       el.parentElement.className = 'stat-card ' + cls;
-    }
   }
-
-  setStat('statOccupancy', pct + '%',                     colorClass(occ, 0.85, 0.92));
-  setStat('statBeds',      Math.round(state.occupiedBeds) + '/' + eff, colorClass(occ, 0.85, 0.92));
-  setStat('statEDWait',    wait.toFixed(1),                colorClass(wait, 6, 12));
-
+  setStat('statOccupancy', pct + '%', colorClass(occ, 0.85, 0.92));
+  setStat('statBeds', Math.round(state.occupiedBeds) + '/' + eff, colorClass(occ, 0.85, 0.92));
+  setStat('statEDWait', wait.toFixed(1), colorClass(wait, 6, 12));
   document.getElementById('statDelayed').textContent = Math.round(state.delayedPatientsStock);
   document.getElementById('statElective').textContent = Math.round(state.electiveBacklog).toLocaleString();
-
-  setStat('statLos21',      Math.round(state.losOver21) + '',   colorClass(state.losOver21, 37, 50));
-
+  setStat('statLos21', Math.round(state.losOver21) + '', colorClass(state.losOver21, 37, 50));
   const annCost = state.week > 0 ? (state.transferCostAccumulator / state.week) * 52 : 3425505;
   setStat('statTransferCost', '£' + (annCost / 1000000).toFixed(2) + 'M', colorClass(annCost, 3500000, 4500000));
-  setStat('statAirbridge',  state.airBridgeFlow.toFixed(1),     state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
-  setStat('statTrolley',    Math.round(state.edTrolleyBackup) + '', colorClass(state.edTrolleyBackup, 10, 30));
-  setStat('statBudget',     Math.round((state.budgetPressure || 0) * 100) + '%', colorClass(state.budgetPressure || 0, 0.4, 0.7));
+  setStat('statAirbridge', state.airBridgeFlow.toFixed(1), state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
+  setStat('statTrolley', Math.round(state.edTrolleyBackup) + '', colorClass(state.edTrolleyBackup, 10, 30));
+  setStat('statBudget', Math.round((state.budgetPressure || 0) * 100) + '%', colorClass(state.budgetPressure || 0, 0.4, 0.7));
 
   document.getElementById('simWeek').textContent = Math.floor(state.week);
 
@@ -2456,14 +2434,10 @@ function setAirBridge(open) {
   const btn = document.getElementById('btnAirToggle');
   if (open) {
     btn.textContent = '✓ Open';
-    btn.style.borderColor = 'var(--green)';
-    btn.style.color = 'var(--green)';
-    btn.style.background = 'rgba(52,211,153,0.12)';
+    btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)'; btn.style.background = 'rgba(52,211,153,0.12)';
   } else {
     btn.textContent = '✈ Closed (storm)';
-    btn.style.borderColor = 'var(--red)';
-    btn.style.color = 'var(--red)';
-    btn.style.background = 'rgba(248,113,113,0.12)';
+    btn.style.borderColor = 'var(--red)';  btn.style.color = 'var(--red)';  btn.style.background = 'rgba(248,113,113,0.12)';
   }
 }
 document.getElementById('btnAirToggle').onclick = () => setAirBridge(!P.airBridgeOpen);
@@ -2501,19 +2475,11 @@ document.getElementById('v-speed').textContent = simSpeed.label;
 // ─────────────────────────────────────────────────────────────────────────────
 // CONTROLS
 // ─────────────────────────────────────────────────────────────────────────────
-document.getElementById('btnRun').onclick = () => {
-  state.running = true;
-  document.getElementById('btnRun').classList.add('running');
-  document.getElementById('stepAnnotation').style.display = 'none';
-};
-document.getElementById('btnPause').onclick = () => {
-  state.running = false;
-  document.getElementById('btnRun').classList.remove('running');
-};
+document.getElementById('btnRun').onclick = () => { state.running=true; document.getElementById('btnRun').classList.add('running'); document.getElementById('stepAnnotation').style.display='none'; };
+document.getElementById('btnPause').onclick = () => { state.running=false; document.getElementById('btnRun').classList.remove('running'); };
 document.getElementById('btnStep').onclick  = () => { doStep(); };
 document.getElementById('btnReset').onclick = () => {
-  state.running = false;
-  document.getElementById('btnRun').classList.remove('running');
+  state.running=false; document.getElementById('btnRun').classList.remove('running');
   state.week = 0;
   state.occupiedBeds = 184;
   state.delayedPatientsStock = 18;
@@ -2655,18 +2621,28 @@ window.addEventListener('load', () => {
 });
 
 window.addEventListener('resize', () => {
-  initCanvas();
-  initTimeCanvas();
-  initUnifiedCLD();
-  setTimeout(reportIframeHeight, 100);
+  initCanvas(); initTimeCanvas(); initUnifiedCLD();
+  setTimeout(reportHeight, 100);
 });
 
-function reportIframeHeight() {
+// ── HEIGHT & THEME ─────────────────────────────────────────────────────────────
+function reportHeight() {
   const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight);
-  try { window.parent.postMessage({ type: 'resize', height: h + 20 }, '*'); } catch(e) {}
+  try { window.parent.postMessage({ type:'resize', height: h+20 }, '*'); } catch(e) {}
 }
-window.addEventListener('load', () => { setTimeout(reportIframeHeight, 300); setTimeout(reportIframeHeight, 1000); });
+window.addEventListener('load', () => { setTimeout(reportHeight,300); setTimeout(reportHeight,1000); });
 
+// ── TAB VISIBILITY: when App.jsx switches back to this tab, force canvas refresh
+// Fixes flash caused by rAF resuming before canvases have repainted after display:none→block
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.type === 'tabVisible') {
+    // Reinit canvases — they may have 0-width while hidden, so dimensions need resetting
+    initCanvas(); initTimeCanvas(); initUnifiedCLD();
+  }
+});
+
+// ── ResizeObserver ─────────────────────────────────────────────────────────────
 if (typeof ResizeObserver !== 'undefined') {
   const ro = new ResizeObserver(() => { initCanvas(); initTimeCanvas(); initUnifiedCLD(); });
   const shellEl = document.querySelector('.shell');

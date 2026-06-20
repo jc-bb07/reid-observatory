@@ -4,63 +4,88 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Suicide Mortality Rates — UK · IOM · Guernsey · Jersey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background: #f0f2f5; color: #1a1a2e; padding: 20px; }
-  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: #555; margin-bottom: 12px; }
-  .warn { background: #fff3cd; border-left: 5px solid #e6a817; border-radius: 0 6px 6px 0;
-          padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #5a4000; font-weight: 600; }
-  .card { background: white; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.09);
-          overflow: hidden; margin-bottom: 14px; }
-  .toggles { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 16px; border-bottom: 1px solid #eee; }
-  .toggle-btn { border: 2px solid transparent; border-radius: 20px; padding: 5px 14px; font-size: 12px;
-                font-weight: 600; cursor: pointer; transition: all 0.18s; }
-  .toggle-btn.disabled { opacity: 0.45; cursor: not-allowed; background: white !important; }
-  .view-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-  .view-btn { border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; font-size: 11px;
-              cursor: pointer; background: white; color: #555; transition: all 0.15s; }
-  .view-btn.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
-  #chart-wrap { position: relative; }
-  canvas { display: block; width: 100%; }
-  #tooltip { position: absolute; pointer-events: none; background: white; border: 1px solid #ddd;
-             border-radius: 6px; padding: 10px 13px; font-size: 12px;
-             box-shadow: 0 3px 10px rgba(0,0,0,0.13); min-width: 200px; max-width: 280px;
-             display: none; z-index: 10; }
-  .t-year { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
-  .t-row { margin-bottom: 4px; display: flex; align-items: flex-start; gap: 6px; }
-  .t-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
-  .t-val { font-weight: 600; }
-  .t-note { color: #888; font-size: 11px; }
-  .legend-bar { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 16px;
-                border-top: 1px solid #eee; font-size: 11px; color: #444; }
-  .leg { display: flex; align-items: center; gap: 6px; }
-  /* Notes */
-  .notes-hdr { padding: 13px 16px; display: flex; justify-content: space-between; align-items: center;
-               cursor: pointer; user-select: none; border-bottom: 1px solid #eee; }
-  .notes-hdr h2 { font-size: 14px; font-weight: 700; }
-  .notes-hdr .hint { font-size: 11px; color: #777; }
-  .notes-body { padding: 0 16px 16px; }
-  .nb { margin-top: 14px; }
-  .nb h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-  .jdot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-  .nb ul { list-style: disc; padding-left: 18px; }
-  .nb li { font-size: 12px; color: #444; line-height: 1.65; margin-bottom: 3px; }
-  .al { color: #c0392b; font-weight: 600; }
-  .ok { color: #1a8a4a; font-weight: 600; }
-  .src-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
-  .src-table th { background: #f0f2f5; padding: 5px 8px; text-align: left; font-weight: 700; border: 1px solid #ddd; }
-  .src-table td { padding: 5px 8px; border: 1px solid #ddd; vertical-align: top; line-height: 1.5; }
-  .src-table tr:nth-child(even) td { background: #f8f9fa; }
-  .cmp-box { background: #f4f0ff; border-radius: 6px; padding: 12px 14px; margin-top: 14px; }
-  .cmp-box h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #4a2d82; }
-  .cmp-box p { font-size: 12px; color: #444; line-height: 1.65; margin-top: 6px; }
-  .reid-box { background: #fff0f0; border-radius: 6px; padding: 12px 14px; margin-top: 10px; border-left: 4px solid #c0392b; }
-  .reid-box h3 { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #c0392b; }
-  .reid-box p { font-size: 12px; color: #444; line-height: 1.65; }
-  .sources { margin-top: 14px; font-size: 11px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
-  .sources p { margin-bottom: 3px; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#0f172a; --surface:#1e293b; --surface2:#162032; --border2:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --muted2:#64748b;
+    --blue:#60a5fa; --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --gold:#C9A24A;
+    --c-uk:#60a5fa; --c-iom:#f87171; --c-reg:#fca5a5; --c-gy:#34d399;
+    --cvs:#0f172a; --grid:#1e293b; --axis:#334155; --tick:#64748b;
+  }
+  [data-theme="light"] {
+    --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9; --border2:#cbd5e1;
+    --text:#0f172a; --muted:#475569; --muted2:#64748b;
+    --blue:#2563eb; --green:#059669; --amber:#d97706; --red:#dc2626; --purple:#7c3aed; --gold:#92600a;
+    --c-uk:#2563eb; --c-iom:#dc2626; --c-reg:#ef4444; --c-gy:#059669;
+    --cvs:#f8fafc; --grid:#e2e8f0; --axis:#cbd5e1; --tick:#94a3b8;
+  }
+  html, body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text);
+    padding:20px 24px 40px; font-size:14px; -webkit-font-smoothing:antialiased;
+    width:100%; overflow-x:hidden; line-height:1.5; transition:background 0.2s,color 0.2s; }
+  h1 { font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text); margin-bottom:4px;
+    border-left:3px solid var(--gold); padding-left:12px; }
+  .subtitle { font-size:12px; color:var(--muted); margin-bottom:16px; padding-left:15px; }
+  .warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3);
+    border-left:3px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:16px;
+    font-size:12px; color:var(--amber); font-weight:500; }
+  .card { background:var(--surface); border:1px solid var(--border2); border-radius:10px;
+    overflow:visible; margin-bottom:14px; transition:background 0.2s; }
+  .toggles { display:flex; flex-wrap:wrap; gap:8px; padding:12px 16px;
+    border-bottom:1px solid var(--border2); background:var(--surface2);
+    align-items:center; border-radius:10px 10px 0 0; }
+  .toggle-btn { border:2px solid transparent; border-radius:20px; padding:4px 13px;
+    font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600;
+    cursor:pointer; transition:all 0.18s; }
+  .toggle-btn.disabled { opacity:0.4; cursor:not-allowed; background:transparent !important; }
+  .view-btns { display:flex; gap:6px; }
+  .view-btn { border:1px solid var(--border2); border-radius:6px; padding:4px 10px;
+    font-size:11px; font-family:'JetBrains Mono',monospace; cursor:pointer;
+    background:transparent; color:var(--muted); transition:all 0.15s; }
+  .view-btn.active { background:var(--blue); color:var(--bg); border-color:var(--blue); }
+  #chart-wrap { position:relative; }
+  canvas { display:block; width:100%; }
+  #tooltip { position:absolute; pointer-events:none; background:var(--surface);
+    border:1px solid var(--border2); border-radius:8px; padding:10px 13px; font-size:12px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.35); min-width:200px; max-width:280px; display:none; z-index:10; }
+  .t-year { font-weight:700; font-size:13px; margin-bottom:6px; color:var(--text); }
+  .t-row { margin-bottom:4px; display:flex; align-items:flex-start; gap:6px; }
+  .t-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; margin-top:2px; }
+  .t-val { font-weight:600; color:var(--text); }
+  .t-note { color:var(--muted2); font-size:11px; }
+  .legend-bar { display:flex; flex-wrap:wrap; gap:8px 20px; padding:10px 16px;
+    border-top:1px solid var(--border2); font-size:11px; color:var(--muted);
+    background:var(--surface2); border-radius:0 0 10px 10px; }
+  .leg { display:flex; align-items:center; gap:6px; }
+  .notes-hdr { padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; user-select:none; border-bottom:1px solid var(--border2);
+    background:var(--surface2); border-radius:10px 10px 0 0; }
+  .notes-hdr h2 { font-size:13px; font-weight:700; color:var(--text); }
+  .notes-hdr .hint { font-size:11px; color:var(--muted); }
+  .notes-body { padding:0 16px 16px; background:var(--surface); border-radius:0 0 10px 10px; display:none; }
+  .nb { margin-top:14px; }
+  .nb h3 { font-size:11px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .jdot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .nb ul { list-style:disc; padding-left:18px; }
+  .nb li { font-size:12px; color:var(--muted); line-height:1.65; margin-bottom:3px; }
+  .al { color:var(--red); font-weight:600; }
+  .ok { color:var(--green); font-weight:600; }
+  .src-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:8px; font-family:'JetBrains Mono',monospace; }
+  .src-table th { background:var(--surface2); padding:6px 10px; text-align:left; font-weight:700;
+    border:1px solid var(--border2); color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; font-size:10px; }
+  .src-table td { padding:6px 10px; border:1px solid var(--border2); vertical-align:top; line-height:1.5; color:var(--muted); }
+  .src-table tr:nth-child(even) td { background:rgba(128,128,128,0.04); }
+  .cmp-box { background:rgba(167,139,250,0.07); border:1px solid rgba(167,139,250,0.2); border-radius:8px; padding:12px 14px; margin-top:14px; }
+  .cmp-box h3 { font-size:12px; font-weight:700; margin-bottom:6px; color:var(--purple); }
+  .cmp-box p { font-size:12px; color:var(--muted); line-height:1.65; margin-top:6px; }
+  .reid-box { background:rgba(248,113,113,0.07); border-radius:8px; padding:12px 14px; margin-top:10px; border-left:3px solid var(--red); }
+  .reid-box h3 { font-size:12px; font-weight:700; margin-bottom:6px; color:var(--red); }
+  .reid-box p { font-size:12px; color:var(--muted); line-height:1.65; }
+  .sources { margin-top:14px; font-size:11px; color:var(--muted2); border-top:1px solid var(--border2); padding-top:10px; }
+  .sources p { margin-bottom:3px; }
 </style>
 </head>
 <body>
@@ -75,15 +100,15 @@
 
 <div class="card">
   <div class="toggles" id="toggles">
-    <button class="toggle-btn" id="btn-uk" style="border-color:#1a6fad;background:#1a6fad;color:white;">England &amp; Wales (ASMR)</button>
-    <button class="toggle-btn" id="btn-iom" style="border-color:#c0392b;background:#c0392b;color:white;">Isle of Man (3yr rolling ASMR)</button>
-    <button class="toggle-btn" id="btn-iom-reg" style="border-color:#e07060;background:#e07060;color:white;">IOM annual registrations</button>
-    <button class="toggle-btn" id="btn-gy" style="border-color:#1a8a4a;background:#1a8a4a;color:white;">Guernsey (3yr rolling ASMR)</button>
-    <button class="toggle-btn disabled" style="border-color:#8e44ad;color:#8e44ad;">Jersey — limited data (see notes)</button>
+    <button class="toggle-btn" id="btn-uk" style="border-color:#60a5fa;background:#60a5fa;color:#0f172a;">England &amp; Wales (ASMR)</button>
+    <button class="toggle-btn" id="btn-iom" style="border-color:#f87171;background:#f87171;color:#0f172a;">Isle of Man (3yr rolling ASMR)</button>
+    <button class="toggle-btn" id="btn-iomreg" style="border-color:#fca5a5;background:#fca5a5;color:#0f172a;">IOM annual registrations</button>
+    <button class="toggle-btn" id="btn-gy" style="border-color:#34d399;background:#34d399;color:#0f172a;">Guernsey (3yr rolling ASMR)</button>
+    <button class="toggle-btn disabled" style="border-color:#a78bfa;color:#a78bfa;">Jersey — limited data (see notes)</button>
     <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:#888;">View:</span>
     <div class="view-btns">
-      <button class="view-btn active" id="view-all">All years</button>
-      <button class="view-btn" id="view-2006">From 2006</button>
+      <button class="view-btn" id="view-all">All years</button>
+      <button class="view-btn active" id="view-2006">From 2006</button>
     </div>
   </div>
 
@@ -96,11 +121,11 @@
   </div>
 
   <div class="legend-bar">
-    <div class="leg"><span style="display:inline-block;width:28px;height:3px;background:#1a6fad;border-radius:2px;"></span> E&amp;W ASMR pre-2018 (criminal std.)</div>
-    <div class="leg"><span style="display:inline-block;width:28px;height:0;border-top:3px dashed #1a6fad;"></span> E&amp;W post-2018 (civil std. — ⚠ break)</div>
-    <div class="leg"><span style="display:inline-block;width:28px;height:3px;background:#c0392b;border-radius:2px;"></span> IOM 3yr rolling ASMR (● confirmed, ○ read from Fig.29)</div>
-    <div class="leg"><span style="display:inline-block;width:16px;height:16px;background:#e07060;opacity:0.5;vertical-align:middle;"></span> IOM annual registration count (right axis)</div>
-    <div class="leg"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#1a8a4a;vertical-align:middle;"></span> Guernsey 3yr rolling ASMR (large=confirmed, small=est.)</div>
+    <div class="leg"><span style="display:inline-block;width:28px;height:3px;background:#60a5fa;border-radius:2px;"></span> E&amp;W ASMR pre-2018 (criminal std.)</div>
+    <div class="leg"><span style="display:inline-block;width:28px;height:0;border-top:3px dashed #60a5fa;"></span> E&amp;W post-2018 (civil std. — ⚠ break)</div>
+    <div class="leg"><span style="display:inline-block;width:28px;height:3px;background:#f87171;border-radius:2px;"></span> IOM 3yr rolling ASMR (● confirmed, ○ read from Fig.29)</div>
+    <div class="leg"><span style="display:inline-block;width:16px;height:16px;background:#fca5a5;opacity:0.5;vertical-align:middle;"></span> IOM annual registration count (right axis)</div>
+    <div class="leg"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#34d399;vertical-align:middle;"></span> Guernsey 3yr rolling ASMR (large=confirmed, small=est.)</div>
   </div>
 </div>
 
@@ -110,10 +135,10 @@
     <h2>📋 Data Governance Notes</h2>
     <span class="hint" id="hint-text">▲ Click to collapse</span>
   </div>
-  <div class="notes-body" id="notes-body">
+  <div class="notes-body" id="notes-body" style="display:none;">
 
     <div class="nb">
-      <h3><span class="jdot" style="background:#1a6fad;"></span> England &amp; Wales — ONS</h3>
+      <h3><span class="jdot" style="background:#60a5fa;"></span> England &amp; Wales — ONS</h3>
       <ul>
         <li><span class="ok">METRIC:</span> ASMR per 100,000 persons, 2013 European Standard Population, aged 10+.</li>
         <li><span class="ok">COVERAGE:</span> 1981–2024. ICD-9 before 1993; ICD-10 from 1993.</li>
@@ -124,7 +149,7 @@
     </div>
 
     <div class="nb">
-      <h3><span class="jdot" style="background:#c0392b;"></span> Isle of Man — IOM Public Health Directorate</h3>
+      <h3><span class="jdot" style="background:#f87171;"></span> Isle of Man — IOM Public Health Directorate</h3>
       <ul>
         <li><span class="ok">PRIMARY METRIC (chart lines):</span> 3-year rolling ASMR per 100,000 persons, 2013 European Standard Population — comparable to ONS and Guernsey. From IOM Mortality Report Figure 29 and FOI responses.</li>
         <li><span class="ok">SECONDARY (bars):</span> Annual registration counts from Figure 28, IOM Mortality Report 2022 (ICD-10 X60-X84 + Y10-Y34). 2023 confirmed separately (FOI ref. 4081089).</li>
@@ -214,7 +239,7 @@
     </div>
 
     <div class="nb">
-      <h3><span class="jdot" style="background:#1a8a4a;"></span> Guernsey — Public Health Intelligence Unit</h3>
+      <h3><span class="jdot" style="background:#34d399;"></span> Guernsey — Public Health Intelligence Unit</h3>
       <ul>
         <li><span class="ok">METRIC:</span> 3-year rolling ASMR per 100,000, 2013 European Standard Population. Plotted at midpoint year. Includes Alderney.</li>
         <li><span class="ok">CONFIRMED DATA POINTS:</span> 2013–15 avg = 7.0/100k; 2019–21 avg = 15.0/100k (Guernsey Mortality Trends 2021, Aug 2023). All other points interpolated — do not cite.</li>
@@ -224,7 +249,7 @@
     </div>
 
     <div class="nb">
-      <h3><span class="jdot" style="background:#8e44ad;"></span> Jersey — not plotted</h3>
+      <h3><span class="jdot" style="background:#a78bfa;"></span> Jersey — not plotted</h3>
       <ul>
         <li>Data in Jersey Mortality Statistics annual reports from 2007 (page 15), published 2–3 years in arrears due to inquest requirements.</li>
         <li>Population ~107,000. Age/sex breakdowns suppressed under Freedom of Information (Jersey) Law 2011, Art. 25.</li>
@@ -329,7 +354,7 @@ const W = 900, H = 450;
 canvas.width = W; canvas.height = H;
 
 const PAD = {top:44,right:60,bottom:52,left:56};
-let XMIN = 1981, XMAX = 2024;
+let XMIN = 2006, XMAX = 2024;
 const YMIN = 0, YMAX = 26;
 // Secondary axis for registration counts (right side)
 const YMAX_REG = 30; // max count for bar chart
@@ -340,12 +365,29 @@ const xP = yr => PAD.left + ((yr - XMIN) / (XMAX - XMIN)) * CW();
 const yP = v  => PAD.top  + (1 - (v  - YMIN) / (YMAX  - YMIN)) * CH();
 const yPReg = v => PAD.top + (1 - v / YMAX_REG) * CH();
 
+// ── THEME COLOURS — reads CSS vars with hard-coded dark fallbacks ──────────────
+// Fallbacks ensure draw() renders correctly even before CSS vars resolve.
+function tc(name) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || {
+    '--cvs':'#0f172a','--grid':'#1e293b','--axis':'#334155','--tick':'#64748b',
+    '--muted':'#94a3b8','--c-uk':'#60a5fa','--c-iom':'#f87171','--c-reg':'#fca5a5','--c-gy':'#34d399'
+  }[name] || '#888';
+}
+function T() {
+  return {
+    cvs:  tc('--cvs'),  grid: tc('--grid'), axis: tc('--axis'), tick: tc('--tick'),
+    muted:tc('--muted'), uk: tc('--c-uk'),  iom:  tc('--c-iom'), reg: tc('--c-reg'), gy: tc('--c-gy'),
+  };
+}
+
+
 let vis = {uk:true, iom:true, iomreg:true, gy:true};
 
 // ── DRAW ────────────────────────────────────────────────────────────────────────
 
 function draw() {
-  ctx.clearRect(0,0,W,H);
+  const t=T(); ctx.fillStyle=t.cvs; ctx.fillRect(0,0,W,H);
   drawGrid();
   drawBreak();
   if (vis.iomreg) drawRegBars();
@@ -356,8 +398,9 @@ function draw() {
 }
 
 function drawGrid() {
+  const t=T();
   ctx.save();
-  ctx.strokeStyle = '#e8eaee'; ctx.lineWidth = 1;
+  ctx.strokeStyle=t.grid; ctx.lineWidth=1;
   for (let v = 0; v <= 26; v += 2) {
     const y = yP(v);
     ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left+CW(), y); ctx.stroke();
@@ -368,18 +411,18 @@ function drawGrid() {
     const x = xP(yr);
     ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+CH()); ctx.stroke();
   });
-  ctx.fillStyle = '#888'; ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'right';
+  ctx.fillStyle=t.tick; ctx.font='11px Inter, sans-serif'; ctx.textAlign='right';
   for (let v = 0; v <= 25; v += 5) { ctx.fillText(v, PAD.left - 8, yP(v) + 4); }
   // Right axis for registration count
   ctx.textAlign = 'left';
   [0,5,10,15,20,25,30].forEach(v => {
     const y = yPReg(v);
     if (y >= PAD.top && y <= PAD.top + CH()) {
-      ctx.fillStyle = '#e07060';
+      ctx.fillStyle=t.reg;
       ctx.fillText(v, PAD.left + CW() + 6, y + 4);
     }
   });
-  ctx.fillStyle = '#888'; ctx.textAlign = 'center';
+  ctx.fillStyle=t.tick; ctx.textAlign='center';
   tickYears.forEach(yr => {
     if (yr < XMIN || yr > XMAX) return;
     ctx.fillText(yr, xP(yr), PAD.top + CH() + 18);
@@ -389,7 +432,7 @@ function drawGrid() {
 
 function drawAxesLabels() {
   ctx.save();
-  ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1.5;
+  const t2=T(); ctx.strokeStyle=t2.axis; ctx.lineWidth=1.5;
   ctx.beginPath();
   ctx.moveTo(PAD.left, PAD.top); ctx.lineTo(PAD.left, PAD.top+CH());
   ctx.lineTo(PAD.left+CW(), PAD.top+CH()); ctx.stroke();
@@ -397,14 +440,14 @@ function drawAxesLabels() {
   ctx.save();
   ctx.translate(13, PAD.top + CH()/2);
   ctx.rotate(-Math.PI/2);
-  ctx.fillStyle = '#555'; ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle=t2.muted; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center';
   ctx.fillText('ASMR per 100,000 (left axis)', 0, 0);
   ctx.restore();
   // Right label
   ctx.save();
   ctx.translate(W - 10, PAD.top + CH()/2);
   ctx.rotate(Math.PI/2);
-  ctx.fillStyle = '#e07060'; ctx.font = '11px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle=t2.reg; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center';
   ctx.fillText('Annual registrations — IOM (right axis)', 0, 0);
   ctx.restore();
   ctx.restore();
@@ -414,10 +457,10 @@ function drawBreak() {
   if (XMIN > 2016) return;
   const x = xP(2018);
   ctx.save();
-  ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+  const tb=T(); ctx.strokeStyle=tb.iom; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
   ctx.beginPath(); ctx.moveTo(x, PAD.top-2); ctx.lineTo(x, PAD.top+CH()); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#c0392b'; ctx.font = 'bold 9px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle=tb.iom; ctx.font='bold 9px Inter, sans-serif'; ctx.textAlign='center';
   ctx.fillText('⚠ 2018: E&W proof', x, PAD.top - 20);
   ctx.fillText('standard lowered', x, PAD.top - 9);
   ctx.restore();
@@ -425,7 +468,7 @@ function drawBreak() {
 
 function drawRegBars() {
   ctx.save();
-  ctx.globalAlpha = 0.35;
+  const tr=T(); ctx.globalAlpha=0.35;
   const barW = Math.max(3, CW() / (XMAX - XMIN) * 0.7);
   Object.entries(IOM_REG).forEach(([yr, n]) => {
     yr = +yr;
@@ -433,8 +476,7 @@ function drawRegBars() {
     const x = xP(yr) - barW/2;
     const y = yPReg(n);
     const h = yPReg(0) - y;
-    ctx.fillStyle = '#c0392b';
-    ctx.fillRect(x, y, barW, h);
+    ctx.fillStyle=tr.iom; ctx.fillRect(x,y,barW,h);
   });
   ctx.globalAlpha = 1;
   ctx.restore();
@@ -462,41 +504,41 @@ function ring(x, y, r, color) {
 }
 
 function drawUK() {
-  polyline(UKP, '#1a6fad', [], 2.5);
-  polyline(UKQ, '#1a6fad', [8,4], 2.5);
+  const tu=T(); polyline(UKP,tu.uk,[],2.5);
+  polyline(UKQ,tu.uk,[8,4],2.5);
   Object.entries(UKP).forEach(([yr,v])=>{
     yr=+yr; if(yr<XMIN||yr>XMAX) return;
     const x=xP(yr),y=yP(v);
-    if(ukPConf.has(yr)) dot(x,y,4,'#1a6fad',null);
-    else dot(x,y,2.5,'white','#1a6fad');
+    if(ukPConf.has(yr)) dot(x,y,4,tu.uk,null);
+    else dot(x,y,2.5,tu.cvs,tu.uk);
   });
   Object.entries(UKQ).forEach(([yr,v])=>{
     yr=+yr; if(yr<XMIN||yr>XMAX) return;
-    dot(xP(yr),yP(v),3.5,'#1a6fad',null);
+    dot(xP(yr),yP(v),3.5,tu.uk,null);
   });
 }
 
 function drawIOM() {
-  polyline(IOM_ASMR, '#c0392b', [], 2);
+  const ti=T(); polyline(IOM_ASMR,ti.iom,[],2);
   Object.entries(IOM_ASMR).forEach(([yr,v])=>{
     yr=+yr; if(yr<XMIN||yr>XMAX) return;
     const x=xP(yr),y=yP(v);
-    if(iomASMRConf.has(yr)) { ring(x,y,9,'#c0392b'); dot(x,y,5,'#c0392b',null); }
-    else dot(x,y,3.5,'white','#c0392b');
+    if(iomASMRConf.has(yr)) { ring(x,y,9,ti.iom); dot(x,y,5,ti.iom,null); }
+    else dot(x,y,3.5,ti.cvs,ti.iom);
   });
 }
 
 function drawGY() {
-  polyline(GY_ASMR, '#1a8a4a', [5,5], 1.2);
+  const tg=T(); polyline(GY_ASMR,tg.gy,[5,5],1.8);
   Object.entries(GY_ASMR).forEach(([yr,v])=>{
     yr=+yr; if(yr<XMIN||yr>XMAX) return;
     const x=xP(yr),y=yP(v);
-    if(gyConf.has(yr)) { ring(x,y,12,'#1a8a4a'); dot(x,y,8,'#1a8a4a',null); }
-    else dot(x,y,4,'white','#1a8a4a',2);
+    if(gyConf.has(yr)) { ring(x,y,12,tg.gy); dot(x,y,8,tg.gy,null); }
+    else dot(x,y,4,tg.cvs,tg.gy,2);
   });
   // Label confirmed points
   ctx.save();
-  ctx.fillStyle='#1a8a4a'; ctx.font='bold 9.5px Inter,sans-serif'; ctx.textAlign='center';
+  ctx.fillStyle=tg.gy; ctx.font='bold 9.5px Inter,sans-serif'; ctx.textAlign='center';
   if (2014>=XMIN) {
     ctx.fillText('2013–15', xP(2014), yP(7.0)-14);
     ctx.fillText('avg: 7.0', xP(2014), yP(7.0)-4);
@@ -525,7 +567,7 @@ canvas.addEventListener('mousemove', e => {
     if (v !== undefined) {
       const post = !!UKQ[yr];
       const conf = ukPConf.has(yr) || ukQConf.has(yr);
-      rows.push({color:'#1a6fad', label:'E&W ASMR', v:v.toFixed(1)+'/100k',
+      rows.push({color:tc('--c-uk'), label:'E&W ASMR', v:v.toFixed(1)+'/100k',
         note: post ? '⚠ civil proof std. post-2018' : (conf ? 'confirmed (ONS)' : 'estimated')});
     }
   }
@@ -534,14 +576,14 @@ canvas.addEventListener('mousemove', e => {
     if (v !== undefined) {
       const win = iomWindow[yr] || '';
       const conf = iomASMRConf.has(yr);
-      rows.push({color:'#c0392b', label:`IOM ASMR ${win?'('+win+')':''}`, v:v.toFixed(1)+'/100k',
+      rows.push({color:tc('--c-iom'), label:`IOM ASMR ${win?'('+win+')':''}`, v:v.toFixed(1)+'/100k',
         note: conf ? 'confirmed (FOI / report text)' : 'read from Fig.29 ±1-2 units'});
     }
   }
   if (vis.iomreg) {
     const n = IOM_REG[yr];
     if (n !== undefined) {
-      rows.push({color:'#e07060', label:'IOM registrations', v:n+' deaths',
+      rows.push({color:tc('--c-reg'), label:'IOM registrations', v:n+' deaths',
         note:'Fig.28 year of registration (X60-X84 + Y10-Y34)'});
     }
   }
@@ -550,7 +592,7 @@ canvas.addEventListener('mousemove', e => {
     if (v !== undefined) {
       const win = gyWindow[yr] || '3yr avg';
       const conf = gyConf.has(yr);
-      rows.push({color:'#1a8a4a', label:`Guernsey ASMR (${win})`, v:v.toFixed(1)+'/100k',
+      rows.push({color:tc('--c-gy'), label:`Guernsey ASMR (${win})`, v:v.toFixed(1)+'/100k',
         note: conf ? 'confirmed (Guernsey Mortality Trends 2021)' : 'interpolated — do not cite'});
     }
   }
@@ -573,14 +615,21 @@ canvas.addEventListener('mouseleave', () => { document.getElementById('tooltip')
 
 // ── TOGGLES ─────────────────────────────────────────────────────────────────────
 
-const COLS = {uk:'#1a6fad',iom:'#c0392b',iomreg:'#e07060',gy:'#1a8a4a'};
+const COLS = {uk:'--c-uk', iom:'--c-iom', iomreg:'--c-reg', gy:'--c-gy'};
 ['uk','iom','iomreg','gy'].forEach(k => {
   const btn = document.getElementById('btn-'+k);
+  if (!btn) { console.warn('toggle btn missing: btn-'+k); return; } // safety guard
+  // Set initial colour state from theme
+  const initCol = tc(COLS[k]);
+  btn.style.background = vis[k] ? initCol : 'transparent';
+  btn.style.color      = vis[k] ? tc('--cvs') : initCol;
+  btn.style.borderColor = initCol;
   btn.addEventListener('click', () => {
     vis[k] = !vis[k];
-    btn.style.background = vis[k] ? COLS[k] : 'white';
-    btn.style.color = vis[k] ? 'white' : COLS[k];
-    btn.style.borderColor = COLS[k];
+    const col = tc(COLS[k]);
+    btn.style.background = vis[k] ? col : 'transparent';
+    btn.style.color = vis[k] ? tc('--cvs') : col;
+    btn.style.borderColor = col;
     draw();
   });
 });
@@ -602,45 +651,75 @@ document.getElementById('view-2006').addEventListener('click', () => {
 
 // ── NOTES TOGGLE ─────────────────────────────────────────────────────────────────
 
+// ── NOTES TOGGLE ─────────────────────────────────────────────────────────────
 document.getElementById('notes-toggle').addEventListener('click', () => {
   const body = document.getElementById('notes-body');
   const hint = document.getElementById('hint-text');
-  const open = body.style.display !== 'none';
+  const open = body.style.display === 'block';
   body.style.display = open ? 'none' : 'block';
   hint.textContent = open ? '▼ Click to expand (important)' : '▲ Click to collapse';
-  setTimeout(reportHeight, 50); // page height changes when notes expand/collapse
+  setTimeout(reportHeight, 60); // page height changes — re-report once
 });
 
-// ── RESPONSIVE ───────────────────────────────────────────────────────────────────
-
+// ── RESPONSIVE ───────────────────────────────────────────────────────────────
 function resize() {
   const wrap = document.getElementById('chart-wrap');
+  // offsetWidth works in iframe; clientWidth is 0 until layout settles
   const w = wrap.offsetWidth || wrap.clientWidth;
   if (!w) return;
-  canvas.style.width = w + 'px';
+  // Only set CSS height — let width:100% in CSS handle horizontal scaling
   canvas.style.height = Math.round(w * H / W) + 'px';
 }
-window.addEventListener('resize', () => { resize(); draw(); reportHeight(); });
 
-// ── IFRAME HEIGHT REPORTING ───────────────────────────────────────────────────
+// ── HEIGHT REPORTING — called AFTER resize() so CSS height is already correct ─
+let _lastH = 0;
 function reportHeight() {
+  resize(); // ensure CSS height is up-to-date before measuring
   const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-  try { window.parent.postMessage({ type: 'resize', height: h + 20 }, '*'); } catch(e) {}
+  if (Math.abs(h - _lastH) < 4) return; // skip if unchanged — breaks resize loop
+  _lastH = h;
+  try { window.parent.postMessage({ type:'resize', height: h + 24 }, '*'); } catch(e) {}
 }
 
-// ── IFRAME-SAFE INIT: poll until layout has settled (clientWidth is 0 at load) ─
+// ── THEME LISTENER ────────────────────────────────────────────────────────────
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'theme') {
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+    draw(); // redraw canvas with new palette
+  }
+});
+
+// ── WINDOW RESIZE — re-scale canvas only; do NOT call reportHeight ────────────
+// Calling reportHeight here was causing the infinite resize loop:
+//   reportHeight → postMessage → AutoIframe resizes iframe →
+//   'resize' event fires in page → reportHeight → …
+let _rTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_rTimer);
+  _rTimer = setTimeout(() => { resize(); draw(); }, 120);
+});
+
+// ── INITIALISATION ────────────────────────────────────────────────────────────
+// draw() immediately — always works (fixed 900×450 canvas buffer).
+// safeInit polls until container has real width → sets CSS height → reports height.
+draw();
+
 let _ready = false;
 function safeInit() {
   if (_ready) return;
-  const w = document.getElementById('chart-wrap').offsetWidth;
-  if (!w) return;
+  const wrap = document.getElementById('chart-wrap');
+  if ((wrap.offsetWidth || wrap.clientWidth) < 50) return;
   _ready = true;
   resize();
   draw();
-  reportHeight();
+  setTimeout(reportHeight, 80); // one clean report after layout settles
 }
-const _poll = setInterval(() => { if (_ready) { clearInterval(_poll); return; } safeInit(); }, 50);
-window.addEventListener('load', () => { safeInit(); setTimeout(safeInit, 300); setTimeout(safeInit, 800); });
+const _poll = setInterval(() => { if (_ready) { clearInterval(_poll); return; } safeInit(); }, 40);
+window.addEventListener('load', () => {
+  safeInit();
+  setTimeout(safeInit, 250);
+  setTimeout(() => { if (!_ready) { _ready=true; resize(); draw(); setTimeout(reportHeight,80); } }, 800);
+});
 </script>
 </body>
 </html>
