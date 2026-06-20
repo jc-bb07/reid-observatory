@@ -28,8 +28,6 @@
     --red-dim:  rgba(248,113,113,0.12);
     --purple:   #a78bfa;
     --orange:   #fb923c;
-    --gold:     #C9A24A;
-    --gold-dim: rgba(201,162,74,0.12);
     --iom:      #3b82f6;
   }
 
@@ -40,151 +38,18 @@
     line-height: 1.5;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
-    width: 100%;          /* critical: gives child elements a containing block */
-    min-height: 100vh;
-    overflow-x: hidden;
   }
 
   /* ── SHELL ── */
   .shell {
-    width: 100%;
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px 24px 40px;
-    box-sizing: border-box;
-    min-width: 0;
   }
-
-  /* ── ZONE GRIDS — min-width:0 prevents overflow in zero-viewport iframe ── */
-  .topbar-zones {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-    min-width: 0;
-    align-items: stretch;
-  }
-  .topbar-zones > * { min-width: 0; display: flex; flex-direction: column; }
-  .topbar-zones .panel-section { flex: 1; }
-
-  /* Scenario chips — smaller, wrapping in exactly 2 rows */
-  .scenario-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-  .scenario-chip {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9.5px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 1px solid var(--border2);
-    background: transparent;
-    color: var(--muted);
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .scenario-chip:hover { border-color: var(--blue); color: var(--blue); }
-  .scenario-chip.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
-
-  /* Sim controls — single row, all on one line */
-  .sim-controls-row {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 5px;
-    align-items: center;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .sim-controls-row::-webkit-scrollbar { display: none; }
-  .sim-controls-row button {
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 5px 10px;
-    font-size: 10.5px;
-  }
-  .speed-inline {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex: 1;
-    min-width: 100px;
-  }
-  .speed-inline span { font-size: 10px; color: var(--muted2); white-space: nowrap; }
-  .speed-inline input { flex: 1; min-width: 50px; }
-
-  /* Zone 2: CLD left | cards+flow right */
-  .cld-cards-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-    align-items: start;
-    min-width: 0;
-  }
-  .cld-cards-grid > * { min-width: 0; }
-  /* Ensure right column fills width consistently */
-  .cld-cards-grid > div { width: 100%; }
-
-  /* Stat cards — 5 per row, 2 rows = 10 */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    margin-bottom: 12px;
-    min-width: 0;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 8px 10px;
-    min-width: 0;
-    transition: border-color 0.4s, box-shadow 0.4s;
-  }
-  .stat-card.danger  { border-color: rgba(248,113,113,0.35); box-shadow: 0 0 0 1px rgba(248,113,113,0.1) inset; }
-  .stat-card.warning { border-color: rgba(251,191,36,0.35);  box-shadow: 0 0 0 1px rgba(251,191,36,0.1) inset; }
-  .stat-card.ok      { border-color: rgba(52,211,153,0.35);  box-shadow: 0 0 0 1px rgba(52,211,153,0.1) inset; }
-  .stat-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted2);
-    margin-bottom: 3px;
-    line-height: 1.3;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .stat-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-    transition: color 0.4s;
-  }
-
-  /* Zone 3: Adjust scenario — three equal columns */
-  .adjust-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-    min-width: 0;
-  }
-  .adjust-grid > * { min-width: 0; }
-
-  /* Zone 4 narrative */
-  .narrative-zone { margin-bottom: 16px; min-width: 0; }
 
   /* ── HEADER ── */
   .page-header {
     margin-bottom: 20px;
-    border-left: 3px solid var(--gold);
-    padding-left: 14px;
   }
   .eyebrow {
     font-size: 10px;
@@ -195,14 +60,14 @@
     margin-bottom: 6px;
   }
   h1 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: var(--text);
-    line-height: 1.25;
+    line-height: 1.3;
     margin-bottom: 4px;
   }
-  h1 span { color: var(--gold); }
+  h1 span { color: var(--blue); }
   .subtitle {
     font-size: 12px;
     color: var(--muted);
@@ -213,15 +78,116 @@
   .intro {
     background: var(--surface2);
     border: 1px solid var(--border2);
-    border-left: 3px solid var(--gold);
+    border-left: 3px solid var(--amber);
     border-radius: 8px;
-    padding: 11px 16px;
-    margin-bottom: 18px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
     font-size: 12px;
     color: var(--muted);
     line-height: 1.7;
   }
   .intro strong { color: var(--text); }
+
+  /* ── NEW ZONE LAYOUT ── */
+  .zone { margin-bottom: 16px; }
+
+  /* Zone 1: Scenarios + Simulation — two shallow horizontal boxes */
+  .topbar-zones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .scenario-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sim-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .sim-meta-inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .speed-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 160px;
+  }
+  .speed-inline span {
+    font-size: 10px;
+    color: var(--muted2);
+    white-space: nowrap;
+  }
+  .speed-inline input { flex: 1; }
+
+  /* Zone 2: Two-column CLD | Cards+Flow */
+  .cld-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) {
+    .topbar-zones, .cld-cards-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Stat cards — fixed 5-per-row, two rows = 10 cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    transition: color 0.4s;
+  }
+
+  /* Zone 3: Adjust scenario — three columns */
+  .adjust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) {
+    .adjust-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .adjust-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Zone 4: Narrative — full width single column */
+  .narrative-zone { margin-bottom: 16px; }
 
   .sim-area { display: flex; flex-direction: column; gap: 14px; }
 
@@ -238,14 +204,13 @@
   }
 
   .panel-header {
-    padding: 9px 14px;
+    padding: 10px 14px;
     border-bottom: 1px solid var(--border2);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
-    background: var(--surface2);
   }
 
   canvas#flowCanvas  { width: 100%; display: block; }
@@ -264,7 +229,7 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--blue);
     margin-bottom: 10px;
   }
   .narrative p {
@@ -293,8 +258,8 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 10px;
-    padding-bottom: 7px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--border2);
   }
 
@@ -426,15 +391,6 @@
     font-weight: 600;
   }
   button.primary:hover { background: #93c5fd; border-color: #93c5fd; color: var(--bg); }
-  button.primary.running {
-    background: var(--green);
-    border-color: var(--green);
-    animation: pulse-run 2s ease-in-out infinite;
-  }
-  @keyframes pulse-run {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
-    50%       { box-shadow: 0 0 0 4px rgba(52,211,153,0); }
-  }
 
   .sim-meta {
     margin-top: 10px;
@@ -447,6 +403,22 @@
   /* ── SCENARIO CHIPS ── */
   .scenario-list { display: flex; flex-direction: column; gap: 6px; }
 
+  .scenario-chip {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    background: transparent;
+    text-align: left;
+    transition: all 0.15s;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .scenario-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .scenario-chip.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
 
   /* ── INFO TOOLTIP (click-to-toggle, works on touch + desktop) ── */
   .info-link {
@@ -596,11 +568,9 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 6px;
-    line-height: 1.7;
   }
   .page-footer a { color: var(--muted); text-decoration: none; }
-  .page-footer a:hover { color: var(--gold); }
-  .page-footer .coalfinch-mark { color: var(--gold); font-weight: 600; }
+  .page-footer a:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -715,7 +685,7 @@
           <span>Causal loop diagram — how the system reinforces itself</span>
           <span style="font-size:10px;color:var(--muted2);font-weight:400;">electrons advance one arc per week</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 170px;border-top:1px solid var(--border2);">
+        <div style="display:grid;grid-template-columns:1fr 200px;border-top:1px solid var(--border2);">
           <div style="border-right:1px solid var(--border2);">
             <div style="display:flex;gap:10px;padding:5px 10px 4px;border-bottom:1px solid var(--border2);flex-wrap:wrap;">
               <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--red);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--red);font-weight:600;">R1</span> ED Spiral</span>
@@ -726,7 +696,7 @@
             </div>
             <canvas id="cldUnified" height="340"></canvas>
           </div>
-          <div style="padding:8px;display:flex;flex-direction:column;gap:8px;font-size:9.5px;color:var(--muted);line-height:1.4;overflow:hidden;">
+          <div style="padding:10px;display:flex;flex-direction:column;gap:10px;font-size:10px;color:var(--muted);line-height:1.5;">
             <div><span style="color:var(--red);font-weight:700;">R1 — ED Spiral</span><br>↑ occupancy → longer waits → deterioration → readmissions → ↑ occupancy. Active above ~85%.</div>
             <div><span style="color:var(--amber);font-weight:700;">R2 — Elective Trap</span><br>Full wards → cancelled ops → deterioration at home → emergency admission → same beds.</div>
             <div><span style="color:var(--green);font-weight:700;">B2 — Social Care</span><br>↑ social care → faster discharge → ↓ DTOC → beds free → ↓ occupancy. Currently suppressed.</div>
@@ -746,28 +716,25 @@
 
       <div class="panel-section" style="border-color:var(--purple);">
         <div class="panel-section-title" style="color:var(--purple);">Isolation &amp; Specialist Depth</div>
-
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-name">Specialist decision depth</span>
-            <span class="slider-val" id="v-specialistdepth">35%</span>
-            <span class="slider-delta" id="d-specialistdepth"></span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;">
+          <div class="slider-row">
+            <div class="slider-label">
+              <span class="slider-name">Specialist decision depth</span>
+              <span class="slider-val" id="v-specialistdepth">35%</span>
+              <span class="slider-delta" id="d-specialistdepth"></span>
+            </div>
+            <input type="range" id="s-specialistdepth" min="10" max="95" value="35" step="5">
+            <div class="slider-tooltip"><strong>% of clinical decisions with full independent specialist input</strong><br>Distinct from OOH cover — drives LOS and complications at any hour. Low depth → delayed decisions → longer stays, more off-island transfers.</div>
           </div>
-          <input type="range" id="s-specialistdepth" min="10" max="95" value="35" step="5">
-          <div class="slider-tooltip"><strong>% of clinical decisions with full independent specialist input</strong><br>Distinct from OOH cover — drives LOS and complications at any hour. Low depth → delayed decisions → longer stays, more off-island transfers.</div>
-        </div>
-
-        <div class="slider-row">
-          <div class="slider-label">
-            <span class="slider-name">Air bridge status</span>
-            <span class="slider-val" id="v-airbridge">OPEN</span>
+          <div class="slider-row">
+            <div class="slider-label"><span class="slider-name">Air bridge</span><span class="slider-val" id="v-airbridge">OPEN</span></div>
+            <div class="btn-row" style="margin-top:4px;">
+              <button id="btnAirOpen" style="border-color:var(--green);color:var(--green);">✓ Open</button>
+              <button id="btnAirClosed" style="border-color:var(--red);color:var(--red);">✕ Closed (storm)</button>
+            </div>
+            <button class="info-link" onclick="toggleInfo('airbridge-info')" style="margin-top:6px;"><span class="info-icon">i</span> How this is modelled</button>
+            <div class="info-popover" id="airbridge-info"><strong>Placeholder, not real data.</strong> When open: ~1.2 patients/day via fixed-wing (34/month) + HEMS (1.5/month). 30% of complications are transfer-appropriate. When closed: HEMS only. FOI: £3.43M/yr travel+accommodation, rising ~20%/yr. Data request sent to Manx Care BI for real transfer volumes.</div>
           </div>
-          <div class="btn-row" style="margin-top:4px;">
-            <button id="btnAirOpen" style="border-color:var(--green);color:var(--green);">✓ Open</button>
-            <button id="btnAirClosed" style="border-color:var(--red);color:var(--red);">✕ Closed (storm)</button>
-          </div>
-          <button class="info-link" onclick="toggleInfo('airbridge-info')" style="margin-top:6px;"><span class="info-icon">i</span> How this is modelled</button>
-          <div class="info-popover" id="airbridge-info"><strong>Placeholder, not real data.</strong> When open: ~1.2 patients/day via fixed-wing (34/month) + HEMS (1.5/month). 30% of complications are transfer-appropriate. When closed: HEMS only. FOI: £3.43M/yr travel+accommodation, rising ~20%/yr. Data request sent to Manx Care BI for real transfer volumes.</div>
         </div>
       </div>
 
@@ -776,7 +743,7 @@
     <!-- RIGHT: stat cards + patient flow -->
     <div style="display:flex;flex-direction:column;gap:12px;">
 
-      <div class="stat-grid">
+      <div class="stat-grid" style="grid-template-columns:repeat(5,1fr);">
         <div class="stat-card"><div class="stat-label">Bed Occupancy</div><div class="stat-value" id="statOccupancy">—</div></div>
         <div class="stat-card"><div class="stat-label">Beds Occupied</div><div class="stat-value" id="statBeds">—</div></div>
         <div class="stat-card"><div class="stat-label">ED Wait (hrs)</div><div class="stat-value" id="statEDWait">—</div></div>
@@ -884,8 +851,8 @@
 
 
     <div class="page-footer">
-    <span><span class="coalfinch-mark">Coalfinch</span> · observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
-    <span>Model: Lane, Monefeldt &amp; Rosenhead (2000) JORS 51(5); Wolstenholme (2022) · IoM: Gent/PSG Independent Review May 2026; Manx Care IPR (Jun-23, Mar-24, Apr-26); FOI transfer costs FY 2020–21 to 2023–24 · Not a clinical forecasting tool</span>
+    <span>observatory.coalfinch.com · Crown Dependencies Re-Identification Observatory · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Model: Lane, Monefeldt &amp; Rosenhead (2000) JORS 51(5); Wolstenholme (2022) · IoM parameters: Gent/PSG Independent Review May 2026; Manx Care IPR (Jun-23, Mar-24, Apr-26); FOI transfer cost data FY 2020-21 to 2023-24 · Not a clinical forecasting tool · <a href="https://coalfinch.com">Coalfinch</a></span>
   </div>
 
 </div><!-- /shell -->
@@ -2192,38 +2159,46 @@ function updateStats() {
   function colorClass(val, warn, danger) {
     return val >= danger ? 'danger' : val >= warn ? 'warning' : 'ok';
   }
-  // Helper: set value + propagate state class to parent stat-card
-  function setStat(id, text, cls) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = text;
-    el.className = 'stat-value ' + cls;
-    if (el.parentElement && el.parentElement.classList.contains('stat-card')) {
-      el.parentElement.className = 'stat-card ' + cls;
-    }
-  }
 
-  setStat('statOccupancy', pct + '%',                    colorClass(occ, 0.85, 0.92));
-  setStat('statBeds',      Math.round(state.occupiedBeds) + '/' + eff, colorClass(occ, 0.85, 0.92));
-  setStat('statEDWait',    wait.toFixed(1),               colorClass(wait, 6, 12));
+  const elOcc = document.getElementById('statOccupancy');
+  elOcc.textContent = pct + '%';
+  elOcc.className = 'stat-value ' + colorClass(occ, 0.85, 0.92);
+
+  const elBeds = document.getElementById('statBeds');
+  elBeds.textContent = Math.round(state.occupiedBeds) + '/' + eff;
+  elBeds.className = 'stat-value ' + colorClass(occ, 0.85, 0.92);
+
+  const elWait = document.getElementById('statEDWait');
+  elWait.textContent = wait.toFixed(1);
+  elWait.className = 'stat-value ' + colorClass(wait, 6, 12);
 
   document.getElementById('statDelayed').textContent = Math.round(state.delayedPatientsStock);
   document.getElementById('statElective').textContent = Math.round(state.electiveBacklog).toLocaleString();
 
   // LoS >21 days — IPR baseline: 11 (Jun-23), 43 (Mar-24), 55 (Apr-26)
-  setStat('statLos21', Math.round(state.losOver21) + '',  colorClass(state.losOver21, 37, 50));
+  const los21El = document.getElementById('statLos21');
+  los21El.textContent = Math.round(state.losOver21);
+  los21El.className = 'stat-value ' + colorClass(state.losOver21, 37, 50);
 
   // Transfer cost — from actual accumulated flow, not proxy
   const annCost = state.week > 0 ? (state.transferCostAccumulator / state.week) * 52 : 3425505;
-  setStat('statTransferCost', '£' + (annCost / 1000000).toFixed(2) + 'M', colorClass(annCost, 3500000, 4500000));
+  const costEl = document.getElementById('statTransferCost');
+  costEl.textContent = '£' + (annCost / 1000000).toFixed(2) + 'M';
+  costEl.className = 'stat-value ' + colorClass(annCost, 3500000, 4500000);
 
   // Airbridge flow
-  setStat('statAirbridge', state.airBridgeFlow.toFixed(1), state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
+  const abEl = document.getElementById('statAirbridge');
+  abEl.textContent = state.airBridgeFlow.toFixed(1);
+  abEl.className = 'stat-value ' + (state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
 
   // ED trolley backup
-  setStat('statTrolley', Math.round(state.edTrolleyBackup) + '', colorClass(state.edTrolleyBackup, 10, 30));
+  const trEl = document.getElementById('statTrolley');
+  trEl.textContent = Math.round(state.edTrolleyBackup);
+  trEl.className = 'stat-value ' + colorClass(state.edTrolleyBackup, 10, 30);
 
-  setStat('statBudget', Math.round((state.budgetPressure || 0) * 100) + '%', colorClass(state.budgetPressure || 0, 0.4, 0.7));
+  const budgEl = document.getElementById('statBudget');
+  budgEl.textContent = Math.round((state.budgetPressure || 0) * 100) + '%';
+  budgEl.className = 'stat-value ' + colorClass(state.budgetPressure || 0, 0.4, 0.7);
 
   document.getElementById('simWeek').textContent = Math.floor(state.week);
 
@@ -2523,19 +2498,11 @@ document.getElementById('v-speed').textContent = simSpeed.label;
 // ─────────────────────────────────────────────────────────────────────────────
 // CONTROLS
 // ─────────────────────────────────────────────────────────────────────────────
-document.getElementById('btnRun').onclick = () => {
-  state.running = true;
-  document.getElementById('btnRun').classList.add('running');
-  document.getElementById('stepAnnotation').style.display = 'none';
-};
-document.getElementById('btnPause').onclick = () => {
-  state.running = false;
-  document.getElementById('btnRun').classList.remove('running');
-};
+document.getElementById('btnRun').onclick   = () => { state.running = true; document.getElementById('stepAnnotation').style.display = 'none'; };
+document.getElementById('btnPause').onclick = () => { state.running = false; };
 document.getElementById('btnStep').onclick  = () => { doStep(); };
 document.getElementById('btnReset').onclick = () => {
   state.running = false;
-  document.getElementById('btnRun').classList.remove('running');
   state.week = 0;
   state.occupiedBeds = 184;
   state.delayedPatientsStock = 18;
@@ -2618,9 +2585,9 @@ function renderLoop(ts) {
 
     tickCLDElectrons(dtMs);
 
-    const fw = flowCanvas.parentElement.offsetWidth || flowCanvas.offsetWidth || 400;
+    const fw = flowCanvas.parentElement.clientWidth;
     drawFlowDiagram(fw, 360);
-    const tw = timeCanvas.parentElement.offsetWidth || timeCanvas.offsetWidth || 400;
+    const tw = timeCanvas.parentElement.clientWidth;
     drawTimeChart(tw, 150);
     drawUnifiedCLD();
     updateStats();
@@ -2636,7 +2603,6 @@ function renderLoop(ts) {
 function init() {
   updateStats();
   state.running = true;
-  document.getElementById('btnRun').classList.add('running');
   requestAnimationFrame(renderLoop);
 }
 
@@ -2660,7 +2626,6 @@ function safeInit() {
   initUnifiedCLD();
   updateStats();
   state.running = true;
-  document.getElementById('btnRun').classList.add('running');
   requestAnimationFrame(renderLoop);
 }
 
@@ -2681,34 +2646,7 @@ window.addEventListener('resize', () => {
   initCanvas();
   initTimeCanvas();
   initUnifiedCLD();
-  setTimeout(reportIframeHeight, 100);
 });
-
-// ResizeObserver: catches container resize in iframe context more reliably than window.resize
-if (typeof ResizeObserver !== 'undefined') {
-  const ro = new ResizeObserver(() => {
-    initCanvas();
-    initTimeCanvas();
-    initUnifiedCLD();
-  });
-  // Observe the shell container
-  const shellEl = document.querySelector('.shell');
-  if (shellEl) ro.observe(shellEl);
-}
-
-// ── IFRAME HEIGHT REPORTING — tells AutoIframe to grow to fit content ──────────
-function reportIframeHeight() {
-  const h = Math.max(
-    document.body.scrollHeight,
-    document.documentElement.scrollHeight,
-    document.body.offsetHeight
-  );
-  try { window.parent.postMessage({ type: 'resize', height: h + 20 }, '*'); } catch(e) {}
-}
-// Report on load, after canvases init, and on resize
-window.addEventListener('load', () => { setTimeout(reportIframeHeight, 300); setTimeout(reportIframeHeight, 1000); });
-window.addEventListener('resize', reportIframeHeight);
-
 </script>
 </body>
 </html>
