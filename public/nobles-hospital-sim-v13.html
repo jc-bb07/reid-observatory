@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noble's Hospital — Bed Capacity: A Systems View · Crown Dependencies Re-Identification Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0f172a;
+    --surface:  #1e293b;
+    --surface2: #162032;
+    --border:   #1e293b;
+    --border2:  #334155;
+    --text:     #e2e8f0;
+    --muted:    #94a3b8;
+    --muted2:   #7587a0;
+    --blue:     #60a5fa;
+    --blue-dim: rgba(96,165,250,0.12);
+    --green:    #34d399;
+    --green-dim:rgba(52,211,153,0.12);
+    --amber:    #fbbf24;
+    --amber-dim:rgba(251,191,36,0.12);
+    --red:      #f87171;
+    --red-dim:  rgba(248,113,113,0.12);
+    --purple:   #a78bfa;
+    --orange:   #fb923c;
+    --iom:      #3b82f6;
+  }
+
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── SHELL ── */
+  .shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    margin-bottom: 20px;
+  }
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  h1 span { color: var(--blue); }
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── INTRO STRIP ── */
+  .intro {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .intro strong { color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 620px;
+    gap: 16px;
+    align-items: start;  /* stops right rail stretching to match left column height */
+  }
+  @media (max-width: 1100px) {
+    .main { grid-template-columns: 1fr; }
+  }
+  .param-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 700px) {
+    .param-grid { grid-template-columns: 1fr; }
+  }
+
+  .sim-area { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── STAT CARDS ── */
+  .status-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 110px;
+  }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: color 0.3s;
+  }
+  .stat-value.danger  { color: var(--red); }
+  .stat-value.warning { color: var(--amber); }
+  .stat-value.ok      { color: var(--green); }
+
+  /* ── CANVAS PANELS ── */
+  .canvas-panel {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border2);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  canvas#flowCanvas  { width: 100%; display: block; }
+  canvas#cldUnified { width: 100%; display: block; }
+  canvas#timeChart   { width: 100%; display: block; }
+
+  /* ── NARRATIVE ── */
+  .narrative {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .narrative-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .narrative p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+  .narrative p:last-child { margin-bottom: 0; }
+  .highlight   { color: var(--amber); }
+  .danger-text { color: var(--red); }
+  .ok-text     { color: var(--green); }
+
+  /* ── CONTROLS PANEL ── */
+  .controls-panel { display: flex; flex-direction: column; gap: 12px; }
+
+  .panel-section {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .panel-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  /* ── SLIDERS ── */
+  /* ── COMPACT SLIDER SYSTEM WITH HOVER TOOLTIPS ── */
+  .param-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .slider-row {
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .slider-row:last-child { margin-bottom: 0; }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    gap: 6px;
+  }
+  .slider-name {
+    font-size: 11px;
+    color: var(--muted);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: help;
+  }
+  .slider-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--blue);
+    min-width: 44px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .slider-delta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    min-width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .slider-delta.changed { opacity: 1; }
+  .slider-delta.up { color: var(--red); }
+  .slider-delta.down { color: var(--green); }
+
+  /* Colour-coded slider track: blue baseline, shifts toward red/green as moved */
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  input[type=range].moved-up   { background: linear-gradient(to right, var(--border2), rgba(248,113,113,0.5)); }
+  input[type=range].moved-down { background: linear-gradient(to right, rgba(52,211,153,0.5), var(--border2)); }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--blue);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+  }
+  input[type=range].moved-up::-webkit-slider-thumb   { background: var(--red); }
+  input[type=range].moved-down::-webkit-slider-thumb { background: var(--green); }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+
+  /* Hover tooltip */
+  .slider-tooltip {
+    display: none;
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    background: #1e2d45;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.55;
+    max-width: 300px;
+    min-width: 200px;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  .slider-tooltip strong { color: var(--text); }
+  .slider-tooltip .tt-source { color: var(--muted2); font-size: 10px; margin-top: 6px; display: block; }
+  .slider-tooltip .tt-effect { color: var(--blue); font-size: 10px; margin-top: 4px; display: block; }
+  .slider-row:hover .slider-tooltip { display: block; }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+  }
+  button:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+  button.primary {
+    background: var(--blue);
+    color: var(--bg);
+    border-color: var(--blue);
+    font-weight: 600;
+  }
+  button.primary:hover { background: #93c5fd; border-color: #93c5fd; color: var(--bg); }
+
+  .sim-meta {
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted2);
+  }
+  .sim-meta span { color: var(--text); }
+
+  /* ── SCENARIO CHIPS ── */
+  .scenario-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .scenario-chip {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    background: transparent;
+    text-align: left;
+    transition: all 0.15s;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .scenario-chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .scenario-chip.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+  /* ── INFO TOOLTIP (click-to-toggle, works on touch + desktop) ── */
+  .info-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--blue);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .info-link:hover { color: #93c5fd; }
+  .info-link .info-icon {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-style: italic;
+    flex-shrink: 0;
+  }
+  .info-popover {
+    display: none;
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .info-popover.open { display: block; }
+  .info-popover strong { color: var(--purple); }
+
+  /* ── LOOP LEGEND ── */
+  .loop-legend { display: flex; flex-direction: column; gap: 12px; }
+  .loop-item { display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .loop-item em { color: var(--muted2); font-style: italic; }
+  .loop-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+
+  /* ── MOBILE OVERLAY ── */
+  #mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    padding: 28px 24px;
+    overflow-y: auto;
+  }
+  #mobile-overlay h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  #mobile-overlay h2 span { color: var(--blue); }
+  #mobile-overlay .mo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  #mobile-overlay .mo-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  #mobile-overlay .mo-card-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  #mobile-overlay .mo-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  #mobile-overlay .mo-stat:last-child { border-bottom: none; }
+  #mobile-overlay .mo-stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  #mobile-overlay .mo-loop {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.65;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  #mobile-overlay .mo-loop:last-child { border-bottom: none; }
+  #mobile-overlay .mo-cta {
+    background: var(--surface2);
+    border: 1px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--blue);
+    line-height: 1.6;
+    text-align: center;
+  }
+  #mobile-overlay .mo-dismiss {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+  }
+  @media (max-width: 700px) {
+    #mobile-overlay { display: block; }
+  }
+  .page-footer {
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border2);
+    font-size: 10px;
+    color: var(--muted2);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .page-footer a { color: var(--muted); text-decoration: none; }
+  .page-footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- MOBILE OVERLAY -->
+  <div id="mobile-overlay">
+    <h2>Noble's Hospital: <span>why counting beds misses the point</span></h2>
+    <div class="mo-sub">An interactive system dynamics model — best experienced on a desktop or laptop. Here's what the model shows.</div>
+
+    <div class="mo-card">
+      <div class="mo-card-title">Key figures — Gent Review, May 2026</div>
+      <div class="mo-stat"><span>Inpatient beds</span><span class="mo-stat-val" style="color:var(--red);">233</span></div>
+      <div class="mo-stat"><span>Beds in 2003 (hospital opened)</span><span class="mo-stat-val">313</span></div>
+      <div class="mo-stat"><span>Average bed occupancy</span><span class="mo-stat-val" style="color:var(--red);">90%</span></div>
+      <div class="mo-stat"><span>Safe operating threshold</span><span class="mo-stat-val" style="color:var(--green);">85%</span></div>
+      <div class="mo-stat"><span>Daily ED attendances</span><span class="mo-stat-val">~120</span></div>
+      <div class="mo-stat"><span>Daily emergency admissions</span><span class="mo-stat-val">~20</span></div>
+      <div class="mo-stat"><span>4-hour A&amp;E performance</span><span class="mo-stat-val" style="color:var(--amber);">59.5%</span></div>
+      <div class="mo-stat"><span>Medical patients in surgical beds</span><span class="mo-stat-val" style="color:var(--amber);">8–12 daily</span></div>
+    </div>
+
+    <div class="mo-card">
+      <div class="mo-card-title">What the Gent review found</div>
+      <div class="mo-loop"><strong style="color:var(--red);">Adding beds alone won't fix it.</strong> The reviewer explicitly does not recommend increasing bed capacity without first optimising processes, flow, and community pathways.</div>
+      <div class="mo-loop"><strong style="color:var(--amber);">The primary problems are flow failures:</strong> No ED streaming, no functioning Acute Medical Unit, discharge planning starting too late, and flow dropping sharply at weekends.</div>
+      <div class="mo-loop"><strong style="color:var(--amber);">8–12 medical patients occupy surgical beds every day</strong> — the "safari model" — because Medicine is full.</div>
+      <div class="mo-loop"><strong style="color:var(--muted);">The review raises governance concerns:</strong> "questionable consultant job plans, silo-planning and circumvention of normal governance systems" — and warns that Manx Care risks becoming ungovernable.</div>
+      <div class="mo-loop"><strong style="color:var(--green);">Community investment is higher priority than beds.</strong> Virtual ward, community rehabilitation, and frailty services could reduce daily acute admissions significantly.</div>
+    </div>
+
+    <div class="mo-card">
+      <div class="mo-card-title">The three feedback loops</div>
+      <div class="mo-loop"><span style="color:var(--red); font-weight:700;">R1 — ED Spiral (active now):</span> High occupancy → long ED waits → patient deterioration → readmissions → higher occupancy. Self-reinforcing above 85%.</div>
+      <div class="mo-loop"><span style="color:var(--amber); font-weight:700;">R2 — Elective Trap:</span> Full wards → cancelled planned ops → patients deteriorate at home → emergency readmission → occupies the very bed freed by the cancellation.</div>
+      <div class="mo-loop"><span style="color:var(--green); font-weight:700;">B2 — Community Release (currently weak):</span> When community and discharge pathways work, medically fit patients leave promptly → beds free → pressure eases. Currently suppressed by flow failures and DTOCs.</div>
+    </div>
+
+    <div class="mo-cta">
+      For the full interactive model with adjustable parameters, causal loop diagram, and scenario explorer — open this page on a <strong>desktop or laptop</strong>.
+    </div>
+
+    <button class="mo-dismiss" onclick="document.getElementById('mobile-overlay').style.display='none'">
+      Try the interactive version anyway →
+    </button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1>Noble's Hospital: <span>why counting beds misses the point</span></h1>
+    <div class="subtitle">An interactive system dynamics model of acute bed capacity · Based on Lane, Monefeldt &amp; Rosenhead (2000) · JORS 51(5)</div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <strong>This is a system dynamics model, not a staffing spreadsheet.</strong> Bed occupancy above 85% triggers reinforcing feedback loops that cannot be resolved by simply adding beds. Adjust the parameters below to see how Noble's responds to changes in social care, demand, and staffing.
+  </div>
+
+  <div class="main">
+    <!-- LEFT: SIMULATION -->
+    <div class="sim-area">
+
+      <!-- STATS -->
+      <div class="status-bar">
+        <div class="stat-card">
+          <div class="stat-label">Bed Occupancy</div>
+          <div class="stat-value" id="statOccupancy">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Beds Occupied</div>
+          <div class="stat-value" id="statBeds">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ED Wait (hrs)</div>
+          <div class="stat-value" id="statEDWait">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Delayed Discharges</div>
+          <div class="stat-value" id="statDelayed">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Elective Backlog</div>
+          <div class="stat-value" id="statElective">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">LoS &gt;21 Days</div>
+          <div class="stat-value" id="statLos21">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Transfer Cost/yr</div>
+          <div class="stat-value" id="statTransferCost">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Airbridge /day</div>
+          <div class="stat-value" id="statAirbridge">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ED Trolley Backup</div>
+          <div class="stat-value" id="statTrolley">—</div>
+        </div>
+      </div>
+
+      <!-- MAIN FLOW DIAGRAM -->
+      <div class="canvas-panel">
+        <div class="panel-header">Patient flow — how patients move through the system</div>
+        <div id="flowProse" style="border-bottom:1px solid var(--border2); padding:12px 16px; font-size:12px; line-height:1.9; color:var(--muted);">
+          <!-- filled dynamically by updateFlowProse() -->
+        </div>
+        <canvas id="flowCanvas" height="360"></canvas>
+      </div>
+
+      <!-- TIME SERIES -->
+      <div class="canvas-panel">
+        <div class="panel-header">System behaviour over time — occupancy &amp; pressure indicators</div>
+        <canvas id="timeChart" height="150"></canvas>
+      </div>
+
+      <!-- UNIFIED CAUSAL LOOP DIAGRAM — split with legend -->
+      <div class="canvas-panel">
+        <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Causal loop diagram — how the system reinforces itself</span>
+          <span style="font-size:10px; color:var(--muted2); font-weight:400; letter-spacing:0;">electrons advance one arc per week · in sync with the graph above</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 260px; border-top:1px solid var(--border2);">
+
+          <!-- CLD canvas -->
+          <div style="border-right:1px solid var(--border2);">
+            <div style="display:flex; gap:16px; padding:7px 14px 5px; border-bottom:1px solid var(--border2); flex-wrap:wrap;">
+              <span style="font-size:10px; color:var(--muted2);">
+                <span style="display:inline-block; width:20px; height:2px; background:var(--red); vertical-align:middle; margin-right:4px;"></span>
+                <span style="color:var(--red); font-weight:600;">R1</span> ED Spiral
+              </span>
+              <span style="font-size:10px; color:var(--muted2);">
+                <span style="display:inline-block; width:20px; height:2px; background:var(--amber); vertical-align:middle; margin-right:4px;"></span>
+                <span style="color:var(--amber); font-weight:600;">R2</span> Elective Trap
+              </span>
+              <span style="font-size:10px; color:var(--muted2);">
+                <span style="display:inline-block; width:20px; height:2px; background:var(--green); vertical-align:middle; margin-right:4px;"></span>
+                <span style="color:var(--green); font-weight:600;">B2</span> Social Care Release
+              </span>
+              <span style="font-size:10px; color:var(--muted2);">
+                <span style="display:inline-block; width:20px; height:2px; background:var(--purple); vertical-align:middle; margin-right:4px;"></span>
+                <span style="color:var(--purple); font-weight:600;">B3</span> OOH Senior Cover
+              </span>
+              <span style="font-size:10px; color:var(--muted2);">
+                <span style="display:inline-block; width:20px; height:2px; background:var(--orange); vertical-align:middle; margin-right:4px;"></span>
+                <span style="color:var(--orange); font-weight:600;">R3</span> Island Financial Trap
+              </span>
+            </div>
+            <canvas id="cldUnified" height="340"></canvas>
+          </div>
+
+          <!-- Loop legend — text descriptions -->
+          <div style="padding:16px 14px; display:flex; flex-direction:column; gap:18px;">
+
+            <div>
+              <div style="color:var(--red); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--red); flex-shrink:0;"></span>
+                R1 — The ED Spiral <span style="font-weight:400; color:var(--muted2); font-size:10px;">(reinforcing)</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
+                Demand rises → ward beds fill → patients wait longer in ED for a bed → crowded ED means patients deteriorate → they are readmitted in worse condition → occupancy rises further. <em style="color:var(--muted2);">Active above ~85% occupancy.</em>
+              </div>
+            </div>
+
+            <div>
+              <div style="color:var(--amber); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--amber); flex-shrink:0;"></span>
+                R2 — The Elective Trap <span style="font-weight:400; color:var(--muted2); font-size:10px;">(reinforcing)</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
+                Full wards → planned operations cancelled to free beds → patients waiting for surgery deteriorate at home → they re-present as emergencies → they occupy the very beds freed by the cancellation. <em style="color:var(--muted2);">Active when elective backlog exceeds ~150.</em>
+              </div>
+            </div>
+
+            <div>
+              <div style="color:var(--muted); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--muted); flex-shrink:0;"></span>
+                B1 — Coping Decay <span style="font-weight:400; color:var(--muted2); font-size:10px;">(balancing, slow)</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
+                Crisis triggers short-term fixes — escalation beds, agency staff — which absorb immediate pressure but drive up costs → financial constraints force future cuts → capacity shrinks → the next crisis hits harder.
+              </div>
+            </div>
+
+            <div>
+              <div style="color:var(--purple); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--purple); flex-shrink:0;"></span>
+                B3 — OOH Senior Cover <span style="font-weight:400; color:var(--muted2); font-size:10px;">(balancing · 3-node loop)</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
+                <strong style="color:var(--text);">OCC → OOH → Unnecessary Admissions → OCC.</strong> Rising occupancy creates pressure to improve OOH senior decision support. Better senior cover reduces unnecessary admissions (Gent: two-thirds of admissions occur OOH; junior staff, risk-averse without senior support, default to admitting patients who could safely be managed otherwise). Fewer unnecessary admissions → lower occupancy. <em style="color:var(--muted2);">Currently weak on all three arcs: OOH cover is poor, unnecessary admissions are high, and the feedback to improve cover is slow.</em>
+              </div>
+            </div>
+
+            <div>
+              <div style="color:var(--green); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0;"></span>
+                B2 — Social Care Release <span style="font-weight:400; color:var(--muted2); font-size:10px;">(balancing)</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
+                When social care capacity is adequate, medically fit patients are discharged promptly → beds free up → ward occupancy falls → pressure across the whole system eases. <em style="color:var(--muted2);">Currently suppressed: IoM social care estimated at ~55% of required capacity.</em>
+              </div>
+            </div>
+
+            <div>
+              <div style="color:var(--orange); font-size:11px; font-weight:700; margin-bottom:5px; display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--orange); flex-shrink:0;"></span>
+                R3 — Island Financial Trap <span style="font-weight:400; color:var(--muted2); font-size:10px;">(reinforcing · FOI calibrated)</span>
+              </div>
+              <div style="font-size:11px; color:var(--muted); line-height:1.65;">
+                When beds saturate, Noble's cannot manage complex cases on-island — patients transfer via fixed-wing (30–45 scheduled flights/month, 06:00–18:00 window only) or HEMS/GNAAS (~15 emergency missions/yr, primarily Aintree MTC or Broadgreen Cardiac). <strong style="color:var(--orange);">FOI: travel + accommodation costs rose from £2.83M (FY 20-21) to £3.43M (FY 23-24).</strong> These costs consume capital budget → delays community investment → social care stays weak → DTOC stays high → beds stay saturated. A reinforcing loop unique to island systems with no land-based mutual aid. <em style="color:var(--muted2);">Active when budget pressure &gt;40%. Air bridge closure (weather/night) eliminates fixed-wing capacity; HEMS/GNAAS still possible for true emergencies.</em>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- Step annotation bar -->
+        <div id="stepAnnotation" style="display:none; padding:10px 16px; border-top:1px solid var(--border2); background:var(--surface2); font-size:11px; color:var(--muted); line-height:1.6;">
+          <span id="stepAnnotationText"></span>
+        </div>
+      </div>
+
+      <!-- NARRATIVE -->
+      <div class="narrative">
+        <div class="narrative-title">What the model is showing</div>
+        <p id="narrativeText">Adjust the sliders or choose a scenario to see the system respond.</p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: CONTROLS -->
+    <div class="controls-panel">
+
+      <!-- SIMULATION + SCENARIOS + ISOLATION & SPECIALIST DEPTH, three across -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; align-items:start;">
+
+        <!-- PLAYBACK -->
+        <div class="panel-section">
+          <div class="panel-section-title">Simulation</div>
+          <div class="btn-row" style="flex-wrap:wrap; gap:5px;">
+            <button class="primary" id="btnRun">▶ Run</button>
+            <button id="btnPause">⏸ Pause</button>
+            <button id="btnStep" style="border-color:var(--blue); color:var(--blue); width:100%; margin-top:4px;" title="Advance exactly one week">⏭ Step 1 week</button>
+            <button id="btnReset" style="width:100%; margin-top:2px;">↺ Reset</button>
+          </div>
+          <div class="sim-meta" style="margin-top:10px;">Week: <span id="simWeek">0</span></div>
+
+          <!-- Speed slider -->
+          <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border2);">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+              <span style="font-size:11px; color:var(--text);">Animation speed</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--blue);" id="v-speed">1 week / 2s</span>
+            </div>
+            <input type="range" id="s-speed" min="1" max="5" value="2" step="1" style="width:100%;">
+            <div style="display:flex; justify-content:space-between; font-size:9px; color:var(--muted2); margin-top:2px;">
+              <span>slower</span><span>faster</span>
+            </div>
+          </div>
+
+          <div id="stepHint" style="margin-top:6px; padding:6px 8px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:6px; font-size:10px; color:var(--blue); line-height:1.5; display:none;">
+            <strong>Step</strong> advances one week — watch the electron move and the graph update together
+          </div>
+        </div>
+
+        <!-- SCENARIOS -->
+        <div class="panel-section">
+          <div class="panel-section-title">Scenarios</div>
+          <div class="scenario-list">
+            <button class="scenario-chip active" id="sc0" onclick="loadScenario(0)">Noble's Apr 2026 — IPR/FOI</button>
+            <button class="scenario-chip" id="sc1" onclick="loadScenario(1)">Noble's Mar 2024 — IPR baseline</button>
+            <button class="scenario-chip" id="sc2" onclick="loadScenario(2)" style="border-color:var(--blue);color:var(--blue);">Noble's Jun 2023 — pre-crisis</button>
+            <button class="scenario-chip" id="sc3" onclick="loadScenario(3)">HMC proposal: +50 beds</button>
+            <button class="scenario-chip" id="sc4" onclick="loadScenario(4)">Gent fix: flow &amp; processes only</button>
+            <button class="scenario-chip" id="sc5" onclick="loadScenario(5)">Demographics 2030</button>
+            <button class="scenario-chip" id="sc6" onclick="loadScenario(6)">Winter OPEL 4 crisis</button>
+            <button class="scenario-chip" id="sc7" onclick="loadScenario(7)" style="border-color:var(--purple); color:var(--purple);">✓ Start empty</button>
+            <button class="scenario-chip" id="sc8" onclick="loadScenario(8)" style="border-color:var(--green); color:var(--green);">★t recommendations</button>
+            <button class="scenario-chip" id="sc9" onclick="loadScenario(9)" style="border-color:var(--red); color:var(--red);">✈ Storm: air bridge closed</button>
+          </div>
+        </div>
+
+        <!-- ISOLATION & SPECIALIST DEPTH -->
+        <div class="panel-section" style="border-color:var(--purple);">
+          <div class="panel-section-title" style="color:var(--purple);">Isolation &amp; Specialist Depth</div>
+          <div style="font-size:11px; color:var(--muted);ine-height:1.6; margin-bottom:12px;">
+            An island has no land-based mutual aid, and workforce <em>specialisation depth</em> is distinct from OOH timing alone.
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label">
+              <span class="slider-name">Specialist decision depth</span>
+              <span class="slider-val" id="v-specialistdepth">35%</span>
+            </div>
+            <input type="range" id="s-specialistdepth" min="10" max="95" value="35" step="5">
+            <div class="slider-desc">% of clinical decisions made with full independent specialist input, at any hour. Distinct from OOH cover — drives LOS and complications directly. Low depth → delayed decisions → longer stays, more transfers abroad.</div>
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-label">
+              <span class="slider-name">Air bridge status</span>
+              <span class="slider-val" id="v-airbridge">OPEN</span>
+            </           <div class="btn-row" style="margin-top:4px;">
+              <button id="btnAirOpen" style="border-color:var(--green); color:var(--green);">✓ Open</button>
+              <button id="btnAirClosed" style="border-color:var(--red); color:var(--red);">✕ Closed (storm)</button>
+            </div>
+            <div class="slider-desc">Off-island transfer to Liverpool/Manchester — Noble's only release valve. No land-based neighbour to absorb pressure. When closed, complications stay on-island.</div>
+       <button class="info-link" onclick="toggleInfo('airbridge-info')" style="margin-top:8px;">
+              <span class="info-icon">i</span> How this is modelled
+            </button>
+            <div class="info-popover" id="airbridge-info">
+              <strong>Placeholder, not real data:</strong><br><br>
+              When <strong>open</strong>, the air bridge is assumed to absorb a small daily trickle of the most complex overflow cases — modelled as <strong>1.2% of effective staffed beds per day</rong>. This figure is an illustrative estimate, not a measured transfer rate.<br><br>
+              Of the daily "complications" generated by low specialist depth (see above), only <strong>30%</strong> are assumed tertiary-transfer-appropriate — i.e. genuinely requiring off-island specialist care rather than being manageable on-island. The remaining 70% stay at Noble's regardless of air bridge status.<br><br>
+              When <strong>closed</strong>, this relief drops to zero. Nothing else in the model anges — admissions, LOS and specialist depth behave identically — so the marginal effect you see running the "Storm: air bridge closed" scenario against the baseline is purely the loss of this relief valve.<br><br>
+              <strong>What's missing:</strong> there is currently no real data behind any of these figures — no actual count of urgent off-island transfers, no specialty breakdown, no record of weather-related delays or their clinical impact, and no measured ceiling on transfer capacity whebridge is operating normally. A data request has been sent to obtain this; until it's back, treat this mechanism as directionally correct but not numerically calibrated.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- REMAINING PARAMETER PANELS — two across to cut scroll length -->
+      <div class="param-grid">
+
+      <!-- CAPACITY -->
+      <div class="panel-section">
+        <div class="panel-section-title">Adjust scenario — capacity</div>
+
+        <div class="slider-row"        <div class="slider-label">
+            <span class="slider-name">Total beds</span>
+            <span class="slider-val" id="v-beds">233</span>
+            <span class="slider-delta" id="d-beds"></span>
+          </div>
+          <input type="range" id="s-beds" min="180" max="420" value="233" step="2">
+          <div class="slider-tooltip">
+            <strong>Total commissioned inpatient beds</strong><br>
+            Noble's: 313 (2003) → 279 (Manx Care takeover 2021) → 233 (May 2026, Gent reviebr>
+            MSC proposed +50 beds. Gent: adding beds without fixing process and skills utilisation just gets filled, significantly increases costs.
+            <span class="tt-source">Source: Gent/PSG §4.1 · IPR May 2026</span>
+            <span class="tt-effect">↑ beds → short-term occupancy relief, fills if flow unchanged</span>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Daily admissions</span>
+      <span class="slider-val" id="v-admissions">20</span>
+            <span class="slider-delta" id="d-admissions"></span>
+          </div>
+          <input type="range" id="s-admissions" min="10" max="60" value="20" step="1">
+          <div class="slider-tooltip">
+            <strong>Emergency admissions per day (Flow A — local)</strong><br>
+            IPR KPI EC9: 12–25 range, averaging ~20/day. ~120 total ED attendances/day but admission conversion &lt;20% (UK Type 1 average &gt;25%). Two-thirds occur of-hours.
+            <span class="tt-source">Source: Gent §4.2 · IPR EC1/EC9</span>
+            <span class="tt-effect">↑ admissions → faster occupancy rise → earlier R1 activation</span>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Avg. length of stay (days)</span>
+            <span class="slider-val" id="v-los">6.5</span>
+            <span class="slider-delta" id="d-los"></span>
+          </div>
+      ut type="range" id="s-los" min="2" max="12" value="6.5" step="0.1">
+          <div class="slider-tooltip">
+            <strong>Mean inpatient length of stay</strong><br>
+            Gent: sustained increase Dec 2025 through Apr 2026. IPR: LoS&gt;21 days stock grew 500% (11→55 patients, Jun-23→Apr-26) — this structural long-stay cohort is the dominant driver.
+            <span class="tt-source">Source: Gent §4.3 · FOI LoS data</span>
+            <span class="tt-effect">↑ LOS → fewer discharges/day rises → R1 triggers sooner</span>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Staffed bed ratio</span>
+            <span class="slider-val" id="v-staffed">88%</span>
+            <span class="slider-delta" id="d-staffed"></span>
+          </div>
+          <input type="range" id="s-staffed" min="40" max="100" value="88" step="1">
+          <div class="slider-tooltip">
+            <strong>% of commissioned bedsctively staffed</strong><br>
+            Nursing vacancies and skill-mix gaps reduce this below 100%. At 88% baseline: 233 × 0.88 = 205 staffed beds. Staff shortage scenario: drops to ~66%.
+            <span class="tt-source">Source: Gent §4, staffing sections</span>
+            <span class="tt-effect">↓ staffed ratio → fewer effective beds → same demand, higher occupancy %</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLOW -->
+      <div class="panel-section">
+        <div class="ction-title">Adjust scenario — flow &amp; pressure</div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">ED streaming efficiency</span>
+            <span class="slider-val" id="v-streaming">20%</span>
+            <span class="slider-delta" id="d-streaming"></span>
+          </div>
+          <input type="range" id="s-streaming" min="0" max="80" value="20" step="5">
+          <div class="slider-tooltip">
+            <strong>% of ED attendances clically streamed away from admission</strong><br>
+            Gent: Noble's currently has <em>no streaming function</em>. 120 daily attendances; only ~20 admitted. Better streaming routes minor illness, GP-appropriate, and urgent care cases away — reducing inappropriate demand on ward beds.
+            <span class="tt-source">Source: Gent §5.3 · Exec summary</span>
+            <span class="tt-effect">↑ streaming → lower admission conversion → lower occupancy, faster ED throughput</span>
+          </   </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Delayed discharges (DTOC %)</span>
+            <span class="slider-val" id="v-delayed">15%</span>
+            <span class="slider-delta" id="d-delayed"></span>
+          </div>
+          <input type="range" id="s-delayed" min="0" max="50" value="15" step="1">
+          <div class="slider-tooltip">
+            <strong>% of occupied beds blocked by Delayed Transfers of Care</strong><br>
+            IPR: LoS&gt;21 stock at 55 (Apr-26), up from 11 (Jun-23). 8–12 medical patients daily in surgical beds. Gent: late discharge planning, no criteria-led discharge, weekend flow drop-off all cited.
+            <span class="tt-source">Source: Gent §4.3/§5.7 · IPR downstream bottlenecks</span>
+            <span class="tt-effect">↑ DTOC → more beds blocked → less throughput → occupancy rises → B2 weakened</span>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <divlabel">
+            <span class="slider-name">Social care adequacy</span>
+            <span class="slider-val" id="v-socialcare">65%</span>
+            <span class="slider-delta" id="d-socialcare"></span>
+          </div>
+          <input type="range" id="s-socialcare" min="10" max="100" value="65" step="1">
+          <div class="slider-tooltip">
+            <strong>Community and discharge pathway capacity (% of need met)</strong><br>
+            Controls B2 loop strength. When low: medically-fit patients can't discharge, beds block. Gent: community investment flagged as higher priority than bed numbers. Virtual Ward does not exist on IoM.
+            <span class="tt-source">Source: Gent §6.3 · §5.7</span>
+            <span class="tt-effect">↑ social care → faster discharge → DTOC falls → occupancy falls → R3 cost reduces</span>
+          </div>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">OOH senior cover</span>
+     class="slider-val" id="v-ooh">30%</span>
+            <span class="slider-delta" id="d-ooh"></span>
+          </div>
+          <input type="range" id="s-ooh" min="0" max="100" value="30" step="5">
+          <div class="slider-tooltip">
+            <strong>% of out-of-hours period with senior decision-maker available (B3)</strong><br>
+            Gent: two-thirds of admissions occur OOH. Junior staff, risk-averse without senior support, default to admitting patients who could safely be managed otherwise. Strengthening this reduces unnecessary admissions, easing B3 loop.
+            <span class="tt-source">Source: Gent §4 (OOH finding) · §6.2</span>
+            <span class="tt-effect">↑ OOH cover → fewer unnecessary admissions → lower occupancy without reducing appropriate care</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEMAND -->
+      <div class="panel-section">
+        <div class="panel-section-title">Adjust scenario — demand &amp; demographic</div>
+
+        <div class="slider-     <div class="slider-label">
+            <span class="slider-name">Population over 65 / dependency</span>
+            <span class="slider-val" id="v-elderly">21.0%</span>
+            <span class="slider-delta" id="d-elderly"></span>
+          </div>
+          <input type="range" id="s-elderly" min="12" max="45" value="21" step="0.5">
+          <div class="slider-tooltip">
+            <strong>% population over 65 / old-age dependency ratio</strong><br>
+            IoM currently ~21% over-65. <strong>2026 old-age dependency ratio: up to 39.4%.</strong> Rising to ~28% over-65 by 2035. Effect is non-linear (superlinear in model): small demographic rises drive disproportionately large increases in frailty bed load, LOS and community demand.
+            <span class="tt-source">Source: IoM Census · Population projections 2026</span>
+            <span class="tt-effect">↑ elderly % → more frailty beds locked, longer LOS, higher revolving-door rate, more HEMS missions</span>
+          </div>
+        </div>
+
+   <div class="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Community resilience</span>
+            <span class="slider-val" id="v-community">20%</span>
+            <span class="slider-delta" id="d-community"></span>
+          </div>
+          <input type="range" id="s-community" min="0" max="100" value="20" step="5">
+          <div class="slider-tooltip">
+            <strong>Admission avoidance and community care capacity</strong><br>
+            Virtual ward, community frailty teams, rapid access support, rehabilitation in non-acute beds. Gent §6.3: no Virtual Ward exists. Strong group of consultant geriatricians/AHPs lobbying for investment. Reduces revolving-door re-presentation rate and slows R3 financial trap.
+            <span class="tt-source">Source: Gent §6.3 · §5.7</span>
+            <span class="tt-effect">↑ resilience → slower community deterioration → fewer re-presentations → R3 cost pressure reduced</span>
+          </div>
+        </div>
+
+    ss="slider-row">
+          <div class="slider-label">
+            <span class="slider-name">Seasonal demand spike</span>
+            <span class="slider-val" id="v-seasonal">1.00×</span>
+            <span class="slider-delta" id="d-seasonal"></span>
+          </div>
+          <input type="range" id="s-seasonal" min="1.0" max="1.6" value="1.0" step="0.05">
+          <div class="slider-tooltip">
+            <strong>Winter multiplier on emergency admissions</strong><br>
+            1.0 = baseline demand. 1.2  moderate winter. 1.4+ = crisis territory where R1 and R2 loops activate simultaneously. IPR shows OPEL 4 periods correlated with post-weekend and winter peaks.
+            <span class="tt-source">Source: Gent §5.6 · IPR OPEL data</span>
+            <span class="tt-effect">↑ seasonal spike → faster saturation → both R1 and R2 activate → airbridge flow spikes → R3 accelerates</span>
+          </div>
+        </div>
+
+      </div>
+
+      </div><!-- /param-grid -->
+
+    </div>
+  </div>
+
+  <div class=">
+    <span>observatory.coalfinch.com · Crown Dependencies Re-Identification Observatory · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Model: Lane, Monefeldt &amp; Rosenhead (2000) JORS 51(5); Wolstenholme (2022) · IoM parameters: Gent/PSG Independent Review May 2026; Manx Care IPR (Jun-23, Mar-24, Apr-26); FOI transfer cost data FY 2020-21 to 2023-24 · Not a clinical forecasting tool · <a href="https://coalfinch.com">Coalfinch</a></span>
+  </div>
+
+</div><shell -->
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// THEME COLOURS (mirror CSS vars for canvas use)
+// ───────────────────────────────────────────────────────────────────────────
+const T = {
+  bg:       '#0f172a',
+  surface:  '#1e293b',
+  surface2: '#162032',
+  border2:  '#334155',
+  text:     '#e2e8f0',
+  muted:    '#94a3b8',
+  muted2:   '#7587a0',
+  blue:     '#60a5fa',
+  green:    '#34d399',
+  amber:    '#fbbf24',
+  red:      '#f87171',
+  purple:   '#a78bfa',
+  orange:   '#fb923c',   // R3 Island Financial Trap
+};
+
+// ───────────────────────────────────────────────â────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+const state = {
+  running: false,
+  week: 0,
+  dt: 1/7,
+  occupiedBeds: 184,    // ~90% of 205 staffed beds (233 × 0.88) — Gent baseline
+  delayedPatientsStock: 18,
+  electiveBacklog: 16619, // IPR Mar-24 baselinewaiting list
+  EDPressure: 0.9,
+  communityStock: 280,
+
+  // ── NEW: Bifurcated ED outflow (Lane et al. extension) ──────────────────────
+  // Flow A: Local admissions to Noble's (saturates at 88% occupancy)
+  // Flow B: Airbridge — triggered when occupancy >91% OR specialty unavailable
+  // When airbridge is unavailable (weather/night), Flow B backs up into ED trolley stock
+  airBridgeFlow: 0,          // patients/day currently using airbridge (Flow B)
+  lolAdmissionFlow: 0,     // patients/day admitted locally (Flow A)
+  edTrolleyBackup: 0,        // patients backed up in ED due to airbridge unavailability
+  airbridgeAvailability: 1,  // 0=unavailable, 1=fully available (weather/contract)
+  airbridgeWeatherSeed: Math.random(), // for stochastic weather simulation
+
+  // ── NEW: LoS >21 days stock (FOI calibrated) ────────────────────────────────
+  losOver21: 43,
+  budgetPressure: 0.6,
+  transostAccumulator: 0,
+  annualTransferCost: 3425505,
+
+  history: { weeks: [], occupancy: [], edWait: [], delayed: [], elective: [], transferCost: [], losOver21: [] }
+};
+
+const P = {
+  totalBeds: 233,      // Gent review: 233 beds as of May 2026 (was 313 in 2003, 279 at Manx Care takeover)
+  admissions: 20,      // IPR: 3,800/month ÷ ~190 working days = ~20/day emergency admissions (KPI EC9: 16–21% of ~120 ED attendances)
+  los: 6.5,            // Gent: LoS increasing since Dec 2025. LoS>21 stock up 500% (11) is the structural driver
+  delayedPct: 0.15,    // DTOCs: LoS>21 stock (55 patients) / ~205 staffed beds ≈ 27% at peak; baseline ~15%
+  socialCare: 65,
+  staffedRatio: 0.88,
+  elderly: 0.21,
+  seasonal: 1.0,
+  streaming: 0.20,     // Gent: NO streaming — 20% = status quo
+  oohCover: 0.30,      // Gent: 2/3 admissions OOH
+  communityResilience: 20,
+  amufunc: 0.4,
+  weekendDrop: 0.6,
+  specialistDepth: 0.35,
+  airBridgeOpen: true,
+
+  // ── AIR BRIDGE CALIBRATION — FOI/IPR data ──────â──────────────────
+  // Fixed wing: 30-45 scheduled flights/month, daytime 06:00-18:00 only
+  // Emergency HEMS/GNAAS: ~54 missions Mar-22 to Sep-25 = ~15.4/year
+  // Destinations: Aintree MTC (trauma), Broadgreen (cardiac)
+  // Cost: FY 23-24 = £2,537,210 travel + £459,666 accommodation = £2,996,876
+  // (note: £3,425,505 total includes some overheads — using direct costs here)
+  fixedWingFlightsPerMonth: 38,    // midpoint of 30-45 range
+  hemsPerYear: 15.4,   // FOI: ~54 over 3.5 years
+  transferCostPerDay: 9384,        // £3,425,505 ÷ 365 = £9,384/day baseline
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SYSTEM DYNAMICS EQUATIONS
+// ────────────────────────────────────────────â─────────────────────────
+function effectiveBeds() {
+  return Math.floor(P.totalBeds * P.staffedRatio);
+}
+
+function demandMultiplier() {
+  const elderlyEffect = 1 + (P.elderly - 0.21) * 2.5;
+  return elderlyEffect * P.seasonal;
+}
+
+function adjustedAdmissions() {
+  const elderlyEffect = 1 + (P.elderly - 0.21) * 2.5;
+  const demandMult = elderlyEffect * P.seasonal;
+
+  // DEMAND CONSERVATION: streaming and OOH cover do not destroy demand.
+  // They reroute pnts to primary care / urgent care / community.
+  // A proportion of those rerouted patients still need care — some return
+  // to ED within days or weeks having received inadequate alternative treatment,
+  // or deteriorate because the alternate pathway couldn't manage their acuity.
+  //
+  // streamingReduction: what fraction of daily ED presentations become ward admissions.
+  // Better streaming reduces inappropriate conversion — but the underlying presenting
+  // population doesn't shrink. Those patieexist in communityStock and deteriorate
+  // at a rate driven by social care adequacy and elderly demographics.
+  const streamingReduction = 1 - (P.streaming / 100) * 0.4;
+
+  // OOH senior cover: reduces unnecessary bed admissions (junior risk aversion),
+  // but again does not make those patients disappear. They go home and may return.
+  const oohReduction = 1 - ((P.oohCover - 0.30) / 0.70) * 0.15;
+
+  // Base admissions from fresh ED presentations
+  const freshAdmissions = P.admissions * demandMult * streamingReduction * Math.max(0.7, oohReduction);
+
+  // REVOLVING DOOR: community stock re-presentations.
+  // Rate driven by: how many recently discharged patients are in community,
+  // how fast they deteriorate (age profile), and how good social care is at
+  // keeping them stable. At baseline social care (65%), ~15%/month deteriorate
+  // enough to re-present. Community investment (virtual ward, admission avoidance)
+  // reduces this rate. Without it, fixing hospital flow just spins the door faster.
+  const monthlyDeterioration = 0.15; // baseline: 15%/month re-present
+  const socialCareModifier = 1 - (P.socialCare / 100) * 0.55; // good social care slows deterioration
+  const communityModifier = 1 - (P.communityResilience / 100) * 0.45; // virtual ward, admission avoidance
+  const dailyRevolvingDoor = state.communityStock * (monthlyDeterioration / 30) * socialCareModifier * communityModifier * elderlyEffect;
+
+  return freshAdmissions + dailyRevolvingDoor;
+}
+
+function revolvingDoorFlow() {
+  // Exposed separately so the flow diagram can show it
+  const elderlyEffect = 1 + (P.elderly - 0.21) * 2.5;
+  const socialCareModifier = 1 - (P.socialCare / 100) * 0.55;
+  const communityModifier = 1 - (P.communityResilience / 100) * 0.45;
+  return state.communityStock * (0.15 / 30) * socialCareModifier * communityModifier * elderlyEffect;
+}
+
+function edQueuePressureMultiplier() {
+  // Streaming also reduces ED crowding — fewer inappropriate attendances means
+  // genuine emergencies get seen faster, reducing R1 feedback lp strength.
+  // At 0% streaming: full crowding effect. At 80%: significantly less crowding.
+  return 1 - (P.streaming / 100) * 0.5;
+}
+
+// ── NEW STATE: persistent pressure accumulator and frailty bed load ──────────
+// These make the model structurally unstable at high occupancy (as real hospitals are)
+// rather than self-correcting.
+//
+// pressureMemory: institutional/operational degradation from sustained high occupancy.
+// Once high, it takes weeks to recover — discharge plannimorale, AMU dysfunction
+// all persist. Range 0–1.
+//
+// frailtyBedLoad: beds effectively permanently occupied by frail/elderly patients
+// with very long LOS who cannot be discharged without significant community support.
+// Gent: medical beds "predominantly occupied with elderly and frail patients."
+// This accumulates with the elderly demographic and depletes slowly with community investment.
+
+if (typeof state.pressureMemory === 'undefined') state.pressureMemory = 0.0;
+if (typeof state.frailtyBedLoad = 'undefined') state.frailtyBedLoad = 0;
+
+function frailtyBedLoadEquilibrium() {
+  // How many beds are structurally consumed by frail/elderly long-stay patients
+  // who cannot be discharged quickly regardless of flow interventions.
+  // Driven by: elderly population %, community resilience (admission avoidance),
+  // and the current delayed discharge stock.
+  const elderlyFactor = Math.pow(P.elderly / 0.21, 2.2);  // superlinear — small demographic rises, big impact
+  const communityFactor = 1 - (P.commutyResilience / 100) * 0.5; // community avoidance halves it at max
+  const eff = effectiveBeds();
+  return eff * 0.18 * elderlyFactor * communityFactor;  // ~18% of beds at baseline IoM demographics
+}
+
+function adjustedLOS() {
+  const eff = effectiveBeds();
+  const occRate = state.occupiedBeds / eff;
+
+  // Immediate occupancy pressure — LOS rises non-linearly above 85%
+  const immediatePressure = Math.max(0, (occRate - 0.85) / 0.15);
+
+  // Persistent pressure memory — accumulated operational degradation// This represents: staff exhaustion, delayed discharge planning, AMU dysfunction,
+  // discharge coordinators overwhelmed. Takes weeks to recover.
+  const totalPressure = immediatePressure * 0.4 + state.pressureMemory * 0.8;
+
+  // LOS multiplier: more aggressive than before, and driven by persistent memory
+  // At sustained 90%: LOS ~1.8×. At sustained 95%+: LOS ~2.5×.
+  const pressureMultiplier = 1 + totalPressure * 1.2;
+
+  // ISOLATION & SPECIALIST DEPTH — specialist depth effect.
+  // Gent §4: "depcies on less experienced, non-senior decision-making staff
+  // will impact decision making and risk appetite." A clinician's critique
+  // (June 2026) extended this beyond OOH timing: low specialist depth at ANY hour
+  // delays definitive diagnosis and treatment planning, extending LOS directly —
+  // distinct from the OOH-cover effect on admission threshold (B3).
+  // At full specialist depth (1.0): no LOS penalty. At low depth (0.2): up to 35% LOS penalty.
+  const specialistPenalty = 1 + (1 - P.speciastDepth) * 0.35;
+
+  return P.los * pressureMultiplier * specialistPenalty;
+}
+
+function complicationRate() {
+  // ISOLATION & SPECIALIST DEPTH — complications driven by specialist depth, not just LOS.
+  // "A lack of fully registered, highly qualified specialists leads to delayed
+  // definitive decisions, increased complications, longer lengths of stay, and
+  // over-reliance on expensive transfers abroad." Modelled here as a daily rate
+  // of patients whose condition worsens due to decision delay, distit from R1
+  // (which is driven by ED crowding/wait, not ward-side decision quality).
+  const baseRate = state.occupiedBeds * 0.004; // ~0.4%/day baseline complication rate
+  const depthPenalty = 1 + (1 - P.specialistDepth) * 1.8; // up to 2.8× at very low depth
+  return baseRate * depthPenalty;
+}
+
+function naturalDischargeRate() {
+  const eff = effectiveBeds();
+  // Discharge is constrained — you can't discharge faster than care processes allow.
+  // Maximum daily discharge capacity: ~15% of bed stock (d ceiling from rounds, transport, social care)
+  // This is the key fix — previously this was uncapped, allowing the model to self-heal.
+  const maxDailyDischarge = eff * 0.15;
+
+  const occupiedNonDelayed = Math.max(0, state.occupiedBeds - state.delayedPatientsStock - state.frailtyBedLoad);
+  const rawRate = occupiedNonDelayed / adjustedLOS();
+
+  // Frailty patients discharge at a much slower rate — ~1/3 the normal rate
+  const frailtyDischargeRate = state.frailtyBedLoad / (adjustedLOS() * 3.5);
+
+  retuath.min(maxDailyDischarge, rawRate + frailtyDischargeRate);
+}
+
+function delayedDischargeRate() {
+  const potentialDelayed = state.occupiedBeds * P.delayedPct;
+  // Release rate slowed by pressure memory — when system is overwhelmed,
+  // discharge coordination breaks down (weekend drop-off, coordinator capacity)
+  const coordinationFactor = 1 - state.pressureMemory * 0.5;
+  const releaseRate = state.delayedPatientsStock * (P.socialCare / 100) * 0.15 * coordinationFactor;
+  const accumulationRate = Math.ma0, potentialDelayed - state.delayedPatientsStock) * 0.3;
+  return { accum: accumulationRate, release: releaseRate };
+}
+
+function edWaitHours() {
+  const eff = effectiveBeds();
+  if (eff <= 0) return 48;
+  const occ = state.occupiedBeds / eff;
+  // Base wait from occupancy
+  let baseWait;
+  if (occ < 0.85) baseWait = 2 + occ * 3;
+  else if (occ < 0.95) baseWait = 5 + (occ - 0.85) * 80;
+  else baseWait = 13 + (occ - 0.95) * 300;
+  // Streaming reduces crowding — fewer inappropriate attenders means genuine
+ / emergencies move faster through the queue
+  return baseWait * edQueuePressureMultiplier();
+}
+
+function r1ReadmissionFlow() {
+  const wait = edWaitHours();
+  if (wait < 4) return 0;
+  return Math.min(8, (wait - 4) * 0.4);
+}
+
+function r2ElectiveAdmissionFlow() {
+  return state.electiveBacklog * 0.003;
+}
+
+function electiveBacklogDelta() {
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+  const cancellationRate = occ > 0.90 ? (occ - 0.90) * 200 : 0;
+  const normalThroughput = Math.max(0, (1 - occ / 0.95) * 15);
+  return cancellationRate - normalThroughput;
+}
+
+// ── ISOLATION & SPECIALIST DEPTH — the air bridge mechanism ──────────────────────────
+// On the UK mainland, a hospital running over capacity has a release valve:
+// transfer to a neighbouring trust or tertiary centre, "just down the motorway."
+// Noble's has no land-based mutual aid. Its only release valve is the air bridge
+// to Liverpool/Manchester. When weather grounds alve closes completely
+// and Noble's absorbs 100% of its own overflow with nowhere to send the sickest
+// or most complex patients. This is a genuinely IoM-specific failure mode absent
+// from any mainland-derived model (including Lane/Monefeldt, which assumes
+// land-based mutual aid is always theoretically available).
+// ─────────────────────────────────────────────────────────────────
+// AIRBRIDGE BIFURCATION MODULE
+// Extension of Lane, Monefeldt & Rosenhead (2000) for island healthcare context
+// Flow A: Local admission to Noble's (constrained by bed stock saturation)
+// Flow B: Tertiary transfer via airbridge (triggered by saturation or specialty gap)
+// ──────────────────────────────────────────────────────────────────────────â updateAirbridgeAvailability(dt) {
+  // Stochastic weather/contract availability
+  // Fixed wing: 06:00-18:00 only, weather-dependent
+  // HEMS/GNAAS: ~1.5/month for true emergencies regardless of weather
+  // Simulate as a slow-changing random walk with mean-reversion to 1.0
+  // About 15% of time partially or fully unavailable (weather/contract/night)
+  const noise = (Math.random() - 0.5) * 0.08;
+  state.airbridgeAvailability = Math.max(0.1, Math.min(1.0,
+    state.airbridgeAvailability + noise * dt + (1.0 - state.airbridgeAvailability) * 0.05 * dt
+  ));
+  // Hard closure override from user toggle
+  if (!P.airBridgeOpen) state.airbridgeAvailability = 0.1; // HEMS only
+}
+
+function bifurcatedEDFlow(totalDemand) {
+  // Bifurcated outflow from ED based on bed stock saturation
+  // Flow A (Local): Normal Noble's admission path
+  //   - Full capacity at ≤88% occupancy
+  //   - Begins constraining at 88%, effectively saturates at 91%
+  // Flow B (Airbridge): Triggered when:
+  //   - Local stock >91% (no beds), 
+  //   - Specialist unavailable locally (specialist depth <35%)
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+
+  // Local capacity fraction — how much of demand can Noble's absorb
+  const localCapFraction = occ < 0.88 ? 1.0
+    : occ < 0.91 ? 1.0 - ((occ - 0.88) / 0.03) * 0.7
+    : 0.3; // at 91%+ only ~30% can still squeeze in (escalation beds)
+
+  // Specialty trigger: when specialist depth low, some cases MUST transfer
+  // regardless of bed availability (no appropriate clinici on-island)
+  const specialtyTransferRate = Math.max(0, (0.35 - P.specialistDepth) * 0.8);
+
+  const flowA = totalDemand * localCapFraction * (1 - specialtyTransferRate);
+  const flowBDemand = totalDemand - flowA; // what needs to transfer
+
+  // Actual Flow B constrained by airbridge availability
+  // Calibrated: 34 fixed-wing/month + 1.5 HEMS/month = ~1.2 patients/day capacity
+  const airbridgeCapacity = (34 + 1.5) / 30; // patients/day when fully available
+  const flowBActual = Math.min(flowBDemand, airbridgeCapacity * state.airbridgeAvailability);
+
+  // What can't transfer backs up into ED trolley stock
+  const backup = flowBDemand - flowBActual;
+
+  return { flowA, flowB: flowBActual, backup, occ, specialtyTransferRate };
+}
+
+function dailyTransferCost(occ) {
+  // R3 — Island Financial Trap:
+  // Transfer cost scales with occupancy — when beds saturate, more patients
+  // are transferred as Noble's cannot manage their acuity on-island.
+  // Baseline: £9,384/day (FY 23-24 FOI). Scales up as occupancy risove 85%.
+  // At 100%+ occupancy: costs could be 2-3× baseline as emergency HEMS missions spike.
+  const baseCost = P.transferCostPerDay;
+  if (occ < 0.85) return baseCost * 0.7;  // below threshold: fewer transfers
+  if (occ < 0.92) return baseCost * (1 + (occ - 0.85) * 4);  // rising cost above 85%
+  return baseCost * (1.28 + (occ - 0.92) * 8);  // crisis: HEMS missions spike
+}
+
+function updateLosOver21(dt) {
+  // LoS>21 days stock: FOI data shows 11 → 43 → 55 patients (Jun-23 → Mar-24 → Apr-26).s stock accumulates when patients can't be discharged — driven by:
+  // - Social care inadequacy (main driver)
+  // - Community resilience (virtual ward would prevent some admissions)
+  // - LoS under pressure
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+  // Accumulation rate: patients crossing 21-day threshold
+  const accumRate = Math.max(0, (occ - 0.80)) * eff * 0.05 * (1 - P.communityResilience/100);
+  // Release rate: social care places free them up
+  const releaseRate = sta.losOver21 * (P.socialCare / 100) * 0.04;
+  state.losOver21 = Math.max(0, Math.min(120, state.losOver21 + (accumRate - releaseRate) * dt));
+}
+
+function budgetPressureEffect() {
+  // R3 feedback: accumulated transfer costs → budget pressure → delays investment
+  // in community services / ward reconfiguration → saturation persists.
+  // Modelled as a multiplier on community resilience investment effectiveness.
+  // At baseline budget pressure (0.6): community investment is 40% less effective.
+  // At m pressure (1.0): community investment effectively frozen.
+  return 1 - state.budgetPressure * 0.6;
+}
+
+function tick() {
+  if (!state.running) return;
+  tickRaw();
+}
+
+function tickRaw() {
+  const dt = state.dt;
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+
+  // ── Update pressure memory ──
+  // Builds up fast when occ > 85%, decays slowly (weeks, not days).
+  // Represents: staff exhaustion, discharge planning backlog, AMU dysfunction.
+  const targetPressure = Math.max(0, (o5) / 0.15);
+  const buildRate  = 0.04 * dt;   // builds in days under pressure
+  const decayRate  = 0.008 * dt;  // decays in weeks once pressure lifts
+  if (targetPressure > state.pressureMemory) {
+    state.pressureMemory = Math.min(1, state.pressureMemory + (targetPressure - state.pressureMemory) * buildRate * 50);
+  } else {
+    state.pressureMemory = Math.max(0, state.pressureMemory - decayRate);
+  }
+
+  // ── Update frailty bed load ──
+  // Frail/elderly patients accumulate in beds. Admission a (community resilience)
+  // slows the inflow. Social care capacity and community investment enables outflow.
+  // This is structurally persistent — it doesn't clear quickly.
+  const frailtyEquil = frailtyBedLoadEquilibrium();
+  const frailtyGap = frailtyEquil - state.frailtyBedLoad;
+  // Moves toward equilibrium slowly (weeks timescale)
+  state.frailtyBedLoad = Math.max(0, state.frailtyBedLoad + frailtyGap * 0.01 * dt);
+
+  // ── BIFURCATED ED FLOW (Lane et al. Island Extension) ───────â───────
+  // Update airbridge stochastic availability
+  updateAirbridgeAvailability(dt);
+
+  // Total demand (fresh + revolving door) goes through bifurcation
+  const totalDemand = adjustedAdmissions(); // per day
+  const { flowA, flowB, backup } = bifurcatedEDFlow(totalDemand);
+
+  const admitted  = flowA * dt;                    // Flow A: local Noble's admissions
+  const transferred = flowB * dt;                  // Flow B: off-island airbridge
+
+  // Track flows for display and financial loop
+  state.localAdmissionFlow = flowA;
+  state.airBridgeFlow = flowB;
+  state.edTrolleyBackup = Math.max(0, Math.min(80,
+    state.edTrolleyBackup + backup * dt - state.edTrolleyBackup * 0.1 * dt
+  )); // trolley backup drains slowly as capacity frees up
+
+  const naturalOut = naturalDischargeRate() * dt;
+  const dd = delayedDischargeRate();
+  const delayedIn  = dd.accum * dt;
+  const delayedOut = dd.release * dt;
+  const r1 = r1ReadmissionFlow() * dt;
+  const r2 = r2ElectiveAdmissionFlow() * dt;
+
+  // Complications stay on-island unless airbridge has capacity to relieve them
+  const complications = complicationRate() * dt;
+  // Airbridge relief now comes from bifurcatedEDFlow — transferred covers the
+  // pre-admission stage. Post-admission complications that need tertiary care
+  // are handled here: ~30% are transfer-appropriate, limited by remaining capacity
+  const maxAirbridgeCapacity = (34 + 1.5) / 30 * state.airbridgeAvailability;
+  const remainingAirbridgeCap = Math.max(0, maxAirbridgeCapacity - flo) * dt;
+  const complicationRelief = Math.min(complications * 0.3, remainingAirbridgeCap);
+
+  state.delayedPatientsStock = Math.max(0, Math.min(eff * 0.45, state.delayedPatientsStock + delayedIn - delayedOut));
+
+  state.occupiedBeds = Math.max(
+    state.frailtyBedLoad,
+    Math.min(eff * 1.08, state.occupiedBeds + admitted + r1 + r2 + complications - complicationRelief - naturalOut - delayedOut)
+  );
+
+  // COMMUNITY STOCK — the revolving door accumulator.
+  // Inflow: patients discharged from wards (natulOut + delayedOut).
+  // Outflow: deterioration/re-presentation to ED (already counted in adjustedAdmissions
+  //   via revolvingDoorFlow), plus genuine resolution (patients who stabilise long-term).
+  // This stock drives the demand that returns after process fixes.
+  const revolving = revolvingDoorFlow() * dt;
+  const genuineResolution = state.communityStock * 0.005 * dt; // ~1.5%/month genuinely recover/move to LTC
+  state.communityStock = Math.max(0, Math.min(800,
+    state.communityStock + (naturalOut + delayedOut) * dt - revolving - genuineResolution
+  ));
+
+  state.electiveBacklog = Math.max(0, Math.min(25000, state.electiveBacklog + electiveBacklogDelta() * dt));
+  state.EDPressure += (Math.min(1, occ) - state.EDPressure) * 0.1;
+  state.week += dt / 7;
+
+  // ── R3: Island Financial Trap (FOI calibrated) ────────────────────────────
+  // Cost now driven by actual transfer flow (flowB), not just occupancy proxy.
+  // FOI: £3.43M/yr ÷ ~420 totafers = ~£8,155/patient-transfer
+  // Plus fixed overhead (HEMS callout, coordination) ≈ £2,500 fixed/day baseline
+  const transfersToday = state.airBridgeFlow * dt;
+  const variableCost = transfersToday * 8155;
+  const fixedCost = 2500 * dt; // fixed daily overhead regardless of volume
+  const todayCost = variableCost + fixedCost;
+  state.transferCostAccumulator += todayCost;
+
+  // 20% YoY cost escalation (FOI FY23→FY24 data)
+  const costEscalation = 1 + (state.week / 52) * 0.20; // applies annually
+  annualisedCost = (state.transferCostAccumulator / (state.week + 0.01)) * 52 * costEscalation;
+  const targetBudgetPressure = Math.min(1, annualisedCost / 4500000);
+  state.budgetPressure += (targetBudgetPressure - state.budgetPressure) * 0.008;
+
+  // ── LoS >21 days stock ────────────────────────────────────────────────────
+  updateLosOver21(dt);
+
+  if (state.history.weeks.length === 0 || state.week tory.weeks[state.history.weeks.length - 1] || 0) >= 1) {
+    state.history.weeks.push(Math.round(state.week));
+    state.history.occupancy.push(state.occupiedBeds / eff);
+    state.history.edWait.push(edWaitHours());
+    state.history.delayed.push(state.delayedPatientsStock);
+    state.history.elective.push(state.electiveBacklog);
+    state.history.transferCost.push(state.annualTransferCost + (state.transferCostAccumulator * 52));
+    state.history.losOver21.push(state.losOver21);
+    if (state.history.weeks.length > 52) {
+      Object.keys(state.history).forEach(k => state.history[k].shift());
+    }
+    onWeekRecorded();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FLOW DIAGRAM
+// ────────────────────────────────────────────â─────────────────────────────
+const flowCanvas = document.getElementById('flowCanvas');
+const fctx = flowCanvas.getContext('2d');
+
+function initCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = flowCanvas.parentElement.clientWidth;
+  const h = 360;
+  flowCanvas.style.width = w + 'px';
+  flowCanvas.style.height = h + 'px';
+  flowCanvas.width = w * dpr;
+  flowCanvas.height = h * dpr;
+  fctx.scale(dpr, dpr);
+}
+
+function drawFlowDiagr fctx.clearRect(0, 0, w, h);
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+  const edWait = edWaitHours();
+
+  function occColor(o) {
+    if (o < 0.85) return T.green;
+    if (o < 0.92) return T.amber;
+    return T.red;
+  }
+
+  const padding = 20;
+  const compH = 84;
+  const compY = 108;
+  const commX = padding;
+  const commW = w * 0.15;
+  const edX = commX + commW + 36;
+  const edW = w * 0.13;
+  const edOcc = Math.min(1, edWait / 14);
+  const wardX = edX + edW + 36;
+  const wardW = w * 0.25;
+  const ddX = wardX + wardW + 36;
+  const ddW = w * 0.13;
+  const ddOcc = state.delayedPatientsStock / (eff * 0.4);
+  const scX = ddX + ddW + 36;
+  const scW = Math.max(0, w - scX - padding);
+
+  // Each stock has a fixed identity colour (matches prose names) and a traffic-light fill colour
+  // Identity colours: Community=blue, ED=amber, Ward=blue, MedFit=red, SocialCare=green
+  // Fill (liquid) colours: traffic-light based on level
+
+  function trafficColor(ratio, warnAt, dangerAt) {
+    if (ratio >= dangerAt) return T.red;
+    if (ratio >= warnAt)   return T.amber;
+    return T.green;
+  }
+
+  function drawCompartment(x, cw, label, sublabel, fillRatio, borderColor, fillColor, line1, line2) {
+    // Background
+    fctx.fillStyle = T.surface2;
+    fctx.fillRect(x, compY, cw, compH);
+
+    // Outer border — stock identity colour
+    fctx.strokeStyle = borderColor;
+    fctx.lineWidth = 1.5;
+    fctx.strokeRect(x, compY, cw, compH);
+
+    // Fill liquid — traffic-light colour based on level
+    const fil compH * Math.min(1, Math.max(0, fillRatio));
+    const grad = fctx.createLinearGradient(x, compY + compH, x, compY + compH - fillH);
+    grad.addColorStop(0, fillColor + '88');
+    grad.addColorStop(1, fillColor + '33');
+    fctx.fillStyle = grad;
+    fctx.fillRect(x, compY + compH - fillH, cw, fillH);
+
+    // Stock name above — identity colour
+    fctx.fillStyle = borderColor;
+    fctx.font = '700 10px Inter';
+    fctx.textAlign = 'center';
+    fctx.fillText(label, x + cw / 2, compY - 20);
+
+    // Descrtor below label
+    fctx.fillStyle = T.muted2;
+    fctx.font = '9px Inter';
+    fctx.textAlign = 'center';
+    fctx.fillText(sublabel, x + cw / 2, compY - 8);
+
+    // Key metric inside box
+    fctx.fillStyle = T.text;
+    fctx.font = '700 13px "JetBrains Mono"';
+    fctx.textAlign = 'center';
+    fctx.fillText(Math.round(fillRatio * 100) + '%', x + cw / 2, compY + compH / 2);
+
+    // Lines below box
+    if (line1) {
+      fctx.fillStyle = fillColor;
+      fctx.font = '600 9px "JetBrains Mono"';
+      fctx.textAlign = 'center';
+      fctx.fillText(line1, x + cw / 2, compY + compH + 14);
+    }
+    if (line2) {
+      fctx.fillStyle = T.muted2;
+      fctx.font = '9px Inter';
+      fctx.textAlign = 'center';
+      fctx.fillText(line2, x + cw / 2, compY + compH + 26);
+    }
+  }
+
+  const edWaitStr = edWait < 4 ? edWait.toFixed(1) + 'h wait' : edWait.toFixed(1) + 'h ⚠';
+
+  // Community — now shows actual communityStock accumulator (revolving door pool)
+  // Fill represents how loaded the pool is relative to a 500ient reference level.
+  // When high, expect sustained demand reload after process fixes.
+  const commFill = Math.min(1, state.communityStock / 500);
+  const commFillColor = commFill > 0.65 ? T.amber : T.blue;
+  drawCompartment(commX, commW,
+    'COMMUNITY',       'revolving door pool',
+    commFill, T.blue,  commFillColor,
+    Math.round(state.communityStock) + ' patients', 'recently discharged');
+
+  // ED — border amber (identity), fill traffic-light on wait time
+  const edFillColor = trafficColor(edOcc0.4, 0.7);
+  drawCompartment(edX, edW,
+    'ED QUEUE',        'awaiting ward bed',
+    edOcc, T.amber, edFillColor,
+    edWaitStr, 'from arrival to ward');
+
+  // Ward — border blue (identity), fill traffic-light on occupancy
+  const wardFillColor = trafficColor(occ, 0.85, 0.92);
+  drawCompartment(wardX, wardW,
+    'WARD BEDS',       'inpatients receiving care',
+    occ, T.blue, wardFillColor,
+    Math.round(state.occupiedBeds) + ' / ' + eff, 'occupied of staffed beds');
+
+  // Medically fit / delayed — br red (identity), fill traffic-light on how many stuck
+  const ddFillColor = trafficColor(ddOcc, 0.3, 0.6);
+  drawCompartment(ddX, ddW,
+    'MEDICALLY FIT',   'ready to leave, stuck',
+    Math.min(1, ddOcc), T.red, ddFillColor,
+    Math.round(state.delayedPatientsStock) + ' patients', 'no social care place');
+
+  // Social care — border green (identity), fill inverted: low capacity = red problem
+  const scRatio = P.socialCare / 100;
+  const scFillColor = scRatio >= 0.75 ? T.green : scRatio >= 0.5 ? T.amber T.red;
+  drawCompartment(scX, scW,
+    'SOCIAL CARE',     'community & care places',
+    scRatio, T.green, scFillColor,
+    Math.round(P.socialCare) + '% of need met', 'controls discharge rate');
+
+  function drawArrow(x1, y1, x2, y2, col, label, curved) {
+    fctx.strokeStyle = col;
+    fctx.lineWidth = 1.5;
+    fctx.beginPath();
+    if (curved) {
+      const mx = (x1 + x2) / 2;
+      const cy = y1 - 40;
+      fctx.moveTo(x1, y1);
+      fctx.quadraticCurveTo(mx, cy, x2, y2);
+    } else {
+      fctx.moveTo(x1, y1);
+      fctx.lineTo(x2, y2);
+    }
+    fctx.stroke();
+
+    const angle = curved
+      ? Math.atan2(y2 - (y1 - 40), x2 - (x1 + x2) / 2)
+      : Math.atan2(y2 - y1, x2 - x1);
+    fctx.fillStyle = col;
+    fctx.beginPath();
+    fctx.moveTo(x2, y2);
+    fctx.lineTo(x2 - 7 * Math.cos(angle - 0.35), y2 - 7 * Math.sin(angle - 0.35));
+    fctx.lineTo(x2 - 7 * Math.cos(angle + 0.35), y2 - 7 * Math.sin(angle + 0.35));
+    fctx.closePath();
+    fctx.fill();
+
+    if (label) {
+      fctx.fillStyle = col;
+      fctx.font = '9px "JetBrains Mono"';
+      fctx.textAlign = 'center';
+      fctx.fillText(label, (x1 + x2) / 2, curved ? y1 - 48 : (y1 + y2) / 2 - 5);
+    }
+  }
+
+  const midY = compY + compH / 2;
+  drawArrow(commX + commW, midY, edX, midY, T.muted2, 'admissions →');
+  drawArrow(edX + edW, midY, wardX, midY, occ > 0.9 ? T.red : T.amber, '');
+  drawArrow(wardX + wardW, midY, ddX, midY, T.red, '');
+  drawArrow(ddX + ddW, midY, scX, midY, T.red, '');
+  drawArrow(scX + scW / 2, compY, wardX + wardW * 0.5, compY -, T.green + 'BB', '', false);
+
+  if (edWait > 5) {
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 400);
+    fctx.setLineDash([4, 4]);
+    drawArrow(wardX + wardW * 0.3, compY, edX + edW * 0.7, compY, `rgba(248,113,113,${0.3 + pulse * 0.5})`, 'R1 readmission', false);
+    fctx.setLineDash([]);
+  }
+
+  // REVOLVING DOOR: community → ED re-presentation.
+  // This is always active — demand is conserved, not destroyed by discharge.
+  // Strength scales with community stock and deterioration rate.
+  // Ths why process fixes alone don't hold: they discharge faster,
+  // community stock grows, revolving door accelerates.
+  {
+    const revRate = revolvingDoorFlow();
+    const revStrength = Math.min(1, revRate / 8); // normalise: 8/day = full strength
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 600 + 2);
+    const alpha = 0.25 + revStrength * 0.55 + pulse * 0.1 * revStrength;
+    fctx.setLineDash([5, 4]);
+    fctx.strokeStyle = `rgba(251,191,36,${alpha})`;
+    fctx.lineWidth = 1.5 + revStrength;
+    fctx.beginPath();
+    fctx.moveTo(commX + commW * 0.5, compY + compH);
+    fctx.quadraticCurveTo(
+      (commX + commW * 0.5 + edX + edW * 0.5) / 2,
+      compY + compH + 52,
+      edX + edW * 0.5, compY + compH
+    );
+    fctx.stroke();
+    fctx.setLineDash([]);
+    // arrowhead
+    fctx.fillStyle = `rgba(251,191,36,${alpha})`;
+    fctx.beginPath();
+    fctx.moveTo(edX + edW * 0.5, compY + compH);
+    fctx.lineTo(edX + edW * 0.5 - 6, compY + compH + 8);
+    fctx.lineTo(edX + edW * 0.5 + 6, compY + compH + 8);
+    fctx.closePath();
+    fctx.fill();
+    // label
+    fctx.fillStyle = `rgba(251,191,36,${alpha + 0.1})`;
+    fctx.font = `600 9px "JetBrains Mono"`;
+    fctx.textAlign = 'center';
+    fctx.fillText(
+      `R2 revolving door — ${Math.round(revRate * 30)}/mo re-present`,
+      (commX + commW * 0.5 + edX + edW * 0.5) / 2,
+      compY + compH + 64
+    );
+  }
+
+  // Status message
+  const statusCol = occ > 0.92 ? T.red : occ > 0.85 ? T.amber : T.green;
+  const statusText = occ > 0.92 ? '⚠ CRITICAL: Systemreinforcing crisis loop'
+    : occ > 0.85 ? '⚡ WARNING: Approaching safe operating limit (85%)'
+    : '✓ STABLE: Within operating parameters';
+  fctx.fillStyle = statusCol;
+  fctx.font = '600 11px Inter';
+  fctx.textAlign = 'left';
+  fctx.fillText(statusText, padding, compY + compH + 52);
+
+  fctx.fillStyle = T.muted2;
+  fctx.font = '10px "JetBrains Mono"';
+  fctx.textAlign = 'right';
+  fctx.fillText('Elective backlog: ' + Math.round(state.electiveBacklog) + ' patients waiting for planned surgery', w - png, compY + compH + 52);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TIME CHART
+// ─────────────────────────────────────────────────────────────────────────────
+t timeCanvas = document.getElementById('timeChart');
+const tctx = timeCanvas.getContext('2d');
+
+function initTimeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = timeCanvas.parentElement.clientWidth;
+  const h = 150;
+  timeCanvas.style.width = w + 'px';
+  timeCanvas.style.height = h + 'px';
+  timeCanvas.width = w * dpr;
+  timeCanvas.height = h * dpr;
+  tctx.scale(dpr, dpr);
+}
+
+function drawTimeChart(w, h) {
+  tctx.clearRect(0, 0, w, h);
+  const hist = state.history;
+
+  const pad = { top: 14, right: 90, bottom: 22, left: 42 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+  const n = hist.occupancy.length;
+
+  // ── Zone bands ──
+  // Safe zone (green tint below 85%)
+  tctx.fillStyle = 'rgba(52,211,153,0.04)';
+  tctx.fillRect(pad.left, pad.top + ch * 0.15, cw, ch * 0.85);
+
+  // Amber zone (85–92%)
+  const y85 = pad.top + ch - 0.85 * ch;
+  const y92 = pad.top + ch - 0.92 * ch;
+  tctx.fillStyle = 'rgba(251,191,36,0.07)';
+  tctx.fillRect(pad.left, y92, cw2);
+
+  // Red zone (above 92%)
+  tctx.fillStyle = 'rgba(248,113,113,0.07)';
+  tctx.fillRect(pad.left, pad.top, cw, y92 - pad.top);
+
+  // ── Threshold lines ──
+  function threshLine(val, col, label) {
+    const y = pad.top + ch - val * ch;
+    tctx.strokeStyle = col;
+    tctx.lineWidth = 1;
+    tctx.setLineDash([4, 4]);
+    tctx.beginPath();
+    tctx.moveTo(pad.left, y);
+    tctx.lineTo(pad.left + cw, y);
+    tctx.stroke();
+    tctx.setLineDash([]);
+    tctx.fillStyle = col;
+    tctx.font = '9px Intetctx.textAlign = 'left';
+    tctx.fillText(label, pad.left + cw + 4, y + 3);
+    tctx.font = '8px "JetBrains Mono"';
+    tctx.textAlign = 'right';
+    tctx.fillText((val * 100) + '%', pad.left - 4, y + 3);
+  }
+
+  threshLine(0.92, 'rgba(248,113,113,0.7)', '← crisis');
+  threshLine(0.85, 'rgba(251,191,36,0.7)',  '← warning');
+
+  if (n < 2) {
+    // No data yet — placeholder
+    tctx.fillStyle = T.muted2;
+    tctx.font = '11px Inter';
+    tctx.textAlign = 'center';
+    tctx.fillText('Run simulation to seoccupancy over time', pad.left + cw / 2, pad.top + ch / 2);
+    return;
+  }
+
+  // ── Area fill ──
+  tctx.beginPath();
+  hist.occupancy.forEach((v, i) => {
+    const x = pad.left + (i / (n - 1)) * cw;
+    const y = pad.top + ch - v * ch;
+    i === 0 ? tctx.moveTo(x, y) : tctx.lineTo(x, y);
+  });
+  tctx.lineTo(pad.left + cw * ((n-1)/(n-1)), pad.top + ch);
+  tctx.lineTo(pad.left, pad.top + ch);
+  tctx.closePath();
+  const aGrad = tctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  aGrad.addColorSrgba(96,165,250,0.18)');
+  aGrad.addColorStop(1, 'rgba(96,165,250,0.02)');
+  tctx.fillStyle = aGrad;
+  tctx.fill();
+
+  // ── Occupancy line — colour-segmented ──
+  for (let i = 1; i < n; i++) {
+    const x0 = pad.left + ((i-1) / (n-1)) * cw;
+    const y0 = pad.top + ch - hist.occupancy[i-1] * ch;
+    const x1 = pad.left + (i / (n-1)) * cw;
+    const y1 = pad.top + ch - hist.occupancy[i] * ch;
+    const v = hist.occupancy[i];
+    const segCol = v >= 0.92 ? T.red : v >= 0.85 ? T.amber : T.green;
+   keStyle = segCol;
+    tctx.lineWidth = 2;
+    tctx.beginPath();
+    tctx.moveTo(x0, y0);
+    tctx.lineTo(x1, y1);
+    tctx.stroke();
+  }
+
+  // ── Delayed discharge line (secondary, dashed) ──
+  const maxDelayed = Math.max(...hist.delayed, 40);
+  tctx.strokeStyle = 'rgba(248,113,113,0.5)';
+  tctx.lineWidth = 1.5;
+  tctx.setLineDash([3, 3]);
+  tctx.beginPath();
+  hist.delayed.forEach((v, i) => {
+    const x = pad.left + (i / (n-1)) * cw;
+    const y = pad.top + ch - (v / maxDelayed) * ch;
+    i === 0 oveTo(x, y) : tctx.lineTo(x, y);
+  });
+  tctx.stroke();
+  tctx.setLineDash([]);
+
+  // ── Current week cursor ──
+  const cx2 = pad.left + cw;
+  const curOcc = hist.occupancy[n-1];
+  const curY = pad.top + ch - curOcc * ch;
+  tctx.strokeStyle = T.muted2;
+  tctx.lineWidth = 1;
+  tctx.setLineDash([2, 3]);
+  tctx.beginPath(); tctx.moveTo(cx2, pad.top); tctx.lineTo(cx2, pad.top + ch); tctx.stroke();
+  tctx.setLineDash([]);
+  // Dot at current value
+  const dotCol = curOcc >= 0.92 ? T.red : curOcc >= 0.85 r : T.green;
+  tctx.fillStyle = dotCol;
+  tctx.beginPath(); tctx.arc(cx2, curY, 4, 0, Math.PI*2); tctx.fill();
+
+  // ── X axis — week labels ──
+  tctx.fillStyle = T.muted2;
+  tctx.font = '8px "JetBrains Mono"';
+  tctx.textAlign = 'center';
+  const wk = hist.weeks;
+  const step = Math.max(1, Math.floor(n / 6));
+  for (let i = 0; i < n; i += step) {
+    const x = pad.left + (i / (n-1)) * cw;
+    tctx.fillText('w' + wk[i], x, h - 5);
+  }
+
+  // ── Legend (right side) ──
+  const legX = pad.left cw + 4;
+  tctx.font = '9px Inter';
+  tctx.textAlign = 'left';
+  tctx.fillStyle = T.blue;
+  tctx.fillText('— Bed', legX, pad.top + 22);
+  tctx.fillText('occupancy', legX, pad.top + 33);
+  tctx.fillStyle = 'rgba(248,113,113,0.7)';
+  tctx.fillText('- - Fit,', legX, pad.top + 50);
+  tctx.fillText('waiting', legX, pad.top + 61);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// CIRCULAR LOOP DIAGRAMS WITH ELECTRON ANIMATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Each loop has nodes arranged on a circle; electrons travel the arcs
+// Electron positions are 0..1 around the loop, advancing per frame
+
+// ─────────────────â──────────────────────────────────────────────────────────
+// UNIFIED CAUSAL LOOP DIAGRAM — week-clocked electrons
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Node layout: OCC at centre, others arnged around it
+// We'll compute positions in drawCLD based on canvas size
+
+const CLD_NODES = {
+  // TOP ROW — R1 top-right triangle, R2 top-left triangle
+  CANC:  { label: 'Cancelled\nElectives',       fx: 0.16, fy: 0.08 },  // R2 top-left
+  ED:    { label: 'ED Boarding\n& Wait Time',    fx: 0.46, fy: 0.08 },  // R1 top-centre
+  HARM:  { label: 'Patient\nDeterioration',      fx: 0.76, fy: 0.08 },  // R1 top-right
+
+  // MIDDLE ROW — hub plus R1/R2 returns
+  DETN:  { label: 'Elective\nDeterioration',     0.10, fy: 0.40 },  // R2 left
+  OCC:   { label: 'Bed\nOccupancy',              fx: 0.46, fy: 0.40 },  // HUB — centre
+  READM: { label: 'Emergency\nReadmissions',     fx: 0.76, fy: 0.40 },  // R1 right
+
+  // FAR-RIGHT COLUMN — R3 Island Financial Trap, own vertical strip
+  // Kept at fx 0.90-0.92; on a 450px canvas this is ~405-414px — clear of READM at ~342px
+  XFER:  { label: 'Tertiary\nTransfers',         fx: 0.91, fy: 0.14 },  // R3 top
+  COST:  { label: 'Transfer\nCosts £3.4M',       fx: 0.91, f },  // R3 mid
+  BUDG:  { label: 'Local\nBudget',               fx: 0.91, fy: 0.62 },  // R3 lower
+
+  // LOWER ROW — B3 proper 3-node triangle, B2 bottom arc
+  // B3 FIXED: was a 2-node ping-pong. Now a proper circuit:
+  //   OCC → OOH (more pressure → attention to OOH cover)
+  //   OOH → UADM (better OOH cover → fewer unnecessary admissions)
+  //   UADM → OCC (fewer unnecessary admissions → lower occupancy)
+  // This gives B3 a visible triangle with an electron that clearly traverses a loop.
+el: 'OOH Senior\nCover',           fx: 0.22, fy: 0.65 },  // B3 left
+  UADM:  { label: 'Unnecessary\nAdmissions',     fx: 0.46, fy: 0.72 },  // B3 intermediate (NEW)
+
+  // B2 bottom arc
+  SC:    { label: 'Social Care\nCapacity',        fx: 0.16, fy: 0.90 },  // B2 bottom-left, R3 terminus
+  DD:    { label: 'Delayed\nDischarge',           fx: 0.68, fy: 0.90 },  // B2 bottom-right
+};
+
+// Arcs — Lane/Monefeldt/Rosenhead (2000) + Gent review + Island extension
+const CLD_ARCS = [
+  // R1 — red: reinforcing Eiral
+  // OCC → ED → HARM → READM → OCC
+  { from:'OCC',  to:'ED',   loop:'R1', sign:'+', perp: 0.20 },
+  { from:'ED',   to:'HARM', loop:'R1', sign:'+', perp: 0.20 },
+  { from:'HARM', to:'READM',loop:'R1', sign:'+', perp: 0.20 },
+  { from:'READM',to:'OCC',  loop:'R1', sign:'+', perp: 0.20 },
+
+  // R2 — amber: reinforcing elective trap
+  // OCC → CANC → DETN → OCC
+  { from:'OCC',  to:'CANC', loop:'R2', sign:'+', perp:-0.22 },
+  { from:'CANC', to:'DETN', loop:'R2', sign:'+', perp:-0.22 },
+  { from:'DETN', to:'OCC',  loop:'R2', sign:'+', perp:-0.22 },
+
+  // B2 — green: balancing via social care
+  // SC -(−)→ DD -(+)→ OCC  (more SC → fewer delayed discharges → lower occupancy)
+  { from:'SC',   to:'DD',   loop:'B2', sign:'−', perp: 0.18 },
+  { from:'DD',   to:'OCC',  loop:'B2', sign:'+', perp:-0.18 },
+
+  // B3 — purple: balancing via OOH senior decision cover
+  // PROPER 3-NODE LOOP (was incorrectly 2-node):
+  // OCC -(+)→ OOH: rising occupancy creates pressure to improve OOH seniocover
+  // OOH -(−)→ UADM: better senior cover reduces unnecessary admissions (Gent: 2/3 OOH, juniors risk-averse)
+  // UADM -(−)→ OCC: fewer unnecessary admissions → lower occupancy
+  // Net: B (balancing) — one odd number of negative signs
+  { from:'OCC',  to:'OOH',  loop:'B3', sign:'+', perp: 0.15 },
+  { from:'OOH',  to:'UADM', loop:'B3', sign:'−', perp: 0.15 },
+  { from:'UADM', to:'OCC',  loop:'B3', sign:'−', perp: 0.15 },
+
+  // R3 — orange: Island Financial Trap (FOI calibrated, £3.4yr and rising)
+  // OCC -(+)→ XFER -(+)→ COST -(+)→ BUDG -(−)→ SC -(−)→ OCC
+  // More occupancy → more tertiary transfers → higher cost → budget consumed
+  // → less investment in social care → weaker discharge → higher occupancy
+  { from:'OCC',  to:'XFER', loop:'R3', sign:'+', perp: 0.10 },
+  { from:'XFER', to:'COST', loop:'R3', sign:'+', perp: 0.10 },
+  { from:'COST', to:'BUDG', loop:'R3', sign:'+', perp: 0.10 },
+  { from:'BUDG', to:'SC',   loop:'R3', sign:'−', perp: 0.10 },
+     to:'OCC',  loop:'R3', sign:'−', perp:-0.10 },
+];
+
+// Electron state: one per loop, position = fractional arc index (0..numArcs)
+// Position advances by 1 each time the graph records a new week
+const cldElectrons = {
+  R1: { pos: 0, targetPos: 0, arcCount: 4 },
+  R2: { pos: 0, targetPos: 0, arcCount: 3 },
+  B2: { pos: 0, targetPos: 0, arcCount: 2 },
+  B3: { pos: 0, targetPos: 0, arcCount: 3 },  // now 3-node proper loop
+  R3: { pos: 0, targetPos: 0, arcCount: 5 },
+};
+let lastRecordedWeek = 0;
+
+function WeekRecorded() {
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+  const r1Active = occ > 0.85;
+  const r2Active = state.electiveBacklog > 150;
+  const r3Active = state.budgetPressure > 0.4; // R3 active when budget pressure is material
+
+  if (r1Active) cldElectrons.R1.targetPos += 1;
+  if (r2Active) cldElectrons.R2.targetPos += 1;
+  cldElectrons.B2.targetPos += 1;
+  cldElectrons.B3.targetPos += 1;
+  if (r3Active) cldElectrons.R3.targetPos += 1;
+}
+
+// Smoothly interpolate electron positions each render frame
+function tickCLDElectrons(dtMs) {
+  const speed = dtMs * 0.006;
+  ['R1','R2','B2','B3','R3'].forEach(k => {
+    const e = cldElectrons[k];
+    const diff = e.targetPos - e.pos;
+    e.pos += diff * Math.min(1, speed);
+    if (e.pos > e.arcCount * 100) { e.pos -= e.arcCount * 100; e.targetPos -= e.arcCount * 100; }
+  });
+}
+
+function initUnifiedCLD() {
+  const dpr = window.devicePixelRatio || 1;
+  const el = document.getElementById('cldUnified');
+  const w = el.parentElement.clientWidth;
+  const h = 340;
+  el.style.width = w + 'px';
+  el.style.height = h + 'px';
+  el.width = w * dpr;
+  el.height = h * dpr;
+  el.getContext('2d').scale(dpr, dpr);
+}
+
+function drawUnifiedCLD() {
+  const el = document.getElementById('cldUnified');
+  if (!el) return;
+  const ctx = el.getContext('2d');
+  const w = el.offsetWidth;
+  const h = el.offsetHeight || 340;
+  ctx.clearRect(0, 0, w, h);
+
+  const eff = effectiveBeds();
+  const occ = state.occupiedBeds / eff;
+  const r1Active = occ > 0.85;
+  const r2Active = state.electiveBacklog > 150;
+
+  const r3Active = state.budgetPressure > 0.4;
+  function isLoopActive(loop) {
+    if (loop === 'R1') return r1Active;
+    if (loop === 'R2') return r2Active;
+    if (loop === 'R3') return r3Active;
+    return true; // B2, B3 always shown
+  }
+
+  const loopColor = { R1: T.red, R2: T.amber, B2: T.green, B3: T.purple, R3: T.orange };
+
+  function hexToRgba(hex, a) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  const nodePos = {};
+  Object.entries(CLD_NODES).forEach(([id, n]) => {
+    nodePos[id] = { x: n.fx * w, y: n.fy * h, label: n.label };
+  });
+
+  const NR = 28;   // node half-width
+  const NH = 17;   // node half-height
+
+  // ── Draw arcs ──
+  // Build arc geometry cache so electrons can reuse it
+  const arcGeom = [];
+
+  CLD_ARCS.forEach((arc, arcIdx) => {
+    const a = nodePos[arc.from];
+    const b = nodePos[arc.to];
+    // Guard: skip if either node is misouldn't happen but prevents silent crash)
+    if (!a || !b) { arcGeom.push(null); return; }
+    const active = isLoopActive(arc.loop);
+    const col = loopColor[arc.loop] || T.muted;
+    const alpha = active ? 1 : 0.15;
+
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const nx = dx/dist, ny = dy/dist;
+    const sx = a.x + nx*NR, sy = a.y + ny*NH;
+    const ex = b.x - nx*NR, ey = b.y - ny*NH;
+
+    // Perp offset for multi-loop routing clarity
+    const perp = arc.perp * dist;
+    const mx = (sx+ex)/2 + (-ny)*perp;
+    const my = (sy+ey)/2 + (nx)*perp;
+
+    arcGeom.push({ sx, sy, ex, ey, mx, my, col, active, alpha });
+
+    // Arc line
+    ctx.strokeStyle = hexToRgba(col, alpha * 0.7);
+    ctx.lineWidth = active ? 1.5 : 0.8;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.quadraticCurveTo(mx, my, ex, ey);
+    ctx.stroke();
+
+    // Arrowhead
+    const angle = Math.atan2(ey - my, ex - mx);
+    ctx.fillStyle = hexToRgba(col, alpha * 0.85);
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 9*Math.cos(angle-0.38), ey - 9*Math.sin(angle-0.38));
+    ctx.lineTo(ex - 9*Math.cos(angle+0.38), ey - 9*Math.sin(angle+0.38));
+    ctx.closePath();
+    ctx.fill();
+
+    // +/− sign placed near the arrowhead (80% along the bezier curve)
+    const st = 0.80;
+    const signX = (1-st)*(1-st)*sx + 2*(1-st)*st*mx + st*st*ex;
+    const signY = (1-st)*(1-st)*sy + 2*(1-st)*st*my + st*st*ey;
+    // Offset perpendicular to arc direction at that point so it doesn't overlap the line   const tangX = 2*(1-st)*(mx-sx) + 2*st*(ex-mx);
+    const tangY = 2*(1-st)*(my-sy) + 2*st*(ey-my);
+    const tLen = Math.sqrt(tangX*tangX + tangY*tangY) || 1;
+    const perpX = -tangY/tLen * 8;
+    const perpY =  tangX/tLen * 8;
+    ctx.fillStyle = hexToRgba(col, alpha * 0.9);
+    ctx.font = `700 10px "JetBrains Mono"`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(arc.sign, signX + perpX, signY + perpY);
+    ctx.textBaseline = 'alphabetic';
+  });
+
+  // ── Draw electr──
+  const loopArcIndices = { R1: [], R2: [], B2: [], B3: [] };
+  CLD_ARCS.forEach((arc, i) => { if (loopArcIndices[arc.loop]) loopArcIndices[arc.loop].push(i); });
+
+  ['R1','R2','B2','B3','R3'].forEach(loopKey => {
+    if (!isLoopActive(loopKey)) return;
+    const e = cldElectrons[loopKey];
+    const arcIdxList = loopArcIndices[loopKey];
+    if (!arcIdxList || arcIdxList.length === 0) return;
+    const n = arcIdxList.length;
+    const col = loopColor[loopKey];
+
+    const loopPos = e.pos % n;
+    const  = Math.floor(loopPos) % n;
+    const segT = loopPos - Math.floor(loopPos);
+    const geom = arcGeom[arcIdxList[segI]];
+    if (!geom) return;
+    const { sx, sy, mx, my, ex, ey } = geom;
+    const t = segT;
+    const px = (1-t)*(1-t)*sx + 2*(1-t)*t*mx + t*t*ex;
+    const py = (1-t)*(1-t)*sy + 2*(1-t)*t*my + t*t*ey;
+
+    const grd = ctx.createRadialGradient(px, py, 0, px, py, 10);
+    grd.addColorStop(0, hexToRgba(col, 0.9));
+    grd.addColorStop(0.5, hexToRgba(col, 0.4));
+    grd.addColorStop(1, hexToRgba(col, 0));
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(px, py, 2.8, 0, Math.PI*2); ctx.fill();
+  });
+
+  // ── Draw nodes ──
+  Object.entries(nodePos).forEach(([id, np]) => {
+    const isCentre = id === 'OCC';
+    const touchingLoops = CLD_ARCS.filter(a => (a.from === id || a.to === id) && isLoopActive(a.loop));
+    const isActive = touchingLoops.length > 0;
+
+    let borderCol = T.border2;
+    Col = T.surface2;
+    if (isActive) {
+      if (touchingLoops.some(a => a.loop === 'R1'))      { borderCol = T.red;    fillCol = hexToRgba(T.red,    0.14); }
+      else if (touchingLoops.some(a => a.loop === 'R2')) { borderCol = T.amber;  fillCol = hexToRgba(T.amber,  0.12); }
+      else if (touchingLoops.some(a => a.loop === 'R3')) { borderCol = T.orange; fillCol = hexToRgba(T.orange, 0.12); }
+      else if (touchingLoops.some(a => a.loop === 'B3')) { borderCol = T.purple; fillCol = hexToRgba(T.purple, 0.12); }
+      else                                                { borderCol = T.green;  fillCol = hexToRgba(T.green,  0.12); }
+    }
+    if (isCentre) { borderCol = T.blue; fillCol = hexToRgba(T.blue, 0.18); }
+
+    ctx.beginPath();
+    ctx.ellipse(np.x, np.y, isCentre ? NR+5 : NR, isCentre ? NH+5 : NH, 0, 0, Math.PI*2);
+    ctx.fillStyle = fillCol; ctx.fill();
+    ctx.strokeStyle = borderCol; ctx.lineWidth = isCentre ? 2 : 1.2; ctx.stroke();
+
+    // Always readable text — active nodes get T.text (light), active get T.muted (still readable)
+    ctx.fillStyle = isCentre ? T.blue : (isActive ? T.text : T.muted);
+    ctx.font = `${isCentre ? '700' : '500'} 9px Inter`;
+    ctx.textAlign = 'center';
+    np.label.split('\n').forEach((line, li, arr) => {
+      ctx.fillText(line, np.x, np.y + (li - (arr.length-1)/2) * 11 + 3);
+    });
+  });
+
+  // ── Loop labels ──
+  function loopLabel(x, y, key, active) {
+    const col = loopColor[key];
+    ctx.fillStyle = active ? col : hexToRgba(col, 0.28);
+    ctx.font = x "JetBrains Mono"`;
+    ctx.textAlign = 'center';
+    ctx.fillText(key, x, y);
+    ctx.font = `9px Inter`;
+    ctx.fillStyle = active ? hexToRgba(col, 0.75) : hexToRgba(col, 0.22);
+    ctx.fillText(active ? 'ACTIVE' : 'dormant', x, y + 13);
+  }
+
+  loopLabel(w*0.62, h*0.24, 'R1', r1Active);   // right of centre, between ED/HARM/READM
+  loopLabel(w*0.28, h*0.24, 'R2', r2Active);   // left of centre, between CANC/DETN
+  loopLabel(w*0.10, h*0.72, 'B2', true);        // bottom left, near SC/DD arc
+  loopLabel(w*0.34, h*0.58, 'B3', true);        // lower centre, OOH/UADM triangle
+  loopLabel(w*0.91, h*0.80, 'R3', r3Active);    // far right, below R3 chain
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STEPPED RUN — advance 1 week, annotate what happened
+// ─────────────────────────────────────────────────────────────────────
+function doStep() {
+  state.running = false;
+
+  const eff = effectiveBeds();
+  const occBefore = state.occupiedBeds / eff;
+  const waitBefore = edWaitHours();
+  const backlogBefore = state.electiveBacklog;
+  const delayedBefore = state.delayedPatientsStock;
+
+  // Advance exactly 1 week
+  for (let i = 0; i < 7 * 7; i++) tickRaw();
+
+  const occAfter = state.occupiedBedst waitAfter = edWaitHours();
+  const backlogAfter = state.electiveBacklog;
+  const delayedAfter = state.delayedPatientsStock;
+
+  const r1Active = occAfter > 0.85;
+  const r2Active = backlogAfter > 150;
+  const dBacklog = Math.round(backlogAfter - backlogBefore);
+  const dOcc = ((occAfter - occBefore) * 100).toFixed(1);
+
+  let parts = [];
+  if (r1Active) {
+    parts.push(`<span style="color:${T.red}; font-weight:600;">R1 active</span> — occupancy ${Math.round(occAfter*100)}%, ED wait ${waitAfter.toFixed(1), readmissions feeding back into wards`);
+  }
+  if (r2Active) {
+    parts.push(`<span style="color:${T.amber}; font-weight:600;">R2 active</span> — elective backlog ${Math.round(backlogAfter)} (${dBacklog > 0 ? '+' : ''}${dBacklog} this week)`);
+  }
+  if (!r1Active && !r2Active) {
+    parts.push(`<span style="color:${T.green}; font-weight:600;">System stable</span> — occupancy ${Math.round(occAfter*100)}%, ED wait ${waitAfter.toFixed(1)}h, no reinforcing loops active`);
+  }
+  parts.push(`<span style="co${T.muted};">${Math.round(delayedAfter)} patients medically fit but waiting · occupancy ${dOcc > 0 ? '+' : ''}${dOcc}% this week</span>`);
+
+  const ann = document.getElementById('stepAnnotation');
+  const annTxt = document.getElementById('stepAnnotationText');
+  ann.style.display = 'block';
+  annTxt.innerHTML = `<strong style="color:${T.text};">Week ${Math.floor(state.week)}:</strong> ` + parts.join(' &nbsp;·&nbsp; ');
+
+  document.getElementById('stepHint').style.display = 'block';
+}
+
+// ─────â─────────────────────────────────────────────────────────
+// UI UPDATES
+// ─────────────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const eff = effectiveBeds();
+  const occ = state.occupiedBedst pct = Math.round(occ * 100);
+  const wait = edWaitHours();
+
+  function colorClass(val, warn, danger) {
+    return val >= danger ? 'danger' : val >= warn ? 'warning' : 'ok';
+  }
+
+  const elOcc = document.getElementById('statOccupancy');
+  elOcc.textContent = pct + '%';
+  elOcc.className = 'stat-value ' + colorClass(occ, 0.85, 0.92);
+
+  const elBeds = document.getElementById('statBeds');
+  elBeds.textContent = Math.round(state.occupiedBeds) + '/' + eff;
+  elBeds.className = 'stat-value ' + colorClass(occ, 0.85, 0.92);
+
+  const elWait = document.getElementById('statEDWait');
+  elWait.textContent = wait.toFixed(1);
+  elWait.className = 'stat-value ' + colorClass(wait, 6, 12);
+
+  document.getElementById('statDelayed').textContent = Math.round(state.delayedPatientsStock);
+  document.getElementById('statElective').textContent = Math.round(state.electiveBacklog).toLocaleString();
+
+  // LoS >21 days — IPR baseline: 11 (Jun-23), 43 (Mar-24), 55 (Apr-26)
+  const los21El = document.getElementById('statLos21');
+  los2l.textContent = Math.round(state.losOver21);
+  los21El.className = 'stat-value ' + colorClass(state.losOver21, 37, 50);
+
+  // Transfer cost — from actual accumulated flow, not proxy
+  const annCost = state.week > 0 ? (state.transferCostAccumulator / state.week) * 52 : 3425505;
+  const costEl = document.getElementById('statTransferCost');
+  costEl.textContent = '£' + (annCost / 1000000).toFixed(2) + 'M';
+  costEl.className = 'stat-value ' + colorClass(annCost, 3500000, 4500000);
+
+  // Airbridge flow
+  conabEl = document.getElementById('statAirbridge');
+  abEl.textContent = state.airBridgeFlow.toFixed(1);
+  abEl.className = 'stat-value ' + (state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
+
+  // ED trolley backup
+  const trEl = document.getElementById('statTrolley');
+  trEl.textContent = Math.round(state.edTrolleyBackup);
+  trEl.className = 'stat-value ' + colorClass(state.edTrolleyBackup, 10, 30);
+
+  document.getElementById('simWeek').textContent = Math.floor(state.week);
+
+  updateNarrative(occ, wait);
+  updateFlowProse(occ, wait);
+}
+
+// ── Colour-coded stock description — colours match canvas box borders ─────────
+function updateFlowProse(occ, wait) {
+  const eff = effectiveBeds();
+  const delayed = Math.round(state.delayedPatientsStock);
+  const sc = Math.round(P.socialCare);
+  const edOcc = Math.min(1, wait / 14);
+  const abFlow = state.airBridgeFlow || 0;
+  const trolley = Math.round(state.edTrolleyBackup || 0);
+  const los21 = Math.round(state.losOver21 || 0);
+  const annCost = state0 ? (state.transferCostAccumulator / state.week) * 52 : 3425505;
+
+  const edFill   = edOcc  >= 0.7  ? T.red  : edOcc  >= 0.4  ? T.amber : T.green;
+  const wardFill = occ    >= 0.92  ? T.red  : occ    >= 0.85  ? T.amber : T.green;
+  const ddFill   = delayed >= 40   ? T.red  : delayed >= 20   ? T.amber : T.green;
+  const scFill   = sc     < 50    ? T.red  : sc     < 75    ? T.amber : T.green;
+  const abFill   = abFlow  > 1.5  ? T.red  : abFlow  > 0.8   ? T.amber : T.green;
+  const costFill = annCost > 4500000 ? T.red : annCost > 3500000 ? T.amber : T.green;
+
+  function tag(label, borderColor, fillColor, detail) {
+    return `<div style="margin-bottom:6px;">
+      <span style="
+        display:inline-block;
+        border:1.5px solid ${borderColor};
+        border-radius:4px;
+        padding:1px 8px 1px 6px;
+        margin-right:6px;
+        font-weight:700;
+        color:${borderColor};
+        font-size:11px;
+        white-space:nowrap;
+        vertical-align:middle;
+        background:${fillColor}22;
+      ">${label}</span><span style="color:var(--muted); font-size:11px; vertical-align:middle;">${detail}</span>
+    </div>`;
+  }
+
+  document.getElementById('flowProse').innerHTML = `
+    <div style="font-size:12px; line-height:1.6; color:var(--muted); padding:4px 0;">
+      ${tag('COMMUNITY', T.blue, T.blue, `patients in the Isle of Man population present to Noble's as emergencies or via GP referral`)}
+      ${tag('ED QUEUE', T.amber, edFill, `patients await a ward bed — currently <span style="color:${edFill}; ft-weight:600;">${wait.toFixed(1)}h</span> from arrival to ward${trolley > 5 ? ` · <span style="color:${T.red}; font-weight:600;">${trolley} backed up</span> — airbridge at capacity` : ''}`)}
+      ${tag('AIRBRIDGE', T.orange, abFill, `Flow B: tertiary transfer when Noble's saturated — <span style="color:${abFill}; font-weight:600;">${abFlow.toFixed(2)} patients/day</span> via fixed-wing or HEMS · annualised cost <span style="color:${costFill}; font-weight:600;">£${(annCost/1000000).toFixed(2)}M</span    ${tag('WARD BEDS', T.blue, wardFill, `inpatients receiving care — <span style="color:${wardFill}; font-weight:600;">${Math.round(occ*100)}% of ${eff} staffed beds occupied</span> · <span style="color:${los21>37?T.red:los21>20?T.amber:T.green}; font-weight:600;">${los21} patients LoS&gt;21 days</span>`)}
+      ${tag('MEDICALLY FIT', T.red, ddFill, `clinically ready but unable to discharge — <span style="color:${ddFill}; font-weight:600;">${delayed} patients</span> blocked, each holding a bed that cobsorb a new ED admission`)}
+      ${tag('SOCIAL CARE', T.green, scFill, `community and care home capacity enabling discharge — at <span style="color:${scFill}; font-weight:600;">${sc}% of required capacity</span> · <span style="color:${T.muted};">R3 budget pressure: ${Math.round(state.budgetPressure*100)}%</span>`)}
+    </div>
+  `;
+}
+
+function updateNarrative(occ, wait) {
+  const eff = effectiveBeds();
+  const delay = Math.round(state.delayedPatientsStock);
+  const r2 = state.electiveBacklog > 150;
+  conr1 = occ > 0.85;
+  let text = '';
+
+  if (occ < 0.82) {
+    text = `<p>The system is <span class="ok-text">operating within safe parameters</span>. Bed occupancy at ${Math.round(occ*100)}% leaves sufficient buffer to absorb emergency demand spikes. ED waits are manageable at ${wait.toFixed(1)} hours. Neither reinforcing loop (R1 or R2) is dominant.</p>
+    <p>This is the operating window the Medical Staff Committee at Noble's has consistently argued the hospital needs to function safely. It requires either lower admission pressure, shorter length of stay, or more commissioned beds — and critically, <span class="highlight">functioning social care discharge routes</span>.</p>`;
+  } else if (occ < 0.92) {
+    text = `<p>Occupancy at ${Math.round(occ*100)}% is <span class="highlight">above the 85% safe operating threshold</span> identified in the literature. ED waits of ${wait.toFixed(1)} hours are increasing pressure. ${delay} patients are ready to leave but have nowhere to go.</p>
+    <p>${r1 ? '<span class="dger-text">Reinforcing loop R1 is now active</span>: high occupancy is extending ED waits, which increases risk of patient deterioration, which drives readmissions, which further loads the ward.' : ''} This is not a staffing failure in isolation. It is a system structure problem.</p>
+    <p>The Gent/PSG review found Noble's operating in this band persistently. The MSC's demands were a direct response to this dynamic — not clinical conservatism.</p>`;
+  } else {
+    text = `<p><span class="danger-text">The stem is in crisis territory.</span> At ${Math.round(occ*100)}% occupancy, Noble's is beyond its safe design capacity. ED waits of ${wait.toFixed(1)} hours mean patients are being harmed in queues. ${delay} medically-ready patients are blocking beds.</p>
+    <p><span class="danger-text">Both R1 and R2 are active simultaneously</span> — the hospital is caught in interlocking reinforcing loops. Adding beds alone will not solve this at speed; the discharge blockage (B2) must be addressed in parallel or new be fill immediately.</p>
+    ${r2 ? '<p>The elective backlog is feeding a secondary crisis: <span class="danger-text">cancelled operations are deteriorating into emergency admissions</span>, loading the very beds freed by cancellation. This is the "fixes that fail" archetype.</p>' : ''}
+    <p>This is the condition the Gent/PSG review was commissioned to investigate. The governance question is not whether Noble's is under pressure — it is whether the pressure was <span class="highlight">foreseeable, preventle, and reported upwards in time</span>.</p>`;
+  }
+
+  // ISOLATION & SPECIALIST DEPTH — surface isolation/specialist-depth effects when material.
+  if (!P.airBridgeOpen) {
+    text += `<p style="border-left:3px solid var(--red); padding-left:10px; margin-top:10px;"><span class="danger-text">Air bridge closed.</span> Noble's has no land-based mutual aid — unlike a mainland trust, there is no neighbouring hospital down the motorway to absorb overflow. With the transfer route to Liverpool/Manchester groundcomplex complications that would normally be relieved by tertiary transfer are staying on-island, adding directly to ward load.</p>`;
+  }
+  if (P.specialistDepth < 0.4) {
+    text += `<p style="border-left:3px solid var(--purple); padding-left:10px; margin-top:10px;"><span style="color:var(--purple); font-weight:600;">Specialist decision depth at ${Math.round(P.specialistDepth*100)}%</span> is extending length of stay and elevating complication rates beyond what occupancy pressure alone explains. This is distinct from OOH timing (B3) — it reflects how much of <em>any-hour</em> clinical decision-making is made by fully independent specialists versus junior or non-specialist staff. ${!P.airBridgeOpen ? 'Combined with a closed air bridge, this is the isolation risk a senior clinician raised directly: depth and geography interact, and neither buffer is available right now.' : ''}</p>`;
+  }
+
+  document.getElementById('narrativeText').innerHTML = text;
+}
+
+// ──────────────────â───────────────────────────────────────────────────
+// SCENARIOS
+// ─────────────────────────────────────────────────────────────────────────────
+const scenarios = [
+  // Calibrated to IPR/FOI data: occupancy 91.7% Apr-26, LoS>21 = 55 patients,
+  // eleive backlog 17,720 (Apr-26), ED 4hr = 59.5%, transfer cost £3.43M/yr
+  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
+    specialistDepth:35, airBridgeOpen:true,
+    initOcc:0.917, initDelayed:18, initBacklog:17720, initPressure:0.6, initCommunity:280, initLos21:55, initBudgetPressure:0.65,
+    label: "Current Noble's — Apr 2026 (IPR/FOI)" },
+  // Mar-24 baseline: occupancy 91.1%, LoS>21 = 43 patients, backlog 16,61ED 4hr 70.2%
+  { beds:233, admissions:20, los:6.2, delayed:14, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
+    specialistDepth:35, airBridgeOpen:true,
+    initOcc:0.911, initDelayed:16, initBacklog:16619, initPressure:0.55, initCommunity:260, initLos21:43, initBudgetPressure:0.55,
+    label: "Noble's — Mar 2024 (IPR baseline)" },
+  // Jun-23: occupancy 60.1%, LoS>21 = 11 patients, backlog 15,703, ED 4hr 76%
+  // The cliff edge: what did the system look like befe it tipped?
+  { beds:233, admissions:18, los:5.5, delayed:8, socialCare:70, staffed:88, elderly:20.5, seasonal:1.0, streaming:20, ooh:30, community:25,
+    specialistDepth:40, airBridgeOpen:true,
+    initOcc:0.601, initDelayed:8, initBacklog:15703, initPressure:0.15, initCommunity:200, initLos21:11, initBudgetPressure:0.35,
+    label: "Noble's — Jun 2023 (pre-crisis IPR)" },
+  { beds:283, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, communy:20,
+    specialistDepth:35, airBridgeOpen:true,
+    initOcc:0.80, initDelayed:18, initBacklog:17720, initPressure:0.3, initCommunity:280, initLos21:45, initBudgetPressure:0.55,
+    label: "HMC proposal: +50 beds" },
+  { beds:233, admissions:20, los:4.8, delayed:7, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:55, ooh:30, community:20,
+    specialistDepth:35, airBridgeOpen:true,
+    initOcc:0.78, initDelayed:8, initBacklog:17720, initPressure:0.2, initCommunity:280, initLos21:40, initBudgetPressure:0.55,
+    label: "Gent fix: flow & processes only" },
+  { beds:233, admissions:24, los:7.0, delayed:22, socialCare:60, staffed:85, elderly:26, seasonal:1.0, streaming:20, ooh:30, community:15,
+    specialistDepth:30, airBridgeOpen:true,
+    initOcc:0.94, initDelayed:30, initBacklog:20000, initPressure:0.8, initCommunity:360, initLos21:70, initBudgetPressure:0.75,
+    label: "Demographic pressure 2030" },
+  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.4, streaming:20, ooh:30, community:20,
+    specialistDepth:30, airBridgeOpen:true,
+    initOcc:0.97, initDelayed:28, initBacklog:17720, initPressure:0.9, initCommunity:280, initLos21:60, initBudgetPressure:0.70,
+    label: "Winter OPEL 4 crisis" },
+  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.0, streaming:20, ooh:30, community:20,
+    specialistDepth:35, airBridgeOpen:true,
+    initOcc:0.01, initDelayed:0, initBacklog:0, initPressure:0.0, initCommunity:50, initLos21:0, initBudgetPressure:0.0,
+    label: "✓ Start empty (validation)" },
+  { beds:243, admissions:20, los:4.5, delayed:5, socialCare:80, staffed:90, elderly:21, seasonal:1.0, streaming:65, ooh:80, community:70,
+    specialistDepth:70, airBridgeOpen:true,
+    initOcc:0.68, initDelayed:4, initBacklog:15000, initPressure:0.1, initCommunity:180, initLos21:20, initBudgetPressure:0.25,
+    label: "★ Gent recommendations implemented" },
+  { beds:233, admissions:20, los:6.5, delayed:15, socialC65, staffed:88, elderly:21, seasonal:1.2, streaming:20, ooh:30, community:20,
+    specialistDepth:35, airBridgeOpen:false,
+    initOcc:0.917, initDelayed:18, initBacklog:17720, initPressure:0.6, initCommunity:280, initLos21:55, initBudgetPressure:0.70,
+    label: "✈ Storm: air bridge closed" },
+];
+
+function loadScenario(i) {
+  const s = scenarios[i];
+  document.querySelectorAll('.scenario-chip').forEach((el, j) => el.classList.toggle('active', j === i));
+  setSlider('beds', s.beds);
+  setSlider('admission, s.admissions);
+  setSlider('los', s.los);
+  setSlider('delayed', s.delayed);
+  setSlider('socialcare', s.socialCare);
+  setSlider('staffed', s.staffed);
+  setSlider('elderly', s.elderly);
+  setSlider('seasonal', s.seasonal);
+  setSlider('streaming', s.streaming);
+  setSlider('ooh', s.ooh);
+  setSlider('community', s.community);
+  setSlider('specialistdepth', s.specialistDepth !== undefined ? s.specialistDepth : 35);
+  setAirBridge(s.airBridgeOpen !== undefined ? s.airBridgeOpen : true);
+  const eff = Math.floor(s.beds * s.staffed / 100);
+  state.occupiedBeds = eff * s.initOcc;
+  state.delayedPatientsStock = s.initDelayed;
+  state.electiveBacklog = s.initBacklog;
+  state.EDPressure = s.initOcc;
+  state.pressureMemory = s.initPressure || 0;
+  state.frailtyBedLoad = 0;
+  state.communityStock = s.initCommunity !== undefined ? s.initCommunity : 280;
+  state.losOver21 = s.initLos21 !== undefined ? s.initLos21 : 43;
+  state.budgetPressure = s.initBudgetPressure !== undefined ? s.initBudgetPressure : 0.6;
+  state.transferCostAccumulator = 0;
+  state.airBridgeFlow = 0;
+  state.localAdmissionFlow = 0;
+  state.edTrolleyBackup = 0;
+  state.airbridgeAvailability = 1;
+  state.week = 0;
+  state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[], transferCost:[], losOver21:[] };
+  ['R1','R2','B2','B3','R3'].forEach(k => {
+    if (cldElectrons[k]) { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; }
+  });
+  document.getElementById('stepAnnotation').style.display = 'none';
+
+  // Capture slider baselines for delta indicators
+  ['beds','admissions','los','delayed','socialcare','staffed','elderly','seasonal','streaming','ooh','community','specialistdepth'].forEach(setSliderBaseline);
+}
+
+function setSlider(id, val) {
+  const el = document.getElementById('s-' + id);
+  if (el) { el.value = val; el.dispatchEvent(new Event('input')); }
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// SLIDER WIRING
+// ─────────────────────────────────────────────────────────────────────────────
+// Baseline values per scenario (set on loadScenario, used for delta display)
+const sliderBaselines = {};
+
+function wireSlider(id, fn) {
+  const el = document.getElementById('s-' + id);
+  if (!el) return;
+istener('input', () => {
+    const v = parseFloat(el.value);
+    fn(v);
+    updateSliderDelta(id, v);
+  });
+  fn(parseFloat(el.value)); // init
+}
+
+function updateSliderDelta(id, currentVal) {
+  const baseline = sliderBaselines[id];
+  if (baseline === undefined) return;
+  const deltaEl = document.getElementById('d-' + id);
+  const sliderEl = document.getElementById('s-' + id);
+  if (!deltaEl || !sliderEl) return;
+
+  const range = parseFloat(sliderEl.max) - parseFloat(sliderEl.min);
+  const pctChange = ((currentVal - baseline) / range) * 100;
+
+  if (Math.abs(pctChange) < 0.5) {
+    deltaEl.textContent = '';
+    deltaEl.className = 'slider-delta';
+    sliderEl.className = '';
+  } else if (currentVal > baseline) {
+    deltaEl.textContent = '▲';
+    deltaEl.className = 'slider-delta changed up';
+    sliderEl.className = 'moved-up';
+  } else {
+    deltaEl.textContent = '▼';
+    deltaEl.className = 'slider-delta changed down';
+    sliderEl.className = 'moved-down';
+  }
+}
+
+function setSliderBaseline(id) {
+  const= document.getElementById('s-' + id);
+  if (el) {
+    sliderBaselines[id] = parseFloat(el.value);
+    // Reset delta display
+    const deltaEl = document.getElementById('d-' + id);
+    if (deltaEl) { deltaEl.textContent = ''; deltaEl.className = 'slider-delta'; }
+    el.className = '';
+  }
+}
+
+wireSlider('beds',       v => { P.totalBeds   = v;    document.getElementById('v-beds').textContent      = Math.round(v); });
+wireSlider('admissions', v => { P.admissions  = v;    document.getElementById('v-admissions').textContent = Math.round(v); });
+wireSlider('los',        v => { P.los         = v;    document.getElementById('v-los').textContent        = v.toFixed(1); });
+wireSlider('delayed',    v => { P.delayedPct  = v/100; document.getElementById('v-delayed').textContent   = Math.round(v) + '%'; });
+wireSlider('socialcare', v => { P.socialCare  = v;    document.getElementById('v-socialcare').textContent = Math.round(v) + '%'; });
+wireSlider('staffed',    v => { P.staffedRatio= v/100; document.getElementById('v-staffed').textContent   = Math.round(v) + '%'; });
+wireSlider('elderly',    v => { P.elderly     = v/100; document.getElementById('v-elderly').textContent   = v.toFixed(1) + '%'; });
+wireSlider('seasonal',   v => { P.seasonal    = v;    document.getElementById('v-seasonal').textContent   = v.toFixed(2) + '×'; });
+wireSlider('streaming',  v => { P.streaming   = v;    document.getElementById('v-streaming').textContent  = Math.round(v) + '%'; });
+wireSlider('ooh',        v => { P.oohCover           = v/100; docuent.getElementById('v-ooh').textContent       = Math.round(v) + '%'; });
+wireSlider('community',  v => { P.communityResilience = v;    document.getElementById('v-community').textContent  = Math.round(v) + '%'; });
+wireSlider('specialistdepth', v => { P.specialistDepth = v/100; document.getElementById('v-specialistdepth').textContent = Math.round(v) + '%'; });
+
+// Air bridge toggle — discrete state, not a continuous slider, because it's
+// genuinely binary in reality (weather either grounds flights or doest).
+function setAirBridge(open) {
+  P.airBridgeOpen = open;
+  const vEl = document.getElementById('v-airbridge');
+  vEl.textContent = open ? 'OPEN' : 'CLOSED';
+  vEl.style.color = open ? 'var(--green)' : 'var(--red)';
+  document.getElementById('btnAirOpen').style.background = open ? 'rgba(52,211,153,0.15)' : 'transparent';
+  document.getElementById('btnAirClosed').style.background = open ? 'transparent' : 'rgba(248,113,113,0.15)';
+}
+document.getElementById('btnAirOpen').onclick = () => setAirBridge(true);
+document.getElementById('btnAirClosed').onclick = () => setAirBridge(false);
+setAirBridge(true); // init
+
+// Click-to-toggle info popover — used for "How this is modelled" notes.
+// Click-based rather than CSS :hover so it works the same on touch devices
+// as on desktop, and stays open for reading rather than vanishing on
+// mouse-out mid-sentence.
+function toggleInfo(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// Speed slider — maps 1..5 to interval/ticks pts
+// 1 = very slow (1 week per 4s), 2 = slow (1 week per 2s, default),
+// 3 = medium (1 week per 1s), 4 = fast, 5 = very fast
+const SPEED_PRESETS = [
+  { interval: 800,  ticks: 1, label: '1 week / 4s'  },  // 1 — very slow
+  { interval: 400,  ticks: 1, label: '1 week / 2s'  },  // 2 — slow (default)
+  { interval: 200,  ticks: 1, label: '1 week / 1s'  },  // 3 — medium
+  { interval: 80,   ticks: 2, label: '~2 weeks / s' },  // 4 — fast
+  { interval: 40,   ticks: 3, label: '~5 weeks / s' },  // 5 —
+];
+let simSpeed = SPEED_PRESETS[1]; // default: slow
+
+document.getElementById('s-speed').addEventListener('input', e => {
+  const idx = parseInt(e.target.value) - 1;
+  simSpeed = SPEED_PRESETS[idx];
+  document.getElementById('v-speed').textContent = simSpeed.label;
+});
+// Init label
+document.getElementById('v-speed').textContent = simSpeed.label;
+
+// ────────────────────────────────────────────────────â──────────────
+// CONTROLS
+// ─────────────────────────────────────────────────────────────────────────────
+document.getElementById('btnRun').onclick   = () => { state.running = true; document.getElementById('stepAnnotation').style.display = 'none'; };
+document.getElementById('btnPause').onclick = () => { state.running = falscument.getElementById('btnStep').onclick  = () => { doStep(); };
+document.getElementById('btnReset').onclick = () => {
+  state.running = false;
+  state.week = 0;
+  state.occupiedBeds = 184;
+  state.delayedPatientsStock = 18;
+  state.electiveBacklog = 17720;   // IPR Apr-26 baseline
+  state.EDPressure = 0.9;
+  state.pressureMemory = 0.6;
+  state.frailtyBedLoad = 0;
+  state.communityStock = 280;
+  state.losOver21 = 55;            // IPR Apr-26 baseline
+  state.budgetPressure = 0.65;     // FOI: costs rising, budget under pressure
+  state.transferCostAccumulator = 0;
+  state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[], transferCost:[], losOver21:[] };
+  ['R1','R2','B2','B3','R3'].forEach(k => {
+    if (cldElectrons[k]) { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; }
+  });
+  document.getElementById('stepAnnotation').style.display = 'none';
+  document.getElementById('stepHint').style.display = 'none';
+};
+
+// ──────────────────────â────────────────────────────────────────
+// RENDER LOOP — speed driven by simSpeed object set from slider
+// ─────────────────────────────────────────────────────────────────────────────
+let lastTick = 0;
+let lastTs = 0;
+
+function renderLoop(ts) {
+  const dtMs = ts - (lastastTs = ts;
+
+  if (ts - lastTick > simSpeed.interval) {
+    if (state.running) {
+      for (let i = 0; i < simSpeed.ticks; i++) tick();
+    }
+    lastTick = ts;
+
+    tickCLDElectrons(dtMs);
+
+    const fw = flowCanvas.parentElement.clientWidth;
+    drawFlowDiagram(fw, 360);
+    const tw = timeCanvas.parentElement.clientWidth;
+    drawTimeChart(tw, 150);
+    drawUnifiedCLD();
+    updateStats();
+  }
+  requestAnimationFrame(renderLoop);
+}
+
+// ───────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+function init() {
+  initCanvas();
+  initTimeCanvas();
+  initUnifiedCLD();
+  updateStats();
+  state.running = true;
+  requestAnimationFrame(renderLoodow.addEventListener('resize', () => { initCanvas(); initTimeCanvas(); initUnifiedCLD(); });
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
+

@@ -31,7 +31,7 @@ const C = {
 
 const TAB_GROUPS = [
   { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted", "compliance"] },
-  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "econmix", "inflation", "unemployment", "workforce", "nobles","nobles-v6"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "econmix", "inflation", "unemployment", "workforce", "nobles","nobles-v15"] },
 ];
 
 const TABS = [
@@ -47,7 +47,7 @@ const TABS = [
   { id: "unemployment", label: "Unemployment"         },
   { id: "workforce",    label: "Public Sector"        },
   { id: "nobles",       label: "Nobles Hospital"     },
-  { id: "nobles-v6",	label: "Nobles Hospital-v6"  },
+  { id: "nobles-v15",	label: "Nobles Hospital-v15" },
   { id: "restricted",   label: "🔒 Restricted"        },
   { id: "compliance",   label: "📋 Compliance"        },
 ];
@@ -477,11 +477,11 @@ function AppContent() {
       />
     ),
 
-    "nobles-v6": (
+    "nobles-v15": (
       <AutoIframe
-	 src="/nobles-hospital-sim-v6.html"
-	 title="Nobles Hospital - Bed Capacity - Airbridge Feedback"
-       />
+        src="/nobles-hospital-sim-v15.html"
+        title="Nobles Hospital - Bed Capacity v15"
+      />
     ),
 
 	  restricted: authLoading
@@ -626,7 +626,7 @@ function AppContent() {
 
       {/* Content — iframes get full bleed, about pages get max-width */}
       <div style={
-        ["reid", "demog", "kanon", "areas", "iomfiscal", "econmix", "inflation", "unemployment", "workforce", "nobles", "nobles-v6"].includes(tab)
+        ["reid", "demog", "kanon", "areas", "iomfiscal", "econmix", "inflation", "unemployment", "workforce", "nobles", "nobles-v15"].includes(tab)
           ? {}
           : { maxWidth: 960, margin: "0 auto" }
       }>
