@@ -414,7 +414,7 @@ function AppContent() {
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
     "reid","demog","kanon","areas","iomfiscal","econmix","inflation",
-    "unemployment","suicide","workforce","nobles","nobles-v15",
+    "unemployment","suicide","workforce","nobles",
   ]);
   const [loadedTabs, setLoadedTabs] = useState(() => new Set(["home"]));
   useEffect(() => {
@@ -516,10 +516,26 @@ function AppContent() {
     ),
 
     "nobles-v15": (
-      <AutoIframe
-        src="/nobles-hospital-sim-v15.html"
-        title="Nobles Hospital - Bed Capacity v15"
-      />
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh", flexDirection:"column", gap:16 }}>
+        <div style={{ fontSize:13, color:C.muted2, textAlign:"center", maxWidth:420, lineHeight:1.7 }}>
+          The Noble's Hospital simulation opens as a full page for the best experience — it uses multiple canvases and a real-time render loop that don't play well inside an iframe.
+        </div>
+        <a
+          href="/nobles-hospital-sim-v15.html"
+          target="_blank"
+          rel="noopener"
+          style={{
+            display:"inline-block", padding:"9px 20px",
+            background:"none", border:`1px solid ${C.gold}`,
+            borderRadius:7, color:C.gold,
+            fontFamily:"'JetBrains Mono',monospace", fontSize:12,
+            textDecoration:"none", cursor:"pointer",
+            transition:"background 0.15s",
+          }}
+        >
+          Open Noble's Hospital simulation →
+        </a>
+      </div>
     ),
 
 	  restricted: authLoading

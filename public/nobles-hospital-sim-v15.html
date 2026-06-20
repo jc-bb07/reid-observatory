@@ -625,6 +625,14 @@
     </button>
   </div>
 
+  <!-- BACK NAV -->
+  <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+    <a href="/" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted2);text-decoration:none;border:1px solid var(--border2);border-radius:6px;padding:5px 11px;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--muted)';" onmouseout="this.style.color='var(--muted2)';this.style.borderColor='var(--border2)';">
+      ← Observatory
+    </a>
+    <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Crown Dependencies Re-Identification Observatory · Coalfinch</span>
+  </div>
+
   <!-- HEADER -->
   <div class="page-header">
     <h1>Noble's Hospital: <span>why counting beds misses the point</span></h1>
@@ -693,13 +701,6 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 200px;border-top:1px solid var(--border2);">
           <div style="border-right:1px solid var(--border2);">
-            <div style="display:flex;gap:10px;padding:5px 10px 4px;border-bottom:1px solid var(--border2);flex-wrap:wrap;">
-              <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--red);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--red);font-weight:600;">R1</span> ED Spiral</span>
-              <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--amber);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--amber);font-weight:600;">R2</span> Elective Trap</span>
-              <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--green);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--green);font-weight:600;">B2</span> Social Care</span>
-              <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--purple);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--purple);font-weight:600;">B3</span> OOH Cover</span>
-              <span style="font-size:9px;color:var(--muted2);"><span style="display:inline-block;width:14px;height:2px;background:var(--orange);vertical-align:middle;margin-right:2px;"></span><span style="color:var(--orange);font-weight:600;">R3</span> Financial Trap</span>
-            </div>
             <canvas id="cldUnified" height="340"></canvas>
           </div>
           <div style="padding:10px;display:flex;flex-direction:column;gap:10px;font-size:10px;color:var(--muted);line-height:1.5;">
@@ -1381,7 +1382,6 @@ function tickRaw() {
     if (state.history.weeks.length > 52) {
       Object.keys(state.history).forEach(k => state.history[k].shift());
     }
-    onWeekRecorded();
   }
 }
 
@@ -1403,6 +1403,7 @@ function initCanvas() {
 }
 
 function drawFlowDiagram(w, h) {
+  if (!w || w < 50) return; // skip if layout hasn't settled yet
   fctx.clearRect(0, 0, w, h);
   const eff = effectiveBeds();
   const occ = state.occupiedBeds / eff;
@@ -1655,6 +1656,7 @@ function initTimeCanvas() {
 }
 
 function drawTimeChart(w, h) {
+  if (!w || w < 50) return; // skip if layout hasn't settled yet
   tctx.clearRect(0, 0, w, h);
   const hist = state.history;
 
@@ -1879,39 +1881,36 @@ const CLD_ARCS = [
   { from:'SC',   to:'OCC',  loop:'R3', sign:'−', perp:-0.10 },
 ];
 
-// Electron state: one per loop, position = fractional arc index (0..numArcs)
-// Position advances by 1 each time the graph records a new week
+// Electron state: one per loop. pos = fractional arc index (0..arcCount), continuous
 const cldElectrons = {
-  R1: { pos: 0, targetPos: 0, arcCount: 4 },
-  R2: { pos: 0, targetPos: 0, arcCount: 3 },
-  B2: { pos: 0, targetPos: 0, arcCount: 2 },
-  B3: { pos: 0, targetPos: 0, arcCount: 3 },  // now 3-node proper loop
-  R3: { pos: 0, targetPos: 0, arcCount: 5 },
+  R1: { pos: 0, arcCount: 4 },
+  R2: { pos: 0, arcCount: 3 },
+  B2: { pos: 0, arcCount: 2 },
+  B3: { pos: 0, arcCount: 3 },
+  R3: { pos: 0, arcCount: 5 },
 };
-let lastRecordedWeek = 0;
+// ─────────────────────────────────────────────────────────────────────────────
+// CIRCULAR LOOP DIAGRAMS WITH ELECTRON ANIMATION
+// Speed is arcs/second — independent of sim timescale.
+// Each electron continuously circulates its loop; speed reflects loop "activity".
+const ELECTRON_SPEED = 0.8; // arcs per second at normal activity
 
-function onWeekRecorded() {
+function tickCLDElectrons(dtMs) {
+  if (!state.running) return; // electrons freeze when simulation is paused/stopped
+  const dtSec = dtMs / 1000;
   const eff = effectiveBeds();
   const occ = state.occupiedBeds / eff;
   const r1Active = occ > 0.85;
   const r2Active = state.electiveBacklog > 150;
-  const r3Active = state.budgetPressure > 0.4; // R3 active when budget pressure is material
+  const r3Active = state.budgetPressure > 0.4;
 
-  if (r1Active) cldElectrons.R1.targetPos += 1;
-  if (r2Active) cldElectrons.R2.targetPos += 1;
-  cldElectrons.B2.targetPos += 1;
-  cldElectrons.B3.targetPos += 1;
-  if (r3Active) cldElectrons.R3.targetPos += 1;
-}
-
-// Smoothly interpolate electron positions each render frame
-function tickCLDElectrons(dtMs) {
-  const speed = dtMs * 0.030;
   ['R1','R2','B2','B3','R3'].forEach(k => {
     const e = cldElectrons[k];
-    const diff = e.targetPos - e.pos;
-    e.pos += diff * Math.min(1, speed);
-    if (e.pos > e.arcCount * 100) { e.pos -= e.arcCount * 100; e.targetPos -= e.arcCount * 100; }
+    const active = (k==='R1' && r1Active) || (k==='R2' && r2Active) ||
+                   (k==='R3' && r3Active) || (k==='B2') || (k==='B3');
+    if (!active) return;
+    // Advance continuously; wrap around full loop
+    e.pos = (e.pos + ELECTRON_SPEED * dtSec) % e.arcCount;
   });
 }
 
@@ -1931,8 +1930,12 @@ function drawUnifiedCLD() {
   const el = document.getElementById('cldUnified');
   if (!el) return;
   const ctx = el.getContext('2d');
+
+  // Use offsetWidth/offsetHeight — these reflect the CSS-set dimensions from initUnifiedCLD.
+  // If they're 0 (iframe not yet laid out), skip silently.
   const w = el.offsetWidth;
   const h = el.offsetHeight || 340;
+  if (!w || w < 50) return;
   ctx.clearRect(0, 0, w, h);
 
   const eff = effectiveBeds();
@@ -2026,8 +2029,8 @@ function drawUnifiedCLD() {
   });
 
   // ── Draw electrons ──
-  const loopArcIndices = { R1: [], R2: [], B2: [], B3: [] };
-  CLD_ARCS.forEach((arc, i) => { if (loopArcIndices[arc.loop]) loopArcIndices[arc.loop].push(i); });
+  const loopArcIndices = { R1: [], R2: [], B2: [], B3: [], R3: [] };
+  CLD_ARCS.forEach((arc, i) => { if (loopArcIndices[arc.loop] !== undefined) loopArcIndices[arc.loop].push(i); });
 
   ['R1','R2','B2','B3','R3'].forEach(loopKey => {
     if (!isLoopActive(loopKey)) return;
@@ -2498,7 +2501,7 @@ document.getElementById('btnReset').onclick = () => {
   state.csvLog = [];
   state.history = { weeks:[], occupancy:[], edWait:[], delayed:[], elective:[], transferCost:[], losOver21:[] };
   ['R1','R2','B2','B3','R3'].forEach(k => {
-    if (cldElectrons[k]) { cldElectrons[k].pos = 0; cldElectrons[k].targetPos = 0; }
+    if (cldElectrons[k]) { cldElectrons[k].pos = 0; }
   });
   document.getElementById('stepAnnotation').style.display = 'none';
   document.getElementById('stepHint').style.display = 'none';
@@ -2559,16 +2562,19 @@ function renderLoop(ts) {
       for (let i = 0; i < simSpeed.ticks; i++) tick();
     }
     lastTick = ts;
-
-    tickCLDElectrons(dtMs);
-
-    const fw = flowCanvas.parentElement.offsetWidth || flowCanvas.offsetWidth || 400;
-    drawFlowDiagram(fw, 360);
-    const tw = timeCanvas.parentElement.offsetWidth || timeCanvas.offsetWidth || 400;
-    drawTimeChart(tw, 150);
-    drawUnifiedCLD();
     updateStats();
   }
+
+  // All canvas drawing runs every frame — never gated on sim tick interval.
+  // This prevents flashing that was caused by only redrawing at the sim rate.
+  tickCLDElectrons(dtMs);
+
+  const fw = flowCanvas.parentElement.offsetWidth || flowCanvas.offsetWidth || 400;
+  drawFlowDiagram(fw, 360);
+  const tw = timeCanvas.parentElement.offsetWidth || timeCanvas.offsetWidth || 400;
+  drawTimeChart(tw, 150);
+  drawUnifiedCLD();
+
   requestAnimationFrame(renderLoop);
 }
 
@@ -2643,8 +2649,14 @@ window.addEventListener('message', e => {
 });
 
 // ── ResizeObserver ─────────────────────────────────────────────────────────────
+// Debounced so rapid resize events don't cause the "ResizeObserver loop
+// completed with undelivered notifications" browser error.
 if (typeof ResizeObserver !== 'undefined') {
-  const ro = new ResizeObserver(() => { initCanvas(); initTimeCanvas(); initUnifiedCLD(); });
+  let _roTimer;
+  const ro = new ResizeObserver(() => {
+    clearTimeout(_roTimer);
+    _roTimer = setTimeout(() => { initCanvas(); initTimeCanvas(); initUnifiedCLD(); }, 50);
+  });
   const shellEl = document.querySelector('.shell');
   if (shellEl) ro.observe(shellEl);
 }

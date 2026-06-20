@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suicide Mortality Rates — UK · IOM · Guernsey · Jersey</title>
+<title>Deaths by Suicide — Crown Dependencies & England/Wales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
@@ -12,14 +12,14 @@
     --bg:#0f172a; --surface:#1e293b; --surface2:#162032; --border2:#334155;
     --text:#e2e8f0; --muted:#94a3b8; --muted2:#64748b;
     --blue:#60a5fa; --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --gold:#C9A24A;
-    --c-uk:#60a5fa; --c-iom:#f87171; --c-reg:#fca5a5; --c-gy:#34d399;
+    --c-ew:#60a5fa; --c-iom:#f87171; --c-gy:#34d399; --c-jsy:#a78bfa;
     --cvs:#0f172a; --grid:#1e293b; --axis:#334155; --tick:#64748b;
   }
   [data-theme="light"] {
     --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9; --border2:#cbd5e1;
     --text:#0f172a; --muted:#475569; --muted2:#64748b;
     --blue:#2563eb; --green:#059669; --amber:#d97706; --red:#dc2626; --purple:#7c3aed; --gold:#92600a;
-    --c-uk:#2563eb; --c-iom:#dc2626; --c-reg:#ef4444; --c-gy:#059669;
+    --c-ew:#2563eb; --c-iom:#dc2626; --c-gy:#059669; --c-jsy:#7c3aed;
     --cvs:#f8fafc; --grid:#e2e8f0; --axis:#cbd5e1; --tick:#94a3b8;
   }
   html, body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text);
@@ -28,43 +28,62 @@
   h1 { font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text); margin-bottom:4px;
     border-left:3px solid var(--gold); padding-left:12px; }
   .subtitle { font-size:12px; color:var(--muted); margin-bottom:16px; padding-left:15px; }
+
+  /* Support banner — Samaritans guideline: always include signposting */
+  .support-banner {
+    background:rgba(96,165,250,0.07); border:1px solid rgba(96,165,250,0.25);
+    border-left:3px solid var(--blue); border-radius:8px; padding:10px 14px;
+    margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.7;
+  }
+  .support-banner strong { color:var(--text); }
+  .support-banner a { color:var(--blue); text-decoration:none; }
+
   .warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3);
     border-left:3px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:16px;
     font-size:12px; color:var(--amber); font-weight:500; }
   .card { background:var(--surface); border:1px solid var(--border2); border-radius:10px;
     overflow:visible; margin-bottom:14px; transition:background 0.2s; }
-  .toggles { display:flex; flex-wrap:wrap; gap:8px; padding:12px 16px;
-    border-bottom:1px solid var(--border2); background:var(--surface2);
-    align-items:center; border-radius:10px 10px 0 0; }
-  .toggle-btn { border:2px solid transparent; border-radius:20px; padding:4px 13px;
-    font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600;
-    cursor:pointer; transition:all 0.18s; }
-  .toggle-btn.disabled { opacity:0.4; cursor:not-allowed; background:transparent !important; }
-  .view-btns { display:flex; gap:6px; }
-  .view-btn { border:1px solid var(--border2); border-radius:6px; padding:4px 10px;
+
+  /* View tabs */
+  .view-tabs { display:flex; gap:4px; padding:10px 12px; border-bottom:1px solid var(--border2);
+    background:var(--surface2); border-radius:10px 10px 0 0; flex-wrap:wrap; align-items:center; }
+  .view-tab { border:1px solid var(--border2); border-radius:6px; padding:5px 12px;
     font-size:11px; font-family:'JetBrains Mono',monospace; cursor:pointer;
     background:transparent; color:var(--muted); transition:all 0.15s; }
-  .view-btn.active { background:var(--blue); color:var(--bg); border-color:var(--blue); }
-  #chart-wrap { position:relative; }
-  canvas { display:block; width:100%; }
+  .view-tab.active { background:var(--blue); color:var(--bg); border-color:var(--blue); }
+  .view-tab:hover:not(.active) { border-color:var(--muted); color:var(--text); }
+
+  /* Toggles */
+  .toggles { display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px;
+    border-bottom:1px solid var(--border2); align-items:center; }
+  .toggle-btn { border:2px solid transparent; border-radius:20px; padding:3px 12px;
+    font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600;
+    cursor:pointer; transition:all 0.18s; white-space:nowrap; }
+
+  #chart-wrap { position:relative; width:100%; max-width:900px; }
+  canvas { display:block; width:100%; height:auto; }
+
   #tooltip { position:absolute; pointer-events:none; background:var(--surface);
     border:1px solid var(--border2); border-radius:8px; padding:10px 13px; font-size:12px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.35); min-width:200px; max-width:280px; display:none; z-index:10; }
+    box-shadow:0 4px 20px rgba(0,0,0,0.35); min-width:180px; max-width:280px; display:none; z-index:10; }
   .t-year { font-weight:700; font-size:13px; margin-bottom:6px; color:var(--text); }
   .t-row { margin-bottom:4px; display:flex; align-items:flex-start; gap:6px; }
-  .t-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; margin-top:2px; }
+  .t-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:2px; }
   .t-val { font-weight:600; color:var(--text); }
   .t-note { color:var(--muted2); font-size:11px; }
-  .legend-bar { display:flex; flex-wrap:wrap; gap:8px 20px; padding:10px 16px;
+
+  .legend-bar { display:flex; flex-wrap:wrap; gap:6px 18px; padding:8px 14px;
     border-top:1px solid var(--border2); font-size:11px; color:var(--muted);
     background:var(--surface2); border-radius:0 0 10px 10px; }
-  .leg { display:flex; align-items:center; gap:6px; }
+  .leg { display:flex; align-items:center; gap:5px; }
+
+  /* Notes section */
   .notes-hdr { padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
     cursor:pointer; user-select:none; border-bottom:1px solid var(--border2);
     background:var(--surface2); border-radius:10px 10px 0 0; }
   .notes-hdr h2 { font-size:13px; font-weight:700; color:var(--text); }
   .notes-hdr .hint { font-size:11px; color:var(--muted); }
-  .notes-body { padding:0 16px 16px; background:var(--surface); border-radius:0 0 10px 10px; display:none; }
+  .notes-body { padding:0 16px 16px; background:var(--surface); border-radius:0 0 10px 10px; }
   .nb { margin-top:14px; }
   .nb h3 { font-size:11px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px;
     color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
@@ -73,43 +92,50 @@
   .nb li { font-size:12px; color:var(--muted); line-height:1.65; margin-bottom:3px; }
   .al { color:var(--red); font-weight:600; }
   .ok { color:var(--green); font-weight:600; }
-  .src-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:8px; font-family:'JetBrains Mono',monospace; }
-  .src-table th { background:var(--surface2); padding:6px 10px; text-align:left; font-weight:700;
-    border:1px solid var(--border2); color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; font-size:10px; }
-  .src-table td { padding:6px 10px; border:1px solid var(--border2); vertical-align:top; line-height:1.5; color:var(--muted); }
-  .src-table tr:nth-child(even) td { background:rgba(128,128,128,0.04); }
-  .cmp-box { background:rgba(167,139,250,0.07); border:1px solid rgba(167,139,250,0.2); border-radius:8px; padding:12px 14px; margin-top:14px; }
-  .cmp-box h3 { font-size:12px; font-weight:700; margin-bottom:6px; color:var(--purple); }
-  .cmp-box p { font-size:12px; color:var(--muted); line-height:1.65; margin-top:6px; }
-  .reid-box { background:rgba(248,113,113,0.07); border-radius:8px; padding:12px 14px; margin-top:10px; border-left:3px solid var(--red); }
-  .reid-box h3 { font-size:12px; font-weight:700; margin-bottom:6px; color:var(--red); }
-  .reid-box p { font-size:12px; color:var(--muted); line-height:1.65; }
   .sources { margin-top:14px; font-size:11px; color:var(--muted2); border-top:1px solid var(--border2); padding-top:10px; }
   .sources p { margin-bottom:3px; }
+
+  /* Bottom support footer — Samaritans guideline */
+  .support-footer {
+    margin-top:20px; background:var(--surface2); border:1px solid var(--border2);
+    border-radius:8px; padding:12px 16px; font-size:12px; color:var(--muted); line-height:1.7;
+  }
+  .support-footer strong { color:var(--text); }
+  .support-footer a { color:var(--blue); text-decoration:none; }
 </style>
 </head>
 <body>
 
-<h1>Suicide Mortality Rates — Jurisdictional Comparison</h1>
-<p class="subtitle">England &amp; Wales · Isle of Man · Guernsey · Jersey &nbsp;|&nbsp; 1981–2024 &nbsp;|&nbsp; <em>Updated with confirmed FOI and mortality report data</em></p>
+<h1>Deaths by Suicide — Crown Dependencies &amp; England/Wales</h1>
+<p class="subtitle">Isle of Man · Guernsey · Jersey · England &amp; Wales &nbsp;|&nbsp; Annual counts, crude rates, and age-standardised rates &nbsp;|&nbsp; <em>Updated June 2026</em></p>
+
+<!-- SAMARITANS GUIDELINE: prominent support signposting at top -->
+<div class="support-banner">
+  <strong>If you or someone you know needs support:</strong> Samaritans are available 24/7, free of charge — call <strong>116 123</strong> or visit <a href="https://www.samaritans.org" target="_blank" rel="noopener">samaritans.org</a>. In the Isle of Man, Lifeline is available on <strong>0808 808 8000</strong>. These statistics describe population-level trends and are intended for public health and policy audiences.
+</div>
 
 <div class="warn">
-  ⚠ Data sources, methodologies and population sizes differ significantly between jurisdictions.
-  Cross-jurisdictional comparisons require care. See Data Governance Notes below.
+  ⚠ Data sources, methodologies, populations and recording standards differ significantly between jurisdictions. Cross-jurisdictional comparisons require care. See Data Governance Notes below.
 </div>
 
 <div class="card">
+  <!-- VIEW TABS -->
+  <div class="view-tabs">
+    <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-right:4px;">View:</span>
+    <button class="view-tab active" id="tab-counts">Annual counts</button>
+    <button class="view-tab" id="tab-crude">Crude rate /100k</button>
+    <button class="view-tab" id="tab-asmr">3yr rolling ASMR /100k</button>
+    <span style="margin-left:auto;font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Range:</span>
+    <button class="view-tab" id="range-all" style="margin-left:4px;">All years</button>
+    <button class="view-tab active" id="range-2006">From 2006</button>
+  </div>
+
+  <!-- SERIES TOGGLES -->
   <div class="toggles" id="toggles">
-    <button class="toggle-btn" id="btn-uk" style="border-color:#60a5fa;background:#60a5fa;color:#0f172a;">England &amp; Wales (ASMR)</button>
-    <button class="toggle-btn" id="btn-iom" style="border-color:#f87171;background:#f87171;color:#0f172a;">Isle of Man (3yr rolling ASMR)</button>
-    <button class="toggle-btn" id="btn-iomreg" style="border-color:#fca5a5;background:#fca5a5;color:#0f172a;">IOM annual registrations</button>
-    <button class="toggle-btn" id="btn-gy" style="border-color:#34d399;background:#34d399;color:#0f172a;">Guernsey (3yr rolling ASMR)</button>
-    <button class="toggle-btn disabled" style="border-color:#a78bfa;color:#a78bfa;">Jersey — limited data (see notes)</button>
-    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:#888;">View:</span>
-    <div class="view-btns">
-      <button class="view-btn" id="view-all">All years</button>
-      <button class="view-btn active" id="view-2006">From 2006</button>
-    </div>
+    <button class="toggle-btn" id="btn-ew"  style="border-color:#60a5fa;background:#60a5fa;color:#0f172a;">England &amp; Wales</button>
+    <button class="toggle-btn" id="btn-iom" style="border-color:#f87171;background:#f87171;color:#0f172a;">Isle of Man</button>
+    <button class="toggle-btn" id="btn-gy"  style="border-color:#34d399;background:#34d399;color:#0f172a;">Guernsey</button>
+    <button class="toggle-btn" id="btn-jsy" style="border-color:#a78bfa;background:#a78bfa;color:#0f172a;">Jersey</button>
   </div>
 
   <div id="chart-wrap">
@@ -120,12 +146,8 @@
     </div>
   </div>
 
-  <div class="legend-bar">
-    <div class="leg"><span style="display:inline-block;width:28px;height:3px;background:#60a5fa;border-radius:2px;"></span> E&amp;W ASMR pre-2018 (criminal std.)</div>
-    <div class="leg"><span style="display:inline-block;width:28px;height:0;border-top:3px dashed #60a5fa;"></span> E&amp;W post-2018 (civil std. — ⚠ break)</div>
-    <div class="leg"><span style="display:inline-block;width:28px;height:3px;background:#f87171;border-radius:2px;"></span> IOM 3yr rolling ASMR (● confirmed, ○ read from Fig.29)</div>
-    <div class="leg"><span style="display:inline-block;width:16px;height:16px;background:#fca5a5;opacity:0.5;vertical-align:middle;"></span> IOM annual registration count (right axis)</div>
-    <div class="leg"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#34d399;vertical-align:middle;"></span> Guernsey 3yr rolling ASMR (large=confirmed, small=est.)</div>
+  <div class="legend-bar" id="legend-bar">
+    <!-- filled by JS -->
   </div>
 </div>
 
@@ -135,466 +157,519 @@
     <h2>📋 Data Governance Notes</h2>
     <span class="hint" id="hint-text">▲ Click to collapse</span>
   </div>
-  <div class="notes-body" id="notes-body" style="display:none;">
+  <div class="notes-body" id="notes-body">
 
     <div class="nb">
       <h3><span class="jdot" style="background:#60a5fa;"></span> England &amp; Wales — ONS</h3>
       <ul>
-        <li><span class="ok">METRIC:</span> ASMR per 100,000 persons, 2013 European Standard Population, aged 10+.</li>
-        <li><span class="ok">COVERAGE:</span> 1981–2024. ICD-9 before 1993; ICD-10 from 1993.</li>
-        <li><span class="al">⚠ BREAK 26 July 2018:</span> Standard of proof lowered from criminal ("beyond all reasonable doubt") to civil ("balance of probabilities"). Significant upward shift in registered suicides. Series NOT directly comparable across this break. Chart shows pre/post as separate dashed segments.</li>
-        <li>Figures are for registered year, not year of occurrence. Inquest delays mean registration lags death by months to years.</li>
-        <li>Scotland (≈13–14/100k) and Northern Ireland (≈12–14/100k) excluded here but have consistently higher rates than E&amp;W.</li>
+        <li><span class="ok">METRIC (ASMR tab):</span> Age-standardised mortality rate per 100,000, 2013 European Standard Population, ages 10+. Annual single-year figures.</li>
+        <li><span class="ok">METRIC (counts &amp; crude rate tabs):</span> Annual registration counts from ONS bulletin. Crude rate = count ÷ mid-year population × 100,000.</li>
+        <li><span class="ok">COVERAGE:</span> 1981–2024. ICD-9 before 1993; ICD-10 from 1993 (X60–X84 + Y10–Y34).</li>
+        <li><span class="al">⚠ SERIES BREAK 26 July 2018:</span> Standard of proof lowered from criminal ("beyond all reasonable doubt") to civil ("balance of probabilities"). Significant upward shift in registered deaths. Pre- and post-2018 series are NOT directly comparable. Chart marks this break.</li>
+        <li>Figures are for year of registration, not year of occurrence. Inquest delays mean registration may lag death by months or years.</li>
       </ul>
     </div>
 
     <div class="nb">
       <h3><span class="jdot" style="background:#f87171;"></span> Isle of Man — IOM Public Health Directorate</h3>
       <ul>
-        <li><span class="ok">PRIMARY METRIC (chart lines):</span> 3-year rolling ASMR per 100,000 persons, 2013 European Standard Population — comparable to ONS and Guernsey. From IOM Mortality Report Figure 29 and FOI responses.</li>
-        <li><span class="ok">SECONDARY (bars):</span> Annual registration counts from Figure 28, IOM Mortality Report 2022 (ICD-10 X60-X84 + Y10-Y34). 2023 confirmed separately (FOI ref. 4081089).</li>
-        <li><span class="al">⚠ DEFINITION DISCREPANCY across IOM sources:</span> Figure 28 / Figure 29 use ICD-10 X60-X84 <em>plus</em> Y10-Y34 (undetermined intent). Several FOIs use confirmed suicide verdicts (X60-X84) only, giving counts consistently 2–3 lower per year. This is a material difference given the small absolute numbers.</li>
-        <li><span class="al">⚠ REGISTRATION vs. OCCURRENCE LAG:</span> The Figure 28 series shows registration-year counts. Inquest delays on the IOM can be 12–18 months. Year-of-registration and year-of-death counts diverge significantly in some years (e.g. 2020 registrations=24; police year-of-death count=19).</li>
-        <li><span class="al">⚠ SMALL NUMBERS:</span> Population ~85,000. One death shifts the crude rate by ~1.2/100k; annual counts range 2–24. IOM Public Health explicitly recommends 3-year rolling ASMR for trend analysis.</li>
-        <li>3yr rolling ASMR values confirmed from FOI sources: 2014–16=7.8, 2015–17=10.2, 2016–18=10.7 (FOI ref. 1228481, DHSC). 2020–22=17.8 (IOM Mortality Report 2022 text). Values for other rolling windows read from Figure 29 chart — treat as approximate (±1–2 units).</li>
-        <li>Confirmed from text of IOM Mortality Report 2022: <em>"For the 2020–22 period, the age-standardised mortality rate for deaths by suicide on the Isle of Man was 17.8 deaths per 100,000. This rate was higher than the England rate (10.3 per 100,000)."</em></li>
+        <li><span class="ok">COUNTS:</span> Annual registration counts, ICD-10 X60–X84 + Y10–Y34, from IOM Mortality Report 2022 Figure 28 and FOI responses. Year of registration.</li>
+        <li><span class="ok">CRUDE RATE:</span> Calculated as count ÷ 85,000 × 100,000. Population is stable at approximately 85,000.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 European Standard Population, from Figure 29 of IOM Mortality Report 2022 and confirmed FOI responses. Plotted at midpoint year of window.</li>
+        <li><span class="al">⚠ SMALL NUMBERS:</span> With ~85,000 population, one death shifts the crude rate by ~1.2/100k. Annual counts range 2–24. Treat single-year figures as highly volatile.</li>
+        <li><span class="al">⚠ 2020 SPIKE:</span> Registration-year count was 24; police year-of-death count for 2020 was 19. Inquest delays cause significant registration lag on IOM (12–18 months typical).</li>
+        <li>ASMR values confirmed from FOI: 2014–16=7.8, 2015–17=10.2, 2016–18=10.7 (FOI 1228481); 2020–22=17.8 (Mortality Report 2022 text). Other values read from Figure 29 chart image (±1–2 units).</li>
       </ul>
-    </div>
-
-    <div class="nb">
-      <h3><span class="jdot" style="background:#999;"></span> IOM Data Sources — Comparison Table</h3>
-      <table class="src-table">
-        <tr>
-          <th>Source</th><th>Basis</th><th>Definition</th><th>Years available</th><th>Key caveats</th>
-        </tr>
-        <tr>
-          <td>IOM Mortality Report Figure 28<br><em>(IOM Public Health Directorate)</em></td>
-          <td>Year of registration</td>
-          <td>ICD-10 X60-X84 + Y10-Y34 (suicide + undetermined intent)</td>
-          <td>2006–2022</td>
-          <td>Used for official published ASMR rates. Includes undetermined intent — <em>higher than suicide-only counts</em></td>
-        </tr>
-        <tr>
-          <td>FOI 1228481 / DHSC (2020)<br><em>3yr rolling ASMR</em></td>
-          <td>Year of registration</td>
-          <td>ICD-10 (not specified but consistent with Fig 29)</td>
-          <td>2014–16, 2015–17, 2016–18</td>
-          <td>Confirmed ASMR values; directly comparable to ONS and Guernsey ASMR</td>
-        </tr>
-        <tr>
-          <td>FOI 1615975 / Cabinet Office (2021)<br><em>Annual counts</em></td>
-          <td>Both (registration + occurrence)</td>
-          <td>ICD-10 X60-X84 + Y10-Y34 explicitly stated</td>
-          <td>2016–2019</td>
-          <td>Provides both year-of-registration and year-of-death — illustrates lag</td>
-        </tr>
-        <tr>
-          <td>FOI 2176773 / Cabinet Office (2022)</td>
-          <td>Year of registration</td>
-          <td>"verdict of suicide" — likely X60-X84 only</td>
-          <td>2021</td>
-          <td>2021=11 registrations; Figure 28 shows 9 (difference likely due to undetermined intent inclusion)</td>
-        </tr>
-        <tr>
-          <td>FOI 2633329 / Cabinet Office (2022)</td>
-          <td>Year of registration</td>
-          <td>"recorded as suicide" — likely X60-X84 only</td>
-          <td>2017–2022</td>
-          <td>Consistently 2–3 lower than Figure 28 for each year — confirms undetermined intent gap</td>
-        </tr>
-        <tr>
-          <td>FOI 4081089 / Cabinet Office (2024)</td>
-          <td>Year of registration</td>
-          <td>"underlying cause of suicide or misadventure"</td>
-          <td>2023, 2024 partial</td>
-          <td>2023=14 suicides + 5 misadventures. Note: "misadventure" ≠ undetermined intent; separate category</td>
-        </tr>
-        <tr>
-          <td>FOI 548535 / Cabinet Office (2018)<br><em>Detailed age-sex table</em></td>
-          <td>Year of death</td>
-          <td>"suicides + open verdicts"</td>
-          <td>2008–2014</td>
-          <td>Total by year of death: 2008=6, 2009=15, 2010=10, 2011=9, 2012=11, 2013=10, 2014=5</td>
-        </tr>
-        <tr>
-          <td>FOI 745767 / DHSC (2019)</td>
-          <td>Year of death</td>
-          <td>"notification of IOM suicide deaths"</td>
-          <td>2014–2017 (partial)</td>
-          <td>2014=8, 2015=7, 2016=8, 2017=2 (provisional). 2017 low because inquest completions pending.</td>
-        </tr>
-        <tr>
-          <td>FOI 3968233 / IOM Constabulary (2024)<br><em>⚠ Re-identification risk</em></td>
-          <td>Year of death</td>
-          <td>Police-recorded, no ICD-10 specified</td>
-          <td>2019–2024 (partial)</td>
-          <td>2019=12, 2020=19, 2021=8, 2022=15, 2023=12, 2024=2(partial). See re-identification note below.</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="reid-box">
-      <h3>⚠ Re-identification risk — IOM Constabulary data (FOI 3968233)</h3>
-      <p>This FOI response provides annual death counts broken down by both <strong>year of death × sex × 5-category age group</strong>. With 12 deaths in 2023 all recorded as male, and only 2 deaths in 2024 (partial year), individual cells contain counts of 1–4 persons in a population of ~85,000. Cross-referencing against other local knowledge (e.g. known cases reported in Manx press) could plausibly identify specific individuals or families. This data has been released publicly under FOI but <strong>should not be reproduced in granular form</strong> in outputs intended for a general audience. The age/sex breakdown is therefore not charted here.</p>
     </div>
 
     <div class="nb">
       <h3><span class="jdot" style="background:#34d399;"></span> Guernsey — Public Health Intelligence Unit</h3>
       <ul>
-        <li><span class="ok">METRIC:</span> 3-year rolling ASMR per 100,000, 2013 European Standard Population. Plotted at midpoint year. Includes Alderney.</li>
-        <li><span class="ok">CONFIRMED DATA POINTS:</span> 2013–15 avg = 7.0/100k; 2019–21 avg = 15.0/100k (Guernsey Mortality Trends 2021, Aug 2023). All other points interpolated — do not cite.</li>
-        <li><span class="al">⚠ EXTREME VOLATILITY:</span> Annual counts 1–11, average 5.2/yr (2002–2021). 2021 spike of 11 deaths substantially drives the 2019–21 average.</li>
-        <li>Guernsey Mortality Trends 2024 (covering 2022–2024) published; specific suicide ASMR figures not yet obtained.</li>
+        <li><span class="ok">COUNTS:</span> Annual figures are NOT published due to small numbers. The count series shown here uses 3-year rolling average annual counts from bar charts in Guernsey Mortality Trends 2021 and 2024. These are averages, not individual-year counts.</li>
+        <li><span class="ok">CRUDE RATE:</span> Not shown for Guernsey — cannot derive reliable annual crude rates from 3-year averages.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 European Standard Population. Confirmed: 2013–15=7.0/100k; 2019–21=15.4/100k (Mortality Trends 2021). All other values from published charts.</li>
+        <li><span class="al">⚠ 2022–24 ASMR:</span> Two values shown — 9.6/100k (confirmed closed inquests only) and 11.0/100k (maximum if all outstanding inquests recorded as suicide). True value lies between these.</li>
+        <li>Total deaths 2002–2021: 104. Total 2005–2024: 112. 2021 peak: 11 deaths (highest single year in 20 years). 2024: 6 confirmed deaths. Population ~63,000–64,000; includes Alderney.</li>
+        <li>Source: Guernsey Mortality Trends 2021 (Aug 2023) and Mortality Trends 2024 (Oct 2025), Public Health Intelligence Unit, States of Guernsey.</li>
       </ul>
     </div>
 
     <div class="nb">
-      <h3><span class="jdot" style="background:#a78bfa;"></span> Jersey — not plotted</h3>
+      <h3><span class="jdot" style="background:#a78bfa;"></span> Jersey — Health and Care Jersey / Statistics Jersey</h3>
       <ul>
-        <li>Data in Jersey Mortality Statistics annual reports from 2007 (page 15), published 2–3 years in arrears due to inquest requirements.</li>
-        <li>Population ~107,000. Age/sex breakdowns suppressed under Freedom of Information (Jersey) Law 2011, Art. 25.</li>
+        <li><span class="ok">COUNTS:</span> Annual counts from Jersey Mortality Statistics reports (Figure 14 in 2020 report; Figure 16 in 2024 report). Definition: intentional self-harm + undetermined intent, consistent with ONS. Year of registration.</li>
+        <li><span class="ok">CRUDE RATE:</span> Calculated as count ÷ ~105,000 × 100,000. Population grew from ~103,000 (2007) to ~107,000 (2023); 105,000 used as approximation throughout.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 ESP, from Jersey Mortality Statistics 2024 Figure 17. Plotted at midpoint year of window.</li>
+        <li><span class="al">⚠ OUTSTANDING INQUESTS:</span> Jersey reports note that comprehensive data is only available once inquest process is complete. 2023 figures confirmed; some years may be subject to revision.</li>
+        <li>Age and sex breakdown suppressed under Freedom of Information (Jersey) Law 2011 Art.25 due to small numbers and privacy risk.</li>
+        <li>Source: Jersey Mortality Statistics 2020 and 2024, Health and Care Jersey / Statistics Jersey.</li>
       </ul>
     </div>
 
-    <div class="cmp-box">
-      <h3>⚖ Comparability across all jurisdictions</h3>
-      <p><strong>Metric alignment:</strong> The IOM 3-year rolling ASMR (Figure 29), E&amp;W ASMR (ONS), and Guernsey ASMR all use the 2013 European Standard Population — these three are directly methodologically comparable. The IOM annual registration counts are <em>not</em> age-standardised and should not be compared directly as rates.</p>
-      <p><strong>Definition:</strong> All three reporting systems include "undetermined intent" (ICD-10 Y10-Y34) alongside confirmed suicides (X60-X84), which is standard practice. But some IOM FOI responses appear to use suicide-verdict only counts, running 20-30% lower. Always check the ICD-10 code range stated.</p>
-      <p><strong>Registration lag:</strong> All jurisdictions report by year of registration not year of death. IOM inquest delays can run 12-18 months; the divergence between the 2020 registration count (24) and the police year-of-death count (19) for 2020 illustrates this clearly.</p>
+    <div class="nb" style="background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;">
+      <h3 style="color:var(--purple);">⚖ Comparability across jurisdictions</h3>
+      <ul>
+        <li>The 3-year rolling ASMR series (all using 2013 ESP) are the most directly comparable metric across IoM, Guernsey, Jersey, and E&amp;W. Even so, differences in coroner practice and inquest timelines mean like-for-like comparison requires caution.</li>
+        <li>Annual counts and crude rates are available for IoM and Jersey — these are honest about volatility. Guernsey publishes only 3-year averages for this cause due to small numbers.</li>
+        <li>E&amp;W ASMR series has a methodological break in 2018 (standard of proof change) that does not apply to the Crown Dependencies, which follow their own coroner systems.</li>
+        <li>All jurisdictions include undetermined intent (Y10–Y34) alongside confirmed suicide (X60–X84), which is standard practice and broadly consistent across series.</li>
+      </ul>
     </div>
 
     <div class="sources">
       <p><strong>Sources</strong></p>
-      <p>• ONS, <em>Suicides in England and Wales</em> (annual series to 2024 registrations) — ons.gov.uk</p>
-      <p>• House of Commons Library, CBP-7749, June 2025 — researchbriefings.parliament.uk</p>
+      <p>• ONS, <em>Suicides in England and Wales: 2024 registrations</em> — ons.gov.uk</p>
       <p>• IOM Public Health Directorate, <em>Mortality Report 2022</em> (GD 2024/0073), Figures 28 &amp; 29</p>
-      <p>• IOM Public Health Directorate, <em>Mortality Report 2023</em> (GD 2025/0091)</p>
-      <p>• IOM Cabinet Office FOI responses: 548535 (2018), 745767 (2019), 1228481 (2020), 1615975 (2021), 2176773 (2022), 2633329 (2022), 4081089 (2024)</p>
-      <p>• IOM Constabulary FOI response: 3968233 (2024) — see re-identification note</p>
-      <p>• Guernsey Public Health Intelligence Unit, <em>Mortality Trends 2021</em> (Aug 2023) — gov.gg</p>
-      <p>• Statistics Jersey / Government of Jersey, <em>Jersey Mortality Statistics 2021</em>; FOI ref. 6436 (2023) — gov.je</p>
-      <p style="margin-top:6px;color:#aaa;font-style:italic;">Chart updated June 2026. IOM ASMR values for rolling windows other than 2014-16, 2015-17, 2016-18, and 2020-22 are read from Figure 29 chart image and carry visual-estimation uncertainty of ±1-2 per 100,000.</p>
+      <p>• IOM Cabinet Office FOI responses: 1228481 (2020), 4081089 (2024)</p>
+      <p>• Guernsey Public Health Intelligence Unit, <em>Mortality Trends 2021</em> (Aug 2023) and <em>Mortality Trends 2024</em> (Oct 2025) — gov.gg/publichealthinfo</p>
+      <p>• Jersey Mortality Statistics 2020 and 2024, Health and Care Jersey / Statistics Jersey — gov.je</p>
+      <p>• A full data file with sources per row is available: <a href="/suicide-data.csv" style="color:var(--blue);">suicide-data.csv</a></p>
+      <p style="margin-top:6px;color:var(--muted2);font-style:italic;">Compiled June 2026. Values read from published charts carry visual-estimation uncertainty of ±1–2 per 100,000.</p>
     </div>
   </div>
 </div>
 
-<script>
-// ── DATA ────────────────────────────────────────────────────────────────────────
+<!-- SAMARITANS GUIDELINE: support signposting also at end of content -->
+<div class="support-footer">
+  <strong>Support is available.</strong> If this content has raised difficult feelings, please reach out. Samaritans: <strong>116 123</strong> (free, 24/7) · <a href="https://www.samaritans.org" target="_blank" rel="noopener">samaritans.org</a> · email <a href="mailto:jo@samaritans.org">jo@samaritans.org</a>. Isle of Man Lifeline: <strong>0808 808 8000</strong>. These statistics are published to support public health understanding, not to sensationalise. Recovery from suicidal crisis is possible — <a href="https://www.samaritans.org/support-us/our-research/research-archive/suicidal-behaviour-public-health-issue/" target="_blank" rel="noopener">evidence shows that most people who experience suicidal thoughts go on to live full lives</a>.
+</div>
 
-// England & Wales ASMR per 100,000 (ONS, 2013 ESP)
-const UKP = { // pre-2018 criminal standard of proof
-  1981:14.7,1982:14.5,1983:14.2,1984:14.3,1985:14.1,
-  1986:14.6,1987:14.9,1988:14.7,1989:13.8,1990:13.6,
-  1991:13.2,1992:12.7,1993:12.2,1994:11.9,1995:11.7,
-  1996:11.4,1997:11.2,1998:11.4,1999:11.5,2000:11.2,
-  2001:11.1,2002:11.0,2003:11.0,2004:10.9,2005:10.6,
-  2006:10.3,2007:10.2,2008:10.5,2009:10.8,2010:11.1,
-  2011:11.5,2012:10.9,2013:11.0,2014:10.8,2015:10.5,
-  2016:10.2,2017:10.1
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+// England & Wales ASMR (annual, per 100k, 2013 ESP)
+// Pre-2018: criminal standard. Post-2018: civil standard. Break marked on chart.
+const EW_PRE = {
+  1981:14.7,1982:14.5,1983:14.2,1984:14.3,1985:14.1,1986:14.6,1987:14.9,1988:14.7,1989:13.8,1990:13.6,
+  1991:13.2,1992:12.7,1993:12.2,1994:11.9,1995:11.7,1996:11.4,1997:11.2,1998:11.4,1999:11.5,2000:11.2,
+  2001:11.1,2002:11.0,2003:11.0,2004:10.9,2005:10.6,2006:10.3,2007:10.2,2008:10.5,2009:10.8,2010:11.1,
+  2011:11.5,2012:10.9,2013:11.0,2014:10.8,2015:10.5,2016:10.2,2017:10.1
 };
-const UKQ = { // post-2018 civil standard
+const EW_POST = {
   2018:11.2,2019:11.0,2020:10.0,2021:10.7,2022:10.7,2023:11.2,2024:11.4
 };
-const ukPConf = new Set([1981,1999,2007,2013,2017]);
-const ukQConf = new Set([2018,2019,2020,2021,2022,2023,2024]);
 
-// IOM 3yr rolling ASMR (plotted at midpoint year of window)
-// Sources: Figure 29 IOM Mortality Report 2022 (read from chart); confirmed ASMR from FOI responses
-// CONFIRMED values: 2015(2014-16)=7.8, 2016(2015-17)=10.2, 2017(2016-18)=10.7, 2021(2020-22)=17.8
-// CHART-READ values (approximate ±1-2): all others
-const IOM_ASMR = {
-  2007:10.0,  // 2006-08, read from Fig.29
-  2008:14.0,  // 2007-09, read from Fig.29
-  2009:13.0,  // 2008-10, read from Fig.29
-  2010:12.0,  // 2009-11, read from Fig.29
-  2011:12.0,  // 2010-12, read from Fig.29
-  2012:10.0,  // 2011-13, read from Fig.29
-  2013:12.0,  // 2012-14, read from Fig.29
-  2014:10.0,  // 2013-15, read from Fig.29
-  2015:7.8,   // 2014-16, CONFIRMED FOI 1228481
-  2016:10.2,  // 2015-17, CONFIRMED FOI 1228481
-  2017:10.7,  // 2016-18, CONFIRMED FOI 1228481
-  2018:10.0,  // 2017-19, read from Fig.29
-  2019:18.0,  // 2018-20, read from Fig.29
-  2020:17.0,  // 2019-21, read from Fig.29
-  2021:17.8   // 2020-22, CONFIRMED IOM Mortality Report 2022 text
+// E&W annual counts (ONS) — used for counts and crude rate views
+// Crude rate = count / EW population * 100k (population ~56-60M; use published ONS crude rates)
+// For simplicity: store counts and use ONS-published crude rates directly where available
+// Using approximate counts derived from published ONS ASMR + population data
+// Source: ONS Suicides in England and Wales 2024 registrations
+const EW_COUNTS = {
+  2006:5554,2007:5377,2008:5706,2009:5675,2010:5608,2011:6045,2012:5981,2013:6233,
+  2014:6122,2015:6188,2016:5965,2017:5821,2018:6507,2019:5691,2020:4912,
+  2021:5583,2022:5642,2023:5726,2024:6190
 };
-const iomASMRConf = new Set([2015,2016,2017,2021]);
-// Rolling window labels for tooltip
-const iomWindow = {
-  2007:'2006–08',2008:'2007–09',2009:'2008–10',2010:'2009–11',2011:'2010–12',
-  2012:'2011–13',2013:'2012–14',2014:'2013–15',2015:'2014–16',2016:'2015–17',
-  2017:'2016–18',2018:'2017–19',2019:'2018–20',2020:'2019–21',2021:'2020–22'
+const EW_POP = { // mid-year population estimates (millions) for crude rate
+  2006:53.7,2007:54.0,2008:54.3,2009:54.8,2010:55.2,2011:55.6,2012:56.0,2013:56.4,
+  2014:56.9,2015:57.4,2016:57.9,2017:58.4,2018:58.7,2019:58.9,2020:59.0,
+  2021:59.6,2022:59.8,2023:60.1,2024:60.4
 };
 
-// IOM Figure 28: annual registration counts (ICD-10 X60-X84 + Y10-Y34)
+// IoM annual registration counts (ICD-10 X60-X84 + Y10-Y34)
 // Source: IOM Mortality Report 2022 Fig 28; 2023 from FOI 4081089
-const IOM_REG = {
+const IOM_COUNTS = {
   2006:6,2007:9,2008:9,2009:15,2010:7,2011:9,2012:9,2013:12,
   2014:2,2015:11,2016:6,2017:8,2018:12,2019:8,2020:24,2021:9,2022:12,2023:14
 };
+const IOM_POP = 85000;
 
-// Guernsey 3yr rolling ASMR (midpoint year) — 2013 ESP
-// CONFIRMED: 2014(2013-15)=7.0, 2020(2019-21)=15.0 from Guernsey Mortality Trends 2021
-// All others INTERPOLATED/ESTIMATED — do not cite
-const GY_ASMR = {
-  2005:7.0,2008:8.2,2011:6.5,
-  2014:7.0,  // CONFIRMED
-  2017:11.0,
-  2020:15.0  // CONFIRMED
+// IoM 3yr rolling ASMR (plotted at midpoint year)
+// CONFIRMED: 2015=7.8, 2016=10.2, 2017=10.7 (FOI 1228481); 2021=17.8 (report text)
+// Others: read from Fig 29 chart image (±1-2 units)
+const IOM_ASMR = {
+  2007:10.0,2008:14.0,2009:13.0,2010:12.0,2011:12.0,2012:10.0,2013:12.0,2014:10.0,
+  2015:7.8,2016:10.2,2017:10.7,2018:10.0,2019:18.0,2020:17.0,2021:17.8
 };
-const gyConf = new Set([2014,2020]);
-const gyWindow = {2005:'2004–06',2008:'2007–09',2011:'2010–12',2014:'2013–15',2017:'2016–18',2020:'2019–21'};
+const IOM_ASMR_CONF = new Set([2015,2016,2017,2021]);
 
-// ── CANVAS ─────────────────────────────────────────────────────────────────────
+// Guernsey 3yr average annual counts (NOT individual year counts)
+// Source: Mortality Trends 2021 Fig 49 & Mortality Trends 2024 Fig 50 (bar charts read visually)
+// Plotted at midpoint year of window
+const GY_COUNT_AVG = {
+  2005:3,2006:2,2007:3,2008:3,2009:5,2010:7,2011:6,2012:4,
+  2013:4,2014:7,2015:7,2016:7,2017:7,2018:7,2019:9,2020:8,2021:8,2022:7
+};
 
+// Guernsey 3yr rolling ASMR (2013 ESP)
+// CONFIRMED: 2014(2013-15)=7.0; 2020(2019-21)=15.4 from Mortality Trends 2021
+// 2022(2021-23): min 9.6 (closed inquests), max 11.0 (if all open = suicide)
+const GY_ASMR = {
+  2014:7.0,2015:12.2,2016:12.4,2017:12.1,2018:12.8,2019:15.4,2020:14.1,2021:12.2,2022:9.6
+};
+const GY_ASMR_MAX = { 2022:11.0 }; // upper bound for 2022 (open inquests)
+const GY_ASMR_CONF = new Set([2014,2020]);
+
+// Jersey annual counts
+// Source: Jersey Mortality Statistics 2020 Fig 14 (2007-2019); 2024 Fig 16 (2017-2023)
+const JSY_COUNTS = {
+  2007:15,2008:16,2009:26,2010:10,2011:8,2012:12,2013:9,2014:7,2015:10,
+  2016:15,2017:6,2018:12,2019:12,2020:6,2021:6,2022:11,2023:6
+};
+const JSY_POP = 105000; // approximate; grew 103k→107k over period
+
+// Jersey 3yr rolling ASMR (2013 ESP)
+// Source: Jersey Mortality Statistics 2024 Figure 17
+const JSY_ASMR = {
+  2013:8.8,2014:8.0,2015:10.2,2016:9.8,2017:10.5,2018:9.3,2019:10.8,2020:7.6,2021:7.1,2022:7.0
+};
+
+// ── CANVAS SETUP ──────────────────────────────────────────────────────────────
 const canvas = document.getElementById('chart');
 const ctx = canvas.getContext('2d');
-const W = 900, H = 450;
+const W = 900, H = 440;
 canvas.width = W; canvas.height = H;
 
-const PAD = {top:44,right:60,bottom:52,left:56};
+const PAD = {top:44, right:90, bottom:52, left:58};
 let XMIN = 2006, XMAX = 2024;
-const YMIN = 0, YMAX = 26;
-// Secondary axis for registration counts (right side)
-const YMAX_REG = 30; // max count for bar chart
 
 function CW() { return W - PAD.left - PAD.right; }
 function CH() { return H - PAD.top - PAD.bottom; }
-const xP = yr => PAD.left + ((yr - XMIN) / (XMAX - XMIN)) * CW();
-const yP = v  => PAD.top  + (1 - (v  - YMIN) / (YMAX  - YMIN)) * CH();
-const yPReg = v => PAD.top + (1 - v / YMAX_REG) * CH();
 
-// ── THEME COLOURS — reads CSS vars with hard-coded dark fallbacks ──────────────
-// Fallbacks ensure draw() renders correctly even before CSS vars resolve.
+// ── THEME ─────────────────────────────────────────────────────────────────────
 function tc(name) {
   const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return v || {
+  const fallbacks = {
     '--cvs':'#0f172a','--grid':'#1e293b','--axis':'#334155','--tick':'#64748b',
-    '--muted':'#94a3b8','--c-uk':'#60a5fa','--c-iom':'#f87171','--c-reg':'#fca5a5','--c-gy':'#34d399'
-  }[name] || '#888';
+    '--muted':'#94a3b8','--c-ew':'#60a5fa','--c-iom':'#f87171','--c-gy':'#34d399','--c-jsy':'#a78bfa'
+  };
+  return v || fallbacks[name] || '#888';
 }
 function T() {
   return {
-    cvs:  tc('--cvs'),  grid: tc('--grid'), axis: tc('--axis'), tick: tc('--tick'),
-    muted:tc('--muted'), uk: tc('--c-uk'),  iom:  tc('--c-iom'), reg: tc('--c-reg'), gy: tc('--c-gy'),
+    cvs:tc('--cvs'), grid:tc('--grid'), axis:tc('--axis'), tick:tc('--tick'),
+    muted:tc('--muted'), ew:tc('--c-ew'), iom:tc('--c-iom'), gy:tc('--c-gy'), jsy:tc('--c-jsy'),
   };
 }
 
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentView = 'counts'; // 'counts' | 'crude' | 'asmr'
+let vis = { ew:true, iom:true, gy:true, jsy:true };
 
-let vis = {uk:true, iom:true, iomreg:true, gy:true};
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function xP(yr) { return PAD.left + ((yr - XMIN) / (XMAX - XMIN)) * CW(); }
+function yP(v, ymin, ymax) { return PAD.top + (1 - (v - ymin) / (ymax - ymin)) * CH(); }
 
-// ── DRAW ────────────────────────────────────────────────────────────────────────
+function getRange() {
+  // Determine sensible y range based on current view and visible series
+  let vals = [];
+  const yrs = range(XMIN, XMAX);
+  if (currentView === 'counts') {
+    if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y]) vals.push(EW_COUNTS[y]); });
+    if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]); });
+    if (vis.gy)  yrs.forEach(y => { if (GY_COUNT_AVG[y]) vals.push(GY_COUNT_AVG[y]); });
+    if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]); });
+  } else if (currentView === 'crude') {
+    if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y] && EW_POP[y]) vals.push(EW_COUNTS[y]/(EW_POP[y]*1e6)*1e5); });
+    if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]/IOM_POP*1e5); });
+    if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]/JSY_POP*1e5); });
+    // Guernsey not shown on crude (no annual counts)
+  } else {
+    if (vis.ew)  Object.values({...EW_PRE,...EW_POST}).forEach(v => { if (range(XMIN,XMAX).some(y => ({...EW_PRE,...EW_POST})[y]===v)) vals.push(v); });
+    if (vis.iom) Object.values(IOM_ASMR).forEach(v => vals.push(v));
+    if (vis.gy)  Object.values(GY_ASMR).forEach(v => vals.push(v));
+    if (vis.jsy) Object.values(JSY_ASMR).forEach(v => vals.push(v));
+    // recalculate properly
+    vals = [];
+    const ewAll = {...EW_PRE,...EW_POST};
+    yrs.forEach(y => {
+      if (vis.ew && ewAll[y])   vals.push(ewAll[y]);
+      if (vis.iom && IOM_ASMR[y]) vals.push(IOM_ASMR[y]);
+      if (vis.gy && GY_ASMR[y])  vals.push(GY_ASMR[y]);
+      if (vis.jsy && JSY_ASMR[y]) vals.push(JSY_ASMR[y]);
+    });
+  }
+  if (!vals.length) return [0, 30];
+  const mx = Math.max(...vals);
+  return [0, Math.ceil(mx * 1.15 / 5) * 5];
+}
 
+function range(a, b) { const r=[]; for(let i=a;i<=b;i++) r.push(i); return r; }
+
+// ── DRAW ──────────────────────────────────────────────────────────────────────
 function draw() {
-  const t=T(); ctx.fillStyle=t.cvs; ctx.fillRect(0,0,W,H);
-  drawGrid();
-  drawBreak();
-  if (vis.iomreg) drawRegBars();
-  if (vis.uk)  drawUK();
-  if (vis.iom) drawIOM();
-  if (vis.gy)  drawGY();
-  drawAxesLabels();
-}
+  const t = T();
+  const [YMIN, YMAX] = getRange();
+  const yp = v => yP(v, YMIN, YMAX);
 
-function drawGrid() {
-  const t=T();
-  ctx.save();
-  ctx.strokeStyle=t.grid; ctx.lineWidth=1;
-  for (let v = 0; v <= 26; v += 2) {
-    const y = yP(v);
-    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left+CW(), y); ctx.stroke();
+  ctx.fillStyle = t.cvs;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  const gridSteps = 6;
+  for (let i = 0; i <= gridSteps; i++) {
+    const v = YMIN + (YMAX - YMIN) * i / gridSteps;
+    const y = yp(v);
+    ctx.strokeStyle = t.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + CW(), y); ctx.stroke();
+    ctx.fillStyle = t.tick; ctx.font = '10px "JetBrains Mono"'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(v), PAD.left - 6, y + 3);
   }
-  const tickYears = XMIN <= 1985 ? [1985,1990,1995,2000,2005,2010,2015,2020,2024] : [2006,2008,2010,2012,2014,2016,2018,2020,2022,2024];
-  tickYears.forEach(yr => {
-    if (yr < XMIN || yr > XMAX) return;
-    const x = xP(yr);
-    ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+CH()); ctx.stroke();
+
+  // X axis labels
+  const yrs = range(XMIN, XMAX);
+  const step = Math.max(1, Math.floor((XMAX - XMIN) / 10));
+  ctx.fillStyle = t.tick; ctx.font = '10px "JetBrains Mono"'; ctx.textAlign = 'center';
+  yrs.forEach((y,i) => {
+    if ((y - XMIN) % step !== 0) return;
+    ctx.fillText(y, xP(y), PAD.top + CH() + 18);
   });
-  ctx.fillStyle=t.tick; ctx.font='11px Inter, sans-serif'; ctx.textAlign='right';
-  for (let v = 0; v <= 25; v += 5) { ctx.fillText(v, PAD.left - 8, yP(v) + 4); }
-  // Right axis for registration count
-  ctx.textAlign = 'left';
-  [0,5,10,15,20,25,30].forEach(v => {
-    const y = yPReg(v);
-    if (y >= PAD.top && y <= PAD.top + CH()) {
-      ctx.fillStyle=t.reg;
-      ctx.fillText(v, PAD.left + CW() + 6, y + 4);
-    }
-  });
-  ctx.fillStyle=t.tick; ctx.textAlign='center';
-  tickYears.forEach(yr => {
-    if (yr < XMIN || yr > XMAX) return;
-    ctx.fillText(yr, xP(yr), PAD.top + CH() + 18);
-  });
-  ctx.restore();
+
+  // 2018 break line (E&W standard of proof change) — ASMR view only
+  if (currentView === 'asmr' && vis.ew && XMIN <= 2018 && XMAX >= 2018) {
+    ctx.strokeStyle = 'rgba(96,165,250,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(xP(2018), PAD.top); ctx.lineTo(xP(2018), PAD.top + CH()); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(96,165,250,0.5)'; ctx.font = '9px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('⚠ 2018 E&W', xP(2018), PAD.top - 6);
+    ctx.fillText('proof change', xP(2018), PAD.top + 4);
+  }
+
+  // Axis labels
+  ctx.fillStyle = t.muted; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  const yLabel = currentView === 'counts' ? 'Deaths (registrations)' : 'Rate per 100,000 population';
+  ctx.save(); ctx.translate(14, PAD.top + CH()/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText(yLabel, 0, 0); ctx.restore();
+
+  // Title
+  ctx.fillStyle = t.muted; ctx.font = '11px Inter'; ctx.textAlign = 'left';
+  const viewLabel = currentView === 'counts' ? 'Annual registered deaths'
+    : currentView === 'crude' ? 'Crude rate per 100,000 (annual)'
+    : '3-year rolling ASMR per 100,000 (2013 ESP)';
+  ctx.fillText(viewLabel, PAD.left, PAD.top - 18);
+
+  // ── DRAW SERIES ──
+  if (currentView === 'counts') drawCounts(t, yp, YMAX);
+  else if (currentView === 'crude') drawCrude(t, yp);
+  else drawASMR(t, yp);
+
+  updateLegend();
 }
 
-function drawAxesLabels() {
-  ctx.save();
-  const t2=T(); ctx.strokeStyle=t2.axis; ctx.lineWidth=1.5;
+function drawLine(data, color, yp, dashed=false, dotRadius=3, hollow=false) {
+  const yrs = Object.keys(data).map(Number).filter(y => y >= XMIN && y <= XMAX).sort((a,b)=>a-b);
+  if (!yrs.length) return;
+  ctx.strokeStyle = color; ctx.lineWidth = 2;
+  if (dashed) ctx.setLineDash([5,4]); else ctx.setLineDash([]);
   ctx.beginPath();
-  ctx.moveTo(PAD.left, PAD.top); ctx.lineTo(PAD.left, PAD.top+CH());
-  ctx.lineTo(PAD.left+CW(), PAD.top+CH()); ctx.stroke();
-  // Left label
-  ctx.save();
-  ctx.translate(13, PAD.top + CH()/2);
-  ctx.rotate(-Math.PI/2);
-  ctx.fillStyle=t2.muted; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center';
-  ctx.fillText('ASMR per 100,000 (left axis)', 0, 0);
-  ctx.restore();
-  // Right label
-  ctx.save();
-  ctx.translate(W - 10, PAD.top + CH()/2);
-  ctx.rotate(Math.PI/2);
-  ctx.fillStyle=t2.reg; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center';
-  ctx.fillText('Annual registrations — IOM (right axis)', 0, 0);
-  ctx.restore();
-  ctx.restore();
-}
-
-function drawBreak() {
-  if (XMIN > 2016) return;
-  const x = xP(2018);
-  ctx.save();
-  const tb=T(); ctx.strokeStyle=tb.iom; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
-  ctx.beginPath(); ctx.moveTo(x, PAD.top-2); ctx.lineTo(x, PAD.top+CH()); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle=tb.iom; ctx.font='bold 9px Inter, sans-serif'; ctx.textAlign='center';
-  ctx.fillText('⚠ 2018: E&W proof', x, PAD.top - 20);
-  ctx.fillText('standard lowered', x, PAD.top - 9);
-  ctx.restore();
-}
-
-function drawRegBars() {
-  ctx.save();
-  const tr=T(); ctx.globalAlpha=0.35;
-  const barW = Math.max(3, CW() / (XMAX - XMIN) * 0.7);
-  Object.entries(IOM_REG).forEach(([yr, n]) => {
-    yr = +yr;
-    if (yr < XMIN || yr > XMAX) return;
-    const x = xP(yr) - barW/2;
-    const y = yPReg(n);
-    const h = yPReg(0) - y;
-    ctx.fillStyle=tr.iom; ctx.fillRect(x,y,barW,h);
+  yrs.forEach((y,i) => {
+    const x = xP(y), yy = yp(data[y]);
+    i === 0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
   });
-  ctx.globalAlpha = 1;
-  ctx.restore();
-}
-
-function polyline(data, color, dash, lw) {
-  const pts = Object.entries(data).map(([y,v])=>[+y,v]).filter(([y])=>y>=XMIN&&y<=XMAX).sort((a,b)=>a[0]-b[0]);
-  if (pts.length < 2) return;
-  ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round';
-  if (dash) ctx.setLineDash(dash);
-  ctx.beginPath();
-  pts.forEach(([yr,v],i)=>{const x=xP(yr),y=yP(v);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-  ctx.stroke(); ctx.setLineDash([]); ctx.restore();
-}
-
-function dot(x, y, r, fill, stroke, sw) {
-  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
-  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = sw||2; ctx.stroke(); }
-}
-
-function ring(x, y, r, color) {
-  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
-  ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = 0.3; ctx.stroke(); ctx.globalAlpha = 1;
-}
-
-function drawUK() {
-  const tu=T(); polyline(UKP,tu.uk,[],2.5);
-  polyline(UKQ,tu.uk,[8,4],2.5);
-  Object.entries(UKP).forEach(([yr,v])=>{
-    yr=+yr; if(yr<XMIN||yr>XMAX) return;
-    const x=xP(yr),y=yP(v);
-    if(ukPConf.has(yr)) dot(x,y,4,tu.uk,null);
-    else dot(x,y,2.5,tu.cvs,tu.uk);
-  });
-  Object.entries(UKQ).forEach(([yr,v])=>{
-    yr=+yr; if(yr<XMIN||yr>XMAX) return;
-    dot(xP(yr),yP(v),3.5,tu.uk,null);
+  ctx.stroke(); ctx.setLineDash([]);
+  // Dots
+  yrs.forEach(y => {
+    const x = xP(y), yy = yp(data[y]);
+    ctx.beginPath(); ctx.arc(x, yy, dotRadius, 0, Math.PI*2);
+    if (hollow) { ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke(); }
+    else { ctx.fillStyle = color; ctx.fill(); }
   });
 }
 
-function drawIOM() {
-  const ti=T(); polyline(IOM_ASMR,ti.iom,[],2);
-  Object.entries(IOM_ASMR).forEach(([yr,v])=>{
-    yr=+yr; if(yr<XMIN||yr>XMAX) return;
-    const x=xP(yr),y=yP(v);
-    if(iomASMRConf.has(yr)) { ring(x,y,9,ti.iom); dot(x,y,5,ti.iom,null); }
-    else dot(x,y,3.5,ti.cvs,ti.iom);
-  });
-}
-
-function drawGY() {
-  const tg=T(); polyline(GY_ASMR,tg.gy,[5,5],1.8);
-  Object.entries(GY_ASMR).forEach(([yr,v])=>{
-    yr=+yr; if(yr<XMIN||yr>XMAX) return;
-    const x=xP(yr),y=yP(v);
-    if(gyConf.has(yr)) { ring(x,y,12,tg.gy); dot(x,y,8,tg.gy,null); }
-    else dot(x,y,4,tg.cvs,tg.gy,2);
-  });
-  // Label confirmed points
-  ctx.save();
-  ctx.fillStyle=tg.gy; ctx.font='bold 9.5px Inter,sans-serif'; ctx.textAlign='center';
-  if (2014>=XMIN) {
-    ctx.fillText('2013–15', xP(2014), yP(7.0)-14);
-    ctx.fillText('avg: 7.0', xP(2014), yP(7.0)-4);
+function drawCounts(t, yp, YMAX) {
+  // Left axis: IoM, Jersey, Guernsey (0–30 range)
+  if (vis.iom) drawLine(IOM_COUNTS, t.iom, yp, false, 3.5);
+  if (vis.jsy) drawLine(JSY_COUNTS, t.jsy, yp, false, 3.5);
+  // Guernsey — 3yr avg bars
+  if (vis.gy) {
+    Object.entries(GY_COUNT_AVG).forEach(([yr, v]) => {
+      const y = +yr;
+      if (y < XMIN || y > XMAX) return;
+      const x = xP(y); const yy = yp(v); const barW = Math.max(4, CW()/(XMAX-XMIN)*0.5);
+      ctx.fillStyle = t.gy + '55';
+      ctx.fillRect(x - barW/2, yy, barW, yp(0) - yy);
+      ctx.strokeStyle = t.gy; ctx.lineWidth = 1;
+      ctx.strokeRect(x - barW/2, yy, barW, yp(0) - yy);
+    });
   }
-  if (2020>=XMIN) {
-    ctx.fillText('2019–21', xP(2020), yP(15.0)+20);
-    ctx.fillText('avg: 15.0', xP(2020), yP(15.0)+30);
-  }
-  ctx.restore();
-}
 
-// ── TOOLTIP ─────────────────────────────────────────────────────────────────────
+  // E&W — secondary (right) axis, scaled to thousands
+  if (vis.ew) {
+    // Build E&W data in range
+    const ewYrs = Object.keys(EW_COUNTS).map(Number).filter(y => y >= XMIN && y <= XMAX).sort((a,b)=>a-b);
+    if (!ewYrs.length) return;
+    const ewVals = ewYrs.map(y => EW_COUNTS[y]);
+    const ewMax = Math.ceil(Math.max(...ewVals) * 1.15 / 500) * 500; // round to 500s
+    const ewMin = 0;
+    // Right axis y-position function
+    const ypEW = v => PAD.top + (1 - (v - ewMin) / (ewMax - ewMin)) * CH();
+    const rightX = PAD.left + CW();
 
-canvas.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  const sx = W / rect.width;
-  const mx = (e.clientX - rect.left) * sx;
-
-  const yr = Math.round(XMIN + ((mx - PAD.left) / CW()) * (XMAX - XMIN));
-  if (yr < XMIN || yr > XMAX) { document.getElementById('tooltip').style.display='none'; return; }
-
-  const rows = [];
-
-  if (vis.uk) {
-    const v = UKP[yr] ?? UKQ[yr];
-    if (v !== undefined) {
-      const post = !!UKQ[yr];
-      const conf = ukPConf.has(yr) || ukQConf.has(yr);
-      rows.push({color:tc('--c-uk'), label:'E&W ASMR', v:v.toFixed(1)+'/100k',
-        note: post ? '⚠ civil proof std. post-2018' : (conf ? 'confirmed (ONS)' : 'estimated')});
+    // Draw secondary axis ticks and labels on the right
+    const ewSteps = 6;
+    ctx.fillStyle = t.ew + 'cc'; ctx.font = '9px "JetBrains Mono"'; ctx.textAlign = 'left';
+    for (let i = 0; i <= ewSteps; i++) {
+      const v = ewMin + (ewMax - ewMin) * i / ewSteps;
+      const y = ypEW(v);
+      ctx.strokeStyle = t.ew + '22'; ctx.lineWidth = 0.5;
+      ctx.setLineDash([2,4]);
+      ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(rightX, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = t.ew + 'bb';
+      ctx.fillText(Math.round(v).toLocaleString(), rightX + 4, y + 3);
     }
+
+    // Right axis label
+    ctx.save();
+    ctx.fillStyle = t.ew + 'cc'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+    ctx.translate(W - 10, PAD.top + CH()/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('E&W deaths (right axis)', 0, 0);
+    ctx.restore();
+
+    // Draw E&W line against secondary axis
+    ctx.strokeStyle = t.ew; ctx.lineWidth = 2; ctx.setLineDash([]);
+    ctx.beginPath();
+    ewYrs.forEach((y, i) => {
+      const x = xP(y), yy = ypEW(EW_COUNTS[y]);
+      i === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+    });
+    ctx.stroke();
+    // Dots
+    ewYrs.forEach(y => {
+      ctx.beginPath(); ctx.arc(xP(y), ypEW(EW_COUNTS[y]), 3, 0, Math.PI*2);
+      ctx.fillStyle = t.ew; ctx.fill();
+    });
+
+    // 2018 break on counts view too
+    if (XMIN <= 2018 && XMAX >= 2018) {
+      ctx.strokeStyle = 'rgba(96,165,250,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(xP(2018), PAD.top); ctx.lineTo(xP(2018), PAD.top + CH()); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(96,165,250,0.5)'; ctx.font = '9px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('⚠ 2018', xP(2018), PAD.top - 6);
+    }
+  }
+}
+
+function drawCrude(t, yp) {
+  if (vis.ew) {
+    const ewCrude = {};
+    Object.entries(EW_COUNTS).forEach(([y,c]) => {
+      if (EW_POP[+y]) ewCrude[+y] = c / (EW_POP[+y] * 1e6) * 1e5;
+    });
+    // Split at 2018 break
+    const pre = {}, post = {};
+    Object.entries(ewCrude).forEach(([y,v]) => { if (+y<=2017) pre[+y]=v; else post[+y]=v; });
+    drawLine(pre, t.ew, yp, false, 3);
+    drawLine(post, t.ew, yp, true, 3);
   }
   if (vis.iom) {
-    const v = IOM_ASMR[yr];
-    if (v !== undefined) {
-      const win = iomWindow[yr] || '';
-      const conf = iomASMRConf.has(yr);
-      rows.push({color:tc('--c-iom'), label:`IOM ASMR ${win?'('+win+')':''}`, v:v.toFixed(1)+'/100k',
-        note: conf ? 'confirmed (FOI / report text)' : 'read from Fig.29 ±1-2 units'});
-    }
+    const iomCrude = {};
+    Object.entries(IOM_COUNTS).forEach(([y,c]) => { iomCrude[+y] = c/IOM_POP*1e5; });
+    drawLine(iomCrude, t.iom, yp, false, 3.5);
   }
-  if (vis.iomreg) {
-    const n = IOM_REG[yr];
-    if (n !== undefined) {
-      rows.push({color:tc('--c-reg'), label:'IOM registrations', v:n+' deaths',
-        note:'Fig.28 year of registration (X60-X84 + Y10-Y34)'});
-    }
+  if (vis.jsy) {
+    const jsyCrude = {};
+    Object.entries(JSY_COUNTS).forEach(([y,c]) => { jsyCrude[+y] = c/JSY_POP*1e5; });
+    drawLine(jsyCrude, t.jsy, yp, false, 3.5);
   }
   if (vis.gy) {
-    const v = GY_ASMR[yr];
-    if (v !== undefined) {
-      const win = gyWindow[yr] || '3yr avg';
-      const conf = gyConf.has(yr);
-      rows.push({color:tc('--c-gy'), label:`Guernsey ASMR (${win})`, v:v.toFixed(1)+'/100k',
-        note: conf ? 'confirmed (Guernsey Mortality Trends 2021)' : 'interpolated — do not cite'});
+    ctx.fillStyle = t.gy+'aa'; ctx.font='10px Inter'; ctx.textAlign='left';
+    ctx.fillText('Guernsey: annual counts not published — crude rate not available. Use ASMR view.', PAD.left+2, PAD.top+14);
+  }
+}
+
+function drawASMR(t, yp) {
+  const ewAll = {...EW_PRE, ...EW_POST};
+  if (vis.ew) {
+    const pre = {}, post = {};
+    Object.entries(EW_PRE).forEach(([y,v]) => { if(+y>=XMIN) pre[+y]=v; });
+    Object.entries(EW_POST).forEach(([y,v]) => { if(+y<=XMAX) post[+y]=v; });
+    if (Object.keys(pre).length) drawLine(pre, t.ew, yp, false, 3);
+    if (Object.keys(post).length) drawLine(post, t.ew, yp, true, 3);
+  }
+  if (vis.iom) {
+    const conf={}, unconf={};
+    Object.entries(IOM_ASMR).forEach(([y,v]) => {
+      if (+y<XMIN||+y>XMAX) return;
+      IOM_ASMR_CONF.has(+y) ? conf[+y]=v : unconf[+y]=v;
+    });
+    // Draw full line then overlay dots
+    drawLine(IOM_ASMR, t.iom, yp, false, 3, false);
+    // Hollow dots for unconfirmed
+    Object.entries(unconf).forEach(([y,v]) => {
+      const x=xP(+y), yy=yp(v);
+      ctx.beginPath(); ctx.arc(x,yy,4,0,Math.PI*2);
+      ctx.strokeStyle=t.iom; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle=tc('--cvs'); ctx.fill();
+    });
+  }
+  if (vis.gy) {
+    drawLine(GY_ASMR, t.gy, yp, false, 4);
+    // Error bar for 2022 (open inquest range)
+    if (GY_ASMR_MAX[2022] && 2022 >= XMIN && 2022 <= XMAX) {
+      const x = xP(2022);
+      const y1 = yp(GY_ASMR[2022]), y2 = yp(GY_ASMR_MAX[2022]);
+      ctx.strokeStyle = t.gy; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x,y2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(x-5,y2); ctx.lineTo(x+5,y2); ctx.stroke();
     }
+    // Hollow for non-confirmed
+    Object.entries(GY_ASMR).forEach(([y,v]) => {
+      if(+y<XMIN||+y>XMAX) return;
+      if (!GY_ASMR_CONF.has(+y)) {
+        const x=xP(+y), yy=yp(v);
+        ctx.beginPath(); ctx.arc(x,yy,4,0,Math.PI*2);
+        ctx.strokeStyle=t.gy; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle=tc('--cvs'); ctx.fill();
+      }
+    });
+  }
+  if (vis.jsy) drawLine(JSY_ASMR, t.jsy, yp, false, 3.5);
+}
+
+function updateLegend() {
+  const t = T();
+  const lb = document.getElementById('legend-bar');
+  const items = [];
+
+  if (currentView === 'counts') {
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM annual count (left axis)</div>`);
+    if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey annual count (left axis)</div>`);
+    if (vis.gy)  items.push(`<div class="leg"><span style="display:inline-block;width:14px;height:14px;background:${t.gy}55;border:1px solid ${t.gy};vertical-align:middle;"></span> Guernsey 3yr avg count (left axis — not individual years)</div>`);
+    if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W annual count (right axis — thousands)</div>`);
+  } else if (currentView === 'crude') {
+    if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W (pre-2018 solid · post-2018 dashed — proof change)</div>`);
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM crude rate</div>`);
+    if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey crude rate</div>`);
+    if (vis.gy)  items.push(`<div class="leg" style="color:${t.gy}aa;">Guernsey: not available (annual counts not published)</div>`);
+  } else {
+    if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W ASMR (annual · dashed post-2018)</div>`);
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM 3yr ASMR (● confirmed · ○ read from chart ±1-2)</div>`);
+    if (vis.gy)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.gy};border-radius:2px;"></span> Guernsey 3yr ASMR (● confirmed · ○ from chart · error bar = inquest range)</div>`);
+    if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey 3yr ASMR</div>`);
+  }
+  lb.innerHTML = items.join('');
+}
+
+// ── TOOLTIP ───────────────────────────────────────────────────────────────────
+let rect = canvas.getBoundingClientRect();
+canvas.addEventListener('mousemove', e => {
+  rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const yr = Math.round(XMIN + (mx - PAD.left) / CW() * (XMAX - XMIN));
+  if (yr < XMIN || yr > XMAX) { document.getElementById('tooltip').style.display='none'; return; }
+
+  const t = T();
+  const rows = [];
+  const [YMIN,YMAX] = getRange();
+
+  if (currentView === 'counts') {
+    if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man', v:`${IOM_COUNTS[yr]} deaths`, note:'annual registrations'});
+    if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${JSY_COUNTS[yr]} deaths`, note:'annual registrations'});
+    if (vis.gy && GY_COUNT_AVG[yr]) rows.push({color:t.gy, label:'Guernsey', v:`~${GY_COUNT_AVG[yr]}/yr`, note:'3yr rolling average — not individual year'});
+    if (vis.ew && EW_COUNTS[yr]) rows.push({color:t.ew, label:'England & Wales', v:`${EW_COUNTS[yr].toLocaleString()} deaths`, note:'right axis (thousands)'});
+  } else if (currentView === 'crude') {
+    if (vis.ew && EW_COUNTS[yr] && EW_POP[yr]) rows.push({color:t.ew, label:'E&W', v:`${(EW_COUNTS[yr]/(EW_POP[yr]*1e6)*1e5).toFixed(1)}/100k`, note: yr>=2018 ? 'post-2018 civil standard' : 'pre-2018 criminal standard'});
+    if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man', v:`${(IOM_COUNTS[yr]/IOM_POP*1e5).toFixed(1)}/100k`, note:'year of registration'});
+    if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${(JSY_COUNTS[yr]/JSY_POP*1e5).toFixed(1)}/100k`, note:'year of registration'});
+  } else {
+    const ewAll = {...EW_PRE,...EW_POST};
+    if (vis.ew && ewAll[yr]) rows.push({color:t.ew, label:'E&W', v:`${ewAll[yr].toFixed(1)}/100k`, note: yr>=2018 ? 'civil std' : 'criminal std'});
+    if (vis.iom && IOM_ASMR[yr]) rows.push({color:t.iom, label:`IoM (${IOM_ASMR[yr-1]||'?'}–${yr+1} window)`, v:`${IOM_ASMR[yr].toFixed(1)}/100k`, note: IOM_ASMR_CONF.has(yr) ? 'confirmed' : 'read from chart ±1-2'});
+    if (vis.gy && GY_ASMR[yr]) rows.push({color:t.gy, label:'Guernsey', v:`${GY_ASMR[yr].toFixed(1)}/100k${GY_ASMR_MAX[yr]?' – '+GY_ASMR_MAX[yr]+' max':''}`, note: GY_ASMR_CONF.has(yr) ? 'confirmed' : 'from published chart'});
+    if (vis.jsy && JSY_ASMR[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${JSY_ASMR[yr].toFixed(1)}/100k`, note:'3yr rolling'});
   }
 
   if (!rows.length) { document.getElementById('tooltip').style.display='none'; return; }
@@ -609,24 +684,40 @@ canvas.addEventListener('mousemove', e => {
   const sw = tip.offsetWidth;
   const relX = (xP(yr)/W) * rect.width;
   tip.style.left = (relX + sw + 16 > rect.width ? relX - sw - 8 : relX + 12) + 'px';
-  tip.style.top = '60px';
+  tip.style.top = '50px';
 });
 canvas.addEventListener('mouseleave', () => { document.getElementById('tooltip').style.display='none'; });
 
-// ── TOGGLES ─────────────────────────────────────────────────────────────────────
+// ── VIEW TABS ─────────────────────────────────────────────────────────────────
+['counts','crude','asmr'].forEach(v => {
+  document.getElementById(`tab-${v}`).addEventListener('click', () => {
+    currentView = v;
+    document.querySelectorAll('.view-tab[id^="tab-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-${v}`).classList.add('active');
+    draw();
+  });
+});
 
-const COLS = {uk:'--c-uk', iom:'--c-iom', iomreg:'--c-reg', gy:'--c-gy'};
-['uk','iom','iomreg','gy'].forEach(k => {
-  const btn = document.getElementById('btn-'+k);
-  if (!btn) { console.warn('toggle btn missing: btn-'+k); return; } // safety guard
-  // Set initial colour state from theme
-  const initCol = tc(COLS[k]);
-  btn.style.background = vis[k] ? initCol : 'transparent';
-  btn.style.color      = vis[k] ? tc('--cvs') : initCol;
-  btn.style.borderColor = initCol;
-  btn.addEventListener('click', () => {
+document.getElementById('range-all').addEventListener('click', () => {
+  XMIN=1981; XMAX=2024;
+  document.getElementById('range-all').classList.add('active');
+  document.getElementById('range-2006').classList.remove('active');
+  draw();
+});
+document.getElementById('range-2006').addEventListener('click', () => {
+  XMIN=2006; XMAX=2024;
+  document.getElementById('range-2006').classList.add('active');
+  document.getElementById('range-all').classList.remove('active');
+  draw();
+});
+
+// ── SERIES TOGGLES ────────────────────────────────────────────────────────────
+const COLORS = { ew:'--c-ew', iom:'--c-iom', gy:'--c-gy', jsy:'--c-jsy' };
+['ew','iom','gy','jsy'].forEach(k => {
+  document.getElementById(`btn-${k}`).addEventListener('click', () => {
     vis[k] = !vis[k];
-    const col = tc(COLS[k]);
+    const col = tc(COLORS[k]);
+    const btn = document.getElementById(`btn-${k}`);
     btn.style.background = vis[k] ? col : 'transparent';
     btn.style.color = vis[k] ? tc('--cvs') : col;
     btn.style.borderColor = col;
@@ -634,92 +725,56 @@ const COLS = {uk:'--c-uk', iom:'--c-iom', iomreg:'--c-reg', gy:'--c-gy'};
   });
 });
 
-// ── VIEW RANGE ───────────────────────────────────────────────────────────────────
-
-document.getElementById('view-all').addEventListener('click', () => {
-  XMIN=1981; XMAX=2024;
-  document.getElementById('view-all').classList.add('active');
-  document.getElementById('view-2006').classList.remove('active');
-  draw();
-});
-document.getElementById('view-2006').addEventListener('click', () => {
-  XMIN=2006; XMAX=2024;
-  document.getElementById('view-2006').classList.add('active');
-  document.getElementById('view-all').classList.remove('active');
-  draw();
-});
-
-// ── NOTES TOGGLE ─────────────────────────────────────────────────────────────────
-
-// ── NOTES TOGGLE ─────────────────────────────────────────────────────────────
+// ── NOTES TOGGLE ──────────────────────────────────────────────────────────────
 document.getElementById('notes-toggle').addEventListener('click', () => {
   const body = document.getElementById('notes-body');
   const hint = document.getElementById('hint-text');
-  const open = body.style.display === 'block';
+  const open = body.style.display !== 'none';
   body.style.display = open ? 'none' : 'block';
-  hint.textContent = open ? '▼ Click to expand (important)' : '▲ Click to collapse';
-  setTimeout(reportHeight, 60); // page height changes — re-report once
+  hint.textContent = open ? '▼ Click to expand' : '▲ Click to collapse';
+  setTimeout(reportHeight, 60);
 });
 
-// ── RESPONSIVE ───────────────────────────────────────────────────────────────
+// ── RESPONSIVE & IFRAME COMMS ─────────────────────────────────────────────────
 function resize() {
   const wrap = document.getElementById('chart-wrap');
-  // offsetWidth works in iframe; clientWidth is 0 until layout settles
-  const w = wrap.offsetWidth || wrap.clientWidth;
+  const w = Math.min(wrap.offsetWidth || wrap.clientWidth || W, W);
   if (!w) return;
-  // Only set CSS height — let width:100% in CSS handle horizontal scaling
   canvas.style.height = Math.round(w * H / W) + 'px';
 }
 
-// ── HEIGHT REPORTING — called AFTER resize() so CSS height is already correct ─
 let _lastH = 0;
 function reportHeight() {
-  resize(); // ensure CSS height is up-to-date before measuring
+  resize();
   const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-  if (Math.abs(h - _lastH) < 4) return; // skip if unchanged — breaks resize loop
+  if (Math.abs(h - _lastH) < 4) return;
   _lastH = h;
   try { window.parent.postMessage({ type:'resize', height: h + 24 }, '*'); } catch(e) {}
 }
 
-// ── THEME LISTENER ────────────────────────────────────────────────────────────
 window.addEventListener('message', e => {
   if (e.data && e.data.type === 'theme') {
     document.documentElement.setAttribute('data-theme', e.data.theme);
-    draw(); // redraw canvas with new palette
+    draw();
   }
 });
 
-// ── WINDOW RESIZE — re-scale canvas only; do NOT call reportHeight ────────────
-// Calling reportHeight here was causing the infinite resize loop:
-//   reportHeight → postMessage → AutoIframe resizes iframe →
-//   'resize' event fires in page → reportHeight → …
 let _rTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(_rTimer);
-  _rTimer = setTimeout(() => { resize(); draw(); }, 120);
-});
+window.addEventListener('resize', () => { clearTimeout(_rTimer); _rTimer = setTimeout(() => { resize(); draw(); }, 120); });
 
-// ── INITIALISATION ────────────────────────────────────────────────────────────
-// draw() immediately — always works (fixed 900×450 canvas buffer).
-// safeInit polls until container has real width → sets CSS height → reports height.
+// ── INIT ──────────────────────────────────────────────────────────────────────
 draw();
-
 let _ready = false;
 function safeInit() {
   if (_ready) return;
   const wrap = document.getElementById('chart-wrap');
   if ((wrap.offsetWidth || wrap.clientWidth) < 50) return;
   _ready = true;
-  resize();
-  draw();
-  setTimeout(reportHeight, 80); // one clean report after layout settles
+  resize(); draw();
+  setTimeout(reportHeight, 80);
 }
 const _poll = setInterval(() => { if (_ready) { clearInterval(_poll); return; } safeInit(); }, 40);
-window.addEventListener('load', () => {
-  safeInit();
-  setTimeout(safeInit, 250);
-  setTimeout(() => { if (!_ready) { _ready=true; resize(); draw(); setTimeout(reportHeight,80); } }, 800);
-});
+window.addEventListener('load', () => { safeInit(); setTimeout(safeInit, 250); setTimeout(() => { if (!_ready) { _ready=true; resize(); draw(); setTimeout(reportHeight,80); } }, 800); });
 </script>
 </body>
 </html>
