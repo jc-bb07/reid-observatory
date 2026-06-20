@@ -5,28 +5,51 @@ import { RestrictedArea } from "./restricted/RestrictedArea";
 import { ComplianceArea } from "./restricted/compliance/ComplianceArea";
 import { ISLANDS, ISLAND_KEYS } from "./data/constants";
 
-// ── Colour constants ──────────────────────────────────────────────────────────
-// Keep in sync with observatory.css :root tokens
-const C = {
-  bg:       "#0f172a",
-  surface:  "#1e293b",
-  surface2: "#162032",
-  border:   "#1e293b",
-  border2:  "#334155",
-  text:     "#e2e8f0",
-  muted:    "#64748b",   // de-emphasised labels only
-  muted2:   "#94a3b8",   // body copy & secondary UI — lighter than muted, do not swap
-  blue:     "#60a5fa",
-  blueDim:  "#1d4ed8",
-  green:    "#34d399",
-  amber:    "#fbbf24",
-  purple:   "#a78bfa",
-  red:      "#f87171",
-  // Island colours — canonical
-  iom:      "#3b82f6",   // Isle of Man — blue
-  gsy:      "#10b981",   // Guernsey    — green
-  jsy:      "#f59e0b",   // Jersey      — amber (orange jelly)
-  uk:       "#94a3b8",   // UK          — John Major grey
+// ── Colour themes ─────────────────────────────────────────────────────────────
+// C is computed dynamically in AppContent from the active theme.
+const THEMES = {
+  dark: {
+    bg:       "#0f172a",
+    surface:  "#1e293b",
+    surface2: "#162032",
+    border:   "#1e293b",
+    border2:  "#334155",
+    text:     "#e2e8f0",
+    muted:    "#64748b",
+    muted2:   "#94a3b8",
+    blue:     "#60a5fa",
+    blueDim:  "#1d4ed8",
+    green:    "#34d399",
+    amber:    "#fbbf24",
+    purple:   "#a78bfa",
+    red:      "#f87171",
+    gold:     "#C9A24A",
+    iom:      "#3b82f6",
+    gsy:      "#10b981",
+    jsy:      "#f59e0b",
+    uk:       "#94a3b8",
+  },
+  light: {
+    bg:       "#f8fafc",
+    surface:  "#ffffff",
+    surface2: "#f1f5f9",
+    border:   "#e2e8f0",
+    border2:  "#cbd5e1",
+    text:     "#0f172a",
+    muted:    "#475569",
+    muted2:   "#64748b",
+    blue:     "#2563eb",
+    blueDim:  "#1d4ed8",
+    green:    "#059669",
+    amber:    "#d97706",
+    purple:   "#7c3aed",
+    red:      "#dc2626",
+    gold:     "#92600a",
+    iom:      "#1d4ed8",
+    gsy:      "#059669",
+    jsy:      "#d97706",
+    uk:       "#64748b",
+  },
 };
 
 const TAB_GROUPS = [
@@ -68,7 +91,7 @@ function hasPermission(user, perm) {
 }
 
 // ── Landing / explainer tab ───────────────────────────────────────────────────
-function HomeTab() {
+function HomeTab({ C }) {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const card = (title, body, accent) => (
@@ -201,7 +224,7 @@ function HomeTab() {
 }
 
 // ── Economy & Society landing tab ────────────────────────────────────────────
-function EconHomeTab({ onNavigate }) {
+function EconHomeTab({ C, onNavigate }) {
 
   const card = (title, body, accent) => (
     <div style={{
@@ -392,6 +415,7 @@ function AutoIframe({ src, title }) {
         border: "none",
         display: "block",
         overflow: "hidden",
+        background: THEMES.dark.bg,
       }}
     />
   );
@@ -402,9 +426,22 @@ function AppContent() {
   const { user, authLoading } = useAuth();
   const [tab, setTab] = useState("home");
 
-  // ── Iframe keep-alive: lazy-load each iframe tab on first visit, then
-  // preserve it with display:none instead of unmounting. This prevents canvas
-  // tools from reinitialising (and flashing) every time you switch tabs.
+  // ── Theme ──────────────────────────────────────────────────────────────────
+  const [themeName, setThemeName] = useState(() => {
+    try { return localStorage.getItem("observatory-theme") || "dark"; }
+    catch { return "dark"; }
+  });
+  const C = THEMES[themeName];
+  const toggleTheme = () => {
+    const next = themeName === "dark" ? "light" : "dark";
+    setThemeName(next);
+    try { localStorage.setItem("observatory-theme", next); } catch {}
+    document.querySelectorAll("iframe").forEach(f => {
+      try { f.contentWindow.postMessage({ type: "theme", theme: next }, "*"); } catch {}
+    });
+  };
+
+  // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
     "reid", "demog", "kanon", "areas",
     "iomfiscal", "econmix", "inflation", "unemployment", "suicide",
@@ -423,8 +460,8 @@ function AppContent() {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const tabContent = {
-    home:     <HomeTab />,
-    econHome: <EconHomeTab onNavigate={setTab} />,
+    home:     <HomeTab C={C} />,
+    econHome: <EconHomeTab C={C} onNavigate={setTab} />,
 
     reid: (
       <AutoIframe
@@ -572,31 +609,54 @@ function AppContent() {
       fontFamily: "'Inter', system-ui, sans-serif",
       background: C.bg, minHeight: "100vh",
       color: C.text, padding: "20px 24px",
+      transition: "background 0.2s, color 0.2s",
     }}>
 
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-          <div style={{ display: "flex", gap: 3 }}>
-            {ISLAND_KEYS.map((k, i) => (
-              <div key={i} style={{
-                width: 4, height: 28,
-                background: ISLANDS[k].color, borderRadius: 2,
-              }}/>
-            ))}
-          </div>
-          <div>
-            <h1 style={{
-              margin: 0, fontSize: 19, fontWeight: 800,
-              color: "#f8fafc", letterSpacing: "-0.01em",
-            }}>
-              Crown Dependencies Re-Identification Observatory
-            </h1>
-            <div style={{ color: C.muted2, fontSize: 11, marginTop: 2 }}>
-              Isle of Man · Guernsey · Jersey — 2021 census ·{" "}
-              {totalPop.toLocaleString()} residents · 47 areas
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", gap: 3 }}>
+              {ISLAND_KEYS.map((k, i) => (
+                <div key={i} style={{
+                  width: 4, height: 28,
+                  background: ISLANDS[k].color, borderRadius: 2,
+                }}/>
+              ))}
+            </div>
+            <div>
+              <h1 style={{
+                margin: 0, fontSize: 19, fontWeight: 800,
+                color: C.text, letterSpacing: "-0.01em",
+              }}>
+                Crown Dependencies Re-Identification Observatory
+              </h1>
+              <div style={{ color: C.muted2, fontSize: 11, marginTop: 2 }}>
+                Isle of Man · Guernsey · Jersey — 2021 census ·{" "}
+                {totalPop.toLocaleString()} residents · 47 areas
+              </div>
             </div>
           </div>
+          <button
+            onClick={toggleTheme}
+            title={themeName === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            style={{
+              background: "none",
+              border: `1px solid ${C.border2}`,
+              borderRadius: 6,
+              color: C.muted2,
+              cursor: "pointer",
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: 11,
+              padding: "5px 10px",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              transition: "border-color 0.15s, color 0.15s",
+              marginTop: 2,
+            }}
+          >
+            {themeName === "dark" ? "☀ Light" : "◑ Dark"}
+          </button>
         </div>
       </div>
 
@@ -650,8 +710,8 @@ function AppContent() {
         })}
       </div>
 
-      {/* Content — iframe tabs: full-bleed, lazy-loaded, kept alive with display:none
-           Non-iframe tabs: centred with max-width, mount/unmount normally */}
+      {/* Iframe tabs: full-bleed, lazy-loaded, kept alive with display:none.
+           Non-iframe tabs: centred with max-width, mount/unmount normally. */}
       {[...loadedTabs].filter(id => IFRAME_TABS.has(id)).map(id => (
         <div key={id} style={{ display: id === tab ? "block" : "none" }}>
           {tabContent[id]}
@@ -666,7 +726,7 @@ function AppContent() {
       {/* Global footer — plain links, not tab state, so they're real crawlable URLs */}
       <div style={{
         maxWidth: 960, margin: "32px auto 0", padding: "16px 0 4px",
-        borderTop: `1px solid ${C.border}`,
+        borderTop: `1px solid ${C.border2}`,
         fontSize: 11, color: C.muted2,
         display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8,
       }}>

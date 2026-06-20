@@ -40,7 +40,8 @@
     line-height: 1.5;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
-    width: 100%;          /* critical: gives child elements a containing block */
+    width: 100%;
+    min-height: 100vh;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -52,7 +53,6 @@
     margin: 0 auto;
     padding: 20px 24px 40px;
     box-sizing: border-box;
-    min-width: 0;
   }
 
   /* ── ZONE GRIDS — min-width:0 prevents overflow in zero-viewport iframe ── */
@@ -62,10 +62,8 @@
     gap: 12px;
     margin-bottom: 16px;
     min-width: 0;
-    align-items: stretch;
   }
-  .topbar-zones > * { min-width: 0; display: flex; flex-direction: column; }
-  .topbar-zones .panel-section { flex: 1; }
+  .topbar-zones > * { min-width: 0; }
 
   /* Scenario chips — smaller, wrapping in exactly 2 rows */
   .scenario-row {
@@ -75,8 +73,8 @@
   }
   .scenario-chip {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9.5px;
-    padding: 3px 8px;
+    font-size: 10px;
+    padding: 4px 9px;
     border-radius: 4px;
     cursor: pointer;
     border: 1px solid var(--border2);
@@ -92,27 +90,22 @@
   .sim-controls-row {
     display: flex;
     flex-wrap: nowrap;
-    gap: 5px;
+    gap: 6px;
     align-items: center;
     overflow-x: auto;
     scrollbar-width: none;
   }
   .sim-controls-row::-webkit-scrollbar { display: none; }
-  .sim-controls-row button {
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 5px 10px;
-    font-size: 10.5px;
-  }
+  .sim-controls-row button { white-space: nowrap; flex-shrink: 0; padding: 5px 10px; font-size: 10.5px; }
   .speed-inline {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     flex: 1;
-    min-width: 100px;
+    min-width: 120px;
   }
   .speed-inline span { font-size: 10px; color: var(--muted2); white-space: nowrap; }
-  .speed-inline input { flex: 1; min-width: 50px; }
+  .speed-inline input { flex: 1; min-width: 60px; }
 
   /* Zone 2: CLD left | cards+flow right */
   .cld-cards-grid {
@@ -124,8 +117,6 @@
     min-width: 0;
   }
   .cld-cards-grid > * { min-width: 0; }
-  /* Ensure right column fills width consistently */
-  .cld-cards-grid > div { width: 100%; }
 
   /* Stat cards — 5 per row, 2 rows = 10 */
   .stat-grid {
@@ -152,7 +143,7 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted2);
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
@@ -160,7 +151,7 @@
   }
   .stat-value {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text);
     line-height: 1;
@@ -195,11 +186,11 @@
     margin-bottom: 6px;
   }
   h1 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: var(--text);
-    line-height: 1.25;
+    line-height: 1.3;
     margin-bottom: 4px;
   }
   h1 span { color: var(--gold); }
@@ -238,7 +229,7 @@
   }
 
   .panel-header {
-    padding: 9px 14px;
+    padding: 10px 14px;
     border-bottom: 1px solid var(--border2);
     font-size: 10px;
     font-weight: 700;
@@ -293,8 +284,8 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 10px;
-    padding-bottom: 7px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--border2);
   }
 
@@ -596,11 +587,9 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 6px;
-    line-height: 1.7;
   }
   .page-footer a { color: var(--muted); text-decoration: none; }
-  .page-footer a:hover { color: var(--gold); }
-  .page-footer .coalfinch-mark { color: var(--gold); font-weight: 600; }
+  .page-footer a:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -677,7 +666,6 @@
         <button class="scenario-chip" id="sc6" onclick="loadScenario(6)">Winter OPEL 4</button>
         <button class="scenario-chip" id="sc7" onclick="loadScenario(7)" style="border-color:var(--purple);color:var(--purple);">✓ Start empty</button>
         <button class="scenario-chip" id="sc8" onclick="loadScenario(8)" style="border-color:var(--green);color:var(--green);">★ Gent recommendations</button>
-        <button class="scenario-chip" id="sc9" onclick="loadScenario(9)" style="border-color:var(--red);color:var(--red);">✈ Storm: bridge closed</button>
       </div>
     </div>
 
@@ -758,14 +746,10 @@
         </div>
 
         <div class="slider-row">
-          <div class="slider-label">
+          <div class="slider-label" style="margin-bottom:6px;">
             <span class="slider-name">Air bridge status</span>
-            <span class="slider-val" id="v-airbridge">OPEN</span>
           </div>
-          <div class="btn-row" style="margin-top:4px;">
-            <button id="btnAirOpen" style="border-color:var(--green);color:var(--green);">✓ Open</button>
-            <button id="btnAirClosed" style="border-color:var(--red);color:var(--red);">✕ Closed (storm)</button>
-          </div>
+          <button id="btnAirToggle" style="border-color:var(--green);color:var(--green);background:rgba(52,211,153,0.12);">✓ Open</button>
           <button class="info-link" onclick="toggleInfo('airbridge-info')" style="margin-top:6px;"><span class="info-icon">i</span> How this is modelled</button>
           <div class="info-popover" id="airbridge-info"><strong>Placeholder, not real data.</strong> When open: ~1.2 patients/day via fixed-wing (34/month) + HEMS (1.5/month). 30% of complications are transfer-appropriate. When closed: HEMS only. FOI: £3.43M/yr travel+accommodation, rising ~20%/yr. Data request sent to Manx Care BI for real transfer volumes.</div>
         </div>
@@ -884,8 +868,8 @@
 
 
     <div class="page-footer">
-    <span><span class="coalfinch-mark">Coalfinch</span> · observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
-    <span>Model: Lane, Monefeldt &amp; Rosenhead (2000) JORS 51(5); Wolstenholme (2022) · IoM: Gent/PSG Independent Review May 2026; Manx Care IPR (Jun-23, Mar-24, Apr-26); FOI transfer costs FY 2020–21 to 2023–24 · Not a clinical forecasting tool</span>
+    <span>observatory.coalfinch.com · Crown Dependencies Re-Identification Observatory · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Model: Lane, Monefeldt &amp; Rosenhead (2000) JORS 51(5); Wolstenholme (2022) · IoM parameters: Gent/PSG Independent Review May 2026; Manx Care IPR (Jun-23, Mar-24, Apr-26); FOI transfer cost data FY 2020-21 to 2023-24 · Not a clinical forecasting tool · <a href="https://coalfinch.com">Coalfinch</a></span>
   </div>
 
 </div><!-- /shell -->
@@ -2192,7 +2176,6 @@ function updateStats() {
   function colorClass(val, warn, danger) {
     return val >= danger ? 'danger' : val >= warn ? 'warning' : 'ok';
   }
-  // Helper: set value + propagate state class to parent stat-card
   function setStat(id, text, cls) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -2203,27 +2186,20 @@ function updateStats() {
     }
   }
 
-  setStat('statOccupancy', pct + '%',                    colorClass(occ, 0.85, 0.92));
+  setStat('statOccupancy', pct + '%',                     colorClass(occ, 0.85, 0.92));
   setStat('statBeds',      Math.round(state.occupiedBeds) + '/' + eff, colorClass(occ, 0.85, 0.92));
-  setStat('statEDWait',    wait.toFixed(1),               colorClass(wait, 6, 12));
+  setStat('statEDWait',    wait.toFixed(1),                colorClass(wait, 6, 12));
 
   document.getElementById('statDelayed').textContent = Math.round(state.delayedPatientsStock);
   document.getElementById('statElective').textContent = Math.round(state.electiveBacklog).toLocaleString();
 
-  // LoS >21 days — IPR baseline: 11 (Jun-23), 43 (Mar-24), 55 (Apr-26)
-  setStat('statLos21', Math.round(state.losOver21) + '',  colorClass(state.losOver21, 37, 50));
+  setStat('statLos21',      Math.round(state.losOver21) + '',   colorClass(state.losOver21, 37, 50));
 
-  // Transfer cost — from actual accumulated flow, not proxy
   const annCost = state.week > 0 ? (state.transferCostAccumulator / state.week) * 52 : 3425505;
   setStat('statTransferCost', '£' + (annCost / 1000000).toFixed(2) + 'M', colorClass(annCost, 3500000, 4500000));
-
-  // Airbridge flow
-  setStat('statAirbridge', state.airBridgeFlow.toFixed(1), state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
-
-  // ED trolley backup
-  setStat('statTrolley', Math.round(state.edTrolleyBackup) + '', colorClass(state.edTrolleyBackup, 10, 30));
-
-  setStat('statBudget', Math.round((state.budgetPressure || 0) * 100) + '%', colorClass(state.budgetPressure || 0, 0.4, 0.7));
+  setStat('statAirbridge',  state.airBridgeFlow.toFixed(1),     state.airBridgeFlow > 1.0 ? 'warning' : 'ok');
+  setStat('statTrolley',    Math.round(state.edTrolleyBackup) + '', colorClass(state.edTrolleyBackup, 10, 30));
+  setStat('statBudget',     Math.round((state.budgetPressure || 0) * 100) + '%', colorClass(state.budgetPressure || 0, 0.4, 0.7));
 
   document.getElementById('simWeek').textContent = Math.floor(state.week);
 
@@ -2356,10 +2332,6 @@ const scenarios = [
     specialistDepth:70, airBridgeOpen:true,
     initOcc:0.68, initDelayed:4, initBacklog:15000, initPressure:0.1, initCommunity:180, initLos21:20, initBudgetPressure:0.25,
     label: "★ Gent recommendations implemented" },
-  { beds:233, admissions:20, los:6.5, delayed:15, socialCare:65, staffed:88, elderly:21, seasonal:1.2, streaming:20, ooh:30, community:20,
-    specialistDepth:35, airBridgeOpen:false,
-    initOcc:0.917, initDelayed:18, initBacklog:17720, initPressure:0.6, initCommunity:280, initLos21:55, initBudgetPressure:0.70,
-    label: "✈ Storm: air bridge closed" },
 ];
 
 function loadScenario(i) {
@@ -2481,14 +2453,20 @@ wireSlider('specialistdepth', v => { P.specialistDepth = v/100; document.getElem
 // genuinely binary in reality (weather either grounds flights or doesn't).
 function setAirBridge(open) {
   P.airBridgeOpen = open;
-  const vEl = document.getElementById('v-airbridge');
-  vEl.textContent = open ? 'OPEN' : 'CLOSED';
-  vEl.style.color = open ? 'var(--green)' : 'var(--red)';
-  document.getElementById('btnAirOpen').style.background = open ? 'rgba(52,211,153,0.15)' : 'transparent';
-  document.getElementById('btnAirClosed').style.background = open ? 'transparent' : 'rgba(248,113,113,0.15)';
+  const btn = document.getElementById('btnAirToggle');
+  if (open) {
+    btn.textContent = '✓ Open';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+    btn.style.background = 'rgba(52,211,153,0.12)';
+  } else {
+    btn.textContent = '✈ Closed (storm)';
+    btn.style.borderColor = 'var(--red)';
+    btn.style.color = 'var(--red)';
+    btn.style.background = 'rgba(248,113,113,0.12)';
+  }
 }
-document.getElementById('btnAirOpen').onclick = () => setAirBridge(true);
-document.getElementById('btnAirClosed').onclick = () => setAirBridge(false);
+document.getElementById('btnAirToggle').onclick = () => setAirBridge(!P.airBridgeOpen);
 setAirBridge(true); // init
 
 // Click-to-toggle info popover — used for "How this is modelled" notes.
@@ -2660,7 +2638,6 @@ function safeInit() {
   initUnifiedCLD();
   updateStats();
   state.running = true;
-  document.getElementById('btnRun').classList.add('running');
   requestAnimationFrame(renderLoop);
 }
 
@@ -2684,31 +2661,17 @@ window.addEventListener('resize', () => {
   setTimeout(reportIframeHeight, 100);
 });
 
-// ResizeObserver: catches container resize in iframe context more reliably than window.resize
+function reportIframeHeight() {
+  const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight);
+  try { window.parent.postMessage({ type: 'resize', height: h + 20 }, '*'); } catch(e) {}
+}
+window.addEventListener('load', () => { setTimeout(reportIframeHeight, 300); setTimeout(reportIframeHeight, 1000); });
+
 if (typeof ResizeObserver !== 'undefined') {
-  const ro = new ResizeObserver(() => {
-    initCanvas();
-    initTimeCanvas();
-    initUnifiedCLD();
-  });
-  // Observe the shell container
+  const ro = new ResizeObserver(() => { initCanvas(); initTimeCanvas(); initUnifiedCLD(); });
   const shellEl = document.querySelector('.shell');
   if (shellEl) ro.observe(shellEl);
 }
-
-// ── IFRAME HEIGHT REPORTING — tells AutoIframe to grow to fit content ──────────
-function reportIframeHeight() {
-  const h = Math.max(
-    document.body.scrollHeight,
-    document.documentElement.scrollHeight,
-    document.body.offsetHeight
-  );
-  try { window.parent.postMessage({ type: 'resize', height: h + 20 }, '*'); } catch(e) {}
-}
-// Report on load, after canvases init, and on resize
-window.addEventListener('load', () => { setTimeout(reportIframeHeight, 300); setTimeout(reportIframeHeight, 1000); });
-window.addEventListener('resize', reportIframeHeight);
-
 </script>
 </body>
 </html>
