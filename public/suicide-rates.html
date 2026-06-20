@@ -24,7 +24,9 @@
   }
   html, body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text);
     padding:20px 24px 40px; font-size:14px; -webkit-font-smoothing:antialiased;
-    width:100%; overflow-x:hidden; line-height:1.5; transition:background 0.2s,color 0.2s; }
+    width:100%; max-width:960px; margin:0 auto;
+    overflow-x:hidden; line-height:1.5; transition:background 0.2s,color 0.2s; }
+  .page-wrap { width:100%; }
   h1 { font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text); margin-bottom:4px;
     border-left:3px solid var(--gold); padding-left:12px; }
   .subtitle { font-size:12px; color:var(--muted); margin-bottom:16px; padding-left:15px; }
@@ -105,6 +107,7 @@
 </style>
 </head>
 <body>
+<div class="page-wrap">
 
 <h1>Deaths by Suicide — Crown Dependencies &amp; England/Wales</h1>
 <p class="subtitle">Isle of Man · Guernsey · Jersey · England &amp; Wales &nbsp;|&nbsp; Annual counts, crude rates, and age-standardised rates &nbsp;|&nbsp; <em>Updated June 2026</em></p>
@@ -350,14 +353,15 @@ function xP(yr) { return PAD.left + ((yr - XMIN) / (XMAX - XMIN)) * CW(); }
 function yP(v, ymin, ymax) { return PAD.top + (1 - (v - ymin) / (ymax - ymin)) * CH(); }
 
 function getRange() {
-  // Determine sensible y range based on current view and visible series
+  // In counts view, E&W is on a SECONDARY (right) axis — exclude it from left axis range.
+  // Left axis always covers only Crown Dependencies.
   let vals = [];
   const yrs = range(XMIN, XMAX);
   if (currentView === 'counts') {
-    if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y]) vals.push(EW_COUNTS[y]); });
     if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]); });
     if (vis.gy)  yrs.forEach(y => { if (GY_COUNT_AVG[y]) vals.push(GY_COUNT_AVG[y]); });
     if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]); });
+    // E&W intentionally excluded — it uses its own right axis
   } else if (currentView === 'crude') {
     if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y] && EW_POP[y]) vals.push(EW_COUNTS[y]/(EW_POP[y]*1e6)*1e5); });
     if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]/IOM_POP*1e5); });
@@ -378,7 +382,7 @@ function getRange() {
       if (vis.jsy && JSY_ASMR[y]) vals.push(JSY_ASMR[y]);
     });
   }
-  if (!vals.length) return [0, 30];
+  if (!vals.length) return [0, currentView === 'counts' ? 35 : 30];
   const mx = Math.max(...vals);
   return [0, Math.ceil(mx * 1.15 / 5) * 5];
 }
@@ -776,5 +780,6 @@ function safeInit() {
 const _poll = setInterval(() => { if (_ready) { clearInterval(_poll); return; } safeInit(); }, 40);
 window.addEventListener('load', () => { safeInit(); setTimeout(safeInit, 250); setTimeout(() => { if (!_ready) { _ready=true; resize(); draw(); setTimeout(reportHeight,80); } }, 800); });
 </script>
+</div><!-- /page-wrap -->
 </body>
 </html>
