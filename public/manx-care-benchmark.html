@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manx Care Benchmarking · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/observatory.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* observatory.css — inlined for self-contained operation */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
+  --border:#1e293b;--border2:#334155;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+  --blue:#60a5fa;--blue-dim:#1d4ed8;
+  --green:#34d399;--amber:#fbbf24;--red:#f87171;
+  --purple:#a78bfa;--orange:#fb923c;
+  --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
+  /* extra aliases */
+  --eng:#a78bfa;--wal:#94a3b8;--gue:var(--gsy);--jer:var(--jsy);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.01em;line-height:1.2;margin-bottom:8px}
+.eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
+.shell{max-width:1100px;margin:0 auto;padding:20px 20px 40px}
+@media(max-width:600px){.shell{padding:16px 14px 32px}}
+.intro{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--iom);border-radius:8px;padding:14px 16px;margin-bottom:22px;font-size:12px;color:var(--muted2);line-height:1.7}
+.intro strong{color:var(--text)}
+.plain-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:13px 15px;margin-bottom:18px;font-size:12px;color:var(--muted2);line-height:1.7}
+.plain-box strong{color:var(--text)}
+.plain-box.hidden{display:none}
+.audience-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.aud-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden}
+.toggle-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;padding:5px 14px;transition:background .15s,color .15s;white-space:nowrap}
+.toggle-btn.active{background:var(--blue-dim);color:var(--blue)}
+.toggle-btn:hover:not(.active){color:var(--text)}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border2);overflow-x:auto;scrollbar-width:none;margin-bottom:24px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;letter-spacing:.03em;margin-bottom:-1px;padding:8px 16px;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tab:hover:not(.active){color:var(--text)}
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center}
+.ctrl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:2px}
+.pill{background:none;border:1px solid var(--border2);border-radius:20px;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;letter-spacing:.03em;padding:4px 12px;transition:color .15s,border-color .15s,background .15s;white-space:nowrap}
+.pill.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+.pill:hover:not(.active){border-color:var(--muted);color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border2);border-top:3px solid var(--border2);border-radius:8px;padding:13px 15px}
+.card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:5px}
+.card-value{font-size:21px;font-variant-numeric:tabular-nums;font-weight:500;line-height:1}
+.card-sub{font-size:11px;color:var(--muted2);margin-top:3px}
+.card-up{color:var(--red);font-size:10px;margin-top:3px}
+.card-dn{color:var(--green);font-size:10px;margin-top:3px}
+.card-neu{color:var(--muted2);font-size:10px;margin-top:3px}
+.chart-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:18px 14px 12px;margin-bottom:14px}
+.chart-wrap h3{font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:12px;letter-spacing:.03em}
+.chart-canvas-wrap{position:relative;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:11px;color:var(--muted2)}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-sw{width:12px;height:3px;border-radius:1px;display:inline-block;flex-shrink:0}
+.source-tag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle}
+.source-tag.official{background:rgba(16,185,129,.12);color:var(--gsy);border:1px solid rgba(16,185,129,.25)}
+.source-tag.estimated{background:rgba(251,191,36,.10);color:var(--amber);border:1px solid rgba(251,191,36,.25)}
+.source-tag.derived{background:rgba(96,165,250,.10);color:var(--blue);border:1px solid rgba(96,165,250,.25)}
+.page-footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--border2);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.page-footer a{color:var(--muted2);text-decoration:none}
+.page-footer a:hover{color:var(--text)}
+
+/* ── Page-specific ── */
+.section{margin-bottom:44px}
+.section-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border2)}
+
+/* Flag / gap notes */
+.flag-note{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-left:3px solid var(--amber);border-radius:6px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--muted2);line-height:1.65}
+.flag-note strong{color:var(--amber)}
+.gap-note{background:rgba(148,163,184,.06);border:1px solid var(--border2);border-left:3px solid var(--muted);border-radius:6px;padding:9px 12px;margin-bottom:12px;font-size:11px;color:var(--muted);line-height:1.65}
+.gap-note strong{color:var(--muted2)}
+
+/* Benchmark table */
+.bench-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+.bench-table th,.bench-table td{padding:7px 10px;border:1px solid var(--border2);text-align:left}
+.bench-table th{color:var(--muted2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface2)}
+.bench-table tr:hover td{background:rgba(255,255,255,.02)}
+.bench-table td.val{font-variant-numeric:tabular-nums;font-weight:500}
+.met{color:var(--green)}
+.miss{color:var(--red)}
+.warn{color:var(--amber)}
+
+/* sub-tabs (within a main tab) */
+.subtabs{display:flex;gap:0;border-bottom:1px solid var(--border2);overflow-x:auto;scrollbar-width:none;margin-bottom:20px}
+.subtabs::-webkit-scrollbar{display:none}
+.subtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;margin-bottom:-1px;padding:7px 14px;transition:color .15s,border-color .15s;white-space:nowrap}
+.subtab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.subtab:hover:not(.active){color:var(--text)}
+
+/* specialty bar labels */
+.sp-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px}
+.sp-bar-label{width:180px;flex-shrink:0;color:var(--muted2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-bar-track{flex:1;background:var(--surface2);border-radius:3px;height:14px;position:relative}
+.sp-bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:5px;font-size:9px;font-weight:600;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden}
+.sp-bar-meta{width:110px;flex-shrink:0;font-size:10px;color:var(--muted2)}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ── Light theme overrides ── */
+[data-theme="light"]{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#475569;--muted2:#64748b;
+  --blue:#2563eb;--blue-dim:#1d4ed8;
+  --green:#059669;--amber:#d97706;--red:#dc2626;
+  --purple:#7c3aed;--orange:#ea580c;
+  --iom:#1d4ed8;--gsy:#059669;--jsy:#d97706;--uk:#64748b;
+  --eng:#7c3aed;--wal:#64748b;--gue:#059669;--jer:#d97706;
+}
+[data-theme="light"] .flag-note{background:rgba(217,119,6,.06);border-color:rgba(217,119,6,.3)}
+[data-theme="light"] .gap-note{background:rgba(71,85,105,.05);border-color:#cbd5e1}
+[data-theme="light"] .intro{background:var(--surface2);border-color:var(--border2)}
+[data-theme="light"] .plain-box{background:var(--surface2);border-color:var(--border2)}
+[data-theme="light"] .bench-table th{background:var(--surface2)}
+[data-theme="light"] .source-tag.official{background:rgba(5,150,105,.1);color:var(--gsy);border-color:rgba(5,150,105,.3)}
+[data-theme="light"] .source-tag.estimated{background:rgba(217,119,6,.1);color:var(--amber);border-color:rgba(217,119,6,.3)}
+[data-theme="light"] .source-tag.derived{background:rgba(37,99,235,.08);color:var(--blue);border-color:rgba(37,99,235,.2)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div style="background:rgba(96,165,250,.07);border:1px solid var(--border2);border-left:3px solid var(--blue);border-radius:8px;padding:11px 14px;margin-bottom:18px;font-size:11px;color:var(--muted2);line-height:1.7">
+  <strong style="color:var(--text)">A note on how this is built</strong> — I use automated tools to accelerate the extraction and comparison of data from published government and health body reports. The underlying sources are all public documents; they are listed in the footer and linked where possible. Methodology differences between jurisdictions are flagged inline throughout — those flags matter and are worth reading. If you are using figures from this dashboard operationally or in published work, I'd encourage you to cross-check against the primary source. If something looks wrong or you'd like to discuss a specific number, please get in touch: <a href="mailto:observatory@coalfinch.com" style="color:var(--blue)">observatory@coalfinch.com</a>.
+</div>
+
+<div class="eyebrow">Crown Dependencies Observatory · Health System Benchmarking</div>
+<h1>Manx Care Performance Benchmarking</h1>
+<p style="margin-bottom:16px">Manx Care compared with Health and Care Jersey (HCJ), Guernsey HSC / MSG, NHS Wales, and NHS England. Four KPI groups: Financial, Clinical, Operational, Off-Island. Methodology breaks and data gaps are flagged inline — not suppressed.</p>
+
+<div class="audience-bar">
+  <span class="aud-label">View</span>
+  <div class="toggle">
+    <button class="toggle-btn active" id="btn-plain" onclick="setAudience('plain')">Plain language</button>
+    <button class="toggle-btn" id="btn-tech" onclick="setAudience('tech')">Technical</button>
+  </div>
+</div>
+
+<div class="intro">
+  <strong>Focus: Manx Care 2024-25 (with 2023-24 IPR depth).</strong> Manx Care is the Isle of Man's single integrated health and care provider, created in 2021. It serves a population of approximately 84,000 with a mandate budget of £347m (2024-25). Comparators are Crown Dependency health bodies and devolved UK nations — population sizes, governance structures, and accounting treatments differ materially. The Safety clinical sub-tab and selected metrics draw from the Manx Care Integrated Performance Report (IPR) March 2024 to add in-year granularity not available in annual reports. <strong>Direct numerical comparison without reading caveats is misleading.</strong>
+  <div style="margin-top:8px;font-size:11px;color:var(--muted);font-style:italic">IoM fiscal year: April–March · Jersey: calendar year · Guernsey: calendar year · NHS Wales: April–March. Population bases: IoM ~84k · Jersey 104,540 · Guernsey ~64,781 · NHS Wales ~3.17m.</div>
+</div>
+
+<div class="plain-box" id="plain-intro">
+  <strong>What are we measuring?</strong> This dashboard tracks how Manx Care performs financially (is it over budget?), clinically (are patients being seen quickly enough and safely?), operationally (are hospitals running efficiently?), and in terms of how much care has to be sent off-island to UK hospitals. Where data is missing or collected differently by each organisation, we say so clearly rather than hiding the gap.
+</div>
+<div class="plain-box hidden" id="tech-intro">
+  <strong>Methodology.</strong> Data extracted from: Manx Care Annual Report 2024-25; DHSC Assessment of Manx Care 2024-25 (Annex C); Manx Care Waiting Times Report May 2026; HCJ/States of Jersey Annual Report and Accounts 2024–25; Guernsey Secondary Healthcare Contract KPIs 2024; NHS Wales Activity and Performance Summary (Feb/Mar 2026); NHS England Performance Report 2024-25. Financial figures are in nominal GBP. Per-capita denominators: IoM ~84k (estimate); Jersey 104,540 (Statistics Jersey 2024); Guernsey 64,781 (Dec 2023 census). All comparisons are cross-jurisdictional and subject to the caveats described per metric. RTT: IoM cannot measure full RTT — reports referral→first outpatient and decision-to-treat→treatment as separate stages only.
+</div>
+
+<!-- MAIN TABS -->
+<div class="tabs" id="main-tabs">
+  <button class="tab active" onclick="showTab('financial')">Financial</button>
+  <button class="tab" onclick="showTab('clinical')">Clinical</button>
+  <button class="tab" onclick="showTab('operational')">Operational</button>
+  <button class="tab" onclick="showTab('offisland')">Off-Island</button>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TAB: FINANCIAL -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-financial">
+
+  <div class="plain-box" id="plain-fin">
+    <strong>All three Crown Dependency health bodies overspent their budgets in their most recent reported year.</strong> Jersey's overspend was the largest in percentage terms (10.7% of original budget), followed by IoM (4.5%), and Guernsey (2.7%). IoM's budget has grown substantially year-on-year, with a new funding formula adding 12% for 2026-27.
+  </div>
+  <div class="plain-box hidden" id="tech-fin">
+    <strong>Budget comparison caveats.</strong> IoM: £15.6m deficit vs £347m mandate target. Jersey: £30.7m overspend vs £286.2m original Government Plan (but only £2.5m vs £333.4m revised approved budget after in-year reserve allocations). Guernsey: £6.4m overspend vs £234.8m original budget (£416k vs adjusted £235.6m). Jersey original budget excluded £47m of reserves allocated in-year; comparisons should specify which baseline is used. IoM 2024-25 budget = mandate target; excludes DHSC additional claims (£3.6m) and prior supplementary vote.
+  </div>
+
+  <div class="section">
+    <div class="section-head">Budget vs Actual — Latest Year (2024 / 2024-25)</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Manx Care (IoM) <span class="source-tag official">Actual</span></div>
+        <div class="card-value" style="color:var(--iom)">£362.4m</div>
+        <div class="card-sub">2024-25 outturn</div>
+        <div class="card-up">▲ £15.6m over mandate (4.5%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">HCJ Jersey <span class="source-tag official">Actual</span></div>
+        <div class="card-value" style="color:var(--jer)">£333m</div>
+        <div class="card-sub">2024 NRE (excl. depreciation)</div>
+        <div class="card-up">▲ £30.7m over original plan (10.7%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--gsy)">
+        <div class="card-label">Guernsey HSC <span class="source-tag official">Actual</span></div>
+        <div class="card-value" style="color:var(--gsy)">£242m</div>
+        <div class="card-sub">2024 actual expenditure</div>
+        <div class="card-up">▲ £6.4m over original budget (2.7%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Per Capita <span class="source-tag derived">Derived</span></div>
+        <div class="card-value" style="color:var(--iom)">~£4,314</div>
+        <div class="card-sub">£362.4m ÷ ~84k pop.</div>
+        <div class="card-neu">Jersey COFOG total: ~£4,933</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — Per Capita <span class="source-tag derived">Derived</span></div>
+        <div class="card-value" style="color:var(--jer)">~£3,213</div>
+        <div class="card-sub">HCJ NRE ÷ 104,540 pop.</div>
+        <div class="card-neu">HCJ only; COFOG total = £4,933</div>
+      </div>
+      <div class="card" style="border-top-color:var(--gsy)">
+        <div class="card-label">Guernsey — Per Capita <span class="source-tag derived">Derived</span></div>
+        <div class="card-value" style="color:var(--gsy)">~£3,736</div>
+        <div class="card-sub">£242m ÷ 64,781 pop.</div>
+        <div class="card-neu">Not published — derived here</div>
+      </div>
+    </div>
+
+    <div class="flag-note"><strong>⚠ Comparability:</strong> IoM and Jersey figures cover different scopes. IoM £362.4m is the Manx Care operating outturn only. Jersey £333m NRE is Health and Care Jersey only (excl. depreciation); the wider Jersey COFOG health total is £515.7m (incl. outpatient subsidies, public health, GP contracts). Guernsey £242m is the Committee for Health &amp; Social Care net revenue expenditure. Population denominators are estimates/mid-year figures and introduce additional uncertainty. Jersey 2023 COFOG analysis shows health at 29.4% of all government spend — highest of 34 OECD comparator nations.</div>
+    <div class="gap-note"><strong>— NHS Wales / NHS England not shown here:</strong> NHS Wales 2023-24 total expenditure was £9.9bn for a population of ~3.17m (~£3,125 per capita) — not comparable with island single-body figures. NHS England operates at a different scale entirely (£191bn RDEL). Both are included where individual KPIs allow comparison.</div>
+
+    <div class="chart-wrap">
+      <h3>Operating Expenditure Trend — IoM Mandate &amp; Jersey HCJ NRE (£m, nominal)</h3>
+      <div class="flag-note" style="margin-bottom:10px"><strong>⚠ Fiscal year mismatch:</strong> IoM years run April–March; Jersey years are calendar years. They are plotted on shared year labels for readability only — the periods do not align exactly. IoM 2026-27 is an approved budget (not outturn).</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Manx Care mandate (IoM)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>HCJ NRE (Jersey)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:rgba(245,158,11,.35);height:8px;width:8px;border-radius:50%"></span>Budget / plan</span>
+      </div>
+      <div class="chart-canvas-wrap" style="height:280px"><canvas id="finTrendChart"></canvas></div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Budget vs Actual — Overspend as % of Original Budget</h3>
+      <div class="chart-canvas-wrap" style="height:180px"><canvas id="overspendChart"></canvas></div>
+    </div>
+
+    <div class="section-head" style="margin-top:20px">Cost Improvement Programmes</div>
+    <table class="bench-table">
+      <thead><tr><th>Organisation</th><th>Year</th><th>CIP Target</th><th>CIP Delivered</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--iom)">Manx Care</td><td>2024-25</td><td class="val">£6.3m (2%)</td><td class="val met">£13.4m (3.9%)</td><td>Exceeded target; £11.8m cash-releasing</td></tr>
+        <tr><td style="color:var(--iom)">Manx Care</td><td>2023-24</td><td class="val">£4.5m (1.5%)</td><td class="val met">£8.5m</td><td>£7m cash + £1.5m efficiency</td></tr>
+        <tr><td style="color:var(--iom)">Manx Care</td><td>2022-23</td><td class="val">£4.3m (1.5%)</td><td class="val met">£9.9m (3.5%)</td><td>Mainly offset funding pressures</td></tr>
+        <tr><td style="color:var(--jer)">HCJ Jersey</td><td>2025</td><td class="val">£9.4m</td><td class="val met">£13.1m</td><td>Exceeded target by £3.7m</td></tr>
+        <tr><td style="color:var(--jer)">HCJ Jersey</td><td>2024</td><td class="val">FRP target</td><td class="val met">£6.75m recurrent</td><td>Part of 3-yr £25m recovery plan</td></tr>
+      </tbody>
+    </table>
+    <div class="gap-note"><strong>— Guernsey CIP data not extracted:</strong> HSC submitted £10m additional budget request for 2024; only £4m approved. Structural deficit context noted in budget documents but no published CIP programme equivalent found.</div>
+  </div>
+
+</div><!-- /tab-financial -->
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TAB: CLINICAL -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-clinical" style="display:none">
+
+  <div class="plain-box" id="plain-clin">
+    <strong>Manx Care misses most of its clinical targets.</strong> Emergency department waits, cancer treatment times, and diagnostic waits are all substantially below standard. Guernsey's ED performance is the standout among Crown Dependencies — consistently around 89% over six years. Waiting lists on the Isle of Man grew again in 2024-25, with 6,835 patients waiting more than a year for a first outpatient appointment.
+  </div>
+  <div class="plain-box hidden" id="tech-clin">
+    <strong>Technical caveats.</strong> ED 4-hour standard: IoM target is ≥76% (not the NHS 95% constitutional standard); Guernsey target is ≥95%; NHS Wales and England standard is 95%. Figures are therefore not directly comparable in terms of target compliance. Cancer: IoM 62-day standard lowered to ≥70% by 2024-25 (was ≥85% in 2022-23 and 2023-24). NHS England met the 70% standard in 2024-25 (71.4%); IoM did not (52.1%). Diagnostics: IoM reports % of patients waiting ≥6 weeks; NHS England reports % receiving test within 6 weeks — metrics are inverses. IoM 58.4% waiting ≥6 weeks = ~41.6% receiving within 6 weeks (NHS England: 81.6%). Waiting lists: IoM cannot measure full RTT; reports two stages separately. Jersey measures 52-week waits from referral to first outpatient only. Metrics are not equivalent.
+  </div>
+
+  <div class="subtabs" id="clin-subtabs">
+    <button class="subtab active" onclick="showSubTab('clin','ed')">Emergency Dept</button>
+    <button class="subtab" onclick="showSubTab('clin','cancer')">Cancer</button>
+    <button class="subtab" onclick="showSubTab('clin','diagnostics')">Diagnostics</button>
+    <button class="subtab" onclick="showSubTab('clin','waiting')">Waiting Lists</button>
+    <button class="subtab" onclick="showSubTab('clin','mental')">Mental Health</button>
+    <button class="subtab" onclick="showSubTab('clin','safety')">Safety</button>
+  </div>
+
+  <!-- ED -->
+  <div id="clin-ed">
+    <div class="flag-note"><strong>⚠ Target mismatch:</strong> IoM target is ≥76% (local mandate, not NHS 95% constitutional standard). Guernsey target is ≥95%. NHS Wales and England standard is 95%. Compliance rates are shown relative to each body's own standard, not on a common scale.</div>
+    <div class="flag-note"><strong>⚠ Stroke response (IPR March 2024):</strong> Only 36% of CVA/stroke patients arrived at hospital within 60 minutes of call (target 100%; YTD mean 49%). This is a significant clinical governance concern not captured in the headline mandate KPIs. No equivalent cross-jurisdiction metric is available for comparison.</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Manx Care — ED 4hr</div>
+        <div class="card-value miss">66.5%</div>
+        <div class="card-sub">2024-25 (Noble's + RDCH)</div>
+        <div class="card-up">✗ Target ≥76% — not met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--gsy)">
+        <div class="card-label">Guernsey MSG — ED 4hr</div>
+        <div class="card-value met">89%</div>
+        <div class="card-sub">2024 (median annual)</div>
+        <div class="card-dn">Target ≥95% — not met; best of peers</div>
+      </div>
+      <div class="card" style="border-top-color:var(--wal)">
+        <div class="card-label">NHS Wales — ED 4hr</div>
+        <div class="card-value miss">64.2%</div>
+        <div class="card-sub">March 2026</div>
+        <div class="card-up">✗ Target 95% — not met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--eng)">
+        <div class="card-label">NHS England — A&amp;E 4hr</div>
+        <div class="card-value warn">75.0%</div>
+        <div class="card-sub">March 2025</div>
+        <div class="card-up">✗ Target 95% — not met (ambition 78%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — 12hr ED breaches</div>
+        <div class="card-value miss">4.4%</div>
+        <div class="card-sub">Noble's 2024-25</div>
+        <div class="card-up">▲ Worsened from 2.8% (2023-24)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--wal)">
+        <div class="card-label">NHS Wales — 12hr breaches</div>
+        <div class="card-value miss">10,939</div>
+        <div class="card-sub">March 2026 (monthly count)</div>
+        <div class="card-up">▲ +11.5% vs prior month</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Stroke within 60min <span class="source-tag estimated">IPR Mar-24</span></div>
+        <div class="card-value miss">36%</div>
+        <div class="card-sub">March 2024 · target 100%</div>
+        <div class="card-up">YTD mean 49% · significant miss</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Avg time in ED <span class="source-tag estimated">IPR Mar-24</span></div>
+        <div class="card-value met">265 min</div>
+        <div class="card-sub">March 2024 · target ≤360 min</div>
+        <div class="card-dn">✓ Within standard</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — 12hr trolley waits <span class="source-tag estimated">IPR Mar-24</span></div>
+        <div class="card-value miss">421</div>
+        <div class="card-sub">2023-24 YTD total · target: 0</div>
+        <div class="card-up">March alone: 43</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>ED 4-Hour Performance — IoM Trend (% admitted/transferred/discharged within 4 hours)</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Noble's vs system total:</strong> Noble's Hospital alone: 57.8% (2024-25). RDCH (Ramsey): 99.8%. Combined system figure: 66.5%. The 95% NHS constitutional standard has not been met in England since July 2015.</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Manx Care (Noble's + RDCH)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:var(--gsy)"></span>Guernsey MSG</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--muted2)">IoM target: ≥76% &nbsp;|&nbsp; Guernsey target: ≥95%</span>
+      </div>
+      <div class="chart-canvas-wrap" style="height:260px"><canvas id="edTrendChart"></canvas></div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Ambulance Cat 1 Mean Response — Cross-Jurisdiction (minutes)</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Methodology break:</strong> Jersey switched from Red 1/Red 2 to ARP (Cat 1/Cat 2) in October 2022 — pre/post figures are not comparable. NHS Wales changed ambulance categories from July 2025. IoM and Jersey Cat 1 figures post-2022 use ARP methodology (broadly comparable). All targets: ≤7 minutes mean.</div>
+      <div class="chart-canvas-wrap" style="height:200px"><canvas id="ambulanceChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Cancer -->
+  <div id="clin-cancer" style="display:none">
+    <div class="flag-note"><strong>⚠ In-year vs full-year gap (IPR March 2024):</strong> The IPR for March 2024 shows 28-day FDS at 79% in that specific month — meeting the 75% target. However the 2024-25 full-year figure is 62.5% (not met). This indicates that performance can exceed the target in individual months while the annual average remains below it; monthly reporting from the IPR should not be read as representative of annual performance. The 62-day cancer standard (referral to treatment) was 68% in March 2024 vs an 85% target (YTD mean 49%) — well below standard throughout 2023-24.</div>
+    <div class="flag-note"><strong>⚠ Standard changed mid-series:</strong> IoM 62-day standard was ≥85% in 2022-23 and 2023-24 assessments; reduced to ≥70% in 2024-25 — figures before and after are not comparable on a pass/fail basis. NHS England uses ≥70% and met it in 2024-25 (71.4%). IoM did not meet the relaxed standard (52.1%). Jersey does not publish equivalent cancer waiting time metrics in the same format.</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — 28-day FDS</div>
+        <div class="card-value miss">62.5%</div>
+        <div class="card-sub">2024-25 · target ≥75%</div>
+        <div class="card-up">▼ Worsened from 66.9%</div>
+      </div>
+      <div class="card" style="border-top-color:var(--eng)">
+        <div class="card-label">NHS England — 28-day FDS</div>
+        <div class="card-value met">78.9%</div>
+        <div class="card-sub">March 2025 · target 77%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — 62-day standard</div>
+        <div class="card-value miss">52.1%</div>
+        <div class="card-sub">2024-25 · target ≥70%</div>
+        <div class="card-up">▲ Slight improvement from 51.5%</div>
+      </div>
+      <div class="card" style="border-top-color:var(--eng)">
+        <div class="card-label">NHS England — 62-day</div>
+        <div class="card-value met">71.4%</div>
+        <div class="card-sub">March 2025 · target 70%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--wal)">
+        <div class="card-label">NHS Wales — 62-day</div>
+        <div class="card-value miss">57.0%</div>
+        <div class="card-sub">Feb 2026 · target ≥75%</div>
+        <div class="card-up">✗ Target not met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — 31-day (decision→treat)</div>
+        <div class="card-value miss">85.5%</div>
+        <div class="card-sub">2024-25 · target ≥96%</div>
+        <div class="card-dn">▲ Improving from 79.6%</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Cancer 28-day Faster Diagnosis Standard — IoM Trend</h3>
+      <div class="chart-canvas-wrap" style="height:230px"><canvas id="cancerChart"></canvas></div>
+    </div>
+
+    <div class="flag-note"><strong>⚠ Attribution gap:</strong> DHSC Assessment 2024-25 states: "Current performance reporting does not show whether 62-day breaches were mainly due to on-Island or off-Island delays." On-island diagnostics and off-island tertiary treatment are both potential contributors. Guernsey does not publish equivalent cancer waiting time KPIs in this format.</div>
+  </div>
+
+  <!-- Diagnostics -->
+  <div id="clin-diagnostics" style="display:none">
+    <div class="flag-note"><strong>⚠ Metric inversion:</strong> IoM reports the % of patients waiting ≥6 weeks (lower is better, target ≤1%). NHS England reports % receiving test within 6 weeks (higher is better, target 95%). To compare: IoM 58.4% waiting ≥6 weeks ≈ 41.6% within 6 weeks. NHS England: 81.6% within 6 weeks ≈ 18.4% waiting ≥6 weeks. NHS Wales uses an 8-week target and reports median wait separately.</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Diagnostics ≥6wk wait</div>
+        <div class="card-value miss">58.4%</div>
+        <div class="card-sub">2024-25 · target ≤1% waiting ≥6wks</div>
+        <div class="card-dn">▼ Improved from 66.1% (2023-24)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--eng)">
+        <div class="card-label">NHS England — within 6wks</div>
+        <div class="card-value met">81.6%</div>
+        <div class="card-sub">March 2025 · target 95%</div>
+        <div class="card-dn">▲ Improved from 78% (March 2024)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--wal)">
+        <div class="card-label">NHS Wales — median wait</div>
+        <div class="card-value met">4.6 wks</div>
+        <div class="card-sub">Feb 2026 · target ≤8 weeks</div>
+        <div class="card-dn">Median met; 29.8% breach 8wk target</div>
+      </div>
+      <div class="card" style="border-top-color:var(--wal)">
+        <div class="card-label">NHS Wales — ≥8wk wait</div>
+        <div class="card-value miss">38,500</div>
+        <div class="card-sub">Feb 2026 pathways (29.8%)</div>
+        <div class="card-up">Target: zero breaches</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Diagnostic Waits — Cross-Jurisdiction Comparison (% receiving within 6 weeks, derived where needed)</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Derived figures:</strong> IoM figure is inverted from published % waiting ≥6 weeks. NHS Wales converted from 8-week metric. These are approximations for comparison only.</div>
+      <div class="chart-canvas-wrap" style="height:200px"><canvas id="diagChart"></canvas></div>
+    </div>
+
+    <div class="chart-wrap" style="margin-top:14px">
+      <h3>IoM Diagnostic Wait by Modality — 2023-24 YTD (% waiting >6 weeks) <span class="source-tag estimated">IPR Mar-24</span></h3>
+      <div class="flag-note" style="margin-bottom:10px"><strong>⚠ Demand exceeds capacity by 27.7%:</strong> IPR March 2024 notes that overall diagnostic demand exceeded capacity by 27.7% in March 2024. Ultrasound is the primary bottleneck. The figure for "% requests completed within 6 weeks" (89.2% in March 2024) counts only requests actually delivered — it excludes the backlog waiting to be seen, making it appear better than the waiting list metric (60% waiting >6wks).</div>
+      <table class="bench-table">
+        <thead><tr><th>Modality</th><th>WL (YTD total)</th><th>% Waiting >6 weeks</th><th>RAG</th></tr></thead>
+        <tbody>
+          <tr><td>Ultrasound (Non-Obs)</td><td class="val">2,797</td><td class="val miss">74%</td><td class="miss">▲ Major breach</td></tr>
+          <tr><td>Bone Densitometry</td><td class="val">157</td><td class="val miss">37%</td><td class="miss">▲ Above threshold</td></tr>
+          <tr><td>Computed Tomography (CT)</td><td class="val">758</td><td class="val miss">34%</td><td class="miss">▲ Above threshold</td></tr>
+          <tr><td>Magnetic Resonance Imaging (MRI)</td><td class="val">418</td><td class="val miss">29%</td><td class="miss">▲ Above threshold</td></tr>
+          <tr><td><strong>All modalities (combined)</strong></td><td class="val"><strong>4,130</strong></td><td class="val miss"><strong>60%</strong></td><td class="miss"><strong>▲ Target ≤1%</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">Source: Manx Care IPR March 2024 (2023-24 year-to-date). Total diagnostic requests in year: ~101,413. Modalities not shown (nuclear medicine, mammography, fluoroscopy, NBSS, XA) had insufficient waiting list data in extracted text.</div>
+    </div>
+    <div class="gap-note"><strong>— Guernsey diagnostics:</strong> Guernsey radiology: 95% within 6- and 8-week targets in 2024 (96% in 2023). CT 96%; MRI 98%; Nuclear Medicine 100%. Ultrasound 88% (temporary dip to 60% in August). This is markedly better than IoM diagnostics performance — however Guernsey's radiology contract covers a smaller scope (MSG only) and may not include all diagnostic modalities.</div>
+    <div class="gap-note"><strong>— IoM radiology only:</strong> DHSC Assessment 2024-25 notes IoM reports radiology only; data for other diagnostic test types (e.g. endoscopy, neurophysiology) is in development.</div>
+  </div>
+
+  <!-- Waiting Lists -->
+  <div id="clin-waiting" style="display:none">
+    <div class="flag-note"><strong>⚠ Deteriorating trajectory (IPR March 2024 → Annual Report March 2025):</strong> At April 2024 (IPR data), 16,547 patients were waiting for a first outpatient appointment with 5,671 waiting >52 weeks. By March 2025 (Annual Report), this had grown to 17,829 total and 6,835 waiting >52 weeks — a 20% increase in long-waiters in 12 months. Average wait from referral to first outpatient appointment was 49 weeks at April 2024. The daycase list also grew: 359 waiting >52 weeks from decision-to-treat (April 2024).</div>
+    <div class="flag-note"><strong>⚠ RTT cannot be measured — IoM:</strong> Verbatim from DHSC Assessment 2024-25: "Manx Care cannot currently measure total wait times from referral to treatment due to system limitations. Instead, it reports on two stages of a care pathway: (i) referral to first outpatient appointment, and (ii) decision to treat to definitive treatment. Furthermore, waiting list data may not be reliable because full clinical validation has not yet been completed, meaning reported demand may be overstated."</div>
+
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Outpatient >52wk waiters</div>
+        <div class="card-value miss">6,835</div>
+        <div class="card-sub">At 31 March 2025 · target: 0</div>
+        <div class="card-up">▲ Up from 5,600 (prior year)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Total outpatient list</div>
+        <div class="card-value" style="color:var(--iom)">17,829</div>
+        <div class="card-sub">At 31 March 2025</div>
+        <div class="card-up">▲ Up from 16,619</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — Outpatient >52wk</div>
+        <div class="card-value miss">1,307</div>
+        <div class="card-sub">2025 · target &lt;333</div>
+        <div class="card-up">▲ Up from 812 in 2024</div>
+      </div>
+      <div class="card" style="border-top-color:var(--gsy)">
+        <div class="card-label">Guernsey — Inpatient WL</div>
+        <div class="card-value met">2,207</div>
+        <div class="card-sub">Year-end 2024 (contract patients + others)</div>
+        <div class="card-dn">▼ Down 21% from 2,799 (2023)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--wal)">
+        <div class="card-label">NHS Wales — RTT >52wks</div>
+        <div class="card-value miss">105,600</div>
+        <div class="card-sub">Pathways · Feb 2026</div>
+        <div class="card-dn">▼ Lowest since Nov 2020</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Urgent GP refs in 6wks</div>
+        <div class="card-value miss">47.2%</div>
+        <div class="card-sub">2024-25 · target ≥85%</div>
+        <div class="card-up">▼ Worsened from 53.4%</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>IoM Manx Care — Outpatient Waiting List by Specialty (May 2026 snapshot, patients waiting)</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Snapshot data, May 2026:</strong> From Manx Care Waiting Times Report (published May 2026). Excluded from this report: Endocrinology, Diabetic Medicine, Clinical Oncology (monitored on separate system). Bar colour = median wait band. RTT Rules not yet applicable.</div>
+      <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#34d399;display:inline-block"></span>&lt;13 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#fbbf24;display:inline-block"></span>13–26 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#fb923c;display:inline-block"></span>26–52 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#f87171;display:inline-block"></span>&gt;52 weeks</span>
+      </div>
+      <div id="specialtyBars" style="padding:4px 0"></div>
+    </div>
+
+    <div class="gap-note"><strong>— Jersey comparison note:</strong> Jersey >52-week count (1,307 in 2025) refers to first outpatient appointment waits only, per ARA 2025. IoM figure of 6,835 is also for first outpatient only. Both populations differ materially (IoM ~84k; Jersey 104,540). Population-adjusted rate: IoM ~81 per 1,000 pop; Jersey ~12.5 per 1,000 pop. Direct comparison requires identical case-mix and referral rate assumptions.</div>
+  </div>
+
+  <!-- Mental Health -->
+  <div id="clin-mental" style="display:none">
+    <div class="plain-box" id="plain-mh">
+      <strong>Mixed picture across jurisdictions.</strong> Manx Care's CAMHS waiting list fell significantly (from 1,205 to 905) after investment in staffing. Jersey's CAMHS generic pathway meets its target (32 days vs &lt;36-day target) but the neurodevelopmental pathway is 71 weeks — massively over the 13-week target. IoM's crisis response and post-discharge follow-up both meet standards.
+    </div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — CAMHS waiting list</div>
+        <div class="card-value met">905</div>
+        <div class="card-sub">At March 2025</div>
+        <div class="card-dn">▼ Down from 1,205 (Apr 2024)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Crisis response ≤1hr</div>
+        <div class="card-value met">89.2%</div>
+        <div class="card-sub">2024-25 · target ≥75%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Post-discharge follow-up 3d</div>
+        <div class="card-value met">97.9%</div>
+        <div class="card-sub">2024-25 · target ≥90%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — CAMHS generic wait</div>
+        <div class="card-value met">32 days</div>
+        <div class="card-sub">2025 · target &lt;36 days</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — CAMHS neurodevel. wait</div>
+        <div class="card-value miss">71 weeks</div>
+        <div class="card-sub">2025 · target &lt;13 weeks</div>
+        <div class="card-up">▲ Up from 55 weeks in 2024</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — Crisis assessed ≤4hrs</div>
+        <div class="card-value met">94.4%</div>
+        <div class="card-sub">2025 · target ≥85%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+    </div>
+    <div class="flag-note"><strong>⚠ Data quality — IoM mental health:</strong> Verbatim from DHSC Assessment 2024-25: "waiting list data for mental health services is currently being developed to improve its accuracy." The MH service caseload (5,390) is within target range (4,500–5,500) but reliability is uncertain.</div>
+    <div class="gap-note"><strong>— Guernsey mental health KPIs:</strong> Not extracted from the Guernsey Secondary Healthcare Contract KPIs (which focuses on MSG/acute hospital). Community and mental health data would require separate Guernsey HSC reporting documents.</div>
+  </div>
+
+  <!-- Safety -->
+  <div id="clin-safety" style="display:none">
+    <div class="plain-box" id="plain-safety">
+      <strong>IoM's safety record is mixed.</strong> Serious incidents stayed within the annual threshold for 2023-24 (30 vs &lt;36 limit) and there were zero medication errors in most months. However E.coli bacteraemia exceeded its annual threshold (90 cases vs &lt;72 target), antibiotic stewardship was persistently below standard, and one never event occurred during the year. Data from the IPR (March 2024) and 2024-25 Annual Report are shown together.
+    </div>
+    <div class="plain-box hidden" id="tech-safety">
+      <strong>Data sources:</strong> Safety KPI cards draw from two sources: (1) Manx Care IPR March 2024 (Final v3.0) covering 2023-24 in-year performance; (2) DHSC Assessment of Manx Care 2024-25 Annual Report. These are different reporting periods — 2023-24 (IPR) and 2024-25 (Annual Report). Where both years are available, they are labelled. Guernsey data from Secondary Healthcare Contract KPIs 2024. Jersey does not publish an equivalent integrated safety report.
+    </div>
+
+    <div class="section-head">Serious Incidents &amp; Never Events</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Serious incidents 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">30</div>
+        <div class="card-sub">YTD total · threshold &lt;36</div>
+        <div class="card-dn">✓ Within annual threshold</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Serious incidents 2024-25</div>
+        <div class="card-value miss">37</div>
+        <div class="card-sub">Annual total · threshold ≤36</div>
+        <div class="card-up">▲ Exceeded threshold by 1; up from 30</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Never events 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value warn">1</div>
+        <div class="card-sub">YTD (surgical care group)</div>
+        <div class="card-neu">Declared SI at SIRG 12 March 2024</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Never events 2024-25</div>
+        <div class="card-value met">0</div>
+        <div class="card-sub">Annual total · target: 0</div>
+        <div class="card-dn">✓ Target met (improved from 1)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Medication errors (harm) 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">4</div>
+        <div class="card-sub">YTD total · threshold &lt;25</div>
+        <div class="card-dn">✓ Well within threshold</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Falls (harm) per 1,000 bed days 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">0.2–0.3</div>
+        <div class="card-sub">Monthly range · threshold &lt;2</div>
+        <div class="card-dn">✓ Consistently within target</div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:8px">Infection Control</div>
+    <div class="flag-note"><strong>⚠ E.coli annual threshold breached (2023-24):</strong> IPR March 2024 shows 90 E.coli bacteraemia cases YTD against an annual threshold of &lt;72. This is a governance flag — the threshold was exceeded for the full year. C.Diff came close to its threshold (29 of 30 cases). These are hospital-acquired infection figures; community-acquired cases are excluded.</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — C.Diff 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value warn">29</div>
+        <div class="card-sub">YTD total · threshold &lt;30</div>
+        <div class="card-up">▲ At threshold limit (March: 2 cases)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — E.coli 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value miss">90</div>
+        <div class="card-sub">YTD total · threshold &lt;72</div>
+        <div class="card-up">✗ Annual threshold breached (+25%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — MRSA 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value warn">1</div>
+        <div class="card-sub">YTD total · target: 0</div>
+        <div class="card-neu">Threshold 0; 1 acquired case</div>
+      </div>
+      <div class="card" style="border-top-color:var(--gsy)">
+        <div class="card-label">Guernsey — HAI (C.diff / MRSA) 2024</div>
+        <div class="card-value met">4 total</div>
+        <div class="card-sub">All classified unavoidable</div>
+        <div class="card-dn">All 4 cases deemed unavoidable by MSG</div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:8px">Clinical Process Standards</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — VTE risk assessment within 12hrs 2023-24 <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value miss">90%</div>
+        <div class="card-sub">March 2024 · target ≥95%</div>
+        <div class="card-up">YTD mean 91% — below target</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — VTE prophylaxis prescribed <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">99%</div>
+        <div class="card-sub">March 2024 · target ≥95%</div>
+        <div class="card-dn">✓ Consistently above target</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Antibiotic 48-72hr review <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value miss">83%</div>
+        <div class="card-sub">March 2024 · target ≥98%</div>
+        <div class="card-up">YTD mean 81% — persistent miss</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Hand hygiene <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">99%</div>
+        <div class="card-sub">March 2024 · target ≥96%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Duty of Candour compliance <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">100%</div>
+        <div class="card-sub">March 2024 · target 100%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Learning from Death reviews <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">98%</div>
+        <div class="card-sub">YTD 2023-24 · target ≥80%</div>
+        <div class="card-dn">✓ Met for 12+ consecutive months</div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:8px">Pressure Ulcers</div>
+    <div class="flag-note"><strong>⚠ Pressure ulcer trend — IPR 2023-24:</strong> Monthly threshold is ≤17 new/deteriorated grade 2+ pressure ulcers. The March 2024 figure of 9 is within range, but YTD total was 176 (at a ≤17/month threshold, the expected annual ceiling is 204). The IPR notes cases include both ward-acquired and deteriorated ulcers. Category 3/unstageable cases trigger Root Cause Analysis investigations.</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Pressure ulcers grade 2+ (March 2024) <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value met">9</div>
+        <div class="card-sub">Monthly · threshold ≤17</div>
+        <div class="card-dn">✓ Within monthly threshold</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Pressure ulcers grade 2+ (YTD 2023-24) <span class="source-tag estimated">IPR</span></div>
+        <div class="card-value warn">176</div>
+        <div class="card-sub">YTD · annual ceiling ~204 (≤17/month)</div>
+        <div class="card-neu">YTD mean 14.7/month</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Inpatient falls (harm) 2024-25</div>
+        <div class="card-value met">0.4</div>
+        <div class="card-sub">Per 1,000 bed days · target &lt;2</div>
+        <div class="card-dn">✓ Target met (slight rise from 0.2 in 2023-24)</div>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:8px">Mortality</div>
+    <div class="plain-box" style="margin-bottom:10px">
+      <strong>Improving mortality trend at Noble's Hospital:</strong> IPR March 2024 shows total hospital deaths declining over three consecutive years: 329 (2021-22) → 279 (2022-23) → 235 (2023-24). The Learning from Death programme has maintained ≥98% level-one review completion for over 12 consecutive months. Age distribution of deaths peaks in the 75-90 year range consistent with population demographics.
+    </div>
+    <div class="gap-note"><strong>— HSMR / SHMI not available:</strong> Manx Care does not publish a Hospital Standardised Mortality Ratio (HSMR) or Summary Hospital-level Mortality Indicator (SHMI) equivalent. Raw death counts from the IPR are reported here. NHS England trusts are benchmarked against expected mortality rates; no equivalent benchmarking framework exists for IoM, Jersey, or Guernsey.</div>
+  </div>
+
+</div><!-- /tab-clinical -->
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TAB: OPERATIONAL -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-operational" style="display:none">
+
+  <div class="plain-box" id="plain-ops">
+    <strong>All three Crown Dependency health bodies struggle to meet theatre utilisation targets.</strong> Manx Care narrowly missed 85% (84.8%), Jersey was below at 76.3%, and Guernsey's theatre timing performance fell to 75% (from 82%). Delayed transfers of care in Guernsey have escalated dramatically — from 91 days/month in 2018 to 338 in 2024. DNA (did not attend) rates are above target in both IoM and Jersey.
+  </div>
+  <div class="plain-box hidden" id="tech-ops">
+    <strong>Technical notes.</strong> Theatre utilisation: Manx Care reports % of planned sessions delivered (≥85%); Jersey reports elective theatre utilisation (>85%); Guernsey reports % of sessions starting and finishing on time (≥85%). These are different metrics. DNA rate: IoM ≤7.6% target; Jersey &lt;8% target. Guernsey adult FTA rate ≈6% (just within &lt;6% target). Delayed transfer of care (DTOC): Guernsey reports days per month above target (&lt;100 days/month); IoM reports super-stranded patients (≥21 day LOS); not directly comparable. Vacancy rate: IoM notes its 18%+ figure is overstated due to CIP-related establishment reductions.
+  </div>
+
+  <div class="flag-note"><strong>⚠ Antibiotic stewardship miss (IPR March 2024):</strong> 48–72 hour senior medical review of antibiotic prescriptions was 83% in March 2024 (YTD mean 81%) against a ≥98% target — a persistent and significant gap. The IPR noted this as a continuing "cause for concern." This metric is not included in the 2024-25 Mandate KPI set and is therefore not tracked in the Annual Report.</div>
+
+  <div class="cards">
+    <div class="card" style="border-top-color:var(--iom)">
+      <div class="card-label">IoM — Bed occupancy (acute adult) <span class="source-tag estimated">IPR Apr-24</span></div>
+      <div class="card-value warn">91.1%</div>
+      <div class="card-sub">April 2024 · target ~92%</div>
+      <div class="card-neu">Overall (incl. non-acute/child): 61.7%</div>
+    </div>
+    <div class="card" style="border-top-color:var(--iom)">
+      <div class="card-label">IoM — Theatre utilisation</div>
+      <div class="card-value warn">84.8%</div>
+      <div class="card-sub">2024-25 · target ≥85%</div>
+      <div class="card-dn">▲ Improved from 76.9%</div>
+    </div>
+    <div class="card" style="border-top-color:var(--jer)">
+      <div class="card-label">Jersey — Theatre utilisation</div>
+      <div class="card-value miss">76.3%</div>
+      <div class="card-sub">2025 · target >85%</div>
+      <div class="card-dn">▲ Improved from 63% (2024)</div>
+    </div>
+    <div class="card" style="border-top-color:var(--gsy)">
+      <div class="card-label">Guernsey — Theatre timing</div>
+      <div class="card-value miss">75%</div>
+      <div class="card-sub">2024 (start/finish on time) · target ≥85%</div>
+      <div class="card-up">▼ Down from 82% in 2023</div>
+    </div>
+    <div class="card" style="border-top-color:var(--iom)">
+      <div class="card-label">IoM — DNA rate</div>
+      <div class="card-value miss">9.7%</div>
+      <div class="card-sub">2024-25 · target ≤7.6%</div>
+      <div class="card-dn">▼ Improved from 11.0%</div>
+    </div>
+    <div class="card" style="border-top-color:var(--jer)">
+      <div class="card-label">Jersey — DNA rate</div>
+      <div class="card-value miss">9.6%</div>
+      <div class="card-sub">2025 adults · target &lt;8%</div>
+      <div class="card-dn">▼ Improved from 11% (2024)</div>
+    </div>
+    <div class="card" style="border-top-color:var(--gsy)">
+      <div class="card-label">Guernsey — FTA rate (adults)</div>
+      <div class="card-value warn">6%</div>
+      <div class="card-sub">2024 · target &lt;6%</div>
+      <div class="card-neu">Marginally at threshold</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <h3>Delayed Transfers of Care — Guernsey MSG (days per month, target &lt;100)</h3>
+    <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Major escalation:</strong> DTOC has grown from 91 days/month (2018) to 338 days/month (2024). At year-end 2024, 18 patients were in hospital awaiting discharge (12 beds consistently occupied). Guernsey is developing a Supported Living and Ageing Well Strategy. Equivalent IoM metric is "super-stranded" patients (≥21 day LOS: 100/month average in 2024-25, slight improvement from 107).</div>
+    <div class="chart-canvas-wrap" style="height:230px"><canvas id="dtocChart"></canvas></div>
+  </div>
+
+  <div class="chart-wrap">
+    <h3>Agency Staff Costs as % of Total Pay Bill</h3>
+    <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Different denominators:</strong> IoM figures are from DHSC Assessment KPI tables. NHS England figure is NHS-wide (all trusts). Not directly comparable due to different base populations and mix of staff types. Guernsey and Jersey agency spend data not extracted in comparable format.</div>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="agencyChart"></canvas></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">Workforce Snapshot</div>
+    <table class="bench-table">
+      <thead><tr><th>Organisation</th><th>Headcount / FTE</th><th>Vacancy rate</th><th>Female workforce %</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--iom)">Manx Care (IoM)</td>
+          <td class="val">~3,300 staff</td>
+          <td class="val warn">&gt;18% <span class="source-tag estimated">Caveat</span></td>
+          <td class="val">75%</td>
+          <td>Vacancy rate overstated — CIP reduced establishment; 56% of female staff aged ≥45</td>
+        </tr>
+        <tr>
+          <td style="color:var(--gsy)">Guernsey (Core govt.)</td>
+          <td class="val">5,298 FTE (2025)</td>
+          <td class="val">—</td>
+          <td class="val">—</td>
+          <td>HSC increased +31 FTE in 2025. Full HSC breakdown requires manual review of States Accounts 2024 Appendix VII</td>
+        </tr>
+        <tr>
+          <td style="color:var(--jer)">Jersey (Public sector)</td>
+          <td class="val">9,560 headcount</td>
+          <td class="val">—</td>
+          <td class="val">—</td>
+          <td>Public sector total; health workers not isolated. Private ed/health/other sector: 7,370 headcount (not comparable)</td>
+        </tr>
+        <tr>
+          <td style="color:var(--eng)">NHS England</td>
+          <td class="val">—</td>
+          <td class="val">—</td>
+          <td class="val">—</td>
+          <td>Leaver rate 10% (lowest in decade); agency 2.3% of pay bill; workforce grew 2.6% YoY to Jan 2025</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="gap-note"><strong>— Workforce data gaps:</strong> Comparable FTE-per-1,000-population or nurse-per-bed metrics could not be constructed from available sources. Each jurisdiction uses different workforce classification systems. Detailed Guernsey HSC staffing breakdown requires Appendix VII of States Accounts 2024 (PDF truncated during extraction).</div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">Care Quality — Safety Indicators (Manx Care 2024-25)</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Never Events</div>
+        <div class="card-value met">0</div>
+        <div class="card-sub">2024-25 · target: 0</div>
+        <div class="card-dn">✓ Target met (1 in prior year)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Serious Incidents</div>
+        <div class="card-value miss">37</div>
+        <div class="card-sub">2024-25 · target ≤36</div>
+        <div class="card-up">▲ Up from 30 in prior year</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Inpatient falls — harm</div>
+        <div class="card-value met">0.4</div>
+        <div class="card-sub">Per 1,000 bed days · target &lt;2</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--gsy)">
+        <div class="card-label">Guernsey — HAI (C.diff/MRSA)</div>
+        <div class="card-value met">4</div>
+        <div class="card-sub">2024 · target: 0</div>
+        <div class="card-neu">All 4 classified as unavoidable</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM Mandate — objectives met</div>
+        <div class="card-value miss">34/75</div>
+        <div class="card-sub">2024-25</div>
+        <div class="card-up">45% of mandated objectives achieved</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-operational -->
+
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TAB: OFF-ISLAND -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-offisland" style="display:none">
+
+  <div class="plain-box" id="plain-oi">
+    <strong>Off-island care is a structural cost for all Crown Dependencies.</strong> Manx Care spent £26.3m on UK tertiary providers in 2024-25 — £4.2m over budget, driven by high-cost cancer drugs, intensive care, and 25 patients each costing over £100,000. Jersey has 50+ arrangements with English hospital groups under review, with a new governance committee established in August 2024. Both islands also place patients off-island for mental health care that cannot be provided locally.
+  </div>
+  <div class="plain-box hidden" id="tech-oi">
+    <strong>Technical notes.</strong> IoM tertiary spend data: from Manx Care Annual Report 2024-25 Appendix (p.73-75). Point of Delivery (PoD) breakdown is based on NHS tariff categories. March 2025 figures for Christie Hospital and Wrightington Wigan &amp; Leigh NHS Trusts were estimated at time of writing (average of monthly costs to Feb 2025) — final figures available June 2025. Mental health placement counts include patients in long-term placements who may be counted in multiple years; 38 unique patients over 2020-2025 cumulative. Jersey off-island data: qualitative only from P.A.C.3/2025; no financial total for Jersey tertiary expenditure extracted.
+  </div>
+
+  <div class="section">
+    <div class="section-head">IoM Tertiary Provider Spend — 2024-25</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Total tertiary spend (actual)</div>
+        <div class="card-value" style="color:var(--iom)">£26.3m</div>
+        <div class="card-sub">2024-25 outturn</div>
+        <div class="card-up">▲ £4.2m over budget (19.1%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Tertiary budget</div>
+        <div class="card-value" style="color:var(--muted2)">£22.1m</div>
+        <div class="card-sub">2024-25 plan</div>
+        <div class="card-neu">As % of Manx Care total: 7.3%</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">High-cost patient count</div>
+        <div class="card-value" style="color:var(--amber)">25</div>
+        <div class="card-sub">Patients ≥£100k each</div>
+        <div class="card-neu">Combined ~£4m (15% of total)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Drug spend (tertiary)</div>
+        <div class="card-value miss">£5.0m</div>
+        <div class="card-sub">2024-25 actual</div>
+        <div class="card-up">▲ £1.6m over budget (46%)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">ICU/Critical Care</div>
+        <div class="card-value miss">£2.5m</div>
+        <div class="card-sub">2024-25 actual</div>
+        <div class="card-up">▲ 49% increase vs 2023-24</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>IoM Tertiary Spend by Point of Delivery — 2024-25 (£)</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Estimation:</strong> March 2025 figures for Christie Hospital and Wrightington Wigan &amp; Leigh NHS Trusts are estimated at the time of publication (average monthly costs to Feb 2025). Radiotherapy/proton beam treatment is reported under Diagnostics PoD, not a clinical category — slightly overstates diagnostics spend.</div>
+      <div class="chart-canvas-wrap" style="height:260px"><canvas id="tertiaryPodChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">IoM Mental Health Off-Island Placements — 2020 to 2025-26</div>
+    <div class="flag-note"><strong>⚠ Counting caveat:</strong> Patients in long-term placements may be counted in more than one year's annual snapshot. Total unique individuals across 2020-2025: 38 patients. Annual counts therefore exceed unique patient count. 2025-26 cost data not yet available at time of Tynwald written answer (July 2025).</div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Unique patients 2020-2025</div>
+        <div class="card-value" style="color:var(--iom)">38</div>
+        <div class="card-sub">Cumulative total (unique individuals)</div>
+        <div class="card-neu">Annual snapshots total more due to long-term patients</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Cumulative cost 2020-2025</div>
+        <div class="card-value" style="color:var(--iom)">£18.5m</div>
+        <div class="card-sub">5-year total (derived)</div>
+        <div class="card-neu">Avg ~£3.7m/year</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Most recent year (2024-25)</div>
+        <div class="card-value warn">24 patients</div>
+        <div class="card-sub">£3.6m cost</div>
+        <div class="card-up">▲ Up from 22 patients in 2023-24</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Forensic placements</div>
+        <div class="card-value" style="color:var(--muted2)">7</div>
+        <div class="card-sub">2024-25 (court-ordered / prison transfer)</div>
+        <div class="card-neu">Low/medium/high secure settings</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Under-18s off-island (2024-25)</div>
+        <div class="card-value warn">2</div>
+        <div class="card-sub">Avg stay 23 days</div>
+        <div class="card-neu">8 unique under-18s across 2020-2025</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">Avg adult stay (2024-25)</div>
+        <div class="card-value" style="color:var(--muted2)">299 days</div>
+        <div class="card-sub">Down from 357 days (2022-23 peak)</div>
+        <div class="card-neu">Long-term residential nature of placements</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>IoM Off-Island Mental Health Placements — Annual Cost &amp; Patient Count</h3>
+      <div class="chart-canvas-wrap" style="height:250px"><canvas id="mhPlacementChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">Jersey Off-Island Tertiary Care</div>
+    <div class="plain-box" style="margin-bottom:10px">
+      <strong>Jersey has 50+ arrangements with English hospital groups</strong> for tertiary care. An Off-Island Tertiary Governance Committee was established in August 2024 to review these, with the aim of rationalising to the highest-value relationships. Tertiary care was a service-line overspend of £2.4m in 2024 (before reserve allocation). Jersey's Chief Officer of HCJ cited "rising costs of social care and mental health packages, tertiary care contracts and activity for off-island care, and high-cost drugs" as primary unfunded risk categories.
+    </div>
+    <div class="gap-note"><strong>— Jersey total tertiary spend not extracted:</strong> A financial total for Jersey's off-island tertiary expenditure was not published in the P.A.C.3/2025 report in equivalent form to IoM's £26.3m figure. Service-line overspend (£2.4m) understates total spend; accessing Jersey's full tertiary spend would require HCJ management accounts.</div>
+    <div class="gap-note"><strong>— Guernsey off-island referrals:</strong> Guernsey SS2 KPI (off-island referrals requiring scrutiny) averaged 9 per month in 2024 — up from 5/month in 2023. Most were procedural with referrals subsequently approved. No financial total for Guernsey off-island care expenditure was extracted.</div>
+  </div>
+
+</div><!-- /tab-offisland -->
+
+
+<div class="page-footer">
+  <span>observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+  <span>Manx Care Annual Report 2024-25 · DHSC Assessment 2024-25 · Manx Care IPR March 2024 (Final v3.0) · HCJ/States of Jersey ARA 2024-25 · Guernsey Secondary Healthcare Contract KPIs 2024 · NHS Wales Activity &amp; Performance · NHS England Performance Report 2024-25 · <a href="https://coalfinch.com">Coalfinch</a></span>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+// ─────────────────────────────────────────────────────────────
+//  Observatory theme helpers
+// ─────────────────────────────────────────────────────────────
+function cv(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function gc() { return cv('--border2') || 'rgba(51,65,85,0.6)'; }
+function tc() { return cv('--muted2')  || '#94a3b8'; }
+
+// ─────────────────────────────────────────────────────────────
+//  Zero line plugin
+// ─────────────────────────────────────────────────────────────
+Chart.register({
+  id: 'zeroLine',
+  afterDraw(chart) {
+    const yScale = chart.scales.y;
+    if (!yScale || yScale.min > 0 || yScale.max < 0) return;
+    const y0 = yScale.getPixelForValue(0);
+    const ctx = chart.ctx;
+    const { left, right } = chart.chartArea;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(left, y0); ctx.lineTo(right, y0); ctx.stroke();
+    ctx.restore();
+  }
+});
+
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+
+// ─────────────────────────────────────────────────────────────
+//  Chart registry — destroy-all before theme switch
+// ─────────────────────────────────────────────────────────────
+const CHARTS = {};
+function destroyAll() {
+  Object.values(CHARTS).forEach(c => { try { c.destroy(); } catch {} });
+  Object.keys(CHARTS).forEach(k => delete CHARTS[k]);
+  finChartsInited = false;
+  clinChartsInited = false;
+  opsChartsInited = false;
+  oiChartsInited = false;
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Axis defaults (read CSS vars each call)
+// ─────────────────────────────────────────────────────────────
+function axisDefaults(overrides = {}) {
+  const g = gc(), t = tc();
+  Chart.defaults.color = t;
+  Chart.defaults.borderColor = g;
+  return {
+    grid: { color: g },
+    ticks: { color: t },
+    ...overrides,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Tab switching
+// ─────────────────────────────────────────────────────────────
+let activeTab = 'financial';
+function showTab(id) {
+  activeTab = id;
+  ['financial','clinical','operational','offisland'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===id ? '' : 'none';
+  });
+  document.querySelectorAll('#main-tabs .tab').forEach((btn,i) => {
+    const ids = ['financial','clinical','operational','offisland'];
+    btn.classList.toggle('active', ids[i]===id);
+  });
+  if (id==='financial')   initFinCharts();
+  if (id==='clinical')    initClinicalCharts();
+  if (id==='operational') initOpsCharts();
+  if (id==='offisland')   initOffIslandCharts();
+  setTimeout(notifyHeight, 300);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Sub-tab switching
+// ─────────────────────────────────────────────────────────────
+const SUBTAB_GROUPS = {
+  clin: ['ed','cancer','diagnostics','waiting','mental','safety']
+};
+function showSubTab(group, id) {
+  SUBTAB_GROUPS[group].forEach(s => {
+    const el = document.getElementById(group+'-'+s);
+    if (el) el.style.display = s===id ? '' : 'none';
+  });
+  document.querySelectorAll('#'+group+'-subtabs .subtab').forEach((btn,i) => {
+    btn.classList.toggle('active', SUBTAB_GROUPS[group][i]===id);
+  });
+  if (group==='clin' && id==='waiting') buildSpecialtyBars();
+  setTimeout(notifyHeight, 200);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Audience toggle
+// ─────────────────────────────────────────────────────────────
+function setAudience(a) {
+  document.getElementById('btn-plain').classList.toggle('active', a==='plain');
+  document.getElementById('btn-tech').classList.toggle('active', a==='tech');
+  document.querySelectorAll('.plain-box[id^="plain-"]').forEach(el => el.classList.toggle('hidden', a==='tech'));
+  document.querySelectorAll('.plain-box[id^="tech-"]').forEach(el => el.classList.toggle('hidden', a==='plain'));
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Financial charts
+// ─────────────────────────────────────────────────────────────
+let finChartsInited = false;
+function initFinCharts() {
+  if (finChartsInited) return;
+  finChartsInited = true;
+
+  const iom = cv('--iom'), jer = cv('--jsy'), gsy = cv('--gsy');
+  const g = gc(), t = tc();
+  Chart.defaults.color = t;
+  Chart.defaults.borderColor = g;
+
+  const finLabels = ['2021-22','2022-23','2023-24','2024-25','2025-26','2026-27'];
+
+  CHARTS.finTrend = new Chart(document.getElementById('finTrendChart'), {
+    type: 'line',
+    data: {
+      labels: finLabels,
+      datasets: [
+        { label: 'Manx Care actual (£m)',         data: [null, 291.6, 354.9, 362.4, 361.8, null],
+          borderColor: iom, backgroundColor: iom+'25', borderWidth:2, pointRadius:4, tension:0.3, fill:true, spanGaps:false },
+        { label: 'Manx Care budget/mandate (£m)', data: [null, 282.9, 343.3, 347.0, 361.8, 404.0],
+          borderColor: iom+'80', borderDash:[5,4], borderWidth:1.5, pointRadius:3, tension:0.3, fill:false, spanGaps:false },
+        { label: 'HCJ Jersey NRE (£m)',            data: [228, 247, 303, 333, 368, null],
+          borderColor: jer, backgroundColor: jer+'25', borderWidth:2, pointRadius:4, tension:0.3, fill:true, spanGaps:false },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label: c => c.dataset.label+': £'+(c.parsed.y||'—')+'m'}} },
+      scales:{ x: axisDefaults(), y: axisDefaults({ticks:{callback: v=>'£'+v+'m', color:t}}) }
+    }
+  });
+
+  CHARTS.overspend = new Chart(document.getElementById('overspendChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Manx Care (IoM)\n2024-25','HCJ Jersey\n2024','Guernsey HSC\n2024'],
+      datasets:[{ label:'Overspend vs original budget (%)', data:[4.5,10.7,2.7],
+        backgroundColor:[iom+'cc',jer+'cc',gsy+'cc'], borderRadius:4, barThickness:60 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.y+'% overspend'}}},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:t} },
+        y: axisDefaults({ticks:{callback:v=>v+'%', color:t}, max:15,
+          title:{display:true,text:'% over original budget',color:cv('--muted'),font:{size:10}}})
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Clinical charts
+// ─────────────────────────────────────────────────────────────
+let clinChartsInited = false;
+function initClinicalCharts() {
+  if (clinChartsInited) return;
+  clinChartsInited = true;
+
+  const iom = cv('--iom'), jer = cv('--jsy'), gsy = cv('--gsy');
+  const eng = cv('--eng'), wal = cv('--wal');
+  const g = gc(), t = tc();
+  Chart.defaults.color = t;
+  Chart.defaults.borderColor = g;
+
+  const refLine = (labels, val, color) => ({
+    type:'line', label:'Reference', data:labels.map(()=>val),
+    borderColor:color||'rgba(200,220,235,0.25)', borderDash:[5,4],
+    borderWidth:1.5, pointRadius:0, fill:false
+  });
+
+  // ED trend
+  const edLabels = ['2021-22','2022-23','2023-24','2024-25'];
+  CHARTS.edTrend = new Chart(document.getElementById('edTrendChart'), {
+    type:'line',
+    data:{
+      labels: edLabels,
+      datasets:[
+        { label:'Manx Care (IoM)', data:[74.5,69.9,69.7,66.5],
+          borderColor:iom, backgroundColor:iom+'25', borderWidth:2, pointRadius:4, tension:0.3, fill:true },
+        { label:'Guernsey MSG', data:[89,89,89,89],
+          borderColor:gsy, borderWidth:2, pointRadius:4, tension:0, fill:false },
+        { ...refLine(edLabels,76,iom+'60'), label:'IoM target 76%' },
+        { ...refLine(edLabels,95,'rgba(200,220,235,0.18)'), label:'NHS 95% standard' },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:axisDefaults(), y:axisDefaults({min:55,max:100, ticks:{callback:v=>v+'%',color:t}}) }
+    }
+  });
+
+  // Ambulance
+  CHARTS.ambulance = new Chart(document.getElementById('ambulanceChart'), {
+    type:'bar',
+    data:{
+      labels:['Manx Care IoM\n2024-25','Jersey HCJ\n2025','NHS Wales\n2026 (red)','NHS England\n2024-25'],
+      datasets:[
+        { label:'Cat 1 mean response (min)', data:[9.45,6.67,9.42,null],
+          backgroundColor:[iom+'bb',jer+'bb',wal+'bb','transparent'], borderRadius:4, barThickness:50 },
+        { type:'line', label:'≤7 min target', data:[7,7,7,7],
+          borderColor:'rgba(200,220,235,0.35)', borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+' min'}}},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:t} },
+        y: axisDefaults({min:0,max:12,ticks:{callback:v=>v+' min',color:t},
+          title:{display:true,text:'Minutes',color:cv('--muted'),font:{size:10}}})
+      }
+    }
+  });
+
+  // Cancer FDS trend
+  const cancerLabels = ['2022-23','2023-24','2024-25'];
+  CHARTS.cancer = new Chart(document.getElementById('cancerChart'), {
+    type:'line',
+    data:{
+      labels: cancerLabels,
+      datasets:[
+        { label:'IoM 28-day FDS', data:[63.8,65.1,62.5],
+          borderColor:iom, backgroundColor:iom+'25', borderWidth:2, pointRadius:4, tension:0.3, fill:true },
+        { label:'NHS England 28-day FDS', data:[null,null,78.9],
+          borderColor:eng, borderWidth:2, pointRadius:6, fill:false, spanGaps:false },
+        { ...refLine(cancerLabels,75,'rgba(200,220,235,0.3)'), label:'Target 75%' },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:axisDefaults(), y:axisDefaults({min:50,max:95,ticks:{callback:v=>v+'%',color:t}}) }
+    }
+  });
+
+  // Diagnostics bar
+  CHARTS.diag = new Chart(document.getElementById('diagChart'), {
+    type:'bar',
+    data:{
+      labels:['Manx Care IoM\n(derived ≈41.6%)','NHS England\n(within 6wks)','Guernsey\n(radiology only)'],
+      datasets:[
+        { label:'% within 6 weeks', data:[41.6,81.6,95],
+          backgroundColor:[iom+'cc',eng+'cc',gsy+'cc'], borderRadius:4, barThickness:60 },
+        { type:'line', label:'95% target', data:[95,95,95],
+          borderColor:'rgba(200,220,235,0.3)', borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:t} },
+        y: axisDefaults({min:0,max:100,ticks:{callback:v=>v+'%',color:t}})
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Specialty bars (static HTML, not Chart.js)
+// ─────────────────────────────────────────────────────────────
+const SPECIALTIES = [
+  { name:'Ophthalmology',        n:2888, wk:52 },
+  { name:'ENT',                  n:2086, wk:58 },
+  { name:'Oral Surgery',         n:1810, wk:64 },
+  { name:'Cardiology',           n:1608, wk:50 },
+  { name:'General Surgery',      n:1575, wk:24 },
+  { name:'Urology',              n:1381, wk:44 },
+  { name:'Trauma & Orthopaedics',n:1208, wk:17 },
+  { name:'Clinical Physiology',  n: 807, wk:102 },
+  { name:'Gynaecology',          n: 629, wk:10 },
+  { name:'Neurology',            n: 611, wk:45 },
+  { name:'Gastroenterology',     n: 547, wk:21 },
+  { name:'Dermatology',          n: 473, wk:30 },
+  { name:'General Medicine',     n: 274, wk:12 },
+  { name:'Paediatrics',          n: 254, wk:5  },
+  { name:'Pain Management',      n: 251, wk:10 },
+  { name:'Respiratory Medicine', n: 188, wk:5  },
+  { name:'Haematology',          n: 136, wk:15 },
+  { name:'Neurology (Paed)',     n:  15, wk:104 },
+];
+let spBuilt = false;
+function buildSpecialtyBars() {
+  if (spBuilt) return; spBuilt = true;
+  const container = document.getElementById('specialtyBars');
+  const maxN = SPECIALTIES[0].n;
+  const wkColor = wk => wk < 13 ? '#34d399' : wk < 26 ? '#fbbf24' : wk < 52 ? '#fb923c' : '#f87171';
+  SPECIALTIES.forEach(s => {
+    const pct = Math.round((s.n / maxN) * 100);
+    const col = wkColor(s.wk);
+    const row = document.createElement('div');
+    row.className = 'sp-bar-row';
+    row.innerHTML = `
+      <div class="sp-bar-label">${s.name}</div>
+      <div class="sp-bar-track">
+        <div class="sp-bar-fill" style="width:${pct}%;background:${col}">${s.n > 200 ? s.n.toLocaleString() : ''}</div>
+      </div>
+      <div class="sp-bar-meta">${s.n < 201 ? s.n+' pts · ' : ''}${s.wk}wk median</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Operational charts
+// ─────────────────────────────────────────────────────────────
+let opsChartsInited = false;
+function initOpsCharts() {
+  if (opsChartsInited) return;
+  opsChartsInited = true;
+
+  const iom = cv('--iom'), eng = cv('--eng'), gsy = cv('--gsy');
+  const g = gc(), t = tc();
+  Chart.defaults.color = t;
+  Chart.defaults.borderColor = g;
+
+  const dtocData = [91, 195, 151, 387, 629, 276, 338];
+  CHARTS.dtoc = new Chart(document.getElementById('dtocChart'), {
+    type:'bar',
+    data:{
+      labels:['2018','2019','2020','2021','2022','2023','2024'],
+      datasets:[
+        { label:'DTOC days/month', data:dtocData,
+          backgroundColor:dtocData.map(v=>v>100?gsy+'bb':gsy+'44'), borderRadius:4 },
+        { type:'line', label:'Target <100', data:dtocData.map(()=>100),
+          borderColor:'rgba(200,220,235,0.35)', borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:{ grid:{display:false}, ticks:{color:t} }, y:axisDefaults({ticks:{callback:v=>v+' d/m',color:t}}) }
+    }
+  });
+
+  CHARTS.agency = new Chart(document.getElementById('agencyChart'), {
+    type:'bar',
+    data:{
+      labels:['IoM\n2022-23','IoM\n2023-24','NHS England\n2024-25'],
+      datasets:[
+        { label:'Agency % of pay bill', data:[7.9,5.3,2.3],
+          backgroundColor:[iom+'bb',iom+'bb',eng+'bb'], borderRadius:4, barThickness:55 },
+        { type:'line', label:'NHS England target 3.2%', data:[3.2,3.2,3.2],
+          borderColor:'rgba(200,220,235,0.35)', borderDash:[5,4], borderWidth:1.5, pointRadius:0, fill:false }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:t} },
+        y: axisDefaults({min:0,max:10,ticks:{callback:v=>v+'%',color:t}})
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Off-island charts
+// ─────────────────────────────────────────────────────────────
+let oiChartsInited = false;
+function initOffIslandCharts() {
+  if (oiChartsInited) return;
+  oiChartsInited = true;
+
+  const iom = cv('--iom'), amber = cv('--amber');
+  const g = gc(), t = tc(), mu = cv('--muted');
+  Chart.defaults.color = t;
+  Chart.defaults.borderColor = g;
+
+  const podLabels = ['Elective Inpatient','Drugs (high-cost)','Elective Daycase','ICU/Critical Care','Non-elective Admission','Non-elective Non-emerg','Diagnostics/Radiotherapy'];
+  CHARTS.tertiaryPod = new Chart(document.getElementById('tertiaryPodChart'), {
+    type:'bar',
+    data:{
+      labels:podLabels,
+      datasets:[
+        { label:'Actual (£k)', data:[4657,4997,2293,2467,1882,1643,1414],
+          backgroundColor:iom+'cc', borderRadius:3, barPercentage:0.4 },
+        { label:'Budget (£k)', data:[4568,3411,2600,2078,1780,929,1035],
+          backgroundColor:mu+'66', borderRadius:3, barPercentage:0.4 }
+      ]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:true,labels:{color:t,font:{size:10}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': £'+c.parsed.x.toLocaleString()}} },
+      scales:{
+        x: axisDefaults({ticks:{callback:v=>'£'+(v/1000).toFixed(0)+'k',color:t}}),
+        y:{ grid:{display:false}, ticks:{color:t} }
+      }
+    }
+  });
+
+  const mhCost  = [4132,4004,2872,3817,3644];
+  const mhCount = [20,17,13,22,24];
+  CHARTS.mhPlacement = new Chart(document.getElementById('mhPlacementChart'), {
+    type:'bar',
+    data:{
+      labels:['2020-21','2021-22','2022-23','2023-24','2024-25'],
+      datasets:[
+        { label:'Annual cost (£)', data:mhCost, backgroundColor:iom+'bb', borderRadius:4, yAxisID:'y' },
+        { type:'line', label:'Patient count (annual snapshot)', data:mhCount,
+          borderColor:amber, borderWidth:2, pointRadius:5, tension:0.3, fill:false, yAxisID:'y2' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:t,font:{size:10}}}},
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:t} },
+        y: axisDefaults({ticks:{callback:v=>'£'+(v/1000).toFixed(0)+'k',color:t},
+          title:{display:true,text:'Cost (£k)',color:mu,font:{size:10}}}),
+        y2:{ position:'right', grid:{display:false}, min:0, max:30,
+          ticks:{callback:v=>v+' pts',color:t},
+          title:{display:true,text:'Patients',color:mu,font:{size:10}} }
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Theme switching
+// ─────────────────────────────────────────────────────────────
+function applyTheme(name) {
+  document.documentElement.setAttribute('data-theme', name === 'light' ? 'light' : '');
+  // Rebuild visible charts with new colours
+  destroyAll();
+  // Re-init whichever tab is showing
+  if (activeTab === 'financial')   { finChartsInited=false;  initFinCharts(); }
+  if (activeTab === 'clinical')    { clinChartsInited=false; initClinicalCharts(); }
+  if (activeTab === 'operational') { opsChartsInited=false;  initOpsCharts(); }
+  if (activeTab === 'offisland')   { oiChartsInited=false;   initOffIslandCharts(); }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  postMessage bridge (parent App.jsx)
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.type === 'theme') applyTheme(e.data.theme);
+  if (e.data.type === 'tabVisible') {
+    // Parent switched to this iframe; charts may have had 0 dimensions — rebuild
+    destroyAll();
+    if (activeTab === 'financial')   initFinCharts();
+    if (activeTab === 'clinical')    initClinicalCharts();
+    if (activeTab === 'operational') initOpsCharts();
+    if (activeTab === 'offisland')   initOffIslandCharts();
+    setTimeout(notifyHeight, 200);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+//  Init on load — deferred one rAF so canvas has dimensions
+// ─────────────────────────────────────────────────────────────
+function notifyHeight() {
+  window.parent.postMessage({ type:'resize', height: document.body.scrollHeight }, '*');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  requestAnimationFrame(() => {
+    initFinCharts();
+    notifyHeight();
+    setTimeout(notifyHeight, 600);
+  });
+});
+
+window.addEventListener('resize', () => {
+  setTimeout(notifyHeight, 100);
+});
+</script>
+</body>
+</html>
