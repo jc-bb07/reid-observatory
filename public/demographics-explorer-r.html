@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Demographics Explorer · Crown Dependencies Re-Identification Observatory</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ── CSS custom properties ── */
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
+  --border:#1e293b; --border2:#334155;
+  --text:#e2e8f0; --muted:#64748b; --muted2:#94a3b8;
+  --blue:#60a5fa; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+  --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b; --uk:#94a3b8;
+  --canvas-grid:rgba(148,163,184,0.08);
+}
+[data-theme="light"] {
+  --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#0f172a; --muted:#475569; --muted2:#64748b;
+  --blue:#2563eb; --green:#059669; --amber:#d97706; --red:#dc2626;
+  --iom:#1d4ed8; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+  --canvas-grid:rgba(71,85,105,0.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;transition:background 0.2s,color 0.2s;padding:0 0 40px;}
+.page{max-width:900px;margin:0 auto;padding:28px 20px 0;}
+.section{margin-bottom:40px;}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px;}
+.section-desc{font-size:12px;color:var(--muted2);line-height:1.7;margin-bottom:16px;}
+.section-desc strong{color:var(--text);}
+.card-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.stat-card{flex:1 1 140px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px;}
+.stat-sub{font-size:11px;color:var(--muted2);}
+.stat-delta{font-size:11px;}
+.controls{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.btn{padding:5px 11px;border-radius:5px;font-size:11px;font-weight:500;border:1px solid var(--border2);background:none;color:var(--muted2);cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.btn:hover{border-color:var(--muted);color:var(--text);}
+.btn.active{background:var(--surface2);color:var(--text);border-color:var(--muted);}
+.btn-iom.active{border-color:var(--iom);color:var(--iom);}
+.btn-jsy.active{border-color:var(--jsy);color:var(--jsy);}
+.btn-gsy.active{border-color:var(--gsy);color:var(--gsy);}
+.btn-uk.active{border-color:var(--uk);color:var(--uk);}
+.control-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);white-space:nowrap;}
+.divider{width:1px;height:16px;background:var(--border2);flex-shrink:0;}
+.chart-wrap{position:relative;margin-bottom:8px;}
+.chart-wrap canvas{display:block;width:100%!important;}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-top:12px;}
+th{text-align:left;color:var(--muted);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--border2);white-space:nowrap;}
+td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted2);}
+td:first-child{color:var(--text);font-weight:600;}
+tr:last-child td{border-bottom:none;}
+.annotation{font-size:11px;color:var(--muted2);line-height:1.7;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:10px 14px;margin-top:10px;}
+.annotation strong{color:var(--text);}
+.footnote{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6;}
+.page-header{background:var(--surface2);border-bottom:1px solid var(--border2);padding:16px 20px;}
+.page-header h1{font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.page-header .sub{font-size:11px;color:var(--muted2);}
+.sep{border:none;border-top:1px solid var(--border2);margin:32px 0;}
+.proj-iom{color:var(--iom);} .proj-jsy{color:var(--jsy);} .proj-gsy{color:var(--gsy);} .proj-uk{color:var(--uk);} .proj-est{color:var(--muted);font-style:italic;}
+
+/* ── Loading / error states ── */
+#loading-overlay{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);z-index:100;flex-direction:column;gap:12px;
+  transition:opacity 0.3s;
+}
+#loading-overlay.hidden{opacity:0;pointer-events:none;}
+.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-text{font-size:12px;color:var(--muted2);}
+.error-box{background:var(--surface);border:1px solid var(--red);border-radius:8px;padding:16px 20px;margin:40px auto;max-width:460px;font-size:12px;color:var(--muted2);line-height:1.7;}
+.error-box strong{color:var(--red);}
+.error-box code{font-family:monospace;font-size:11px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay — hidden once data is ready -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="load-text">Loading data…</div>
+</div>
+
+<div id="app" style="display:none">
+
+<div class="page-header">
+  <h1>Population &amp; Aging</h1>
+  <div class="sub">How the three Crown Dependencies are aging — and what that means for public finances, housing, and social services. Published census data, 1951–2021, with projections to 2040.</div>
+</div>
+
+<div class="page">
+
+<!-- SECTION 1: Total population -->
+<div class="section" style="margin-top:28px">
+  <div class="section-title">200 years of island population</div>
+  <div class="section-desc">
+    Jersey has grown fastest and furthest. Isle of Man and Guernsey both saw sharp post-war expansion then plateaued.
+    IoM actually declined slightly 2011–2021 before recovering.
+  </div>
+  <div class="card-row">
+    <div class="stat-card" style="border-top:3px solid var(--iom)">
+      <div class="stat-label" style="color:var(--iom)">Isle of Man</div>
+      <div class="stat-value">85,125</div>
+      <div class="stat-sub">population 2026 ~</div>
+      <div class="stat-delta" style="color:var(--green)">▲ 40.7% since ~1976</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--jsy)">
+      <div class="stat-label" style="color:var(--jsy)">Jersey</div>
+      <div class="stat-value">104,820</div>
+      <div class="stat-sub">population 2026 ~</div>
+      <div class="stat-delta" style="color:var(--green)">▲ 47.6% since ~1976</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--gsy)">
+      <div class="stat-label" style="color:var(--gsy)">Guernsey</div>
+      <div class="stat-value">64,420</div>
+      <div class="stat-sub">population 2026 ~</div>
+      <div class="stat-delta" style="color:var(--green)">▲ 20.1% since ~1976</div>
+    </div>
+  </div>
+  <div class="controls">
+    <span class="control-label">Range</span>
+    <button class="btn active" id="range-50"  onclick="setRange(50)">50 yrs</button>
+    <button class="btn"        id="range-75"  onclick="setRange(75)">75 yrs</button>
+    <button class="btn"        id="range-100" onclick="setRange(100)">100 yrs</button>
+    <button class="btn"        id="range-all" onclick="setRange(0)">All (1821–)</button>
+    <div class="divider"></div>
+    <span class="control-label">View</span>
+    <button class="btn active" id="view-abs" onclick="setView('abs')">Absolute</button>
+    <button class="btn"        id="view-idx" onclick="setView('idx')">Index (start = 100)</button>
+    <div class="divider"></div>
+    <span class="control-label">Islands</span>
+    <button class="btn btn-iom active" id="tog-iom" onclick="toggleIsland('iom')">Isle of Man</button>
+    <button class="btn btn-jsy active" id="tog-jsy" onclick="toggleIsland('jsy')">Jersey</button>
+    <button class="btn btn-gsy active" id="tog-gsy" onclick="toggleIsland('gsy')">Guernsey</button>
+    <button class="btn btn-uk"         id="tog-uk"  onclick="toggleIsland('uk')">UK (right axis)</button>
+  </div>
+  <div class="chart-wrap" style="height:280px"><canvas id="chart-pop"></canvas></div>
+  <div class="annotation">
+    <strong>IoM</strong> finance sector boom 1986–2006 drove steeper growth than Channel Islands ·
+    <strong>Jersey</strong> grew 20% 2001–2021; IoM grew just 10% ·
+    <strong>Guernsey</strong> broadly flat since 1991
+  </div>
+  <div class="footnote">◆ 2026 = estimated · Sources: IoM Cabinet Office census Table 1 · Jersey Census 1996 Table 1 · Guernsey Historic Population xlsx gov.gg · ONS long-run population estimates (UK)</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- SECTION 2: Dependency ratios -->
+<div class="section">
+  <div class="section-title">Dependency ratios</div>
+  <div class="section-desc">
+    <strong>What is a dependency ratio?</strong> It measures how many retired people exist for every 100 working-age people.
+    Isle of Man and Guernsey now exceed the UK; Jersey remains slightly below.
+  </div>
+  <div class="card-row">
+    <div class="stat-card" style="border-top:3px solid var(--iom)">
+      <div class="stat-label" style="color:var(--iom)">Isle of Man</div>
+      <div class="stat-value">33.1%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--amber)">▲ was 24.9% in 1991</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--jsy)">
+      <div class="stat-label" style="color:var(--jsy)">Jersey</div>
+      <div class="stat-value">27.1%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--amber)">▲ was 20.1% in 1991</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--gsy)">
+      <div class="stat-label" style="color:var(--gsy)">Guernsey</div>
+      <div class="stat-value">~34%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--amber)">▲ total dep. ratio ~57%</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--uk)">
+      <div class="stat-label" style="color:var(--uk)">UK benchmark</div>
+      <div class="stat-value">29.5%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--muted2)">IoM &amp; Guernsey exceed UK</div>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:240px"><canvas id="chart-dep"></canvas></div>
+  <div class="annotation">
+    <strong>The key pattern:</strong> IoM's ratio was higher than the UK through the 1970s–80s, fell sharply as the finance sector boom attracted working-age incomers, and is now climbing again as that cohort approaches retirement.
+  </div>
+  <div class="footnote">65+ as % of 15–64 · IoM Cabinet Office Census 2021 · Statistics Jersey Census 2021 CSV · Guernsey Historic Population xlsx · ONS Census 2021</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- SECTION 3: vs UK differential -->
+<div class="section">
+  <div class="section-title">vs UK differential</div>
+  <div class="section-desc"><strong>Island minus UK:</strong> Above zero = aging faster than UK. Below zero = relatively younger.</div>
+  <div class="card-row">
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--iom)">IoM peak differential</div>
+      <div class="stat-value" style="color:var(--red)">+15.8</div>
+      <div class="stat-sub">pts above UK · 1976</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--iom)">IoM trough</div>
+      <div class="stat-value" style="color:var(--green)">+6.5</div>
+      <div class="stat-sub">pts above UK · 2001</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--iom)">IoM 2021</div>
+      <div class="stat-value" style="color:var(--amber)">+3.6</div>
+      <div class="stat-sub">pts above UK · re-diverging</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--jsy)">Jersey 2021</div>
+      <div class="stat-value" style="color:var(--blue)">−2.4</div>
+      <div class="stat-sub">pts below UK · closing fast</div>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:220px"><canvas id="chart-diff"></canvas></div>
+  <div class="annotation">
+    <strong>Jersey tracks below the UK</strong> for most of the period — its larger working-age population has kept it relatively younger. That advantage is now eroding rapidly.
+  </div>
+  <div class="footnote">Island dependency ratio minus UK · Zero line = parity with UK</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- SECTION 4: Population pyramids -->
+<div class="section">
+  <div class="section-title">Population pyramids</div>
+  <div class="section-desc">
+    <strong>Reading the pyramids:</strong> A healthy growing population looks like a triangle — wide at the bottom. What you see here is a barrel shape.
+  </div>
+  <div class="controls">
+    <span class="control-label">Island</span>
+    <button class="btn btn-iom active" id="pyr-iom"      onclick="setPyrIsland('iom')">Isle of Man</button>
+    <button class="btn btn-jsy"        id="pyr-jersey"   onclick="setPyrIsland('jersey')">Jersey</button>
+    <button class="btn btn-gsy"        id="pyr-guernsey" onclick="setPyrIsland('guernsey')">Guernsey</button>
+    <button class="btn btn-uk"         id="pyr-uk"       onclick="setPyrIsland('uk')">UK</button>
+    <div class="divider"></div>
+    <span class="control-label">Year</span>
+    <button class="btn"        id="pyr-1996" onclick="setPyrYear('1996')">1996</button>
+    <button class="btn"        id="pyr-2001" onclick="setPyrYear('2001')">2001</button>
+    <button class="btn"        id="pyr-2011" onclick="setPyrYear('2011')">2011</button>
+    <button class="btn active" id="pyr-2021" onclick="setPyrYear('2021')">2021</button>
+  </div>
+  <div class="chart-wrap" style="height:340px"><canvas id="chart-pyr"></canvas></div>
+  <div class="footnote">% of total island population per 5-year age band · Male (left) / Female (right)</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- SECTION 5: Age structure -->
+<div class="section">
+  <div class="section-title">Age structure</div>
+  <div class="section-desc">
+    <strong>The four groups:</strong> Pre-school (0–4), school-age (5–14), working-age (15–64), and retirement-age (65+). The last group is growing fastest.
+  </div>
+  <div class="controls">
+    <span class="control-label">Year</span>
+    <button class="btn"        id="str-1996" onclick="setStrYear('1996')">1996</button>
+    <button class="btn"        id="str-2001" onclick="setStrYear('2001')">2001</button>
+    <button class="btn"        id="str-2011" onclick="setStrYear('2011')">2011</button>
+    <button class="btn active" id="str-2021" onclick="setStrYear('2021')">2021</button>
+  </div>
+  <div class="chart-wrap" style="height:220px"><canvas id="chart-str"></canvas></div>
+  <div class="footnote">Share of total resident population (%) · IoM working-age values use a narrower age definition — see PIPELINE.md</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- SECTION 6: Projections -->
+<div class="section">
+  <div class="section-title">Projections to 2040</div>
+  <div class="section-desc">Even with continued inward migration, the total dependency ratio will rise sharply by 2041 across all three islands.</div>
+  <table>
+    <thead><tr><th>Island</th><th>2021 ratio</th><th>2040 projection</th><th>Scenario</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td class="proj-iom">Isle of Man</td><td>58.3%</td><td>~71%</td><td>Cabinet Office trajectory</td><td class="proj-est">Estimated</td></tr>
+      <tr><td class="proj-jsy">Jersey</td><td>52.0%</td><td>58–64%</td><td>Net nil / +400 / +800 migration</td><td>Official</td></tr>
+      <tr><td class="proj-gsy">Guernsey</td><td>55.0%</td><td>~69%</td><td>Central (net +150/yr)</td><td>Official</td></tr>
+      <tr><td class="proj-uk">UK</td><td>56.0%</td><td>~62%</td><td>ONS principal projection</td><td>Official</td></tr>
+    </tbody>
+  </table>
+  <div class="controls" style="margin-top:16px">
+    <span class="control-label">Jersey scenario</span>
+    <button class="btn active" id="proj-nil" onclick="setProjScenario('nil')">Net nil migration</button>
+    <button class="btn"        id="proj-400" onclick="setProjScenario('400')">+400/yr</button>
+    <button class="btn"        id="proj-800" onclick="setProjScenario('800')">+800/yr</button>
+  </div>
+  <div class="chart-wrap" style="height:240px"><canvas id="chart-proj"></canvas></div>
+  <div class="footnote">
+    Jersey: Statistics Jersey Population Projections 2025–2080 (Feb 2026) — official ·
+    Guernsey: Annual Population Projection Bulletin (Jun 2024) — official ·
+    UK: ONS 2022-based national projections · IoM: estimated
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<div style="text-align:center;padding:24px 20px 4px;font-size:10px;color:var(--muted2)">
+  observatory.coalfinch.com · Demographics explorer · 2021 census · <a href="https://coalfinch.com" style="color:var(--muted2)">Coalfinch</a>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function chartDefaults() {
+  const grid = { color: css('--canvas-grid') };
+  const tick = { color: css('--muted') };
+  return {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: css('--surface'), borderColor: css('--border2'),
+        borderWidth: 1, titleColor: css('--text'), bodyColor: css('--muted2'), padding: 10,
+      },
+    },
+    scales: {
+      x: { grid, ticks: tick },
+      y: { grid, ticks: tick },
+    },
+  };
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let D = null; // populated from JSON
+let popRange = 50, popView = 'abs';
+let popIslands = { iom: true, jsy: true, gsy: true, uk: false };
+let pyrIsland = 'iom', pyrYear = '2021';
+let strYear = '2021';
+let projScenario = 'nil';
+const charts = {};
+
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+// ── Section 1: Population ─────────────────────────────────────────────────────
+function setRange(yr) {
+  popRange = yr;
+  ['50','75','100','all'].forEach(k => document.getElementById('range-'+k)?.classList.remove('active'));
+  document.getElementById(yr === 0 ? 'range-all' : 'range-'+yr)?.classList.add('active');
+  drawPop();
+}
+function setView(v) {
+  popView = v;
+  document.getElementById('view-abs').classList.toggle('active', v === 'abs');
+  document.getElementById('view-idx').classList.toggle('active', v === 'idx');
+  drawPop();
+}
+function toggleIsland(k) {
+  popIslands[k] = !popIslands[k];
+  document.getElementById('tog-'+k).classList.toggle('active', popIslands[k]);
+  drawPop();
+}
+
+function drawPop() {
+  const nowYear = 2026;
+  const fromYear = popRange === 0 ? 1821 : nowYear - popRange;
+
+  function series(pts, color, label, yAxisID) {
+    const filtered = pts.filter(d => d[0] >= fromYear);
+    const base = filtered[0]?.[1] || 1;
+    const data = filtered.map(d => ({ x: d[0], y: popView === 'idx' ? +(d[1]/base*100).toFixed(2) : d[1] }));
+    return { label, data, borderColor: color, backgroundColor: color+'22',
+      tension: 0.3, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2,
+      fill: false, yAxisID: yAxisID || 'y' };
+  }
+
+  const datasets = [];
+  if (popIslands.iom) datasets.push(series(D.population_history.islands.iom.map(r=>[r[0],r[1]]),     css('--iom'), 'Isle of Man'));
+  if (popIslands.jsy) datasets.push(series(D.population_history.islands.jersey.map(r=>[r[0],r[1]]),  css('--jsy'), 'Jersey'));
+  if (popIslands.gsy) datasets.push(series(D.population_history.islands.guernsey.map(r=>[r[0],r[1]]),css('--gsy'), 'Guernsey'));
+  if (popIslands.uk) {
+    const ukPts = Object.entries(D.metadata.uk.population_by_year).map(([y,p])=>[+y,p]);
+    datasets.push({ ...series(ukPts, css('--uk'), 'UK', 'y2'), borderDash: [4,3] });
+  }
+
+  destroyChart('pop');
+  const d = chartDefaults();
+  const scales = {
+    x: { type: 'linear', grid: d.scales.x.grid, ticks: { ...d.scales.x.ticks, maxTicksLimit: 10 } },
+    y: { grid: d.scales.y.grid, ticks: { ...d.scales.y.ticks,
+        callback: v => popView === 'idx' ? v : v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v.toLocaleString() } },
+  };
+  if (popIslands.uk) {
+    scales.y2 = { position: 'right', grid: { display: false },
+      ticks: { color: css('--uk'), callback: v => popView === 'idx' ? v : (v/1e6).toFixed(0)+'M' } };
+  }
+  charts.pop = new Chart(document.getElementById('chart-pop'), {
+    type: 'line', data: { datasets },
+    options: { ...d, scales, plugins: { ...d.plugins,
+      tooltip: { ...d.plugins.tooltip, callbacks: { label: c => {
+        const v = c.parsed.y;
+        return ` ${c.dataset.label}: ${popView==='idx' ? v.toFixed(1) : v>=1e6 ? (v/1e6).toFixed(2)+'M' : v.toLocaleString()}`;
+      }}}
+    }},
+  });
+}
+
+// ── Section 2: Dependency ratios ──────────────────────────────────────────────
+function drawDep() {
+  const { years, iom, jersey, guernsey, uk } = D.aged_dependency_ratios;
+  const mk = (label, arr, color, dash) => ({
+    label, borderColor: color, backgroundColor: 'transparent',
+    tension: 0.3, pointRadius: 4, borderWidth: 2, fill: false, borderDash: dash||[],
+    data: years.map((y,i) => arr[i] !== null ? { x:y, y:arr[i] } : null).filter(Boolean),
+  });
+  destroyChart('dep');
+  const d = chartDefaults();
+  charts.dep = new Chart(document.getElementById('chart-dep'), {
+    type: 'line',
+    data: { datasets: [mk('Isle of Man',iom,css('--iom')), mk('Jersey',jersey,css('--jsy')), mk('Guernsey',guernsey,css('--gsy')), mk('UK',uk,css('--uk'),[4,3])] },
+    options: { ...d,
+      scales: {
+        x: { type:'linear', grid: d.scales.x.grid, ticks: { ...d.scales.x.ticks, maxTicksLimit: 10 } },
+        y: { grid: d.scales.y.grid, ticks: { ...d.scales.y.ticks, callback: v=>v+'%' },
+          title: { display:true, text:'65+ as % of 15–64', color:css('--muted'), font:{size:10} } },
+      },
+      plugins: { ...d.plugins, tooltip: { ...d.plugins.tooltip, callbacks: { label: c=>` ${c.dataset.label}: ${c.parsed.y}%` }}},
+    },
+  });
+}
+
+// ── Section 3: Differential ───────────────────────────────────────────────────
+function drawDiff() {
+  const { years, iom, jersey, guernsey, uk } = D.aged_dependency_ratios;
+  const diff = arr => years.map((y,i) => arr[i]!==null && uk[i]!==null ? {x:y, y:+(arr[i]-uk[i]).toFixed(2)} : null).filter(Boolean);
+  destroyChart('diff');
+  const d = chartDefaults();
+  charts.diff = new Chart(document.getElementById('chart-diff'), {
+    type: 'line',
+    data: { datasets: [
+      { label:'Isle of Man − UK', data:diff(iom), borderColor:css('--iom'), tension:0.3, pointRadius:3, borderWidth:2, fill:false, backgroundColor:'transparent' },
+      { label:'Jersey − UK',     data:diff(jersey), borderColor:css('--jsy'), tension:0.3, pointRadius:3, borderWidth:2, fill:false, backgroundColor:'transparent' },
+      { label:'Guernsey − UK',   data:diff(guernsey), borderColor:css('--gsy'), tension:0.3, pointRadius:3, borderWidth:2, fill:false, backgroundColor:'transparent' },
+    ]},
+    options: { ...d,
+      scales: {
+        x: { type:'linear', grid:d.scales.x.grid, ticks:{...d.scales.x.ticks,maxTicksLimit:10} },
+        y: { grid:d.scales.y.grid, ticks:{...d.scales.y.ticks, callback:v=>(v>0?'+':'')+v+'pp'},
+          title:{display:true,text:'pp vs UK',color:css('--muted'),font:{size:10}} },
+      },
+      plugins: { ...d.plugins, tooltip: { ...d.plugins.tooltip,
+        callbacks:{ label:c=>` ${c.dataset.label}: ${c.parsed.y>0?'+':''}${c.parsed.y}pp` }}},
+    },
+  });
+}
+
+// ── Section 4: Pyramids ───────────────────────────────────────────────────────
+function setPyrIsland(isl) {
+  pyrIsland = isl;
+  ['iom','jersey','guernsey','uk'].forEach(k => document.getElementById('pyr-'+k)?.classList.remove('active'));
+  document.getElementById('pyr-'+isl)?.classList.add('active');
+  drawPyr();
+}
+function setPyrYear(yr) {
+  pyrYear = yr;
+  ['1996','2001','2011','2021'].forEach(y => document.getElementById('pyr-'+y)?.classList.remove('active'));
+  document.getElementById('pyr-'+yr)?.classList.add('active');
+  drawPyr();
+}
+function drawPyr() {
+  const pyr = D.population_pyramids_pct.data[pyrIsland]?.[pyrYear];
+  if (!pyr) return;
+  const colMap = { iom:css('--iom'), jersey:css('--jsy'), guernsey:css('--gsy'), uk:css('--uk') };
+  const col = colMap[pyrIsland];
+  destroyChart('pyr');
+  const d = chartDefaults();
+  charts.pyr = new Chart(document.getElementById('chart-pyr'), {
+    type: 'bar',
+    data: {
+      labels: D.population_pyramids_pct.bands,
+      datasets: [
+        { label:'Male',   data: pyr.m.map(v=>-v), backgroundColor:col+'99', borderColor:col,       borderWidth:1 },
+        { label:'Female', data: pyr.f,             backgroundColor:col+'55', borderColor:col+'aa',  borderWidth:1 },
+      ],
+    },
+    options: { ...d, indexAxis:'y',
+      scales: {
+        x: { grid:d.scales.x.grid, ticks:{...d.scales.x.ticks, callback:v=>Math.abs(v).toFixed(1)+'%'} },
+        y: { grid:{display:false}, ticks:{...d.scales.y.ticks, font:{size:10}} },
+      },
+      plugins: { ...d.plugins,
+        legend:{display:true,position:'bottom',labels:{color:css('--muted2'),font:{size:11},boxWidth:12}},
+        tooltip:{...d.plugins.tooltip, callbacks:{label:c=>` ${c.dataset.label}: ${Math.abs(c.parsed.x).toFixed(2)}%`}},
+      },
+    },
+  });
+}
+
+// ── Section 5: Age structure ──────────────────────────────────────────────────
+function setStrYear(yr) {
+  strYear = yr;
+  ['1996','2001','2011','2021'].forEach(y => document.getElementById('str-'+y)?.classList.remove('active'));
+  document.getElementById('str-'+yr)?.classList.add('active');
+  drawStr();
+}
+function drawStr() {
+  const keys   = ['iom','jersey','guernsey','uk'];
+  const labels = ['Isle of Man','Jersey','Guernsey','UK'];
+  const data = keys.map(k => D.age_structure_pct[k][strYear] || {pre:0,school:0,working:0,retirement:0});
+  destroyChart('str');
+  const d = chartDefaults();
+  charts.str = new Chart(document.getElementById('chart-str'), {
+    type: 'bar',
+    data: { labels,
+      datasets: [
+        { label:'Pre-school (0–4)',    data:data.map(v=>v.pre),        backgroundColor:css('--blue')+'55',  borderColor:css('--blue'),  borderWidth:1 },
+        { label:'School (5–14)',       data:data.map(v=>v.school),     backgroundColor:css('--green')+'55', borderColor:css('--green'), borderWidth:1 },
+        { label:'Working age (15–64)', data:data.map(v=>v.working),    backgroundColor:css('--amber')+'55', borderColor:css('--amber'), borderWidth:1 },
+        { label:'Retirement (65+)',    data:data.map(v=>v.retirement), backgroundColor:css('--red')+'55',   borderColor:css('--red'),   borderWidth:1 },
+      ],
+    },
+    options: { ...d,
+      scales: {
+        x: { stacked:true, grid:{display:false}, ticks:d.scales.x.ticks },
+        y: { stacked:true, grid:d.scales.y.grid, ticks:{...d.scales.y.ticks,callback:v=>v+'%'}, max:100 },
+      },
+      plugins: { ...d.plugins,
+        legend:{display:true,position:'bottom',labels:{color:css('--muted2'),font:{size:11},boxWidth:12}},
+        tooltip:{...d.plugins.tooltip,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%`}},
+      },
+    },
+  });
+}
+
+// ── Section 6: Projections ────────────────────────────────────────────────────
+function setProjScenario(s) {
+  projScenario = s;
+  ['nil','400','800'].forEach(k => document.getElementById('proj-'+k)?.classList.remove('active'));
+  document.getElementById('proj-'+s)?.classList.add('active');
+  drawProj();
+}
+function drawProj() {
+  const { years, iom, jersey_nil, jersey_plus400, jersey_plus800, guernsey, uk } = D.total_dep_projections;
+  const jsy = projScenario === 'nil' ? jersey_nil : projScenario === '400' ? jersey_plus400 : jersey_plus800;
+  const mk = (label, arr, color, dash) => ({
+    label, data: years.map((y,i) => ({x:y,y:arr[i]})),
+    borderColor:color, backgroundColor:'transparent',
+    tension:0.3, pointRadius:4, borderWidth:2, fill:false, borderDash:dash||[],
+  });
+  destroyChart('proj');
+  const d = chartDefaults();
+  charts.proj = new Chart(document.getElementById('chart-proj'), {
+    type: 'line',
+    data: { datasets: [mk('Isle of Man (est.)',iom,css('--iom')), mk('Jersey',jsy,css('--jsy')), mk('Guernsey',guernsey,css('--gsy')), mk('UK',uk,css('--uk'),[4,3])] },
+    options: { ...d,
+      scales: {
+        x: { type:'linear', grid:d.scales.x.grid, ticks:d.scales.x.ticks },
+        y: { grid:d.scales.y.grid, ticks:{...d.scales.y.ticks,callback:v=>v+'%'},
+          title:{display:true,text:'Total dependency ratio',color:css('--muted'),font:{size:10}} },
+      },
+      plugins: { ...d.plugins,
+        legend:{display:true,position:'bottom',labels:{color:css('--muted2'),font:{size:11},boxWidth:12}},
+        tooltip:{...d.plugins.tooltip,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}%`}},
+      },
+    },
+  });
+}
+
+// ── Redraw all (theme change or resize) ───────────────────────────────────────
+function redrawAll() {
+  requestAnimationFrame(() => {
+    drawPop(); drawDep(); drawDiff(); drawPyr(); drawStr(); drawProj();
+  });
+}
+
+// ── Theme listener (App.jsx postMessage) ─────────────────────────────────────
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.type === 'theme') {
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+    redrawAll();
+  }
+  if (e.data.type === 'tabVisible' && e.data.tabId === 'demog') redrawAll();
+});
+
+function notifyHeight() {
+  window.parent?.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+
+// ── Bootstrap: fetch data then init ──────────────────────────────────────────
+(async () => {
+  // Inherit theme from parent query param (?theme=light)
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'light' || theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  try {
+    const res = await fetch('json/demographics-data.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.url}`);
+    D = await res.json();
+
+    // Show app, hide loader
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+
+    drawPop(); drawDep(); drawDiff(); drawPyr(); drawStr(); drawProj();
+    setTimeout(notifyHeight, 300);
+
+  } catch (err) {
+    document.getElementById('loading-overlay').innerHTML = `
+      <div class="error-box" style="text-align:left">
+        <strong>Could not load data</strong><br><br>
+        ${err.message}<br><br>
+        Make sure <code>json/demographics-data.json</code> is being served from the same origin as this page.
+        On a local dev server: <code>python3 -m http.server 8080</code> from the project root.
+      </div>`;
+  }
+})();
+
+window.addEventListener('resize', () => { redrawAll(); setTimeout(notifyHeight, 200); });
+</script>
+</body>
+</html>
