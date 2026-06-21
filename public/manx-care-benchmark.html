@@ -519,7 +519,39 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
       <div id="specialtyBars" style="padding:4px 0"></div>
     </div>
 
-    <div class="gap-note"><strong>— Jersey comparison note:</strong> Jersey >52-week count (1,307 in 2025) refers to first outpatient appointment waits only, per ARA 2025. IoM figure of 6,835 is also for first outpatient only. Both populations differ materially (IoM ~84k; Jersey 104,540). Population-adjusted rate: IoM ~81 per 1,000 pop; Jersey ~12.5 per 1,000 pop. Direct comparison requires identical case-mix and referral rate assumptions.</div>
+    <div class="chart-wrap">
+      <h3>Patients waiting &gt;52 weeks — per 1,000 population (cross-jurisdiction)</h3>
+      <div class="flag-note" style="margin-bottom:10px"><strong>⚠ Metric differences:</strong> IoM and Jersey both report first outpatient appointment waits; NHS Wales reports full RTT pathways (referral to treatment). These are different stages of the care pathway. Guernsey reports inpatient waiting list size only, with no >52-week breakdown, so is excluded from this chart. All figures are the most recently published year-end data available per jurisdiction.</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Manx Care (IoM) — Mar 2025</span>
+        <span class="leg-item"><span class="leg-sw" style="background:var(--jsy)"></span>HCJ Jersey — 2025</span>
+        <span class="leg-item"><span class="leg-sw" style="background:var(--wal)"></span>NHS Wales — Feb 2026 (RTT)</span>
+      </div>
+      <div class="chart-canvas-wrap" style="height:210px"><canvas id="waitComp52Chart"></canvas></div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>Waiting list size vs &gt;52-week waiters — IoM trend (outpatient)</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ RTT measurement gap:</strong> Pre-2024 IoM outpatient waiting list data is not available in a consistent format for trend analysis; figures from IPR April 2024 and Annual Report March 2025 are the two available comparable data points. The list grew by 7.7% in 12 months; >52-week waiters grew by 20.3%.</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Total outpatient list</span>
+        <span class="leg-item"><span class="leg-sw" style="background:var(--red)"></span>>52-week waiters</span>
+      </div>
+      <div class="chart-canvas-wrap" style="height:200px"><canvas id="iomWlTrendChart"></canvas></div>
+    </div>
+
+    <div class="chart-wrap">
+      <h3>% of outpatient waiting list waiting &gt;52 weeks</h3>
+      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Different denominators:</strong> IoM % is of the first-outpatient waiting list. NHS Wales % is of RTT (full pathway) volume. Jersey total waiting list size is not published; % cannot be calculated. Proportions are directionally useful but not strictly comparable.</div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>IoM (outpatient list)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:var(--wal)"></span>NHS Wales (RTT pathways)</span>
+      </div>
+      <div class="chart-canvas-wrap" style="height:200px"><canvas id="waitPctChart"></canvas></div>
+    </div>
+
+    <div class="gap-note"><strong>— Jersey comparison note:</strong> Jersey >52-week count (1,307 in 2025) refers to first outpatient appointment waits only, per ARA 2025. IoM figure of 6,835 is also for first outpatient only. Both populations differ materially (IoM ~84k; Jersey 104,540). Population-adjusted rate: IoM ~81.4 per 1,000 pop; Jersey ~12.5 per 1,000 pop. Direct comparison requires identical case-mix and referral rate assumptions.</div>
+    <div class="gap-note"><strong>— Guernsey comparison:</strong> Guernsey MSG reports an inpatient waiting list of 2,207 (down 21% from 2,799 in 2023) and a combined inpatient/outpatient compliance rate of 62% seen within contractual time (target >95%) — but the contractual time standards differ by specialty and are not equivalent to the IoM/Jersey 52-week measure. No Guernsey >52-week figure is published in comparable form.</div>
   </div>
 
   <!-- Mental Health -->
@@ -1234,6 +1266,78 @@ function initClinicalCharts() {
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{ x:axisDefaults(), y:axisDefaults({min:50,max:95,ticks:{callback:v=>v+'%',color:t}}) }
+    }
+  });
+
+  // ── Waiting list comparatives ──────────────────────────────────────────────
+
+  // >52wk per 1,000 population (cross-jurisdiction)
+  CHARTS.waitComp52 = new Chart(document.getElementById('waitComp52Chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Manx Care (IoM)\n~84k pop', 'HCJ Jersey\n104,540 pop', 'NHS Wales\n3.17m pop'],
+      datasets: [{
+        label: '>52wk waiters per 1,000 population',
+        data: [81.4, 12.5, 33.3],
+        backgroundColor: [iom+'cc', jer+'cc', wal+'cc'],
+        borderRadius: 4, barThickness: 60
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: c => c.parsed.y.toFixed(1) + ' per 1,000 pop' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: t } },
+        y: axisDefaults({ ticks: { callback: v => v + '/1k', color: t },
+          title: { display: true, text: 'Per 1,000 population', color: cv('--muted'), font: { size: 10 } } })
+      }
+    }
+  });
+
+  // IoM waiting list trend (2 data points)
+  CHARTS.iomWlTrend = new Chart(document.getElementById('iomWlTrendChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Apr 2024\n(IPR snapshot)', 'Mar 2025\n(Annual Report)'],
+      datasets: [
+        { label: 'Total outpatient list', data: [16547, 17829],
+          backgroundColor: iom+'88', borderRadius: 4, barPercentage: 0.4 },
+        { label: '>52-week waiters', data: [5671, 6835],
+          backgroundColor: cv('--red')+'cc', borderRadius: 4, barPercentage: 0.4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { color: t, font: { size: 10 } } },
+        tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y.toLocaleString() } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: t } },
+        y: axisDefaults({ ticks: { callback: v => v.toLocaleString(), color: t } })
+      }
+    }
+  });
+
+  // % of list waiting >52wk
+  CHARTS.waitPct = new Chart(document.getElementById('waitPctChart'), {
+    type: 'bar',
+    data: {
+      labels: ['IoM (Mar 2025)\noutpatient list', 'NHS Wales (Feb 2026)\nRTT pathways'],
+      datasets: [{
+        label: '% waiting >52 weeks',
+        data: [38.3, 15.3],
+        backgroundColor: [iom+'cc', wal+'cc'],
+        borderRadius: 4, barThickness: 70
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: c => c.parsed.y.toFixed(1) + '% of list waiting >52wks' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: t } },
+        y: axisDefaults({ min: 0, max: 50, ticks: { callback: v => v + '%', color: t } })
+      }
     }
   });
 

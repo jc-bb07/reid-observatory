@@ -24,33 +24,38 @@ const THEMES = {
 };
 
 const TAB_GROUPS = [
-  { id: "reid-group",   label: "Re-identification", color: "#60a5fa", homeTab: "home",       tabs: ["home",       "reid", "kanon", "areas", "restricted", "compliance"] },
-  { id: "econ-group",   label: "Economy & Society",  color: "#34d399", homeTab: "econHome",   tabs: ["econHome",   "demog", "iomfiscal", "econmix", "inflation", "unemployment", "suicide", "workforce"] },
-  { id: "health-group", label: "Health & Care",      color: "#f87171", homeTab: "healthHome", tabs: ["healthHome", "manxBenchmark", "nobles", "nobles-v15"] },
+  { id: "reid-group", label: "Re-identification", color: "#60a5fa", homeTab: "home",     tabs: ["home",     "reid", "kanon", "areas", "restricted", "compliance"] },
+  { id: "econ-group", label: "Economy & Society",  color: "#34d399", homeTab: "econHome", tabs: ["econHome", "demog", "iomfiscal", "econmix", "inflation", "unemployment", "suicide", "workforce", "nobles","nobles-v15"] },
 ];
 
 const TABS = [
-  { id: "home",           label: "About"                },
-  { id: "reid",           label: "Re-identification"    },
-  { id: "kanon",          label: "k-Anonymity"          },
-  { id: "areas",          label: "Area Rankings"        },
-  { id: "econHome",       label: "About"                },
-  { id: "demog",          label: "Demographics"         },
-  { id: "iomfiscal",      label: "IoM Fiscal Flows"     },
-  { id: "econmix",        label: "Productivity"         },
-  { id: "inflation",      label: "Inflation"            },
-  { id: "unemployment",   label: "Unemployment"         },
-  { id: "suicide",        label: "Suicide Rates"        },
-  { id: "workforce",      label: "Public Sector"        },
-  { id: "nobles",         label: "Hospital Util Sim"    },
-  { id: "nobles-v15",     label: "Hospital Util Sim v15"},
-  { id: "healthHome",     label: "About"                },
-  { id: "manxBenchmark",  label: "Manx Care Benchmark"  },
-  { id: "restricted",     label: "🔒 Restricted"        },
-  { id: "compliance",     label: "📋 Compliance"        },
+  { id: "home",         label: "About"                },
+  { id: "reid",         label: "Re-identification"    },
+  { id: "kanon",        label: "k-Anonymity"          },
+  { id: "areas",        label: "Area Rankings"        },
+  { id: "econHome",     label: "About"                },
+  { id: "demog",        label: "Demographics"         },
+  { id: "iomfiscal",    label: "IoM Fiscal Flows"     },
+  { id: "econmix",     label: "Productivity"         },
+  { id: "inflation",    label: "Inflation"            },
+  { id: "unemployment", label: "Unemployment"         },
+  { id: "suicide",      label: "Suicide Rates"        },
+  { id: "workforce",    label: "Public Sector"        },
+  { id: "nobles",       label: "Nobles Hospital"     },
+  { id: "nobles-v15",	label: "Nobles Hospital-v15" },
+  { id: "restricted",   label: "🔒 Restricted"        },
+  { id: "compliance",   label: "📋 Compliance"        },
 ];
 
 // ── Permission helper ─────────────────────────────────────────────────────────
+// Reads Supabase app_metadata (NOT user_metadata). app_metadata can only be set
+// by an admin — via the SQL editor or the Admin API — never by the signed-in
+// user themselves, so it's the safe place to check for access control.
+//   update auth.users
+//   set raw_app_meta_data = raw_app_meta_data || '{"permissions": ["restricted","compliance"]}'::jsonb
+//   where email = '...';
+// After granting, the user must sign out and back in (or refresh the session)
+// — the JWT is issued at sign-in, so an already-open session won't see the change.
 function hasPermission(user, perm) {
   const perms = user?.app_metadata?.permissions;
   return Array.isArray(perms) && perms.includes(perm);
@@ -96,6 +101,7 @@ function HomeTab({ C }) {
         </div>
       </div>
 
+      {/* What is re-identification */}
       <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
         letterSpacing: "0.08em", marginBottom: 12 }}>
         What is re-identification?
@@ -131,6 +137,7 @@ function HomeTab({ C }) {
         C.green
       )}
 
+      {/* Method note */}
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
         borderRadius: 8, padding: "14px 16px", marginBottom: 24,
@@ -147,6 +154,7 @@ function HomeTab({ C }) {
         Statistics IoM, Statistics Jersey, and Statistics Guernsey.
       </div>
 
+      {/* Island stats */}
       <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
         letterSpacing: "0.08em", marginBottom: 12 }}>
         Coverage
@@ -174,6 +182,7 @@ function HomeTab({ C }) {
         ))}
       </div>
 
+      {/* Contact */}
       <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
         <a href="https://coalfinch.com" target="_blank"
           style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
@@ -204,6 +213,7 @@ function EconHomeTab({ C, onNavigate }) {
   return (
     <div style={{ maxWidth: 780, margin: "0 auto" }}>
 
+      {/* Hero */}
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
         borderLeft: `3px solid ${C.green}`,
@@ -222,6 +232,7 @@ function EconHomeTab({ C, onNavigate }) {
         </div>
       </div>
 
+      {/* WIP notice */}
       <div style={{
         background: C.surface2, border: `1px solid ${C.amber}44`,
         borderLeft: `3px solid ${C.amber}`,
@@ -238,6 +249,7 @@ function EconHomeTab({ C, onNavigate }) {
           style={{ color: C.green, textDecoration: "none" }}>please tell us</a>.
       </div>
 
+      {/* What's here */}
       <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
         letterSpacing: "0.08em", marginBottom: 12 }}>
         Tools in this section
@@ -308,6 +320,7 @@ function EconHomeTab({ C, onNavigate }) {
         )}
       </div>
 
+      {/* Systems dynamics note */}
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
         borderRadius: 8, padding: "14px 16px", marginBottom: 24,
@@ -322,119 +335,7 @@ function EconHomeTab({ C, onNavigate }) {
         The model is in active development — more loops, more islands, more data as we go.
       </div>
 
-      <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
-        <a href="https://coalfinch.com" target="_blank"
-          style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
-        {" "}· <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
-      </div>
-
-    </div>
-  );
-}
-
-// ── Health & Care landing tab ─────────────────────────────────────────────────
-function HealthHomeTab({ C, onNavigate }) {
-
-  const card = (title, body, accent, onClick) => (
-    <div onClick={onClick} style={{
-      background: C.surface, border: `1px solid ${C.border2}`,
-      borderRadius: 10, overflow: "hidden", marginBottom: 14,
-      cursor: onClick ? "pointer" : "default",
-    }}>
-      <div style={{ height: 3, background: accent }}/>
-      <div style={{ padding: "16px 18px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
-        <div style={{ fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>{body}</div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div style={{ maxWidth: 780, margin: "0 auto" }}>
-
-      {/* Hero */}
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderLeft: `3px solid ${C.red}`,
-        borderRadius: 10, padding: "20px 22px", marginBottom: 28,
-      }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc",
-          letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
-          Health system performance across the Crown Dependencies
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.8 }}>
-          Manx Care, Health and Care Jersey, Guernsey HSC, NHS Wales, and NHS England —
-          compared across financial, clinical, operational, and off-island metrics.
-          The same small-population dynamics that shape the fiscal picture shape health
-          delivery too: a single hospital, a single integrated provider, and nowhere else
-          to go if the system is under pressure.
-        </div>
-      </div>
-
-      {/* Methodology note */}
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderLeft: `3px solid ${C.blue}`,
-        borderRadius: 8, padding: "14px 16px", marginBottom: 24,
-        fontSize: 12, color: C.muted2, lineHeight: 1.7,
-      }}>
-        <span style={{ color: C.muted, fontWeight: 600 }}>How this is built · </span>
-        I use automated tools to accelerate extraction and comparison of data from published
-        government and health body reports. The underlying sources are all public documents.
-        Methodology differences between jurisdictions are flagged inline throughout the
-        dashboard — those flags matter. If you are using figures operationally or in
-        published work, cross-check against the primary source.{" "}
-        <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.blue, textDecoration: "none" }}>observatory@coalfinch.com</a>
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
-        letterSpacing: "0.08em", marginBottom: 12 }}>
-        Tools in this section
-      </div>
-
-      {card(
-        "Manx Care Benchmarking Dashboard",
-        `Four KPI groups — Financial, Clinical, Operational, and Off-Island — comparing
-        Manx Care's 2024-25 performance against Health and Care Jersey, Guernsey HSC,
-        NHS Wales, and NHS England where data allows. Includes waiting list comparatives,
-        cancer and ED standards, off-island mental health placement costs, and safety
-        indicators from the Manx Care Integrated Performance Report (March 2024).
-        Methodology breaks and data gaps are flagged inline — not suppressed.`,
-        C.red,
-        () => onNavigate("manxBenchmark")
-      )}
-
-      {card(
-        "Hospital Utilisation Simulation",
-        `Discrete-event simulation of bed capacity, occupancy, and throughput at Nobles
-        Hospital. Models admission patterns, length-of-stay distributions, and discharge
-        bottlenecks to illustrate how small changes in flow affect whole-system capacity.
-        Use this to stress-test planning assumptions rather than as a forecast.`,
-        C.red,
-        () => onNavigate("nobles")
-      )}
-
-      {card(
-        "Hospital Utilisation Simulation v15",
-        `Extended version of the simulation with additional wards, seasonal admission
-        curves, and scenario controls. Opens as a full page for best performance.`,
-        C.red,
-        () => onNavigate("nobles-v15")
-      )}
-
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderRadius: 8, padding: "14px 16px", marginBottom: 24,
-        fontSize: 11, color: C.muted2, lineHeight: 1.7,
-      }}>
-        <span style={{ color: C.muted, fontWeight: 600 }}>Coming · </span>
-        Jersey HCJ deep-dive · Guernsey HSC trend analysis · cross-island
-        workforce and bed-capacity modelling · mental health placement cost projections.
-        Data sources expand as annual reports are published.
-      </div>
-
+      {/* Contact */}
       <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
         <a href="https://coalfinch.com" target="_blank"
           style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
@@ -513,7 +414,7 @@ function AppContent() {
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
     "reid","demog","kanon","areas","iomfiscal","econmix","inflation",
-    "unemployment","suicide","workforce","nobles","manxBenchmark",
+    "unemployment","suicide","workforce","nobles",
   ]);
   const [loadedTabs, setLoadedTabs] = useState(() => new Set(["home"]));
   useEffect(() => {
@@ -534,45 +435,84 @@ function AppContent() {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const tabContent = {
-    home:         <HomeTab C={C} />,
-    econHome:     <EconHomeTab C={C} onNavigate={setTab} />,
-    healthHome:   <HealthHomeTab C={C} onNavigate={setTab} />,
+    home:     <HomeTab C={C} />,
+    econHome: <EconHomeTab C={C} onNavigate={setTab} />,
 
     reid: (
-      <AutoIframe src="/reidentification.html" title="Re-identification Observatory" />
+      <AutoIframe
+        src="/reidentification.html"
+        title="Re-identification Observatory"
+      />
     ),
+
     kanon: (
-      <AutoIframe src="/kanonymity.html" title="k-Anonymity Explorer" />
+      <AutoIframe
+        src="/kanonymity.html"
+        title="k-Anonymity Explorer"
+      />
     ),
+
     areas: (
-      <AutoIframe src="/arealist.html" title="Area Risk Rankings" />
+      <AutoIframe
+        src="/arealist.html"
+        title="Area Risk Rankings"
+      />
     ),
+
     demog: (
-      <AutoIframe src="/demographics-explorer.html" title="Demographics Explorer" />
+      <AutoIframe
+        src="/demographics-explorer.html"
+        title="Demographics Explorer"
+      />
     ),
+
     iomfiscal: (
-      <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" />
+      <AutoIframe
+         src="/iomg-sankeyvis1.html"
+         title="IoM Government Fiscal Flows"
+      />
     ),
+
     inflation: (
-      <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" />
+      <AutoIframe
+        src="/inflation-explorer.html"
+        title="Inflation Explorer"
+      />
     ),
+
     unemployment: (
-      <AutoIframe src="/unemployment-explorer.html" title="Unemployment Explorer" />
+      <AutoIframe
+        src="/unemployment-explorer.html"
+        title="Unemployment Explorer"
+      />
     ),
+
     suicide: (
-      <AutoIframe src="/suicide-rates.html" title="Suicide Mortality Rates" />
+      <AutoIframe
+        src="/suicide-rates.html"
+        title="Suicide Mortality Rates"
+      />
     ),
+
     econmix: (
-      <AutoIframe src="/iom-economic-mix.html" title="Productivity by Sector" />
+      <AutoIframe
+        src="/iom-economic-mix.html"
+        title="Productivity by Sector"
+      />
     ),
+
     workforce: (
-      <AutoIframe src="/public-sector-employment.html" title="Public Sector Employment" />
+      <AutoIframe
+        src="/public-sector-employment.html"
+        title="Public Sector Employment"
+      />
     ),
+
     nobles: (
-      <AutoIframe src="/nobles-hospital-sim.html" title="Nobles Hospital — Bed Capacity" />
-    ),
-    manxBenchmark: (
-      <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" />
+      <AutoIframe
+        src="/nobles-hospital-sim.html"
+        title="Nobles Hospital — Bed Capacity"
+      />
     ),
 
     "nobles-v15": (
@@ -598,7 +538,7 @@ function AppContent() {
       </div>
     ),
 
-    restricted: authLoading
+	  restricted: authLoading
       ? <Centred><div style={{ color: C.muted, fontSize: 12 }}>Loading…</div></Centred>
       : !user
         ? <Centred><LoginScreen /></Centred>
@@ -674,7 +614,7 @@ function AppContent() {
             </div>
             <div>
               <h1 style={{ margin:0, fontSize:19, fontWeight:800, color:C.text, letterSpacing:"-0.01em" }}>
-                Crown Dependencies Observatory
+                Crown Dependencies Re-Identification Observatory
               </h1>
               <div style={{ color:C.muted2, fontSize:11, marginTop:2 }}>
                 Isle of Man · Guernsey · Jersey — 2021 census ·{" "}
@@ -751,7 +691,7 @@ function AppContent() {
         <div style={{ maxWidth:960, margin:"0 auto" }}>{tabContent[tab]}</div>
       )}
 
-      {/* Global footer */}
+      {/* Global footer — plain links, not tab state, so they're real crawlable URLs */}
       <div style={{
         maxWidth: 960, margin: "32px auto 0", padding: "16px 0 4px",
         borderTop: `1px solid ${C.border2}`,
@@ -782,3 +722,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+
