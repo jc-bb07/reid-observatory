@@ -369,6 +369,8 @@ function nodeCol(id){
   if(REV_ORDER.includes(id)) return 'rev';
   if(GRP_ORDER.includes(id)) return 'grp';
   if(CAT_ORDER.includes(id)) return 'cat';
+  if(id==='NIFund') return 'stock';
+  if(id==='CFR4') return 'stock';
   return null;
 }
 
@@ -803,12 +805,17 @@ function draw(fy,animate){
       .attr('x',cx(4)+NW+G).attr('y',mid+6).text(fmt(n.amt));
   }
 
-  // CFR col4 node label
+  // CFR col4 node label — annual transfer flow amount, right of node
   { const n=lyt.cfrNode4;
-    if(n && n.h>4){
-      svg.append('text').attr('class','lbl').attr('text-anchor','middle')
-        .attr('dominant-baseline','middle').attr('x',cx(4)+NW/2).attr('y',n.y0+n.h/2)
-        .attr('font-size','7px').attr('fill','#fbbf24').text('CFR');
+    if(n && n.h>2){
+      const nx=cx(4)+NW+G, ny=n.y0+n.h/2;
+      svg.append('text').attr('class','lbl').attr('text-anchor','start')
+        .attr('dominant-baseline','middle').attr('x',nx).attr('y',n.h>16?ny-6:ny)
+        .attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('CFR transfer');
+      if(n.h>16) svg.append('text').attr('class','lbl').attr('text-anchor','start')
+        .attr('dominant-baseline','middle').attr('x',nx).attr('y',ny+6)
+        .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace').attr('fill','#e2e8f0')
+        .text(fmt(n.amt));
     }
   }
 
@@ -861,6 +868,17 @@ let tsHideTimer=null;
 function getNodeTimeSeries(nodeId){
   const col=nodeCol(nodeId);
   const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  // NIFund and CFR4 pull from STOCKS balance data, not fiscal flow DATA
+  if(nodeId==='NIFund'){
+    const s=STOCKS['ni_fund'];
+    const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
+    return{years,vals};
+  }
+  if(nodeId==='CFR4'){
+    const s=STOCKS['cfr'];
+    const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
+    return{years,vals};
+  }
   const vals=years.map(fy=>{
     const raw=DATA[String(fy)];
     if(!raw) return null;
@@ -874,11 +892,15 @@ function getNodeTimeSeries(nodeId){
 }
 
 function getNodeLabel(nodeId){
+  if(nodeId==='NIFund') return 'NI Fund (balance)';
+  if(nodeId==='CFR4') return 'Capital Financing Reserve (balance)';
   if(REV_LABEL[nodeId]) return REV_LABEL[nodeId];
   return nodeId;
 }
 
 function getNodeColor(nodeId){
+  if(nodeId==='NIFund') return STOCKS['ni_fund'].color;
+  if(nodeId==='CFR4') return STOCKS['cfr'].color;
   return REV_COLOR[nodeId]||GRP_COLOR[nodeId]||CAT_COLOR[nodeId]||'#C9A24A';
 }
 
