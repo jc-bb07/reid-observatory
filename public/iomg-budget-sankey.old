@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0f1e;--surface:#0d1526;--border:#1e2d4d;--gold:#C9A24A;--text:#e2e8f0;--muted:#94a3b8;--muted2:#64748b}
+:root{--bg:#0a0f1e;--surface:#0d1526;--border:#1e2d4d;--gold:#C9A24A;--text:#e2e8f0;--muted:#64748b}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
 
 /* ── Header ── */
@@ -46,12 +46,12 @@ input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px
 /* ── Viz ── */
 .viz{flex:1;overflow:hidden;position:relative}
 svg{display:block;width:100%;height:100%}
-.col-hdr{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
+.col-hdr{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:#475569;text-anchor:middle}
 .lbl-r{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:start}
 .lbl-l{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:end}
-.lbl-a{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:start}
-.lbl-al{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:end}
-.own-badge{font-size:8px;fill:#94a3b8;text-anchor:middle;letter-spacing:.08em;font-style:italic}
+.lbl-a{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#64748b;dominant-baseline:middle;text-anchor:start}
+.lbl-al{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#64748b;dominant-baseline:middle;text-anchor:end}
+.own-badge{font-size:8px;fill:#475569;text-anchor:middle;letter-spacing:.08em;font-style:italic}
 
 /* node hover cursor */
 rect.node{cursor:pointer}
@@ -72,34 +72,17 @@ rect.node{cursor:pointer}
 /* ── Governance notes ── */
 .gov-notes{background:#080d1a;border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
 .gov-notes.open{max-height:600px}
-.gov-inner{padding:12px 20px 14px;font-size:10px;line-height:1.65;color:#94a3b8;columns:2;column-gap:32px}
+.gov-inner{padding:12px 20px 14px;font-size:10px;line-height:1.65;color:#64748b;columns:2;column-gap:32px}
 .gov-inner h4{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 5px;column-span:all}
-.gov-inner h5{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:8px 0 3px;break-after:avoid}
+.gov-inner h5{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#475569;margin:8px 0 3px;break-after:avoid}
 .gov-inner p{margin:0 0 4px}
 .gov-inner .flag{color:#f87171;font-weight:600}
 .gov-inner .est{color:#fcd34d;font-weight:600}
 .gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:4px 20px;background:#080d1a;border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
-.gov-notes-toggle span{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
-.gov-notes-toggle span:hover{color:var(--text)}
-.gov-chevron{font-size:9px;color:#94a3b8;transition:transform .3s}
+.gov-notes-toggle span{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#475569}
+.gov-notes-toggle span:hover{color:var(--muted)}
+.gov-chevron{font-size:9px;color:#475569;transition:transform .3s}
 .gov-notes-toggle.open .gov-chevron{transform:rotate(180deg)}
-
-/* ── Beakers ── */
-.beaker-wrap{position:absolute;pointer-events:all;cursor:pointer}
-.beaker-svg{display:block;overflow:visible}
-.beaker-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
-.beaker-label-pension{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;fill:#fb7185;text-anchor:middle}
-.beaker-val{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;fill:#e2e8f0;text-anchor:middle}
-.beaker-val-pension{font-family:"JetBrains Mono",monospace;font-size:15px;font-weight:800;fill:#fb7185;text-anchor:middle}
-.beaker-type{font-size:8px;fill:#94a3b8;text-anchor:middle}
-.beaker-date{font-size:7.5px;fill:#64748b;text-anchor:middle;font-style:italic}
-.beaker-footnote{font-size:9px;fill:#64748b;text-anchor:start;cursor:pointer}
-.beaker-flow{font-size:7px;fill:#64748b;text-anchor:start}
-/* Footnote anchors in gov notes */
-.fn-target{scroll-margin-top:8px}
-.fn-marker{color:#C9A24A;font-weight:700;font-size:9px;vertical-align:super;line-height:0;cursor:pointer;text-decoration:none}
-.fn-marker:hover{color:#e2e8f0}
-
 </style>
 </head>
 <body>
@@ -109,7 +92,7 @@ rect.node{cursor:pointer}
     <div class="chart-title">Isle of Man Government Budget Sources &amp; Uses</div>
   </div>
   <div class="hdr-right">
-    <div class="fy-label" id="fy-disp">2024-25</div>
+    <div class="fy-label" id="fy-disp">FY2025</div>
     <div class="fy-sub">year ending 31 March</div>
   </div>
 </div>
@@ -118,7 +101,7 @@ rect.node{cursor:pointer}
   <button class="play-btn" id="play-btn"><span id="play-icon">&#9654;</span> <span id="play-label">Animate</span></button>
   <div class="yr-wrap">
     <input type="range" id="yr-slider" min="2016" max="2025" step="1" value="2025" list="yr-ticks">
-    <div class="yr-marks"><span>2015-16</span><span>16-17</span><span>17-18</span><span>18-19</span><span>19-20</span><span>20-21</span><span>21-22</span><span>22-23</span><span>23-24</span><span>24-25</span></div>
+    <div class="yr-marks"><span>FY16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span></div>
   </div>
   <div class="ctrl-sep"></div>
   <select class="node-select" id="node-select">
@@ -151,12 +134,10 @@ rect.node{cursor:pointer}
     <input type="checkbox" id="deflate-chk" checked>
     <label for="deflate-chk">Constant prices (2024-25)</label>
   </div>
-  <div class="ctrl-sep"></div>
-  <button class="play-btn" id="comparator-btn" onclick="window.open('iomg-comparator.html','_blank')" style="background:#1e2d4d;color:#94a3b8;border:1px solid #1e2d4d">&#9196; Compare series</button>
 </div>
 
 <div class="stats">
-  <div class="stat"><div class="stat-lbl" id="lbl-tot">Total Spending</div><div class="stat-val" id="s-tot">—</div></div>
+  <div class="stat"><div class="stat-lbl">Total Spending</div><div class="stat-val" id="s-tot">—</div></div>
   <div class="stat"><div class="stat-lbl">Tax Revenue</div><div class="stat-val" id="s-gra">—</div></div>
   <div class="stat"><div class="stat-lbl">Dept Own Income</div><div class="stat-val" id="s-own">—</div></div>
   <div class="stat"><div class="stat-lbl">Health &amp; Care</div><div class="stat-val" id="s-hlt">—</div></div>
@@ -176,18 +157,6 @@ rect.node{cursor:pointer}
 
     <h5>Sources</h5>
     <p>Revenue and expenditure data drawn from IoM Treasury Pink Books (Table 3A departmental breakdowns), covering actuals FY2016 through FY2025. Revenue figures represent General Revenue Account (GRA) inflows; departmental gross spend includes GRA allocations and departments' own income. All figures in £000s converted to £m for display.</p>
-
-    <h5 id="fn-reserve" class="fn-target"><span style="color:var(--gold)">①</span> Reserve Fund — Data Currency</h5>
-    <p>Last confirmed balance: <strong>£596.3m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). Strategic Reserve Fund market value; this reserve is not designated for a specific purpose. No 31 March 2025 figure published as at 24 June 2026.</p>
-
-    <h5 id="fn-nifund" class="fn-target"><span style="color:var(--gold)">②</span> NI Fund — Data Currency</h5>
-    <p>Last confirmed balance: <strong>£975.9m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 16). The £992.5m figure shown for FY2024-25 is a budget projection, not a confirmed outturn. The NI Fund is a statutory ring-fenced account; its balance is not part of GRA and does not appear in the revenue account surplus or deficit.</p>
-
-    <h5 id="fn-cfr" class="fn-target"><span style="color:var(--gold)">③</span> Capital Financing Reserve — Data Currency</h5>
-    <p>Last confirmed balance: <strong>£24.8m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). The CFR has been in near-continuous drawdown since 2021-22 as capital expenditure has outpaced annual transfer receipts. No 31 March 2025 balance published as at 24 June 2026.</p>
-
-    <h5 id="fn-pension" class="fn-target"><span style="color:#fb7185)">④</span> Pension Liability — Data Currency &amp; Methodology</h5>
-    <p><strong class="flag">Last confirmed liability: £2,902m (£2.9bn) at 31 March 2023</strong> — IoM Government Annual Financial Statements, year ended March 2023 (FRS102 basis). This is the accumulated past-service obligation of the PSPA Unified Scheme, an unfunded defined benefit arrangement. <strong class="flag">No figure has been published for 31 March 2024 or 31 March 2025 as at 24 June 2026.</strong> The liability is absent from every Pink Book headline figure. It is highly sensitive to the real discount rate used: a 0.5% movement changes the liability by approximately ±£350m. The peak of £4,800m in FY2020-21 reflected a low-rate environment; the subsequent fall to £2,902m reflects rate rises, not a reduction in the underlying obligation.</p>
 
     <h5>FY2017 — Accounting Estimates <span class="est">[est.]</span></h5>
     <p>The underlying FY2016-17 source data contains two confirmed classification breaks that render the raw figures non-comparable with all other years in the series. The figures displayed for FY2017 are <span class="est">accounting estimates</span>, not published actuals.</p>
@@ -224,79 +193,6 @@ const DEFLATORS={2016:1.333936,2017:1.284234,2018:1.252817,2019:1.227988,
 // FY2025 = 2024-25 = base year = 1.0
 
 let useConstPrices=true;
-
-// ── Balance Sheet Stocks ─────────────────────────────────────────────────────
-// Sources documented in iom_stocks_series.json / iom_pension_liability_series.json
-// year_type: 'actual'=confirmed primary, 'probable'=probable at publication,
-//            'budget'=projection, 'secondary'=journalism citing audited accounts
-const STOCKS = {
-  ni_fund: {
-    label: 'NI Fund', unit: '£m', color: '#fdba74',
-    desc: 'National Insurance Fund balance C/F at 31 March. Buffer stock between NI contributions in and NI welfare payments out. Source: IoM Pink Book Table 16.',
-    data: {
-      2017:{v:793.7,t:'actual'},2018:{v:808.5,t:'probable'},
-      2019:{v:884.8,t:'actual'},2020:{v:839.8,t:'actual'},
-      2021:{v:883.4,t:'actual'},2022:{v:924.6,t:'actual'},
-      2023:{v:969.4,t:'actual'},2024:{v:975.9,t:'actual'},
-      2025:{v:992.5,t:'budget'}
-    }
-  },
-  reserve: {
-    label: 'Reserve Fund', unit: '£m', color: '#4ade80',
-    desc: 'Strategic Reserve Fund market value. The only reserve not designated for a specific purpose — the rainy day fund.',
-    data: {
-      2016:{v:375.7,t:'actual'},2017:{v:351.3,t:'actual'},
-      2018:{v:386.4,t:'actual'},2019:{v:380.5,t:'actual'},
-      2020:{v:448.2,t:'actual'},2021:{v:639.5,t:'actual'},
-      2022:{v:565.5,t:'actual'},2023:{v:634.9,t:'actual'},
-      2024:{v:596.3,t:'actual'}
-    }
-  },
-  cfr: {
-    label: 'Capital Financing Reserve', unit: '£m', color: '#fbbf24',
-    desc: 'CFR balance — funds capital investment. Receipts from revenue surplus; payments to capital programme. Near-depletion signals structural pressure on capital spending.',
-    data: {
-      2016:{v:0.947,t:'actual'},2017:{v:46.5,t:'probable'},
-      2018:{v:46.5,t:'budget'},2019:{v:44.1,t:'budget'},
-      2020:{v:85.6,t:'probable'},2021:{v:56.9,t:'actual'},
-      2022:{v:26.0,t:'probable'},2023:{v:34.8,t:'actual'},
-      2024:{v:24.8,t:'actual'}
-    }
-  },
-  pension: {
-    label: 'Pension Liability', unit: '£bn', color: '#fb7185',
-    inverted: true,
-    desc: 'Defined benefit pension obligation (FRS17 to 2014-15; FRS102 from 2015-16). Zero assets assumed — PSEPR not ring-fenced. Highly sensitive to discount rate: ±0.5% ≈ ±£350m.',
-    data: {
-      2013:{v:2.318,t:'actual'},2014:{v:3.009,t:'actual'},
-      2015:{v:2.991,t:'actual'},2016:{v:3.823,t:'actual'},
-      2017:{v:3.723,t:'actual'},2018:{v:4.1,t:'secondary'},
-      2019:{v:3.8,t:'secondary'},2020:{v:4.8,t:'secondary'},
-      2021:{v:4.586,t:'actual'},2022:{v:2.902,t:'actual'}
-    }
-  }
-};
-
-// NI flows: contributions in, welfare out (for beaker flow arrows)
-// These come from the main DATA object at runtime
-// CFR annual transfer from GRA (£m from Pink Book Table 3A, converted to £000s for SC scaling)
-// Source: iomg_fiscal_master.csv / iomg-sankeyvis1 RAW
-const CFR_ANNUAL_M = {
-  2016:45.37, 2017:45.37, 2018:41.74, 2019:25.0,
-  2020:25.0,  2021:25.0,  2022:20.0,  2023:48.5,
-  2024:64.0,  2025:19.0
-};
-function getCFRAnnual(fy){ return (CFR_ANNUAL_M[fy]||0)*1000; }
-
-function getNIFlows(fy) {
-  const d = DATA[String(fy)];
-  if (!d) return null;
-  return {
-    contrib_in: d.rev.NIOperatingAccount || 0,   // £000
-    welfare_out: d.grp_gross['Social Security'] || 0, // £000
-  };
-}
-
 function defl(v,fy){return useConstPrices?(v*(DEFLATORS[fy]||1)):v;}
 function deflD(d,fy){
   // Return a deflated copy of a year's data object
@@ -320,44 +216,21 @@ function deflD(d,fy){
 const REV_ORDER=['CustomsExcise','IncomeTax','NIOperatingAccount','OtherTreasuryIncome'];
 const REV_LABEL={'CustomsExcise':'Customs & Excise','IncomeTax':'Income Tax',
   'NIOperatingAccount':'National Insurance','OtherTreasuryIncome':'Other Treasury Income'};
-const REV_COLOR={
-  'CustomsExcise':'#f97316',
-  'IncomeTax':'#fb923c',
-  'NIOperatingAccount':'#fdba74',
-  'OtherTreasuryIncome':'#94a3b8'
-};
+const REV_COLOR={'CustomsExcise':'#f59e0b','IncomeTax':'#fcd34d',
+  'NIOperatingAccount':'#fb923c','OtherTreasuryIncome':'#94a3b8'};
 
-const GRP_ORDER=['Health & Care','Education','Infrastructure','Social Security',
+const GRP_ORDER=['Health & Care','Social Security','Education','Infrastructure',
                  'Enterprise','Treasury Ops','Other Gov'];
-const GRP_COLOR={
-  'Health & Care':'#2dd4bf',
-  'Education':'#60a5fa',
-  'Infrastructure':'#818cf8',
-  'Social Security':'#c084fc',
-  'Enterprise':'#34d399',
-  'Treasury Ops':'#C9A24A',
-  'Other Gov':'#64748b'
-};
-const OWN_COLOR={
-  'Health & Care':'#2dd4bfaa',
-  'Education':'#60a5faaa',
-  'Infrastructure':'#818cf8aa',
-  'Social Security':'#c084fcaa',
-  'Enterprise':'#34d399aa',
-  'Treasury Ops':'#C9A24Aaa',
-  'Other Gov':'#64748baa'
-};
+const GRP_COLOR={'Health & Care':'#f87171','Social Security':'#fb923c','Education':'#60a5fa',
+  'Infrastructure':'#94a3b8','Enterprise':'#4ade80','Treasury Ops':'#C9A24A','Other Gov':'#818cf8'};
+const OWN_COLOR={'Health & Care':'#f87171aa','Other Gov':'#818cf8aa','Infrastructure':'#94a3b8aa',
+  'Enterprise':'#4ade80aa','Education':'#60a5faaa','Treasury Ops':'#C9A24Aaa'};
 
 const CAT_ORDER=['Employee Costs','Social Security','Supplies & Services',
                  'Agency & Contracted','Infrastructure','Loan & Other'];
-const CAT_COLOR={
-  'Employee Costs':'#f59e0b',
-  'Social Security':'#c084fc',
-  'Supplies & Services':'#10b981',
-  'Agency & Contracted':'#e879f9',
-  'Infrastructure':'#6366f1',
-  'Loan & Other':'#475569'
-};
+const CAT_COLOR={'Employee Costs':'#f87171','Social Security':'#fb923c',
+  'Supplies & Services':'#4ade80','Agency & Contracted':'#c084fc',
+  'Infrastructure':'#60a5fa','Loan & Other':'#6b7280'};
 
 const OWN_LABEL={'Health & Care':'Health & Care Income','Other Gov':'Utilities & Boards Income',
   'Infrastructure':'Infrastructure Income','Enterprise':'Enterprise Income',
@@ -440,7 +313,7 @@ const fmt=v=>{const m=Math.abs(v)/1000;if(m>=1000)return(v<0?'-':'')+'£'+(m/100
 const pct=(v,t)=>t>0?(v/t*100).toFixed(0)+'%':'—';
 
 // ── Layout constants ──────────────────────────────────────────────────────────
-const NW=18, PAD=5, TPAD=24, BPAD=6, LPAD=168, RPAD=160, OWN_GAP=18;
+const NW=22, PAD=5, TPAD=24, BPAD=6, LPAD=168, RPAD=188, OWN_GAP=18;
 const svg=d3.select('#chart');
 let W,H;
 
@@ -450,11 +323,9 @@ function dims(){
   svg.attr('viewBox',`0 0 ${W} ${H}`);
 }
 
-// 6 columns: 0=rev sources, 1=GRA, 1.5=NI Fund, 2=depts, 3=exp types, 4=CFR node, 5=beakers (HTML overlay)
 function cx(col){
   const u=W-LPAD-RPAD;
-  // cols: 0=rev, 1=GRA+NI, 2=unused, 3=depts, 4=exp+CFR
-  return[LPAD, LPAD+u*0.26, LPAD+u*0.38, LPAD+u*0.54, LPAD+u*0.78, LPAD+u*0.78][col];
+  return[LPAD, LPAD+u*0.30, LPAD+u*0.63, LPAD+u-NW][col];
 }
 
 function buildLayout(fy){
@@ -466,9 +337,6 @@ function buildLayout(fy){
   const col0GapOverhead=(nRev-1)*PAD + OWN_GAP + (nOwn-1)*PAD;
   const SC=(avH-col0GapOverhead)/d.total_gross;
 
-  // ── Revenue nodes (col0) ──
-  // NI receipts go to NI Fund node, not GRA — split here
-  const niAmt = d.rev['NIOperatingAccount'] || 0;
   const revNodes=[];
   let y=TPAD;
   for(const k of REV_ORDER){
@@ -479,10 +347,6 @@ function buildLayout(fy){
   }
   const revBottom=y-PAD;
 
-  // Find NI rev node vertical position
-  const niRevNode = revNodes.find(n=>n.id==='NIOperatingAccount');
-
-  // ── Own income nodes (col0, below all rev nodes) ──
   const ownNodes=[];
   y=revBottom+OWN_GAP;
   for(const grp of GRP_ORDER){
@@ -492,26 +356,10 @@ function buildLayout(fy){
     y+=h+PAD;
   }
 
-  // ── GRA node (col1) — excludes NI receipts ──
-  const graAmt = d.total_gra - niAmt; // NI routes via NI Fund, not GRA
-  const graH=Math.max(graAmt*SC,2);
-  const graNode={id:'GRA',sub:'gra',amt:graAmt,h:graH,y0:TPAD,y1:TPAD+graH,
+  const graH=d.total_gra*SC;
+  const graNode={id:'GRA',sub:'gra',amt:d.total_gra,h:graH,y0:TPAD,y1:TPAD+graH,
     x0:cx(1),x1:cx(1)+NW,color:'#C9A24A'};
 
-  // ── NI Fund node (col1.5) — vertically aligned with NI receipts ──
-  const niH = Math.max(niAmt*SC, 2);
-  const niY0 = niRevNode ? niRevNode.y0 : TPAD;
-  const niFundNode = {id:'NIFund',sub:'nifund',amt:niAmt,h:niH,y0:niY0,y1:niY0+niH,
-    x0:cx(1),x1:cx(1)+NW,color:'#fdba74'};
-
-  // ── CFR annual transfer — from CFR_ANNUAL_M lookup (Pink Book Table 3A) ──
-  const cfrAmt = getCFRAnnual(fy); // £000s
-  const cfrAmtD = useConstPrices ? cfrAmt * (DEFLATORS[fy]||1) : cfrAmt;
-  const cfrH = Math.max(cfrAmtD * SC, 2);
-
-  // CFR node built after cat4Nodes — see below
-
-  // ── Dept group nodes (col2) ──
   const grpNodes=[];
   y=TPAD;
   for(const grp of GRP_ORDER){
@@ -520,31 +368,22 @@ function buildLayout(fy){
     const gra_h=(d.grp_gra[grp]||0)*SC;
     const own_h=(d.grp_own[grp]||0)*SC;
     grpNodes.push({id:grp,amt:gross,h,y0:y,y1:y+h,gra_h,own_h,sub:'grp',
-      x0:cx(3),x1:cx(3)+NW,color:GRP_COLOR[grp]});
+      x0:cx(2),x1:cx(2)+NW,color:GRP_COLOR[grp]});
     y+=h+PAD;
   }
 
-  // ── Exp type nodes (col3) ──
   const cat4Nodes=[];
   y=TPAD;
   for(const c of CAT_ORDER){
     const v=d.cats4[c]||0; if(v<500) continue;
     const h=Math.max(v*SC,2);
-    cat4Nodes.push({id:c,amt:v,h,y0:y,y1:y+h,sub:'cat',x0:cx(4),x1:cx(4)+NW,color:CAT_COLOR[c]});
+    cat4Nodes.push({id:c,amt:v,h,y0:y,y1:y+h,sub:'cat',x0:cx(3),x1:cx(3)+NW,color:CAT_COLOR[c]});
     y+=h+PAD;
   }
 
-  // CFR node in col4 — below the last exp type node, with a small gap
-  const cat4Bottom = cat4Nodes.length ? cat4Nodes[cat4Nodes.length-1].y1 : TPAD;
-  const cfrNodeY0 = cat4Bottom + PAD*2;
-  const cfrNode4 = {id:'CFR4',sub:'cfr4',amt:cfrAmtD,h:cfrH,
-    y0:cfrNodeY0,y1:cfrNodeY0+cfrH,
-    x0:cx(4),x1:cx(4)+NW,color:'#fbbf24'};
-  // Rev → GRA (all except NI which goes to NI Fund)
   const revLinks=[];
   let graInY=TPAD;
   for(const n of revNodes){
-    if(n.id==='NIOperatingAccount') continue; // NI bypasses GRA
     const th=n.h;
     revLinks.push({id:'rv-'+n.id,nodeIds:[n.id,'GRA'],
       x0:cx(0)+NW, sy0:n.y0, sy1:n.y1,
@@ -553,48 +392,17 @@ function buildLayout(fy){
     graInY+=th;
   }
 
-  // NI receipts → NI Fund node
-  const niLinks=[];
-  if(niRevNode){
-    niLinks.push({id:'rv-NIOperatingAccount',nodeIds:['NIOperatingAccount','NIFund'],
-      x0:cx(0)+NW, sy0:niRevNode.y0, sy1:niRevNode.y1,
-      x1:cx(1), ty0:niFundNode.y0, ty1:niFundNode.y1,
-      color:'#60a5fa', op:0.55});
-  }
-
-  // GRA → depts (col1 → col2, skipping col1.5)
   const graLinks=[];
   let graOutY=TPAD;
   for(const gn of grpNodes){
     const sh=gn.gra_h; if(sh<1) continue;
-    if(gn.id==='Social Security') continue; // Social Security funded by NI Fund
     graLinks.push({id:'gra-'+gn.id,nodeIds:['GRA',gn.id],
       x0:cx(1)+NW, sy0:graOutY, sy1:graOutY+sh,
-      x1:cx(3), ty0:gn.y0, ty1:gn.y0+gn.gra_h,
+      x1:cx(2), ty0:gn.y0, ty1:gn.y0+gn.gra_h,
       color:gn.color, op:0.45});
     graOutY+=sh;
   }
 
-  // GRA → CFR (annual transfer ribbon, from bottom of GRA)
-  const cfrLinks=[];
-  if(cfrAmtD > 0.1){
-    cfrLinks.push({id:'gra-CFR4',nodeIds:['GRA','CFR4'],
-      x0:cx(1)+NW, sy0:graNode.y1-cfrH, sy1:graNode.y1,
-      x1:cx(4), ty0:cfrNode4.y0, ty1:cfrNode4.y1,
-      color:'#fbbf24', op:0.5});
-  }
-
-  // NI Fund → Social Security
-  const niOutLinks=[];
-  const ssNode = grpNodes.find(g=>g.id==='Social Security');
-  if(ssNode){
-    niOutLinks.push({id:'ni-SocialSecurity',nodeIds:['NIFund','Social Security'],
-      x0:cx(1)+NW, sy0:niFundNode.y0, sy1:niFundNode.y1,
-      x1:cx(3), ty0:ssNode.y0, ty1:ssNode.y0+ssNode.gra_h,
-      color:'#fdba74', op:0.45});
-  }
-
-  // Own income → depts
   const ownLinks=[];
   const ownByGrp={};
   for(const on of ownNodes) ownByGrp[on.id]=on;
@@ -602,11 +410,10 @@ function buildLayout(fy){
     const on=ownByGrp[gn.id]; if(!on||gn.own_h<1) continue;
     ownLinks.push({id:'own-'+gn.id,nodeIds:[gn.id],
       x0:cx(0)+NW, sy0:on.y0, sy1:on.y1,
-      x1:cx(3), ty0:gn.y0+gn.gra_h, ty1:gn.y1,
+      x1:cx(2), ty0:gn.y0+gn.gra_h, ty1:gn.y1,
       color:gn.color, op:0.35});
   }
 
-  // Dept → exp category links
   const grpCatOff={};
   for(const gn of grpNodes){
     const gc=d.grp_cats[gn.id]||{};
@@ -636,14 +443,14 @@ function buildLayout(fy){
       const to=(cat4GrpOff[cn.id]||{})[gn.id];
       if(!so||!to) continue;
       cat4Links.push({id:`c-${gn.id}-${cn.id}`,nodeIds:[gn.id,cn.id],
-        x0:cx(3)+NW, sy0:so.y0, sy1:so.y1,
-        x1:cx(4), ty0:to.y0, ty1:to.y1,
+        x0:cx(2)+NW, sy0:so.y0, sy1:so.y1,
+        x1:cx(3), ty0:to.y0, ty1:to.y1,
         color:gn.color, op:0.4});
     }
   }
 
-  return{revNodes,ownNodes,graNode,niFundNode,cfrNode4,grpNodes,cat4Nodes,
-         revLinks,niLinks,graLinks,niOutLinks,ownLinks,cfrLinks,cat4Links,d,fy,SC};
+  return{revNodes,ownNodes,graNode,grpNodes,cat4Nodes,
+         revLinks,graLinks,ownLinks,cat4Links,d,fy};
 }
 
 function rib(x0,sy0,sy1,x1,ty0,ty1){
@@ -658,13 +465,11 @@ let filterMode=true;    // always filter: non-connected links hidden
 function getNodeOpacity(nodeId, selId, d, nodeSub){
   if(!selId) return 1;
   const sets=linkedNodeSets(selId, d);
-  if(nodeSub==='gra')    return sets.special.has('GRA') ? 1 : 0.07;
-  if(nodeSub==='rev')    return sets.rev.has(nodeId) ? 1 : 0.07;
-  if(nodeSub==='own')    return sets.grp.has(nodeId) ? 1 : 0.07;
-  if(nodeSub==='grp')    return sets.grp.has(nodeId) ? 1 : 0.07;
-  if(nodeSub==='cat')    return sets.cat.has(nodeId) ? 1 : 0.07;
-  if(nodeSub==='nifund') return sets.special.has('GRA') ? 1 : 0.07; // always visible when GRA is
-  if(nodeSub==='cfr4')   return sets.special.has('GRA') ? 1 : 0.07;
+  if(nodeSub==='gra')  return sets.special.has('GRA') ? 1 : 0.07;
+  if(nodeSub==='rev')  return sets.rev.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='own')  return sets.grp.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='grp')  return sets.grp.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='cat')  return sets.cat.has(nodeId) ? 1 : 0.07;
   return 1;
 }
 function getLinkOpacity(link, selId, baseOp, d){
@@ -684,14 +489,14 @@ function draw(fy,animate){
 
   const prevR={};
   if(prevLayout){
-    [...prevLayout.revLinks,...prevLayout.niLinks,...prevLayout.graLinks,...prevLayout.niOutLinks,...prevLayout.ownLinks,...prevLayout.cfrLinks,...prevLayout.cat4Links]
+    [...prevLayout.revLinks,...prevLayout.graLinks,...prevLayout.ownLinks,...prevLayout.cat4Links]
       .forEach(l=>{prevR[l.id]=l;});
   }
 
   function pathFor(l){return rib(l.x0,l.sy0,l.sy1,l.x1,l.ty0,l.ty1);}
   function pathFrom(l){const p=prevR[l.id]||l; return rib(l.x0,p.sy0,p.sy1,l.x1,p.ty0,p.ty1);}
 
-  const allLinks=[...lyt.revLinks,...lyt.niLinks,...lyt.graLinks,...lyt.niOutLinks,...lyt.ownLinks,...lyt.cfrLinks,...lyt.cat4Links];
+  const allLinks=[...lyt.revLinks,...lyt.graLinks,...lyt.ownLinks,...lyt.cat4Links];
 
   const linkSel=svg.selectAll('path.link').data(allLinks, d=>d.id);
 
@@ -711,7 +516,7 @@ function draw(fy,animate){
   linkSel.exit().transition().duration(DUR/2).attr('opacity',0).remove();
 
   // Nodes
-  const allNodes=[...lyt.revNodes,...lyt.ownNodes,lyt.graNode,lyt.niFundNode,lyt.cfrNode4,...lyt.grpNodes,...lyt.cat4Nodes];
+  const allNodes=[...lyt.revNodes,...lyt.ownNodes,lyt.graNode,...lyt.grpNodes,...lyt.cat4Nodes];
   const nodeX=n=>n.x0!=null?n.x0:(n.sub==='own'||n.sub==='rev'?cx(0):0);
 
   svg.selectAll('rect.node').data(allNodes,d=>d.id+(d.sub||d.col||''))
@@ -773,57 +578,32 @@ function draw(fy,animate){
       .text(fmt(lyt.graNode.amt));
   }
 
-  // NI Fund node label — left of node, matching GRA style
-  if(lyt.niFundNode.h>12){
-    const n=lyt.niFundNode, mid=n.y0+n.h/2, nx=cx(1)-G;
-    svg.append('text').attr('class','lbl').attr('text-anchor','end')
-      .attr('dominant-baseline','middle').attr('x',nx).attr('y',mid-7)
-      .attr('font-size','11px').attr('font-weight','700').attr('fill','#fdba74').text('NI Fund');
-    svg.append('text').attr('class','lbl').attr('text-anchor','end')
-      .attr('dominant-baseline','middle').attr('x',nx).attr('y',mid+7)
-      .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace').attr('fill','#e2e8f0')
-      .text(fmt(n.amt));
-  }
-
   for(const n of lyt.grpNodes){
     const mid=n.y0+n.h/2, showAmt=n.h>22;
     const op=getNodeOpacity(n.id,selectedNode,ld,'grp');
     svg.append('text').attr('class','lbl lbl-r').attr('opacity',op)
-      .attr('x',cx(3)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
+      .attr('x',cx(2)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
     if(showAmt) svg.append('text').attr('class','lbl lbl-a').attr('opacity',op)
-      .attr('x',cx(3)+NW+G).attr('y',mid+6).text(fmt(n.amt));
+      .attr('x',cx(2)+NW+G).attr('y',mid+6).text(fmt(n.amt));
   }
 
   for(const n of lyt.cat4Nodes){
     const mid=n.y0+n.h/2, showAmt=n.h>22;
     const op=getNodeOpacity(n.id,selectedNode,ld,'cat');
     svg.append('text').attr('class','lbl lbl-r').attr('opacity',op)
-      .attr('x',cx(4)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
+      .attr('x',cx(3)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
     if(showAmt) svg.append('text').attr('class','lbl lbl-a').attr('opacity',op)
-      .attr('x',cx(4)+NW+G).attr('y',mid+6).text(fmt(n.amt));
-  }
-
-  // CFR col4 node label
-  { const n=lyt.cfrNode4;
-    if(n && n.h>4){
-      svg.append('text').attr('class','lbl').attr('text-anchor','middle')
-        .attr('dominant-baseline','middle').attr('x',cx(4)+NW/2).attr('y',n.y0+n.h/2)
-        .attr('font-size','7px').attr('fill','#fbbf24').text('CFR');
-    }
+      .attr('x',cx(3)+NW+G).attr('y',mid+6).text(fmt(n.amt));
   }
 
   // Col headers
   svg.selectAll('text.col-hdr').remove();
-  [[cx(0)+NW/2,'Revenue Sources'],[cx(1)+NW/2,'Accounts'],
-   [cx(3)+NW/2,'Departments'],
-   [cx(4)+NW/2,'Expenditure & CFR']]
+  [[cx(0)+NW/2,'Revenue Sources'],[cx(1)+NW/2,'General Revenue Account'],
+   [cx(2)+NW/2,'Department Groups'],[cx(3)+NW/2,'Expenditure Types']]
     .forEach(([x,t])=>svg.append('text').attr('class','lbl col-hdr').attr('x',x).attr('y',13).text(t));
-  svg.append('text').attr('class','lbl col-hdr')
-    .attr('x', W - RPAD/2).attr('y',13).text('Stocks');
 
   prevLayout=lyt;
   updateStats(lyt);
-  drawBeakers(fy, lyt);
 }
 
 function applyHighlight(){
@@ -850,8 +630,9 @@ function updateStats(lyt){
   document.getElementById('s-hlt').textContent=fmt(hlt)+' ('+pct(hlt,t)+')';
   document.getElementById('s-ss').textContent=fmt(ss)+' ('+pct(ss,t)+')';
   document.getElementById('s-sta').textContent=fmt(sta)+' ('+pct(sta,t)+')';
-  // Dynamic price basis label on first stat
-  document.getElementById('lbl-tot').textContent = useConstPrices ? 'Total Spending (real)' : 'Total Spending (nominal)';
+  // Price basis indicator on stat bar label
+  const lbl=document.querySelector('.stat-lbl');
+  if(lbl) lbl.textContent=useConstPrices?'Total Spending (2024-25 £)':'Total Spending (nominal £)';
 }
 
 // ── Time-series popout ────────────────────────────────────────────────────────
@@ -922,19 +703,17 @@ function showTsPopup(nodeId, svgRect){
         borderColor:'#1e2d4d',borderWidth:1,
       }},
       scales:{
-        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
-        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+        x:{ticks:{color:'#64748b',font:{size:8},maxRotation:0},grid:{color:'#1e2d4d'}},
+        y:{ticks:{color:'#64748b',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e2d4d'}},
       }
     }
   });
 
   // Position: prefer right of cursor, flip if near right edge
-  // Position popup: show offscreen first to get real dimensions
-  popup.style.visibility='hidden';
   popup.style.display='block';
   const pw=popup.offsetWidth||260, ph=popup.offsetHeight||160;
-  popup.style.visibility='';
   const vw=window.innerWidth, vh=window.innerHeight;
+  // Position near the node in SVG
   let px=svgRect.right+12;
   let py=svgRect.top - ph/2;
   if(px+pw>vw-10) px=svgRect.left-pw-12;
@@ -959,268 +738,12 @@ function nodeMouseLeave(){
   hideTsPopup();
 }
 
-
-// ── Beaker rendering ──────────────────────────────────────────────────────────
-// Returns {v, t, sourceYear} — carries forward last-known if current year missing
-function stockValWithCarry(stockId, fy) {
-  const s = STOCKS[stockId];
-  if (!s) return null;
-  const entry = s.data[fy];
-  if (entry) return { v: entry.v, t: entry.t, sourceYear: fy, carriedForward: false };
-  // Carry forward: find most recent prior year with data
-  const years = Object.keys(s.data).map(Number).sort((a,b) => b-a);
-  for (const y of years) {
-    if (y < fy) return { v: s.data[y].v, t: s.data[y].t, sourceYear: y, carriedForward: true };
-  }
-  return null;
-}
-
-const BEAKER_W = 38, BEAKER_H = 60, BEAKER_GAP = 8;
-
-function stockVal(stockId, fy) {
-  const s = STOCKS[stockId];
-  if (!s) return null;
-  const entry = s.data[fy];
-  return entry || null;
-}
-
-// Footnote numbers and anchor ids per stock
-const STOCK_FN = {reserve:'①',ni_fund:'②',cfr:'③',pension:'④'};
-const STOCK_FN_ID = {reserve:'fn-reserve',ni_fund:'fn-nifund',cfr:'fn-cfr',pension:'fn-pension'};
-
-// Last confirmed date strings per stock
-const STOCK_DATE = {
-  reserve:  'Last confirmed: 31 Mar 2024',
-  ni_fund:  'Last confirmed: 31 Mar 2024 · FY25 = budget',
-  cfr:      'Last confirmed: 31 Mar 2024',
-  pension:  'Last confirmed: 31 Mar 2023 · ⚠ no later figure published'
-};
-
-function drawBeakers(fy, lyt) {
-  document.querySelectorAll('.beaker-wrap').forEach(el => el.remove());
-
-  const vizEl = document.querySelector('.viz');
-  const svgEl = document.getElementById('chart');
-  const svgRect = svgEl.getBoundingClientRect();
-  const vizRect = vizEl.getBoundingClientRect();
-  const scaleX = svgRect.width / W;
-  const scaleY = svgRect.height / H;
-
-  // Beaker column: right margin, centred
-  const colW = RPAD - 8; // available pixel width
-  const bW = Math.min(colW - 4, 130); // beaker width — large but bounded
-  const beakerLeft = svgRect.left - vizRect.left + (W - RPAD + (RPAD - bW*scaleX)/2 / scaleX) * scaleX;
-
-  const stocks = ['reserve','ni_fund','cfr','pension'];
-  const maxVals = {reserve:750, ni_fund:1100, cfr:100, pension:5.0};
-
-  // Use full viz height, distribute evenly with generous gaps
-  const vizH = vizEl.clientHeight;
-  const MARGIN_TOP = 28, MARGIN_BOT = 12;
-  const totalAvail = vizH - MARGIN_TOP - MARGIN_BOT;
-  const BEAKER_GAP_BIG = 14;
-  const nStocks = stocks.length;
-  // Give pension more height than others
-  const pensionExtra = 30;
-  const bH_base = Math.floor((totalAvail - (nStocks-1)*BEAKER_GAP_BIG - pensionExtra) / nStocks);
-  const bH_pension = bH_base + pensionExtra;
-
-  stocks.forEach((sid, i) => {
-    const s = STOCKS[sid];
-    const isPension = sid === 'pension';
-    const bH = isPension ? bH_pension : bH_base;
-    const result = stockValWithCarry(sid, fy);
-    const v = result ? result.v : null;
-    const t = result ? result.t : null;
-    const carriedForward = result ? result.carriedForward : false;
-    const sourceYear = result ? result.sourceYear : null;
-    const maxV = maxVals[sid];
-    const fillRatio = v !== null ? Math.min(v / maxV, 1) : 0;
-    const isInverted = !!s.inverted;
-
-    // Vertical position: stack from top
-    let topY = MARGIN_TOP;
-    for(let j=0;j<i;j++){
-      topY += (j===3?bH_pension:bH_base) + BEAKER_GAP_BIG;
-    }
-
-    const wrap = document.createElement('div');
-    wrap.className = 'beaker-wrap';
-    wrap.style.cssText = `left:${beakerLeft}px;top:${topY}px;width:${bW}px;height:${bH}px;`;
-
-    // Reserved space: label bottom (18px) + date (14px) + footnote (14px) = 46px
-    const LABEL_AREA = 48;
-    const fillArea = bH - LABEL_AREA;
-    const fillH = fillRatio * fillArea;
-    const fillY = isInverted ? 2 : (fillArea - fillH + 2);
-    const fillColor = v === null ? '#1e2d4d' : s.color;
-    const fillOp = carriedForward ? 0.35 : t === 'secondary' ? 0.5 : t === 'budget' || t === 'probable' ? 0.65 : 0.85;
-    const strokeDash = (carriedForward || t === 'secondary' || t === 'budget' || t === 'probable') ? 'stroke-dasharray="4,3"' : '';
-    const strokeW = isPension ? 2 : 1.5;
-
-    const valStr = v === null ? '—'
-      : sid === 'pension' ? `£${v.toFixed(1)}bn`
-      : v >= 1000 ? `£${(v/1000).toFixed(2)}bn`
-      : `£${Math.round(v)}m`;
-
-    // Value y: centred in fill area
-    const valY = isInverted
-      ? (fillH > 20 ? fillY + fillH/2 : fillArea/2)
-      : (fillH > 20 ? fillY + fillH/2 : fillArea/2);
-
-    // Carry-forward or data quality note
-    let qualityStr = '';
-    if (carriedForward && sourceYear) qualityStr = `last confirmed: ${sourceYear-1}–${String(sourceYear).slice(-2)}`;
-    else if (t === 'budget') qualityStr = 'budget projection';
-    else if (t === 'probable') qualityStr = 'provisional';
-    else if (t === 'secondary') qualityStr = 'estimated';
-
-    const labelClass = isPension ? 'beaker-label-pension' : 'beaker-label';
-    const valClass = isPension ? 'beaker-val-pension' : 'beaker-val';
-    const fnNum = STOCK_FN[sid];
-    const fnId = STOCK_FN_ID[sid];
-    const dateStr = STOCK_DATE[sid];
-
-    wrap.innerHTML = `<svg class="beaker-svg" width="${bW}" height="${bH}" viewBox="0 0 ${bW} ${bH}">
-      <!-- Beaker body -->
-      <rect x="1" y="2" width="${bW-2}" height="${fillArea}" rx="3"
-        fill="#080d1a" stroke="${s.color}" stroke-width="${strokeW}" ${strokeDash}/>
-      <!-- Fill -->
-      <rect x="2" y="${fillY}" width="${bW-4}" height="${Math.max(fillH,0)}"
-        fill="${fillColor}" opacity="${fillOp}" rx="2"/>
-      ${isInverted && fillH>0 ? `<line x1="2" y1="${fillY}" x2="${bW-2}" y2="${fillY}" stroke="${s.color}" stroke-width="1" opacity="0.6"/>` : ''}
-      <!-- Value -->
-      <text class="${valClass}" x="${bW/2}" y="${valY}"
-        dominant-baseline="middle" opacity="${v===null?0.25:1}">${valStr}</text>
-      ${qualityStr ? `<text class="beaker-type" x="${bW/2}" y="${fillArea-8}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
-      <!-- Label row -->
-      <text class="${labelClass}" x="${bW/2}" y="${fillArea+14}">${s.label}
-        <tspan class="beaker-footnote" dx="2">${fnNum}</tspan>
-      </text>
-      <!-- Date row -->
-      <text class="beaker-date" x="${bW/2}" y="${fillArea+28}">${dateStr}</text>
-    </svg>`;
-
-    // Click footnote number → open gov notes + scroll to anchor
-    wrap.addEventListener('click', () => {
-      const notes = document.getElementById('gov-notes');
-      const toggle = document.getElementById('gov-toggle');
-      if (!notes.classList.contains('open')) {
-        notes.classList.add('open');
-        toggle.classList.add('open');
-      }
-      setTimeout(() => {
-        const target = document.getElementById(fnId);
-        if (target) target.scrollIntoView({behavior:'smooth',block:'start'});
-      }, 50);
-    });
-
-    wrap.addEventListener('mouseenter', (e) => {
-      const rect = wrap.getBoundingClientRect();
-      showStockPopup(sid, rect);
-    });
-    wrap.addEventListener('mouseleave', hideTsPopup);
-
-    vizEl.appendChild(wrap);
-  });
-}
-
-
-function showStockPopup(stockId, beakerRect) {
-  clearTimeout(tsHideTimer);
-  const s = STOCKS[stockId];
-  const popup = document.getElementById('ts-popup');
-
-  document.getElementById('ts-title').textContent = s.label;
-  document.getElementById('ts-sub').textContent = s.desc.substring(0, 60) + (s.desc.length > 60 ? '…' : '');
-
-  const canvas = document.getElementById('ts-canvas');
-  if (tsChart) { tsChart.destroy(); tsChart = null; }
-
-  // Build series: all years with data
-  const years = Object.keys(s.data).map(Number).sort();
-  const vals = years.map(y => s.data[y].v);
-  const types = years.map(y => s.data[y].t);
-
-  const borderColors = types.map(t =>
-    t === 'secondary' ? s.color + '88' : t === 'budget' ? s.color + 'aa' : s.color
-  );
-  const pointStyles = types.map(t =>
-    t === 'secondary' ? 'triangle' : t === 'budget' || t === 'probable' ? 'rectRot' : 'circle'
-  );
-
-  tsChart = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: years.map(y => 'FY' + (y + 1)),
-      datasets: [{
-        data: vals,
-        borderColor: s.color,
-        backgroundColor: s.color + '22',
-        borderWidth: 2,
-        pointRadius: 4,
-        pointBackgroundColor: borderColors,
-        pointStyle: pointStyles,
-        fill: !s.inverted,
-        tension: 0.3,
-        spanGaps: true,
-        segment: {
-          borderDash: ctx => {
-            const t = types[ctx.p0DataIndex];
-            return (t === 'secondary' || t === 'budget') ? [4, 3] : undefined;
-          }
-        }
-      }]
-    },
-    options: {
-      animation: false,
-      responsive: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const t = types[ctx.dataIndex];
-              const flag = t === 'secondary' ? ' (~sec)' : t === 'budget' ? ' (~bud)' : t === 'probable' ? ' (~prob)' : '';
-              return (s.unit === '£bn' ? '£' + ctx.raw + 'bn' : '£' + ctx.raw + 'm') + flag;
-            }
-          },
-          backgroundColor: '#1e293b', titleColor: '#e2e8f0', bodyColor: '#94a3b8',
-          borderColor: '#1e2d4d', borderWidth: 1,
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#cbd5e1', font: { size: 8 }, maxRotation: 0 }, grid: { color: '#1e293b' } },
-        y: {
-          ticks: { color: '#cbd5e1', font: { size: 8 }, callback: v => s.unit === '£bn' ? '£' + v + 'bn' : '£' + v + 'm' },
-          grid: { color: '#1e293b' },
-          reverse: !!s.inverted,
-        }
-      }
-    }
-  });
-
-  popup.style.visibility = 'hidden';
-  popup.style.display = 'block';
-  const pw = popup.offsetWidth || 260, ph = popup.offsetHeight || 160;
-  popup.style.visibility = '';
-  const vw = window.innerWidth, vh = window.innerHeight;
-  let px = beakerRect.right + 12;
-  let py = beakerRect.top - ph / 2;
-  if (px + pw > vw - 10) px = beakerRect.left - pw - 12;
-  if (py < 10) py = 10;
-  if (py + ph > vh - 10) py = vh - ph - 10;
-  popup.style.left = px + 'px';
-  popup.style.top = py + 'px';
-}
-
 // ── Playback ─────────────────────────────────────────────────────────────────
 let curFY=2025, playing=false, timer=null;
-function fyStr(fy){ return (fy-1)+'-'+(String(fy).slice(-2)); }
 function setFY(fy,animate){
   curFY=fy;
   document.getElementById('yr-slider').value=fy;
-  document.getElementById('fy-disp').textContent=fyStr(fy);
+  document.getElementById('fy-disp').textContent='FY'+fy;
   draw(fy,animate);
 }
 function play(){
