@@ -97,6 +97,16 @@
   .sources { margin-top:14px; font-size:11px; color:var(--muted2); border-top:1px solid var(--border2); padding-top:10px; }
   .sources p { margin-bottom:3px; }
 
+  /* Section header for additional charts */
+  .section-hdr {
+    margin: 20px 0 10px;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    border-left: 3px solid var(--gold); padding-left: 10px;
+  }
+  .chart2-wrap { position: relative; width: 100%; }
+  canvas.chart2 { display: block; width: 100%; height: auto; }
+
   /* Bottom support footer — Samaritans guideline */
   .support-footer {
     margin-top:20px; background:var(--surface2); border:1px solid var(--border2);
@@ -154,6 +164,86 @@
   </div>
 </div>
 
+<!-- ══ CHART 2: IoM SEX BREAKDOWN ════════════════════════════════════════════ -->
+<p class="section-hdr">IoM — deaths by sex &amp; age (year of death, 2019–2023)</p>
+
+<div class="card">
+  <div class="view-tabs" style="border-radius:10px 10px 0 0;">
+    <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Source: IoM Constabulary FOI ref 3968233 (25 Jul 2024) · Year of death · 2024 excluded (partial year, 2 deaths only)</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border2);">
+    <div style="padding:10px 12px 6px;border-right:1px solid var(--border2);">
+      <div style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Deaths by sex</div>
+      <div class="chart2-wrap" style="height:200px;"><canvas id="sexChart" class="chart2" width="400" height="200" role="img" aria-label="Stacked bar chart of male and female suicide deaths by year 2019–2023. Males dominate every year; 2023 shows 12 male, 0 female."></canvas></div>
+    </div>
+    <div style="padding:10px 12px 6px;">
+      <div style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Deaths by age group</div>
+      <div class="chart2-wrap" style="height:200px;"><canvas id="ageChart" class="chart2" width="400" height="200" role="img" aria-label="Stacked bar chart of suicide deaths by age group 2019–2023. Ages 30–44 and 45–59 are the largest bands."></canvas></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--border2);">
+    <div style="padding:12px 16px;text-align:center;border-right:1px solid var(--border2);">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Male deaths 2019–23</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text);">50 <span style="font-size:13px;font-weight:400;color:var(--muted);">of 66</span></div>
+      <div style="font-size:11px;color:var(--muted);">76% male</div>
+    </div>
+    <div style="padding:12px 16px;text-align:center;border-right:1px solid var(--border2);">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Working age 30–59 share</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text);">38 <span style="font-size:13px;font-weight:400;color:var(--muted);">of 66</span></div>
+      <div style="font-size:11px;color:var(--muted);">58% of all deaths</div>
+    </div>
+    <div style="padding:12px 16px;text-align:center;">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">2023 — male deaths</div>
+      <div style="font-size:22px;font-weight:700;color:var(--red);">12 <span style="font-size:13px;font-weight:400;color:var(--muted);">of 12</span></div>
+      <div style="font-size:11px;color:var(--muted);">100% male, 0 female</div>
+    </div>
+  </div>
+  <div style="padding:8px 14px;background:var(--surface2);border-radius:0 0 10px 10px;font-size:11px;color:var(--muted2);display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;">
+    <span>Sex: <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-iom);vertical-align:middle;"></span> Male &nbsp;<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f8717166;border:1px solid #f87171;vertical-align:middle;"></span> Female</span>
+    <span>Age: <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#cbbff6;vertical-align:middle;"></span> 0–29 &nbsp;<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7f77dd;vertical-align:middle;"></span> 30–44 &nbsp;<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3c3489;vertical-align:middle;"></span> 45–59 &nbsp;<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--muted);vertical-align:middle;"></span> 60–74 &nbsp;<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--muted2);vertical-align:middle;"></span> 75+</span>
+    <span style="margin-left:auto;color:var(--amber);font-weight:600;">⚠ Pre-2019 demographic data not yet available — FOI pending</span>
+  </div>
+</div>
+
+<!-- ══ CHART 3: EMPLOYMENT & RISK FACTORS (AUDIT) ═══════════════════════════ -->
+<p class="section-hdr">IoM — employment profile &amp; risk factors (suicide audit 2016–21)</p>
+
+<div class="card">
+  <div class="view-tabs" style="border-radius:10px 10px 0 0;">
+    <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Source: IoM Suicide Prevention Strategy GD2023/0019 — Suicide Audit 2016–21 (65 cases) · Published March 2023</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border2);">
+    <div style="padding:10px 12px 6px;border-right:1px solid var(--border2);">
+      <div style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Employment status — audit vs population</div>
+      <div class="chart2-wrap" style="height:220px;"><canvas id="empChart" class="chart2" width="400" height="220" role="img" aria-label="Grouped bar chart comparing employment status in suicide audit vs general population. Unemployed/unable to work: 33% in audit vs 8% in population."></canvas></div>
+    </div>
+    <div style="padding:10px 12px 6px;">
+      <div style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Risk factors present (% of 65 cases)</div>
+      <div class="chart2-wrap" style="height:220px;"><canvas id="rfChart" class="chart2" width="400" height="220" role="img" aria-label="Horizontal bar chart of risk factors. Mental health 52%, past attempt 51%, relationship problems 29%, victim of abuse 26%, substance misuse 25%, long-term illness 23%, financial worries 14%, job loss/stress 14%."></canvas></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--border2);">
+    <div style="padding:12px 16px;text-align:center;border-right:1px solid var(--border2);">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Unemployed/unable to work in audit</div>
+      <div style="font-size:22px;font-weight:700;color:var(--red);">33%</div>
+      <div style="font-size:11px;color:var(--muted);">vs 8% of general population</div>
+    </div>
+    <div style="padding:12px 16px;text-align:center;border-right:1px solid var(--border2);">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Overrepresentation factor</div>
+      <div style="font-size:22px;font-weight:700;color:var(--amber);">4.1×</div>
+      <div style="font-size:11px;color:var(--muted);">audit rate vs population share</div>
+    </div>
+    <div style="padding:12px 16px;text-align:center;">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Economic stressor (fin. + job) present</div>
+      <div style="font-size:22px;font-weight:700;color:var(--amber);">28%</div>
+      <div style="font-size:11px;color:var(--muted);">of cases — financial worries or job loss/stress</div>
+    </div>
+  </div>
+  <div style="padding:8px 14px;background:var(--surface2);border-radius:0 0 10px 10px;font-size:11px;color:var(--muted2);line-height:1.6;">
+    Audit covers 65 cases 2016–21. Population baseline: Census 2021 (IoM). Employed includes full-time education. Occupation finding: 42% of employed were in elementary occupations or skilled trades vs 22% of general workforce. Male peak rate: 40–44 yrs at ~46/100k/yr. 74% of suicides 2006–21 were male; 59% occurred in the 25-year band 35–59.
+  </div>
+</div>
+
 <!-- DATA GOVERNANCE NOTES -->
 <div class="card">
   <div class="notes-hdr" id="notes-toggle">
@@ -174,14 +264,16 @@
     </div>
 
     <div class="nb">
-      <h3><span class="jdot" style="background:#f87171;"></span> Isle of Man — IOM Public Health Directorate</h3>
+      <h3><span class="jdot" style="background:#f87171;"></span> Isle of Man — IOM Public Health Directorate &amp; IoM Constabulary</h3>
       <ul>
-        <li><span class="ok">COUNTS:</span> Annual registration counts, ICD-10 X60–X84 + Y10–Y34, from IOM Mortality Report 2022 Figure 28 and FOI responses. Year of registration.</li>
-        <li><span class="ok">CRUDE RATE:</span> Calculated as count ÷ 85,000 × 100,000. Population is stable at approximately 85,000.</li>
-        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 European Standard Population, from Figure 29 of IOM Mortality Report 2022 and confirmed FOI responses. Plotted at midpoint year of window.</li>
+        <li><span class="ok">SERIES 1 — REGISTRATION YEAR (solid line, counts tab):</span> Annual registration counts, ICD-10 X60–X84 + Y10–Y34, from IOM Mortality Report 2023 (GD 2025/0091) Figure 28. Year of registration, not year of death. 2006–2023.</li>
+        <li><span class="ok">SERIES 2 — YEAR OF DEATH (dotted line, counts tab):</span> Annual counts by year death occurred, from IoM Constabulary FOI ref 3968233 (25 Jul 2024). Available 2019–2023 only (pre-2019 not held by Constabulary). This is the more accurate measure of actual incidence by year. Includes sex and age breakdown — see panel below.</li>
+        <li><span class="ok">CRUDE RATE:</span> Calculated as registration-year count ÷ 85,000 × 100,000. Population stable at approximately 85,000.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 European Standard Population, from Figure 29 of Mortality Reports. Confirmed values: 2014–16=7.8, 2015–17=10.2, 2016–18=10.7 (FOI 1228481); 2020–22=17.8 (Mortality Report 2022); 2021–23=13.9 (Mortality Report 2023, GD2025/0091). Other values read from chart images (±1–2 units). Public Health explicitly does not publish ASMR by sex due to small number robustness concerns.</li>
         <li><span class="al">⚠ SMALL NUMBERS:</span> With ~85,000 population, one death shifts the crude rate by ~1.2/100k. Annual counts range 2–24. Treat single-year figures as highly volatile.</li>
-        <li><span class="al">⚠ 2020 SPIKE:</span> Registration-year count was 24; police year-of-death count for 2020 was 19. Inquest delays cause significant registration lag on IOM (12–18 months typical).</li>
-        <li>ASMR values confirmed from FOI: 2014–16=7.8, 2015–17=10.2, 2016–18=10.7 (FOI 1228481); 2020–22=17.8 (Mortality Report 2022 text). Other values read from Figure 29 chart image (±1–2 units).</li>
+        <li><span class="al">⚠ 2020 REGISTRATION SPIKE:</span> Registration count 2020 = 24; year-of-death count (Constabulary) 2020 = 19. The extra 5 registrations in 2020 were deaths that occurred in 2019 but whose inquests were delayed by the early pandemic. Mortality Report 2023 confirms 75% of deaths registered in 2023 occurred in 2023 (range: 2021–2023), illustrating typical inquest lag of 0–2 years.</li>
+        <li><span class="al">⚠ COUNT CORRECTIONS (June 2026):</span> 2013 corrected from 12 to 11; 2015 corrected from 11 to 8, both now consistent with Figure 28 of GD2025/0091. Previous values were read from an earlier chart image.</li>
+        <li>Sex breakdown is withheld from all Public Health publications on statistical robustness grounds. The Constabulary FOI (2019–2023) is the only published source for sex and age disaggregation.</li>
       </ul>
     </div>
 
@@ -222,8 +314,11 @@
     <div class="sources">
       <p><strong>Sources</strong></p>
       <p>• ONS, <em>Suicides in England and Wales: 2024 registrations</em> — ons.gov.uk</p>
-      <p>• IOM Public Health Directorate, <em>Mortality Report 2022</em> (GD 2024/0073), Figures 28 &amp; 29</p>
+      <p>• IOM Public Health Directorate, <em>Mortality Report 2023</em> (GD 2025/0091) — primary source for registration-year counts and confirmed ASMR 2021–23=13.9</p>
+      <p>• IOM Public Health Directorate, <em>Mortality Report 2022</em> (GD 2024/0073) — confirmed ASMR 2020–22=17.8</p>
       <p>• IOM Cabinet Office FOI responses: 1228481 (2020), 4081089 (2024)</p>
+      <p>• IOM Constabulary FOI ref 3968233 (25 Jul 2024) — year-of-death sex &amp; age breakdown 2019–2023</p>
+      <p>• IOM Suicide Prevention Strategy 2023–2027 (GD2023/0019) — suicide audit 2016–21, 65 cases</p>
       <p>• Guernsey Public Health Intelligence Unit, <em>Mortality Trends 2021</em> (Aug 2023) and <em>Mortality Trends 2024</em> (Oct 2025) — gov.gg/publichealthinfo</p>
       <p>• Jersey Mortality Statistics 2020 and 2024, Health and Care Jersey / Statistics Jersey — gov.je</p>
       <p>• A full data file with sources per row is available: <a href="/suicide-data.csv" style="color:var(--blue);">suicide-data.csv</a></p>
@@ -269,10 +364,19 @@ const EW_POP = { // mid-year population estimates (millions) for crude rate
 };
 
 // IoM annual registration counts (ICD-10 X60-X84 + Y10-Y34)
-// Source: IOM Mortality Report 2022 Fig 28; 2023 from FOI 4081089
+// Source: IOM Mortality Report 2023 (GD 2025/0091) Figure 28 — YEAR OF REGISTRATION
+// Updated counts confirmed from Fig 28: 2013=11 (not 12), 2015=8 (not 11)
 const IOM_COUNTS = {
-  2006:6,2007:9,2008:9,2009:15,2010:7,2011:9,2012:9,2013:12,
-  2014:2,2015:11,2016:6,2017:8,2018:12,2019:8,2020:24,2021:9,2022:12,2023:14
+  2006:6,2007:9,2008:9,2009:15,2010:7,2011:9,2012:9,2013:11,
+  2014:2,2015:8,2016:6,2017:8,2018:12,2019:8,2020:24,2021:9,2022:12,2023:14
+};
+
+// IoM year-of-death counts — Constabulary FOI ref 3968233 (25 Jul 2024)
+// YEAR OF DEATH — not registration. Only available 2019 onwards.
+// This series better reflects true annual incidence; registration series inflated
+// in 2020 by pandemic-backlogged inquests from 2019.
+const IOM_COUNTS_DEATH = {
+  2019:12, 2020:19, 2021:8, 2022:15, 2023:12
 };
 const IOM_POP = 85000;
 
@@ -281,9 +385,9 @@ const IOM_POP = 85000;
 // Others: read from Fig 29 chart image (±1-2 units)
 const IOM_ASMR = {
   2007:10.0,2008:14.0,2009:13.0,2010:12.0,2011:12.0,2012:10.0,2013:12.0,2014:10.0,
-  2015:7.8,2016:10.2,2017:10.7,2018:10.0,2019:18.0,2020:17.0,2021:17.8
+  2015:7.8,2016:10.2,2017:10.7,2018:10.0,2019:18.0,2020:17.0,2021:17.8,2022:13.9
 };
-const IOM_ASMR_CONF = new Set([2015,2016,2017,2021]);
+const IOM_ASMR_CONF = new Set([2015,2016,2017,2021,2022]); // 2022 = window 2021-23, confirmed Mortality Report 2023 (GD2025/0091)
 
 // Guernsey 3yr average annual counts (NOT individual year counts)
 // Source: Mortality Trends 2021 Fig 49 & Mortality Trends 2024 Fig 50 (bar charts read visually)
@@ -471,7 +575,11 @@ function drawLine(data, color, yp, dashed=false, dotRadius=3, hollow=false) {
 
 function drawCounts(t, yp, YMAX) {
   // Left axis: IoM, Jersey, Guernsey (0–30 range)
-  if (vis.iom) drawLine(IOM_COUNTS, t.iom, yp, false, 3.5);
+  if (vis.iom) {
+    drawLine(IOM_COUNTS, t.iom, yp, false, 3.5);
+    // Year-of-death series (Constabulary FOI) — dotted overlay, 2019 onwards
+    drawLine(IOM_COUNTS_DEATH, t.iom, yp, true, 2.5);
+  }
   if (vis.jsy) drawLine(JSY_COUNTS, t.jsy, yp, false, 3.5);
   // Guernsey — 3yr avg bars
   if (vis.gy) {
@@ -628,7 +736,7 @@ function updateLegend() {
   const items = [];
 
   if (currentView === 'counts') {
-    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM annual count (left axis)</div>`);
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM annual count — year of registration (left axis) &nbsp;<span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;border-top:2px dashed ${t.iom};"></span> year of death (Constabulary FOI, 2019+)</div>`);
     if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey annual count (left axis)</div>`);
     if (vis.gy)  items.push(`<div class="leg"><span style="display:inline-block;width:14px;height:14px;background:${t.gy}55;border:1px solid ${t.gy};vertical-align:middle;"></span> Guernsey 3yr avg count (left axis — not individual years)</div>`);
     if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W annual count (right axis — thousands)</div>`);
@@ -660,7 +768,8 @@ canvas.addEventListener('mousemove', e => {
   const [YMIN,YMAX] = getRange();
 
   if (currentView === 'counts') {
-    if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man', v:`${IOM_COUNTS[yr]} deaths`, note:'annual registrations'});
+    if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man (registered)', v:`${IOM_COUNTS[yr]} deaths`, note:'year of registration · GD2025/0091'});
+    if (vis.iom && IOM_COUNTS_DEATH[yr]) rows.push({color:t.iom+'88', label:'Isle of Man (year of death)', v:`${IOM_COUNTS_DEATH[yr]} deaths`, note:'Constabulary FOI 3968233 — 2019+ only'});
     if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${JSY_COUNTS[yr]} deaths`, note:'annual registrations'});
     if (vis.gy && GY_COUNT_AVG[yr]) rows.push({color:t.gy, label:'Guernsey', v:`~${GY_COUNT_AVG[yr]}/yr`, note:'3yr rolling average — not individual year'});
     if (vis.ew && EW_COUNTS[yr]) rows.push({color:t.ew, label:'England & Wales', v:`${EW_COUNTS[yr].toLocaleString()} deaths`, note:'right axis (thousands)'});
@@ -768,6 +877,128 @@ window.addEventListener('resize', () => { clearTimeout(_rTimer); _rTimer = setTi
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 draw();
+
+// ── SECONDARY CHARTS (Chart.js) ──────────────────────────────────────────────
+// Loaded after main canvas draw so they don't interfere
+function loadChartJs(cb) {
+  if (window.Chart) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+  s.onload = cb; document.head.appendChild(s);
+}
+
+function drawSecondaryCharts() {
+  const isDark = !document.documentElement.hasAttribute('data-theme') || document.documentElement.getAttribute('data-theme') !== 'light';
+  const gridC = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const tickC = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)';
+  const textC = isDark ? '#e2e8f0' : '#0f172a';
+  const mutedC = isDark ? '#94a3b8' : '#64748b';
+
+  // ── SEX CHART ──
+  const sexCtx = document.getElementById('sexChart');
+  if (sexCtx && !sexCtx._cjsInst) {
+    sexCtx._cjsInst = new Chart(sexCtx, {
+      type: 'bar',
+      data: {
+        labels: ['2019','2020','2021','2022','2023'],
+        datasets: [
+          { label:'Male', data:[8,14,6,10,12], backgroundColor:'#f87171', stack:'sex' },
+          { label:'Female', data:[4,5,2,5,0], backgroundColor: isDark ? 'rgba(248,113,113,0.35)' : 'rgba(220,38,38,0.25)', borderColor:'#f87171', borderWidth:1, stack:'sex' }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title:i=>i[0].label } } },
+        scales:{
+          x:{ stacked:true, ticks:{color:tickC,font:{size:10}}, grid:{color:gridC}, border:{color:gridC} },
+          y:{ stacked:true, min:0, max:22, ticks:{stepSize:5,color:tickC,font:{size:10}}, grid:{color:gridC}, border:{color:gridC} }
+        }
+      }
+    });
+  }
+
+  // ── AGE CHART ──
+  const ageCtx = document.getElementById('ageChart');
+  if (ageCtx && !ageCtx._cjsInst) {
+    ageCtx._cjsInst = new Chart(ageCtx, {
+      type: 'bar',
+      data: {
+        labels: ['2019','2020','2021','2022','2023'],
+        datasets: [
+          { label:'0–29',  data:[2,3,0,2,3], backgroundColor:'#cbbff6', stack:'age' },
+          { label:'30–44', data:[6,6,2,6,2], backgroundColor:'#7f77dd', stack:'age' },
+          { label:'45–59', data:[2,4,3,3,4], backgroundColor:'#3c3489', stack:'age' },
+          { label:'60–74', data:[0,1,3,3,1], backgroundColor: isDark?'#888780':'#64748b', stack:'age' },
+          { label:'75+',   data:[2,5,0,1,2], backgroundColor: isDark?'#444441':'#94a3b8', stack:'age' }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title:i=>i[0].label } } },
+        scales:{
+          x:{ stacked:true, ticks:{color:tickC,font:{size:10}}, grid:{color:gridC}, border:{color:gridC} },
+          y:{ stacked:true, min:0, max:22, ticks:{stepSize:5,color:tickC,font:{size:10}}, grid:{color:gridC}, border:{color:gridC} }
+        }
+      }
+    });
+  }
+
+  // ── EMPLOYMENT CHART ──
+  const empCtx = document.getElementById('empChart');
+  if (empCtx && !empCtx._cjsInst) {
+    empCtx._cjsInst = new Chart(empCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Employed / FTE', 'Retired', 'Unemployed /\nunable to work'],
+        datasets: [
+          { label:'Suicide audit (2016–21)', data:[41,24,33], backgroundColor:['#f87171','#f87171','#f87171'] },
+          { label:'General population (Census 2021)', data:[55,21,8], backgroundColor: isDark?['rgba(96,165,250,0.4)','rgba(96,165,250,0.4)','rgba(96,165,250,0.4)']:['rgba(37,99,235,0.25)','rgba(37,99,235,0.25)','rgba(37,99,235,0.25)'], borderColor:'#60a5fa', borderWidth:1 }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:true, position:'bottom', labels:{ color:mutedC, font:{size:10}, boxWidth:12, padding:8 } }, tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%` } } },
+        scales:{
+          x:{ ticks:{color:tickC,font:{size:10}}, grid:{color:gridC}, border:{color:gridC} },
+          y:{ min:0, max:65, ticks:{stepSize:10,color:tickC,font:{size:10}, callback:v=>v+'%'}, grid:{color:gridC}, border:{color:gridC} }
+        }
+      }
+    });
+  }
+
+  // ── RISK FACTORS CHART ──
+  const rfCtx = document.getElementById('rfChart');
+  if (rfCtx && !rfCtx._cjsInst) {
+    const rfLabels = ['Mental health','Past attempt','Relationship probs','Victim of abuse','Substance/alcohol','Long-term illness','Financial worries','Job loss/work stress','Isolation'];
+    const rfData   = [52,51,29,26,25,23,14,14,11];
+    const rfColors = rfData.map((v,i) => {
+      if (i===6||i===7) return '#fbbf24'; // economic factors highlighted
+      return isDark ? 'rgba(96,165,250,0.5)' : 'rgba(37,99,235,0.35)';
+    });
+    const rfBorders = rfData.map((v,i) => i===6||i===7 ? '#fbbf24' : '#60a5fa');
+    rfCtx._cjsInst = new Chart(rfCtx, {
+      type: 'bar',
+      data: {
+        labels: rfLabels,
+        datasets: [{ label:'% of cases', data:rfData, backgroundColor:rfColors, borderColor:rfBorders, borderWidth:1 }]
+      },
+      options: {
+        indexAxis:'y',
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>` ${ctx.parsed.x}% of cases` } } },
+        scales:{
+          x:{ min:0, max:60, ticks:{stepSize:10,color:tickC,font:{size:10},callback:v=>v+'%'}, grid:{color:gridC}, border:{color:gridC} },
+          y:{ ticks:{color:tickC,font:{size:10}}, grid:{color:gridC}, border:{color:gridC} }
+        }
+      }
+    });
+  }
+}
+
+loadChartJs(() => {
+  drawSecondaryCharts();
+  setTimeout(reportHeight, 150);
+});
 let _ready = false;
 function safeInit() {
   if (_ready) return;
