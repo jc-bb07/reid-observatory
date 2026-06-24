@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Demographics Explorer · Crown Dependencies Re-Identification Observatory</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ── CSS custom properties — single source of truth for all colours ── */
+:root {
+  --bg:       #0f172a;
+  --surface:  #1e293b;
+  --surface2: #162032;
+  --border:   #1e293b;
+  --border2:  #334155;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --blue:     #60a5fa;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;
+  --iom:      #3b82f6;
+  --gsy:      #10b981;
+  --jsy:      #f59e0b;
+  --uk:       #94a3b8;
+  --canvas-grid: rgba(148,163,184,0.08);
+}
+[data-theme="light"] {
+  --bg:       #f8fafc;
+  --surface:  #ffffff;
+  --surface2: #f1f5f9;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --text:     #0f172a;
+  --muted:    #475569;
+  --muted2:   #64748b;
+  --blue:     #2563eb;
+  --green:    #059669;
+  --amber:    #d97706;
+  --red:      #dc2626;
+  --iom:      #1d4ed8;
+  --gsy:      #059669;
+  --jsy:      #d97706;
+  --uk:       #64748b;
+  --canvas-grid: rgba(71,85,105,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  transition: background 0.2s, color 0.2s;
+  padding: 0 0 40px;
+}
+
+/* ── Layout ── */
+.page { max-width: 900px; margin: 0 auto; padding: 28px 20px 0; }
+.section { margin-bottom: 40px; }
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px;
+}
+.section-desc {
+  font-size: 12px; color: var(--muted2); line-height: 1.7; margin-bottom: 16px;
+}
+.section-desc strong { color: var(--text); }
+
+/* ── Cards ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 16px;
+}
+.card-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat-card {
+  flex: 1 1 140px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 14px 16px;
+}
+.stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 3px; }
+.stat-sub { font-size: 11px; color: var(--muted2); }
+.stat-delta { font-size: 11px; }
+
+/* ── Controls ── */
+.controls { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+.btn {
+  padding: 5px 11px; border-radius: 5px; font-size: 11px; font-weight: 500;
+  border: 1px solid var(--border2); background: none; color: var(--muted2);
+  cursor: pointer; font-family: inherit; transition: all 0.12s;
+}
+.btn:hover { border-color: var(--muted); color: var(--text); }
+.btn.active { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+.btn-iom.active  { border-color: var(--iom); color: var(--iom); }
+.btn-jsy.active  { border-color: var(--jsy); color: var(--jsy); }
+.btn-gsy.active  { border-color: var(--gsy); color: var(--gsy); }
+.btn-uk.active   { border-color: var(--uk);  color: var(--uk); }
+.control-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); white-space: nowrap; }
+.divider { width: 1px; height: 16px; background: var(--border2); flex-shrink: 0; }
+
+/* ── Chart canvas containers ── */
+.chart-wrap { position: relative; margin-bottom: 8px; }
+.chart-wrap canvas { display: block; width: 100% !important; }
+
+/* ── Data table ── */
+table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px; }
+th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 10px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: var(--muted2); }
+td:first-child { color: var(--text); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+
+/* ── Annotation box ── */
+.annotation {
+  font-size: 11px; color: var(--muted2); line-height: 1.7;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 10px 14px; margin-top: 10px;
+}
+.annotation strong { color: var(--text); }
+
+/* ── Source footnote ── */
+.footnote { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+
+/* ── Header ── */
+.page-header {
+  background: var(--surface2); border-bottom: 1px solid var(--border2);
+  padding: 16px 20px; margin-bottom: 0;
+}
+.page-header h1 { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+.page-header .sub { font-size: 11px; color: var(--muted2); }
+
+/* ── Section separator ── */
+.sep { border: none; border-top: 1px solid var(--border2); margin: 32px 0; }
+
+/* ── Pyramid specific ── */
+.pyr-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.pyr-panel { flex: 1 1 260px; }
+
+/* ── Projection table cell colours ── */
+.proj-iom { color: var(--iom); }
+.proj-jsy { color: var(--jsy); }
+.proj-gsy { color: var(--gsy); }
+.proj-uk  { color: var(--uk); }
+.proj-est { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Population &amp; Aging</h1>
+  <div class="sub">How the three Crown Dependencies are aging — and what that means for public finances, housing, and social services. Published census data, 1951–2021, with projections to 2040.</div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 1 — TOTAL POPULATION
+════════════════════════════════════════════════════════ -->
+<div class="section" style="margin-top:28px">
+  <div class="section-title">200 years of island population</div>
+  <div class="section-desc">
+    Jersey has grown fastest and furthest. Isle of Man and Guernsey both saw sharp post-war expansion then plateaued.
+    IoM actually declined slightly 2011–2021 before recovering.
+    Use the range selector to zoom in on any period — default is the last 50 years.
+  </div>
+
+  <div class="card-row">
+    <div class="stat-card" style="border-top: 3px solid var(--iom)">
+      <div class="stat-label" style="color:var(--iom)">Isle of Man</div>
+      <div class="stat-value" id="pop-iom">85,125</div>
+      <div class="stat-sub">population 2026 ~</div>
+      <div class="stat-delta" style="color:var(--green)">▲ 40.7% since ~1976</div>
+    </div>
+    <div class="stat-card" style="border-top: 3px solid var(--jsy)">
+      <div class="stat-label" style="color:var(--jsy)">Jersey</div>
+      <div class="stat-value" id="pop-jsy">104,820</div>
+      <div class="stat-sub">population 2026 ~</div>
+      <div class="stat-delta" style="color:var(--green)">▲ 47.6% since ~1976</div>
+    </div>
+    <div class="stat-card" style="border-top: 3px solid var(--gsy)">
+      <div class="stat-label" style="color:var(--gsy)">Guernsey</div>
+      <div class="stat-value" id="pop-gsy">64,420</div>
+      <div class="stat-sub">population 2026 ~</div>
+      <div class="stat-delta" style="color:var(--green)">▲ 20.1% since ~1976</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="control-label">Range</span>
+    <button class="btn active" id="range-50" onclick="setRange(50)">50 yrs</button>
+    <button class="btn" id="range-75" onclick="setRange(75)">75 yrs</button>
+    <button class="btn" id="range-100" onclick="setRange(100)">100 yrs</button>
+    <button class="btn" id="range-all" onclick="setRange(0)">All (1821–)</button>
+    <div class="divider"></div>
+    <span class="control-label">View</span>
+    <button class="btn active" id="view-abs" onclick="setView('abs')">Absolute</button>
+    <button class="btn" id="view-idx" onclick="setView('idx')">Index (start = 100)</button>
+    <div class="divider"></div>
+    <span class="control-label">Islands</span>
+    <button class="btn btn-iom active" id="tog-iom" onclick="toggleIsland('iom')">Isle of Man</button>
+    <button class="btn btn-jsy active" id="tog-jsy" onclick="toggleIsland('jsy')">Jersey</button>
+    <button class="btn btn-gsy active" id="tog-gsy" onclick="toggleIsland('gsy')">Guernsey</button>
+    <button class="btn btn-uk" id="tog-uk" onclick="toggleIsland('uk')">UK (right axis)</button>
+  </div>
+
+  <div class="chart-wrap" style="height:280px">
+    <canvas id="chart-pop"></canvas>
+  </div>
+
+  <div class="annotation">
+    <strong>IoM</strong> finance sector boom 1986–2006 drove steeper growth than Channel Islands ·
+    <strong>Jersey</strong> grew 20% 2001–2021; IoM grew just 10% ·
+    <strong>Guernsey</strong> broadly flat since 1991 ·
+    Use <em>Index</em> view to compare growth rates on a common baseline (start year = 100)
+  </div>
+  <div class="footnote">
+    ◆ 2026 = estimated · Sources: IoM Cabinet Office census Table 1 (1821–2021) · Jersey Census 1996 Table 1 (1821–2021) · Guernsey Historic Population xlsx gov.gg (1821–2021) · ONS long-run population estimates (UK)
+  </div>
+</div>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 2 — DEPENDENCY RATIOS
+════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Dependency ratios</div>
+  <div class="section-desc">
+    <strong>What is a dependency ratio?</strong> It measures how many retired people exist for every 100 working-age people.
+    A higher number means more pressure on public finances. Isle of Man and Guernsey now exceed the UK; Jersey remains slightly below.
+  </div>
+
+  <div class="card-row">
+    <div class="stat-card" style="border-top:3px solid var(--iom)">
+      <div class="stat-label" style="color:var(--iom)">Isle of Man</div>
+      <div class="stat-value">33.1%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--amber)">▲ was 24.9% in 1991</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--jsy)">
+      <div class="stat-label" style="color:var(--jsy)">Jersey</div>
+      <div class="stat-value">27.1%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--amber)">▲ was 20.1% in 1991</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--gsy)">
+      <div class="stat-label" style="color:var(--gsy)">Guernsey</div>
+      <div class="stat-value">~34%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--amber)">▲ total dep. ratio ~57%</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid var(--uk)">
+      <div class="stat-label" style="color:var(--uk)">UK benchmark</div>
+      <div class="stat-value">29.5%</div>
+      <div class="stat-sub">aged dep. 2021</div>
+      <div class="stat-delta" style="color:var(--muted2)">IoM &amp; Guernsey exceed UK</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-dep"></canvas>
+  </div>
+
+  <div class="annotation">
+    <strong>The key pattern:</strong> IoM's ratio was higher than the UK through the 1970s–80s, fell sharply as the finance sector boom attracted working-age incomers, and is now climbing again as that cohort approaches retirement.
+  </div>
+  <div class="footnote">
+    65+ as % of 15–64 · Aged dependency ratios by census year ·
+    Actual data: IoM Cabinet Office Census 2021 (Tables 2.1–2.3) · Statistics Jersey Census 2021 CSV · Guernsey Historic Population xlsx (gov.gg, OGL) · ONS Census 2011 &amp; 2021 (OGL)
+  </div>
+</div>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 3 — VS UK DIFFERENTIAL
+════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">vs UK differential</div>
+  <div class="section-desc">
+    <strong>Island minus UK:</strong> Above zero means the island has a higher aged dependency ratio than the UK — aging faster.
+    Below zero means relatively younger.
+  </div>
+
+  <div class="card-row">
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--iom)">IoM peak differential</div>
+      <div class="stat-value" style="color:var(--red)">+15.8</div>
+      <div class="stat-sub">pts above UK · 1976</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--iom)">IoM trough</div>
+      <div class="stat-value" style="color:var(--green)">+6.5</div>
+      <div class="stat-sub">pts above UK · 2001</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--iom)">IoM 2021</div>
+      <div class="stat-value" style="color:var(--amber)">+3.6</div>
+      <div class="stat-sub">pts above UK · re-diverging</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label" style="color:var(--jsy)">Jersey 2021</div>
+      <div class="stat-value" style="color:var(--blue)">−2.4</div>
+      <div class="stat-sub">pts below UK · closing fast</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap" style="height:220px">
+    <canvas id="chart-diff"></canvas>
+  </div>
+
+  <div class="annotation">
+    <strong>Jersey tracks below the UK</strong> for most of the period — its larger working-age population has kept it relatively younger.
+    That advantage is now eroding rapidly. Jersey and Guernsey data are sparse — lines span available census years only.
+  </div>
+  <div class="footnote">Island dependency ratio minus UK · Zero line = parity with UK</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 4 — POPULATION PYRAMIDS
+════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Population pyramids</div>
+  <div class="section-desc">
+    <strong>Reading the pyramids:</strong> A healthy growing population looks like a triangle — wide at the bottom.
+    What you see here is a barrel shape — the middle and upper sections are bulging.
+  </div>
+
+  <div class="controls">
+    <span class="control-label">Island</span>
+    <button class="btn btn-iom active" id="pyr-iom" onclick="setPyrIsland('iom')">Isle of Man</button>
+    <button class="btn btn-jsy" id="pyr-jsy" onclick="setPyrIsland('jersey')">Jersey</button>
+    <button class="btn btn-gsy" id="pyr-gsy" onclick="setPyrIsland('guernsey')">Guernsey</button>
+    <button class="btn btn-uk" id="pyr-uk" onclick="setPyrIsland('uk')">UK</button>
+    <div class="divider"></div>
+    <span class="control-label">Year</span>
+    <button class="btn" id="pyr-1996" onclick="setPyrYear('1996')">1996</button>
+    <button class="btn" id="pyr-2001" onclick="setPyrYear('2001')">2001</button>
+    <button class="btn" id="pyr-2011" onclick="setPyrYear('2011')">2011</button>
+    <button class="btn active" id="pyr-2021" onclick="setPyrYear('2021')">2021</button>
+  </div>
+
+  <div class="chart-wrap" style="height:340px">
+    <canvas id="chart-pyr"></canvas>
+  </div>
+
+  <div class="annotation">
+    Years marked ~ are projected estimates — cohort-shift model consistent with Statistics Jersey projections,
+    Guernsey Population Projection Bulletin 2024, and ONS principal projections.
+  </div>
+  <div class="footnote">% of total island population per 5-year age band · Male (left) / Female (right)</div>
+</div>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 5 — AGE STRUCTURE
+════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Age structure</div>
+  <div class="section-desc">
+    <strong>The four groups:</strong> Pre-school (0–4), school-age (5–14), working-age (15–64), and retirement-age (65+).
+    The last group is growing fastest. Compare 2011 vs 2021 to see the working-age share shrink and retirement-age share grow.
+  </div>
+
+  <div class="controls">
+    <span class="control-label">Year</span>
+    <button class="btn" id="str-1996" onclick="setStrYear('1996')">1996</button>
+    <button class="btn" id="str-2001" onclick="setStrYear('2001')">2001</button>
+    <button class="btn" id="str-2011" onclick="setStrYear('2011')">2011</button>
+    <button class="btn active" id="str-2021" onclick="setStrYear('2021')">2021</button>
+  </div>
+
+  <div class="chart-wrap" style="height:220px">
+    <canvas id="chart-str"></canvas>
+  </div>
+
+  <div class="footnote">
+    Share of total resident population (%) · IoM working-age values may not match other islands — see PIPELINE.md for detail.
+  </div>
+</div>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 6 — PROJECTIONS
+════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Projections to 2040</div>
+  <div class="section-desc">
+    Even with continued inward migration, the total dependency ratio will rise sharply by 2041 across all three islands.
+    Jersey and Guernsey projections are from official published sources. IoM figures are estimated.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Island</th>
+        <th>2021 ratio</th>
+        <th>2040 projection</th>
+        <th>Scenario</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="proj-iom">Isle of Man</td>
+        <td>58.3%</td>
+        <td>~71%</td>
+        <td>Cabinet Office trajectory</td>
+        <td class="proj-est">Estimated</td>
+      </tr>
+      <tr>
+        <td class="proj-jsy">Jersey</td>
+        <td>52.0%</td>
+        <td>58–64%</td>
+        <td>Net nil / +400 / +800 migration</td>
+        <td>Official</td>
+      </tr>
+      <tr>
+        <td class="proj-gsy">Guernsey</td>
+        <td>55.0%</td>
+        <td>~69%</td>
+        <td>Central (net +150/yr)</td>
+        <td>Official</td>
+      </tr>
+      <tr>
+        <td class="proj-uk">UK</td>
+        <td>56.0%</td>
+        <td>~62%</td>
+        <td>ONS principal projection</td>
+        <td>Official</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="controls" style="margin-top:16px">
+    <span class="control-label">Jersey scenario</span>
+    <button class="btn active" id="proj-nil" onclick="setProjScenario('nil')">Net nil migration</button>
+    <button class="btn" id="proj-400" onclick="setProjScenario('400')">+400/yr</button>
+    <button class="btn" id="proj-800" onclick="setProjScenario('800')">+800/yr</button>
+  </div>
+
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="chart-proj"></canvas>
+  </div>
+
+  <div class="footnote">
+    Jersey: Statistics Jersey Population Projections 2025–2080 (Feb 2026) — official ·
+    Guernsey: Annual Population Projection Bulletin (Jun 2024) — official ·
+    UK: ONS 2022-based national projections — official ·
+    IoM: estimated from Cabinet Office demographic trajectory
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<div style="text-align:center;padding:24px 20px 4px;font-size:10px;color:var(--muted2)">
+  observatory.coalfinch.com · Crown Dependencies Re-Identification Observatory · observatory@coalfinch.com ·
+  Demographics explorer · 2021 census · <a href="https://coalfinch.com" style="color:var(--muted2)">Coalfinch</a>
+</div>
+
+<script>
+// ── Data ─────────────────────────────────────────────────────────────────────
+// Loaded from demographics-data.json. For portability the key arrays are
+// duplicated inline here; update demographics-data.json as the canonical source
+// and re-run the sync step (see PIPELINE.md).
+
+const POP_DATA = {
+  iom: [[1821,40081],[1831,41161],[1841,47975],[1851,52387],[1861,52469],[1871,54128],[1881,53476],[1891,55598],[1901,54752],[1911,52037],[1921,51013],[1931,49308],[1939,52379],[1951,55123],[1961,48133],[1966,49308],[1971,56289],[1976,60496],[1981,64679],[1986,64282],[1991,69788],[1996,71714],[2001,76315],[2006,80058],[2011,84497],[2016,83314],[2021,84069],[2026,85125]],
+  jersey: [[1821,28600],[1831,36582],[1841,47544],[1851,57020],[1861,55613],[1871,56627],[1881,52445],[1891,54518],[1901,52576],[1911,51898],[1921,49701],[1931,50462],[1939,51000],[1951,57310],[1961,59489],[1971,69329],[1976,71018],[1981,76050],[1986,80212],[1991,84082],[1996,85150],[2001,87186],[2011,97857],[2021,103267],[2026,104820]],
+  guernsey: [[1821,20339],[1831,24540],[1841,26693],[1851,29806],[1861,29850],[1871,30680],[1881,32631],[1891,35287],[1901,40474],[1911,41858],[1921,38315],[1931,40643],[1951,43603],[1961,45068],[1971,51458],[1976,53637],[1981,53313],[1986,55482],[1991,58867],[1996,58681],[2001,59807],[2011,62915],[2016,62208],[2021,63448],[2026,64420]],
+};
+
+const DEP_L = [1951,1961,1971,1976,1981,1986,1991,1996,2001,2006,2011,2016,2021,2026];
+const DEP = {
+  iom:  [null,null,null,45.3,42.8,42.2,37.2,34.6,31.3,32.3,34.6,35.9,33.1,39.4],
+  jsy:  [18.7,19.9,21.4,null,22.0,null,20.1,null,20.5,null,21.2,null,27.1,28.9],
+  gue:  [null,null,null,null,null,null,null,null,null,null,26.0,28.0,34.0,37.7],
+  uk:   [null,null,17.9,18.9,23.0,23.8,24.3,24.4,24.8,25.5,26.5,28.1,29.5,31.3],
+};
+
+const STR = {
+  iom:      {"1996":[5.78,11.79,58.04,13.24],"2001":[5.54,11.30,57.85,14.87],"2011":[5.61,11.86,57.11,15.73],"2021":[4.82,10.94,56.12,19.11]},
+  jersey:   {"1996":[6.11,11.39,68.12,14.60],"2001":[5.41,10.56,67.89,14.82],"2011":[5.52,11.00,69.70,14.80],"2021":[4.51,10.43,66.90,18.15]},
+  guernsey: {"1996":[5.60,11.72,67.80,14.60],"2001":[5.40,11.45,67.10,15.35],"2011":[5.35,11.14,66.71,15.80],"2021":[4.68,9.82,65.27,20.23]},
+  uk:       {"1996":[6.62,12.67,65.82,15.80],"2001":[5.91,12.51,65.62,16.37],"2011":[6.13,11.72,65.75,16.40],"2021":[5.41,11.10,65.09,18.40]},
+};
+
+const PROJ_L = [2021,2025,2030,2035,2040];
+const PROJ = {
+  iom:      [58.3,60.0,63.0,67.0,71.0],
+  jsy_nil:  [52.0,54.5,57.8,61.0,64.2],
+  jsy_400:  [52.0,53.8,56.0,58.0,60.0],
+  jsy_800:  [52.0,53.0,54.5,56.5,58.0],
+  gue:      [55.0,57.5,61.0,65.0,69.0],
+  uk:       [56.0,57.0,58.5,60.5,62.0],
+};
+
+const BANDS = ["0–4","5–9","10–14","15–19","20–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60–64","65–69","70–74","75–79","80+"];
+
+const PYR = {
+  iom: {
+    "1996":{"m":[2.97,3.04,2.97,3.03,3.14,3.42,3.70,3.34,3.23,3.83,3.15,2.82,2.41,2.15,2.06,1.45,1.79],"f":[2.81,2.93,2.89,2.80,3.16,3.41,3.62,3.53,3.21,3.79,3.17,2.78,2.49,2.61,2.65,2.18,3.45]},
+    "2001":{"m":[2.92,3.10,3.18,2.89,2.82,2.99,3.68,4.01,3.59,3.36,3.82,3.04,2.59,2.14,1.76,1.48,1.62],"f":[2.62,2.96,3.06,2.86,2.75,3.24,3.70,3.92,3.72,3.23,3.67,3.02,2.58,2.26,2.26,2.10,3.09]},
+    "2011":{"m":[2.89,2.95,3.16,3.21,2.80,2.77,3.10,3.82,4.06,4.08,3.71,3.32,2.99,2.23,1.81,1.48,1.93],"f":[2.72,2.77,2.98,3.02,2.64,2.61,2.92,3.59,3.82,3.84,3.50,3.12,2.82,2.10,1.71,1.40,2.13]},
+    "2021":{"m":[2.41,2.67,2.81,2.72,2.45,2.56,2.89,3.22,3.44,3.61,4.02,4.06,3.61,2.99,2.51,1.72,2.09],"f":[2.41,2.66,2.80,2.72,2.44,2.56,2.89,3.22,3.43,3.60,4.01,4.05,3.61,2.99,2.50,1.72,2.59]},
+  },
+  jersey: {
+    "1996":{"m":[2.99,2.92,2.62,2.51,3.31,4.48,4.66,4.15,3.65,3.76,2.85,2.80,2.36,2.04,1.60,1.00,1.25],"f":[2.77,2.80,2.50,2.52,3.01,4.72,4.84,4.21,3.72,3.74,2.89,2.69,2.33,2.12,1.92,1.60,2.67]},
+    "2001":{"m":[2.76,3.00,2.95,2.70,2.85,3.43,4.31,4.50,3.98,3.52,3.59,2.66,2.46,2.05,1.57,1.21,1.18],"f":[2.65,2.75,2.83,2.61,3.16,3.68,4.46,4.56,4.06,3.63,3.56,2.69,2.50,2.10,1.89,1.58,2.56]},
+    "2011":{"m":[2.84,2.77,2.89,3.10,3.02,3.20,3.62,4.20,4.45,3.98,3.73,3.27,2.77,2.14,1.60,1.07,1.15],"f":[2.68,2.62,2.76,2.95,2.87,3.10,3.50,4.10,4.31,3.93,3.71,3.26,2.79,2.22,1.82,1.38,2.11]},
+    "2021":{"m":[2.24,2.44,2.58,2.73,3.01,3.27,3.47,3.72,4.15,4.31,4.04,3.62,3.16,2.47,1.90,1.21,1.42],"f":[2.13,2.32,2.46,2.60,2.87,3.14,3.34,3.58,4.00,4.15,3.90,3.49,3.05,2.38,1.84,1.17,1.98]},
+  },
+  guernsey: {
+    "1996":{"m":[2.80,2.96,3.00,2.82,3.09,3.49,3.83,3.66,3.36,3.18,2.82,2.65,2.26,2.00,1.71,1.23,1.56],"f":[2.66,2.82,2.86,2.71,2.99,3.44,3.80,3.66,3.41,3.25,2.91,2.73,2.42,2.24,2.11,1.79,3.17]},
+    "2001":{"m":[2.70,2.82,3.02,2.82,2.88,3.13,3.67,3.89,3.74,3.35,3.09,2.65,2.38,2.01,1.68,1.28,1.49],"f":[2.57,2.68,2.88,2.70,2.80,3.11,3.64,3.87,3.76,3.40,3.17,2.75,2.52,2.22,2.02,1.65,2.87]},
+    "2011":{"m":[2.68,2.69,2.77,2.87,2.80,2.92,3.17,3.63,3.95,3.93,3.55,3.13,2.74,2.10,1.63,1.21,1.57],"f":[2.54,2.55,2.63,2.74,2.69,2.84,3.10,3.56,3.90,3.91,3.57,3.18,2.82,2.24,1.89,1.55,2.35]},
+    "2021":{"m":[2.34,2.53,2.61,2.55,2.53,2.66,2.80,3.06,3.43,3.73,3.88,3.81,3.34,2.74,2.18,1.52,1.97],"f":[2.23,2.41,2.49,2.44,2.43,2.57,2.72,2.97,3.34,3.63,3.79,3.72,3.27,2.68,2.13,1.49,2.67]},
+  },
+  uk: {
+    "1996":{"m":[3.39,3.52,3.53,3.37,3.42,3.60,3.87,3.78,3.44,3.09,2.81,2.47,2.19,1.89,1.59,1.16,1.60],"f":[3.23,3.35,3.36,3.22,3.30,3.49,3.74,3.68,3.35,3.06,2.86,2.61,2.44,2.28,2.11,1.84,3.37]},
+    "2001":{"m":[3.03,3.17,3.38,3.40,3.29,3.47,3.84,3.86,3.67,3.29,2.90,2.50,2.19,1.96,1.69,1.29,1.61],"f":[2.88,3.01,3.22,3.26,3.18,3.38,3.74,3.75,3.56,3.23,2.94,2.68,2.46,2.41,2.25,1.97,3.52]},
+    "2011":{"m":[3.14,3.09,2.94,3.18,3.51,3.57,3.56,3.68,3.57,3.54,3.20,2.84,2.48,1.97,1.52,1.12,1.49],"f":[2.99,2.94,2.80,3.03,3.34,3.40,3.39,3.51,3.41,3.38,3.07,2.73,2.42,2.02,1.65,1.33,2.01]},
+    "2021":{"m":[2.76,3.12,3.05,2.94,3.28,3.51,3.68,3.57,3.23,3.28,3.57,3.42,2.99,2.54,2.26,1.58,1.90],"f":[2.65,2.99,2.93,2.83,3.16,3.37,3.54,3.44,3.11,3.16,3.45,3.29,2.89,2.45,2.18,1.53,2.33]},
+  },
+};
+
+// ── Theme helpers ─────────────────────────────────────────────────────────────
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function chartDefaults() {
+  return {
+    color: css('--muted2'),
+    borderColor: css('--border2'),
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: css('--surface'),
+        borderColor: css('--border2'),
+        borderWidth: 1,
+        titleColor: css('--text'),
+        bodyColor: css('--muted2'),
+        padding: 10,
+      }
+    },
+    scales: {
+      x: { grid: { color: css('--canvas-grid') }, ticks: { color: css('--muted') } },
+      y: { grid: { color: css('--canvas-grid') }, ticks: { color: css('--muted') } },
+    }
+  };
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let popRange = 50, popView = 'abs';
+let popIslands = { iom: true, jsy: true, gsy: true, uk: false };
+let pyrIsland = 'iom', pyrYear = '2021';
+let strYear = '2021';
+let projScenario = 'nil';
+
+// ── Chart instances ──────────────────────────────────────────────────────────
+let charts = {};
+
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+// ── Section 1: Population history ────────────────────────────────────────────
+function setRange(yr) {
+  popRange = yr;
+  ['50','75','100','all'].forEach(k => document.getElementById('range-'+k)?.classList.remove('active'));
+  document.getElementById(yr === 0 ? 'range-all' : `range-${yr}`)?.classList.add('active');
+  drawPop();
+}
+function setView(v) {
+  popView = v;
+  document.getElementById('view-abs').classList.toggle('active', v==='abs');
+  document.getElementById('view-idx').classList.toggle('active', v==='idx');
+  drawPop();
+}
+function toggleIsland(k) {
+  popIslands[k] = !popIslands[k];
+  document.getElementById('tog-'+k).classList.toggle('active', popIslands[k]);
+  drawPop();
+}
+
+function drawPop() {
+  const nowYear = 2026;
+  const fromYear = popRange === 0 ? 1821 : nowYear - popRange;
+  const allYears = [...new Set([
+    ...POP_DATA.iom.map(d=>d[0]),
+    ...POP_DATA.jersey.map(d=>d[0]),
+    ...POP_DATA.guernsey.map(d=>d[0]),
+  ])].filter(y => y >= fromYear).sort((a,b)=>a-b);
+
+  function series(pts, color, label, yAxis) {
+    const filtered = pts.filter(d => d[0] >= fromYear);
+    let data;
+    if (popView === 'idx') {
+      const base = filtered[0]?.[1] || 1;
+      data = filtered.map(d => ({ x: d[0], y: +(d[1]/base*100).toFixed(2) }));
+    } else {
+      data = filtered.map(d => ({ x: d[0], y: d[1] }));
+    }
+    return { label, data, borderColor: color, backgroundColor: color+'22', tension: 0.3,
+      pointRadius: 3, pointHoverRadius: 5, borderWidth: 2, fill: false,
+      yAxisID: yAxis || 'y' };
+  }
+
+  const datasets = [];
+  if (popIslands.iom)  datasets.push(series(POP_DATA.iom,     css('--iom'), 'Isle of Man'));
+  if (popIslands.jsy)  datasets.push(series(POP_DATA.jersey,  css('--jsy'), 'Jersey'));
+  if (popIslands.gsy)  datasets.push(series(POP_DATA.guernsey,css('--gsy'), 'Guernsey'));
+  if (popIslands.uk) {
+    // UK population as index only (too large for absolute axis)
+    const ukPop = [[1961,52720000],[1971,55928000],[1976,56216000],[1981,56357000],[1986,56852000],[1991,57439000],[1996,56712700],[2001,58941000],[2006,60827000],[2011,63258400],[2016,65648100],[2021,67026292],[2026,68500000]];
+    datasets.push({ ...series(ukPop, css('--uk'), 'UK'), yAxisID: 'y2', borderDash:[4,3] });
+  }
+
+  destroyChart('pop');
+  const ctx = document.getElementById('chart-pop').getContext('2d');
+  const scales = {
+    x: { type: 'linear', grid: { color: css('--canvas-grid') }, ticks: { color: css('--muted'), maxTicksLimit: 10 } },
+    y: { grid: { color: css('--canvas-grid') }, ticks: { color: css('--muted'), callback: v => popView === 'idx' ? v : v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v.toLocaleString() } },
+  };
+  if (popIslands.uk) {
+    scales.y2 = { position:'right', grid:{display:false}, ticks:{ color: css('--uk'), callback: v => popView==='idx' ? v : (v/1e6).toFixed(0)+'M' } };
+  }
+  charts.pop = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: { ...chartDefaults(), responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales,
+      plugins: {
+        ...chartDefaults().plugins,
+        tooltip: { ...chartDefaults().plugins.tooltip,
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              return ` ${ctx.dataset.label}: ${popView==='idx' ? v.toFixed(1) : v >= 1e6 ? (v/1e6).toFixed(2)+'M' : v.toLocaleString()}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Section 2: Dependency ratios ──────────────────────────────────────────────
+function drawDep() {
+  const colors = { iom: css('--iom'), jsy: css('--jsy'), gue: css('--gsy'), uk: css('--uk') };
+  const labels = { iom: 'Isle of Man', jsy: 'Jersey', gue: 'Guernsey', uk: 'UK' };
+
+  function mkDataset(key, dash) {
+    const pts = DEP_L.map((y,i) => DEP[key][i] !== null ? {x:y,y:DEP[key][i]} : null).filter(Boolean);
+    return { label: labels[key], data: pts, borderColor: colors[key], backgroundColor:'transparent',
+      tension: 0.3, pointRadius: 4, pointHoverRadius: 6, borderWidth: key==='uk' ? 1.5 : 2,
+      borderDash: dash || [], fill: false };
+  }
+
+  destroyChart('dep');
+  const ctx = document.getElementById('chart-dep').getContext('2d');
+  charts.dep = new Chart(ctx, {
+    type: 'line',
+    data: { datasets: [mkDataset('iom'), mkDataset('jsy'), mkDataset('gue'), mkDataset('uk',[4,3])] },
+    options: {
+      ...chartDefaults(), responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { type:'linear', grid:{color:css('--canvas-grid')}, ticks:{color:css('--muted'),maxTicksLimit:10} },
+        y: { grid:{color:css('--canvas-grid')}, ticks:{color:css('--muted'),callback:v=>v+'%'},
+          title:{display:true,text:'65+ as % of 15–64',color:css('--muted'),font:{size:10}} }
+      },
+      plugins: { ...chartDefaults().plugins,
+        tooltip: { ...chartDefaults().plugins.tooltip,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%` }
+        }
+      }
+    }
+  });
+}
+
+// ── Section 3: Differential ───────────────────────────────────────────────────
+function drawDiff() {
+  function diff(arr) {
+    return DEP_L.map((y,i) => {
+      if (arr[i] === null || DEP.uk[i] === null) return null;
+      return { x: y, y: +(arr[i] - DEP.uk[i]).toFixed(2) };
+    }).filter(Boolean);
+  }
+
+  destroyChart('diff');
+  const ctx = document.getElementById('chart-diff').getContext('2d');
+  charts.diff = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        { label:'Isle of Man − UK', data:diff(DEP.iom), borderColor:css('--iom'), backgroundColor:'transparent', tension:0.3, pointRadius:3, borderWidth:2, fill:false },
+        { label:'Jersey − UK',     data:diff(DEP.jsy), borderColor:css('--jsy'), backgroundColor:'transparent', tension:0.3, pointRadius:3, borderWidth:2, fill:false },
+        { label:'Guernsey − UK',   data:diff(DEP.gue), borderColor:css('--gsy'), backgroundColor:'transparent', tension:0.3, pointRadius:3, borderWidth:2, fill:false },
+      ]
+    },
+    options: {
+      ...chartDefaults(), responsive: true, maintainAspectRatio: false,
+      interaction:{ mode:'index', intersect:false },
+      scales: {
+        x:{type:'linear',grid:{color:css('--canvas-grid')},ticks:{color:css('--muted'),maxTicksLimit:10}},
+        y:{grid:{color:css('--canvas-grid')},ticks:{color:css('--muted'),callback:v=>(v>0?'+':'')+v+'pp'},
+          title:{display:true,text:'pp vs UK',color:css('--muted'),font:{size:10}}}
+      },
+      plugins:{
+        ...chartDefaults().plugins,
+        annotation: { annotations: {
+          zero: { type:'line', yMin:0, yMax:0, borderColor:css('--muted2'), borderWidth:1, borderDash:[3,3] }
+        }},
+        tooltip:{...chartDefaults().plugins.tooltip,
+          callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y>0?'+':''}${ctx.parsed.y}pp`}}
+      }
+    }
+  });
+}
+
+// ── Section 4: Population pyramid ────────────────────────────────────────────
+function setPyrIsland(isl) {
+  pyrIsland = isl;
+  ['iom','jsy','gsy','uk'].forEach(k=>{
+    const btn = document.getElementById('pyr-'+k);
+    if(btn) btn.classList.remove('active');
+  });
+  const map = { iom:'pyr-iom', jersey:'pyr-jsy', guernsey:'pyr-gsy', uk:'pyr-uk' };
+  document.getElementById(map[isl])?.classList.add('active');
+  drawPyr();
+}
+function setPyrYear(yr) {
+  pyrYear = yr;
+  ['1996','2001','2011','2021'].forEach(y => document.getElementById('pyr-'+y)?.classList.remove('active'));
+  document.getElementById('pyr-'+yr)?.classList.add('active');
+  drawPyr();
+}
+
+function drawPyr() {
+  const d = PYR[pyrIsland]?.[pyrYear];
+  if (!d) return;
+
+  const islandColors = { iom: css('--iom'), jersey: css('--jsy'), guernsey: css('--gsy'), uk: css('--uk') };
+  const col = islandColors[pyrIsland] || css('--blue');
+  const mData = d.m.map(v => -v);
+  const fData = d.f;
+
+  destroyChart('pyr');
+  const ctx = document.getElementById('chart-pyr').getContext('2d');
+  charts.pyr = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: BANDS,
+      datasets: [
+        { label: 'Male', data: mData, backgroundColor: col+'99', borderColor: col, borderWidth: 1 },
+        { label: 'Female', data: fData, backgroundColor: col+'55', borderColor: col+'aa', borderWidth: 1 },
+      ]
+    },
+    options: {
+      ...chartDefaults(), responsive:true, maintainAspectRatio:false,
+      indexAxis: 'y',
+      scales: {
+        x: { grid:{color:css('--canvas-grid')}, ticks:{color:css('--muted'),callback:v=>Math.abs(v).toFixed(1)+'%'},
+          stacked:false },
+        y: { grid:{display:false}, ticks:{color:css('--muted'),font:{size:10}} },
+      },
+      plugins: {
+        ...chartDefaults().plugins,
+        legend:{display:true, position:'bottom', labels:{color:css('--muted2'),font:{size:11},boxWidth:12}},
+        tooltip:{...chartDefaults().plugins.tooltip,
+          callbacks:{
+            label: ctx => {
+              const v = Math.abs(ctx.parsed.x).toFixed(2);
+              return ` ${ctx.dataset.label}: ${v}%`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Section 5: Age structure ──────────────────────────────────────────────────
+function setStrYear(yr) {
+  strYear = yr;
+  ['1996','2001','2011','2021'].forEach(y => document.getElementById('str-'+y)?.classList.remove('active'));
+  document.getElementById('str-'+yr)?.classList.add('active');
+  drawStr();
+}
+
+function drawStr() {
+  const isles = ['iom','jersey','guernsey','uk'];
+  const labels = ['Isle of Man','Jersey','Guernsey','UK'];
+  const [pre,school,work,ret] = [0,1,2,3];
+  const data = isles.map(k => STR[k][strYear] || [0,0,0,0]);
+
+  destroyChart('str');
+  const ctx = document.getElementById('chart-str').getContext('2d');
+  charts.str = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'Pre-school (0–4)',    data:data.map(d=>d[pre]),    backgroundColor:css('--blue')+'55', borderColor:css('--blue'), borderWidth:1 },
+        { label:'School (5–14)',       data:data.map(d=>d[school]),  backgroundColor:css('--green')+'55', borderColor:css('--green'), borderWidth:1 },
+        { label:'Working age (15–64)', data:data.map(d=>d[work]),    backgroundColor:css('--amber')+'55', borderColor:css('--amber'), borderWidth:1 },
+        { label:'Retirement (65+)',    data:data.map(d=>d[ret]),     backgroundColor:css('--red')+'55', borderColor:css('--red'), borderWidth:1 },
+      ]
+    },
+    options: {
+      ...chartDefaults(), responsive:true, maintainAspectRatio:false,
+      scales: {
+        x:{ stacked:true, grid:{display:false}, ticks:{color:css('--muted')} },
+        y:{ stacked:true, grid:{color:css('--canvas-grid')}, ticks:{color:css('--muted'),callback:v=>v+'%'},
+          max:100 }
+      },
+      plugins: {
+        ...chartDefaults().plugins,
+        legend:{display:true,position:'bottom',labels:{color:css('--muted2'),font:{size:11},boxWidth:12}},
+        tooltip:{...chartDefaults().plugins.tooltip,
+          callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`}}
+      }
+    }
+  });
+}
+
+// ── Section 6: Projections ────────────────────────────────────────────────────
+function setProjScenario(s) {
+  projScenario = s;
+  ['nil','400','800'].forEach(k => document.getElementById('proj-'+k)?.classList.remove('active'));
+  document.getElementById('proj-'+s)?.classList.add('active');
+  drawProj();
+}
+
+function drawProj() {
+  const jsy = projScenario === 'nil' ? PROJ.jsy_nil : projScenario === '400' ? PROJ.jsy_400 : PROJ.jsy_800;
+  const mk = (label, data, color, dash) => ({
+    label, data: PROJ_L.map((y,i) => ({x:y,y:data[i]})),
+    borderColor: color, backgroundColor:'transparent', tension:0.3,
+    pointRadius:4, borderWidth:2, borderDash: dash||[], fill:false
+  });
+
+  destroyChart('proj');
+  const ctx = document.getElementById('chart-proj').getContext('2d');
+  charts.proj = new Chart(ctx, {
+    type:'line',
+    data:{ datasets:[
+      mk('Isle of Man (est.)', PROJ.iom, css('--iom')),
+      mk('Jersey', jsy, css('--jsy')),
+      mk('Guernsey', PROJ.gue, css('--gsy')),
+      mk('UK', PROJ.uk, css('--uk'),[4,3]),
+    ]},
+    options:{
+      ...chartDefaults(), responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{type:'linear',grid:{color:css('--canvas-grid')},ticks:{color:css('--muted')}},
+        y:{grid:{color:css('--canvas-grid')},ticks:{color:css('--muted'),callback:v=>v+'%'},
+          title:{display:true,text:'Total dependency ratio',color:css('--muted'),font:{size:10}}}
+      },
+      plugins:{...chartDefaults().plugins,
+        legend:{display:true,position:'bottom',labels:{color:css('--muted2'),font:{size:11},boxWidth:12}},
+        tooltip:{...chartDefaults().plugins.tooltip,
+          callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}%`}}
+      }
+    }
+  });
+}
+
+// ── Redraw all charts (called on theme change) ────────────────────────────────
+function redrawAll() {
+  // Allow CSS variables to update before reading them
+  requestAnimationFrame(() => {
+    drawPop(); drawDep(); drawDiff(); drawPyr(); drawStr(); drawProj();
+  });
+}
+
+// ── Theme listener (receives messages from App.jsx parent) ───────────────────
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.type === 'theme') {
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+    redrawAll();
+  }
+  // Reinit canvases after display:none → block (App.jsx keep-alive pattern)
+  if (e.data.type === 'tabVisible' && e.data.tabId === 'demog') {
+    redrawAll();
+  }
+});
+
+// Notify parent of natural scroll height so AutoIframe can resize
+function notifyHeight() {
+  const h = document.body.scrollHeight;
+  window.parent?.postMessage({ type: 'resize', height: h }, '*');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Inherit theme from parent if available (query param fallback)
+  const params = new URLSearchParams(location.search);
+  const t = params.get('theme');
+  if (t === 'light' || t === 'dark') {
+    document.documentElement.setAttribute('data-theme', t);
+  }
+
+  drawPop(); drawDep(); drawDiff(); drawPyr(); drawStr(); drawProj();
+  setTimeout(notifyHeight, 300);
+});
+
+window.addEventListener('resize', () => { redrawAll(); setTimeout(notifyHeight, 200); });
+</script>
+</body>
+</html>

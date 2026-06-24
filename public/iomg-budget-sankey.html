@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IOM Government Budget · Coalfinch Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0f1e;--surface:#0d1526;--border:#1e2d4d;--gold:#C9A24A;--text:#e2e8f0;--muted:#64748b}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── Header ── */
+.hdr{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
+.chart-title{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.fy-label{font-family:"JetBrains Mono",monospace;font-size:24px;font-weight:600;color:var(--gold);letter-spacing:-.02em;line-height:1}
+.fy-sub{font-size:9px;color:var(--muted);text-align:right;margin-top:2px}
+
+/* ── Controls row ── */
+.controls{display:flex;align-items:center;gap:10px;padding:5px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:nowrap}
+.play-btn{background:var(--gold);color:#0a0f1e;border:none;border-radius:5px;padding:0 12px;height:28px;font-size:11px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;letter-spacing:.03em;white-space:nowrap}
+.play-btn:hover{opacity:.85}
+.yr-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px}
+input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px}
+.yr-marks{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+
+/* node selector */
+.node-select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:"Inter",sans-serif;padding:0 6px;height:28px;cursor:pointer;min-width:160px;flex-shrink:0}
+.node-select:focus{outline:none;border-color:var(--gold)}
+
+/* toggles */
+.ctrl-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.toggle-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap}
+.toggle-wrap label{font-size:10px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle-wrap input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+
+/* ── Stats bar ── */
+.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:#080d1a}
+.stat{flex:1;padding:4px 10px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.stat-val{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--text);margin-top:1px}
+
+/* ── Viz ── */
+.viz{flex:1;overflow:hidden;position:relative}
+svg{display:block;width:100%;height:100%}
+.col-hdr{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:#475569;text-anchor:middle}
+.lbl-r{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:start}
+.lbl-l{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:end}
+.lbl-a{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#64748b;dominant-baseline:middle;text-anchor:start}
+.lbl-al{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#64748b;dominant-baseline:middle;text-anchor:end}
+.own-badge{font-size:8px;fill:#475569;text-anchor:middle;letter-spacing:.08em;font-style:italic}
+
+/* node hover cursor */
+rect.node{cursor:pointer}
+
+/* ── Time series popout ── */
+#ts-popup{
+  position:fixed;display:none;
+  background:#111827;border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px 10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  z-index:100;pointer-events:none;
+  min-width:240px;
+}
+#ts-popup .ts-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+#ts-popup .ts-sub{font-size:9px;color:var(--muted);margin-bottom:8px}
+#ts-canvas{display:block}
+
+/* ── Governance notes ── */
+.gov-notes{background:#080d1a;border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.gov-notes.open{max-height:600px}
+.gov-inner{padding:12px 20px 14px;font-size:10px;line-height:1.65;color:#64748b;columns:2;column-gap:32px}
+.gov-inner h4{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 5px;column-span:all}
+.gov-inner h5{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#475569;margin:8px 0 3px;break-after:avoid}
+.gov-inner p{margin:0 0 4px}
+.gov-inner .flag{color:#f87171;font-weight:600}
+.gov-inner .est{color:#fcd34d;font-weight:600}
+.gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:4px 20px;background:#080d1a;border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
+.gov-notes-toggle span{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#475569}
+.gov-notes-toggle span:hover{color:var(--muted)}
+.gov-chevron{font-size:9px;color:#475569;transition:transform .3s}
+.gov-notes-toggle.open .gov-chevron{transform:rotate(180deg)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Isle of Man Government Budget Sources &amp; Uses</div>
+  </div>
+  <div class="hdr-right">
+    <div class="fy-label" id="fy-disp">FY2025</div>
+    <div class="fy-sub">year ending 31 March</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play-btn"><span id="play-icon">&#9654;</span> <span id="play-label">Animate</span></button>
+  <div class="yr-wrap">
+    <input type="range" id="yr-slider" min="2016" max="2025" step="1" value="2025" list="yr-ticks">
+    <div class="yr-marks"><span>FY16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span></div>
+  </div>
+  <div class="ctrl-sep"></div>
+  <select class="node-select" id="node-select">
+    <option value="">— Focus on… —</option>
+    <optgroup label="Revenue Sources">
+      <option value="CustomsExcise">Customs &amp; Excise</option>
+      <option value="IncomeTax">Income Tax</option>
+      <option value="NIOperatingAccount">National Insurance</option>
+      <option value="OtherTreasuryIncome">Other Treasury Income</option>
+    </optgroup>
+    <optgroup label="Department Groups">
+      <option value="Health &amp; Care">Health &amp; Care</option>
+      <option value="Social Security">Social Security</option>
+      <option value="Education">Education</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Enterprise">Enterprise</option>
+      <option value="Treasury Ops">Treasury Ops</option>
+      <option value="Other Gov">Other Gov</option>
+    </optgroup>
+    <optgroup label="Expenditure Types">
+      <option value="Employee Costs">Employee Costs</option>
+      <option value="Social Security">Social Security</option>
+      <option value="Supplies &amp; Services">Supplies &amp; Services</option>
+      <option value="Agency &amp; Contracted">Agency &amp; Contracted</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Loan &amp; Other">Loan &amp; Other</option>
+    </optgroup>
+  </select>
+  <div class="toggle-wrap">
+    <input type="checkbox" id="deflate-chk" checked>
+    <label for="deflate-chk">Constant prices (2024-25)</label>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lbl">Total Spending</div><div class="stat-val" id="s-tot">—</div></div>
+  <div class="stat"><div class="stat-lbl">Tax Revenue</div><div class="stat-val" id="s-gra">—</div></div>
+  <div class="stat"><div class="stat-lbl">Dept Own Income</div><div class="stat-val" id="s-own">—</div></div>
+  <div class="stat"><div class="stat-lbl">Health &amp; Care</div><div class="stat-val" id="s-hlt">—</div></div>
+  <div class="stat"><div class="stat-lbl">Social Security</div><div class="stat-val" id="s-ss">—</div></div>
+  <div class="stat"><div class="stat-lbl">Staff Costs</div><div class="stat-val" id="s-sta">—</div></div>
+</div>
+
+<div class="viz"><svg id="chart"></svg></div>
+
+<div class="gov-notes-toggle" id="gov-toggle" onclick="toggleGov()">
+  <span class="gov-chevron" id="gov-chevron">▼</span>
+  <span>Data Governance &amp; Methodology Notes</span>
+</div>
+<div class="gov-notes" id="gov-notes">
+  <div class="gov-inner">
+    <h4>Isle of Man Government Budget — Data Governance Notes</h4>
+
+    <h5>Sources</h5>
+    <p>Revenue and expenditure data drawn from IoM Treasury Pink Books (Table 3A departmental breakdowns), covering actuals FY2016 through FY2025. Revenue figures represent General Revenue Account (GRA) inflows; departmental gross spend includes GRA allocations and departments' own income. All figures in £000s converted to £m for display.</p>
+
+    <h5>FY2017 — Accounting Estimates <span class="est">[est.]</span></h5>
+    <p>The underlying FY2016-17 source data contains two confirmed classification breaks that render the raw figures non-comparable with all other years in the series. The figures displayed for FY2017 are <span class="est">accounting estimates</span>, not published actuals.</p>
+    <p><strong>Break 1 — Revenue misclassification:</strong> National Insurance Operating Account receipts (normally ~£187–216m) are absent from the revenue breakdown, and Income Tax is reported at £12m against a plausible range of £184–203m. The excess is absorbed into Other Treasury Income (£261m vs a normal ~£10m). The reconstructed series allocates NI and Income Tax in proportion to the FY16/FY18 ratio, with Other Treasury Income set by interpolation, preserving the published GRA total of £641m.</p>
+    <p><strong>Break 2 — Departmental misclassification:</strong> Social Security gross spend collapses to £9m (against a plausible range of £275–318m) while Health &amp; Care doubles to £527m. The excess in H&amp;C matches the Social Security shortfall to within £19m. The reconstruction reclassifies £287m from H&amp;C to Social Security, with GRA flows adjusted proportionally.</p>
+
+    <h5>Constant Prices</h5>
+    <p>The constant prices deflator uses IoM CPI financial-year averages (Statistics IoM Historic Data Sets, December 2025), rebased to 2024-25 = 100. FY2025-26 uses a partial-year average (April–December 2025). Deflation is applied uniformly to all flows; the Sankey layout, stat bar, and time-series popouts all reflect the selected price basis.</p>
+
+    <h5>Series Coverage</h5>
+    <p>FY2016 data is sourced from an earlier Pink Book edition than FY2018 onwards and should be treated with caution in trend analysis. The animation skips directly from FY2016 to FY2018 to avoid misleading transitions through the estimated FY2017 values.</p>
+
+    <h5>Own Income</h5>
+    <p>Departmental own income (fees, charges, utilities receipts) bypasses the GRA and flows directly to departments. It is shown as a separate column in the revenue sources panel, connected by ribbons directly to the relevant department group, distinct from GRA allocations.</p>
+
+    <h5>Expenditure Categories</h5>
+    <p>Employee Costs, Supplies &amp; Services, Agency &amp; Contracted, and Infrastructure represent gross departmental expenditure. Loan &amp; Other includes loan charges, transfers, and net adjustments; negative values in some years reflect internal recoveries or accounting reversals rather than literal income.</p>
+  </div>
+</div>
+<!-- Time series popup -->
+<div id="ts-popup">
+  <div class="ts-title" id="ts-title"></div>
+  <div class="ts-sub" id="ts-sub"></div>
+  <canvas id="ts-canvas" width="220" height="100"></canvas>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const DATA={"2016":{"rev":{"CustomsExcise":327838.606417434,"IncomeTax":184253.7835512719,"OtherTreasuryIncome":10269.976879109545,"NIOperatingAccount":186753.6331521845},"grp_own":{"Enterprise":29718.0,"Education":3851.0,"Other Gov":149743.0,"Health & Care":50849.0,"Infrastructure":53575.0},"grp_gross":{"Enterprise":30923.0,"Education":94265.0,"Other Gov":225123.0,"Health & Care":244455.0,"Infrastructure":99487.0,"Treasury Ops":27749.0,"Social Security":274850.0},"grp_gra":{"Enterprise":1205.0,"Education":90414.0,"Health & Care":193606.0,"Social Security":274850.0,"Treasury Ops":27749.0,"Other Gov":75380.0,"Infrastructure":45912.0},"grp_cats":{"Enterprise":{"Employee Costs":10096.0,"Infrastructure":1191.0,"Supplies & Services":13441.0,"Loan & Other":6195.0},"Education":{"Employee Costs":65055.0,"Infrastructure":3802.0,"Supplies & Services":6637.0,"Loan & Other":18771.0},"Other Gov":{"Employee Costs":90755.0,"Infrastructure":12087.0,"Supplies & Services":74151.0,"Loan & Other":48130.0},"Health & Care":{"Employee Costs":138091.0,"Infrastructure":1211.0,"Supplies & Services":30030.0,"Agency & Contracted":71317.0,"Loan & Other":3806.0},"Infrastructure":{"Employee Costs":37586.0,"Infrastructure":33880.0,"Supplies & Services":17079.0,"Agency & Contracted":2787.0,"Loan & Other":8155.0},"Treasury Ops":{"Employee Costs":12748.0,"Infrastructure":13.0,"Supplies & Services":1940.0,"Agency & Contracted":3333.0,"Loan & Other":9715.0},"Social Security":{"Social Security":274850.0}},"cats4":{"Employee Costs":354331.0,"Infrastructure":52184.0,"Supplies & Services":143278.0,"Loan & Other":94772.0,"Agency & Contracted":77437.0,"Social Security":274850.0},"total_gross":996852.0,"total_own":287736.0,"total_gra":709116.0},"2017":{"rev":{"CustomsExcise":367330.20088627754,"IncomeTax":129324.09262999902,"OtherTreasuryIncome":9900.0,"NIOperatingAccount":134139.70648372345},"grp_own":{"Enterprise":30064.0,"Education":3554.0,"Other Gov":209705.0,"Health & Care":52648.5,"Infrastructure":54605.0},"grp_gross":{"Enterprise":32710.0,"Education":98997.0,"Other Gov":248824.0,"Health & Care":240168.0,"Infrastructure":108131.0,"Treasury Ops":5861.0,"Social Security":296614.0},"grp_gra":{"Enterprise":2646.0,"Education":95443.0,"Health & Care":147485.0,"Social Security":296614.0,"Treasury Ops":5861.0,"Other Gov":39119.0,"Infrastructure":53526.0},"grp_cats":{"Enterprise":{"Employee Costs":11741.0,"Infrastructure":1408.0,"Supplies & Services":14094.0,"Loan & Other":5467.0},"Education":{"Employee Costs":68960.0,"Infrastructure":3671.0,"Supplies & Services":7063.0,"Loan & Other":19303.0},"Other Gov":{"Employee Costs":167026.0,"Infrastructure":9350.0,"Supplies & Services":53731.0,"Agency & Contracted":0.0,"Loan & Other":18717.0},"Health & Care":{"Employee Costs":150864.0,"Infrastructure":4941.0,"Supplies & Services":25164.0,"Agency & Contracted":74916.0,"Loan & Other":-15717.0},"Infrastructure":{"Employee Costs":41483.0,"Infrastructure":39063.0,"Supplies & Services":13130.0,"Agency & Contracted":2455.0,"Loan & Other":12000.0},"Treasury Ops":{"Employee Costs":17.0,"Infrastructure":1.0,"Supplies & Services":2211.0,"Agency & Contracted":3391.0,"Loan & Other":241.0},"Social Security":{"Social Security":296614.0}},"cats4":{"Employee Costs":440091.0,"Infrastructure":58434.0,"Supplies & Services":115393.0,"Loan & Other":40011.0,"Agency & Contracted":80762.0,"Social Security":296614.0},"total_gross":1031305.0,"total_own":350576.5,"total_gra":640694.0},"2018":{"rev":{"CustomsExcise":312871.69320242567,"IncomeTax":203116.64789310851,"OtherTreasuryIncome":9510.58641920827,"NIOperatingAccount":215602.07248525758},"grp_own":{"Enterprise":29187.0,"Education":3489.0,"Other Gov":147203.0,"Health & Care":54448.0,"Infrastructure":54956.0},"grp_gross":{"Enterprise":32550.0,"Education":100104.0,"Other Gov":157535.0,"Health & Care":273626.0,"Infrastructure":113695.0,"Treasury Ops":34496.0,"Social Security":318378.0},"grp_gra":{"Enterprise":3363.0,"Education":96615.0,"Health & Care":219178.0,"Social Security":318378.0,"Treasury Ops":34496.0,"Other Gov":10332.0,"Infrastructure":58739.0},"grp_cats":{"Enterprise":{"Employee Costs":10942.0,"Infrastructure":1334.0,"Supplies & Services":13567.0,"Loan & Other":6707.0},"Education":{"Employee Costs":69425.0,"Infrastructure":3627.0,"Supplies & Services":5903.0,"Loan & Other":21149.0},"Other Gov":{"Employee Costs":105292.0,"Infrastructure":13806.0,"Supplies & Services":78994.0,"Agency & Contracted":0.0,"Loan & Other":-40557.0},"Health & Care":{"Employee Costs":154673.0,"Infrastructure":1742.0,"Supplies & Services":31940.0,"Agency & Contracted":78380.0,"Loan & Other":6891.0},"Infrastructure":{"Employee Costs":42796.0,"Infrastructure":36591.0,"Supplies & Services":15494.0,"Agency & Contracted":2020.0,"Loan & Other":16794.0},"Treasury Ops":{"Employee Costs":13422.0,"Infrastructure":11.0,"Supplies & Services":3811.0,"Agency & Contracted":3416.0,"Loan & Other":13836.0},"Social Security":{"Social Security":318378.0}},"cats4":{"Employee Costs":396550.0,"Infrastructure":57111.0,"Supplies & Services":149709.0,"Loan & Other":24820.0,"Agency & Contracted":83816.0,"Social Security":318378.0},"total_gross":1030384.0,"total_own":289283.0,"total_gra":741101.0},"2019":{"rev":{"CustomsExcise":354138.2628298151,"IncomeTax":227732.90690550496,"OtherTreasuryIncome":10060.816857048896,"NIOperatingAccount":241109.01340763108},"grp_own":{"Enterprise":27588.0,"Education":9438.0,"Other Gov":150387.0,"Health & Care":56743.0,"Infrastructure":56711.0},"grp_gross":{"Enterprise":27605.0,"Education":111740.0,"Other Gov":244856.0,"Health & Care":276889.0,"Infrastructure":120289.0,"Treasury Ops":31018.0,"Social Security":321511.0},"grp_gra":{"Enterprise":17.0,"Education":102302.0,"Health & Care":220146.0,"Social Security":321511.0,"Treasury Ops":31018.0,"Other Gov":94469.0,"Infrastructure":63578.0},"grp_cats":{"Enterprise":{"Employee Costs":9135.0,"Infrastructure":1221.0,"Supplies & Services":13062.0,"Loan & Other":4187.0},"Education":{"Employee Costs":74033.0,"Infrastructure":4107.0,"Supplies & Services":9742.0,"Loan & Other":23858.0},"Other Gov":{"Employee Costs":108311.0,"Infrastructure":14484.0,"Supplies & Services":84567.0,"Loan & Other":37494.0},"Health & Care":{"Employee Costs":158263.0,"Infrastructure":1581.0,"Supplies & Services":30185.0,"Agency & Contracted":80363.0,"Loan & Other":6497.0},"Infrastructure":{"Employee Costs":44012.0,"Infrastructure":35296.0,"Supplies & Services":16232.0,"Agency & Contracted":2147.0,"Loan & Other":22602.0},"Treasury Ops":{"Employee Costs":14236.0,"Infrastructure":11.0,"Supplies & Services":2197.0,"Agency & Contracted":3529.0,"Loan & Other":11045.0},"Social Security":{"Social Security":321511.0}},"cats4":{"Employee Costs":407990.0,"Infrastructure":56700.0,"Supplies & Services":155985.0,"Loan & Other":105683.0,"Agency & Contracted":86039.0,"Social Security":321511.0},"total_gross":1133908.0,"total_own":300867.0,"total_gra":833041.0},"2020":{"rev":{"CustomsExcise":370962.6111002151,"IncomeTax":201218.787078805,"OtherTreasuryIncome":8599.557077881445,"NIOperatingAccount":223394.04474309843},"grp_own":{"Enterprise":25687.0,"Education":10030.0,"Other Gov":149187.0,"Health & Care":54682.0,"Infrastructure":56011.0},"grp_gross":{"Enterprise":26748.0,"Education":118534.0,"Other Gov":203019.0,"Health & Care":285677.0,"Infrastructure":126270.0,"Treasury Ops":13647.0,"Social Security":325877.0},"grp_gra":{"Enterprise":1061.0,"Education":108504.0,"Health & Care":230995.0,"Social Security":325877.0,"Treasury Ops":13647.0,"Other Gov":53832.0,"Infrastructure":70259.0},"grp_cats":{"Enterprise":{"Employee Costs":9920.0,"Infrastructure":1092.0,"Supplies & Services":14018.0,"Loan & Other":1718.0},"Education":{"Employee Costs":79988.0,"Infrastructure":3926.0,"Supplies & Services":10158.0,"Loan & Other":24462.0},"Other Gov":{"Employee Costs":85577.0,"Infrastructure":13227.0,"Supplies & Services":42328.0,"Loan & Other":61887.0},"Health & Care":{"Employee Costs":164072.0,"Infrastructure":1705.0,"Supplies & Services":30863.0,"Agency & Contracted":83830.0,"Loan & Other":5207.0},"Infrastructure":{"Employee Costs":47021.0,"Infrastructure":34016.0,"Supplies & Services":19808.0,"Agency & Contracted":2571.0,"Loan & Other":22854.0},"Treasury Ops":{"Employee Costs":14959.0,"Infrastructure":7.0,"Supplies & Services":1951.0,"Agency & Contracted":3585.0,"Loan & Other":-6855.0},"Social Security":{"Social Security":325877.0}},"cats4":{"Employee Costs":401537.0,"Infrastructure":53973.0,"Supplies & Services":119126.0,"Loan & Other":109273.0,"Agency & Contracted":89986.0,"Social Security":325877.0},"total_gross":1099772.0,"total_own":295597.0,"total_gra":804175.0},"2021":{"rev":{"CustomsExcise":329765.7860753929,"IncomeTax":235929.52800445104,"OtherTreasuryIncome":6744.113947961315,"NIOperatingAccount":304590.57197219477},"grp_own":{"Enterprise":23032.0,"Education":4793.0,"Other Gov":144489.0,"Health & Care":51310.0,"Infrastructure":43170.0},"grp_gross":{"Enterprise":24377.0,"Education":119374.0,"Other Gov":225866.0,"Health & Care":277824.0,"Infrastructure":115749.0,"Treasury Ops":-1007.0,"Social Security":381641.0},"grp_gra":{"Enterprise":1345.0,"Education":114581.0,"Health & Care":226514.0,"Social Security":381641.0,"Treasury Ops":0,"Other Gov":81377.0,"Infrastructure":72579.0},"grp_cats":{"Enterprise":{"Employee Costs":9946.0,"Infrastructure":513.0,"Supplies & Services":8115.0,"Loan & Other":5803.0},"Education":{"Employee Costs":87670.0,"Infrastructure":4085.0,"Supplies & Services":6918.0,"Loan & Other":20701.0},"Other Gov":{"Employee Costs":118581.0,"Infrastructure":15075.0,"Supplies & Services":67441.0,"Agency & Contracted":0.0,"Loan & Other":24769.0},"Health & Care":{"Employee Costs":172349.0,"Infrastructure":1435.0,"Supplies & Services":36127.0,"Agency & Contracted":79694.0,"Loan & Other":-11781.0},"Infrastructure":{"Employee Costs":41497.0,"Infrastructure":33591.0,"Supplies & Services":24147.0,"Agency & Contracted":3218.0,"Loan & Other":13296.0},"Treasury Ops":{"Employee Costs":16984.0,"Infrastructure":12.0,"Supplies & Services":3355.0,"Agency & Contracted":3576.0,"Loan & Other":-24934.0},"Social Security":{"Social Security":381641.0}},"cats4":{"Employee Costs":447027.0,"Infrastructure":54711.0,"Supplies & Services":146103.0,"Loan & Other":27854.0,"Agency & Contracted":86488.0,"Social Security":381641.0},"total_gross":1143824.0,"total_own":266794.0,"total_gra":877030.0},"2022":{"rev":{"CustomsExcise":408252.2691184888,"IncomeTax":232727.23273195903,"OtherTreasuryIncome":8448.187914080443,"NIOperatingAccount":295505.31023547164},"grp_own":{"Enterprise":25087.0,"Education":9135.0,"Other Gov":166598.0,"Health & Care":52501.0,"Infrastructure":47191.0},"grp_gross":{"Enterprise":24346.0,"Education":118160.0,"Other Gov":248835.0,"Health & Care":294790.0,"Infrastructure":99453.0,"Treasury Ops":64886.0,"Social Security":394975.0},"grp_gra":{"Enterprise":0,"Education":109025.0,"Health & Care":242289.0,"Social Security":394975.0,"Treasury Ops":64886.0,"Other Gov":82237.0,"Infrastructure":52262.0},"grp_cats":{"Enterprise":{"Employee Costs":10204.0,"Infrastructure":1032.0,"Supplies & Services":9241.0,"Loan & Other":3869.0},"Education":{"Employee Costs":90200.0,"Infrastructure":4876.0,"Supplies & Services":9757.0,"Loan & Other":13327.0},"Other Gov":{"Employee Costs":124647.0,"Infrastructure":16350.0,"Supplies & Services":141302.0,"Agency & Contracted":3.0,"Loan & Other":-33467.0},"Health & Care":{"Employee Costs":180549.0,"Infrastructure":1812.0,"Supplies & Services":47930.0,"Agency & Contracted":87812.0,"Loan & Other":-23313.0},"Infrastructure":{"Employee Costs":44364.0,"Infrastructure":35582.0,"Supplies & Services":20675.0,"Agency & Contracted":1505.0,"Loan & Other":-2673.0},"Treasury Ops":{"Employee Costs":17366.0,"Infrastructure":2.0,"Supplies & Services":18883.0,"Agency & Contracted":3835.0,"Loan & Other":24800.0},"Social Security":{"Social Security":394975.0}},"cats4":{"Employee Costs":467330.0,"Infrastructure":59654.0,"Supplies & Services":247788.0,"Loan & Other":-17457.0,"Agency & Contracted":93155.0,"Social Security":394975.0},"total_gross":1245445.0,"total_own":300512.0,"total_gra":944933.0},"2023":{"rev":{"CustomsExcise":447224.0231888606,"IncomeTax":272105.34222896653,"OtherTreasuryIncome":11638.557686548527,"NIOperatingAccount":303308.0768956243},"grp_own":{"Enterprise":27792.0,"Education":9054.0,"Other Gov":196763.0,"Health & Care":66292.0,"Infrastructure":55371.0},"grp_gross":{"Enterprise":29408.0,"Education":121773.0,"Other Gov":372073.0,"Health & Care":314191.0,"Infrastructure":102339.0,"Treasury Ops":73919.0,"Social Security":375845.0},"grp_gra":{"Enterprise":1616.0,"Education":112719.0,"Health & Care":247899.0,"Social Security":375845.0,"Treasury Ops":73919.0,"Other Gov":175310.0,"Infrastructure":46968.0},"grp_cats":{"Enterprise":{"Employee Costs":11049.0,"Infrastructure":1009.0,"Supplies & Services":17189.0,"Loan & Other":161.0},"Education":{"Employee Costs":97409.0,"Infrastructure":6598.0,"Supplies & Services":10321.0,"Loan & Other":7445.0},"Other Gov":{"Employee Costs":148635.0,"Infrastructure":19006.0,"Supplies & Services":155965.0,"Agency & Contracted":55.0,"Loan & Other":48412.0},"Health & Care":{"Employee Costs":197905.0,"Infrastructure":1883.0,"Supplies & Services":40844.0,"Agency & Contracted":98514.0,"Loan & Other":-24955.0},"Infrastructure":{"Employee Costs":45294.0,"Infrastructure":38091.0,"Supplies & Services":21064.0,"Agency & Contracted":1813.0,"Loan & Other":-3923.0},"Treasury Ops":{"Employee Costs":17623.0,"Infrastructure":7.0,"Supplies & Services":7011.0,"Agency & Contracted":3671.0,"Loan & Other":45607.0},"Social Security":{"Social Security":375845.0}},"cats4":{"Employee Costs":517915.0,"Infrastructure":66594.0,"Supplies & Services":252394.0,"Loan & Other":72747.0,"Agency & Contracted":104053.0,"Social Security":375845.0},"total_gross":1389548.0,"total_own":355272.0,"total_gra":1034276.0},"2024":{"rev":{"CustomsExcise":436412.7170733511,"IncomeTax":321056.197256447,"OtherTreasuryIncome":15850.49154452908,"NIOperatingAccount":322437.5941256728},"grp_own":{"Enterprise":27372.0,"Education":9074.0,"Other Gov":181659.0,"Health & Care":69626.0,"Infrastructure":61273.0},"grp_gross":{"Enterprise":27259.0,"Education":142147.0,"Other Gov":336065.0,"Health & Care":369982.0,"Infrastructure":117914.0,"Treasury Ops":60784.0,"Social Security":390610.0},"grp_gra":{"Enterprise":0,"Education":133073.0,"Health & Care":300356.0,"Social Security":390610.0,"Treasury Ops":60784.0,"Other Gov":154406.0,"Infrastructure":56641.0},"grp_cats":{"Enterprise":{"Employee Costs":12644.0,"Infrastructure":745.0,"Supplies & Services":16677.0,"Loan & Other":-2807.0},"Education":{"Employee Costs":107429.0,"Infrastructure":8079.0,"Supplies & Services":9290.0,"Loan & Other":17349.0},"Other Gov":{"Employee Costs":167917.0,"Infrastructure":21685.0,"Supplies & Services":108671.0,"Agency & Contracted":6.0,"Loan & Other":37786.0},"Health & Care":{"Employee Costs":221123.0,"Infrastructure":2461.0,"Supplies & Services":40950.0,"Agency & Contracted":107192.0,"Loan & Other":-1744.0},"Infrastructure":{"Employee Costs":47077.0,"Infrastructure":41272.0,"Supplies & Services":23461.0,"Agency & Contracted":4929.0,"Loan & Other":1175.0},"Treasury Ops":{"Employee Costs":19525.0,"Infrastructure":8.0,"Supplies & Services":5566.0,"Agency & Contracted":3380.0,"Loan & Other":32305.0},"Social Security":{"Social Security":390610.0}},"cats4":{"Employee Costs":575715.0,"Infrastructure":74250.0,"Supplies & Services":204615.0,"Loan & Other":84064.0,"Agency & Contracted":115507.0,"Social Security":390610.0},"total_gross":1444761.0,"total_own":349004.0,"total_gra":1095757.0},"2025":{"rev":{"CustomsExcise":480939.1607099503,"IncomeTax":358210.4657734674,"OtherTreasuryIncome":4865.188692502239,"NIOperatingAccount":302829.18482408003},"grp_own":{"Enterprise":29098.0,"Education":10222.0,"Other Gov":173288.0,"Health & Care":70493.0,"Infrastructure":64501.0},"grp_gross":{"Enterprise":30850.0,"Education":152565.0,"Other Gov":333596.0,"Health & Care":387072.0,"Infrastructure":123247.0,"Treasury Ops":51323.0,"Social Security":415793.0},"grp_gra":{"Enterprise":1752.0,"Education":142343.0,"Health & Care":316579.0,"Social Security":415793.0,"Treasury Ops":51323.0,"Other Gov":160308.0,"Infrastructure":58746.0},"grp_cats":{"Enterprise":{"Employee Costs":14093.0,"Infrastructure":857.0,"Supplies & Services":19685.0,"Loan & Other":-3785.0},"Education":{"Employee Costs":114598.0,"Infrastructure":8897.0,"Supplies & Services":10946.0,"Loan & Other":18124.0},"Other Gov":{"Employee Costs":176553.0,"Infrastructure":25324.0,"Supplies & Services":94359.0,"Agency & Contracted":482.0,"Loan & Other":36878.0},"Health & Care":{"Employee Costs":235338.0,"Infrastructure":2201.0,"Supplies & Services":43935.0,"Agency & Contracted":108101.0,"Loan & Other":-2503.0},"Infrastructure":{"Employee Costs":51703.0,"Infrastructure":42739.0,"Supplies & Services":24287.0,"Agency & Contracted":6106.0,"Loan & Other":-1588.0},"Treasury Ops":{"Employee Costs":21895.0,"Infrastructure":10.0,"Supplies & Services":6676.0,"Agency & Contracted":3433.0,"Loan & Other":19309.0},"Social Security":{"Social Security":415793.0}},"cats4":{"Employee Costs":614180.0,"Infrastructure":80028.0,"Supplies & Services":199888.0,"Loan & Other":66435.0,"Agency & Contracted":118122.0,"Social Security":415793.0},"total_gross":1494446.0,"total_own":347602.0,"total_gra":1146844.0}};
+
+// ── Deflators (IoM CPI, base 2024-25) ────────────────────────────────────────
+const DEFLATORS={2016:1.333936,2017:1.284234,2018:1.252817,2019:1.227988,
+  2020:1.232931,2021:1.17894,2022:1.081041,2023:1.023646,2024:1.0,2025:1.0};
+// FY2025 = 2024-25 = base year = 1.0
+
+let useConstPrices=true;
+function defl(v,fy){return useConstPrices?(v*(DEFLATORS[fy]||1)):v;}
+function deflD(d,fy){
+  // Return a deflated copy of a year's data object
+  const f=v=>defl(v,fy);
+  const deflObj=(obj)=>{const o={};for(const k in obj)o[k]=f(obj[k]||0);return o;};
+  const deflObjObj=(obj)=>{const o={};for(const k in obj)o[k]=deflObj(obj[k]||{});return o;};
+  return{
+    rev:deflObj(d.rev),
+    grp_own:deflObj(d.grp_own),
+    grp_gross:deflObj(d.grp_gross),
+    grp_gra:deflObj(d.grp_gra),
+    grp_cats:deflObjObj(d.grp_cats),
+    cats4:deflObj(d.cats4),
+    total_gross:f(d.total_gross),
+    total_own:f(d.total_own),
+    total_gra:f(d.total_gra),
+  };
+}
+
+// ── Node taxonomy ─────────────────────────────────────────────────────────────
+const REV_ORDER=['CustomsExcise','IncomeTax','NIOperatingAccount','OtherTreasuryIncome'];
+const REV_LABEL={'CustomsExcise':'Customs & Excise','IncomeTax':'Income Tax',
+  'NIOperatingAccount':'National Insurance','OtherTreasuryIncome':'Other Treasury Income'};
+const REV_COLOR={'CustomsExcise':'#f59e0b','IncomeTax':'#fcd34d',
+  'NIOperatingAccount':'#fb923c','OtherTreasuryIncome':'#94a3b8'};
+
+const GRP_ORDER=['Health & Care','Social Security','Education','Infrastructure',
+                 'Enterprise','Treasury Ops','Other Gov'];
+const GRP_COLOR={'Health & Care':'#f87171','Social Security':'#fb923c','Education':'#60a5fa',
+  'Infrastructure':'#94a3b8','Enterprise':'#4ade80','Treasury Ops':'#C9A24A','Other Gov':'#818cf8'};
+const OWN_COLOR={'Health & Care':'#f87171aa','Other Gov':'#818cf8aa','Infrastructure':'#94a3b8aa',
+  'Enterprise':'#4ade80aa','Education':'#60a5faaa','Treasury Ops':'#C9A24Aaa'};
+
+const CAT_ORDER=['Employee Costs','Social Security','Supplies & Services',
+                 'Agency & Contracted','Infrastructure','Loan & Other'];
+const CAT_COLOR={'Employee Costs':'#f87171','Social Security':'#fb923c',
+  'Supplies & Services':'#4ade80','Agency & Contracted':'#c084fc',
+  'Infrastructure':'#60a5fa','Loan & Other':'#6b7280'};
+
+const OWN_LABEL={'Health & Care':'Health & Care Income','Other Gov':'Utilities & Boards Income',
+  'Infrastructure':'Infrastructure Income','Enterprise':'Enterprise Income',
+  'Education':'Education Income','Treasury Ops':'Treasury Other Income'};
+
+// Which column a node id belongs to (for link connectivity)
+// col: 'rev' | 'grp' | 'cat'
+function nodeCol(id){
+  if(REV_ORDER.includes(id)) return 'rev';
+  if(GRP_ORDER.includes(id)) return 'grp';
+  if(CAT_ORDER.includes(id)) return 'cat';
+  return null;
+}
+
+// Data-aware connectivity — returns {grp: Set, cat: Set, rev: Set, special: Set}
+// so Infrastructure-the-dept and Infrastructure-the-cat can be distinguished.
+function linkedNodeSets(selId, d){
+  const col=nodeCol(selId);
+  const grp=new Set(), cat=new Set(), rev=new Set(), special=new Set();
+  if(!col) return {grp,cat,rev,special};
+  if(col==='rev'){
+    rev.add(selId);
+    special.add('GRA');
+    GRP_ORDER.forEach(g=>grp.add(g));
+    CAT_ORDER.forEach(c=>cat.add(c));
+  } else if(col==='grp'){
+    grp.add(selId);  // dept node + its own-income node (same id, different sub)
+    special.add('GRA');
+    const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
+    CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) cat.add(c); });
+    // rev sources NOT added — they fade
+  } else if(col==='cat'){
+    cat.add(selId);
+    special.add('GRA');
+    GRP_ORDER.forEach(g=>{
+      const gc=(d&&d.grp_cats&&d.grp_cats[g])||{};
+      if((gc[selId]||0)>0) grp.add(g);
+    });
+    // rev sources NOT added
+  }
+  return {grp,cat,rev,special};
+}
+// Legacy wrapper used by getNodeOpacity
+function linkedNodeIds(selId, d){ return selId; } // replaced by linkedNodeSets
+
+// connectedLinkIds: which link ids should be visible (not hidden in filter mode)
+function connectedLinkIds(selId, d){
+  const col=nodeCol(selId);
+  if(!col) return new Set();
+  const ids=new Set();
+  if(col==='rev'){
+    ids.add('rv-'+selId);
+    // All GRA→dept links
+    GRP_ORDER.forEach(g=>ids.add('gra-'+g));
+    // All dept→cat links
+    GRP_ORDER.forEach(g=>CAT_ORDER.forEach(c=>ids.add('c-'+g+'-'+c)));
+  } else if(col==='grp'){
+    // Income side: only the GRA→this dept ribbon + own income ribbon for this dept
+    // (rev→GRA ribbons fade — they're upstream of the selection)
+    ids.add('gra-'+selId);
+    ids.add('own-'+selId);
+    // Expenditure side: only ribbons from this dept to cats with actual spend
+    const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
+    CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) ids.add('c-'+selId+'-'+c); });
+  } else if(col==='cat'){
+    // Only depts that spend on this cat + their GRA and own ribbons
+    GRP_ORDER.forEach(g=>{
+      const gc=(d&&d.grp_cats&&d.grp_cats[g])||{};
+      if((gc[selId]||0)>0){
+        ids.add('gra-'+g);
+        ids.add('own-'+g);
+        ids.add('c-'+g+'-'+selId);
+      }
+    });
+  }
+  return ids;
+}
+
+const fmt=v=>{const m=Math.abs(v)/1000;if(m>=1000)return(v<0?'-':'')+'£'+(m/1000).toFixed(2)+'bn';if(m>=1)return(v<0?'-':'')+'£'+m.toFixed(0)+'m';return'£'+Math.round(m*1000)+'k'};
+const pct=(v,t)=>t>0?(v/t*100).toFixed(0)+'%':'—';
+
+// ── Layout constants ──────────────────────────────────────────────────────────
+const NW=22, PAD=5, TPAD=24, BPAD=6, LPAD=168, RPAD=188, OWN_GAP=18;
+const svg=d3.select('#chart');
+let W,H;
+
+function dims(){
+  const el=document.querySelector('.viz');
+  W=el.clientWidth; H=el.clientHeight;
+  svg.attr('viewBox',`0 0 ${W} ${H}`);
+}
+
+function cx(col){
+  const u=W-LPAD-RPAD;
+  return[LPAD, LPAD+u*0.30, LPAD+u*0.63, LPAD+u-NW][col];
+}
+
+function buildLayout(fy){
+  const raw=DATA[String(fy)]; if(!raw) return null;
+  const d=deflD(raw,fy);
+  const avH=H-TPAD-BPAD;
+  const nRev=REV_ORDER.filter(k=>(d.rev[k]||0)>0.1).length;
+  const nOwn=GRP_ORDER.filter(g=>(d.grp_own[g]||0)>=500).length;
+  const col0GapOverhead=(nRev-1)*PAD + OWN_GAP + (nOwn-1)*PAD;
+  const SC=(avH-col0GapOverhead)/d.total_gross;
+
+  const revNodes=[];
+  let y=TPAD;
+  for(const k of REV_ORDER){
+    const v=d.rev[k]||0; if(v<0.1) continue;
+    const h=Math.max(v*SC,2);
+    revNodes.push({id:k,amt:v,h,y0:y,y1:y+h,col:0,sub:'rev',color:REV_COLOR[k]});
+    y+=h+PAD;
+  }
+  const revBottom=y-PAD;
+
+  const ownNodes=[];
+  y=revBottom+OWN_GAP;
+  for(const grp of GRP_ORDER){
+    const v=d.grp_own[grp]||0; if(v<500) continue;
+    const h=Math.max(v*SC,2);
+    ownNodes.push({id:grp,amt:v,h,y0:y,y1:y+h,col:0,sub:'own',color:OWN_COLOR[grp]||'#888a'});
+    y+=h+PAD;
+  }
+
+  const graH=d.total_gra*SC;
+  const graNode={id:'GRA',sub:'gra',amt:d.total_gra,h:graH,y0:TPAD,y1:TPAD+graH,
+    x0:cx(1),x1:cx(1)+NW,color:'#C9A24A'};
+
+  const grpNodes=[];
+  y=TPAD;
+  for(const grp of GRP_ORDER){
+    const gross=d.grp_gross[grp]||0; if(gross<500) continue;
+    const h=Math.max(gross*SC,2);
+    const gra_h=(d.grp_gra[grp]||0)*SC;
+    const own_h=(d.grp_own[grp]||0)*SC;
+    grpNodes.push({id:grp,amt:gross,h,y0:y,y1:y+h,gra_h,own_h,sub:'grp',
+      x0:cx(2),x1:cx(2)+NW,color:GRP_COLOR[grp]});
+    y+=h+PAD;
+  }
+
+  const cat4Nodes=[];
+  y=TPAD;
+  for(const c of CAT_ORDER){
+    const v=d.cats4[c]||0; if(v<500) continue;
+    const h=Math.max(v*SC,2);
+    cat4Nodes.push({id:c,amt:v,h,y0:y,y1:y+h,sub:'cat',x0:cx(3),x1:cx(3)+NW,color:CAT_COLOR[c]});
+    y+=h+PAD;
+  }
+
+  const revLinks=[];
+  let graInY=TPAD;
+  for(const n of revNodes){
+    const th=n.h;
+    revLinks.push({id:'rv-'+n.id,nodeIds:[n.id,'GRA'],
+      x0:cx(0)+NW, sy0:n.y0, sy1:n.y1,
+      x1:cx(1), ty0:graInY, ty1:graInY+th,
+      color:n.color, op:0.55});
+    graInY+=th;
+  }
+
+  const graLinks=[];
+  let graOutY=TPAD;
+  for(const gn of grpNodes){
+    const sh=gn.gra_h; if(sh<1) continue;
+    graLinks.push({id:'gra-'+gn.id,nodeIds:['GRA',gn.id],
+      x0:cx(1)+NW, sy0:graOutY, sy1:graOutY+sh,
+      x1:cx(2), ty0:gn.y0, ty1:gn.y0+gn.gra_h,
+      color:gn.color, op:0.45});
+    graOutY+=sh;
+  }
+
+  const ownLinks=[];
+  const ownByGrp={};
+  for(const on of ownNodes) ownByGrp[on.id]=on;
+  for(const gn of grpNodes){
+    const on=ownByGrp[gn.id]; if(!on||gn.own_h<1) continue;
+    ownLinks.push({id:'own-'+gn.id,nodeIds:[gn.id],
+      x0:cx(0)+NW, sy0:on.y0, sy1:on.y1,
+      x1:cx(2), ty0:gn.y0+gn.gra_h, ty1:gn.y1,
+      color:gn.color, op:0.35});
+  }
+
+  const grpCatOff={};
+  for(const gn of grpNodes){
+    const gc=d.grp_cats[gn.id]||{};
+    let yy=gn.y0; const offs={};
+    for(const c of CAT_ORDER){
+      const amt=gc[c]||0; if(amt<0.1) continue;
+      const h=amt*SC;
+      offs[c]={y0:yy,y1:yy+h}; yy+=h;
+    }
+    grpCatOff[gn.id]=offs;
+  }
+  const cat4GrpOff={};
+  for(const cn of cat4Nodes){
+    let yy=cn.y0; const offs={};
+    for(const gn of grpNodes){
+      const gc=d.grp_cats[gn.id]||{};
+      const amt=gc[cn.id]||0; if(amt<0.1) continue;
+      const h=amt*SC;
+      offs[gn.id]={y0:yy,y1:yy+h}; yy+=h;
+    }
+    cat4GrpOff[cn.id]=offs;
+  }
+  const cat4Links=[];
+  for(const gn of grpNodes){
+    for(const cn of cat4Nodes){
+      const so=(grpCatOff[gn.id]||{})[cn.id];
+      const to=(cat4GrpOff[cn.id]||{})[gn.id];
+      if(!so||!to) continue;
+      cat4Links.push({id:`c-${gn.id}-${cn.id}`,nodeIds:[gn.id,cn.id],
+        x0:cx(2)+NW, sy0:so.y0, sy1:so.y1,
+        x1:cx(3), ty0:to.y0, ty1:to.y1,
+        color:gn.color, op:0.4});
+    }
+  }
+
+  return{revNodes,ownNodes,graNode,grpNodes,cat4Nodes,
+         revLinks,graLinks,ownLinks,cat4Links,d,fy};
+}
+
+function rib(x0,sy0,sy1,x1,ty0,ty1){
+  const mx=(x0+x1)/2;
+  return `M${x0},${sy0}C${mx},${sy0} ${mx},${ty0} ${x1},${ty0}L${x1},${ty1}C${mx},${ty1} ${mx},${sy1} ${x0},${sy1}Z`;
+}
+
+// ── Selection state ───────────────────────────────────────────────────────────
+let selectedNode='';    // '' = none
+let filterMode=true;    // always filter: non-connected links hidden
+
+function getNodeOpacity(nodeId, selId, d, nodeSub){
+  if(!selId) return 1;
+  const sets=linkedNodeSets(selId, d);
+  if(nodeSub==='gra')  return sets.special.has('GRA') ? 1 : 0.07;
+  if(nodeSub==='rev')  return sets.rev.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='own')  return sets.grp.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='grp')  return sets.grp.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='cat')  return sets.cat.has(nodeId) ? 1 : 0.07;
+  return 1;
+}
+function getLinkOpacity(link, selId, baseOp, d){
+  if(!selId) return baseOp;
+  const conn=connectedLinkIds(selId, d);
+  if(filterMode) return conn.has(link.id) ? baseOp : 0;
+  return conn.has(link.id) ? Math.min(baseOp+0.2, 0.85) : 0.04;
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+const DUR=700;
+let prevLayout=null;
+
+function draw(fy,animate){
+  const lyt=buildLayout(fy); if(!lyt) return;
+  const ld=lyt.d; // fiscal data for connectivity lookups
+
+  const prevR={};
+  if(prevLayout){
+    [...prevLayout.revLinks,...prevLayout.graLinks,...prevLayout.ownLinks,...prevLayout.cat4Links]
+      .forEach(l=>{prevR[l.id]=l;});
+  }
+
+  function pathFor(l){return rib(l.x0,l.sy0,l.sy1,l.x1,l.ty0,l.ty1);}
+  function pathFrom(l){const p=prevR[l.id]||l; return rib(l.x0,p.sy0,p.sy1,l.x1,p.ty0,p.ty1);}
+
+  const allLinks=[...lyt.revLinks,...lyt.graLinks,...lyt.ownLinks,...lyt.cat4Links];
+
+  const linkSel=svg.selectAll('path.link').data(allLinks, d=>d.id);
+
+  linkSel.enter().append('path').attr('class','link')
+    .attr('fill', d=>d.color)
+    .attr('opacity', d=>getLinkOpacity(d,selectedNode,d.op,ld))
+    .attr('d', d=>pathFrom(d))
+  .merge(linkSel)
+    .each(function(d){
+      const sel=d3.select(this);
+      const op=getLinkOpacity(d,selectedNode,d.op,ld);
+      if(animate) sel.transition().duration(DUR).attr('d',pathFor(d)).attr('opacity',op);
+      else sel.attr('d',pathFor(d)).attr('opacity',op);
+      sel.attr('fill',d.color);
+    });
+
+  linkSel.exit().transition().duration(DUR/2).attr('opacity',0).remove();
+
+  // Nodes
+  const allNodes=[...lyt.revNodes,...lyt.ownNodes,lyt.graNode,...lyt.grpNodes,...lyt.cat4Nodes];
+  const nodeX=n=>n.x0!=null?n.x0:(n.sub==='own'||n.sub==='rev'?cx(0):0);
+
+  svg.selectAll('rect.node').data(allNodes,d=>d.id+(d.sub||d.col||''))
+    .join(
+      enter=>enter.append('rect').attr('class','node')
+        .attr('data-nodeid',d=>d.id)
+        .attr('x',d=>nodeX(d)).attr('y',d=>d.y0).attr('width',NW).attr('height',d=>d.h)
+        .attr('rx',2).attr('fill',d=>d.color)
+        .attr('opacity',d=>getNodeOpacity(d.id,selectedNode,ld,d.sub))
+        .on('mouseenter',nodeMouseEnter)
+        .on('mouseleave',nodeMouseLeave),
+      update=>update.each(function(d){
+        const s=d3.select(this);
+        const op=getNodeOpacity(d.id,selectedNode,ld,d.sub);
+        if(animate) s.transition().duration(DUR).attr('y',d.y0).attr('height',d.h).attr('fill',d.color).attr('opacity',op);
+        else s.attr('y',d.y0).attr('height',d.h).attr('fill',d.color).attr('opacity',op);
+        s.attr('x',nodeX(d)).attr('data-nodeid',d.id);
+      }),
+      exit=>exit.remove()
+    );
+
+  // Labels
+  svg.selectAll('text.lbl').remove();
+  const G=5;
+
+  for(const n of lyt.revNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'rev');
+    svg.append('text').attr('class','lbl lbl-l').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',showAmt?mid-6:mid).text(REV_LABEL[n.id]||n.id);
+    if(showAmt) svg.append('text').attr('class','lbl lbl-al').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  if(lyt.ownNodes.length){
+    const divY=lyt.revNodes[lyt.revNodes.length-1].y1+OWN_GAP/2;
+    svg.append('text').attr('class','lbl own-badge')
+      .attr('x',cx(0)+NW/2).attr('y',divY-1).text('Dept Own Income');
+  }
+  for(const n of lyt.ownNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'own');
+    svg.append('text').attr('class','lbl lbl-l').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',showAmt?mid-6:mid).text(OWN_LABEL[n.id]||n.id+' Income');
+    if(showAmt) svg.append('text').attr('class','lbl lbl-al').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  // GRA label
+  if(lyt.graNode.h>40){
+    const gmid=lyt.graNode.y0+lyt.graNode.h/2;
+    const gx=cx(1)-G;
+    svg.append('text').attr('class','lbl').attr('text-anchor','end')
+      .attr('dominant-baseline','middle').attr('x',gx).attr('y',gmid-7)
+      .attr('font-size','11px').attr('font-weight','700').attr('fill','#C9A24A').text('GRA');
+    svg.append('text').attr('class','lbl').attr('text-anchor','end')
+      .attr('dominant-baseline','middle').attr('x',gx).attr('y',gmid+7)
+      .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace').attr('fill','#e2e8f0')
+      .text(fmt(lyt.graNode.amt));
+  }
+
+  for(const n of lyt.grpNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'grp');
+    svg.append('text').attr('class','lbl lbl-r').attr('opacity',op)
+      .attr('x',cx(2)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
+    if(showAmt) svg.append('text').attr('class','lbl lbl-a').attr('opacity',op)
+      .attr('x',cx(2)+NW+G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  for(const n of lyt.cat4Nodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'cat');
+    svg.append('text').attr('class','lbl lbl-r').attr('opacity',op)
+      .attr('x',cx(3)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
+    if(showAmt) svg.append('text').attr('class','lbl lbl-a').attr('opacity',op)
+      .attr('x',cx(3)+NW+G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  // Col headers
+  svg.selectAll('text.col-hdr').remove();
+  [[cx(0)+NW/2,'Revenue Sources'],[cx(1)+NW/2,'General Revenue Account'],
+   [cx(2)+NW/2,'Department Groups'],[cx(3)+NW/2,'Expenditure Types']]
+    .forEach(([x,t])=>svg.append('text').attr('class','lbl col-hdr').attr('x',x).attr('y',13).text(t));
+
+  prevLayout=lyt;
+  updateStats(lyt);
+}
+
+function applyHighlight(){
+  // Re-apply opacity to existing elements without full redraw
+  const _ld=prevLayout?prevLayout.d:null;
+  svg.selectAll('path.link').attr('opacity',function(d){return getLinkOpacity(d,selectedNode,d.op,_ld);});
+  svg.selectAll('rect.node').attr('opacity',function(d){return getNodeOpacity(d.id,selectedNode,_ld,d.sub);});
+  svg.selectAll('text.lbl').attr('opacity',function(){
+    // Labels don't carry data easily — simplest is full redraw
+    return null;
+  });
+  if(prevLayout) draw(curFY, false);
+}
+
+function updateStats(lyt){
+  const d=lyt.d;
+  const t=d.total_gross, gra=d.total_gra, own=d.total_own;
+  const hlt=(d.grp_gross['Health & Care']||0);
+  const ss=(d.grp_gross['Social Security']||0);
+  const sta=(d.cats4['Employee Costs']||0);
+  document.getElementById('s-tot').textContent=fmt(t);
+  document.getElementById('s-gra').textContent=fmt(gra)+' ('+pct(gra,t)+')';
+  document.getElementById('s-own').textContent=fmt(own)+' ('+pct(own,t)+')';
+  document.getElementById('s-hlt').textContent=fmt(hlt)+' ('+pct(hlt,t)+')';
+  document.getElementById('s-ss').textContent=fmt(ss)+' ('+pct(ss,t)+')';
+  document.getElementById('s-sta').textContent=fmt(sta)+' ('+pct(sta,t)+')';
+  // Price basis indicator on stat bar label
+  const lbl=document.querySelector('.stat-lbl');
+  if(lbl) lbl.textContent=useConstPrices?'Total Spending (2024-25 £)':'Total Spending (nominal £)';
+}
+
+// ── Time-series popout ────────────────────────────────────────────────────────
+let tsChart=null;
+let tsHideTimer=null;
+
+function getNodeTimeSeries(nodeId){
+  const col=nodeCol(nodeId);
+  const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  const vals=years.map(fy=>{
+    const raw=DATA[String(fy)];
+    if(!raw) return null;
+    const d=useConstPrices?deflD(raw,fy):raw;
+    if(col==='rev') return d.rev[nodeId]||null;
+    if(col==='grp') return d.grp_gross[nodeId]||null;
+    if(col==='cat') return d.cats4[nodeId]||null;
+    return null;
+  });
+  return{years,vals};
+}
+
+function getNodeLabel(nodeId){
+  if(REV_LABEL[nodeId]) return REV_LABEL[nodeId];
+  return nodeId;
+}
+
+function getNodeColor(nodeId){
+  return REV_COLOR[nodeId]||GRP_COLOR[nodeId]||CAT_COLOR[nodeId]||'#C9A24A';
+}
+
+function showTsPopup(nodeId, svgRect){
+  clearTimeout(tsHideTimer);
+  const popup=document.getElementById('ts-popup');
+  const {years,vals}=getNodeTimeSeries(nodeId);
+  const label=getNodeLabel(nodeId);
+  const color=getNodeColor(nodeId);
+
+  document.getElementById('ts-title').textContent=label;
+  document.getElementById('ts-sub').textContent=
+    (useConstPrices?'2024-25 constant prices':'Nominal')+ ' · FY2016–FY2025';
+
+  const canvas=document.getElementById('ts-canvas');
+
+  if(tsChart){tsChart.destroy();tsChart=null;}
+
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{
+      labels:years.map(y=>'FY'+y),
+      datasets:[{
+        data:vals,
+        borderColor:color,
+        backgroundColor:color+'22',
+        borderWidth:2,
+        pointRadius:3,
+        pointBackgroundColor:color,
+        fill:true,
+        tension:0.3,
+        spanGaps:true,
+      }]
+    },
+    options:{
+      animation:false,
+      responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>fmt(ctx.raw)},
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',
+        borderColor:'#1e2d4d',borderWidth:1,
+      }},
+      scales:{
+        x:{ticks:{color:'#64748b',font:{size:8},maxRotation:0},grid:{color:'#1e2d4d'}},
+        y:{ticks:{color:'#64748b',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e2d4d'}},
+      }
+    }
+  });
+
+  // Position: prefer right of cursor, flip if near right edge
+  popup.style.display='block';
+  const pw=popup.offsetWidth||260, ph=popup.offsetHeight||160;
+  const vw=window.innerWidth, vh=window.innerHeight;
+  // Position near the node in SVG
+  let px=svgRect.right+12;
+  let py=svgRect.top - ph/2;
+  if(px+pw>vw-10) px=svgRect.left-pw-12;
+  if(py<10) py=10;
+  if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px';
+  popup.style.top=py+'px';
+}
+
+function hideTsPopup(){
+  tsHideTimer=setTimeout(()=>{
+    document.getElementById('ts-popup').style.display='none';
+  },120);
+}
+
+function nodeMouseEnter(event,d){
+  if(d.id==='GRA') return; // GRA is a pass-through, no series
+  const rect=event.target.getBoundingClientRect();
+  showTsPopup(d.id, rect);
+}
+function nodeMouseLeave(){
+  hideTsPopup();
+}
+
+// ── Playback ─────────────────────────────────────────────────────────────────
+let curFY=2025, playing=false, timer=null;
+function setFY(fy,animate){
+  curFY=fy;
+  document.getElementById('yr-slider').value=fy;
+  document.getElementById('fy-disp').textContent='FY'+fy;
+  draw(fy,animate);
+}
+function play(){
+  playing=true;
+  document.getElementById('play-icon').innerHTML='&#9646;&#9646;';
+  document.getElementById('play-label').textContent='Stop';
+  timer=setInterval(()=>{
+    let next=curFY<2025?curFY+1:2016;
+    if(next===2017) next=2018; // FY2017 has classification breaks — skip in animation
+    setFY(next,true);
+  },1900);
+}
+function stop(){
+  playing=false;
+  document.getElementById('play-icon').innerHTML='&#9654;';
+  document.getElementById('play-label').textContent='Animate';
+  clearInterval(timer);
+}
+
+// ── Control wiring ────────────────────────────────────────────────────────────
+document.getElementById('play-btn').addEventListener('click',()=>playing?stop():play());
+document.getElementById('yr-slider').addEventListener('input',e=>{stop();setFY(+e.target.value,false);});
+
+document.getElementById('node-select').addEventListener('change',e=>{
+  selectedNode=e.target.value;
+  if(prevLayout) draw(curFY,false);
+});
+
+// filter-chk removed — filterMode always true
+
+document.getElementById('deflate-chk').addEventListener('change',e=>{
+  useConstPrices=e.target.checked;
+  if(prevLayout) draw(curFY,false);
+});
+
+
+// ── Governance notes toggle ───────────────────────────────────────────────────
+function toggleGov(){
+  const notes=document.getElementById('gov-notes');
+  const toggle=document.getElementById('gov-toggle');
+  const chevron=document.getElementById('gov-chevron');
+  const open=notes.classList.toggle('open');
+  toggle.classList.toggle('open',open);
+}
+// ── Boot ──────────────────────────────────────────────────────────────────────
+function init(){dims();draw(2025,false);}
+const ro=new ResizeObserver(()=>{dims();draw(curFY,false);});
+ro.observe(document.querySelector('.viz'));
+init();
+</script>
+</body>
+</html>

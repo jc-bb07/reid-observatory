@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IOM Department Explorer · Coalfinch Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--border:#334155;
+  --gold:#C9A24A;--text:#e2e8f0;--muted:#94a3b8;
+  --r1:#f87171;--r2:#fb923c;--r3:#fbbf24;
+  --g1:#4ade80;--g2:#34d399;--g3:#10b981;
+  --b1:#60a5fa;--b2:#818cf8;--b3:#c084fc;
+  --c1:#38bdf8;--c2:#06b6d4;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px}
+body{display:flex;flex-direction:column;min-height:100vh}
+
+/* ── Header ── */
+.hdr{background:#0a1221;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.hdr-logo{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);opacity:.8}
+.hdr-title{font-size:15px;font-weight:600;color:var(--text)}
+.hdr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── Controls ── */
+.controls{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;flex-shrink:0}
+select{background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit;cursor:pointer;min-width:220px}
+select:focus{outline:none;border-color:var(--gold)}
+.year-group{display:flex;align-items:center;gap:10px;flex:1;min-width:280px}
+#play-btn{background:var(--gold);color:#0f172a;border:none;border-radius:6px;width:34px;height:34px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+#play-btn:hover{opacity:.85}
+input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer;height:4px}
+.year-badge{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--gold);background:#0f172a;border:1px solid var(--border);border-radius:6px;padding:4px 10px;min-width:64px;text-align:center}
+.note-badge{font-size:11px;color:var(--r1);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:4px;padding:3px 8px;display:none}
+
+/* ── Stats bar ── */
+.stats{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:24px;flex-wrap:wrap;flex-shrink:0}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--text)}
+.stat-value.gold{color:var(--gold)}
+.stat-value.green{color:#4ade80}
+.stat-value.red{color:#f87171}
+
+/* ── Viz area ── */
+.viz-wrap{flex:1;display:flex;padding:20px;gap:0;overflow:hidden;min-height:400px}
+svg#chart{flex:1;overflow:visible}
+
+/* ── Ribbon + node styles ── */
+.ribbon{opacity:.75;transition:opacity .15s}
+.ribbon:hover{opacity:1;cursor:default}
+.node-rect{stroke:none;rx:3}
+.node-label{font-size:11px;fill:var(--text);pointer-events:none;dominant-baseline:middle}
+.node-amount{font-family:'JetBrains Mono',monospace;font-size:10px;fill:var(--muted);pointer-events:none;dominant-baseline:middle}
+.center-label{font-size:13px;font-weight:700;fill:var(--gold);text-anchor:middle;dominant-baseline:middle}
+.center-sub{font-size:10px;fill:var(--muted);text-anchor:middle;dominant-baseline:middle}
+.no-data{fill:var(--muted);font-size:15px;text-anchor:middle;dominant-baseline:middle}
+
+/* ── Legend ── */
+.legend{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap;flex-shrink:0;background:#0a1221}
+.leg-group{display:flex;flex-direction:column;gap:4px}
+.leg-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px}
+.leg-items{display:flex;gap:8px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.leg-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── Footer ── */
+.footer{padding:8px 20px;font-size:10px;color:var(--muted);border-top:1px solid var(--border);flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">Coalfinch Observatory</div>
+    <div class="hdr-title">IOM Government Department Explorer</div>
+    <div class="hdr-sub">Income &amp; expenditure by category · Pink Book actuals</div>
+  </div>
+</div>
+
+<div class="controls">
+  <select id="dept-select"></select>
+  <div class="year-group">
+    <button id="play-btn" title="Play/pause">▶</button>
+    <input type="range" id="year-slider" min="2015" max="2025" step="1" value="2023">
+    <div class="year-badge" id="year-badge">FY2023</div>
+  </div>
+  <div class="note-badge" id="note-badge"></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-label">Total Budget</div><div class="stat-value gold" id="s-total">—</div></div>
+  <div class="stat"><div class="stat-label">Own Income</div><div class="stat-value green" id="s-income">—</div></div>
+  <div class="stat"><div class="stat-label">GRA Grant</div><div class="stat-value red" id="s-gra">—</div></div>
+  <div class="stat"><div class="stat-label">Staff Costs</div><div class="stat-value" id="s-staff">—</div></div>
+</div>
+
+<div class="viz-wrap">
+  <svg id="chart"></svg>
+</div>
+
+<div class="legend">
+  <div class="leg-group">
+    <div class="leg-title">Income</div>
+    <div class="leg-items" id="leg-income"></div>
+  </div>
+  <div class="leg-group">
+    <div class="leg-title">Expenditure</div>
+    <div class="leg-items" id="leg-expend"></div>
+  </div>
+</div>
+
+<div class="footer">
+  Source: IOM Government Pink Books 2016-17 to 2026-27 · Appendix 3/4 · Confirmed actuals only · Amounts in £000
+</div>
+
+<script>
+// ── Embedded data ────────────────────────────────────────────────────────────
+const DATA = {"DED":{"2015":{"income":{"TaxationIncome":2457.0,"ThirdPartyContributions":383.0,"OperatingIncome":23357.0,"OtherNonTradingIncome":48.0},"expenditure":{"EmployeeCosts":10357.0,"InfrastructureCosts":1071.0,"TransportCosts":7.0,"SuppliesAndServices":12290.0,"LoanCharges":1217.0,"Other":4293.0},"net":2990.0},"2016":{"income":{"TaxationIncome":2274.0,"ThirdPartyContributions":385.0,"OperatingIncome":27017.0,"GrantIncome":3.0,"OtherNonTradingIncome":39.0},"expenditure":{"EmployeeCosts":10096.0,"InfrastructureCosts":1191.0,"TransportCosts":12.0,"SuppliesAndServices":13429.0,"LoanCharges":1478.0,"Other":4717.0},"net":1205.0}},"DESC":{"2015":{"income":{"ThirdPartyContributions":78.0,"OperatingIncome":2433.0,"GrantIncome":17.0,"OtherNonTradingIncome":1491.0},"expenditure":{"EmployeeCosts":64115.0,"InfrastructureCosts":3754.0,"TransportCosts":668.0,"SuppliesAndServices":6727.0,"LoanCharges":4161.0,"Other":14228.0},"net":89634.0},"2016":{"income":{"ThirdPartyContributions":53.0,"OperatingIncome":2373.0,"GrantIncome":73.0,"OtherNonTradingIncome":1352.0},"expenditure":{"EmployeeCosts":65055.0,"InfrastructureCosts":3802.0,"TransportCosts":628.0,"SuppliesAndServices":6009.0,"LoanCharges":5523.0,"Other":13248.0},"net":90414.0},"2017":{"income":{"ThirdPartyContributions":2879.0,"OperatingIncome":73.0,"OtherNonTradingIncome":602.0},"expenditure":{"EmployeeCosts":68960.0,"InfrastructureCosts":3671.0,"TransportCosts":601.0,"SuppliesAndServices":6462.0,"LoanCharges":6124.0,"Other":13179.0},"net":95418.0},"2018":{"income":{"TaxationIncome":18.0,"ThirdPartyContributions":20.0,"OperatingIncome":2964.0,"GrantIncome":51.0,"OtherNonTradingIncome":436.0},"expenditure":{"EmployeeCosts":69425.0,"InfrastructureCosts":3627.0,"TransportCosts":340.0,"SuppliesAndServices":5563.0,"LoanCharges":7236.0,"Other":13913.0},"net":96614.0},"2019":{"income":{"ThirdPartyContributions":119.0,"OperatingIncome":8788.0,"OtherNonTradingIncome":531.0},"expenditure":{"EmployeeCosts":74033.0,"InfrastructureCosts":4107.0,"TransportCosts":175.0,"SuppliesAndServices":9567.0,"LoanCharges":7633.0,"Other":16225.0},"net":102302.0},"2020":{"income":{"ThirdPartyContributions":92.0,"OperatingIncome":9361.0,"OtherNonTradingIncome":577.0},"expenditure":{"EmployeeCosts":79988.0,"InfrastructureCosts":3926.0,"TransportCosts":292.0,"SuppliesAndServices":9866.0,"LoanCharges":7713.0,"Other":16749.0},"net":108504.0},"2021":{"income":{"ThirdPartyContributions":32.0,"OperatingIncome":4734.0,"GrantIncome":27.0},"expenditure":{"EmployeeCosts":87670.0,"InfrastructureCosts":4085.0,"TransportCosts":226.0,"SuppliesAndServices":6692.0,"LoanCharges":6479.0,"Other":14222.0},"net":114174.0},"2022":{"income":{"ThirdPartyContributions":69.0,"OperatingIncome":8967.0,"GrantIncome":99.0},"expenditure":{"EmployeeCosts":90200.0,"InfrastructureCosts":4876.0,"TransportCosts":291.0,"SuppliesAndServices":9466.0,"Other":13327.0},"net":108537.0},"2023":{"income":{"ThirdPartyContributions":64.0,"OperatingIncome":8970.0,"GrantIncome":20.0},"expenditure":{"EmployeeCosts":97409.0,"InfrastructureCosts":6598.0,"TransportCosts":289.0,"SuppliesAndServices":10032.0,"Other":7445.0},"net":112144.0},"2024":{"income":{"ThirdPartyContributions":110.0,"OperatingIncome":8959.0,"GrantIncome":5.0},"expenditure":{"EmployeeCosts":107429.0,"InfrastructureCosts":8079.0,"TransportCosts":326.0,"SuppliesAndServices":8964.0,"Other":17349.0},"net":132135.0},"2025":{"income":{"ThirdPartyContributions":98.0,"OperatingIncome":10093.0,"GrantIncome":31.0},"expenditure":{"EmployeeCosts":114598.0,"InfrastructureCosts":8897.0,"TransportCosts":407.0,"SuppliesAndServices":10539.0,"Other":18124.0},"net":141586.0}},"DEFA":{"2015":{"income":{"TaxationIncome":5.0,"ThirdPartyContributions":5.0,"OperatingIncome":1873.0,"OtherNonTradingIncome":107.0},"expenditure":{"EmployeeCosts":5412.0,"InfrastructureCosts":594.0,"TransportCosts":110.0,"SuppliesAndServices":2096.0,"LoanCharges":367.0,"Other":6824.0},"net":13413.0},"2016":{"income":{"TaxationIncome":108.0,"ThirdPartyContributions":2.0,"OperatingIncome":2942.0,"OtherNonTradingIncome":93.0},"expenditure":{"EmployeeCosts":6828.0,"InfrastructureCosts":658.0,"TransportCosts":53.0,"SuppliesAndServices":3148.0,"LoanCharges":644.0,"Other":6116.0},"net":14302.0},"2017":{"income":{"TaxationIncome":102.0,"ThirdPartyContributions":2.0,"OperatingIncome":3146.0,"OtherNonTradingIncome":133.0},"expenditure":{"EmployeeCosts":7663.0,"InfrastructureCosts":921.0,"TransportCosts":53.0,"SuppliesAndServices":3077.0,"AgencyAndContracted":0.0,"LoanCharges":785.0,"Other":6503.0},"net":15618.0},"2018":{"income":{"TaxationIncome":100.0,"ThirdPartyContributions":2.0,"OperatingIncome":3161.0,"OtherNonTradingIncome":68.0},"expenditure":{"EmployeeCosts":7764.0,"InfrastructureCosts":788.0,"TransportCosts":108.0,"SuppliesAndServices":2129.0,"AgencyAndContracted":0.0,"LoanCharges":796.0,"Other":7459.0},"net":15712.0},"2019":{"income":{"TaxationIncome":95.0,"ThirdPartyContributions":280.0,"OperatingIncome":3394.0,"OtherNonTradingIncome":71.0},"expenditure":{"EmployeeCosts":8585.0,"InfrastructureCosts":747.0,"TransportCosts":48.0,"SuppliesAndServices":3942.0,"LoanCharges":901.0,"Other":5659.0},"net":0.0},"2020":{"income":{"TaxationIncome":116.0,"ThirdPartyContributions":299.0,"OperatingIncome":3264.0,"OtherNonTradingIncome":32.0},"expenditure":{"EmployeeCosts":9165.0,"InfrastructureCosts":759.0,"TransportCosts":209.0,"SuppliesAndServices":2333.0,"LoanCharges":906.0,"Other":7427.0},"net":0.0},"2021":{"income":{"TaxationIncome":96.0,"ThirdPartyContributions":354.0,"OperatingIncome":3204.0},"expenditure":{"EmployeeCosts":9563.0,"InfrastructureCosts":908.0,"TransportCosts":36.0,"SuppliesAndServices":2044.0,"AgencyAndContracted":0.0,"LoanCharges":752.0,"Other":7462.0},"net":17068.0},"2022":{"income":{"TaxationIncome":111.0,"ThirdPartyContributions":339.0,"OperatingIncome":3480.0},"expenditure":{"EmployeeCosts":9745.0,"InfrastructureCosts":1041.0,"TransportCosts":79.0,"SuppliesAndServices":4896.0,"AgencyAndContracted":0.0,"Other":5170.0},"net":16963.0},"2023":{"income":{"TaxationIncome":105.0,"ThirdPartyContributions":335.0,"OperatingIncome":4058.0},"expenditure":{"EmployeeCosts":10405.0,"InfrastructureCosts":913.0,"TransportCosts":64.0,"SuppliesAndServices":6297.0,"AgencyAndContracted":0.0,"Other":3591.0},"net":16731.0},"2024":{"income":{"TaxationIncome":141.0,"ThirdPartyContributions":357.0,"OperatingIncome":3851.0},"expenditure":{"EmployeeCosts":11592.0,"InfrastructureCosts":1234.0,"TransportCosts":155.0,"SuppliesAndServices":7374.0,"AgencyAndContracted":0.0,"Other":2006.0},"net":17969.0},"2025":{"income":{"TaxationIncome":160.0,"ThirdPartyContributions":384.0,"OperatingIncome":3518.0},"expenditure":{"EmployeeCosts":13018.0,"InfrastructureCosts":1136.0,"TransportCosts":93.0,"SuppliesAndServices":8516.0,"AgencyAndContracted":0.0,"Other":644.0},"net":19293.0}},"DHSC":{"2016":{"income":{"TaxationIncome":36520.0,"ThirdPartyContributions":455.0,"OperatingIncome":13817.0,"OtherNonTradingIncome":57.0},"expenditure":{"EmployeeCosts":138091.0,"InfrastructureCosts":1211.0,"TransportCosts":4675.0,"SuppliesAndServices":25355.0,"AgencyAndContracted":71317.0,"LoanCharges":7165.0,"Other":-3359.0},"net":193606.0},"2017":{"income":{"TaxationIncome":38010.0,"ThirdPartyContributions":1156.0,"OperatingIncome":45.0,"OtherNonTradingIncome":53472.0},"expenditure":{"EmployeeCosts":150864.0,"InfrastructureCosts":4941.0,"TransportCosts":25164.0,"AgencyAndContracted":74916.0,"LoanCharges":8539.0,"Other":263054.0},"net":0.0},"2018":{"income":{"TaxationIncome":38605.0,"ThirdPartyContributions":1126.0,"OperatingIncome":14702.0,"OtherNonTradingIncome":15.0},"expenditure":{"EmployeeCosts":154673.0,"InfrastructureCosts":1742.0,"TransportCosts":4862.0,"SuppliesAndServices":27078.0,"AgencyAndContracted":78380.0,"LoanCharges":9261.0,"Other":-2370.0},"net":219178.0},"2019":{"income":{"TaxationIncome":39762.0,"ThirdPartyContributions":1183.0,"OperatingIncome":15789.0,"OtherNonTradingIncome":9.0},"expenditure":{"EmployeeCosts":158263.0,"InfrastructureCosts":1581.0,"TransportCosts":4868.0,"SuppliesAndServices":25317.0,"AgencyAndContracted":80363.0,"LoanCharges":9892.0,"Other":-3395.0},"net":220147.0},"2020":{"income":{"TaxationIncome":40956.0,"ThirdPartyContributions":1362.0,"OperatingIncome":12240.0,"OtherNonTradingIncome":124.0},"expenditure":{"EmployeeCosts":164072.0,"InfrastructureCosts":1705.0,"TransportCosts":4660.0,"SuppliesAndServices":26203.0,"AgencyAndContracted":83830.0,"LoanCharges":9397.0,"Other":-4190.0},"net":230995.0},"2021":{"income":{"TaxationIncome":39017.0,"ThirdPartyContributions":1099.0,"OperatingIncome":11194.0},"expenditure":{"EmployeeCosts":172349.0,"InfrastructureCosts":1435.0,"TransportCosts":4883.0,"SuppliesAndServices":31244.0,"AgencyAndContracted":79694.0,"Other":-11781.0},"net":225906.0},"2022":{"income":{"TaxationIncome":40480.0,"ThirdPartyContributions":0.0,"OperatingIncome":38.0},"expenditure":{"EmployeeCosts":2553.0,"InfrastructureCosts":7.0,"TransportCosts":0.0,"SuppliesAndServices":1356.0,"AgencyAndContracted":213.0,"Other":278564.0},"net":242175.0},"2023":{"income":{"TaxationIncome":51383.0,"OperatingIncome":44.0},"expenditure":{"EmployeeCosts":2243.0,"InfrastructureCosts":18.0,"SuppliesAndServices":704.0,"AgencyAndContracted":345.0,"Other":-27420.0,"Mandate":283931.0,"AdditionalMandate":39505.0},"net":247899.0},"2024":{"income":{"TaxationIncome":53712.0,"OperatingIncome":4.0},"expenditure":{"EmployeeCosts":2484.0,"InfrastructureCosts":3.0,"SuppliesAndServices":762.0,"AgencyAndContracted":265.0,"Other":-4314.0,"Mandate":302975.0,"AdditionalMandate":51897.0},"net":300356.0},"2025":{"income":{"TaxationIncome":52803.0,"OperatingIncome":48.0},"expenditure":{"EmployeeCosts":2602.0,"InfrastructureCosts":1.0,"SuppliesAndServices":694.0,"AgencyAndContracted":249.0,"Other":-8969.0,"Mandate":346823.0,"AdditionalMandate":28030.0},"net":316579.0}},"DHA":{"2015":{"income":{"ThirdPartyContributions":125.0,"OperatingIncome":624.0,"OtherNonTradingIncome":304.0},"expenditure":{"EmployeeCosts":22779.0,"InfrastructureCosts":1285.0,"TransportCosts":19.0,"SuppliesAndServices":3448.0,"LoanCharges":1617.0,"Other":247.0},"net":28342.0},"2016":{"income":{"ThirdPartyContributions":81.0,"OperatingIncome":622.0,"OtherNonTradingIncome":270.0},"expenditure":{"EmployeeCosts":22555.0,"InfrastructureCosts":1895.0,"TransportCosts":17.0,"SuppliesAndServices":3253.0,"LoanCharges":2160.0,"Other":-980.0},"net":27927.0},"2017":{"income":{"ThirdPartyContributions":86.0,"OperatingIncome":763.0,"OtherNonTradingIncome":315.0},"expenditure":{"EmployeeCosts":26033.0,"InfrastructureCosts":1338.0,"TransportCosts":13.0,"SuppliesAndServices":3668.0,"LoanCharges":2310.0,"Other":-670.0},"net":31528.0},"2018":{"income":{"ThirdPartyContributions":111.0,"OperatingIncome":721.0,"OtherNonTradingIncome":417.0},"expenditure":{"EmployeeCosts":26210.0,"InfrastructureCosts":1156.0,"TransportCosts":12.0,"SuppliesAndServices":3964.0,"LoanCharges":3648.0,"Other":-376.0},"net":33365.0},"2019":{"income":{"ThirdPartyContributions":110.0,"OperatingIncome":835.0,"OtherNonTradingIncome":341.0},"expenditure":{"EmployeeCosts":27718.0,"InfrastructureCosts":1023.0,"TransportCosts":10.0,"SuppliesAndServices":4241.0,"LoanCharges":4063.0,"Other":-660.0},"net":35109.0},"2020":{"income":{"OperatingIncome":884.0,"OtherNonTradingIncome":431.0},"expenditure":{"EmployeeCosts":29442.0,"InfrastructureCosts":1118.0,"TransportCosts":-2.0,"SuppliesAndServices":4800.0,"LoanCharges":3773.0,"Other":-235.0},"net":37448.0},"2021":{"income":{"TaxationIncome":0.0,"ThirdPartyContributions":74.0,"OperatingIncome":807.0},"expenditure":{"EmployeeCosts":30570.0,"InfrastructureCosts":1098.0,"TransportCosts":0.0,"SuppliesAndServices":4891.0,"LoanCharges":3615.0,"Other":-891.0},"net":38037.0},"2022":{"income":{"TaxationIncome":2.0,"ThirdPartyContributions":103.0,"OperatingIncome":907.0},"expenditure":{"EmployeeCosts":30902.0,"InfrastructureCosts":1199.0,"TransportCosts":0.0,"SuppliesAndServices":4841.0,"Other":-516.0},"net":35080.0},"2023":{"income":{"ThirdPartyContributions":121.0,"OperatingIncome":1003.0},"expenditure":{"EmployeeCosts":34080.0,"InfrastructureCosts":1396.0,"SuppliesAndServices":5861.0,"Other":-3497.0},"net":36438.0},"2024":{"income":{"ThirdPartyContributions":67.0,"OperatingIncome":944.0},"expenditure":{"EmployeeCosts":36700.0,"InfrastructureCosts":2103.0,"TransportCosts":1.0,"SuppliesAndServices":5670.0,"Other":-2331.0},"net":40803.0},"2025":{"income":{"ThirdPartyContributions":121.0,"OperatingIncome":1122.0},"expenditure":{"EmployeeCosts":39169.0,"InfrastructureCosts":1896.0,"TransportCosts":0.0,"SuppliesAndServices":5932.0,"Other":-2419.0},"net":42837.0}},"DoI":{"2015":{"income":{"TaxationIncome":724688.0,"ThirdPartyContributions":1709.0,"OperatingIncome":43612.0,"OtherNonTradingIncome":24382.0,"UNKNOWN_EMPLOYEE_COSTS":39062.0,"UNKNOWN_INFRASTRUCTURE_COSTS":31039.0,"UNKNOWN_TRANSPORT_COSTS":3679.0,"UNKNOWN_SUPPLIES_&_SERVICES":24130.0,"UNKNOWN_AGENCY_&_CONTRACTED_SERVICES":392.0,"UNKNOWN_LOAN_CHARGES":9704.0,"UNKNOWN_OTHER":167.0,"UNKNOWN_TOTAL_EXPENDITURE":108173.0,"UNKNOWN_NET_EXPENDITURE":47344.0,"UNKNOWN_STRATEGY,_POLICY_AND_PERFORMANCE_DIVISIO":52.0},"expenditure":{"EmployeeCosts":12259.0,"InfrastructureCosts":15.0,"TransportCosts":2.0,"SuppliesAndServices":2109.0,"AgencyAndContracted":3296.0,"LoanCharges":350.0,"SocialSecurityClients":274069.0,"Other":9615.0,"UNKNOWN_THE_DATE_OF_WRITING.":54.0},"net":-431847.0},"2016":{"income":{"TaxationIncome":12859.0,"ThirdPartyContributions":1877.0,"OperatingIncome":34991.0,"OtherNonTradingIncome":3848.0},"expenditure":{"EmployeeCosts":37586.0,"InfrastructureCosts":33880.0,"TransportCosts":3731.0,"SuppliesAndServices":13348.0,"AgencyAndContracted":2787.0,"LoanCharges":12689.0,"Other":-4534.0},"net":45912.0},"2017":{"income":{"TaxationIncome":12604.0,"ThirdPartyContributions":3068.0,"OperatingIncome":35018.0,"OtherNonTradingIncome":3915.0},"expenditure":{"EmployeeCosts":41483.0,"InfrastructureCosts":39063.0,"TransportCosts":4304.0,"SuppliesAndServices":8826.0,"AgencyAndContracted":2455.0,"LoanCharges":12652.0,"Other":-652.0},"net":53529.0},"2018":{"income":{"TaxationIncome":12902.0,"ThirdPartyContributions":2366.0,"OperatingIncome":36076.0,"OtherNonTradingIncome":3612.0},"expenditure":{"EmployeeCosts":42796.0,"InfrastructureCosts":36591.0,"TransportCosts":5999.0,"SuppliesAndServices":9495.0,"AgencyAndContracted":2020.0,"LoanCharges":17323.0,"Other":-529.0},"net":58738.0},"2019":{"income":{"TaxationIncome":13329.0,"ThirdPartyContributions":3214.0,"OperatingIncome":36249.0,"OtherNonTradingIncome":3919.0},"expenditure":{"EmployeeCosts":44012.0,"InfrastructureCosts":35296.0,"TransportCosts":4853.0,"SuppliesAndServices":11379.0,"AgencyAndContracted":2147.0,"LoanCharges":20159.0,"Other":2443.0},"net":63578.0},"2020":{"income":{"TaxationIncome":13313.0,"ThirdPartyContributions":3018.0,"OperatingIncome":35424.0,"OtherNonTradingIncome":4256.0},"expenditure":{"EmployeeCosts":47021.0,"InfrastructureCosts":34016.0,"TransportCosts":5863.0,"SuppliesAndServices":13945.0,"AgencyAndContracted":2571.0,"LoanCharges":21841.0,"Other":1013.0},"net":70259.0},"2021":{"income":{"TaxationIncome":13507.0,"ThirdPartyContributions":3052.0,"OperatingIncome":26611.0},"expenditure":{"EmployeeCosts":41497.0,"InfrastructureCosts":33591.0,"TransportCosts":4629.0,"SuppliesAndServices":19518.0,"AgencyAndContracted":3218.0,"LoanCharges":24418.0,"Other":-11122.0},"net":68743.0},"2022":{"income":{"TaxationIncome":13448.0,"ThirdPartyContributions":2403.0,"OperatingIncome":31340.0},"expenditure":{"EmployeeCosts":44364.0,"InfrastructureCosts":35582.0,"TransportCosts":5372.0,"SuppliesAndServices":15303.0,"AgencyAndContracted":1505.0,"Other":-2673.0},"net":48654.0},"2023":{"income":{"TaxationIncome":13410.0,"ThirdPartyContributions":1835.0,"OperatingIncome":40126.0},"expenditure":{"EmployeeCosts":45294.0,"InfrastructureCosts":38091.0,"TransportCosts":8842.0,"SuppliesAndServices":12222.0,"AgencyAndContracted":1813.0,"Other":-3923.0},"net":43229.0},"2024":{"income":{"TaxationIncome":14209.0,"ThirdPartyContributions":2994.0,"OperatingIncome":44070.0},"expenditure":{"EmployeeCosts":47077.0,"InfrastructureCosts":41272.0,"TransportCosts":10496.0,"SuppliesAndServices":12965.0,"AgencyAndContracted":4929.0,"Other":1175.0},"net":53488.0},"2025":{"income":{"TaxationIncome":14855.0,"ThirdPartyContributions":3581.0,"OperatingIncome":46065.0},"expenditure":{"EmployeeCosts":51703.0,"InfrastructureCosts":42739.0,"TransportCosts":11030.0,"SuppliesAndServices":13257.0,"AgencyAndContracted":6106.0,"Other":-1588.0},"net":55193.0}},"CabinetOffice":{"2016":{"income":{"TaxationIncome":2.0,"ThirdPartyContributions":751.0,"OperatingIncome":933.0,"OtherNonTradingIncome":148.0},"expenditure":{"EmployeeCosts":12968.0,"InfrastructureCosts":169.0,"TransportCosts":11.0,"SuppliesAndServices":17887.0,"Other":-3670.0},"net":25531.0},"2017":{"income":{"TaxationIncome":-1.0,"ThirdPartyContributions":557.0,"OperatingIncome":1088.0,"OtherNonTradingIncome":-19.0},"expenditure":{"EmployeeCosts":16009.0,"InfrastructureCosts":118.0,"TransportCosts":11.0,"SuppliesAndServices":18960.0,"LoanCharges":99.0,"Other":-3188.0},"net":30385.0},"2018":{"income":{"TaxationIncome":1.0,"ThirdPartyContributions":943.0,"OperatingIncome":1325.0,"OtherNonTradingIncome":1.0},"expenditure":{"EmployeeCosts":16880.0,"InfrastructureCosts":105.0,"TransportCosts":8.0,"SuppliesAndServices":19798.0,"LoanCharges":74.0,"Other":-4583.0},"net":30012.0},"2019":{"income":{"TaxationIncome":-1.0,"ThirdPartyContributions":215.0,"OperatingIncome":1365.0,"OtherNonTradingIncome":12.0},"expenditure":{"EmployeeCosts":18327.0,"InfrastructureCosts":242.0,"TransportCosts":9.0,"SuppliesAndServices":17210.0,"LoanCharges":88.0,"Other":-3571.0},"net":30714.0},"2020":{"income":{"TaxationIncome":2.0,"ThirdPartyContributions":55.0,"OperatingIncome":1204.0,"OtherNonTradingIncome":-5.0},"expenditure":{"EmployeeCosts":18397.0,"InfrastructureCosts":135.0,"TransportCosts":8.0,"SuppliesAndServices":16902.0,"LoanCharges":195.0,"Other":-3905.0},"net":30476.0},"2021":{"income":{"TaxationIncome":0.0,"ThirdPartyContributions":49.0,"OperatingIncome":955.0},"expenditure":{"EmployeeCosts":23182.0,"InfrastructureCosts":194.0,"TransportCosts":32.0,"SuppliesAndServices":19426.0,"AgencyAndContracted":0.0,"LoanCharges":725.0,"Other":-9194.0},"net":33354.0},"2022":{"income":{"TaxationIncome":0.0,"ThirdPartyContributions":88.0,"OperatingIncome":2564.0},"expenditure":{"EmployeeCosts":25549.0,"InfrastructureCosts":211.0,"TransportCosts":225.0,"SuppliesAndServices":19449.0,"AgencyAndContracted":3.0,"Other":-7910.0},"net":34849.0},"2023":{"income":{"TaxationIncome":-7.0,"ThirdPartyContributions":105.0,"OperatingIncome":2053.0},"expenditure":{"EmployeeCosts":25463.0,"InfrastructureCosts":172.0,"TransportCosts":380.0,"SuppliesAndServices":20668.0,"AgencyAndContracted":55.0,"Other":-9902.0},"net":34660.0},"2024":{"income":{"TaxationIncome":-1.0,"ThirdPartyContributions":122.0,"OperatingIncome":1748.0},"expenditure":{"EmployeeCosts":24529.0,"InfrastructureCosts":213.0,"TransportCosts":343.0,"SuppliesAndServices":20038.0,"AgencyAndContracted":6.0,"Other":-6766.0},"net":36475.0},"2025":{"income":{"ThirdPartyContributions":131.0,"OperatingIncome":122.0},"expenditure":{"EmployeeCosts":23330.0,"InfrastructureCosts":200.0,"TransportCosts":3.0,"SuppliesAndServices":18658.0,"AgencyAndContracted":482.0,"Other":166.0},"net":42580.0}},"ExecGov":{"2015":{"income":{"TaxationIncome":94.0,"ThirdPartyContributions":282.0,"OperatingIncome":5564.0,"OtherNonTradingIncome":-3.0},"expenditure":{"EmployeeCosts":7811.0,"InfrastructureCosts":127.0,"SuppliesAndServices":1503.0,"Other":4996.0},"net":8500.0},"2016":{"income":{"TaxationIncome":94.0,"ThirdPartyContributions":54.0,"OperatingIncome":2211.0},"expenditure":{"EmployeeCosts":6523.0,"InfrastructureCosts":10.0,"SuppliesAndServices":1286.0,"Other":1985.0},"net":7445.0},"2017":{"income":{"TaxationIncome":59899.0,"ThirdPartyContributions":94.0,"OperatingIncome":2116.0,"OtherNonTradingIncome":15.0},"expenditure":{"EmployeeCosts":98825.0,"InfrastructureCosts":9.0,"SuppliesAndServices":1424.0,"Other":-29104.0},"net":9029.0},"2018":{"income":{"TaxationIncome":94.0,"ThirdPartyContributions":63.0,"OperatingIncome":2644.0,"OtherNonTradingIncome":34.0},"expenditure":{"EmployeeCosts":8040.0,"InfrastructureCosts":32.0,"SuppliesAndServices":1429.0,"Other":2289.0},"net":8954.0},"2019":{"income":{"TaxationIncome":116.0,"ThirdPartyContributions":134.0,"OperatingIncome":2278.0,"OtherNonTradingIncome":9.0},"expenditure":{"EmployeeCosts":9263.0,"InfrastructureCosts":36.0,"TransportCosts":1275.0,"Other":2858.0},"net":10895.0},"2020":{"income":{"TaxationIncome":144.0,"ThirdPartyContributions":103.0,"OperatingIncome":2256.0,"OtherNonTradingIncome":7.0},"expenditure":{"EmployeeCosts":9323.0,"InfrastructureCosts":7.0,"SuppliesAndServices":1500.0,"Other":2884.0},"net":11204.0},"2021":{"income":{"TaxationIncome":127.0,"ThirdPartyContributions":41.0,"OperatingIncome":2034.0},"expenditure":{"EmployeeCosts":10172.0,"InfrastructureCosts":14.0,"SuppliesAndServices":1505.0,"Other":1832.0},"net":11319.0},"2022":{"income":{"TaxationIncome":135.0,"ThirdPartyContributions":45.0,"OperatingIncome":2453.0},"expenditure":{"EmployeeCosts":10038.0,"InfrastructureCosts":8.0,"SuppliesAndServices":1534.0,"Other":2521.0},"net":11468.0},"2023":{"income":{"TaxationIncome":144.0,"ThirdPartyContributions":36.0,"OperatingIncome":2643.0},"expenditure":{"EmployeeCosts":39789.0,"InfrastructureCosts":5.0,"SuppliesAndServices":2041.0,"Other":2216.0},"net":41229.0},"2024":{"income":{"TaxationIncome":150.0,"ThirdPartyContributions":108.0,"OperatingIncome":2771.0},"expenditure":{"EmployeeCosts":52334.0,"InfrastructureCosts":6.0,"SuppliesAndServices":1574.0,"Other":718.0},"net":51595.0},"2025":{"income":{"TaxationIncome":149.0,"ThirdPartyContributions":27.0,"OperatingIncome":3073.0},"expenditure":{"EmployeeCosts":54470.0,"InfrastructureCosts":5.0,"SuppliesAndServices":1882.0,"Other":3167.0},"net":56219.0}},"MNH":{"2016":{"income":{"OperatingIncome":784.0,"OtherNonTradingIncome":69.0},"expenditure":{"EmployeeCosts":2582.0,"InfrastructureCosts":653.0,"TransportCosts":5.0,"SuppliesAndServices":632.0,"LoanCharges":914.0},"net":3933.0},"2017":{"income":{"OperatingIncome":798.0,"OtherNonTradingIncome":73.0},"expenditure":{"EmployeeCosts":2894.0,"InfrastructureCosts":761.0,"TransportCosts":0.0,"SuppliesAndServices":653.0,"LoanCharges":847.0},"net":4285.0},"2018":{"income":{"OperatingIncome":962.0,"OtherNonTradingIncome":98.0},"expenditure":{"EmployeeCosts":2991.0,"InfrastructureCosts":556.0,"TransportCosts":2.0,"SuppliesAndServices":939.0,"LoanCharges":973.0},"net":4403.0}},"Legislature":{"2016":{"income":{"ThirdPartyContributions":6.0,"OperatingIncome":62.0},"expenditure":{"EmployeeCosts":3127.0,"SuppliesAndServices":391.0,"LoanCharges":403.0,"UNKNOWN_STAFF":985.0,"UNKNOWN_MEMBERS'_EMOLUMENTS":2142.0},"net":3127.0},"2017":{"income":{"TaxationIncome":-4.0,"ThirdPartyContributions":10.0,"OperatingIncome":62.0},"expenditure":{"EmployeeCosts":3673.0,"SuppliesAndServices":415.0,"LoanCharges":428.0},"net":4448.0},"2018":{"income":{"OperatingIncome":58.0},"expenditure":{"EmployeeCosts":3776.0,"SuppliesAndServices":365.0,"LoanCharges":423.0},"net":4506.0},"2019":{"income":{"UNKNOWN_FEES_&_CHARGES":3.0,"OtherNonTradingIncome":53.0},"expenditure":{"EmployeeCosts":3795.0,"SuppliesAndServices":387.0,"LoanCharges":443.0},"net":4569.0},"2020":{"income":{"ThirdPartyContributions":8.0,"UNKNOWN_FEES_&_CHARGES":65.0,"OtherNonTradingIncome":-1.0},"expenditure":{"EmployeeCosts":3919.0,"SuppliesAndServices":424.0,"LoanCharges":437.0},"net":4708.0},"2021":{"income":{"ThirdPartyContributions":0.0,"UNKNOWN_FEES_&_CHARGES":64.0},"expenditure":{"EmployeeCosts":3853.0,"InfrastructureCosts":0.0,"TransportCosts":0.0,"SuppliesAndServices":191.0,"LoanCharges":354.0,"Other":0.0},"net":4334.0},"2022":{"income":{"ThirdPartyContributions":1.0,"UNKNOWN_FEES_&_CHARGES":50.0},"expenditure":{"EmployeeCosts":4131.0,"InfrastructureCosts":0.0,"TransportCosts":0.0,"SuppliesAndServices":447.0,"Other":0.0,"UNKNOWN_TABLE_60_-_LEGISLATURE":0.0,"UNKNOWN_TABLE_61_-_LEGISLATURE":0.0},"net":4527.0},"2023":{"income":{"ThirdPartyContributions":1.0,"UNKNOWN_FEES_&_CHARGES":48.0},"expenditure":{"EmployeeCosts":4417.0,"SuppliesAndServices":455.0,"Other":-71.0,"UNKNOWN_TABLE_59_-_LEGISLATURE":0.0,"UNKNOWN_TABLE_60_-_LEGISLATURE":0.0},"net":4752.0},"2024":{"income":{},"expenditure":{"EmployeeCosts":4711.0,"SuppliesAndServices":807.0,"Other":-451.0,"UNKNOWN_TABLE_59_-_LEGISLATURE":0.0,"UNKNOWN_TABLE_60_-_LEGISLATURE":0.0},"net":5018.0},"2025":{"income":{"ThirdPartyContributions":1.0,"UNKNOWN_FEES_&_CHARGES":69.0},"expenditure":{"EmployeeCosts":4899.0,"SuppliesAndServices":500.0,"UNKNOWN_TABLE_59_-_LEGISLATURE":0.0},"net":5329.0}},"StatBoardsRev":{"2016":{"income":{"TaxationIncome":4900.0,"OperatingIncome":106659.0,"GrantIncome":1951.0,"OtherNonTradingIncome":5.0},"expenditure":{"EmployeeCosts":23033.0,"InfrastructureCosts":8018.0,"SuppliesAndServices":34102.0,"Other":22219.0,"TransportCosts":1197.0,"LoanCharges":18186.0},"net":-5282.0},"2017":{"income":{"TaxationIncome":4625.0,"OperatingIncome":103835.0,"GrantIncome":2689.0,"OtherNonTradingIncome":115.0},"expenditure":{"EmployeeCosts":24906.0,"InfrastructureCosts":7013.0,"TransportCosts":1354.0,"SuppliesAndServices":38240.0,"LoanCharges":19526.0,"Other":21181.0},"net":2017.0},"2018":{"income":{"TaxationIncome":4672.0,"OperatingIncome":1282.0,"GrantIncome":2876.0,"OtherNonTradingIncome":6.0},"expenditure":{"EmployeeCosts":7195.0,"InfrastructureCosts":302.0,"TransportCosts":0.0,"SuppliesAndServices":1823.0,"LoanCharges":37.0,"Other":-1626.0},"net":-1105.0},"2019":{"income":{"TaxationIncome":4855.0,"ThirdPartyContributions":1479.0,"OperatingIncome":2854.0,"OtherNonTradingIncome":3.0},"expenditure":{"EmployeeCosts":7778.0,"InfrastructureCosts":320.0,"TransportCosts":1613.0,"SuppliesAndServices":127.0,"Other":-1350.0},"net":-703.0},"2020":{"income":{"TaxationIncome":4957.0,"OperatingIncome":1418.0,"GrantIncome":3215.0},"expenditure":{"EmployeeCosts":8077.0,"InfrastructureCosts":317.0,"SuppliesAndServices":1478.0,"LoanCharges":74.0,"Other":-1078.0},"net":-722.0},"2021":{"income":{"TaxationIncome":5275.0,"OperatingIncome":128120.0,"GrantIncome":3353.0,"UNKNOWN_NON-TRADING_INCOME":22.0},"expenditure":{"EmployeeCosts":41241.0,"InfrastructureCosts":12861.0,"SuppliesAndServices":36766.0,"LoanCharges":2889.0,"Other":17225.0,"TransportCosts":2550.0,"UNKNOWN_NET_(INCOME)/EXPENDITURE":-19816.0,"UNKNOWN_EXCEPTIONAL_ITEMS":-867.0,"UNKNOWN_NET_INCOME":1607.0},"net":-952.0},"2022":{"income":{"TaxationIncome":6410.0,"OperatingIncome":146462.0,"GrantIncome":3498.0,"UNKNOWN_NON-TRADING_INCOME":24.0},"expenditure":{"EmployeeCosts":44282.0,"InfrastructureCosts":13891.0,"SuppliesAndServices":107161.0,"AgencyAndContracted":0.0,"Other":16521.0,"TransportCosts":2670.0,"LoanCharges":-49253.0,"UNKNOWN_NET_(INCOME)/EXPENDITURE":-19633.0,"UNKNOWN_EXCEPTIONAL_ITEMS":528.0},"net":-964.0},"2023":{"income":{"TaxationIncome":7573.0,"OperatingIncome":1342.0,"GrantIncome":3541.0},"expenditure":{"EmployeeCosts":10877.0,"InfrastructureCosts":422.0,"SuppliesAndServices":1996.0,"FundClaims":0.0,"Other":-1630.0},"net":-799.0},"2024":{"income":{"TaxationIncome":11495.0,"OperatingIncome":2301.0,"GrantIncome":639.0},"expenditure":{"EmployeeCosts":12270.0,"InfrastructureCosts":397.0,"SuppliesAndServices":3558.0,"Other":-408.0},"net":1382.0},"2025":{"income":{"TaxationIncome":11239.0,"OperatingIncome":1676.0,"GrantIncome":536.0},"expenditure":{"EmployeeCosts":14271.0,"InfrastructureCosts":403.0,"SuppliesAndServices":1692.0,"Other":-14.0},"net":2044.0}},"Treasury":{"2016":{"income":{"CustomsExcise":355005.0,"IncomeTax":199522.0,"OtherTreasuryIncome":11121.0,"NIOperatingAccount":202229.0},"expenditure":{"EmployeeCosts":12748.0,"InfrastructureCosts":13.0,"TransportCosts":1.0,"SuppliesAndServices":1939.0,"AgencyAndContracted":3333.0,"LoanCharges":401.0,"SocialSecurityClients":274850.0,"Other":9314.0},"net":-465278.0},"2017":{"income":{"CustomsExcise":348549.0,"IncomeTax":11341.0,"OtherTreasuryIncome":248046.0},"expenditure":{"EmployeeCosts":17.0,"InfrastructureCosts":1.0,"SuppliesAndServices":2211.0,"AgencyAndContracted":3391.0,"LoanCharges":241.0,"SocialSecurityClients":9304.0},"net":-477038.0},"2018":{"income":{"CustomsExcise":358744.0,"IncomeTax":232897.0,"OtherTreasuryIncome":10905.0,"NIOperatingAccount":247213.0},"expenditure":{"EmployeeCosts":13422.0,"InfrastructureCosts":11.0,"TransportCosts":2.0,"SuppliesAndServices":3809.0,"AgencyAndContracted":3416.0,"LoanCharges":505.0,"SocialSecurityClients":318378.0,"Other":13331.0,"UNKNOWN_UNALLOCATED_SAVINGS":0.0},"net":-496886.0},"2019":{"income":{"CustomsExcise":369703.0,"IncomeTax":237742.0,"OtherTreasuryIncome":10503.0,"NIOperatingAccount":251706.0},"expenditure":{"EmployeeCosts":14236.0,"InfrastructureCosts":11.0,"TransportCosts":2197.0,"AgencyAndContracted":3529.0,"LoanCharges":481.0,"SocialSecurityClients":321511.0,"Other":10564.0},"net":0.0},"2020":{"income":{"CustomsExcise":444531.0,"IncomeTax":241124.0,"OtherTreasuryIncome":10305.0,"NIOperatingAccount":267697.0},"expenditure":{"EmployeeCosts":14959.0,"InfrastructureCosts":7.0,"SuppliesAndServices":1951.0,"AgencyAndContracted":3585.0,"LoanCharges":438.0,"SocialSecurityClients":325877.0,"Other":-7293.0},"net":0.0},"2021":{"income":{"CustomsExcise":328440.0,"IncomeTax":234981.0,"OtherTreasuryIncome":6717.0,"NIOperatingAccount":303366.0,"UNKNOWN_SUB_TOTAL":873504.0,"UNKNOWN_OTHER_INCOME":0.0},"expenditure":{"EmployeeCosts":16984.0,"InfrastructureCosts":12.0,"SuppliesAndServices":3355.0,"AgencyAndContracted":3576.0,"UNKNOWN_BOND_REPAYMENT_SINKING_FUND":0.0,"LoanCharges":827.0,"SocialSecurityClients":381641.0,"Other":-25761.0,"UNKNOWN_NET_INCOME":-492870.0},"net":0.0},"2022":{"income":{"CustomsExcise":423417.0,"IncomeTax":241372.0,"OtherTreasuryIncome":8762.0,"NIOperatingAccount":306482.0},"expenditure":{"EmployeeCosts":17366.0,"InfrastructureCosts":2.0,"SuppliesAndServices":18883.0,"AgencyAndContracted":3835.0,"UNKNOWN_BOND_REPAYMENT_SINKING_FUND":0.0,"LoanCharges":-73.0,"SocialSecurityClients":394975.0,"Other":24873.0,"UNKNOWN_NET_INCOME":-520172.0},"net":0.0},"2023":{"income":{"CustomsExcise":451929.0,"IncomeTax":274968.0,"OtherTreasuryIncome":11761.0,"NIOperatingAccount":306499.0},"expenditure":{"EmployeeCosts":17623.0,"InfrastructureCosts":7.0,"SuppliesAndServices":7011.0,"AgencyAndContracted":3671.0,"SinkingFund":3411.0,"SocialSecurityClients":375845.0,"Other":42196.0},"net":-595393.0},"2024":{"income":{"CustomsExcise":441658.0,"IncomeTax":324915.0,"OtherTreasuryIncome":16041.0,"NIOperatingAccount":326313.0},"expenditure":{"EmployeeCosts":19525.0,"InfrastructureCosts":8.0,"SuppliesAndServices":5566.0,"AgencyAndContracted":3380.0,"SinkingFund":3393.0,"SocialSecurityClients":390610.0,"Other":28912.0},"net":-657533.0},"2025":{"income":{"CustomsExcise":521648.0,"IncomeTax":388531.0,"OtherTreasuryIncome":5277.0,"NIOperatingAccount":328462.0},"expenditure":{"EmployeeCosts":21895.0,"InfrastructureCosts":10.0,"SuppliesAndServices":6676.0,"AgencyAndContracted":3433.0,"SinkingFund":3404.0,"SocialSecurityClients":415793.0,"Other":15905.0},"net":-776802.0}},"PostOffice":{"2016":{"income":{"OperatingIncome":26996.0,"UNKNOWN_NON-TRADING_INCOME":32.0},"expenditure":{"EmployeeCosts":13139.0,"InfrastructureCosts":684.0,"TransportCosts":1167.0,"SuppliesAndServices":11002.0,"LoanCharges":153.0},"net":-883.0},"2017":{"income":{"OperatingIncome":29206.0,"UNKNOWN_NON-TRADING_INCOME":19.0},"expenditure":{"EmployeeCosts":-12977.0,"InfrastructureCosts":-810.0,"TransportCosts":-1234.0,"SuppliesAndServices":-12903.0},"net":1302.0},"2018":{"income":{"OperatingIncome":27412.0,"UNKNOWN_NON-TRADING_INCOME":21.0},"expenditure":{"EmployeeCosts":13774.0,"InfrastructureCosts":1022.0,"TransportCosts":1339.0,"SuppliesAndServices":12517.0,"UNKNOWN_NET_(SURPLUS)/DEFICIT":1219.0},"net":0.0},"2019":{"income":{"OperatingIncome":27099.0,"UNKNOWN_NON-TRADING_INCOME":53.0},"expenditure":{"EmployeeCosts":13679.0,"InfrastructureCosts":707.0,"TransportCosts":1368.0,"SuppliesAndServices":11901.0,"UNKNOWN_EXCEPTIONAL_COSTS":159.0,"UNKNOWN_NET_SURPLUS/(DEFICIT)":-662.0},"net":0.0},"2020":{"income":{"OperatingIncome":27915.0,"UNKNOWN_NON-TRADING_INCOME":64.0},"expenditure":{"EmployeeCosts":-13686.0,"InfrastructureCosts":-387.0,"TransportCosts":-1291.0,"SuppliesAndServices":-12602.0,"UNKNOWN_EXCEPTIONAL_ITEMS":-517.0,"UNKNOWN_NET_SURPLUS/(DEFICIT)":-504.0},"net":0.0}},"DfE":{"2017":{"income":{"TaxationIncome":2206.0,"ThirdPartyContributions":394.0,"OperatingIncome":27377.0,"OtherNonTradingIncome":87.0},"expenditure":{"EmployeeCosts":11741.0,"InfrastructureCosts":1408.0,"TransportCosts":12.0,"SuppliesAndServices":14082.0,"LoanCharges":1475.0,"Other":3992.0},"net":2646.0},"2018":{"income":{"TaxationIncome":2209.0,"ThirdPartyContributions":351.0,"OperatingIncome":26456.0,"OtherNonTradingIncome":171.0},"expenditure":{"EmployeeCosts":10942.0,"InfrastructureCosts":1334.0,"TransportCosts":14.0,"SuppliesAndServices":13553.0,"LoanCharges":1463.0,"Other":5244.0},"net":3363.0},"2019":{"income":{"TaxationIncome":36.0,"OperatingIncome":27373.0,"OtherNonTradingIncome":179.0},"expenditure":{"EmployeeCosts":9135.0,"InfrastructureCosts":1221.0,"TransportCosts":32.0,"SuppliesAndServices":13030.0,"LoanCharges":1042.0,"Other":3145.0},"net":17.0},"2020":{"income":{"TaxationIncome":41.0,"ThirdPartyContributions":0.0,"OperatingIncome":25707.0,"OtherNonTradingIncome":-61.0},"expenditure":{"EmployeeCosts":9920.0,"InfrastructureCosts":1092.0,"TransportCosts":1.0,"SuppliesAndServices":14017.0,"LoanCharges":1063.0,"Other":655.0},"net":1062.0},"2021":{"income":{"TaxationIncome":2.0,"ThirdPartyContributions":0.0,"OperatingIncome":23030.0},"expenditure":{"EmployeeCosts":9946.0,"InfrastructureCosts":513.0,"TransportCosts":0.0,"SuppliesAndServices":8115.0,"LoanCharges":905.0,"Other":4898.0},"net":1316.0},"2022":{"income":{"TaxationIncome":27.0,"ThirdPartyContributions":0.0,"OperatingIncome":25060.0},"expenditure":{"EmployeeCosts":10204.0,"InfrastructureCosts":1032.0,"TransportCosts":1.0,"SuppliesAndServices":9240.0,"Other":3869.0},"net":-776.0},"2023":{"income":{"TaxationIncome":28.0,"OperatingIncome":27764.0},"expenditure":{"EmployeeCosts":11049.0,"InfrastructureCosts":1009.0,"TransportCosts":1.0,"SuppliesAndServices":17188.0,"FundClaims":0.0,"Other":161.0},"net":1618.0},"2024":{"income":{"TaxationIncome":25.0,"OperatingIncome":27347.0},"expenditure":{"EmployeeCosts":12644.0,"InfrastructureCosts":745.0,"TransportCosts":1.0,"SuppliesAndServices":16676.0,"Other":-2807.0},"net":-35.0},"2025":{"income":{"TaxationIncome":29.0,"OperatingIncome":29069.0},"expenditure":{"EmployeeCosts":14093.0,"InfrastructureCosts":857.0,"TransportCosts":1.0,"SuppliesAndServices":19684.0,"Other":-3785.0},"net":1736.0}},"MUA":{"2018":{"income":{"OperatingIncome":100152.0},"expenditure":{"EmployeeCosts":18662.0,"InfrastructureCosts":9845.0,"TransportCosts":1158.0,"SuppliesAndServices":33403.0,"LoanCharges":-78204.0,"Other":28533.0,"UNKNOWN_NET_(SURPLUS)/DEFICIT":-86755.0},"net":0.0},"2019":{"income":{"OperatingIncome":104790.0},"expenditure":{"EmployeeCosts":19166.0,"InfrastructureCosts":11409.0,"TransportCosts":1338.0,"SuppliesAndServices":41098.0,"LoanCharges":11897.0,"Other":17166.0,"UNKNOWN_NET_(SURPLUS)/DEFICIT":-2716.0},"net":0.0},"2020":{"income":{"OperatingIncome":102883.0},"expenditure":{"EmployeeCosts":20940.0,"InfrastructureCosts":11278.0,"TransportCosts":1181.0,"SuppliesAndServices":27388.0,"LoanCharges":34415.0,"Other":16994.0,"UNKNOWN_NET_(INCOME)/EXPENDITURE":9313.0},"net":0.0}},"ManxCare":{"2021":{"income":{"TaxationIncome":0.0,"ThirdPartyContributions":0.0,"OperatingIncome":0.0},"expenditure":{"EmployeeCosts":0.0,"InfrastructureCosts":0.0,"TransportCosts":0.0,"SuppliesAndServices":0.0,"AgencyAndContracted":0.0,"Other":0.0},"net":0.0},"2022":{"income":{"TaxationIncome":-15.0,"ThirdPartyContributions":1211.0,"OperatingIncome":10787.0},"expenditure":{"EmployeeCosts":177996.0,"InfrastructureCosts":1805.0,"TransportCosts":4580.0,"SuppliesAndServices":41994.0,"AgencyAndContracted":87599.0,"Other":-301877.0},"net":0.0},"2023":{"income":{"ThirdPartyContributions":1972.0,"OperatingIncome":12638.0,"OtherNonTradingIncome":255.0},"expenditure":{"EmployeeCosts":195662.0,"InfrastructureCosts":1865.0,"TransportCosts":5415.0,"SuppliesAndServices":34725.0,"AgencyAndContracted":98169.0,"Other":2465.0,"Mandate":-283931.0,"AdditionalMandate":-39505.0},"net":0.0},"2024":{"income":{"ThirdPartyContributions":1771.0,"OperatingIncome":13910.0,"OtherNonTradingIncome":229.0},"expenditure":{"EmployeeCosts":218639.0,"InfrastructureCosts":2458.0,"TransportCosts":5493.0,"SuppliesAndServices":34695.0,"AgencyAndContracted":106927.0,"Other":2570.0,"Mandate":-302975.0,"AdditionalMandate":-51897.0},"net":0.0},"2025":{"income":{"ThirdPartyContributions":2425.0,"OperatingIncome":15003.0,"OtherNonTradingIncome":214.0},"expenditure":{"EmployeeCosts":232736.0,"InfrastructureCosts":2200.0,"TransportCosts":6363.0,"SuppliesAndServices":36878.0,"AgencyAndContracted":107852.0,"Other":6466.0,"Mandate":-346823.0,"AdditionalMandate":-28030.0},"net":0.0}},"StatBoardsNonRev":{"2023":{"income":{"OperatingIncome":173710.0},"expenditure":{"EmployeeCosts":23604.0,"InfrastructureCosts":16098.0,"TransportCosts":1191.0,"SuppliesAndServices":117012.0,"LoanCharges":37779.0,"Other":19926.0},"net":41900.0},"2024":{"income":{"OperatingIncome":156966.0},"expenditure":{"EmployeeCosts":25781.0,"InfrastructureCosts":17732.0,"TransportCosts":1633.0,"SuppliesAndServices":67518.0,"LoanCharges":23473.0,"Other":21545.0},"net":716.0},"2025":{"income":{"OperatingIncome":151029.0},"expenditure":{"EmployeeCosts":27396.0,"InfrastructureCosts":21684.0,"TransportCosts":1580.0,"SuppliesAndServices":55503.0,"LoanCharges":14834.0,"Other":20500.0},"net":-9532.0}}};
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const DEPT_LABELS = {
+  'CabinetOffice':'Cabinet Office',
+  'DED':'Economic Development (pre-2017)',
+  'DEFA':'Environment, Food & Agriculture',
+  'DESC':'Education, Sport & Culture',
+  'DHA':'Home Affairs',
+  'DHSC':'Health & Social Care',
+  'DfE':'Department for Enterprise',
+  'DoI':'Infrastructure',
+  'ExecGov':'Executive Government',
+  'Legislature':'Legislature',
+  'MNH':'Manx National Heritage',
+  'MUA':'Manx Utilities Authority',
+  'ManxCare':'Manx Care',
+  'PostOffice':'IOM Post Office',
+  'StatBoardsNonRev':'Statutory Boards (Non-Rev)',
+  'StatBoardsRev':'Statutory Boards (Revenue)',
+  'Treasury':'The Treasury',
+};
+
+const DEPT_ORDER = ['DHSC','ManxCare','Treasury','DoI','DESC','DfE','DED','DEFA','DHA',
+  'ExecGov','CabinetOffice','Legislature','StatBoardsRev','StatBoardsNonRev','MUA','PostOffice','MNH'];
+
+const DEPT_NOTES = {
+  'ManxCare':'Manx Care separated from DHSC from FY2021',
+  'DHSC':'Manx Care broke out as separate entity from FY2021',
+  'DED':'Renamed to Department for Enterprise (DfE) from FY2017',
+  'ExecGov':'Includes large pension reserve accruals in some years',
+  'StatBoardsNonRev':'MUA + Post Office combined from FY2023',
+};
+
+const INC_COLORS = {
+  OperatingIncome:'#10b981',
+  TaxationIncome:'#f59e0b',
+  ThirdPartyContributions:'#06b6d4',
+  GrantIncome:'#8b5cf6',
+  OtherNonTradingIncome:'#64748b',
+  DeptFeesCharges:'#14b8a6',
+  PensionContributions:'#a78bfa',
+  CustomsExcise:'#fbbf24',
+  IncomeTax:'#f59e0b',
+  NIOperatingAccount:'#fb923c',
+  OtherTreasuryIncome:'#64748b',
+  GRAGrant:'#C9A24A',
+};
+
+const EXP_COLORS = {
+  EmployeeCosts:'#f87171',
+  InfrastructureCosts:'#60a5fa',
+  TransportCosts:'#94a3b8',
+  SuppliesAndServices:'#4ade80',
+  AgencyAndContracted:'#c084fc',
+  SocialSecurityClients:'#fb923c',
+  SinkingFund:'#fbbf24',
+  LoanCharges:'#38bdf8',
+  Other:'#6b7280',
+  PensionCosts:'#e879f9',
+  FundClaims:'#a3e635',
+  WelfarePayments:'#f97316',
+  NIFundedPayments:'#fd8e4c',
+  TreasuryContingency:'#94a3b8',
+  UnlockedSavings:'#94a3b8',
+  Mandate:'#94a3b8',
+  AdditionalMandate:'#a1a1aa',
+};
+
+const CAT_LABELS = {
+  OperatingIncome:'Operating Income', TaxationIncome:'Taxation Income',
+  ThirdPartyContributions:'Third Party', GrantIncome:'Grants',
+  OtherNonTradingIncome:'Other Income', DeptFeesCharges:'Fees & Charges',
+  PensionContributions:'Pension Contributions',
+  CustomsExcise:'Customs & Excise', IncomeTax:'Income Tax',
+  NIOperatingAccount:'NI Account', OtherTreasuryIncome:'Other Revenue',
+  GRAGrant:'GRA Grant',
+  EmployeeCosts:'Employee Costs', InfrastructureCosts:'Infrastructure',
+  TransportCosts:'Transport', SuppliesAndServices:'Supplies & Services',
+  AgencyAndContracted:'Agency & Contracted', SocialSecurityClients:'Social Security',
+  SinkingFund:'Sinking Fund', LoanCharges:'Loan Charges', Other:'Other',
+  PensionCosts:'Pension Costs', FundClaims:'Fund Claims',
+  WelfarePayments:'Welfare Payments', NIFundedPayments:'NI Payments',
+  TreasuryContingency:'Contingency', UnlockedSavings:'Savings',
+  Mandate:'Mandate', AdditionalMandate:'Add. Mandate',
+};
+
+const fmt = v => {
+  const m = Math.abs(v) / 1000;
+  return (v < 0 ? '-' : '') + '£' + (m >= 1 ? m.toFixed(1)+'m' : Math.round(Math.abs(v))+'k');
+};
+const fmtPct = (v, total) => total > 0 ? (v/total*100).toFixed(1)+'%' : '—';
+
+// ── SVG setup ────────────────────────────────────────────────────────────────
+const svg = d3.select('#chart');
+let W = 800, H = 520;
+
+function resize() {
+  const wrap = document.querySelector('.viz-wrap');
+  W = wrap.clientWidth - 4;
+  H = wrap.clientHeight - 4;
+  svg.attr('width', W).attr('height', H);
+}
+
+// ── Layout ───────────────────────────────────────────────────────────────────
+function buildLayout(dept, fy) {
+  const d = DATA[dept] && DATA[dept][String(fy)];
+  if (!d) return null;
+
+  const PAD = 5;
+  const NW  = 46; // node width
+  const cx  = Math.round(W / 2);
+  const CH  = NW; // center column width
+  const LX  = 0;
+  const RX  = W - NW;
+  const avH = H - 40; // leave margin top/bottom
+
+  // Left nodes: income categories sorted by value desc, GRA grant last
+  const incItems = Object.entries(d.income)
+    .filter(([,v]) => v > 0.5)
+    .sort((a,b) => b[1]-a[1]);
+  const graAmt = Math.max(0, d.net);
+  const leftItems = [...incItems.map(([k,v]) => ({cat:k,amt:v,type:'income'}))];
+  if (graAmt > 0.5) leftItems.push({cat:'GRAGrant', amt:graAmt, type:'grant'});
+
+  // Right nodes: expenditure sorted by value desc
+  const rightItems = Object.entries(d.expenditure)
+    .filter(([,v]) => v > 0.5)
+    .sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => ({cat:k, amt:v, type:'expend'}));
+
+  const totalBudget = rightItems.reduce((s,n) => s+n.amt, 0);
+  if (totalBudget <= 0) return null;
+
+  // Scale so right column fills avH (including padding between nodes)
+  const scale = (avH - (rightItems.length - 1) * PAD) / totalBudget;
+
+  // Layout right column
+  let y = 0;
+  for (const n of rightItems) {
+    n.h = Math.max(n.amt * scale, 2);
+    n.x0 = RX; n.x1 = RX + NW;
+    n.y0 = y;  n.y1 = y + n.h;
+    y = n.y1 + PAD;
+  }
+  const rightH = y - PAD;
+
+  // Layout left column (vertically centered relative to right column)
+  const leftTotalH = leftItems.reduce((s,n) => s + Math.max(n.amt * scale, 2), 0)
+                   + (leftItems.length - 1) * PAD;
+  const leftStart = Math.max(0, (rightH - leftTotalH) / 2);
+  y = leftStart;
+  for (const n of leftItems) {
+    n.h = Math.max(n.amt * scale, 2);
+    n.x0 = LX; n.x1 = LX + NW;
+    n.y0 = y;  n.y1 = y + n.h;
+    y = n.y1 + PAD;
+  }
+
+  // Center node
+  const centerNode = {x0: cx - CH/2, x1: cx + CH/2, y0: 0, y1: rightH};
+
+  // Links: left → center (assign y on center left face proportionally)
+  let cy = 0;
+  for (const n of leftItems) {
+    const frac = n.amt / totalBudget;
+    n.ty0 = cy; n.ty1 = cy + frac * rightH;
+    n.sy0 = n.y0; n.sy1 = n.y1;
+    cy = n.ty1;
+  }
+
+  // Links: center → right
+  cy = 0;
+  for (const n of rightItems) {
+    const frac = n.amt / totalBudget;
+    n.sy0 = cy; n.sy1 = cy + frac * rightH;
+    n.ty0 = n.y0; n.ty1 = n.y1;
+    cy = n.sy1;
+  }
+
+  return { leftItems, rightItems, centerNode, totalBudget, graAmt, rightH };
+}
+
+// ── Ribbon path ──────────────────────────────────────────────────────────────
+function ribbonPath(x0, sy0, sy1, x1, ty0, ty1) {
+  const mx = (x0 + x1) / 2;
+  return `M${x0},${sy0}C${mx},${sy0} ${mx},${ty0} ${x1},${ty0}`+
+         `L${x1},${ty1}C${mx},${ty1} ${mx},${sy1} ${x0},${sy1}Z`;
+}
+
+// ── Draw ─────────────────────────────────────────────────────────────────────
+let prevLayout = null;
+
+function draw(dept, fy, animate) {
+  const lyt = buildLayout(dept, fy);
+  svg.selectAll('*').remove();
+
+  if (!lyt) {
+    svg.append('text').attr('class','no-data')
+      .attr('x', W/2).attr('y', H/2)
+      .text('No data for this department / year');
+    prevLayout = null;
+    updateStats(null);
+    return;
+  }
+
+  const { leftItems, rightItems, centerNode, totalBudget, graAmt, rightH } = lyt;
+  const top = Math.round((H - rightH) / 2);
+
+  const g = svg.append('g').attr('transform', `translate(0,${top})`);
+  const dur = animate ? 600 : 0;
+
+  // Build previous position lookup for transitions
+  const prevLeft  = {};
+  const prevRight = {};
+  if (prevLayout) {
+    prevLayout.leftItems.forEach(n => { prevLeft[n.cat]  = n; });
+    prevLayout.rightItems.forEach(n => { prevRight[n.cat] = n; });
+  }
+
+  // ── Left ribbons (income → center) ──
+  const leftRibs = g.selectAll('.rib-left').data(leftItems, d => d.cat);
+  const lEnter = leftRibs.enter().append('path')
+    .attr('class', 'ribbon rib-left')
+    .attr('fill', d => INC_COLORS[d.cat] || '#888')
+    .attr('d', d => {
+      const p = prevLeft[d.cat] || d;
+      return ribbonPath(p.x1, p.sy0, p.sy1, centerNode.x0, p.ty0, p.ty1);
+    });
+  lEnter.append('title').text(d => `${CAT_LABELS[d.cat]||d.cat}: ${fmt(d.amt)}`);
+  lEnter.merge(leftRibs)
+    .transition().duration(dur)
+    .attr('d', d => ribbonPath(d.x1, d.sy0, d.sy1, centerNode.x0, d.ty0, d.ty1));
+
+  // ── Right ribbons (center → expend) ──
+  const rightRibs = g.selectAll('.rib-right').data(rightItems, d => d.cat);
+  const rEnter = rightRibs.enter().append('path')
+    .attr('class', 'ribbon rib-right')
+    .attr('fill', d => EXP_COLORS[d.cat] || '#888')
+    .attr('d', d => {
+      const p = prevRight[d.cat] || d;
+      return ribbonPath(centerNode.x1, p.sy0, p.sy1, p.x0, p.ty0, p.ty1);
+    });
+  rEnter.append('title').text(d => `${CAT_LABELS[d.cat]||d.cat}: ${fmt(d.amt)}`);
+  rEnter.merge(rightRibs)
+    .transition().duration(dur)
+    .attr('d', d => ribbonPath(centerNode.x1, d.sy0, d.sy1, d.x0, d.ty0, d.ty1));
+
+  // ── Left nodes ──
+  const leftGs = g.selectAll('.lnode').data(leftItems, d => d.cat).enter()
+    .append('g').attr('class','lnode');
+  leftGs.append('rect').attr('class','node-rect')
+    .attr('x', d => d.x0).attr('y', d => d.y0)
+    .attr('width', NW => 46).attr('height', d => d.h)
+    .attr('fill', d => INC_COLORS[d.cat] || '#888')
+    .attr('rx', 2);
+  // Label to the right of left node (outside)
+  leftGs.each(function(d) {
+    if (d.h < 8) return;
+    const mid = d.y0 + d.h/2;
+    d3.select(this).append('text').attr('class','node-label')
+      .attr('x', d.x1 + 6).attr('y', mid)
+      .text(CAT_LABELS[d.cat] || d.cat);
+    if (d.h > 22) {
+      d3.select(this).append('text').attr('class','node-amount')
+        .attr('x', d.x1 + 6).attr('y', mid + 12)
+        .text(fmt(d.amt));
+    }
+  });
+
+  // ── Right nodes ──
+  const rightGs = g.selectAll('.rnode').data(rightItems, d => d.cat).enter()
+    .append('g').attr('class','rnode');
+  rightGs.append('rect').attr('class','node-rect')
+    .attr('x', d => d.x0).attr('y', d => d.y0)
+    .attr('width', 46).attr('height', d => d.h)
+    .attr('fill', d => EXP_COLORS[d.cat] || '#888')
+    .attr('rx', 2);
+  // Label to the left of right node (outside)
+  rightGs.each(function(d) {
+    if (d.h < 8) return;
+    const mid = d.y0 + d.h/2;
+    d3.select(this).append('text').attr('class','node-label')
+      .attr('x', d.x0 - 6).attr('y', mid)
+      .attr('text-anchor','end')
+      .text(CAT_LABELS[d.cat] || d.cat);
+    if (d.h > 22) {
+      d3.select(this).append('text').attr('class','node-amount')
+        .attr('x', d.x0 - 6).attr('y', mid + 12)
+        .attr('text-anchor','end')
+        .text(fmt(d.amt));
+    }
+  });
+
+  // ── Center node ──
+  g.append('rect')
+    .attr('x', centerNode.x0).attr('y', centerNode.y0)
+    .attr('width', centerNode.x1 - centerNode.x0)
+    .attr('height', centerNode.y1 - centerNode.y0)
+    .attr('fill','#1e293b').attr('stroke','#C9A24A').attr('stroke-width',1.5).attr('rx',3);
+  const cy = (centerNode.y0 + centerNode.y1) / 2;
+  g.append('text').attr('class','center-label')
+    .attr('x', (centerNode.x0 + centerNode.x1)/2).attr('y', cy - 8)
+    .text(fmt(totalBudget));
+  g.append('text').attr('class','center-sub')
+    .attr('x', (centerNode.x0 + centerNode.x1)/2).attr('y', cy + 8)
+    .text('budget');
+
+  prevLayout = lyt;
+  updateStats(lyt, dept);
+  updateLegend(leftItems, rightItems);
+}
+
+// ── Stats bar ────────────────────────────────────────────────────────────────
+function updateStats(lyt, dept) {
+  if (!lyt) {
+    ['s-total','s-income','s-gra','s-staff'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const ownIncome = lyt.leftItems.filter(n => n.cat !== 'GRAGrant').reduce((s,n) => s+n.amt, 0);
+  const staffNode = lyt.rightItems.find(n => n.cat === 'EmployeeCosts');
+  const staff = staffNode ? staffNode.amt : 0;
+  document.getElementById('s-total').textContent  = fmt(lyt.totalBudget);
+  document.getElementById('s-income').textContent = fmt(ownIncome) + ' (' + fmtPct(ownIncome, lyt.totalBudget) + ')';
+  document.getElementById('s-gra').textContent    = fmt(lyt.graAmt) + ' (' + fmtPct(lyt.graAmt, lyt.totalBudget) + ')';
+  document.getElementById('s-staff').textContent  = fmt(staff) + ' (' + fmtPct(staff, lyt.totalBudget) + ')';
+}
+
+// ── Legend ───────────────────────────────────────────────────────────────────
+function updateLegend(leftItems, rightItems) {
+  const incDiv = document.getElementById('leg-income');
+  const expDiv = document.getElementById('leg-expend');
+  incDiv.innerHTML = leftItems.map(n => `
+    <div class="leg-item">
+      <div class="leg-swatch" style="background:${INC_COLORS[n.cat]||'#888'}"></div>
+      <span>${CAT_LABELS[n.cat]||n.cat}</span>
+    </div>`).join('');
+  expDiv.innerHTML = rightItems.map(n => `
+    <div class="leg-item">
+      <div class="leg-swatch" style="background:${EXP_COLORS[n.cat]||'#888'}"></div>
+      <span>${CAT_LABELS[n.cat]||n.cat}</span>
+    </div>`).join('');
+}
+
+// ── Dept notes ───────────────────────────────────────────────────────────────
+function updateNote(dept) {
+  const el = document.getElementById('note-badge');
+  const note = DEPT_NOTES[dept];
+  if (note) { el.textContent = '⚠ ' + note; el.style.display = 'inline-block'; }
+  else { el.style.display = 'none'; }
+}
+
+// ── Year slider ──────────────────────────────────────────────────────────────
+let currentDept = DEPT_ORDER[0];
+let currentFY = 2023;
+let playing = false;
+let playTimer = null;
+
+function setYear(fy, animate) {
+  currentFY = fy;
+  document.getElementById('year-slider').value = fy;
+  document.getElementById('year-badge').textContent = 'FY' + fy;
+  draw(currentDept, fy, animate);
+}
+
+function startPlay() {
+  playing = true;
+  document.getElementById('play-btn').textContent = '⏸';
+  playTimer = setInterval(() => {
+    const next = currentFY < 2025 ? currentFY + 1 : 2015;
+    setYear(next, true);
+  }, 1600);
+}
+
+function stopPlay() {
+  playing = false;
+  document.getElementById('play-btn').textContent = '▶';
+  clearInterval(playTimer);
+}
+
+document.getElementById('play-btn').addEventListener('click', () => playing ? stopPlay() : startPlay());
+document.getElementById('year-slider').addEventListener('input', e => {
+  stopPlay();
+  setYear(+e.target.value, false);
+});
+
+// ── Dept select ──────────────────────────────────────────────────────────────
+const deptSel = document.getElementById('dept-select');
+DEPT_ORDER.forEach(code => {
+  if (!DATA[code]) return;
+  const opt = document.createElement('option');
+  opt.value = code;
+  opt.textContent = DEPT_LABELS[code] || code;
+  if (code === 'DHSC') opt.selected = true;
+  deptSel.appendChild(opt);
+});
+currentDept = deptSel.value;
+
+deptSel.addEventListener('change', e => {
+  stopPlay();
+  currentDept = e.target.value;
+  updateNote(currentDept);
+  // Find a valid year for this dept
+  const deptYears = Object.keys(DATA[currentDept] || {}).map(Number).sort();
+  if (!deptYears.includes(currentFY)) {
+    currentFY = deptYears[deptYears.length - 1] || 2023;
+    document.getElementById('year-slider').min = deptYears[0];
+    document.getElementById('year-slider').max = deptYears[deptYears.length-1];
+  } else {
+    document.getElementById('year-slider').min = deptYears[0];
+    document.getElementById('year-slider').max = deptYears[deptYears.length-1];
+  }
+  setYear(currentFY, false);
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  resize();
+  draw(currentDept, currentFY, false);
+});
+
+resize();
+updateNote(currentDept);
+setYear(2023, false);
+
+// postMessage for iframe resize
+function postHeight() {
+  const h = document.body.scrollHeight;
+  window.parent.postMessage({type:'resize', height: h}, '*');
+}
+window.addEventListener('load', postHeight);
+</script>
+</body>
+</html>

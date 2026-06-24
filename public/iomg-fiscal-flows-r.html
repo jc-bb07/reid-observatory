@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IOM Fiscal Flows · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
+<script>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border2:#334155;--text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;--gold:#C9A24A}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+.shell{max-width:1060px;margin:0 auto;padding:24px 20px 40px}
+.page-title{font-size:18px;font-weight:800;letter-spacing:-.01em}
+.page-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.controls-bar{display:flex;align-items:center;gap:10px;margin:14px 0 8px;flex-wrap:wrap}
+.ctrl-btn{background:var(--surface);border:1px solid var(--border2);color:var(--muted2);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.ctrl-btn:hover{background:var(--surface2);color:var(--text)}
+.ctrl-btn.active{background:var(--gold);border-color:var(--gold);color:#000}
+#year-scrubber{flex:1;min-width:120px;max-width:340px;-webkit-appearance:none;height:4px;background:var(--border2);border-radius:2px;outline:none;cursor:pointer}
+#year-scrubber::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer}
+#year-scrubber::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:var(--gold);cursor:pointer}
+.year-display{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--gold);letter-spacing:-.02em;min-width:60px}
+.format-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.badge-lbb{background:#1e3a1e;color:#4ade80;border:1px solid #166534}
+.badge-afs{background:#2d1a1a;color:#fca5a5;border:1px solid #7f1d1d}
+.break-warning{background:#2d1a0a;border:1px solid #92400e;border-radius:6px;padding:8px 12px;font-size:11px;color:#fcd34d;margin-bottom:8px;display:none}
+.break-warning.show{display:block}
+.sankey-wrap{width:100%;overflow:hidden}
+#sankey-svg{width:100%;display:block}
+.tooltip{position:fixed;pointer-events:none;background:#0f1f35;border:1px solid var(--border2);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.5);z-index:100;display:none;max-width:230px;line-height:1.6}
+.tooltip strong{display:block;font-size:11px;color:var(--gold);margin-bottom:1px;text-transform:uppercase;letter-spacing:.04em}
+.legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:16px;padding:12px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border2)}
+.legend-section{flex:1;min-width:200px}
+.legend-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.legend-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted2);margin-bottom:3px}
+.legend-swatch{width:12px;height:12px;border-radius:2px;flex-shrink:0}
+.caveat-box{margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--muted);font-size:11px;color:var(--muted);line-height:1.6}
+.page-footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border2);font-size:10px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.page-footer a{color:var(--muted);text-decoration:none}
+.page-footer a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="page-header">
+    <div class="page-title">IOM Government Fiscal Flows</div>
+    <div class="page-sub">General Revenue Account · Sources and uses of funds · £000 · Fiscal years ending 31 March</div>
+  </div>
+  <div class="controls-bar">
+    <button class="ctrl-btn" id="btn-prev">&#9664;</button>
+    <button class="ctrl-btn active" id="btn-play">&#9646;&#9646;</button>
+    <button class="ctrl-btn" id="btn-next">&#9654;</button>
+    <input type="range" id="year-scrubber" min="0" max="9" step="1" value="0"/>
+    <div class="year-display" id="year-display">2015</div>
+    <div class="format-badge badge-lbb" id="format-badge">LBB — Unaudited</div>
+  </div>
+  <div class="break-warning" id="break-warning">
+    ⚠ From 2022: Annual Financial Statements (audited, FRS102). Pension accounting changes inflate departmental gross spend; Statutory Boards scope expands to include MUA, Post Office &amp; Steam Packet. Not directly comparable to LBB 2015–2021.
+  </div>
+  <div class="sankey-wrap">
+    <svg id="sankey-svg" viewBox="0 0 1040 560" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+  <div class="tooltip" id="tooltip"></div>
+  <div class="legend">
+    <div class="legend-section">
+      <div class="legend-title">Revenue sources</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#C9A24A"></div>Customs &amp; Excise (FERSA/VAT share)</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#f59e0b"></div>Income Tax</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#fb923c"></div>Social Security contributions</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#fcd34d"></div>Other Treasury receipts</div>
+    </div>
+    <div class="legend-section">
+      <div class="legend-title">Key departments</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#f87171"></div>Health &amp; Social Care</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#a78bfa"></div>Treasury (own expenditure incl. Social Security)</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#60a5fa"></div>Education, Sport &amp; Culture</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#94a3b8"></div>Infrastructure</div>
+      <div class="legend-row"><div class="legend-swatch" style="background:#67e8f9"></div>Statutory Boards (AFS scope expands from 2022)</div>
+    </div>
+  </div>
+  <div class="caveat-box">
+    Flow widths proportional to £000. Left: GRA revenue inflows. Right: departmental gross expenditure. The gap between revenue and spending (typically £150–400m) reflects deficit financing, reserves drawdown or borrowing — not shown as an explicit node. Social Security absent from revenue in 2015 (not separately reported in that LBB). MNH absorbed from 2021; RTLC absent from 2018.
+  </div>
+  <div class="page-footer">
+    <span>observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>IOM Light Blue Books 2015–2021 · IOM Annual Financial Statements 2022–2024 · <a href="https://coalfinch.com">Coalfinch</a></span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const FD = {"2015":{"rev":{"CustomsExcise":319700.2,"IncomeTax":203045.2,"OtherTreasury":11600.7},"dept":{"CabinetOffice":29505.3,"DEFA":15402.3,"DESC":93654.1,"DHA":29396.3,"DHSC":240821.7,"DfE":29235.5,"DoI":102030.9,"ExecutiveGov":82287.5,"Legislature":4764.9,"MNH":4585.4,"RTLC":127.9,"StatBoards":6919.1,"Treasury":301717.1}},"2016":{"rev":{"CustomsExcise":355005,"IncomeTax":199522,"OtherTreasury":10626,"SocialSecurity":202229},"dept":{"CabinetOffice":27366,"DEFA":16617,"DESC":94264,"DHA":28900,"DHSC":244455,"DfE":30923,"DoI":99487,"ExecutiveGov":76981,"Legislature":3922,"MNH":4786,"RTLC":131,"StatBoards":7108,"Treasury":302599}},"2017":{"rev":{"CustomsExcise":348549,"IncomeTax":216819,"OtherTreasury":11341,"SocialSecurity":210138},"dept":{"CabinetOffice":32009,"DEFA":18071,"DESC":98996,"DHA":32692,"DHSC":263054,"DfE":32710,"DoI":108133,"ExecutiveGov":71153,"Legislature":4517,"MNH":5156,"RTLC":137,"StatBoards":8312,"Treasury":309809}},"2018":{"rev":{"CustomsExcise":358746,"IncomeTax":232897,"OtherTreasury":10905,"SocialSecurity":208703},"dept":{"CabinetOffice":32282,"DEFA":19043,"DESC":100103,"DHA":34614,"DHSC":273625,"DfE":32550,"DoI":113695,"ExecutiveGov":74784,"Legislature":4565,"MNH":5461,"StatBoards":7511,"Treasury":314363}},"2019":{"rev":{"CustomsExcise":369703,"IncomeTax":237742,"OtherTreasury":10503,"SocialSecurity":212041},"dept":{"CabinetOffice":32305,"DEFA":19882,"DESC":111740,"DHA":36395,"DHSC":276889,"DfE":27606,"DoI":120289,"ExecutiveGov":80211,"Legislature":4626,"MNH":5540,"StatBoards":7809,"Treasury":312864}},"2020":{"rev":{"CustomsExcise":444531,"IncomeTax":241124,"OtherTreasury":10305,"SocialSecurity":226980},"dept":{"CabinetOffice":31732,"DEFA":20799,"DESC":118534,"DHA":38896,"DHSC":285676,"DfE":26749,"DoI":126271,"ExecutiveGov":82561,"Legislature":4779,"MNH":5736,"StatBoards":8868,"Treasury":338383}},"2021":{"rev":{"CustomsExcise":328440,"IncomeTax":234981,"OtherTreasury":6632,"SocialSecurity":224550},"dept":{"CabinetOffice":34365,"DEFA":20765,"DESC":119374,"DHA":39283,"DHSC":277824,"DfE":24377,"DoI":115749,"ExecutiveGov":86013,"Legislature":4399,"StatBoards":9216,"Treasury":341734}},"2022":{"rev":{"CustomsExcise":390223,"IncomeTax":243411,"SocialSecurity":265225,"OtherTreasury":8574},"dept":{"CabinetOffice":50308,"DEFA":22997,"DESC":171856,"DHA":56330,"DHSC":287173,"DfE":27251,"DoI":148545,"ExecutiveGov":14339,"Legislature":6289,"StatBoards":96897,"Treasury":421162}},"2023":{"rev":{"CustomsExcise":443050,"IncomeTax":276345,"SocialSecurity":255100,"OtherTreasury":11576},"dept":{"CabinetOffice":47562,"DEFA":23515,"DESC":179722,"DHA":58231,"DHSC":301176,"DfE":30321,"DoI":116572,"ExecutiveGov":47500,"Legislature":6630,"StatBoards":80551,"Treasury":428616}},"2024":{"rev":{"CustomsExcise":441658,"IncomeTax":327253,"SocialSecurity":272910,"OtherTreasury":14336},"dept":{"CabinetOffice":43249,"DEFA":20641,"DESC":178052,"DHA":51368,"DHSC":355548,"DfE":27167,"DoI":157239,"ExecutiveGov":51092,"Legislature":5828,"StatBoards":45234,"Treasury":393209}}};
+
+const YEARS = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'];
+
+// ── Node + link definitions ────────────────────────────────────────────────
+// col 0 = revenue, col 1 = treasury, col 2 = depts
+const NODES = [
+  {id:'rCE', label:'Customs & Excise',       col:0, rk:'CustomsExcise',  color:'#C9A24A'},
+  {id:'rIT', label:'Income Tax',              col:0, rk:'IncomeTax',       color:'#f59e0b'},
+  {id:'rSS', label:'Social Security',         col:0, rk:'SocialSecurity',  color:'#fb923c'},
+  {id:'rOT', label:'Other Treasury',          col:0, rk:'OtherTreasury',   color:'#fcd34d'},
+  {id:'cTR', label:'General\nRevenue\nAccount', col:1, rk:null, color:'#C9A24A'},
+  {id:'dHS', label:'Health & Social Care',    col:2, dk:'DHSC',         color:'#f87171'},
+  {id:'dTR', label:'Treasury expenditure',    col:2, dk:'Treasury',     color:'#a78bfa'},
+  {id:'dDE', label:'Education, Sport & Culture', col:2, dk:'DESC',      color:'#60a5fa'},
+  {id:'dDI', label:'Infrastructure',          col:2, dk:'DoI',          color:'#94a3b8'},
+  {id:'dSB', label:'Statutory Boards',        col:2, dk:'StatBoards',   color:'#67e8f9'},
+  {id:'dEG', label:'Executive Government',    col:2, dk:'ExecutiveGov', color:'#c084fc'},
+  {id:'dHA', label:'Home Affairs',            col:2, dk:'DHA',          color:'#fb923c'},
+  {id:'dFE', label:'Dept for Enterprise',     col:2, dk:'DfE',          color:'#34d399'},
+  {id:'dEF', label:'Environment, Food & Agri.', col:2, dk:'DEFA',       color:'#4ade80'},
+  {id:'dCO', label:'Cabinet Office',          col:2, dk:'CabinetOffice',color:'#818cf8'},
+  {id:'dLG', label:'Legislature',             col:2, dk:'Legislature',  color:'#fbbf24'},
+  {id:'dMN', label:'Manx National Heritage',  col:2, dk:'MNH',          color:'#d946ef'},
+  {id:'dRT', label:'Road Transport Licensing',col:2, dk:'RTLC',         color:'#64748b'},
+];
+
+// Links: each rev node → treasury, treasury → each dept node
+const LINK_DEFS = [
+  ...['rCE','rIT','rSS','rOT'].map(s => ({id:'l'+s, sid:s, tid:'cTR'})),
+  ...['dHS','dTR','dDE','dDI','dSB','dEG','dHA','dFE','dEF','dCO','dLG','dMN','dRT'].map(t => ({id:'l'+t, sid:'cTR', tid:t})),
+];
+
+const nodeMap = {};
+NODES.forEach(n => nodeMap[n.id] = n);
+
+function fmtM(v) {
+  if (!v || v < 1) return '—';
+  if (v >= 1000) return '£' + (v/1000).toFixed(1) + 'm';
+  return '£' + Math.round(v) + 'k';
+}
+
+// ── Layout engine ─────────────────────────────────────────────────────────
+// Returns {nodes, links} with x0,x1,y0,y1 on nodes and x0,x1,sy0,sy1,ty0,ty1,w on links
+function layout(yr, iw, ih, nw, pad) {
+  const d = FD[yr];
+
+  // Assign values
+  const nodes = NODES.map(n => {
+    let val = 0;
+    if (n.col === 0) val = d.rev[n.rk] || 0;
+    else if (n.col === 2) val = d.dept[n.dk] || 0;
+    return {...n, val};
+  });
+
+  const revNodes  = nodes.filter(n => n.col === 0);
+  const ctrNode   = nodes.find(n => n.col === 1);
+  const dptNodes  = nodes.filter(n => n.col === 2);
+
+  // X positions
+  const xCol = {0: 0, 1: (iw - nw) / 2, 2: iw - nw};
+  nodes.forEach(n => { n.x0 = xCol[n.col]; n.x1 = n.x0 + nw; });
+
+  // Scale: fit both columns in ih with their respective padding
+  const revTotal = revNodes.reduce((s,n) => s + n.val, 0);
+  const dptTotal = dptNodes.reduce((s,n) => s + n.val, 0);
+  const revPad = (revNodes.length - 1) * pad;
+  const dptPad = (dptNodes.length - 1) * pad;
+  const scaleRev = revTotal > 0 ? (ih - revPad) / revTotal : 1;
+  const scaleDpt = dptTotal > 0 ? (ih - dptPad) / dptTotal : 1;
+  const scale = Math.min(scaleRev, scaleDpt);
+
+  // Revenue column: centered
+  const revH = revTotal * scale + revPad;
+  let y = (ih - revH) / 2;
+  revNodes.forEach(n => {
+    n.y0 = y;
+    n.y1 = y + Math.max(n.val > 0 ? 2 : 0, n.val * scale);
+    y = n.y1 + pad;
+  });
+
+  // Dept column: centered
+  const dptH = dptTotal * scale + dptPad;
+  y = (ih - dptH) / 2;
+  dptNodes.forEach(n => {
+    n.y0 = y;
+    n.y1 = y + Math.max(n.val > 0 ? 2 : 0, n.val * scale);
+    y = n.y1 + pad;
+  });
+
+  // Treasury: rectangle spanning both sides, centered
+  const revLinkH = revTotal * scale;
+  const dptLinkH = dptTotal * scale;
+  const ctrH = Math.max(revLinkH, dptLinkH);
+  const ctrY = (ih - ctrH) / 2;
+  ctrNode.y0 = ctrY;
+  ctrNode.y1 = ctrY + ctrH;
+
+  // Links
+  const links = LINK_DEFS.map(ld => {
+    const src = nodes.find(n => n.id === ld.sid);
+    const tgt = nodes.find(n => n.id === ld.tid);
+    return {id: ld.id, src, tgt, val: 0, x0:0, x1:0, sy0:0, sy1:0, ty0:0, ty1:0, w:0};
+  });
+
+  // Rev → Treasury link y positions
+  const revOffY = ctrY + (ctrH - revLinkH) / 2;
+  let cumR = 0;
+  links.filter(lk => lk.src.col === 0).forEach(lk => {
+    lk.val = lk.src.val;
+    lk.w   = lk.val * scale;
+    lk.x0  = lk.src.x1;
+    lk.x1  = ctrNode.x0;
+    lk.sy0 = lk.src.y0;
+    lk.sy1 = lk.src.y1;
+    lk.ty0 = revOffY + cumR;
+    lk.ty1 = revOffY + cumR + lk.w;
+    cumR += lk.w;
+    lk.color = lk.src.color;
+  });
+
+  // Treasury → Dept link y positions
+  const dptOffY = ctrY + (ctrH - dptLinkH) / 2;
+  let cumD = 0;
+  links.filter(lk => lk.src.col === 1).forEach(lk => {
+    lk.val = lk.tgt.val;
+    lk.w   = lk.val * scale;
+    lk.x0  = ctrNode.x1;
+    lk.x1  = lk.tgt.x0;
+    lk.sy0 = dptOffY + cumD;
+    lk.sy1 = dptOffY + cumD + lk.w;
+    lk.ty0 = lk.tgt.y0;
+    lk.ty1 = lk.tgt.y1;
+    cumD += lk.w;
+    lk.color = lk.tgt.color;
+  });
+
+  return {nodes, links};
+}
+
+// Filled ribbon path
+function ribbon(lk) {
+  const {x0, x1, sy0, sy1, ty0, ty1} = lk;
+  const mx = (x0 + x1) / 2;
+  return `M${x0},${sy0}C${mx},${sy0} ${mx},${ty0} ${x1},${ty0}L${x1},${ty1}C${mx},${ty1} ${mx},${sy1} ${x0},${sy1}Z`;
+}
+
+// ── SVG setup ─────────────────────────────────────────────────────────────
+const VW = 1040, VH = 560;
+const ML = 192, MR = 212, MT = 28, MB = 28;
+const IW = VW - ML - MR;   // 636
+const IH = VH - MT - MB;   // 504
+const NW = 18, PAD = 6;
+
+const svg = d3.select('#sankey-svg');
+const g   = svg.append('g').attr('transform', `translate(${ML},${MT})`);
+const tip = document.getElementById('tooltip');
+
+// Layer order: links behind nodes behind labels
+const lkGroup  = g.append('g').attr('class','lk-group');
+const ndGroup  = g.append('g').attr('class','nd-group');
+const lbGroup  = g.append('g').attr('class','lb-group');
+
+// ── Render ────────────────────────────────────────────────────────────────
+let state = layout(YEARS[0], IW, IH, NW, PAD);
+
+function draw(st, animate) {
+  const dur = animate ? 820 : 0;
+  const ease = d3.easeCubicInOut;
+
+  // ── Links ──────────────────────────────────────────────────────────────
+  // Save old positions before rebind
+  const oldPos = {};
+  lkGroup.selectAll('.lk').each(function(d) { oldPos[d.id] = {sy0:d.sy0,sy1:d.sy1,ty0:d.ty0,ty1:d.ty1}; });
+
+  const lkSel = lkGroup.selectAll('.lk').data(st.links, d => d.id);
+  lkSel.enter().append('path').attr('class','lk')
+    .attr('fill', d => d.color + 'b0')
+    .attr('stroke', 'none')
+    .attr('d', d => ribbon(d))
+    .attr('opacity', d => d.val > 0 ? 1 : 0)
+    .style('cursor','pointer')
+    .on('mouseenter', (e,d) => {
+      tip.style.display = 'block';
+      tip.innerHTML = `<strong>${d.src.col===0 ? d.src.label : 'GRA'} → ${d.tgt.col===2 ? d.tgt.label : 'GRA'}</strong>${fmtM(d.val)}`;
+    })
+    .on('mousemove', e => { tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-28)+'px'; })
+    .on('mouseleave', () => tip.style.display='none')
+    .merge(lkSel)
+    .attr('fill', d => d.color + 'b0')
+    .attr('opacity', d => d.val > 0 ? 1 : 0)
+    .transition().duration(dur).ease(ease)
+    .attrTween('d', function(nd) {
+      const op = oldPos[nd.id] || {sy0:nd.sy0,sy1:nd.sy1,ty0:nd.ty0,ty1:nd.ty1};
+      const i0=d3.interpolate(op.sy0,nd.sy0), i1=d3.interpolate(op.sy1,nd.sy1);
+      const i2=d3.interpolate(op.ty0,nd.ty0), i3=d3.interpolate(op.ty1,nd.ty1);
+      return t => ribbon({...nd, sy0:i0(t), sy1:i1(t), ty0:i2(t), ty1:i3(t)});
+    });
+
+  // ── Nodes ──────────────────────────────────────────────────────────────
+  const ndSel = ndGroup.selectAll('.nd').data(st.nodes, d => d.id);
+  ndSel.enter().append('rect').attr('class','nd')
+    .attr('x', d => d.x0).attr('width', NW)
+    .attr('y', d => d.y0).attr('height', d => Math.max(0, d.y1 - d.y0))
+    .attr('fill', d => d.color).attr('rx', 2).attr('opacity', 0.92)
+    .merge(ndSel)
+    .transition().duration(dur).ease(ease)
+    .attr('y', d => d.y0)
+    .attr('height', d => Math.max(0, d.y1 - d.y0));
+
+  // ── Labels ─────────────────────────────────────────────────────────────
+  // Revenue labels (right-aligned, left side)
+  const rlSel = lbGroup.selectAll('.lb-rev').data(st.nodes.filter(n=>n.col===0), d=>d.id);
+  rlSel.enter().append('text').attr('class','lb-rev')
+    .attr('text-anchor','end').attr('font-size',11).attr('font-family','Inter,system-ui,sans-serif').attr('fill','#cbd5e1')
+    .merge(rlSel)
+    .transition().duration(dur).ease(ease)
+    .attr('x', -8)
+    .attr('y', d => (d.y0+d.y1)/2 - 6)
+    .text(d => d.label);
+
+  const rvlSel = lbGroup.selectAll('.lb-rev-val').data(st.nodes.filter(n=>n.col===0), d=>d.id);
+  rvlSel.enter().append('text').attr('class','lb-rev-val')
+    .attr('text-anchor','end').attr('font-size',10).attr('font-family','JetBrains Mono,monospace').attr('fill','#64748b')
+    .merge(rvlSel)
+    .transition().duration(dur).ease(ease)
+    .attr('x', -8).attr('y', d => (d.y0+d.y1)/2 + 7)
+    .text(d => d.val > 0 ? fmtM(d.val) : '—');
+
+  // Dept labels (left-aligned, right side)
+  const dlSel = lbGroup.selectAll('.lb-dept').data(st.nodes.filter(n=>n.col===2), d=>d.id);
+  dlSel.enter().append('text').attr('class','lb-dept')
+    .attr('text-anchor','start').attr('font-size',11).attr('font-family','Inter,system-ui,sans-serif').attr('fill','#cbd5e1')
+    .merge(dlSel)
+    .transition().duration(dur).ease(ease)
+    .attr('x', IW + 8).attr('y', d => (d.y0+d.y1)/2 - 6)
+    .attr('opacity', d => (d.y1-d.y0) < 4 ? 0 : 1)
+    .text(d => d.label);
+
+  const dvlSel = lbGroup.selectAll('.lb-dept-val').data(st.nodes.filter(n=>n.col===2), d=>d.id);
+  dvlSel.enter().append('text').attr('class','lb-dept-val')
+    .attr('text-anchor','start').attr('font-size',10).attr('font-family','JetBrains Mono,monospace').attr('fill','#64748b')
+    .merge(dvlSel)
+    .transition().duration(dur).ease(ease)
+    .attr('x', IW + 8).attr('y', d => (d.y0+d.y1)/2 + 7)
+    .attr('opacity', d => (d.y1-d.y0) < 4 ? 0 : 1)
+    .text(d => d.val > 0 ? fmtM(d.val) : '');
+
+  // Treasury center label (static-ish, update y position)
+  const ctr = st.nodes.find(n=>n.col===1);
+  const cx = (ctr.x0+ctr.x1)/2, cy = (ctr.y0+ctr.y1)/2;
+  lbGroup.selectAll('.lb-ctr').remove();
+  ['General','Revenue','Account'].forEach((t,i) => {
+    lbGroup.append('text').attr('class','lb-ctr')
+      .attr('text-anchor','middle').attr('x',cx).attr('y',cy+(i-1)*14)
+      .attr('font-size',10).attr('font-weight',700)
+      .attr('font-family','Inter,system-ui,sans-serif').attr('fill','#C9A24A')
+      .text(t);
+  });
+}
+
+// Initial draw
+draw(state, false);
+
+// ── Year update ───────────────────────────────────────────────────────────
+let curIdx = 0;
+
+function setYear(idx, animate) {
+  curIdx = idx;
+  const yr = YEARS[idx];
+  document.getElementById('year-display').textContent = yr;
+  document.getElementById('year-scrubber').value = idx;
+  const isAFS = +yr >= 2022;
+  const badge = document.getElementById('format-badge');
+  badge.className = 'format-badge ' + (isAFS ? 'badge-afs' : 'badge-lbb');
+  badge.textContent = isAFS ? 'AFS — Audited' : 'LBB — Unaudited';
+  document.getElementById('break-warning').classList.toggle('show', isAFS);
+  state = layout(yr, IW, IH, NW, PAD);
+  draw(state, animate);
+}
+
+// ── Animation ─────────────────────────────────────────────────────────────
+let playing = true, playTimer = null;
+
+function startPlay() {
+  playing = true;
+  document.getElementById('btn-play').innerHTML='&#9646;&#9646;';
+  document.getElementById('btn-play').classList.add('active');
+  playTimer = setInterval(() => setYear((curIdx+1)%YEARS.length, true), 1700);
+}
+function stopPlay() {
+  playing = false;
+  document.getElementById('btn-play').innerHTML='&#9654;';
+  document.getElementById('btn-play').classList.remove('active');
+  clearInterval(playTimer);
+}
+
+setTimeout(startPlay, 900);
+
+document.getElementById('btn-play').addEventListener('click', () => playing ? stopPlay() : startPlay());
+document.getElementById('btn-prev').addEventListener('click', () => { stopPlay(); setYear(Math.max(0,curIdx-1),true); });
+document.getElementById('btn-next').addEventListener('click', () => { stopPlay(); setYear(Math.min(YEARS.length-1,curIdx+1),true); });
+document.getElementById('year-scrubber').addEventListener('input', function(){ stopPlay(); setYear(+this.value,true); });
+
+// ── iframe resize ─────────────────────────────────────────────────────────
+function notifyH() { window.parent.postMessage({type:'resize',height:document.body.scrollHeight},'*'); }
+notifyH(); window.addEventListener('resize',notifyH); setTimeout(notifyH,600);
+</script>
+</body>
+</html>

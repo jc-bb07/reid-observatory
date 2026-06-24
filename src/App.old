@@ -25,7 +25,7 @@ const THEMES = {
 
 const TAB_GROUPS = [
   { id: "reid-group",   label: "Re-identification", color: "#60a5fa", homeTab: "home",       tabs: ["home",       "reid", "kanon", "areas", "restricted", "compliance"] },
-  { id: "econ-group",   label: "Economy & Society",  color: "#34d399", homeTab: "econHome",   tabs: ["econHome",   "demog", "iomfiscal", "iomfiscaldept", "econmix", "inflation", "unemployment", "suicide", "workforce"] },
+  { id: "econ-group",   label: "Economy & Society",  color: "#34d399", homeTab: "econHome",   tabs: ["econHome",   "demog", "iomfiscal", "econmix", "inflation", "unemployment", "suicide", "workforce"] },
   { id: "health-group", label: "Health & Care",      color: "#f87171", homeTab: "healthHome", tabs: ["healthHome", "manxBenchmark", "nobles", "nobles-v15"] },
 ];
 
@@ -37,7 +37,6 @@ const TABS = [
   { id: "econHome",       label: "About"                },
   { id: "demog",          label: "Demographics"         },
   { id: "iomfiscal",      label: "IoM Fiscal Flows"     },
-  { id: "iomfiscaldept",  label: "Budget Sources & Uses"},
   { id: "econmix",        label: "Productivity"         },
   { id: "inflation",      label: "Inflation"            },
   { id: "unemployment",   label: "Unemployment"         },
@@ -261,17 +260,6 @@ function EconHomeTab({ C, onNavigate }) {
           comes from (income tax, VAT sharing, duties, company tax) and where it goes
           (health, education, social security, infrastructure). Data extracted from
           Treasury published accounts. Check the numbers.`,
-          C.green
-        )}
-      </div>
-
-      <div onClick={() => onNavigate("iomfiscaldept")} style={{ cursor: "pointer" }}>
-        {card(
-          "Budget Sources & Uses",
-          `Departmental breakdown of IoM government income and expenditure, FY2016–2025.
-          Revenue sources flow through the General Revenue Account to department groups
-          and expenditure types. Animate across years, focus on a department or spending
-          category, and toggle constant prices. Data from IoM Treasury Pink Books.`,
           C.green
         )}
       </div>
@@ -524,7 +512,7 @@ function AppContent() {
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "reid","demog","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
+    "reid","demog","kanon","areas","iomfiscal","econmix","inflation",
     "unemployment","suicide","workforce","nobles","manxBenchmark",
   ]);
   const [loadedTabs, setLoadedTabs] = useState(() => new Set(["home"]));
@@ -564,9 +552,6 @@ function AppContent() {
     ),
     iomfiscal: (
       <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" />
-    ),
-    iomfiscaldept: (
-      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" />
     ),
     inflation: (
       <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" />
