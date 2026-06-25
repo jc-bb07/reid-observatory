@@ -383,11 +383,14 @@ function linkedNodeSets(selId, d){
   if(col==='rev'){
     rev.add(selId);
     special.add('GRA');
+    special.add('CFR4');
+    special.add('NIFund');
     GRP_ORDER.forEach(g=>grp.add(g));
     CAT_ORDER.forEach(c=>cat.add(c));
   } else if(col==='grp'){
-    grp.add(selId);  // dept node + its own-income node (same id, different sub)
+    grp.add(selId);
     special.add('GRA');
+    if(selId==='Social Security') special.add('NIFund'); // SS funded by NI Fund
     const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
     CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) cat.add(c); });
     // rev sources NOT added — they fade
@@ -417,11 +420,14 @@ function connectedLinkIds(selId, d){
     // All dept→cat links
     GRP_ORDER.forEach(g=>CAT_ORDER.forEach(c=>ids.add('c-'+g+'-'+c)));
   } else if(col==='grp'){
-    // Income side: only the GRA→this dept ribbon + own income ribbon for this dept
-    // (rev→GRA ribbons fade — they're upstream of the selection)
+    // Income side
     ids.add('gra-'+selId);
     ids.add('own-'+selId);
-    // Expenditure side: only ribbons from this dept to cats with actual spend
+    if(selId==='Social Security'){
+      ids.add('ni-SocialSecurity');          // NI Fund → SS ribbon
+      ids.add('gra-SocialSecurity-topup');   // GRA top-up → SS ribbon
+    }
+    // Expenditure side
     const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
     CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) ids.add('c-'+selId+'-'+c); });
   } else if(col==='cat'){
@@ -681,8 +687,8 @@ function getNodeOpacity(nodeId, selId, d, nodeSub){
   if(nodeSub==='own')    return sets.grp.has(nodeId) ? 1 : 0.07;
   if(nodeSub==='grp')    return sets.grp.has(nodeId) ? 1 : 0.07;
   if(nodeSub==='cat')    return sets.cat.has(nodeId) ? 1 : 0.07;
-  if(nodeSub==='nifund') return sets.special.has('GRA') ? 1 : 0.07; // always visible when GRA is
-  if(nodeSub==='cfr4')   return sets.special.has('GRA') ? 1 : 0.07;
+  if(nodeSub==='nifund') return sets.special.has('NIFund') ? 1 : 0.07;
+  if(nodeSub==='cfr4')   return sets.special.has('CFR4')   ? 1 : 0.07;
   return 1;
 }
 function getLinkOpacity(link, selId, baseOp, d){
@@ -790,13 +796,14 @@ function draw(fy,animate){
       .text(fmt(lyt.graNode.amt));
   }
 
-  // NI Fund node label — left of node, matching GRA style
+  // NI Fund node label — opacity tied to nifund node
   if(lyt.niFundNode.h>12){
     const n=lyt.niFundNode, mid=n.y0+n.h/2, nx=cx(1)-G;
-    svg.append('text').attr('class','lbl').attr('text-anchor','end')
+    const niOp=getNodeOpacity('NIFund',selectedNode,ld,'nifund');
+    svg.append('text').attr('class','lbl').attr('text-anchor','end').attr('opacity',niOp)
       .attr('dominant-baseline','middle').attr('x',nx).attr('y',mid-7)
       .attr('font-size','11px').attr('font-weight','700').attr('fill','#fdba74').text('NI Fund');
-    svg.append('text').attr('class','lbl').attr('text-anchor','end')
+    svg.append('text').attr('class','lbl').attr('text-anchor','end').attr('opacity',niOp)
       .attr('dominant-baseline','middle').attr('x',nx).attr('y',mid+7)
       .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace').attr('fill','#e2e8f0')
       .text(fmt(n.amt));
@@ -820,14 +827,15 @@ function draw(fy,animate){
       .attr('x',cx(4)+NW+G).attr('y',mid+6).text(fmt(n.amt));
   }
 
-  // CFR col4 node label — annual transfer flow amount, right of node
+  // CFR col4 node label — opacity tied to cfr4 node opacity
   { const n=lyt.cfrNode4;
     if(n && n.h>2){
       const nx=cx(4)+NW+G, ny=n.y0+n.h/2;
-      svg.append('text').attr('class','lbl').attr('text-anchor','start')
+      const cfrOp=getNodeOpacity('CFR4',selectedNode,ld,'cfr4');
+      svg.append('text').attr('class','lbl').attr('text-anchor','start').attr('opacity',cfrOp)
         .attr('dominant-baseline','middle').attr('x',nx).attr('y',n.h>16?ny-6:ny)
         .attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('CFR transfer');
-      if(n.h>16) svg.append('text').attr('class','lbl').attr('text-anchor','start')
+      if(n.h>16) svg.append('text').attr('class','lbl').attr('text-anchor','start').attr('opacity',cfrOp)
         .attr('dominant-baseline','middle').attr('x',nx).attr('y',ny+6)
         .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace').attr('fill','#e2e8f0')
         .text(fmt(n.amt));
