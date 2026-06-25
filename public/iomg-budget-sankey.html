@@ -500,10 +500,12 @@ function buildLayout(fy){
   const graNode={id:'GRA',sub:'gra',amt:graAmt,h:graH,y0:TPAD,y1:TPAD+graH,
     x0:cx(1),x1:cx(1)+NW,color:'#C9A24A'};
 
-  // ── NI Fund node (col1.5) — vertically aligned with NI receipts ──
-  const niH = Math.max(niAmt*SC, 2);
+  // ── NI Fund node — sized to NI receipts only ──
+  const ssSpend = d.grp_gross['Social Security'] || 0;
+  const niTopUp = Math.max(0, ssSpend - niAmt); // shortfall goes via GRA directly to SS
+  const niFundH = Math.max(niAmt*SC, 2);
   const niY0 = niRevNode ? niRevNode.y0 : TPAD;
-  const niFundNode = {id:'NIFund',sub:'nifund',amt:niAmt,h:niH,y0:niY0,y1:niY0+niH,
+  const niFundNode = {id:'NIFund',sub:'nifund',amt:niAmt,h:niFundH,y0:niY0,y1:niY0+niFundH,
     x0:cx(1),x1:cx(1)+NW,color:'#fdba74'};
 
   // ── CFR annual transfer — from CFR_ANNUAL_M lookup (Pink Book Table 3A) ──
@@ -561,7 +563,7 @@ function buildLayout(fy){
     niLinks.push({id:'rv-NIOperatingAccount',nodeIds:['NIOperatingAccount','NIFund'],
       x0:cx(0)+NW, sy0:niRevNode.y0, sy1:niRevNode.y1,
       x1:cx(1), ty0:niFundNode.y0, ty1:niFundNode.y1,
-      color:'#60a5fa', op:0.55});
+      color:'#fdba74', op:0.55});
   }
 
   // GRA → depts (col1 → col2, skipping col1.5)
@@ -586,13 +588,27 @@ function buildLayout(fy){
       color:'#fbbf24', op:0.5});
   }
 
+  // GRA → Social Security top-up (shortfall between NI receipts and SS spend)
+  if(niTopUp > 0.1){
+    const topUpH = Math.max(niTopUp*SC, 2);
+    const ssGrpNode = grpNodes.find(g=>g.id==='Social Security');
+    if(ssGrpNode){
+      graLinks.push({id:'gra-SocialSecurity-topup',nodeIds:['GRA','Social Security'],
+        x0:cx(1)+NW, sy0:graNode.y1-topUpH, sy1:graNode.y1,
+        x1:cx(3), ty0:ssGrpNode.y0, ty1:ssGrpNode.y0+topUpH,
+        color:'#C9A24A', op:0.45});
+    }
+  }
+
   // NI Fund → Social Security
   const niOutLinks=[];
   const ssNode = grpNodes.find(g=>g.id==='Social Security');
+  const topUpHSS = niTopUp > 0.1 ? Math.max(niTopUp*SC, 2) : 0; // GRA top-up occupies top of SS node
   if(ssNode){
+    // NI Fund → SS (NI receipts portion)
     niOutLinks.push({id:'ni-SocialSecurity',nodeIds:['NIFund','Social Security'],
       x0:cx(1)+NW, sy0:niFundNode.y0, sy1:niFundNode.y1,
-      x1:cx(3), ty0:ssNode.y0, ty1:ssNode.y0+ssNode.gra_h,
+      x1:cx(3), ty0:ssNode.y0+topUpHSS, ty1:ssNode.y0+topUpHSS+niFundH,
       color:'#fdba74', op:0.45});
   }
 
@@ -750,8 +766,7 @@ function draw(fy,animate){
 
   if(lyt.ownNodes.length){
     const divY=lyt.revNodes[lyt.revNodes.length-1].y1+OWN_GAP/2;
-    svg.append('text').attr('class','lbl own-badge')
-      .attr('x',cx(0)+NW/2).attr('y',divY-1).text('Dept Own Income');
+    // 'Dept Own Income' label removed
   }
   for(const n of lyt.ownNodes){
     const mid=n.y0+n.h/2, showAmt=n.h>22;
