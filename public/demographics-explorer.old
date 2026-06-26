@@ -219,7 +219,7 @@ p {
 }
 
 .ctrl-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -314,21 +314,10 @@ select:focus {
   outline: none;
   border-color: var(--blue);
 }
-/* When a select uses .pill styling — suppress native widget, restore custom arrow */
-select.pill {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-  border-radius: 20px;
-}
 /* Selected / has-value state */
 select.has-value {
-  border-color: var(--blue);
-  background-color: var(--surface2);
+  border-color: #1e40af;
+  background-color: #0f1f3d;
 }
 
 
@@ -604,32 +593,6 @@ input[type="range"]::-moz-range-thumb {
 
 
 /* ─────────────────────────────────────────────
-   LIGHT MODE TOKENS
-───────────────────────────────────────────── */
-
-[data-theme="light"] {
-  --bg:       #f8fafc;
-  --surface:  #ffffff;
-  --surface2: #f1f5f9;
-  --border:   #e2e8f0;
-  --border2:  #cbd5e1;
-  --text:     #0f172a;
-  --muted:    #475569;
-  --muted2:   #64748b;
-  --blue:     #2563eb;
-  --blue-dim: #1d4ed8;
-  --green:    #059669;
-  --amber:    #d97706;
-  --red:      #dc2626;
-  --purple:   #7c3aed;
-  --orange:   #ea580c;
-  --iom:      #1d4ed8;
-  --gsy:      #047857;
-  --jsy:      #b45309;
-  --uk:       #64748b;
-}
-
-/* ─────────────────────────────────────────────
    REDUCED MOTION
 ───────────────────────────────────────────── */
 
@@ -655,25 +618,6 @@ input[type="range"]::-moz-range-thumb {
   .page    { max-width: 1100px; margin: 0 auto; padding: 20px 20px 40px; }
   .section { margin-bottom: 52px; }
 
-  /* ── Light mode: chart wrapper and controls need background swap ── */
-  [data-theme="light"] .chart-wrap { background: #fff; border-color: #e2e8f0; }
-  [data-theme="light"] .card       { background: #fff; border-color: #e2e8f0; }
-  [data-theme="light"] .intro      { background: #f1f5f9; border-color: #cbd5e1; }
-  [data-theme="light"] .plain-box  { background: #f1f5f9; border-color: #cbd5e1; }
-  [data-theme="light"] .toggle     { background: #f1f5f9; border-color: #cbd5e1; }
-  [data-theme="light"] .tabs       { border-color: #e2e8f0; }
-  [data-theme="light"] .footer     { border-color: #e2e8f0; }
-  [data-theme="light"] .page-footer{ border-color: #e2e8f0; }
-  [data-theme="light"] select      { background-color: #fff; border-color: #cbd5e1; color: #0f172a;
-                                      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E"); }
-  [data-theme="light"] select.pill { background-color: #ffffff; border-color: #cbd5e1;
-                                      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E"); }
-  [data-theme="light"] .pill       { border-color: #cbd5e1; color: #475569; }
-  [data-theme="light"] .pill.active { color: #ffffff; }
-  [data-theme="light"] .pill:hover:not(.active) { border-color: #94a3b8; color: #0f172a; }
-  [data-theme="light"] .toggle-btn.active { color: #ffffff; }
-  [data-theme="light"] { --amber: #b45309; }  /* darker amber for light mode readability */
-
   /* ── Population pyramids (unique to this page) ── */
   .pyramid-grid {
     display: flex; gap: 10px; flex-wrap: nowrap;
@@ -695,7 +639,7 @@ input[type="range"]::-moz-range-thumb {
   /* ── Pyramid year slider ── */
   .slider-labels {
     display: flex; justify-content: space-between;
-    font-size: 11px; color: var(--muted2); margin-top: 4px;
+    font-size: 9px; color: var(--muted2); margin-top: 2px;
   }
   .year-display {
     font-size: 26px; color: var(--blue);
@@ -707,12 +651,10 @@ input[type="range"]::-moz-range-thumb {
     font-size: 11px; font-weight: 500; letter-spacing: .06em;
     padding: 5px 14px; transition: opacity .15s;
   }
-  [data-theme="light"] .animate-btn { color: #fff; }
   .animate-btn.playing {
     background: rgba(96,165,250,0.12);
     color: var(--blue); border: 1px solid var(--blue);
   }
-  [data-theme="light"] .animate-btn.playing { background: rgba(37,99,235,0.1); }
 
   /* ── Select used as pill (dropdowns in controls bars) ── */
   select
@@ -734,52 +676,11 @@ input[type="range"]::-moz-range-thumb {
   .footer-src  { font-size: 10px; color: var(--muted2); line-height: 1.6; }
   .footer-brand { color: var(--muted2); font-size: 12px; }
 
-  /* ── Desktop-required notice (shown on narrow viewports for complex views) ── */
-  .desktop-notice {
-    display: none;
-    background: var(--surface2);
-    border: 1px solid var(--amber);
-    border-left: 3px solid var(--amber);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-  .desktop-notice strong { color: var(--amber); }
-
   /* ── Mobile ── */
-  @media (max-width: 767px) {
-    .page { padding: 14px 12px 28px; }
-    body { font-size: 15px; }
-    h1   { font-size: 17px; }
-    .card-value  { font-size: 18px; }
-    .cards { grid-template-columns: 1fr 1fr; }
-    .chart-canvas-wrap canvas { max-width: 100%; }
-
-    /* Pyramid: force single column, wider item */
-    .pyramid-grid { flex-direction: column; gap: 16px; overflow-x: visible; }
-    .pyramid-item { min-width: unset; max-width: 100%; width: 100%; flex: none; }
-
-    /* Year display smaller on mobile */
-    .year-display { font-size: 20px; }
-
-    /* Slider labels — hide middle ones on small screens */
-    .slider-labels span:nth-child(3),
-    .slider-labels span:nth-child(4) { display: none; }
-
-    /* Projections table — scroll horizontally */
-    .proj-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-    /* Pop annotations — stack vertically */
-    #pop-annotations { flex-direction: column; gap: 6px; }
-  }
-
-  @media (max-width: 400px) {
-    body { font-size: 16px; }
-    .cards { grid-template-columns: 1fr; }
-    h1 { font-size: 16px; }
+  @media (max-width: 600px) {
+    .page { padding: 20px 14px; }
+    
+    .pyramid-item { min-width: 130px; }
   }
 </style>
   <!-- Privacy-friendly analytics by Plausible -->
@@ -805,16 +706,17 @@ input[type="range"]::-moz-range-thumb {
   </div>
 
   <div class="tabs" id="main-tabs">
-    <button class="tab active" onclick="showTab('pyramids')">Population pyramids</button>
-    <button class="tab" onclick="showTab('population')">200 years of population</button>
+    <button class="tab active" onclick="showTab('population')">Total population</button>
     <button class="tab" onclick="showTab('dependency')">Dependency ratios</button>
+    <button class="tab" onclick="showTab('differential')">vs UK differential</button>
+    <button class="tab" onclick="showTab('pyramids')">Population pyramids</button>
     <button class="tab" onclick="showTab('structure')">Age structure</button>
     <button class="tab" onclick="showTab('projections')">Projections</button>
   </div>
 
 
   <!-- ── POPULATION ── -->
-  <div id="tab-population" class="section" style="display:none">
+  <div id="tab-population" class="section">
     <div class="plain-box" id="plain-pop">
       <strong>200 years of island population.</strong> Jersey has grown fastest and furthest. Isle of Man and Guernsey both saw sharp post-war expansion then plateaued. IoM actually declined slightly 2011–2021 before recovering. Use the range selector to zoom in on any period — default is the last 50 years.
     </div>
@@ -823,10 +725,10 @@ input[type="range"]::-moz-range-thumb {
 
     <div class="controls" style="align-items:center;flex-wrap:wrap;gap:8px">
       <span class="ctrl-label">Range</span>
-      <button class="pill" id="range-50"  onclick="setRange(50,this)">50 yrs</button>
+      <button class="pill active" id="range-50"  onclick="setRange(50,this)">50 yrs</button>
       <button class="pill" id="range-75"  onclick="setRange(75,this)">75 yrs</button>
       <button class="pill" id="range-100" onclick="setRange(100,this)">100 yrs</button>
-      <button class="pill active" id="range-200" onclick="setRange(200,this)">All (1821–)</button>
+      <button class="pill" id="range-200" onclick="setRange(200,this)">All (1821–)</button>
       <span style="color:var(--muted2);font-size:10px;margin-left:8px">or drag to zoom</span>
     </div>
 
@@ -843,7 +745,7 @@ input[type="range"]::-moz-range-thumb {
       <button class="pill active" id="pop-guernsey" onclick="togglePopIsland('guernsey',this)">Guernsey</button>
       <div style="display:flex;align-items:center;gap:6px;margin-left:4px">
         <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--muted2)">
-          <input type="checkbox" id="pop-uk-toggle" onchange="toggleUK(this.checked)" checked
+          <input type="checkbox" id="pop-uk-toggle" onchange="toggleUK(this.checked)"
             style="accent-color:var(--uk);cursor:pointer">
           UK (right axis)
         </label>
@@ -874,15 +776,15 @@ input[type="range"]::-moz-range-thumb {
   </div>
 
   <!-- ── DEPENDENCY ── -->
-  <div id="tab-dependency" class="section" style="display:none">
+  <div id="tab-dependency" class="section">
     <div class="plain-box" id="plain-dep">
-      <strong>What is a dependency ratio?</strong> It measures how many retired people exist for every 100 working-age people. A higher number means more pressure on public finances. IoM and Guernsey now exceed the UK; Jersey remains below it — but is closing the gap fast.
+      <strong>What is a dependency ratio?</strong> It measures how many retired people exist for every 100 working-age people. A higher number means more pressure on public finances. All three islands now exceed the UK, and all three are rising.
     </div>
     <div class="cards">
       <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">Isle of Man</div><div class="card-value" style="color:var(--iom)">33.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 24.9% in 1991</div></div>
-      <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey</div><div class="card-value" style="color:var(--jer)">27.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 20.1% in 1991 · still below UK</div></div>
+      <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey</div><div class="card-value" style="color:var(--jer)">27.1%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ was 20.1% in 1991</div></div>
       <div class="card" style="border-top:2px solid var(--gue)"><div class="card-label">Guernsey</div><div class="card-value" style="color:var(--gue)">~34%</div><div class="card-sub">aged dep. 2021</div><div class="card-up">▲ dep. ratio 57% vs UK 56%</div></div>
-      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--muted2)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">IoM &amp; Guernsey exceed · Jersey below</div></div>
+      <div class="card"><div class="card-label">UK benchmark</div><div class="card-value" style="color:var(--muted2)">29.5%</div><div class="card-sub">aged dep. 2021</div><div class="card-dn">All islands now exceed UK</div></div>
     </div>
     <div class="legend">
       <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man</span>
@@ -891,20 +793,37 @@ input[type="range"]::-moz-range-thumb {
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK (dashed)</span>
       <span style="margin-left:auto;font-size:10px;color:var(--muted2)">65+ as % of 15–64</span>
     </div>
-    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="depChart" role="img" aria-label="Aged dependency ratios 1976–2026 for IoM, Jersey, Guernsey and UK">Aged dependency ratios 1976–2026. IoM and Guernsey exceed the UK; Jersey remains below.</canvas></div></div>
+    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="depChart" role="img" aria-label="Aged dependency ratios 1951–2021 for IoM, Jersey, Guernsey and UK">Aged dependency ratios rising across all three islands, now exceeding the UK.</canvas></div></div>
     <div class="plain-box" id="plain-dep2" style="margin-top:0">
       <strong>The key pattern:</strong> IoM's ratio was higher than the UK through the 1970s–80s, fell sharply as the finance sector boom attracted working-age incomers, and is now climbing again as that cohort approaches retirement.
     </div>
   </div>
 
   <!-- ── DIFFERENTIAL ── -->
+  <div id="tab-differential" class="section" style="display:none">
+    <div class="plain-box" id="plain-diff">
+      <strong>Island minus UK:</strong> Above zero means the island has a higher aged dependency ratio than the UK — aging faster. Below zero means relatively younger. The Isle of Man was well above the UK in the 1970s, converged through the finance boom years, and is now diverging again.
+    </div>
+    <div class="cards">
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">IoM peak differential</div><div class="card-value" style="color:var(--iom)">+15.8</div><div class="card-sub">pts above UK · 1976</div></div>
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">IoM trough</div><div class="card-value" style="color:var(--iom)">+6.5</div><div class="card-sub">pts above UK · 2001</div></div>
+      <div class="card" style="border-top:2px solid var(--iom)"><div class="card-label">IoM 2021</div><div class="card-value" style="color:var(--iom)">+3.6</div><div class="card-sub">pts above UK · re-diverging</div></div>
+      <div class="card" style="border-top:2px solid var(--jer)"><div class="card-label">Jersey 2021</div><div class="card-value" style="color:var(--jer)">−2.4</div><div class="card-sub">pts below UK · closing fast</div></div>
+    </div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man − UK</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey − UK</span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey − UK</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted2)">Percentage point difference vs UK</span>
+    </div>
+    <div class="chart-wrap"><div class="chart-canvas-wrap" style="height:290px"><canvas id="diffChart" role="img" aria-label="Dependency ratio differential versus UK 1971–2021">Island dependency ratios minus UK from 1971. Zero line = parity with UK.</canvas></div></div>
+    <div class="plain-box" id="plain-diff2" style="margin-top:0">
+      <strong>Jersey tracks below the UK</strong> for most of the period — its larger working-age population has kept it relatively younger. That advantage is now eroding rapidly. Jersey and Guernsey data are sparse — lines span available census years only.
+    </div>
+  </div>
 
   <!-- ── PYRAMIDS ── -->
-  <div id="tab-pyramids" class="section">
-    <div class="desktop-notice" id="pyr-desktop-notice">
-      <strong>All four islands together works best on a wider screen.</strong>
-      On mobile you've got the full dual-island view with animation — island pyramid, difference strip, and comparison pyramid stacked vertically. The quad view is here if you want it, but expect some scrolling.
-    </div>
+  <div id="tab-pyramids" class="section" style="display:none">
     <div class="plain-box" id="plain-pyr">
       <strong>Reading the pyramids:</strong> A healthy growing population looks like a triangle — wide at the bottom. What you see here is a barrel shape — the middle and upper sections are bulging. In side-by-side mode, the centre panel shows the difference between the two islands per age band.
     </div>
@@ -927,6 +846,21 @@ input[type="range"]::-moz-range-thumb {
       <span style="color:var(--muted2);font-size:12px">vs</span>
       <select class="pill" id="dualB" onchange="renderPyramids()"><option value="jersey">Jersey</option><option value="iom">Isle of Man</option><option value="guernsey">Guernsey</option><option value="uk">UK</option></select>
     </div>
+    <div class="controls" style="gap:16px;margin-bottom:6px">
+      <span class="ctrl-label">Age groups</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
+        <span style="display:inline-flex;gap:2px">
+          <span style="width:10px;height:8px;background:#3b82f6;opacity:0.82;border-radius:1px;display:inline-block"></span>
+          <span style="width:10px;height:8px;background:#f59e0b;opacity:0.82;border-radius:1px;display:inline-block"></span>
+        </span>Working age (15–64)
+      </span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
+        <span style="display:inline-flex;gap:2px">
+          <span style="width:10px;height:8px;background:#7b9ea8;opacity:0.60;border-radius:1px;display:inline-block"></span>
+          <span style="width:10px;height:8px;background:#10b981;opacity:0.60;border-radius:1px;display:inline-block"></span>
+        </span>Dependent (under 15 &amp; 65+)
+      </span>
+    </div>
     <div class="controls" style="align-items:center">
       <span class="ctrl-label">Year</span>
       <button class="pill" onclick="setYear(0)">1996</button>
@@ -941,9 +875,9 @@ input[type="range"]::-moz-range-thumb {
     </div>
     <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
       <span class="ctrl-label">Speed</span>
-      <input type="range" min="1" max="5" step="1" value="2" id="speedSlider"
+      <input type="range" min="1" max="5" step="1" value="3" id="speedSlider"
         style="width:90px;flex:none" oninput="updateSpeed(this.value)">
-      <span id="speedLabel" style="font-size:12px;color:var(--muted2);min-width:44px">Slower</span>
+      <span id="speedLabel" style="font-size:10px;color:var(--muted2);min-width:36px">Normal</span>
     </div>
     <div style="margin-bottom:14px">
       <input type="range" min="0" max="100" step="0.5" value="100" id="yearSlider" oninput="onSlider(this.value)">
@@ -1008,7 +942,7 @@ input[type="range"]::-moz-range-thumb {
       <strong>2031–2041:</strong> Cohort-shift model consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. <span style="color:rgba(251,191,36,0.75)">These are estimates, not census data.</span>
     </div>
 
-    <div class="proj-table-wrap"><table class="proj-table" style="margin-bottom:20px">
+    <table class="proj-table" style="margin-bottom:20px">
       <tr>
         <th>Island</th><th>2021 ratio</th><th>2040 projection</th><th>Scenario</th><th>Source</th>
       </tr>
@@ -1032,7 +966,7 @@ input[type="range"]::-moz-range-thumb {
         <td>ONS principal projection</td>
         <td><span class="source-tag official">Official</span></td>
       </tr>
-    </table></div>
+    </table>
 
     <div class="controls">
       <span class="ctrl-label">Jersey scenario</span>
@@ -1087,67 +1021,6 @@ input[type="range"]::-moz-range-thumb {
   </div>
 
 <script>
-// ── Theme-aware colour resolver ───────────────────────────────────────────────
-function cssVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-function themeColors() {
-  return {
-    iom:     cssVar('--iom')     || '#3b82f6',
-    jsy:     cssVar('--jsy')     || '#f59e0b',
-    gsy:     cssVar('--gsy')     || '#10b981',
-    uk:      cssVar('--uk')      || '#94a3b8',
-    blue:    cssVar('--blue')    || '#60a5fa',
-    muted2:  cssVar('--muted2')  || '#94a3b8',
-    text:    cssVar('--text')    || '#e2e8f0',
-    surface: cssVar('--surface') || '#1e293b',
-    border2: cssVar('--border2') || '#334155',
-    bg:      cssVar('--bg')      || '#0f172a',
-  };
-}
-
-// ── Chart.js global theme application ────────────────────────────────────────
-function applyChartTheme() {
-  const light = document.documentElement.getAttribute('data-theme') === 'light';
-  const gc = light ? 'rgba(0,0,0,0.07)'    : 'rgba(255,255,255,0.05)';
-  const tc = light ? 'rgba(71,85,105,0.9)' : 'rgba(200,220,235,0.5)';
-  Chart.defaults.color       = light ? '#475569' : '#94a3b8';
-  Chart.defaults.borderColor = gc;
-  Object.values(Chart.instances).forEach(c => {
-    Object.values(c.scales || {}).forEach(sc => {
-      if (sc.options.grid)  sc.options.grid.color = gc;
-      if (sc.options.ticks) sc.options.ticks.color = tc;
-      if (sc.options.title) sc.options.title.color = tc;
-    });
-    const tp = c.options.plugins?.tooltip;
-    if (tp) {
-      tp.backgroundColor = light ? '#ffffff' : '#0d1b2a';
-      tp.titleColor      = light ? '#0f172a' : tc;
-      tp.bodyColor       = light ? '#475569' : 'rgba(200,220,235,0.85)';
-      tp.borderColor     = light ? '#e2e8f0' : 'rgba(96,165,250,0.25)';
-    }
-    c.update();
-  });
-}
-
-// ── Theme listener (from App.jsx shell) ──────────────────────────────────────
-window.addEventListener('message', e => {
-  if (e.data?.type === 'setTheme') {
-    document.documentElement.setAttribute('data-theme', e.data.theme);
-    applyChartTheme();
-    renderPyramids();
-  }
-  if (e.data?.type === 'tabVisible') notifyHeight();
-});
-
-// ── Mobile helpers ────────────────────────────────────────────────────────────
-function isMobile() { return window.innerWidth < 768; }
-
-function checkPyrNotice() {
-  const notice = document.getElementById('pyr-desktop-notice');
-  if (notice) notice.style.display = isMobile() ? 'block' : 'none';
-}
-
 const BANDS=["0–4","5–9","10–14","15–19","20–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60–64","65–69","70–74","75–79","80+"];
 const CENSUS_YEARS=[1996,2001,2011,2021,2026,2031,2041];
 const ESTIMATED_YEARS=new Set([2026,2031,2041]);
@@ -1243,16 +1116,9 @@ const PROJ={
   gue:[55.0,57.5,61.0,65.0,69.0],uk:[56.0,57.0,58.5,60.5,62.0],
 };
 
+const gc='rgba(255,255,255,0.05)',tc='rgba(200,220,235,0.5)',zc='rgba(200,220,235,0.20)';
 const lerp=(a,b,t)=>a+(b-a)*t;
 const lerpDS=(d1,d2,t)=>({m:d1.m.map((v,i)=>lerp(v,d2.m[i],t)),f:d1.f.map((v,i)=>lerp(v,d2.f[i],t))});
-
-function getGC() { return document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.05)'; }
-function getTC() { return document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(71,85,105,0.9)' : 'rgba(200,220,235,0.5)'; }
-function getZC() { return document.documentElement.getAttribute('data-theme')==='light' ? 'rgba(0,0,0,0.25)' : 'rgba(200,220,235,0.20)'; }
-function getTTbg(){ return document.documentElement.getAttribute('data-theme')==='light' ? '#ffffff' : '#0d1b2a'; }
-function getTTbody(){ return document.documentElement.getAttribute('data-theme')==='light' ? '#475569' : 'rgba(200,220,235,0.85)'; }
-function getTTborder(){ return document.documentElement.getAttribute('data-theme')==='light' ? '#e2e8f0' : 'rgba(96,165,250,0.25)'; }
-function getTTtitle(){ return document.documentElement.getAttribute('data-theme')==='light' ? '#0f172a' : 'rgba(200,220,235,0.9)'; }
 
 // Multi-year interpolation: sliderVal 0-100 maps across 4 census years
 // 0=1996, 33.3=2001, 66.6=2011, 100=2021
@@ -1294,13 +1160,13 @@ function getInterpMedian(key, sv) {
   return lerp(META[key].median[y1], META[key].median[y2], t);
 }
 
-let animDur=6000;
+let animDur=4000;
 let audience='plain';
 let pyrMode='single';
 let singleIsland='iom';
 let strIsland='all',strYear=1996,scenario='nil';
 let sliderVal=0,animPlaying=false,animRaf=null;
-let depCI=null,strCI=null,projCI=null;
+let depCI=null,diffCI=null,strCI=null,projCI=null;
 
 function updateSpeed(v){
   const durations={1:10000,2:7000,3:4000,4:2000,5:1000};
@@ -1316,32 +1182,27 @@ function setAudience(a){
   document.querySelectorAll('.plain-box').forEach(el=>el.classList.toggle('hidden',a==='tech'));
 }
 
-const TAB_IDS=['pyramids','population','dependency','structure','projections'];
+const TAB_IDS=['population','dependency','differential','pyramids','structure','projections'];
 function showTab(id){
   TAB_IDS.forEach(t=>document.getElementById('tab-'+t).style.display=t===id?'':'none');
   document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',TAB_IDS[i]===id));
-  if(id==='pyramids')   { checkPyrNotice(); renderPyramids(); }
-  if(id==='population') renderPopChart();
-  if(id==='dependency'&&!depCI) initDepChart();
-  if(id==='structure')  renderStructure();
+  if(id==='population')renderPopChart();
+  if(id==='differential'&&!diffCI)initDiffChart();
+  if(id==='structure')renderStructure();
   if(id==='projections')renderProjections();
   setTimeout(notifyHeight, 100);
 }
 
 function cOpts(yLabel,yMin,yMax,stepSize,xMin,xMax){
-  const gc=getGC(),tc=getTC();
   return{responsive:true,maintainAspectRatio:false,
     interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:{
-      backgroundColor:getTTbg(),borderColor:getTTborder(),borderWidth:1,
-      titleColor:getTTtitle(),bodyColor:getTTbody(),padding:10,
-      callbacks:{
-        title: items => items.length ? String(items[0].parsed.x) : '',
-        label:ctx=>ctx.parsed.y!=null?` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`:null
-      }
+      backgroundColor:'#0d1b2a',borderColor:'rgba(96,165,250,0.25)',borderWidth:1,
+      titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
+      callbacks:{label:ctx=>ctx.parsed.y!=null?` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`:null}
     }},
     scales:{
-      x:{type:'linear',min:xMin||1951,max:xMax||2026,ticks:{color:tc,font:{size:10},stepSize:10,maxRotation:0,callback:v=>String(v)},grid:{color:gc},border:{color:'#1d3148'}},
+      x:{type:'linear',min:xMin||1951,max:xMax||2026,ticks:{color:tc,font:{size:10},stepSize:10,maxRotation:0,callback:v=>v},grid:{color:gc},border:{color:'#1d3148'}},
       y:{min:yMin,max:yMax,ticks:{color:tc,font:{size:10},callback:v=>v+'%',stepSize:stepSize||5},grid:{color:gc},border:{color:'#1d3148'},title:{display:true,text:yLabel,color:tc,font:{size:10}}}
     }
   };
@@ -1357,7 +1218,39 @@ function initDepChart(){
       {label:'Guernsey',data:DEP.gue,borderColor:'#10b981',pointBackgroundColor:'#10b981',pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35,fill:false},
       {label:'UK',data:DEP.uk,borderColor:'#94a3b8',pointBackgroundColor:'#94a3b8',pointRadius:3,borderWidth:1.5,borderDash:[5,4],spanGaps:false,tension:0.35,fill:false},
     ]},
-    options:cOpts('65+ as % of 15–64',15,50,5,1976,2026),
+    options:cOpts('65+ as % of 15–64',15,50,5,1951,2026),
+  });
+}
+
+function initDiffChart(){
+  if(diffCI)diffCI.destroy();
+  // Only include years from 1971 onwards
+  const filteredLabels=DEP_L.filter(y=>y>=1971);
+  const diff=k=>filteredLabels.map(y=>{
+    const i=DEP_L.indexOf(y);
+    const iv=DEP[k][i],uv=DEP.uk[i];
+    return (iv!=null&&uv!=null)?+(iv-uv).toFixed(2):null;
+  });
+  const opts=cOpts('Island − UK (percentage points)',-12,20,5,1971,2026);
+  opts.scales.y.ticks.callback=v=>(v>0?'+':'')+v+' pts';
+  opts.scales.y.grid={color:ctx=>ctx.tick.value===0?zc:gc,lineWidth:ctx=>ctx.tick.value===0?1.5:1};
+  opts.plugins.tooltip.callbacks.label=ctx=>{
+    if(ctx.parsed.y==null)return null;
+    const v=ctx.parsed.y;
+    return ` ${ctx.dataset.label}: ${v>0?'+':''}${v.toFixed(1)} pts`;
+  };
+  diffCI=new Chart(document.getElementById('diffChart'),{
+    type:'line',
+    data:{labels:filteredLabels,datasets:[
+      {label:'Isle of Man − UK',data:diff('iom'),borderColor:'#3b82f6',pointBackgroundColor:'#3b82f6',
+       fill:{target:{value:0},above:'rgba(59,130,246,0.10)',below:'rgba(16,185,129,0.08)'},
+       pointRadius:4,borderWidth:2.5,spanGaps:true,tension:0.35},
+      {label:'Jersey − UK',data:diff('jersey'),borderColor:'#f59e0b',pointBackgroundColor:'#f59e0b',
+       fill:false,pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35},
+      {label:'Guernsey − UK',data:diff('gue'),borderColor:'#10b981',pointBackgroundColor:'#10b981',
+       fill:false,pointRadius:4,borderWidth:2,spanGaps:true,tension:0.35},
+    ]},
+    options:opts,
   });
 }
 
@@ -1404,7 +1297,8 @@ function toggleAnim(){
   const start=performance.now(),dur=animDur;
   const tick=now=>{
     const raw=Math.min((now-start)/dur,1);
-    sliderVal=lerp(0,100,raw);
+    const e=raw<0.5?2*raw*raw:-1+(4-2*raw)*raw;
+    sliderVal=lerp(0,100,e);
     document.getElementById('yearSlider').value=sliderVal;
     updateYearDisplay();renderPyramids();
     if(raw<1&&animPlaying)animRaf=requestAnimationFrame(tick);
@@ -1414,6 +1308,7 @@ function toggleAnim(){
 }
 
 function renderPyramids(){
+  // Overlay: show ghost of nearest census year when animating between years
   const n=CENSUS_YEARS.length-1;
   const pos=sliderVal/100*n;
   const seg=Math.min(Math.floor(pos),n-1);
@@ -1423,10 +1318,8 @@ function renderPyramids(){
 
   const container=document.getElementById('pyrContainer');
   container.innerHTML='';
-  const mobile=isMobile();
 
   if(pyrMode==='single'){
-    container.style.flexDirection='column';
     const d=getInterpDS(singleIsland,sliderVal);
     container.appendChild(makePyr(singleIsland,d,showOv?PYR[singleIsland][nearYear]:null,false));
   } else if(pyrMode==='dual'){
@@ -1434,23 +1327,13 @@ function renderPyramids(){
     const kB=document.getElementById('dualB').value;
     const dA=getInterpDS(kA,sliderVal);
     const dB=getInterpDS(kB,sliderVal);
-    if(mobile){
-      // Stack vertically: pyramid A → horizontal diff strip → pyramid B
-      container.style.flexDirection='column';
-      container.appendChild(makePyr(kA,dA,null,false));
-      container.appendChild(makeDiffPyr(kA,kB,dA,dB));
-      container.appendChild(makePyr(kB,dB,null,false));
-    } else {
-      container.style.flexDirection='row';
-      container.appendChild(makePyr(kA,dA,null,false));
-      container.appendChild(makeDiffPyr(kA,kB,dA,dB));
-      container.appendChild(makePyr(kB,dB,null,false));
-    }
+    container.appendChild(makePyr(kA,dA,null,true));
+    container.appendChild(makeDiffPyr(kA,kB,dA,dB));
+    container.appendChild(makePyr(kB,dB,null,true));
   } else {
-    container.style.flexDirection=mobile?'column':'row';
     Object.keys(PYR).forEach(k=>{
       const d=getInterpDS(k,sliderVal);
-      container.appendChild(makePyr(k,d,null,!mobile));
+      container.appendChild(makePyr(k,d,null,true));
     });
   }
 
@@ -1463,48 +1346,16 @@ function renderPyramids(){
     const m=META[k];
     const d=getInterpDS(k,sliderVal);
     const over65=[...d.m.slice(13),...d.f.slice(13)].reduce((a,b)=>a+b,0);
-    // 80+ = band index 16 — oldest-old group, highest per-capita care cost
-    const over80=(d.m[16]+d.f[16]);
-    // M:F ratios in retirement bands — longevity gap; diverges sharply in 80+
-    const mf65 = d.f.slice(13).reduce((a,b)=>a+b,0) > 0
-      ? (d.m.slice(13).reduce((a,b)=>a+b,0) / d.f.slice(13).reduce((a,b)=>a+b,0))
-      : null;
-    const mf80 = d.f[16] > 0 ? d.m[16] / d.f[16] : null;
     const med=getInterpMedian(k,sliderVal);
     const pop=getInterpPop(k,sliderVal);
     const qual=PYR_QUALITY[k][CENSUS_YEARS[Math.min(Math.floor(sliderVal/100*(CENSUS_YEARS.length-1)),CENSUS_YEARS.length-2)]];
     const div=document.createElement('div');
     div.className='card';div.style.borderTop=`2px solid ${m.color}`;
     div.innerHTML=`<div class="card-label">${m.label}${qual==='estimated'?'<span style="font-size:9px;color:#f59e0b;margin-left:5px">est.</span>':''}</div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;align-items:flex-start">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
         <div><div style="font-size:10px;color:var(--muted2)">Pop</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${k==='uk'?(pop/1e6).toFixed(1)+'M':pop.toLocaleString()}</div></div>
         <div><div style="font-size:10px;color:var(--muted2)">Median age</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:${m.color}">${med.toFixed(1)} yrs</div></div>
-        <div style="border-left:1px solid var(--border2);padding-left:12px" title="65+ share and male:female ratio — below 100 reflects female longevity advantage">
-          <div style="font-size:10px;color:var(--muted2);font-weight:600">65+</div>
-          <div style="display:flex;gap:10px;align-items:flex-end;margin-top:1px">
-            <div>
-              <div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text);line-height:1">${over65.toFixed(1)}%</div>
-              <div style="font-size:8px;color:var(--muted);margin-top:1px">share</div>
-            </div>
-            <div>
-              <div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--amber);line-height:1">${mf65!==null?Math.round(mf65*100)+'/100':'—'}</div>
-              <div style="font-size:8px;color:var(--muted);margin-top:1px">M/F</div>
-            </div>
-          </div>
-        </div>
-        <div style="border-left:1px solid var(--border2);padding-left:12px" title="80+ oldest-old share and male:female ratio — sharpest longevity gap, drives solo female care demand">
-          <div style="font-size:10px;color:var(--muted2);font-weight:600">80+ <span style="font-size:8px;font-weight:400;opacity:0.6">oldest-old</span></div>
-          <div style="display:flex;gap:10px;align-items:flex-end;margin-top:1px">
-            <div>
-              <div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--amber);line-height:1">${over80.toFixed(1)}%</div>
-              <div style="font-size:8px;color:var(--muted);margin-top:1px">share</div>
-            </div>
-            <div>
-              <div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--amber);line-height:1">${mf80!==null?Math.round(mf80*100)+'/100':'—'}</div>
-              <div style="font-size:8px;color:var(--muted);margin-top:1px">M/F</div>
-            </div>
-          </div>
-        </div>
+        <div><div style="font-size:10px;color:var(--muted2)">65+</div><div style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)">${over65.toFixed(1)}%</div></div>
       </div>`;
     stats.appendChild(div);
   });
@@ -1512,56 +1363,26 @@ function renderPyramids(){
 
 function makePyr(key,data,ov,compact){
   const m=META[key];
-  const C=themeColors();
-  const isLight=document.documentElement.getAttribute('data-theme')==='light';
-  // On mobile, always use full width (not compact) for readability
-  const mobile=isMobile();
-  if(mobile)compact=false;
   const maxV=5.5,barH=compact?10:14,gap=2,totalH=BANDS.length*(barH+gap);
   const svgW=compact?260:320,lw=32,cw=(svgW-lw*2-6)/2,cx=lw+cw+3;
   const ns='http://www.w3.org/2000/svg';
   const wrap=document.createElement('div');wrap.className='pyramid-item';
   wrap.style.alignSelf='flex-start';
   wrap.innerHTML=`<div style="text-align:center;margin-bottom:6px;height:22px;display:flex;align-items:center;justify-content:center"><span class="pyr-name" style="color:${m.color}">${m.label}</span></div>
-    <div style="height:4px"></div>`;
+    <div class="pyr-mf" style="height:16px"><span style="color:#94a3b8">◀ M</span><span style="color:#f59e0b">F ▶</span></div>`;
   const svg=document.createElementNS(ns,'svg');
   svg.setAttribute('width','100%');
-  // Extra height at top for Male/Female labels
-  const labelRowH=16;
-  const legendH=36; // space below bars for colour legend (gap + two rows)
-  svg.setAttribute('height',totalH+labelRowH+legendH);
-  svg.setAttribute('viewBox',`0 0 ${svgW} ${totalH+labelRowH+legendH}`);
+  svg.setAttribute('height',totalH);
+  svg.setAttribute('viewBox',`0 0 ${svgW} ${totalH}`);
   svg.setAttribute('preserveAspectRatio','none');
   svg.style.cssText='display:block;overflow:visible';
-
-  // Male / Female labels tight against the centre line, at top of SVG
-  // Colour scheme adapts to theme
-  const maleWorking   = isLight ? '#4b7fcc' : '#94a3b8';
-  const maleDepend    = isLight ? '#6b9ec4' : '#7b9ea8';
-  const femaleWorking = isLight ? C.jsy     : '#f59e0b';
-  const femaleDepend  = isLight ? C.gsy     : '#10b981';
-  const labelCol      = isLight ? 'rgba(30,40,60,0.85)' : 'rgba(232,237,242,1.0)';
-  const centreLineCol = isLight ? '#c8d5e0' : '#1d3148';
-  const ghostStrokeM  = isLight ? '#6b8fa8' : '#94a3b8';
-  const ghostStrokeF  = isLight ? '#b8860b' : '#f59e0b';
-  const mfY=labelRowH-3;
-  const mLabel=document.createElementNS(ns,'text');
-  mLabel.setAttribute('x',cx-4);mLabel.setAttribute('y',mfY);
-  mLabel.setAttribute('text-anchor','end');mLabel.setAttribute('fill','#94a3b8');
-  mLabel.setAttribute('font-size',compact?8:10);mLabel.setAttribute('font-weight','600');
-  mLabel.textContent='◀ Male';svg.appendChild(mLabel);
-  const fLabel=document.createElementNS(ns,'text');
-  fLabel.setAttribute('x',cx+4);fLabel.setAttribute('y',mfY);
-  fLabel.setAttribute('text-anchor','start');fLabel.setAttribute('fill','#f59e0b');
-  fLabel.setAttribute('font-size',compact?8:10);fLabel.setAttribute('font-weight','600');
-  fLabel.textContent='Female ▶';svg.appendChild(fLabel);
-
   BANDS.forEach((band,i)=>{
-    const y=labelRowH+(BANDS.length-1-i)*(barH+gap);
+    const y=(BANDS.length-1-i)*(barH+gap);
     const mW=Math.max(0,(data.m[i]/maxV)*cw),fW=Math.max(0,(data.f[i]/maxV)*cw);
+    // Working age (15-64) = bands 3-12, dependent = 0-2 (under 15) and 13-16 (65+)
     const isWorking = i>=3 && i<=12;
-    const maleCol   = isWorking ? maleWorking   : maleDepend;
-    const femaleCol = isWorking ? femaleWorking : femaleDepend;
+    const maleCol   = isWorking ? '#94a3b8' : '#7b9ea8';
+    const femaleCol = isWorking ? '#f59e0b' : '#10b981';
     const opacity   = isWorking ? '0.85' : '0.60';
     const mkR=(x,w,fill,op)=>{if(w<=0)return null;const r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',barH);r.setAttribute('fill',fill);r.setAttribute('opacity',op);r.setAttribute('rx','1');return r;};
     const r1=mkR(cx-mW,mW,maleCol,opacity);if(r1)svg.appendChild(r1);
@@ -1569,278 +1390,79 @@ function makePyr(key,data,ov,compact){
     if(ov){
       const moW=Math.max(0,(ov.m[i]/maxV)*cw),foW=Math.max(0,(ov.f[i]/maxV)*cw);
       const mkO=(x,w,stroke)=>{if(w<=0)return null;const r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',barH);r.setAttribute('fill','none');r.setAttribute('stroke',stroke);r.setAttribute('stroke-width','0.8');r.setAttribute('stroke-dasharray','3 2');r.setAttribute('opacity','0.4');r.setAttribute('rx','1');return r;};
-      const o1=mkO(cx-moW,moW,ghostStrokeM);if(o1)svg.appendChild(o1);
-      const o2=mkO(cx,foW,ghostStrokeF);if(o2)svg.appendChild(o2);
+      const o1=mkO(cx-moW,moW,'#94a3b8');if(o1)svg.appendChild(o1);
+      const o2=mkO(cx,foW,'#f59e0b');if(o2)svg.appendChild(o2);
     }
-    // Band label on the FEMALE (right) side, just past the centre line
     const txt=document.createElementNS(ns,'text');
-    txt.setAttribute('x',cx+4);txt.setAttribute('y',y+barH*0.80);txt.setAttribute('text-anchor','start');
-    txt.setAttribute('fill',labelCol);txt.setAttribute('font-size',compact?7:10);
+    txt.setAttribute('x',cx-3);txt.setAttribute('y',y+barH*0.74);txt.setAttribute('text-anchor','end');
+    txt.setAttribute('fill','rgba(232,237,242,0.75)');txt.setAttribute('font-size',compact?7:9);
     txt.textContent=band;svg.appendChild(txt);
   });
   const line=document.createElementNS(ns,'line');
-  line.setAttribute('x1',cx);line.setAttribute('y1',0);line.setAttribute('x2',cx);line.setAttribute('y2',totalH+labelRowH);
-  line.setAttribute('stroke',centreLineCol);line.setAttribute('stroke-width','1');svg.appendChild(line);
-
-  // Colour legend — swatches straddle cx matching diff panel alignment
-  const legendGap=10;
-  const legTop=labelRowH+totalH+legendGap+9;
-  const legMid=labelRowH+totalH+legendGap+21;
-  const swSz=9;
-  const legLabelCol=isLight?'rgba(30,40,60,0.9)':'rgba(232,237,242,0.95)';
-  const legFs=compact?7:9;
-
-  // Working age row — male swatch left of cx, female right (mirrors bars)
-  const swMW=document.createElementNS(ns,'rect');
-  swMW.setAttribute('x',cx-swSz-2);swMW.setAttribute('y',legTop-swSz+2);
-  swMW.setAttribute('width',swSz);swMW.setAttribute('height',swSz);
-  swMW.setAttribute('fill',maleWorking);swMW.setAttribute('opacity','0.85');
-  swMW.setAttribute('rx','1');svg.appendChild(swMW);
-  const swFW=document.createElementNS(ns,'rect');
-  swFW.setAttribute('x',cx+2);swFW.setAttribute('y',legTop-swSz+2);
-  swFW.setAttribute('width',swSz);swFW.setAttribute('height',swSz);
-  swFW.setAttribute('fill',femaleWorking);swFW.setAttribute('opacity','0.85');
-  swFW.setAttribute('rx','1');svg.appendChild(swFW);
-  const ltWA=document.createElementNS(ns,'text');
-  ltWA.setAttribute('x',cx+swSz+5);ltWA.setAttribute('y',legTop);
-  ltWA.setAttribute('fill',legLabelCol);ltWA.setAttribute('font-size',legFs);
-  ltWA.textContent='working age';svg.appendChild(ltWA);
-
-  // Dependent row — same positions, dimmer colours
-  const swMD=document.createElementNS(ns,'rect');
-  swMD.setAttribute('x',cx-swSz-2);swMD.setAttribute('y',legMid-swSz+2);
-  swMD.setAttribute('width',swSz);swMD.setAttribute('height',swSz);
-  swMD.setAttribute('fill',maleDepend);swMD.setAttribute('opacity','0.60');
-  swMD.setAttribute('rx','1');svg.appendChild(swMD);
-  const swFD=document.createElementNS(ns,'rect');
-  swFD.setAttribute('x',cx+2);swFD.setAttribute('y',legMid-swSz+2);
-  swFD.setAttribute('width',swSz);swFD.setAttribute('height',swSz);
-  swFD.setAttribute('fill',femaleDepend);swFD.setAttribute('opacity','0.60');
-  swFD.setAttribute('rx','1');svg.appendChild(swFD);
-  const ltDep=document.createElementNS(ns,'text');
-  ltDep.setAttribute('x',cx+swSz+5);ltDep.setAttribute('y',legMid);
-  ltDep.setAttribute('fill',legLabelCol);ltDep.setAttribute('font-size',legFs);
-  ltDep.textContent='dependent';svg.appendChild(ltDep);
+  line.setAttribute('x1',cx);line.setAttribute('y1',0);line.setAttribute('x2',cx);line.setAttribute('y2',totalH);
+  line.setAttribute('stroke','#1d3148');line.setAttribute('stroke-width','1');svg.appendChild(line);
   wrap.appendChild(svg);
-  if(ov){const leg=document.createElement('div');leg.style.cssText='display:flex;justify-content:center;gap:10px;font-size:9px;color:rgba(143,168,191,0.4);margin-top:4px';leg.innerHTML='<span>── 2021</span><span>╌╌ prev census</span>';wrap.appendChild(leg);}
+  if(ov){const leg=document.createElement('div');leg.style.cssText='display:flex;justify-content:center;gap:10px;font-size:9px;color:rgba(143,168,191,0.4);margin-top:4px';leg.innerHTML='<span>── 2021</span><span>╌╌ 2011</span>';wrap.appendChild(leg);}
   return wrap;
 }
 
 function makeDiffPyr(kA,kB,dA,dB){
-  // Shows (A − B) per age band, combined M+F population share.
-  // Desktop: vertical panel (bands = rows, bars grow left/right).
-  // Mobile:  horizontal strip (bands = columns, bars grow up/down).
+  // Shows (A - B) per band, total population share
+  // Positive = A has more, negative = B has more
   const mA=META[kA],mB=META[kB];
+  const barH=10,gap=2,totalH=BANDS.length*(barH+gap);
+  const svgW=160,maxDiff=2.0;
+  const halfW=svgW/2-8,cx=svgW/2;
   const ns='http://www.w3.org/2000/svg';
-  const isLight=document.documentElement.getAttribute('data-theme')==='light';
-  const centreCol=isLight?'#c8d5e0':'#1d3148';
-  const labelCol=isLight?'rgba(60,80,100,0.7)':'rgba(200,220,235,0.6)';
-  const mobile=isMobile();
-
   const wrap=document.createElement('div');
   wrap.className='pyramid-item';
+  wrap.style.cssText='min-width:120px;max-width:160px;flex:0 0 140px;align-self:flex-start';
+  // Match exact header height of makePyr: name span + pyr-mf div
+  wrap.innerHTML=`<div style="text-align:center;margin-bottom:6px;height:22px;display:flex;align-items:center;justify-content:center">
+    <span class="pyr-name" style="color:rgba(200,220,235,0.4);font-size:10px">Difference</span>
+  </div>
+  <div class="pyr-mf" style="height:16px">
+    <span style="color:${mA.color};font-size:9px">◀ ${mA.label}</span>
+    <span style="color:${mB.color};font-size:9px">${mB.label} ▶</span>
+  </div>`;
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height',totalH);
+  svg.setAttribute('viewBox',`0 0 ${svgW} ${totalH}`);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.style.cssText='display:block;overflow:visible';
+  BANDS.forEach((band,i)=>{
+    const y=(BANDS.length-1-i)*(barH+gap);
+    // combined % (m+f) for each island per band
+    const totA=dA.m[i]+dA.f[i];
+    const totB=dB.m[i]+dB.f[i];
+    const diff=totA-totB;
+    const barW=Math.min(Math.abs(diff)/maxDiff*halfW, halfW);
+    const fill=diff>0?mA.color:mB.color;
+    const x=diff>0?cx-barW:cx;
+    const r=document.createElementNS(ns,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',barW);r.setAttribute('height',barH);
+    r.setAttribute('fill',fill);r.setAttribute('opacity','0.75');r.setAttribute('rx','1');
+    svg.appendChild(r);
+    // no band labels in diff panel — main pyramids on either side already show them
+  });
+  // centre line
+  const line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',cx);line.setAttribute('y1',0);line.setAttribute('x2',cx);line.setAttribute('y2',totalH);
+  line.setAttribute('stroke','#1d3148');line.setAttribute('stroke-width','1');svg.appendChild(line);
+  wrap.appendChild(svg);
 
-  if(!mobile){
-    // ── DESKTOP: vertical diff panel ─────────────────────────────────────────
-    // barH/gap must match makePyr non-compact exactly
-    const barH=14,gap=2,totalH=BANDS.length*(barH+gap);
-    const svgW=160,maxDiff=2.0;
-    const halfW=svgW/2-12,cx=svgW/2;
-    // labelRowH must match makePyr — island names go here in SVG, same row as Male/Female
-    const labelRowH=16;
-    // Bottom axis below bars
-    const axisH=48;
-    const svgTotal=labelRowH+totalH+axisH;
-    wrap.style.cssText='min-width:120px;max-width:180px;flex:0 0 150px;align-self:flex-start';
-
-    // HTML above SVG: identical structure to makePyr (22+6mb + 4px spacer = 32px)
-    wrap.innerHTML=`
-      <div style="text-align:center;margin-bottom:6px;height:22px;display:flex;align-items:center;justify-content:center">
-        <span class="pyr-name" style="color:${isLight?'rgba(80,100,120,0.6)':'rgba(200,220,235,0.4)'};font-size:10px">Difference</span>
-      </div>
-      <div style="height:4px"></div>`;
-
-    const svg=document.createElementNS(ns,'svg');
-    svg.setAttribute('width','100%');
-    svg.setAttribute('height',svgTotal);
-    svg.setAttribute('viewBox',`0 0 ${svgW} ${svgTotal}`);
-    svg.setAttribute('preserveAspectRatio','none');
-    svg.style.cssText='display:block;overflow:visible';
-
-    // Island A / B labels in the label row — same y as Male/Female in makePyr
-    const mfY=labelRowH-3;
-    const aLab=document.createElementNS(ns,'text');
-    aLab.setAttribute('x',cx-4);aLab.setAttribute('y',mfY);
-    aLab.setAttribute('text-anchor','end');aLab.setAttribute('fill',mA.color);
-    aLab.setAttribute('font-size','9');aLab.setAttribute('font-weight','600');
-    aLab.textContent=`◀ ${mA.label}`;svg.appendChild(aLab);
-    const bLab=document.createElementNS(ns,'text');
-    bLab.setAttribute('x',cx+4);bLab.setAttribute('y',mfY);
-    bLab.setAttribute('text-anchor','start');bLab.setAttribute('fill',mB.color);
-    bLab.setAttribute('font-size','9');bLab.setAttribute('font-weight','600');
-    bLab.textContent=`${mB.label} ▶`;svg.appendChild(bLab);
-
-    // Bars — use island colour at two opacities: working-age full, dependent dimmed
-    // This encodes the working/dependent distinction using the same hue as the island
-    BANDS.forEach((band,i)=>{
-      const y=labelRowH+(BANDS.length-1-i)*(barH+gap);
-      const diff=(dA.m[i]+dA.f[i])-(dB.m[i]+dB.f[i]);
-      const barW=Math.min(Math.abs(diff)/maxDiff*halfW,halfW);
-      const isDependent = i<=2 || i>=13;
-      const fill=diff>0?mA.color:mB.color;
-      const opacity=isDependent?'0.35':'0.80';
-      const x=diff>0?cx-barW:cx;
-      if(barW>0.5){
-        const r=document.createElementNS(ns,'rect');
-        r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',barW);r.setAttribute('height',barH);
-        r.setAttribute('fill',fill);r.setAttribute('opacity',opacity);r.setAttribute('rx','1');
-        svg.appendChild(r);
-      }
-    });
-
-    // Centre line (over bars)
-    const line=document.createElementNS(ns,'line');
-    line.setAttribute('x1',cx);line.setAttribute('y1',labelRowH);
-    line.setAttribute('x2',cx);line.setAttribute('y2',labelRowH+totalH);
-    line.setAttribute('stroke',centreCol);line.setAttribute('stroke-width','1');svg.appendChild(line);
-
-    // Bottom axis baseline
-    const axisY=labelRowH+totalH;
-    const axLine=document.createElementNS(ns,'line');
-    axLine.setAttribute('x1',cx-halfW);axLine.setAttribute('y1',axisY);
-    axLine.setAttribute('x2',cx+halfW);axLine.setAttribute('y2',axisY);
-    axLine.setAttribute('stroke',labelCol);axLine.setAttribute('stroke-width','0.8');svg.appendChild(axLine);
-
-    // Scale ticks and coloured labels at bottom
-    [[-2,`−2pp`],[-1,`−1pp`],[0,'0'],[1,`+1pp`],[2,`+2pp`]].forEach(([v,lbl])=>{
-      const tx=cx+(v/maxDiff)*halfW;
-      const tick=document.createElementNS(ns,'line');
-      tick.setAttribute('x1',tx);tick.setAttribute('y1',axisY);
-      tick.setAttribute('x2',tx);tick.setAttribute('y2',axisY+5);
-      tick.setAttribute('stroke',v===0?labelCol:v>0?mB.color:mA.color);
-      tick.setAttribute('stroke-width','1.2');svg.appendChild(tick);
-      const t=document.createElementNS(ns,'text');
-      t.setAttribute('x',tx);t.setAttribute('y',axisY+15);
-      t.setAttribute('text-anchor','middle');
-      t.setAttribute('fill',v===0?labelCol:v>0?mB.color:mA.color);
-      t.setAttribute('font-size','9');t.setAttribute('font-weight',v===0?'400':'700');
-      t.textContent=lbl;svg.appendChild(t);
-    });
-
-    // Legend — anchored at cx like island legend, same visual grammar
-    const legY=axisY+28;
-    const legLabelCol=isLight?'rgba(30,40,60,0.9)':'rgba(232,237,242,0.95)';
-    // Working age: mA swatch left of cx, mB right — opacity 0.80
-    const swAW=document.createElementNS(ns,'rect');
-    swAW.setAttribute('x',cx-11);swAW.setAttribute('y',legY-7);
-    swAW.setAttribute('width',9);swAW.setAttribute('height',7);
-    swAW.setAttribute('fill',mA.color);swAW.setAttribute('opacity','0.80');
-    swAW.setAttribute('rx','1');svg.appendChild(swAW);
-    const swBW=document.createElementNS(ns,'rect');
-    swBW.setAttribute('x',cx+2);swBW.setAttribute('y',legY-7);
-    swBW.setAttribute('width',9);swBW.setAttribute('height',7);
-    swBW.setAttribute('fill',mB.color);swBW.setAttribute('opacity','0.80');
-    swBW.setAttribute('rx','1');svg.appendChild(swBW);
-    const ltW2=document.createElementNS(ns,'text');
-    ltW2.setAttribute('x',cx+13);ltW2.setAttribute('y',legY);
-    ltW2.setAttribute('fill',legLabelCol);ltW2.setAttribute('font-size','9');
-    ltW2.textContent='working age';svg.appendChild(ltW2);
-    // Dependent: same colours at 0.35
-    const legY2=legY+13;
-    const swAD=document.createElementNS(ns,'rect');
-    swAD.setAttribute('x',cx-11);swAD.setAttribute('y',legY2-7);
-    swAD.setAttribute('width',9);swAD.setAttribute('height',7);
-    swAD.setAttribute('fill',mA.color);swAD.setAttribute('opacity','0.35');
-    swAD.setAttribute('rx','1');svg.appendChild(swAD);
-    const swBD=document.createElementNS(ns,'rect');
-    swBD.setAttribute('x',cx+2);swBD.setAttribute('y',legY2-7);
-    swBD.setAttribute('width',9);swBD.setAttribute('height',7);
-    swBD.setAttribute('fill',mB.color);swBD.setAttribute('opacity','0.35');
-    swBD.setAttribute('rx','1');svg.appendChild(swBD);
-    const ltD2=document.createElementNS(ns,'text');
-    ltD2.setAttribute('x',cx+13);ltD2.setAttribute('y',legY2);
-    ltD2.setAttribute('fill',legLabelCol);ltD2.setAttribute('font-size','9');
-    ltD2.textContent='dependent';svg.appendChild(ltD2);
-
-    wrap.appendChild(svg);
-
-  } else {
-    // ── MOBILE: horizontal diff strip (bands = columns, bars up/down) ────────
-    // Each age band gets a column; bars grow upward (A > B) or downward (B > A).
-    // Layout: 320px wide × 130px tall SVG, full-width, readable on 375px phone.
-    const svgW=320,svgH=130;
-    const maxDiff=2.0;
-    const n=BANDS.length; // 17
-    const colW=svgW/n;    // ~18.8px per band
-    const barMaxH=44;     // max bar height in either direction
-    const midY=svgH/2;    // horizontal centre line y
-    const labelY_top=svgH-8;   // band label row near bottom
-    const scaleX=svgW-2;       // right-edge scale ticks
-
-    wrap.style.cssText='min-width:0;max-width:100%;width:100%;flex:none;align-self:stretch';
-
-    // Header
-    wrap.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 2px">
-      <span style="font-size:10px;font-weight:600;color:${mA.color}">▲ ${mA.label} has more</span>
-      <span class="pyr-name" style="color:${isLight?'rgba(80,100,120,0.5)':'rgba(200,220,235,0.35)'};font-size:9px">AGE DIFFERENCE</span>
-      <span style="font-size:10px;font-weight:600;color:${mB.color}">${mB.label} has more ▼</span>
-    </div>`;
-
-    const svg=document.createElementNS(ns,'svg');
-    svg.setAttribute('width','100%');
-    svg.setAttribute('height',svgH);
-    svg.setAttribute('viewBox',`0 0 ${svgW} ${svgH}`);
-    svg.setAttribute('preserveAspectRatio','none');
-    svg.style.cssText='display:block;overflow:visible';
-
-    // Zero line (horizontal)
-    const zeroline=document.createElementNS(ns,'line');
-    zeroline.setAttribute('x1','0');zeroline.setAttribute('y1',midY);
-    zeroline.setAttribute('x2',svgW);zeroline.setAttribute('y2',midY);
-    zeroline.setAttribute('stroke',centreCol);zeroline.setAttribute('stroke-width','1');
-    svg.appendChild(zeroline);
-
-    BANDS.forEach((band,i)=>{
-      const cx=i*colW+colW/2;
-      const diff=(dA.m[i]+dA.f[i])-(dB.m[i]+dB.f[i]);
-      const barH=Math.min(Math.abs(diff)/maxDiff*barMaxH,barMaxH);
-      const fill=diff>=0?mA.color:mB.color;
-      // bars grow up (positive) from midY, or down (negative) from midY
-      const barX=cx-colW*0.38;
-      const barW=colW*0.76;
-      const barY=diff>=0?midY-barH:midY;
-      if(barH>0.5){
-        const r=document.createElementNS(ns,'rect');
-        r.setAttribute('x',barX);r.setAttribute('y',barY);
-        r.setAttribute('width',barW);r.setAttribute('height',barH);
-        r.setAttribute('fill',fill);r.setAttribute('opacity','0.80');r.setAttribute('rx','1');
-        svg.appendChild(r);
-      }
-      // Band label — short form, every other band to avoid cramping
-      const short=['0','5','10','15','20','25','30','35','40','45','50','55','60','65','70','75','80+'];
-      if(i%2===0||i===BANDS.length-1){
-        const txt=document.createElementNS(ns,'text');
-        txt.setAttribute('x',cx);txt.setAttribute('y',svgH-2);
-        txt.setAttribute('text-anchor','middle');txt.setAttribute('fill',labelCol);
-        txt.setAttribute('font-size','7');
-        txt.textContent=short[i];svg.appendChild(txt);
-      }
-    });
-
-    // Y-axis scale ticks at ±1% and ±2%
-    [-2,-1,1,2].forEach(v=>{
-      const y=midY-v/maxDiff*barMaxH;
-      const tick=document.createElementNS(ns,'line');
-      tick.setAttribute('x1','0');tick.setAttribute('y1',y);tick.setAttribute('x2','4');tick.setAttribute('y2',y);
-      tick.setAttribute('stroke',labelCol);tick.setAttribute('stroke-width','0.8');svg.appendChild(tick);
-      const lbl=document.createElementNS(ns,'text');
-      lbl.setAttribute('x','5');lbl.setAttribute('y',y+3);lbl.setAttribute('font-size','7');
-      lbl.setAttribute('fill',labelCol);lbl.textContent=(v>0?'+':'')+v+'%';svg.appendChild(lbl);
-    });
-
-    wrap.appendChild(svg);
-  }
-
+  // Scale as a separate div below the SVG — keeps SVG height clean
+  const scaleDiv=document.createElement('div');
+  scaleDiv.style.cssText=`position:relative;width:100%;height:16px;margin-top:2px`;
+  [-2,-1,0,1,2].forEach(v=>{
+    const pct=((v/maxDiff)*halfW + cx) / svgW * 100;
+    const lbl=document.createElement('span');
+    lbl.style.cssText=`position:absolute;left:${pct}%;transform:translateX(-50%);font-size:9px;color:rgba(200,220,235,0.6);white-space:nowrap`;
+    lbl.textContent=v===0?'0':(v>0?`+${v}%`:`${v}%`);
+    scaleDiv.appendChild(lbl);
+  });
+  wrap.appendChild(scaleDiv);
   return wrap;
 }
 
@@ -1872,7 +1494,6 @@ function renderStructure(){
   });
   if(strCI)strCI.destroy();
   const cats=['Pre-school (0–4)','School age (5–14)','Working age (15–64)','Retirement age (65+)'];
-  const gc=getGC(),tc=getTC();
   strCI=new Chart(document.getElementById('strChart'),{
     type:'bar',
     data:{labels:cats,datasets:keys.map(k=>({
@@ -1882,8 +1503,8 @@ function renderStructure(){
     }))},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{
-        backgroundColor:getTTbg(),borderColor:getTTborder(),borderWidth:1,
-        titleColor:getTTtitle(),bodyColor:getTTbody(),padding:10,
+        backgroundColor:'#0d1b2a',borderColor:'rgba(96,165,250,0.25)',borderWidth:1,
+        titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
         callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
       }},
       scales:{
@@ -1902,7 +1523,6 @@ function setScenario(s,btn){
 }
 function renderProjections(){
   if(projCI)projCI.destroy();
-  const gc=getGC(),tc=getTC();
   projCI=new Chart(document.getElementById('projChart'),{
     type:'line',
     data:{labels:PROJ_L,datasets:[
@@ -1914,16 +1534,13 @@ function renderProjections(){
     options:{responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{
-        backgroundColor:getTTbg(),borderColor:getTTborder(),borderWidth:1,
-        titleColor:getTTtitle(),bodyColor:getTTbody(),padding:10,
-        callbacks:{
-          title: items => items.length ? String(items[0].parsed.x) : '',
-          label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
-        }
+        backgroundColor:'#0d1b2a',borderColor:'rgba(96,165,250,0.25)',borderWidth:1,
+        titleColor:tc,bodyColor:'rgba(200,220,235,0.85)',padding:10,
+        callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`}
       }},
       scales:{
         x:{type:'linear',min:2021,max:2040,
-           ticks:{color:tc,font:{size:10},stepSize:5,maxRotation:0,callback:v=>[2021,2025,2030,2035,2040].includes(v)?String(v):''},
+           ticks:{color:tc,font:{size:10},stepSize:5,maxRotation:0,callback:v=>[2021,2025,2030,2035,2040].includes(v)?v:''},
            grid:{color:gc},border:{color:'#1d3148'}},
         y:{min:45,max:80,ticks:{color:tc,font:{size:10},callback:v=>v+'%',stepSize:5},
            grid:{color:gc},border:{color:'#1d3148'},
@@ -1944,9 +1561,9 @@ const POP_DATA = {
 // Estimated years (hollow points)
 const POP_EST_YEARS = new Set([2026]);
 
-let popRange = 200;
+let popRange = 50;
 let popIslands = new Set(['iom','jersey','guernsey']);
-let showUK = true;
+let showUK = false;
 let popCI = null;
 let popViewIndex = false; // explicit toggle: false = absolute, true = index
 
@@ -1983,8 +1600,8 @@ function renderPopChart() {
 
   const maxYear = 2026;
   const minYear = maxYear - popRange;
-  const useIndex = popViewIndex;
-  const gc = getGC(), tc = getTC();
+  const useIndex = popViewIndex; // controlled by Index/Absolute toggle
+  const gc = 'rgba(255,255,255,0.05)', tc = 'rgba(200,220,235,0.5)';
 
   const islandMeta = {
     iom:      { label:'Isle of Man', color:'#3b82f6' },
@@ -2071,7 +1688,7 @@ function renderPopChart() {
   const scales = {
     x: {
       type: 'linear', min: minYear, max: maxYear,
-      ticks: { color: tc, font: { size: 10 }, stepSize: popRange >= 200 ? 25 : popRange > 75 ? 10 : 10, maxRotation: 0, callback: v => String(v) },
+      ticks: { color: tc, font: { size: 10 }, stepSize: popRange >= 200 ? 25 : popRange > 75 ? 10 : 10, maxRotation: 0, callback: v => v },
       grid: { color: gc }, border: { color: '#1d3148' }
     },
     y: {
@@ -2110,13 +1727,10 @@ function renderPopChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: getTTbg(),
-          borderColor: getTTborder(), borderWidth: 1,
-          titleColor: getTTtitle(), bodyColor: getTTbody(), padding: 10,
-          callbacks: {
-            title: items => items.length ? String(items[0].parsed.x) : '',
-            label: tooltipLabel
-          }
+          backgroundColor: '#0d1b2a',
+          borderColor: 'rgba(96,165,250,0.25)', borderWidth: 1,
+          titleColor: tc, bodyColor: 'rgba(200,220,235,0.85)', padding: 10,
+          callbacks: { label: tooltipLabel }
         }
       },
       scales
@@ -2144,8 +1758,9 @@ function renderPopChart() {
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-  // Pyramids is the default tab — render it immediately.
-  // Population and dependency charts are lazy-loaded when those tabs are opened.
+  renderPopChart();
+  initDepChart();
+  // Default: dual mode IoM vs UK, starting at 1996
   pyrMode='dual';
   singleIsland='iom';
   document.getElementById('pyr-single').classList.remove('active');
@@ -2159,17 +1774,16 @@ document.addEventListener('DOMContentLoaded',()=>{
   sliderVal=0;
   updateYearDisplay();
   renderPyramids();
-  checkPyrNotice();
   strYear=1996;
+  renderStructure();
   notifyHeight();
-  setTimeout(notifyHeight, 500);
-  setTimeout(notifyHeight, 1500);
+  setTimeout(notifyHeight, 500); // re-fire after Chart.js renders settle
 });
 
 function notifyHeight() {
   window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
 }
-window.addEventListener('resize', () => { checkPyrNotice(); notifyHeight(); });
+window.addEventListener('resize', notifyHeight);
 </script>
 </body>
 </html>

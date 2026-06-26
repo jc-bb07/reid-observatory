@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import { LoginScreen } from "./auth/LoginScreen";
 import { RestrictedArea } from "./restricted/RestrictedArea";
@@ -24,35 +24,31 @@ const THEMES = {
 };
 
 const TAB_GROUPS = [
-  { id: "econ-group",    label: "Economy & Society",  color: "#34d399", homeTab: "econHome",    tabs: ["econHome",    "demog", "iomPopChange", "econmix", "inflation", "unemployment", "suicide"] },
-  { id: "gov-group",     label: "Government",          color: "#60a5fa", homeTab: "govHome",     tabs: ["govHome",     "iomfiscal", "iomfiscaldept", "workforce"] },
-  { id: "health-group",  label: "Health & Care",       color: "#f87171", homeTab: "healthHome",  tabs: ["healthHome",  "manxBenchmark", "nobles-v15"] },
-  { id: "privacy-group", label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome", tabs: ["privacyHome", "reid", "kanon", "areas", "restricted", "compliance"] },
-  { id: "about-group",   label: "About",               color: "#94a3b8", homeTab: "about",       tabs: ["about"] },
+  { id: "reid-group",   label: "Re-identification", color: "#60a5fa", homeTab: "home",       tabs: ["home",       "reid", "kanon", "areas", "restricted", "compliance"] },
+  { id: "econ-group",   label: "Economy & Society",  color: "#34d399", homeTab: "econHome",   tabs: ["econHome",   "demog", "iomfiscal", "iomfiscaldept", "econmix", "inflation", "unemployment", "suicide", "workforce"] },
+  { id: "health-group", label: "Health & Care",      color: "#f87171", homeTab: "healthHome", tabs: ["healthHome", "manxBenchmark", "nobles", "nobles-v15"] },
 ];
 
 const TABS = [
+  { id: "home",           label: "About"                },
+  { id: "reid",           label: "Re-identification"    },
+  { id: "kanon",          label: "k-Anonymity"          },
+  { id: "areas",          label: "Area Rankings"        },
   { id: "econHome",       label: "About"                },
   { id: "demog",          label: "Demographics"         },
-  { id: "iomPopChange",   label: "Population Change"    },
+  { id: "iomfiscal",      label: "IoM Fiscal Flows"     },
+  { id: "iomfiscaldept",  label: "Budget Sources & Uses"},
   { id: "econmix",        label: "Productivity"         },
   { id: "inflation",      label: "Inflation"            },
   { id: "unemployment",   label: "Unemployment"         },
   { id: "suicide",        label: "Suicide Rates"        },
-  { id: "govHome",        label: "About"                },
-  { id: "iomfiscal",      label: "IoM Fiscal Flows"     },
-  { id: "iomfiscaldept",  label: "Budget Sources & Uses"},
   { id: "workforce",      label: "Public Sector"        },
+  { id: "nobles",         label: "Hospital Util Sim"    },
+  { id: "nobles-v15",     label: "Hospital Util Sim v15"},
   { id: "healthHome",     label: "About"                },
   { id: "manxBenchmark",  label: "Manx Care Benchmark"  },
-  { id: "nobles-v15",     label: "Nobles Simulation v15"},
-  { id: "privacyHome",    label: "About"                },
-  { id: "reid",           label: "Re-identification"    },
-  { id: "kanon",          label: "k-Anonymity"          },
-  { id: "areas",          label: "Area Rankings"        },
   { id: "restricted",     label: "🔒 Restricted"        },
   { id: "compliance",     label: "📋 Compliance"        },
-  { id: "about",          label: "About"                },
 ];
 
 // ── Permission helper ─────────────────────────────────────────────────────────
@@ -61,8 +57,8 @@ function hasPermission(user, perm) {
   return Array.isArray(perms) && perms.includes(perm);
 }
 
-// ── Privacy & Data landing tab ────────────────────────────────────────────────
-function PrivacyHomeTab({ C }) {
+// ── Landing / explainer tab ───────────────────────────────────────────────────
+function HomeTab({ C }) {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const card = (title, body, accent) => (
@@ -87,7 +83,7 @@ function PrivacyHomeTab({ C }) {
         borderLeft: `3px solid ${C.blue}`,
         borderRadius: 10, padding: "20px 22px", marginBottom: 28,
       }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc",
           letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
           How anonymous are you, really?
         </div>
@@ -190,228 +186,6 @@ function PrivacyHomeTab({ C }) {
   );
 }
 
-// ── About tab ─────────────────────────────────────────────────────────────────
-function AboutTab({ C }) {
-  return (
-    <div style={{ maxWidth: 720, margin: "0 auto" }}>
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderLeft: `3px solid ${C.purple}`,
-        borderRadius: 10, padding: "20px 22px", marginBottom: 28,
-      }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
-          letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
-          Crown Dependencies Observatory
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.8 }}>
-          Public data, made usable. Fiscal flows, demographic change, health system
-          performance, and privacy risk — across the Isle of Man, Jersey, and Guernsey.
-          Built because the data exists but is practically inaccessible, and that gap
-          has consequences.
-        </div>
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
-        letterSpacing: "0.08em", marginBottom: 14 }}>Who made this</div>
-
-      <div style={{ background: C.surface, border: `1px solid ${C.border2}`,
-        borderRadius: 10, padding: "18px 20px", marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: C.text, fontWeight: 600, marginBottom: 8 }}>
-          James — Isle of Man
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85 }}>
-          Manx first, British second, European third. I think the Island
-          punches below its weight when it comes to understanding itself — its own
-          fiscal position, its demographic trajectory, how its health system compares —
-          and that the gap between data that technically exists and data that anyone
-          can actually use is a problem worth fixing.
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85, marginTop: 10 }}>
-          I also believe, fairly stubbornly, that places like the Isle of Man — small,
-          distinctive, culturally specific — add something to the world that larger
-          homogenised economies don't. Protecting that takes more than sentiment.
-          It takes understanding the numbers.
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85, marginTop: 10 }}>
-          This started as a personal project. It's becoming something more professional,
-          though it's still largely one person with too many browser tabs open.
-          If you've found something wrong, or something missing,{" "}
-          <a href="mailto:observatory@coalfinch.com"
-            style={{ color: C.purple, textDecoration: "none" }}>please say so</a>.
-        </div>
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
-        letterSpacing: "0.08em", marginBottom: 14 }}>What the bloody hell is a coalfinch</div>
-
-      <div style={{ background: C.surface, border: `1px solid ${C.border2}`,
-        borderRadius: 10, padding: "18px 20px", marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85 }}>
-          In Minecraft, there are no canaries. This is — if you think about it —
-          a strange omission. The canary in the coal mine is one of the oldest
-          data instruments in history: a small creature sent ahead into a dangerous
-          place to detect invisible risk, so the miners behind it don't have to find
-          out the hard way.
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85, marginTop: 10 }}>
-          Minecraft has coal mines. It does not have canaries. So if you want
-          the early warning system, you have to invent the bird. Enter the coalfinch —
-          a made-up creature doing a very real job.
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85, marginTop: 10 }}>
-          That felt like the right name for a project about surfacing risks that
-          are technically visible in public data but practically invisible to
-          the people who should be paying attention to them.
-          Go first. Report back. Try not to die in the mine.
-        </div>
-        <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border2}` }}>
-          <a href="https://coalfinch.com" target="_blank" rel="noopener"
-            style={{ fontSize: 12, color: C.purple, textDecoration: "none", fontWeight: 500 }}>
-            coalfinch.com →
-          </a>
-        </div>
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
-        letterSpacing: "0.08em", marginBottom: 14 }}>This observatory</div>
-
-      <div style={{ background: C.surface, border: `1px solid ${C.border2}`,
-        borderRadius: 10, padding: "18px 20px", marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.85 }}>
-          Three sections, one underlying argument: small islands are complex systems,
-          and the data to understand them is out there if you're prepared to go and get it.
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
-          {[
-            { label: "Economy & Society", color: "#34d399",
-              desc: "Demographics, inflation, unemployment, and productivity across the Crown Dependencies. Population aging and the feedback loops between demography and fiscal sustainability." },
-            { label: "Government",        color: "#60a5fa",
-              desc: "IoM fiscal flows, departmental budgets, and public sector employment. Where government money comes from, where it goes, and how many people it employs." },
-            { label: "Health & Care",     color: "#f87171",
-              desc: "Manx Care benchmarked against Jersey, Guernsey, and the NHS. Waiting lists, financial performance, off-island dependency, bed capacity modelling." },
-            { label: "Privacy & Data",    color: "#a78bfa",
-              desc: "Re-identification risk in small populations. How anonymous is anonymous data when you live somewhere with 84,000 people? The original question that started all of this." },
-          ].map(({ label, color, desc }) => (
-            <div key={label} style={{ borderLeft: `3px solid ${color}`, paddingLeft: 14 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.text, marginBottom: 3 }}>{label}</div>
-              <div style={{ fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>{desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ background: C.surface2, border: `1px solid ${C.border2}`,
-        borderRadius: 8, padding: "14px 16px", marginBottom: 8,
-        fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>
-        <span style={{ color: C.muted, fontWeight: 600 }}>Data quality · </span>
-        Everything here is sourced from public documents — government accounts, census
-        publications, statistical bulletins. Where data is estimated, projected, or
-        has known quality issues, that's flagged inline.
-      </div>
-
-      <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7, marginTop: 16 }}>
-        <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
-        {" "}·{" "}
-        <a href="https://coalfinch.com" target="_blank" rel="noopener"
-          style={{ color: C.muted2, textDecoration: "none" }}>coalfinch.com</a>
-        {" "}·{" "}
-        <a href="/privacy.html"
-          style={{ color: C.muted2, textDecoration: "none" }}>Privacy Policy</a>
-      </div>
-    </div>
-  );
-}
-
-// ── Government landing tab ───────────────────────────────────────────────────
-function GovHomeTab({ C, onNavigate }) {
-
-  const card = (title, body, accent, onClick) => (
-    <div onClick={onClick} style={{
-      background: C.surface, border: `1px solid ${C.border2}`,
-      borderRadius: 10, overflow: "hidden", marginBottom: 14,
-      cursor: onClick ? "pointer" : "default",
-    }}>
-      <div style={{ height: 3, background: accent }}/>
-      <div style={{ padding: "16px 18px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
-        <div style={{ fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>{body}</div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div style={{ maxWidth: 780, margin: "0 auto" }}>
-
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderLeft: `3px solid ${C.blue}`,
-        borderRadius: 10, padding: "20px 22px", marginBottom: 28,
-      }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
-          letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
-          IoM Government finances &amp; public sector
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.8 }}>
-          Fiscal flows, departmental expenditure, and public sector employment.
-          Data extracted from IoM Treasury Pink Books and published accounts.
-          Check the numbers — this is all technically public, just not easily accessible.
-        </div>
-      </div>
-
-      {card(
-        "IoM Fiscal Flows",
-        `A Sankey diagram of Isle of Man government income and expenditure — where money
-        comes from (income tax, VAT sharing, duties, company tax) and where it goes
-        (health, education, social security, infrastructure). Aggregate view from
-        Treasury published accounts.`,
-        C.blue,
-        () => onNavigate("iomfiscal")
-      )}
-
-      {card(
-        "Budget Sources & Uses",
-        `Departmental breakdown of IoM government income and expenditure, FY2016–2025.
-        Revenue sources flow through the General Revenue Account to department groups
-        and expenditure types. Animate across years, focus on a department or spending
-        category, and toggle constant prices. Data from IoM Treasury Pink Books.`,
-        C.blue,
-        () => onNavigate("iomfiscaldept")
-      )}
-
-      {card(
-        "Public Sector Employment",
-        `Government workforce size across the Crown Dependencies and the UK — absolute FTE
-        and jobs counts, indexed change from a base year, and share of total employment.
-        IoM from 1961 (Digest sector data) and 2015 (OHR FTE); Jersey core GOJ jobs
-        2002–2023; Guernsey States FTE 2021–22; UK ONS G7G3 1999–2025.`,
-        C.blue,
-        () => onNavigate("workforce")
-      )}
-
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderRadius: 8, padding: "14px 16px", marginBottom: 24,
-        fontSize: 11, color: C.muted2, lineHeight: 1.7,
-      }}>
-        <span style={{ color: C.muted, fontWeight: 600 }}>Data note · </span>
-        IoM government data requires manual extraction from gov.im (automated access is blocked).
-        All figures are from published Treasury documents — Pink Books, Annual Financial Statements,
-        and the Digest of Economic and Social Statistics.
-      </div>
-
-      <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
-        <a href="https://coalfinch.com" target="_blank" rel="noopener"
-          style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
-        {" "}·{" "}
-        <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
-      </div>
-
-    </div>
-  );
-}
-
 // ── Economy & Society landing tab ────────────────────────────────────────────
 function EconHomeTab({ C, onNavigate }) {
 
@@ -436,7 +210,7 @@ function EconHomeTab({ C, onNavigate }) {
         borderLeft: `3px solid ${C.green}`,
         borderRadius: 10, padding: "20px 22px", marginBottom: 28,
       }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc",
           letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
           Small islands, complex systems
         </div>
@@ -444,8 +218,8 @@ function EconHomeTab({ C, onNavigate }) {
           The same small populations that make re-identification risk acute also create
           unusual fiscal and demographic dynamics. A dependency ratio that would be a
           footnote in a nation of millions becomes a structural problem in an island of 85,000.
-          This section explores those dynamics — population aging, inflation, unemployment,
-          and the economic structure of small islands.
+          This section explores those dynamics — population aging, fiscal flows, and the
+          feedback loops between them.
         </div>
       </div>
 
@@ -476,6 +250,28 @@ function EconHomeTab({ C, onNavigate }) {
           `Population aging across all three Crown Dependencies, 1821–2040. Census data plus
           cohort-shift projections. Dependency ratios, population pyramids, age structure,
           and what the trajectory looks like under different migration scenarios.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("iomfiscal")} style={{ cursor: "pointer" }}>
+        {card(
+          "IoM Fiscal Flows",
+          `A Sankey diagram of Isle of Man government income and expenditure — where money
+          comes from (income tax, VAT sharing, duties, company tax) and where it goes
+          (health, education, social security, infrastructure). Data extracted from
+          Treasury published accounts. Check the numbers.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("iomfiscaldept")} style={{ cursor: "pointer" }}>
+        {card(
+          "Budget Sources & Uses",
+          `Departmental breakdown of IoM government income and expenditure, FY2016–2025.
+          Revenue sources flow through the General Revenue Account to department groups
+          and expenditure types. Animate across years, focus on a department or spending
+          category, and toggle constant prices. Data from IoM Treasury Pink Books.`,
           C.green
         )}
       </div>
@@ -513,14 +309,29 @@ function EconHomeTab({ C, onNavigate }) {
         )}
       </div>
 
+      <div onClick={() => onNavigate("workforce")} style={{ cursor: "pointer" }}>
+        {card(
+          "Public Sector Employment",
+          `Government workforce size across the Crown Dependencies and the UK — absolute FTE
+          and jobs counts, indexed change from a base year, and share of total employment.
+          IoM from 1961 (Digest sector data) and 2015 (OHR FTE); Jersey core GOJ jobs
+          2002–2023; Guernsey States FTE 2021–22; UK ONS G7G3 1999–2025.`,
+          C.green
+        )}
+      </div>
+
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
         borderRadius: 8, padding: "14px 16px", marginBottom: 24,
         fontSize: 11, color: C.muted2, lineHeight: 1.7,
       }}>
-        <span style={{ color: C.muted, fontWeight: 600 }}>See also · </span>
-        Government finances, departmental budgets, and public sector employment are in the{" "}
-        <strong style={{ color: C.text }}>Government</strong> section.
+        <span style={{ color: C.muted, fontWeight: 600 }}>Why systems dynamics? · </span>
+        Fiscal sustainability in small islands isn't a static spreadsheet problem — it's a
+        set of feedback loops. An aging population increases health and pension expenditure
+        while shrinking the working-age tax base, which constrains the public investment
+        that might attract working-age incomers, which further strains the ratio. Modelling
+        these loops explicitly, rather than extrapolating trend lines, is the point.
+        The model is in active development — more loops, more islands, more data as we go.
       </div>
 
       <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
@@ -560,7 +371,7 @@ function HealthHomeTab({ C, onNavigate }) {
         borderLeft: `3px solid ${C.red}`,
         borderRadius: 10, padding: "20px 22px", marginBottom: 28,
       }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc",
           letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
           Health system performance across the Crown Dependencies
         </div>
@@ -608,17 +419,17 @@ function HealthHomeTab({ C, onNavigate }) {
       )}
 
       {card(
-        "Nobles Simulation (current)",
+        "Hospital Utilisation Simulation",
         `Discrete-event simulation of bed capacity, occupancy, and throughput at Nobles
         Hospital. Models admission patterns, length-of-stay distributions, and discharge
         bottlenecks to illustrate how small changes in flow affect whole-system capacity.
         Use this to stress-test planning assumptions rather than as a forecast.`,
         C.red,
-        () => onNavigate("nobles-v15")
+        () => onNavigate("nobles")
       )}
 
       {card(
-        "Nobles Simulation v15",
+        "Hospital Utilisation Simulation v15",
         `Extended version of the simulation with additional wards, seasonal admission
         curves, and scenario controls. Opens as a full page for best performance.`,
         C.red,
@@ -660,7 +471,7 @@ function Centred({ children }) {
 }
 
 // ── Auto-sizing iframe ────────────────────────────────────────────────────────
-function AutoIframe({ src, title, theme }) {
+function AutoIframe({ src, title }) {
   const [height, setHeight] = useState("calc(100vh - 120px)");
   const ref = useRef(null);
 
@@ -674,28 +485,19 @@ function AutoIframe({ src, title, theme }) {
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  // Send theme to iframe on load and whenever it changes
-  const sendTheme = () => {
-    try { ref.current?.contentWindow?.postMessage({ type: "setTheme", theme }, "*"); } catch {}
-  };
-  useEffect(sendTheme, [theme]);
-
-  const bg = THEMES[theme]?.bg ?? THEMES.dark.bg;
-
   return (
     <iframe
       ref={ref}
       src={src}
       title={title}
       scrolling="no"
-      onLoad={sendTheme}
       style={{
         width: "100%",
         height,
         border: "none",
         display: "block",
         overflow: "hidden",
-        background: bg,
+        background: THEMES.dark.bg,
       }}
     />
   );
@@ -704,7 +506,7 @@ function AutoIframe({ src, title, theme }) {
 // ── Main app ──────────────────────────────────────────────────────────────────
 function AppContent() {
   const { user, authLoading } = useAuth();
-  const [tab, setTab] = useState("econHome");
+  const [tab, setTab] = useState("home");
 
   // ── Theme ──────────────────────────────────────────────────────────────────
   const [themeName, setThemeName] = useState(() => {
@@ -722,106 +524,70 @@ function AppContent() {
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "reid","demog","iomPopChange","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
-    "unemployment","suicide","workforce","manxBenchmark",
+    "reid","demog","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
+    "unemployment","suicide","workforce","nobles","manxBenchmark",
   ]);
+  const [loadedTabs, setLoadedTabs] = useState(() => new Set(["home"]));
   useEffect(() => {
-    // Send theme to newly-visible iframe
+    setLoadedTabs(prev => {
+      if (prev.has(tab)) return prev;
+      const next = new Set(prev); next.add(tab); return next;
+    });
+    // Ping newly-visible iframe to reinit canvases (fixes flash after display:none→block)
     if (IFRAME_TABS.has(tab)) {
       setTimeout(() => {
         document.querySelectorAll("iframe").forEach(f => {
-          try { f.contentWindow.postMessage({ type:"setTheme", theme:themeName }, "*"); } catch {}
+          try { f.contentWindow.postMessage({ type:"tabVisible", tabId:tab }, "*"); } catch {}
         });
-      }, 100);
+      }, 50);
     }
   }, [tab]);
-
-  // Track viewport width — hides header toggle on mobile (FAB takes over)
-  const [isNarrow, setIsNarrow] = useState(() => window.innerWidth < 768);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const sync = (e) => setIsNarrow(e.matches);
-    sync(mq); mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  // Mobile theme FAB — fixed bottom-right pill, only on narrow viewports
-  useEffect(() => {
-    const FAB_ID = "obs-theme-fab";
-    let fab = document.getElementById(FAB_ID);
-    if (!fab) {
-      fab = document.createElement("button");
-      fab.id = FAB_ID;
-      document.body.appendChild(fab);
-      Object.assign(fab.style, {
-        position:"fixed", bottom:"20px", right:"16px", zIndex:"9999",
-        border:"none", borderRadius:"999px",
-        fontFamily:"'Inter',system-ui,sans-serif",
-        fontSize:"13px", fontWeight:"600",
-        padding:"11px 20px", cursor:"pointer",
-        boxShadow:"0 3px 14px rgba(0,0,0,0.35)",
-        display:"none", transition:"background 0.2s,color 0.2s", lineHeight:"1",
-      });
-    }
-    fab.textContent = themeName === "dark" ? "☀ Light" : "◑ Dark";
-    fab.onclick = toggleTheme;
-    Object.assign(fab.style, {
-      background: themeName === "dark" ? "#e2e8f0" : "#0f172a",
-      color:      themeName === "dark" ? "#0f172a" : "#e2e8f0",
-    });
-    const mq = window.matchMedia("(max-width: 767px)");
-    const sync = (e) => { fab.style.display = e.matches ? "block" : "none"; };
-    sync(mq); mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, [themeName]);
 
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const tabContent = {
-    about:        <AboutTab C={C} />,
+    home:         <HomeTab C={C} />,
     econHome:     <EconHomeTab C={C} onNavigate={setTab} />,
     healthHome:   <HealthHomeTab C={C} onNavigate={setTab} />,
-    govHome:      <GovHomeTab C={C} onNavigate={setTab} />,
-    privacyHome:  <PrivacyHomeTab C={C} />,
 
     reid: (
-      <AutoIframe src="/reidentification.html" title="Re-identification Observatory" theme={themeName} />
+      <AutoIframe src="/reidentification.html" title="Re-identification Observatory" />
     ),
     kanon: (
-      <AutoIframe src="/kanonymity.html" title="k-Anonymity Explorer" theme={themeName} />
+      <AutoIframe src="/kanonymity.html" title="k-Anonymity Explorer" />
     ),
     areas: (
-      <AutoIframe src="/arealist.html" title="Area Risk Rankings" theme={themeName} />
+      <AutoIframe src="/arealist.html" title="Area Risk Rankings" />
     ),
     demog: (
-      <AutoIframe src="/demographics-explorer.html" title="Demographics Explorer" theme={themeName} />
-    ),
-    iomPopChange: (
-      <AutoIframe src="/iom-population-change.html" title="IoM Population Change" theme={themeName} />
+      <AutoIframe src="/demographics-explorer.html" title="Demographics Explorer" />
     ),
     iomfiscal: (
-      <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" theme={themeName} />
+      <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" />
     ),
     iomfiscaldept: (
-      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} />
+      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" />
     ),
     inflation: (
-      <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" theme={themeName} />
+      <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" />
     ),
     unemployment: (
-      <AutoIframe src="/unemployment-explorer.html" title="Unemployment Explorer" theme={themeName} />
+      <AutoIframe src="/unemployment-explorer.html" title="Unemployment Explorer" />
     ),
     suicide: (
-      <AutoIframe src="/suicide-rates.html" title="Suicide Mortality Rates" theme={themeName} />
+      <AutoIframe src="/suicide-rates.html" title="Suicide Mortality Rates" />
     ),
     econmix: (
-      <AutoIframe src="/iom-economic-mix.html" title="Productivity by Sector" theme={themeName} />
+      <AutoIframe src="/iom-economic-mix.html" title="Productivity by Sector" />
     ),
     workforce: (
-      <AutoIframe src="/public-sector-employment.html" title="Public Sector Employment" theme={themeName} />
+      <AutoIframe src="/public-sector-employment.html" title="Public Sector Employment" />
+    ),
+    nobles: (
+      <AutoIframe src="/nobles-hospital-sim.html" title="Nobles Hospital — Bed Capacity" />
     ),
     manxBenchmark: (
-      <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" theme={themeName} />
+      <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" />
     ),
 
     "nobles-v15": (
@@ -931,7 +697,6 @@ function AppContent() {
               </div>
             </div>
           </div>
-          {!isNarrow && (
           <button onClick={toggleTheme} title={themeName==="dark"?"Switch to light mode":"Switch to dark mode"}
             style={{ background:"none", border:`1px solid ${C.border2}`, borderRadius:6, color:C.muted2,
               cursor:"pointer", fontFamily:"'Inter',system-ui,sans-serif", fontSize:11,
@@ -939,7 +704,6 @@ function AppContent() {
               transition:"border-color 0.15s,color 0.15s", marginTop:2 }}>
             {themeName==="dark" ? "☀ Light" : "◑ Dark"}
           </button>
-          )}
         </div>
       </div>
 
@@ -993,12 +757,11 @@ function AppContent() {
         })}
       </div>
 
-      {/* Iframe tabs — render only when active (lazy), avoids hidden canvas issues */}
-      {IFRAME_TABS.has(tab) && (
-        <div key={tab}>
-          {tabContent[tab]}
+      {[...loadedTabs].filter(id => IFRAME_TABS.has(id)).map(id => (
+        <div key={id} style={{ display: id===tab ? "block" : "none" }}>
+          {tabContent[id]}
         </div>
-      )}
+      ))}
       {!IFRAME_TABS.has(tab) && (
         <div style={{ maxWidth:960, margin:"0 auto" }}>{tabContent[tab]}</div>
       )}

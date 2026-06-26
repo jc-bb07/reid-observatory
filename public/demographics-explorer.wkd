@@ -314,21 +314,10 @@ select:focus {
   outline: none;
   border-color: var(--blue);
 }
-/* When a select uses .pill styling — suppress native widget, restore custom arrow */
-select.pill {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-  border-radius: 20px;
-}
 /* Selected / has-value state */
 select.has-value {
-  border-color: var(--blue);
-  background-color: var(--surface2);
+  border-color: #1e40af;
+  background-color: #0f1f3d;
 }
 
 
@@ -664,10 +653,7 @@ input[type="range"]::-moz-range-thumb {
   [data-theme="light"] .tabs       { border-color: #e2e8f0; }
   [data-theme="light"] .footer     { border-color: #e2e8f0; }
   [data-theme="light"] .page-footer{ border-color: #e2e8f0; }
-  [data-theme="light"] select      { background-color: #fff; border-color: #cbd5e1; color: #0f172a;
-                                      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E"); }
-  [data-theme="light"] select.pill { background-color: #ffffff; border-color: #cbd5e1;
-                                      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E"); }
+  [data-theme="light"] select      { background-color: #fff; border-color: #cbd5e1; color: #0f172a; }
   [data-theme="light"] .pill       { border-color: #cbd5e1; color: #475569; }
   [data-theme="light"] .pill.active { color: #ffffff; }
   [data-theme="light"] .pill:hover:not(.active) { border-color: #94a3b8; color: #0f172a; }
@@ -1404,7 +1390,8 @@ function toggleAnim(){
   const start=performance.now(),dur=animDur;
   const tick=now=>{
     const raw=Math.min((now-start)/dur,1);
-    sliderVal=lerp(0,100,raw);
+    const e=raw<0.5?2*raw*raw:-1+(4-2*raw)*raw;
+    sliderVal=lerp(0,100,e);
     document.getElementById('yearSlider').value=sliderVal;
     updateYearDisplay();renderPyramids();
     if(raw<1&&animPlaying)animRaf=requestAnimationFrame(tick);
