@@ -1167,8 +1167,18 @@ function applyView(v) {
   document.querySelectorAll('.narrative-technical').forEach(el => {
     el.style.display = v === 'technical' ? '' : 'none';
   });
+  // In technical mode, hide the gov-toggle buttons — methodology is already
+  // surfaced in the technical narrative cards above each chart
+  document.querySelectorAll('.gov-toggle').forEach(el => {
+    el.style.display = v === 'technical' ? 'none' : '';
+  });
+  // Close any open gov-boxes when switching to technical
+  if (v === 'technical') {
+    document.querySelectorAll('.gov-box').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.gov-toggle').forEach(el => el.classList.remove('open'));
+  }
   document.body.classList.toggle('view-technical', v === 'technical');
-  document.body.classList.toggle('view-plain',     v === 'plain');
+  document.body.classList.toggle('view-plain', v === 'plain');
 }
 
 document.querySelectorAll('.view-pill').forEach(btn => {
