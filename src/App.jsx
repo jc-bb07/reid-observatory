@@ -24,7 +24,7 @@ const THEMES = {
 };
 
 const TAB_GROUPS = [
-  { id: "econ-group",    label: "Economy & Society",  color: "#34d399", homeTab: "econHome",    tabs: ["econHome",    "demog", "iomPopChange", "econmix", "inflation", "unemployment", "suicide"] },
+  { id: "econ-group",    label: "Economy & Society",  color: "#34d399", homeTab: "econHome",    tabs: ["econHome", "econperf", "demog", "iomPopChange", "econmix", "inflation", "unemployment", "suicide"] },
   { id: "gov-group",     label: "Government",          color: "#60a5fa", homeTab: "govHome",     tabs: ["govHome",     "iomfiscal", "iomfiscaldept", "workforce"] },
   { id: "health-group",  label: "Health & Care",       color: "#f87171", homeTab: "healthHome",  tabs: ["healthHome",  "manxBenchmark", "nobles-v15"] },
   { id: "privacy-group", label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome", tabs: ["privacyHome", "reid", "kanon", "areas", "restricted", "compliance"] },
@@ -33,6 +33,7 @@ const TAB_GROUPS = [
 
 const TABS = [
   { id: "econHome",       label: "About"                },
+  { id: "econperf",       label: "Economic Performance" },
   { id: "demog",          label: "Demographics"         },
   { id: "iomPopChange",   label: "Population Change"    },
   { id: "econmix",        label: "Productivity"         },
@@ -470,6 +471,18 @@ function EconHomeTab({ C, onNavigate }) {
         Tools in this section
       </div>
 
+      <div onClick={() => onNavigate("econperf")} style={{ cursor: "pointer" }}>
+        {card(
+          "Economic Performance",
+          `GDP and GVA per head, real growth rates, and output relative to the UK across the
+          Isle of Man, Jersey, and Guernsey — 2000 to present. Nominal and real (constant
+          prices) series, with cross-jurisdictional ratio and cumulative indexed growth.
+          Sources: IoM National Income reports, Statistics Jersey, States of Guernsey Statistics,
+          ONS ABML/EBAQ/ABMI.`,
+          C.green
+        )}
+      </div>
+
       <div onClick={() => onNavigate("demog")} style={{ cursor: "pointer" }}>
         {card(
           "Demographics Explorer",
@@ -723,7 +736,7 @@ function AppContent() {
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
     "reid","demog","iomPopChange","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
-    "unemployment","suicide","workforce","manxBenchmark",
+    "unemployment","suicide","workforce","manxBenchmark","econperf",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
@@ -816,6 +829,9 @@ function AppContent() {
     ),
     econmix: (
       <AutoIframe src="/iom-economic-mix.html" title="Productivity by Sector" theme={themeName} />
+    ),
+    econperf: (
+      <AutoIframe src="/economic-performance.html" title="Economic Performance" theme={themeName} />
     ),
     workforce: (
       <AutoIframe src="/public-sector-employment.html" title="Public Sector Employment" theme={themeName} />
