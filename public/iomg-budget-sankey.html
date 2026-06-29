@@ -32,12 +32,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0a0f1e;--surface:#0d1526;--border:#1e2d4d;--gold:#C9A24A;--text:#e2e8f0;--muted:#94a3b8;--muted2:#64748b}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
-@media(max-width:700px){
-  html{overflow-x:scroll;overflow-y:auto;height:auto}
-  body{min-width:900px;height:auto;overflow:visible;display:flex;flex-direction:column}
-  .viz{height:560px;flex:none;overflow:visible}
-  svg{width:900px!important;height:560px!important}
-}
 
 /* ── Header ── */
 .hdr{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
@@ -71,7 +65,7 @@ input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px
 .stat-val{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--text);margin-top:1px}
 
 /* ── Viz ── */
-.viz{flex:1;overflow:hidden;position:relative}
+.viz{flex:1;overflow:hidden;position:relative;touch-action:none;min-width:0}
 svg{display:block;width:100%;height:100%}
 .col-hdr{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
 .lbl-r{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:start}
@@ -164,9 +158,14 @@ body.light .stat-val { color: #1e293b; }
   #comparator-btn { display: none; }
   .yr-wrap input[type=range] { display: none; }
   .yr-marks { display: none; }
-  #yr-pills { display: flex !important; }
+  #yr-pills { display: flex !important; order: -3; }
+  .play-btn:not(#comparator-btn) { order: -2; }
+  .ctrl-sep { display: none; }
+  .node-select { order: -1; min-width: 0; flex-shrink: 1; }
+  .toggle-wrap { order: 0; }
   .beaker-wrap { display: none !important; }
   #mob-stocks { display: flex !important; }
+  body { max-width: 100vw; }
 }
 /* Portrait-mode nudge overlay */
 #portrait-nudge {
@@ -183,33 +182,49 @@ body.light .stat-val { color: #1e293b; }
 @keyframes obs-spin { from { transform: rotate(0deg); } to { transform: rotate(15deg); } }
 #portrait-nudge .nudge-title { font-size: 16px; font-weight: 700; color: var(--text); }
 #portrait-nudge .nudge-sub { font-size: 13px; color: var(--muted2); line-height: 1.6; }
-/* Simple mobile stock strip */
+/* ── Viz row (sankey + stocks side by side on mobile) ── */
+#viz-row { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+/* Simple mobile stock column */
 #mob-stocks {
   display: none;
+  flex-direction: column;
   gap: 0;
-  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
   flex-shrink: 0;
+  width: 72px;
   background: var(--surface);
+  overflow: hidden;
 }
 .mob-stock {
   flex: 1;
-  padding: 4px 8px;
-  border-right: 1px solid var(--border);
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-.mob-stock:last-child { border-right: none; }
+.mob-stock:last-child { border-bottom: none; }
 .mob-stock-val {
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1.2;
 }
 .mob-stock-lbl {
-  font-size: 8px;
+  font-size: 7px;
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: .05em;
   color: var(--muted);
-  margin-top: 1px;
+  margin-top: 2px;
+  line-height: 1.3;
+  text-align: center;
+}
+/* Pan/zoom container */
+#chart {
+  transform-origin: 0 0;
+  will-change: transform;
 }
 /* Year pill strip — hidden by default, shown in landscape mobile */
 #yr-pills {
@@ -238,6 +253,8 @@ body.light .stat-val { color: #1e293b; }
   border-color: var(--gold);
   background: rgba(201,162,74,0.1);
 }
+/* Desktop: never exceed screen width */
+body { max-width: 100vw; overflow-x: hidden; }
 </style>
 </head>
 <body>
@@ -314,10 +331,11 @@ body.light .stat-val { color: #1e293b; }
   <div class="stat"><div class="stat-lbl">Staff Costs</div><div class="stat-val" id="s-sta">—</div></div>
 </div>
 
-<div class="viz"><svg id="chart"></svg></div>
-
-<!-- Simple stock strip for landscape mobile — populated by JS -->
-<div id="mob-stocks"></div>
+<div id="viz-row">
+  <div class="viz"><svg id="chart"></svg></div>
+  <!-- Stock column for landscape mobile — populated by JS -->
+  <div id="mob-stocks"></div>
+</div>
 
 <div class="gov-notes-toggle" id="gov-toggle" onclick="toggleGov()">
   <span class="gov-chevron" id="gov-chevron">▼</span>
@@ -608,10 +626,13 @@ let W,H;
 
 function dims(){
   const el=document.querySelector('.viz');
-  const isMobile = window.innerWidth <= 700;
-  W = isMobile ? 900 : el.clientWidth;
-  H = isMobile ? 560 : el.clientHeight;
-  svg.attr('viewBox',`0 0 ${W} ${H}`);
+  const isLandMob = window.innerWidth <= 900 && window.innerHeight < window.innerWidth;
+  // On landscape mobile: draw at a fixed generous size so content is readable when zoomed in
+  W = isLandMob ? 860 : el.clientWidth;
+  H = isLandMob ? el.clientHeight : el.clientHeight;
+  svg.attr('viewBox',`0 0 ${W} ${H}`)
+     .attr('width', W)
+     .attr('height', H);
 }
 
 // 6 columns: 0=rev sources, 1=GRA, 1.5=NI Fund, 2=depts, 3=exp types, 4=CFR node, 5=beakers (HTML overlay)
@@ -1518,6 +1539,111 @@ document.getElementById('deflate-chk').addEventListener('change',e=>{
 });
 
 
+// ── Touch pan/zoom on mobile ──────────────────────────────────────────────────
+(function initPanZoom() {
+  const vizEl = () => document.querySelector('.viz');
+  const svgEl = () => document.getElementById('chart');
+  let scale = 1, tx = 0, ty = 0;
+  let pointers = {};
+  let lastDist = null, lastMid = null;
+
+  function applyTransform() {
+    const s = svgEl();
+    if (!s) return;
+    s.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+  }
+
+  function ptDist(a, b) {
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  }
+  function ptMid(a, b) {
+    return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+  }
+
+  function onPointerDown(e) {
+    if (!isMobileLandscape()) return;
+    pointers[e.pointerId] = e;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const pts = Object.values(pointers);
+    if (pts.length === 2) {
+      lastDist = ptDist(pts[0], pts[1]);
+      lastMid  = ptMid(pts[0], pts[1]);
+    }
+  }
+  function onPointerMove(e) {
+    if (!pointers[e.pointerId]) return;
+    const prev = pointers[e.pointerId];
+    pointers[e.pointerId] = e;
+    const pts = Object.values(pointers);
+
+    if (pts.length === 1) {
+      // Pan
+      tx += e.clientX - prev.clientX;
+      ty += e.clientY - prev.clientY;
+      // Clamp so you can't pan the diagram entirely off-screen
+      const v = vizEl();
+      if (v) {
+        const vw = v.clientWidth, vh = v.clientHeight;
+        const svgW = W * scale, svgH = H * scale;
+        tx = Math.min(vw * 0.7, Math.max(-(svgW - vw * 0.3), tx));
+        ty = Math.min(vh * 0.5, Math.max(-(svgH - vh * 0.5), ty));
+      }
+      applyTransform();
+    } else if (pts.length === 2) {
+      const p = Object.values(pts);
+      const dist = ptDist(p[0], p[1]);
+      const mid  = ptMid(p[0], p[1]);
+      if (lastDist && lastMid) {
+        const ds = dist / lastDist;
+        const v = vizEl();
+        const vr = v ? v.getBoundingClientRect() : { left: 0, top: 0 };
+        // Zoom toward pinch midpoint
+        const ox = mid.x - vr.left;
+        const oy = mid.y - vr.top;
+        tx = ox - ds * (ox - tx);
+        ty = oy - ds * (oy - ty);
+        scale = Math.max(0.4, Math.min(4, scale * ds));
+        // Pan delta from midpoint movement
+        tx += mid.x - lastMid.x;
+        ty += mid.y - lastMid.y;
+      }
+      lastDist = dist;
+      lastMid  = mid;
+      applyTransform();
+    }
+  }
+  function onPointerUp(e) {
+    delete pointers[e.pointerId];
+    const pts = Object.values(pointers);
+    if (pts.length < 2) { lastDist = null; lastMid = null; }
+  }
+  // Double-tap to reset
+  let lastTap = 0;
+  function onDblTap(e) {
+    if (!isMobileLandscape()) return;
+    const now = Date.now();
+    if (now - lastTap < 350) { scale = 1; tx = 0; ty = 0; applyTransform(); }
+    lastTap = now;
+  }
+
+  function isMobileLandscape() {
+    return window.innerWidth <= 900 && window.innerHeight < window.innerWidth;
+  }
+
+  // Attach after DOM ready (called from init)
+  window._initPanZoomHandlers = function() {
+    const v = vizEl();
+    if (!v) return;
+    v.addEventListener('pointerdown', onPointerDown);
+    v.addEventListener('pointermove', onPointerMove);
+    v.addEventListener('pointerup',   onPointerUp);
+    v.addEventListener('pointercancel', onPointerUp);
+    v.addEventListener('click', onDblTap);
+  };
+  // Reset transform on redraw (so new draw matches coordinate system)
+  window._resetPanZoom = function() { scale = 1; tx = 0; ty = 0; applyTransform(); };
+})();
+
 // ── Governance notes toggle ───────────────────────────────────────────────────
 function toggleGov(){
   const notes=document.getElementById('gov-notes');
@@ -1534,7 +1660,7 @@ if (window.innerWidth < 700) {
   const hint = document.getElementById('mobile-scroll-hint');
   if (hint) hint.style.display = 'block';
 }
-function init(){dims();draw(2025,false);}
+function init(){dims();draw(2025,false);window._initPanZoomHandlers && window._initPanZoomHandlers();}
 const ro=new ResizeObserver(()=>{dims();draw(curFY,false);});
 ro.observe(document.querySelector('.viz'));
 init();
