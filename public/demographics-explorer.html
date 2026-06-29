@@ -681,7 +681,7 @@ input[type="range"]::-moz-range-thumb {
   }
   .pyramid-grid::-webkit-scrollbar { height: 3px; }
   .pyramid-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .pyramid-item { flex: 1; min-width: 160px; max-width: 380px; width: 0; }
+  .pyramid-item { flex: 1 1 200px; min-width: 160px; max-width: 380px; }
   .pyr-name {
     font-size: 10px; font-weight: 500; letter-spacing: .07em;
     text-transform: uppercase; border-bottom: 1px solid currentColor;
@@ -1254,26 +1254,31 @@ function getTTtitle(){ return document.documentElement.getAttribute('data-theme'
 // Multi-year interpolation: sliderVal 0-100 maps across 4 census years
 // 0=1996, 33.3=2001, 66.6=2011, 100=2021
 function getInterpDS(key, sv) {
+  if(!PYR[key]||isNaN(sv)){return {m:new Array(17).fill(0),f:new Array(17).fill(0)};}
   const n = CENSUS_YEARS.length - 1; // 6 segments across 7 years
-  const pos = sv / 100 * n;
+  const pos = Math.max(0,Math.min(sv,100)) / 100 * n;
   const seg = Math.min(Math.floor(pos), n-1);
   const t = pos - seg;
   const y1 = CENSUS_YEARS[seg];
   const y2 = CENSUS_YEARS[seg+1];
-  return lerpDS(PYR[key][y1], PYR[key][y2], t);
+  const d1 = PYR[key][y1], d2 = PYR[key][y2];
+  if(!d1||!d2){return {m:new Array(17).fill(0),f:new Array(17).fill(0)};}
+  return lerpDS(d1, d2, t);
 }
 
 function getInterpYear(sv) {
+  if(isNaN(sv))return 1996;
   const n = CENSUS_YEARS.length - 1;
-  const pos = sv / 100 * n;
+  const pos = Math.max(0,Math.min(sv,100)) / 100 * n;
   const seg = Math.min(Math.floor(pos), n-1);
   const t = pos - seg;
   return Math.round(lerp(CENSUS_YEARS[seg], CENSUS_YEARS[seg+1], t));
 }
 
 function getInterpPop(key, sv) {
+  if(!META[key]||isNaN(sv))return 0;
   const n = CENSUS_YEARS.length - 1;
-  const pos = sv / 100 * n;
+  const pos = Math.max(0,Math.min(sv,100)) / 100 * n;
   const seg = Math.min(Math.floor(pos), n-1);
   const t = pos - seg;
   const y1 = CENSUS_YEARS[seg];
@@ -1282,8 +1287,9 @@ function getInterpPop(key, sv) {
 }
 
 function getInterpMedian(key, sv) {
+  if(!META[key]||isNaN(sv))return 0;
   const n = CENSUS_YEARS.length - 1;
-  const pos = sv / 100 * n;
+  const pos = Math.max(0,Math.min(sv,100)) / 100 * n;
   const seg = Math.min(Math.floor(pos), n-1);
   const t = pos - seg;
   const y1 = CENSUS_YEARS[seg];
@@ -1373,11 +1379,10 @@ function setSingleIsland(k,btn){
 }
 function setYear(v){sliderVal=v;document.getElementById('yearSlider').value=v;updateYearDisplay();renderPyramids();}
 function onSlider(v){
-  animPlaying=false;
-  animGen++;
+  if(animPlaying){return;} // programmatic update during animation — ignore
   const btn=document.getElementById('animBtn');
   btn.classList.remove('playing');btn.textContent='▶ Animate';
-  if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}
+  if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;animGen++;}
   sliderVal=+v;updateYearDisplay();renderPyramids();
 }
 function updateYearDisplay(){
