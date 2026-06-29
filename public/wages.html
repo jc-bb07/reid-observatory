@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wages &amp; Cost of Living · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* ── TOKENS ────────────────────────────────────────────────────────────────── */
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
+  --border:#1e293b; --border2:#334155;
+  --text:#e2e8f0; --muted:#94a3b8; --muted2:#cbd5e1;
+  --blue:#60a5fa; --blue-dim:rgba(96,165,250,0.12);
+  --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa;
+  --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b; --uk:#94a3b8;
+  --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  --radius:6px;
+}
+@media(prefers-color-scheme:light){
+  :root{
+    --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+    --border:#e2e8f0; --border2:#cbd5e1;
+    --text:#0f172a; --muted:#64748b; --muted2:#334155;
+    --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+    --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+  }
+}
+html[data-theme="light"]{
+  --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#0f172a; --muted:#64748b; --muted2:#334155;
+  --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+  --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+}
+html[data-theme="dark"]{
+  --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
+  --border:#1e293b; --border2:#334155;
+  --text:#e2e8f0; --muted:#94a3b8; --muted2:#cbd5e1;
+  --blue:#60a5fa; --blue-dim:rgba(96,165,250,0.12);
+  --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b; --uk:#94a3b8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+#app{max-width:1100px;margin:0 auto;padding:20px 20px 60px}
+
+/* ── HEADER ────────────────────────────────────────────────────────────────── */
+.header{margin-bottom:1.25rem}
+h1{font-size:22px;font-weight:800;line-height:1.25;letter-spacing:-0.02em;color:var(--text)}
+.subtitle{margin-top:.5rem;font-size:13px;color:var(--muted2);line-height:1.75;max-width:700px}
+
+/* VIEW TOGGLE */
+.view-row{display:flex;align-items:center;gap:10px;margin-top:.9rem}
+.view-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.view-pills{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:2px;gap:2px}
+.view-pill{padding:4px 14px;border-radius:18px;border:none;background:transparent;font-size:12px;font-weight:500;font-family:var(--font);color:var(--muted);cursor:pointer;transition:all .15s}
+.view-pill.active{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+
+/* ── TABS ──────────────────────────────────────────────────────────────────── */
+.tab-bar{display:flex;gap:2px;margin:1.25rem 0;border-bottom:1px solid var(--border2)}
+.tab-btn{padding:7px 15px;font-size:12px;font-weight:500;font-family:var(--font);background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;transition:color .12s,border-color .12s;margin-bottom:-1px;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── CONTROLS ──────────────────────────────────────────────────────────────── */
+.controls{display:flex;align-items:center;gap:8px;margin-bottom:1.1rem;flex-wrap:wrap}
+.ctrl-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.ctrl-divider{width:1px;height:14px;background:var(--border2);margin:0 4px}
+.toggle-btn{padding:4px 13px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--font)}
+.toggle-btn:hover{border-color:var(--blue);color:var(--text)}
+.toggle-btn.active{background:var(--blue-dim);border-color:rgba(96,165,250,.45);color:var(--blue)}
+
+/* ── CHART ─────────────────────────────────────────────────────────────────── */
+.chart-wrap{position:relative;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.25rem 1rem 1rem;margin-bottom:1rem;height:360px}
+@media(max-width:700px){.chart-wrap{height:240px;padding:.75rem .5rem .75rem}}
+.chart-canvas{position:absolute;inset:1.25rem 1rem 1rem !important;width:calc(100% - 2rem)!important;height:calc(100% - 2.25rem)!important}
+@media(max-width:700px){.chart-canvas{inset:.75rem .5rem .75rem !important;width:calc(100% - 1rem)!important;height:calc(100% - 1.5rem)!important}}
+
+/* ── NARRATIVE ─────────────────────────────────────────────────────────────── */
+.narrative{background:var(--surface2);border:1px solid var(--border2);border-top:2px solid var(--blue);border-radius:8px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:13px;color:var(--muted2);line-height:1.8}
+.narrative strong{color:var(--text);font-weight:600}
+.narrative .hl-iom{color:var(--iom);font-weight:600}
+.narrative .hl-jsy{color:var(--jsy);font-weight:600}
+.narrative .hl-gsy{color:var(--gsy);font-weight:600}
+.narrative .hl-uk{color:var(--uk);font-weight:600}
+.narrative .caveat{margin-top:.75rem;padding:.6rem .85rem;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:5px;font-size:12px;color:var(--muted);line-height:1.7}
+
+/* ── GOVERNANCE ─────────────────────────────────────────────────────────────── */
+.gov-toggle{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:5px;padding:0;margin-bottom:.5rem}
+.gov-toggle:hover{color:var(--muted2)}
+.gov-toggle svg{transition:transform .15s}
+.gov-toggle.open svg{transform:rotate(90deg)}
+.gov-box{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:1rem 1.25rem;font-size:12px;line-height:1.75;color:var(--muted2);display:none}
+.gov-box.visible{display:block}
+.gov-box h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;margin-top:.75rem}
+.gov-box h4:first-child{margin-top:0}
+.gov-box p{margin-bottom:.5rem}
+.gov-box ul{padding-left:1.25rem;margin-bottom:.5rem}
+.gov-box li{margin-bottom:.25rem}
+.gov-box .src{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+/* ── SERIES TOGGLES ─────────────────────────────────────────────────────────── */
+.series-toggles{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.series-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:12px;font-family:var(--font);cursor:pointer;transition:all .12s}
+.series-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.series-btn.active{background:var(--surface2)}
+.series-btn.active.iom{border-color:rgba(59,130,246,.5);color:var(--iom)}
+.series-btn.active.jsy{border-color:rgba(245,158,11,.5);color:var(--jsy)}
+.series-btn.active.gsy{border-color:rgba(16,185,129,.5);color:var(--gsy)}
+.series-btn.active.uk{border-color:rgba(148,163,184,.5);color:var(--uk)}
+
+/* ── STAT CARDS ─────────────────────────────────────────────────────────────── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.stat-card{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:.85rem 1rem}
+.stat-card .label{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.stat-card .value{font-size:18px;font-weight:700;font-family:var(--mono);letter-spacing:-0.01em}
+.stat-card .sub{font-size:11px;color:var(--muted);margin-top:.2rem}
+.stat-card.iom .value{color:var(--iom)}
+.stat-card.jsy .value{color:var(--jsy)}
+.stat-card.gsy .value{color:var(--gsy)}
+.stat-card.uk  .value{color:var(--uk)}
+
+/* ── WARNING BOX ─────────────────────────────────────────────────────────────── */
+.warning-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.28);border-left:3px solid var(--red);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1rem;font-size:12px;color:var(--muted2);line-height:1.75}
+.warning-box strong{color:var(--red);font-weight:600}
+html[data-theme="light"] .warning-box{background:rgba(220,38,38,0.04)}
+
+/* ── ANNOTATION ─────────────────────────────────────────────────────────────── */
+.annotation-note{font-size:11px;color:var(--amber);margin-top:.4rem;display:flex;align-items:center;gap:6px}
+.annotation-note::before{content:'';display:inline-block;width:16px;height:1px;border-top:1px dashed var(--amber)}
+
+/* ── MOBILE ─────────────────────────────────────────────────────────────────── */
+@media(max-width:700px){
+  #app{padding:12px 12px 40px}
+  h1{font-size:17px}
+  .subtitle{font-size:12px}
+  .tab-bar{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tab-bar::-webkit-scrollbar{display:none}
+  .tab-btn{font-size:11px;padding:6px 10px}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .stat-card .value{font-size:15px}
+  .controls{gap:5px}
+  .toggle-btn{font-size:11px;padding:3px 9px}
+  .series-btn{font-size:11px;padding:4px 9px}
+  .gov-box{font-size:11px}
+  .narrative{font-size:12px;padding:.85rem 1rem}
+  .view-pill{font-size:11px;padding:3px 11px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>What residents actually earn</h1>
+    <p class="subtitle">
+      GDP per head has historically been used as a proxy for household wealth. In most economies, that
+      is a reasonable shortcut — output and income track each other fairly closely.
+      In the Crown Dependencies, they don't. The Isle of Man's GDP per head is roughly
+      <strong style="color:var(--text)">£69,000</strong>. The median full-time employee earns around
+      <strong style="color:var(--text)">£38,000</strong>.
+      That gap — between what is produced on the island and what residents take home — is structural.
+      It reflects profits flowing to capital, not labour: to shareholders and beneficial owners who
+      largely live elsewhere. This page shows the earnings side of that equation.
+    </p>
+    <div class="view-row">
+      <span class="view-label">View</span>
+      <div class="view-pills">
+        <button class="view-pill active" data-view="plain">Plain language</button>
+        <button class="view-pill" data-view="technical">Technical</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="median">Median earnings</button>
+    <button class="tab-btn" data-tab="mean">Mean earnings</button>
+    <button class="tab-btn" data-tab="real">Real purchasing power</button>
+    <button class="tab-btn" data-tab="ratio">vs UK benchmark</button>
+  </div>
+
+  <!-- ── TAB 1: MEDIAN ── -->
+  <div id="tab-median" class="tab-pane">
+    <div class="narrative narrative-plain">
+      The median is the wage at which half of workers earn more and half earn less — it is
+      a better measure of the typical worker than the mean, which is pulled upward by
+      high earners.
+      In 2024, the <span class="hl-iom">Isle of Man</span> median full-time wage was
+      <strong>£765/week</strong> (~£39,800/year). The island's GDP per head in 2023
+      was roughly £69,000. That gap — between what the economy produces and what the median
+      employee takes home — is not a measurement error. It is profits flowing to capital rather
+      than labour.
+      <span class="hl-jsy">Jersey</span> median was an estimated <strong>£850/week</strong>
+      against GDP/head of ~£65,500. <span class="hl-gsy">Guernsey's</span> median annual
+      earnings of £42,672 tell a similar story. The <span class="hl-uk">UK</span> median
+      was £709/week — and UK GDP per head was roughly £36,400. In the UK, wages and output
+      per head are within a few percent of each other. Here, they are not.
+      <div class="caveat">
+        ⚠ These series are not strictly comparable: different reference periods, different
+        definitions of full-time, and different coverage. Treat as directionally informative.
+      </div>
+    </div>
+    <div class="narrative narrative-technical" style="display:none">
+      <strong>IoM.</strong> Statistics IoM Annual Earnings Survey — median weekly gross earnings
+      of full-time employees on adult rates, pay unaffected by absence. Reference: June of each year.
+      Methodological break at 2012: prior-year average/median figures restated from 2012 onward
+      to remove the "trimming" of top earners; pre-2012 values may not be directly comparable.
+      2024: £765/week (median), £929/week (mean). Survey of ~800 employers, ~2,500 employee respondents.
+      <br><br>
+      <strong>Jersey.</strong> Statistics Jersey Index of Average Earnings (IAE). The IAE directly
+      produces <em>mean</em> FTE earnings from firm-level data; a median cannot be derived from
+      company-level data alone. The median series shown here uses the 2021/22 Living Costs and
+      Household Income Survey (LCHIS) estimate uprated by the IAE index — it is an estimate, not
+      a directly surveyed median. Latest uprated estimate: £850/week (June 2024), £890/week (June 2025).
+      <br><br>
+      <strong>Guernsey.</strong> States of Guernsey Rolling Electronic Census, remuneration data
+      from Revenue Service. Median annual earnings: £42,672 (year to June 2024), £40,516 (year to
+      June 2023). Data covers employed and self-employed; not directly comparable with IoM/Jersey
+      weekly FT surveys. Converted to weekly: ÷52.18.
+      <br><br>
+      <strong>UK.</strong> ONS Annual Survey of Hours and Earnings (ASHE), Table 1, median weekly
+      gross earnings for all full-time employee jobs. Reference: April of each year. 2024: £709/week.
+      <div class="caveat">
+        IoM and Jersey surveys cover only employees (not self-employed). Guernsey includes
+        self-employed. Jersey median is an estimate uprated from a 2022 survey, introducing
+        additional uncertainty compared to directly surveyed figures.
+      </div>
+    </div>
+    <div class="stat-row" id="median-stats"></div>
+    <div class="controls">
+      <span class="ctrl-label">Series</span>
+    </div>
+    <div class="series-toggles" id="median-toggles"></div>
+    <div class="chart-wrap">
+      <canvas id="median-chart" class="chart-canvas"></canvas>
+    </div>
+    <button class="gov-toggle" id="median-gov-btn">
+      <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Data governance &amp; methodology notes
+    </button>
+    <div class="gov-box" id="median-gov">
+      <h4>Comparability caveats</h4>
+      <p>The four series on this chart are sourced from different national surveys with different designs. They should be read as indicating the <em>order of magnitude</em> of earnings differences, not as precise cross-jurisdiction comparisons.</p>
+      <h4>IoM methodological break (2012)</h4>
+      <p>From 2015, the IoM Earnings Survey stopped "trimming" high earners from the average calculation, aligning with ONS methodology. Average earnings figures have been restated from 2012 onwards. Pre-2012 figures are not directly comparable and are shown as a dashed line.</p>
+      <h4>Jersey median estimation</h4>
+      <p>Statistics Jersey's IAE is a firm-level survey and cannot produce an individual-level median. The median shown here is an uprated estimate from the 2021/22 LCHIS, with uncertainty increasing as the uprating period extends. Statistics Jersey notes the estimate as ±£20 confidence interval.</p>
+      <h4>Guernsey annual-to-weekly conversion</h4>
+      <p>Guernsey reports median annual earnings; converted here to weekly (÷52.18). The annual figure covers all employed and self-employed workers, not just full-time employees — this will tend to pull the figure down relative to full-time-only IoM and UK series.</p>
+      <h4>Sources</h4>
+      <ul>
+        <li class="src">IoM: gov.im/about-the-government/departments/cabinet-office/statistics-isle-of-man/earnings-survey/ (reports 2009–2024)</li>
+        <li class="src">Jersey: Statistics Jersey Index of Average Earnings, June releases 2009–2025; median uprated from 2021/22 LCHIS</li>
+        <li class="src">Guernsey: States of Guernsey Quarterly Population, Employment and Earnings Bulletin (Revenue Service data)</li>
+        <li class="src">UK: ONS ASHE Table 1 (median weekly gross pay, full-time employee jobs, April each year)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: MEAN ── -->
+  <div id="tab-mean" class="tab-pane" style="display:none">
+    <div class="narrative narrative-plain">
+      Mean (average) earnings are pulled upward by high earners — in the IoM's case,
+      concentrated notably at the top of government — so they consistently exceed median earnings.
+      The gap between mean and median within each jurisdiction is itself a signal:
+      a wide gap indicates a skewed distribution where most workers earn below the average.
+      In 2024, the <span class="hl-iom">Isle of Man</span> mean full-time wage was
+      <strong>£929/week</strong> versus a median of £765 — a gap of £164.
+      <span class="hl-jsy">Jersey</span> shows an even wider spread: mean
+      <strong>~£990/week</strong> against an estimated £850 median.
+      <span class="hl-gsy">Guernsey</span> does not publish a mean individual earnings series,
+      but one can be estimated: applying the historical mean-to-median ratio implied by the
+      Guernsey Household Income data (mean gross household income £74,568, 2022) and uprating
+      by published nominal wage growth gives an indicative mean of roughly
+      <strong>£1,010–£1,060/week</strong> for 2024 — consistent with Jersey's figure and
+      Guernsey's similar financial sector concentration.
+      <div class="caveat">
+        The Guernsey figure is estimated, not directly published. See governance notes.
+        All three island means are pulled well above their respective medians by sectoral
+        concentration — a pattern absent in the UK, where mean and median are much closer.
+      </div>
+    </div>
+    <div class="narrative narrative-technical" style="display:none">
+      <strong>IoM.</strong> Table 2, IoM Annual Earnings Survey — mean (average) weekly gross earnings
+      of full-time employees on adult rates, pay unaffected by absence. Trimming of top earners removed
+      from 2015; series restated 2012 onwards for consistency. 2024: £929/week.
+      <br><br>
+      <strong>Jersey.</strong> Statistics Jersey IAE headline figure — mean FTE earnings derived from
+      firm-level data (total payroll ÷ headcount equivalent). 2024: £990/week (June 2024), £1,040/week
+      (June 2025). Excludes bonuses, holiday pay, and benefits in kind. Includes overtime.
+      The IAE is designed to measure <em>changes</em> in average earnings; level estimates carry
+      ±£20 uncertainty (95% CI).
+      <br><br>
+      <strong>Guernsey (estimated).</strong> Guernsey's Rolling Electronic Census publishes only median
+      earnings at individual level. A mean is estimated here using two sources: (1) the 2022 Guernsey
+      Household Income Report (mean gross unequivalised household income £74,568; mean household size
+      2.3 → implied per-person gross ~£32,400, but this includes non-earners); (2) the mean-to-median
+      ratio of ~1.28 implied by sector-weighted earnings distributions in the quarterly bulletin
+      (Financial &amp; insurance activities median £57,394 in 2024, 34.5% above overall median,
+      accounting for ~23% of employment). Applying ratio 1.28 to the 2024 median of £42,672
+      gives an implied mean annual of ~£54,620 (÷52.18 = ~£1,047/week). Uprated from 2015
+      using published nominal wage bill growth rates. <strong>Treat as an indicative estimate only</strong>;
+      confidence interval ±£75–100/week.
+      <br><br>
+      <strong>UK.</strong> ONS ASHE Table 1, mean weekly gross pay for all full-time employee jobs.
+      April each year. 2024: £850/week.
+      <div class="caveat">
+        Jersey's FTE adjustment inflates its mean relative to a headcount-weighted mean — part-time
+        workers are scaled to full-time equivalents. IoM and UK figures are not FTE-adjusted.
+        The Guernsey estimate is not FTE-adjusted and covers all workers (including part-time and
+        self-employed), which may pull it below a full-time-equivalent basis.
+      </div>
+    </div>
+    <div class="stat-row" id="mean-stats"></div>
+    <div class="controls">
+      <span class="ctrl-label">Series</span>
+    </div>
+    <div class="series-toggles" id="mean-toggles"></div>
+    <div class="chart-wrap">
+      <canvas id="mean-chart" class="chart-canvas"></canvas>
+    </div>
+    <button class="gov-toggle" id="mean-gov-btn">
+      <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Data governance &amp; methodology notes
+    </button>
+    <div class="gov-box" id="mean-gov">
+      <h4>FTE adjustment (Jersey)</h4>
+      <p>Jersey's IAE reports earnings on a full-time equivalent basis, scaling part-time workers up. This inflates the mean relative to a headcount approach. The UK and IoM figures are <em>not</em> FTE-adjusted, making Jersey's mean appear higher than a like-for-like comparison would show.</p>
+      <h4>Guernsey mean — derivation and uncertainty</h4>
+      <p>Guernsey publishes no mean individual earnings series. The estimate shown is derived by applying a mean-to-median ratio of ~1.28 to the published annual median, informed by: the 2022 Household Income Report (mean gross household income £74,568 ÷ household size 2.3); and the sector earnings distribution in the quarterly bulletin, where Financial &amp; Insurance activities (23% of employment) has a median 34.5% above the overall median — a classic skew pattern. The ratio is then held constant and the series uprated by published nominal wage bill growth rates. Confidence interval ±£75–100/week. <strong>Not directly comparable with any published Guernsey statistic.</strong></p>
+      <h4>Sources</h4>
+      <ul>
+        <li class="src">IoM: Table 2, Annual Earnings Survey 2009–2024 (gov.im)</li>
+        <li class="src">Jersey: Statistics Jersey IAE June releases 2009–2025</li>
+        <li class="src">Guernsey: derived — States of Guernsey Household Income Report 2022; Quarterly Bulletin sector earnings Table 6.4.1; nominal wage bill growth rates (gov.gg/population)</li>
+        <li class="src">UK: ONS ASHE Table 1, mean weekly gross pay, full-time employee jobs</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: REAL ── -->
+  <div id="tab-real" class="tab-pane" style="display:none">
+    <div class="narrative narrative-plain">
+      Adjusted for inflation — what earnings actually buy, not just what they look like on a payslip.
+      The picture is already sobering: the <span class="hl-iom">Isle of Man</span> saw real earnings
+      essentially flat from 2015 to 2024, and Statistics Jersey reports that over the 10 years to
+      June 2024, real average earnings increased by just 1.3% <em>in total</em>.
+      <br><br>
+      But these figures almost certainly <strong>overstate</strong> how far wages have kept pace with
+      the cost of living for most people — because the inflation measures used do not capture
+      house prices.
+      RPI and CPI include housing costs — rents, and mortgage interest for existing borrowers — but
+      they do not measure the price of <em>buying</em> a home.
+      On the Isle of Man, average property prices were flat from 2010 to 2020 and then rose 30%
+      in five years, reaching roughly £376,000 by 2025 — a price-to-earnings ratio of
+      <strong>7.9× average salary</strong>. A first-time buyer needs a deposit of £84,000–£123,000.
+      In Jersey, a mean-income household can afford to mortgage a one-bedroom flat,
+      but <strong>not a two-bedroom flat and not any house</strong>. In 2021/22, 82% of
+      lower-income private renters were in rental stress.
+      None of that is in the real earnings index. Existing owners with low mortgages have seen
+      their real earnings hold up reasonably well. First-time buyers and renters have not.
+      <div class="caveat">
+        ⚠ Real series use different deflators (IoM: RPI; Jersey: RPI; UK: CPI). Deflators are not
+        harmonised — see the Inflation Explorer. Housing costs in these indices reflect rents and
+        existing mortgage interest only; they do not capture property purchase prices or deposit
+        requirements. The real earnings line should be read as an upper bound on purchasing power
+        gains for anyone without existing property equity.
+      </div>
+    </div>
+    <div class="narrative narrative-technical" style="display:none">
+      <strong>IoM real series.</strong> IoM Annual Earnings Survey — nominal earnings deflated
+      by IoM RPI (March of the survey year). Series rebased to 2015=100 for display. Note IoM RPI ≠
+      IoM CPI; the Earnings Survey uses RPI. The 2024 report states no statistically significant
+      difference between real median earnings in 2024 and any year since 2018.
+      <br><br>
+      <strong>Jersey real series.</strong> Statistics Jersey IAE in real terms: nominal IAE index ÷
+      Jersey RPI. Index only (not a level); rebased to 2015=100. Over 2001–2020, real earnings
+      increased 0.7% across the entire 19-year period. Over 2020–2024, decreased 3.3%. As of 2025,
+      remain below 2009 level.
+      <br><br>
+      <strong>UK real series.</strong> ONS ASHE median weekly earnings ÷ CPI (D7G7, 2015=100).
+      <br><br>
+      <strong>Housing cost omission.</strong> The RPI and CPI used to deflate these series include:
+      actual rents paid; and mortgage interest payments for existing borrowers (RPI only — CPI
+      excludes owner-occupier housing costs entirely; CPIH adds an imputed rental cost instead).
+      Neither measure captures the capital cost of property acquisition. This is a structural
+      limitation of standard inflation indices for jurisdictions with rapid house price appreciation.
+      IoM: average house price ~£275–285k from 2010–2020, rising to ~£376k by 2025 (+30% in 5 years;
+      source: IoM Housing Market Review 2023 / Land Registry data). Price-to-earnings ratio 7.9×
+      average annual salary (2024; source: IoM Government Objective Assessment of Housing Need /
+      Earnings Survey 2024). Jersey: mix-adjusted average house price ~£688k (Q4 2025); a
+      mean-income working household cannot affordably service a mortgage on any property larger than
+      a 1-bed flat (source: Statistics Jersey Jersey Housing Affordability Index Q4 2024/2025).
+      82% of lower-income private renters in rental stress in 2021/22 (source: Statistics Jersey
+      LCHIS 2021/22). Guernsey: mix-adjusted average ~£591k (Q4 2025; source: Statistics Jersey
+      comparative calculation using Guernsey methodology).
+      <div class="caveat">
+        The appropriate deflator for assessing the real cost of housing tenure-change (buying a first
+        property, upsizing, or moving from renting to ownership) would be a house price index, not
+        RPI/CPI. No such deflated earnings series is published by any of the island governments.
+        The series shown here should therefore be read as measuring real purchasing power for
+        <em>existing</em> owners and stable renters, not for anyone whose housing cost is subject
+        to market re-pricing.
+      </div>
+    </div>
+    <div class="stat-row" id="real-stats"></div>
+    <div class="controls">
+      <span class="ctrl-label">Measure</span>
+      <button class="toggle-btn active" data-real-mode="median">Median</button>
+      <button class="toggle-btn" data-real-mode="mean">Mean</button>
+      <div class="ctrl-divider"></div>
+      <span class="ctrl-label">Series</span>
+    </div>
+    <div class="series-toggles" id="real-toggles"></div>
+    <div class="chart-wrap">
+      <canvas id="real-chart" class="chart-canvas"></canvas>
+    </div>
+    <button class="gov-toggle" id="real-gov-btn">
+      <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Data governance &amp; methodology notes
+    </button>
+    <div class="gov-box" id="real-gov">
+      <h4>Index rebasing</h4>
+      <p>To show all series on the same chart, each is rebased to 2015=100. This allows comparison of growth trajectories but not absolute purchasing power levels. The absolute weekly wage figures are available in the Median and Mean tabs.</p>
+      <h4>IoM: RPI vs CPI</h4>
+      <p>The IoM Earnings Survey uses RPI to deflate earnings to constant prices. IoM also publishes a CPI (from 2009). RPI and CPI use different formulae (Carli vs Jevons) and different baskets; the two measures can diverge significantly in years with large housing or energy cost movements. The choice of deflator materially affects the real-terms picture.</p>
+      <h4>Jersey: index vs level</h4>
+      <p>The Jersey real earnings series is an index of change, not a level estimate. It measures the growth (or contraction) of real earnings relative to a base period. A value of 95 means real earnings are 5% below the base year — it does not imply that Jersey workers earn less than UK workers in absolute terms.</p>
+    </div>
+  </div>
+
+  <!-- ── TAB 4: RATIO ── -->
+  <div id="tab-ratio" class="tab-pane" style="display:none">
+    <div class="warning-box">
+      <strong>The gap between output and income.</strong>
+      The Crown Dependencies record GDP or GVA per head at roughly <strong>180–200% of UK</strong>.
+      Median wages in the Isle of Man are around <strong>108% of UK</strong>. Jersey: roughly
+      <strong>120%</strong>. The islands produce at twice the UK rate per resident.
+      Their residents earn a modest premium.
+      The missing 70–80 percentage points flow to capital — corporate profits, fund returns,
+      licence fees — owned largely by people who do not live here.
+      That is not a flaw in the data. It is the data telling the truth.
+    </div>
+    <div class="narrative narrative-plain">
+      This chart shows wages as a ratio to the UK — 100% means parity with UK earnings.
+      The <span class="hl-iom">Isle of Man</span> median sat at roughly
+      <strong>108% of UK</strong> in 2024 (£765 vs £709), and the premium has been narrowing
+      over the past decade as UK wages grew faster in real terms.
+      <span class="hl-jsy">Jersey</span> sits higher — median around <strong>120% of UK</strong>
+      — though partly an artefact of the FTE basis of Jersey's data rather than a true
+      purchasing-power difference.
+      <span class="hl-gsy">Guernsey</span> (annual median converted to weekly) is broadly
+      similar to Jersey.
+      Now hold those ratios against the GDP/head ratios on the Economic Performance page.
+      That is the full picture: islands that outproduce the UK two-to-one, where most workers
+      earn only a little more than their UK counterparts, and where real wages have been
+      essentially flat for a decade.
+      <div class="caveat">
+        Series comparability is limited — see governance notes. Treat as directionally informative.
+      </div>
+    </div>
+    <div class="narrative narrative-technical" style="display:none">
+      <strong>Construction.</strong> Ratio = jurisdiction nominal median or mean full-time weekly
+      earnings ÷ UK ASHE equivalent (median or mean weekly gross, all full-time employee jobs,
+      April). Expressed as a percentage. IoM: June survey ÷ UK April ASHE — 2-month timing
+      difference is not adjusted for. Jersey: June IAE mean ÷ UK April ASHE mean; Jersey median
+      estimate ÷ UK April ASHE median (estimated Jersey median carries additional uncertainty).
+      Guernsey: annual median ÷52.18 ÷ UK April ASHE median — additional uncertainty from
+      annual-to-weekly conversion and self-employed inclusion.
+      <br><br>
+      <strong>Note on FTE basis.</strong> Jersey's IAE reports earnings on an FTE basis;
+      the UK ASHE comparator is not FTE-adjusted. This inflates the Jersey ratio by an
+      indeterminate amount, likely 3–8 percentage points. The official IoM comparison to
+      ASHE uses the same nominal-to-nominal approach.
+    </div>
+    <div class="stat-row" id="ratio-stats"></div>
+    <div class="controls">
+      <span class="ctrl-label">Measure</span>
+      <button class="toggle-btn active" data-ratio-mode="median">Median</button>
+      <button class="toggle-btn" data-ratio-mode="mean">Mean</button>
+      <div class="ctrl-divider"></div>
+      <span class="ctrl-label">Series</span>
+    </div>
+    <div class="series-toggles" id="ratio-toggles"></div>
+    <div class="chart-wrap">
+      <canvas id="ratio-chart" class="chart-canvas"></canvas>
+    </div>
+    <button class="gov-toggle" id="ratio-gov-btn">
+      <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Data governance &amp; methodology notes
+    </button>
+    <div class="gov-box" id="ratio-gov">
+      <h4>Why wages and GDP/GVA per head diverge</h4>
+      <p>GDP/GVA measures total output produced in the jurisdiction. Wages measure what resident employees earn. The gap between the two is explained by: (1) corporate profits retained or distributed to non-resident shareholders; (2) income from capital rather than labour; (3) the presence of a small number of very high earners in financial services who lift GDP/GVA per head without affecting median wages much. In concentrated financial centres, this gap is structurally large.</p>
+      <h4>Living wage and minimum wage context</h4>
+      <p>In 2024, 21.1% of IoM employees earned less than the IoM Living Wage (up from 15.6% in 2023), and 1.9% earned the Minimum Wage. These figures suggest the lower tail of the earnings distribution may be widening. The living wage increase from £10.87 (2022) to higher rates in 2023–24 mechanically increases the share below the new threshold even if underlying wages also rose.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+//
+// SOURCES:
+//   IoM median/mean: IoM Annual Earnings Survey reports 2009–2024 (gov.im)
+//   IoM real: same reports, constant prices (IoM RPI deflated, 2015–2024 series)
+//   Jersey mean (IAE): Statistics Jersey Index of Average Earnings, June releases
+//   Jersey median: uprated estimate from 2021/22 LCHIS via IAE index
+//   Guernsey median annual: States of Guernsey Quarterly Bulletin (Revenue Service data)
+//   UK median/mean: ONS ASHE Table 1, April each year
+//
+// GOVERNANCE FLAGS:
+//   - IoM 2009-2011: pre-methodology-change; dashed on chart
+//   - Jersey median: estimated (not directly surveyed); dashed on chart
+//   - Guernsey: annual earnings ÷52.18; includes self-employed; dashed on chart
+//   - Jersey 2025: provisional (June 2025 release)
+
+const D = {
+  // IoM median weekly (£), full-time employees, June survey
+  // Source: Table 1, IoM Earnings Survey reports 2009–2024
+  // NOTE: 2009–2011 pre-methodological break (trimming change at 2012); shown dashed
+  IOM_MEDIAN: {
+    2009:468, 2010:481, 2011:491,    // pre-break: use with caution
+    2012:538, 2013:546, 2014:563,    // post-break from 2012
+    2015:571, 2016:584, 2017:587,
+    2018:604, 2019:619, 2020:611,
+    2021:613, 2022:660, 2023:732, 2024:765
+  },
+
+  // IoM mean weekly (£), full-time employees, June survey
+  // Source: Table 2, IoM Earnings Survey reports 2009–2024
+  IOM_MEAN: {
+    2009:583, 2010:601, 2011:614,    // pre-break
+    2012:671, 2013:685, 2014:710,
+    2015:721, 2016:740, 2017:745,
+    2018:763, 2019:790, 2020:762,
+    2021:762, 2022:826, 2023:902, 2024:929
+  },
+
+  // IoM real median (constant prices, IoM RPI), rebased to 2015=100
+  // Source: IoM Earnings Survey 2024, Figure 12 (Weekly Median Earnings at Constant Prices 2009–2024)
+  // NOTE: approximate from chart; exact values require PDF extraction
+  IOM_REAL_MEDIAN_IDX: {
+    2015:100,
+    2016:100, 2017:97, 2018:97, 2019:97,
+    2020:98, 2021:96, 2022:97, 2023:99, 2024:100
+  },
+
+  // IoM real mean (constant prices, IoM RPI), rebased to 2015=100
+  // Source: IoM Earnings Survey 2024, Figure 13 (Weekly Average Earnings at Constant Prices 2009–2024)
+  IOM_REAL_MEAN_IDX: {
+    2015:100,
+    2016:101, 2017:98, 2018:97, 2019:99,
+    2020:96, 2021:95, 2022:96, 2023:100, 2024:100
+  },
+
+  // Jersey IAE mean FTE weekly (£), June
+  // Source: Statistics Jersey Index of Average Earnings, annual releases
+  // Level estimates ±£20 (95% CI). FTE-adjusted — not directly comparable with IoM/UK headcount-basis.
+  JSY_MEAN: {
+    2009:560, 2010:572, 2011:600, 2012:616,
+    2013:624, 2014:646, 2015:664, 2016:680,
+    2017:706, 2018:745, 2019:780, 2020:770,
+    2021:810, 2022:882, 2023:960, 2024:990, 2025:1040
+  },
+
+  // Jersey median weekly (£), FTE — estimated from LCHIS 2021/22 uprated by IAE
+  // Source: Statistics Jersey Average Earnings Index reports 2024, 2025
+  // Less reliable than mean; dashed on chart
+  JSY_MEDIAN: {
+    2022:800, 2023:820, 2024:850, 2025:890
+  },
+
+  // Jersey IAE real index (nominal IAE ÷ Jersey RPI), base = 2015 = 100
+  // Source: Statistics Jersey IAE tables (Table A1), derived
+  // 2001–2020: earnings increased 0.7% in real terms over entire 19-year period
+  // 2020–2024: earnings decreased 3.3% in real terms
+  // As of 2025: earnings remain below 2009 level in real terms
+  JSY_REAL_MEAN_IDX: {
+    2015:100,
+    2016:101, 2017:102, 2018:104, 2019:105,
+    2020:104, 2021:105, 2022:101, 2023:98, 2024:99, 2025:101
+  },
+
+  // Guernsey ESTIMATED mean annual earnings (£), uprated from 2022 Household Income Report
+  // Method: mean-to-median ratio ~1.28 (from sector distribution in quarterly bulletin:
+  //   Financial & Insurance 23% of employment, median 34.5% above overall = significant skew)
+  //   Applied to published median; uprated by nominal wage bill growth rates from quarterly bulletins.
+  // 2022 anchor: median £40,516 × 1.28 = £51,860/yr → £994/wk
+  // Wage bill growth: 2022→2023 nominal not stated (use median growth ~0%); 2023→2024 +3.9%
+  // NOT a published figure — ESTIMATED. Confidence interval ±£75–100/week. Show dashed.
+  GSY_MEAN_EST: {
+    2015:717, 2016:742, 2017:771, 2018:798,
+    2019:834, 2020:829, 2021:858, 2022:994,
+    2023:994, 2024:1033
+  },
+  // Source: States of Guernsey Quarterly Population, Employment & Earnings Bulletin
+  // Revenue Service remuneration data. Includes self-employed. Annual reference: year to June.
+  // NOTE: broader population base (incl. self-employed) pulls median down vs FT-employee-only surveys
+  GSY_MEDIAN_ANNUAL: {
+    2015:32420, 2016:33560, 2017:34824, 2018:36036,
+    2019:37752, 2020:37480, 2021:38740, 2022:40516,
+    2023:40516, 2024:42672
+  },
+
+  // UK ASHE median weekly gross pay, full-time employee jobs, April
+  // Source: ONS ASHE Table 1, annual releases
+  UK_MEDIAN: {
+    2009:479, 2010:491, 2011:500, 2012:506,
+    2013:517, 2014:524, 2015:539, 2016:550,
+    2017:567, 2018:585, 2019:612, 2020:586,
+    2021:611, 2022:640, 2023:682, 2024:709
+  },
+
+  // UK ASHE mean weekly gross pay, full-time employee jobs, April
+  // Source: ONS ASHE Table 1
+  UK_MEAN: {
+    2009:566, 2010:580, 2011:594, 2012:605,
+    2013:618, 2014:630, 2015:648, 2016:660,
+    2017:683, 2018:706, 2019:740, 2020:710,
+    2021:744, 2022:790, 2023:832, 2024:850
+  },
+
+  // UK real median weekly, CPI-deflated, rebased 2015=100
+  // Source: derived from above ÷ ONS CPI (D7G7)
+  UK_REAL_MEDIAN_IDX: {
+    2015:100,
+    2016:101, 2017:101, 2018:101, 2019:104,
+    2020:104, 2021:104, 2022:99, 2023:98, 2024:102
+  }
+};
+
+// Derived: Guernsey weekly median
+const gsyMedianWeekly = {};
+Object.entries(D.GSY_MEDIAN_ANNUAL).forEach(([y, v]) => {
+  gsyMedianWeekly[+y] = Math.round(v / 52.18);
+});
+
+const C = {
+  iom:'#3b82f6', jsy:'#f59e0b', gsy:'#10b981', uk:'#94a3b8',
+  iomFade:'rgba(59,130,246,0.3)', jsyFade:'rgba(245,158,11,0.3)',
+  gsyFade:'rgba(16,185,129,0.3)', ukFade:'rgba(148,163,184,0.2)'
+};
+
+// ── CHART.JS DEFAULTS ─────────────────────────────────────────────────────────
+const isLight = window.matchMedia('(prefers-color-scheme: light)').matches
+             || document.documentElement.getAttribute('data-theme') === 'light';
+Chart.defaults.color = isLight ? '#64748b' : '#94a3b8';
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+const gridOpts = { color: isLight ? 'rgba(203,213,225,0.7)' : 'rgba(51,65,85,0.5)' };
+
+function baseChartOpts(yFmt) {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{ mode:'index', intersect:false },
+    layout:{ padding:{ right:8 } },
+    plugins:{
+      legend:{ display:false },
+      tooltip:{
+        backgroundColor: isLight ? '#fff' : '#1e293b',
+        borderColor: isLight ? '#e2e8f0' : '#334155',
+        borderWidth:1,
+        titleColor: isLight ? '#0f172a' : '#e2e8f0',
+        bodyColor: isLight ? '#475569' : '#94a3b8',
+        padding:10, titleFont:{size:11,weight:'600'},
+        callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}` }
+      }
+    },
+    scales:{
+      x:{ type:'linear', grid:gridOpts, ticks:{color: isLight?'#64748b':'#94a3b8', stepSize:1, callback:v=>v} },
+      y:{ grid:gridOpts, ticks:{color: isLight?'#64748b':'#94a3b8', callback:yFmt} }
+    }
+  };
+}
+
+function objToPoints(obj) {
+  return Object.entries(obj).map(([k,v]) => ({ x:+k, y:v }));
+}
+
+function makeDs(label, data, color, opts={}) {
+  const {dashed=false, width=2} = opts;
+  return {
+    label, data,
+    borderColor: color,
+    backgroundColor: 'transparent',
+    borderWidth: width,
+    borderDash: dashed ? [5,4] : [],
+    pointRadius: 0, pointHoverRadius: 4,
+    tension: 0.15
+  };
+}
+
+// ── ACTIVE SERIES STATE ────────────────────────────────────────────────────────
+const active = {
+  median: new Set(['iom','jsy','gsy','uk']),
+  mean:   new Set(['iom','jsy','gsy','uk']),
+  real:   new Set(['iom','jsy','uk']),
+  ratio:  new Set(['iom','jsy','gsy'])
+};
+
+let medianChart, meanChart, realChart, ratioChart;
+let realMode = 'median', ratioMode = 'median';
+
+// ── FORMATTERS ────────────────────────────────────────────────────────────────
+const fmtGbp   = v => '£' + Math.round(v).toLocaleString();
+const fmtIdx   = v => v.toFixed(1);
+const fmtPct   = v => v.toFixed(1) + '%';
+
+// ── TOGGLE BUILDERS ───────────────────────────────────────────────────────────
+function buildToggles(containerId, series, setKey, rebuildFn) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  series.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = `series-btn ${s.key} ${active[setKey].has(s.key) ? 'active' : ''}`;
+    btn.innerHTML = `<span class="dot" style="background:${s.color}"></span>${s.label}`;
+    btn.onclick = () => {
+      if (active[setKey].has(s.key)) {
+        if (active[setKey].size === 1) return;
+        active[setKey].delete(s.key);
+        btn.classList.remove('active');
+      } else {
+        active[setKey].add(s.key);
+        btn.classList.add('active');
+      }
+      rebuildFn();
+    };
+    el.appendChild(btn);
+  });
+}
+
+// ── STAT CARDS ────────────────────────────────────────────────────────────────
+function buildStatCards(containerId, cards) {
+  document.getElementById(containerId).innerHTML = cards.map(c =>
+    `<div class="stat-card ${c.cls}">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+      <div class="sub">${c.sub}</div>
+    </div>`
+  ).join('');
+}
+
+// ── MEDIAN TAB ────────────────────────────────────────────────────────────────
+function buildMedianChart() {
+  const ctx = document.getElementById('median-chart').getContext('2d');
+  if (medianChart) medianChart.destroy();
+  const datasets = [];
+  if (active.median.has('iom')) {
+    // pre-break dashed
+    datasets.push(makeDs('IoM (pre-2012)', objToPoints({2009:468,2010:481,2011:491}), C.iom, {dashed:true}));
+    datasets.push(makeDs('IoM median £/wk', objToPoints({2012:538,2013:546,2014:563,2015:571,2016:584,2017:587,2018:604,2019:619,2020:611,2021:613,2022:660,2023:732,2024:765}), C.iom, {width:2.5}));
+  }
+  if (active.median.has('jsy')) {
+    datasets.push(makeDs('Jersey median £/wk (est.)', objToPoints(D.JSY_MEDIAN), C.jsy, {dashed:true, width:2}));
+  }
+  if (active.median.has('gsy')) {
+    datasets.push(makeDs('Guernsey median £/wk (est.)', objToPoints(gsyMedianWeekly), C.gsy, {dashed:true, width:2}));
+  }
+  if (active.median.has('uk')) {
+    datasets.push(makeDs('UK median £/wk', objToPoints(D.UK_MEDIAN), C.uk, {width:1.5}));
+  }
+  const opts = baseChartOpts(fmtGbp);
+  opts.scales.x.min = 2009; opts.scales.x.max = 2024;
+  opts.scales.y.title = { display:true, text:'£ per week (gross, full-time)', color:'#475569', font:{size:10} };
+  medianChart = new Chart(ctx, { type:'line', data:{ datasets }, options:opts });
+}
+
+function buildMedianStats() {
+  buildStatCards('median-stats', [
+    { cls:'iom', label:'IoM (2024)', value:'£765', sub:'Median weekly, full-time' },
+    { cls:'jsy', label:'Jersey (2024 est.)', value:'£850', sub:'Uprated from 2022 LCHIS survey' },
+    { cls:'gsy', label:'Guernsey (2024)', value:`£${Math.round(42672/52.18)}`, sub:'Annual median ÷52.18, all employed' },
+    { cls:'uk',  label:'UK (2024)', value:'£709', sub:'ASHE, April 2024, full-time' }
+  ]);
+}
+
+// ── MEAN TAB ─────────────────────────────────────────────────────────────────
+function buildMeanChart() {
+  const ctx = document.getElementById('mean-chart').getContext('2d');
+  if (meanChart) meanChart.destroy();
+  const datasets = [];
+  if (active.mean.has('iom')) {
+    datasets.push(makeDs('IoM (pre-2012)', objToPoints({2009:583,2010:601,2011:614}), C.iom, {dashed:true}));
+    datasets.push(makeDs('IoM mean £/wk', objToPoints({2012:671,2013:685,2014:710,2015:721,2016:740,2017:745,2018:763,2019:790,2020:762,2021:762,2022:826,2023:902,2024:929}), C.iom, {width:2.5}));
+  }
+  if (active.mean.has('jsy')) {
+    datasets.push(makeDs('Jersey mean £/wk (FTE)', objToPoints(D.JSY_MEAN), C.jsy, {width:2}));
+  }
+  if (active.mean.has('gsy')) {
+    datasets.push(makeDs('Guernsey mean £/wk (estimated)', objToPoints(D.GSY_MEAN_EST), C.gsy, {dashed:true, width:2}));
+  }
+  if (active.mean.has('uk')) {
+    datasets.push(makeDs('UK mean £/wk', objToPoints(D.UK_MEAN), C.uk, {width:1.5}));
+  }
+  const opts = baseChartOpts(fmtGbp);
+  opts.scales.x.min = 2009; opts.scales.x.max = 2025;
+  opts.scales.y.title = { display:true, text:'£ per week (gross, full-time)', color:'#475569', font:{size:10} };
+  meanChart = new Chart(ctx, { type:'line', data:{ datasets }, options:opts });
+}
+
+function buildMeanStats() {
+  buildStatCards('mean-stats', [
+    { cls:'iom', label:'IoM (2024)', value:'£929', sub:'Mean weekly, full-time' },
+    { cls:'jsy', label:'Jersey (2025)', value:'£1,040', sub:'Mean FTE weekly (IAE)' },
+    { cls:'gsy', label:'Guernsey (2024 est.)', value:'~£1,033', sub:'Estimated — see governance notes' },
+    { cls:'uk',  label:'UK (2024)', value:'£850', sub:'ASHE, April 2024, full-time' }
+  ]);
+}
+
+// ── REAL TAB ─────────────────────────────────────────────────────────────────
+function buildRealChart() {
+  const ctx = document.getElementById('real-chart').getContext('2d');
+  if (realChart) realChart.destroy();
+  const datasets = [];
+
+  if (realMode === 'median') {
+    if (active.real.has('iom')) datasets.push(makeDs('IoM real median (2015=100)', objToPoints(D.IOM_REAL_MEDIAN_IDX), C.iom, {width:2.5}));
+    if (active.real.has('uk'))  datasets.push(makeDs('UK real median (2015=100)', objToPoints(D.UK_REAL_MEDIAN_IDX), C.uk, {width:1.5}));
+    if (active.real.has('jsy')) datasets.push(makeDs('Jersey real mean index (2015=100, proxy)', objToPoints(D.JSY_REAL_MEAN_IDX), C.jsy, {dashed:true, width:2}));
+  } else {
+    if (active.real.has('iom')) datasets.push(makeDs('IoM real mean (2015=100)', objToPoints(D.IOM_REAL_MEAN_IDX), C.iom, {width:2.5}));
+    if (active.real.has('jsy')) datasets.push(makeDs('Jersey real mean (2015=100)', objToPoints(D.JSY_REAL_MEAN_IDX), C.jsy, {width:2}));
+    if (active.real.has('uk'))  datasets.push(makeDs('UK real mean (2015=100, approx.)', objToPoints(D.UK_REAL_MEDIAN_IDX), C.uk, {width:1.5}));
+  }
+
+  const opts = baseChartOpts(fmtIdx);
+  opts.scales.x.min = 2015; opts.scales.x.max = 2025;
+  opts.scales.y.title = { display:true, text:'Index (2015 = 100)', color:'#475569', font:{size:10} };
+  opts.scales.y.grid = { ...gridOpts,
+    color: ctx2 => ctx2.tick.value === 100 ? 'rgba(148,163,184,0.45)' : 'rgba(51,65,85,0.5)'
+  };
+  realChart = new Chart(ctx, { type:'line', data:{ datasets }, options:opts });
+}
+
+function buildRealStats() {
+  buildStatCards('real-stats', [
+    { cls:'iom', label:'IoM real (2024)', value:'+0.1%', sub:'Earnings vs inflation, 2024' },
+    { cls:'jsy', label:'Jersey real (10yr)', value:'+1.3%', sub:'Total real gain 2014–2024' },
+    { cls:'gsy', label:'Guernsey real (2024)', value:'−0.7%', sub:'Real terms, yr to June 2024' },
+    { cls:'uk',  label:'UK real (2024)', value:'+3.0%', sub:'Approximate real gain, 2024' }
+  ]);
+}
+
+// ── RATIO TAB ────────────────────────────────────────────────────────────────
+function buildRatioChart() {
+  const ctx = document.getElementById('ratio-chart').getContext('2d');
+  if (ratioChart) ratioChart.destroy();
+  const datasets = [];
+
+  function ratioSeries(numObj, denObj, label, color, opts={}) {
+    const pts = Object.keys(numObj).filter(y => denObj[+y]).map(y => ({
+      x: +y,
+      y: +((numObj[+y] / denObj[+y]) * 100).toFixed(1)
+    }));
+    return makeDs(label, pts, color, opts);
+  }
+
+  const ukMed = ratioMode === 'median' ? D.UK_MEDIAN : D.UK_MEAN;
+
+  if (ratioMode === 'median') {
+    if (active.ratio.has('iom')) {
+      // pre-break dashed
+      datasets.push(ratioSeries({2009:468,2010:481,2011:491}, ukMed, 'IoM/UK (pre-2012)', C.iom, {dashed:true}));
+      datasets.push(ratioSeries({2012:538,2013:546,2014:563,2015:571,2016:584,2017:587,2018:604,2019:619,2020:611,2021:613,2022:660,2023:732,2024:765}, ukMed, 'IoM median ÷ UK median', C.iom, {width:2.5}));
+    }
+    if (active.ratio.has('jsy')) datasets.push(ratioSeries(D.JSY_MEDIAN, ukMed, 'Jersey median ÷ UK median (est.)', C.jsy, {dashed:true}));
+    if (active.ratio.has('gsy')) datasets.push(ratioSeries(gsyMedianWeekly, ukMed, 'Guernsey weekly median ÷ UK median (est.)', C.gsy, {dashed:true}));
+  } else {
+    if (active.ratio.has('iom')) {
+      datasets.push(ratioSeries({2009:583,2010:601,2011:614}, D.UK_MEAN, 'IoM/UK (pre-2012)', C.iom, {dashed:true}));
+      datasets.push(ratioSeries({2012:671,2013:685,2014:710,2015:721,2016:740,2017:745,2018:763,2019:790,2020:762,2021:762,2022:826,2023:902,2024:929}, D.UK_MEAN, 'IoM mean ÷ UK mean', C.iom, {width:2.5}));
+    }
+    if (active.ratio.has('jsy')) datasets.push(ratioSeries(D.JSY_MEAN, D.UK_MEAN, 'Jersey mean ÷ UK mean (FTE basis)', C.jsy, {width:2}));
+  }
+
+  const opts = baseChartOpts(v => v.toFixed(0) + '%');
+  opts.scales.x.min = 2009; opts.scales.x.max = 2025;
+  opts.scales.y.title = { display:true, text:'% of UK equivalent', color:'#475569', font:{size:10} };
+  opts.scales.y.grid = { ...gridOpts,
+    color: ctx2 => ctx2.tick.value === 100 ? 'rgba(148,163,184,0.45)' : 'rgba(51,65,85,0.5)'
+  };
+  ratioChart = new Chart(ctx, { type:'line', data:{ datasets }, options:opts });
+}
+
+function buildRatioStats() {
+  const iomMed2024 = 765, ukMed2024 = 709;
+  const jsyMed2024 = 850, gsyWkly = Math.round(42672/52.18);
+  buildStatCards('ratio-stats', [
+    { cls:'iom', label:'IoM vs UK (median, 2024)', value:((iomMed2024/ukMed2024)*100).toFixed(1)+'%', sub:'£765 vs £709' },
+    { cls:'jsy', label:'Jersey vs UK (median, 2024)', value:((jsyMed2024/ukMed2024)*100).toFixed(1)+'%', sub:'£850 est. vs £709' },
+    { cls:'gsy', label:'Guernsey vs UK (2024)', value:((gsyWkly/ukMed2024)*100).toFixed(1)+'%', sub:`£${gsyWkly} conv. vs £709` },
+    { cls:'uk',  label:'GDP/head premium vs wages premium', value:'↑↑', sub:'GDP ~190% of UK; wages ~108–120%' }
+  ]);
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+const TABS = ['median','mean','real','ratio'];
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const key = btn.dataset.tab;
+    TABS.forEach(t => {
+      document.getElementById(`tab-${t}`).style.display = t === key ? '' : 'none';
+    });
+    if (key === 'mean') { buildMeanStats(); buildMeanChart(); }
+    if (key === 'real') { buildRealStats(); buildRealChart(); }
+    if (key === 'ratio') { buildRatioStats(); buildRatioChart(); }
+    reportHeight();
+  };
+});
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('[data-real-mode]').forEach(btn => {
+  btn.onclick = () => {
+    realMode = btn.dataset.realMode;
+    document.querySelectorAll('[data-real-mode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildRealChart();
+  };
+});
+
+document.querySelectorAll('[data-ratio-mode]').forEach(btn => {
+  btn.onclick = () => {
+    ratioMode = btn.dataset.ratioMode;
+    document.querySelectorAll('[data-ratio-mode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildRatioStats();
+    buildRatioChart();
+  };
+});
+
+// ── GOVERNANCE TOGGLES ────────────────────────────────────────────────────────
+['median','mean','real','ratio'].forEach(t => {
+  const btn = document.getElementById(`${t}-gov-btn`);
+  const box = document.getElementById(`${t}-gov`);
+  if (btn && box) {
+    btn.onclick = () => {
+      const open = box.classList.toggle('visible');
+      btn.classList.toggle('open', open);
+      reportHeight();
+    };
+  }
+});
+
+// ── VIEW TOGGLE ───────────────────────────────────────────────────────────────
+function applyView(v) {
+  document.querySelectorAll('.narrative-plain').forEach(el => {
+    el.style.display = v === 'plain' ? '' : 'none';
+  });
+  document.querySelectorAll('.narrative-technical').forEach(el => {
+    el.style.display = v === 'technical' ? '' : 'none';
+  });
+  document.querySelectorAll('.gov-toggle').forEach(el => {
+    el.style.display = v === 'technical' ? 'none' : '';
+  });
+  if (v === 'technical') {
+    document.querySelectorAll('.gov-box').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.gov-toggle').forEach(el => el.classList.remove('open'));
+  }
+  reportHeight();
+}
+
+document.querySelectorAll('.view-pill').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.view-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyView(btn.dataset.view);
+  };
+});
+
+// ── SERIES CONFIGS ─────────────────────────────────────────────────────────────
+const medianSeries = [
+  { key:'iom', label:'Isle of Man', color:C.iom },
+  { key:'jsy', label:'Jersey (estimated)', color:C.jsy },
+  { key:'gsy', label:'Guernsey (converted)', color:C.gsy },
+  { key:'uk',  label:'UK',   color:C.uk }
+];
+const meanSeries = [
+  { key:'iom', label:'Isle of Man', color:C.iom },
+  { key:'jsy', label:'Jersey (FTE)', color:C.jsy },
+  { key:'gsy', label:'Guernsey (estimated)', color:C.gsy },
+  { key:'uk',  label:'UK',   color:C.uk }
+];
+const realSeries = [
+  { key:'iom', label:'Isle of Man', color:C.iom },
+  { key:'jsy', label:'Jersey', color:C.jsy },
+  { key:'uk',  label:'UK',   color:C.uk }
+];
+const ratioSeries = [
+  { key:'iom', label:'Isle of Man', color:C.iom },
+  { key:'jsy', label:'Jersey', color:C.jsy },
+  { key:'gsy', label:'Guernsey', color:C.gsy }
+];
+
+// ── RESIZE REPORTING ──────────────────────────────────────────────────────────
+let _lastH = 0;
+function reportHeight() {
+  const h = document.body.scrollHeight;
+  if (Math.abs(h - _lastH) >= 4) {
+    _lastH = h;
+    window.parent.postMessage({ type:'resize', height:h }, '*');
+  }
+}
+setTimeout(reportHeight, 300);
+window.addEventListener('resize', reportHeight);
+
+// ── THEME SYNC ────────────────────────────────────────────────────────────────
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  const theme = e.data.theme || (e.data.type === 'setTheme' ? e.data.theme : null);
+  if (!theme) return;
+  document.documentElement.setAttribute('data-theme', theme);
+});
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+buildToggles('median-toggles', medianSeries, 'median', buildMedianChart);
+buildToggles('mean-toggles',   meanSeries,   'mean',   buildMeanChart);
+buildToggles('real-toggles',   realSeries,   'real',   buildRealChart);
+buildToggles('ratio-toggles',  ratioSeries,  'ratio',  buildRatioChart);
+
+buildMedianStats();
+buildMedianChart();
+applyView('plain');
+</script>
+</body>
+</html>

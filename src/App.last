@@ -24,17 +24,20 @@ const THEMES = {
 };
 
 const TAB_GROUPS = [
-  { id: "econ-group",      label: "Economy & Society",  color: "#34d399", homeTab: "econHome",       tabs: ["econHome", "econperf", "demog", "iomPopChange", "econmix", "inflation", "unemployment", "suicide"] },
-  { id: "gov-group",       label: "Government",          color: "#60a5fa", homeTab: "govHome",        tabs: ["govHome", "iomfiscal", "iomfiscaldept", "workforce"] },
-  { id: "household-group", label: "Households",          color: "#fb923c", homeTab: "householdHome",  tabs: ["householdHome", "overview", "wages", "affordability", "mybudget"] },
-  { id: "health-group",    label: "Health & Care",       color: "#f87171", homeTab: "healthHome",     tabs: ["healthHome", "manxBenchmark", "nobles-v15"] },
-  { id: "privacy-group",   label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome",    tabs: ["privacyHome", "reid", "kanon", "areas", "restricted", "compliance"] },
-  { id: "about-group",     label: "About",               color: "#94a3b8", homeTab: "about",          tabs: ["about"] },
+  { id: "econ-group",    label: "Economy & Society",  color: "#34d399", homeTab: "econHome",    tabs: ["econHome", "econperf", "overview", "wages", "affordability", "mybudget", "demog", "iomPopChange", "econmix", "inflation", "unemployment", "suicide"] },
+  { id: "gov-group",     label: "Government",          color: "#60a5fa", homeTab: "govHome",     tabs: ["govHome",     "iomfiscal", "iomfiscaldept", "workforce"] },
+  { id: "health-group",  label: "Health & Care",       color: "#f87171", homeTab: "healthHome",  tabs: ["healthHome",  "manxBenchmark", "nobles-v15"] },
+  { id: "privacy-group", label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome", tabs: ["privacyHome", "reid", "kanon", "areas", "restricted", "compliance"] },
+  { id: "about-group",   label: "About",               color: "#94a3b8", homeTab: "about",       tabs: ["about"] },
 ];
 
 const TABS = [
   { id: "econHome",       label: "About"                },
   { id: "econperf",       label: "Economic Performance" },
+  { id: "overview",       label: "Economic Overview"    },
+  { id: "wages",          label: "Wages"                },
+  { id: "affordability",  label: "Affordability"        },
+  { id: "mybudget",       label: "My Budget"            },
   { id: "demog",          label: "Demographics"         },
   { id: "iomPopChange",   label: "Population Change"    },
   { id: "econmix",        label: "Productivity"         },
@@ -45,11 +48,6 @@ const TABS = [
   { id: "iomfiscal",      label: "IoM Fiscal Flows"     },
   { id: "iomfiscaldept",  label: "Budget Sources & Uses"},
   { id: "workforce",      label: "Public Sector"        },
-  { id: "householdHome",  label: "About"                },
-  { id: "overview",       label: "Economic Overview"    },
-  { id: "wages",          label: "Wages"                },
-  { id: "affordability",  label: "Affordability"        },
-  { id: "mybudget",       label: "My Budget"            },
   { id: "healthHome",     label: "About"                },
   { id: "manxBenchmark",  label: "Manx Care Benchmark"  },
   { id: "nobles-v15",     label: "Nobles Simulation v15"},
@@ -489,6 +487,51 @@ function EconHomeTab({ C, onNavigate }) {
         )}
       </div>
 
+      <div onClick={() => onNavigate("overview")} style={{ cursor: "pointer" }}>
+        {card(
+          "Economic Overview — output vs income",
+          `The Isle of Man is officially one of the richest places on earth. This page explains
+          why that figure is misleading, what GDP per head actually measures in a financial
+          centre, and what the median wage tells you that GDP does not. Comparison table across
+          all four jurisdictions with plain language and technical views.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("wages")} style={{ cursor: "pointer" }}>
+        {card(
+          "Wages",
+          `Median and mean weekly wages, real purchasing power, labour share, and wage growth
+          across the Crown Dependencies and the UK. Includes an IoM house-price-adjusted real
+          earnings series — what wages have actually bought relative to housing costs since 2009.
+          Sources: IoM Earnings Survey, Statistics Jersey IAE, States of Guernsey, ONS ASHE.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("affordability")} style={{ cursor: "pointer" }}>
+        {card(
+          "Affordability",
+          `House prices, price-to-earnings ratios, real earnings change, and below-living-wage
+          rates across all four jurisdictions. IoM median earner faces a house price 8.6 times
+          annual earnings — more than double the international affordability threshold of 4×.
+          Includes three illustrative household Sankeys showing what take-home pay actually
+          covers after essential costs.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("mybudget")} style={{ cursor: "pointer" }}>
+        {card(
+          "My Budget — household tool",
+          `Enter your own income and spending. See a personalised Sankey of where your money
+          goes and what, if anything, is left. Share a link or print a copy to show your MHK
+          or candidate exactly what your household situation looks like. Nothing is stored —
+          your data never leaves your computer.`,
+          C.green
+        )}
+      </div>
+
       <div onClick={() => onNavigate("demog")} style={{ cursor: "pointer" }}>
         {card(
           "Demographics Explorer",
@@ -538,10 +581,8 @@ function EconHomeTab({ C, onNavigate }) {
         fontSize: 11, color: C.muted2, lineHeight: 1.7,
       }}>
         <span style={{ color: C.muted, fontWeight: 600 }}>See also · </span>
-        Wages, affordability, house prices, and the household budget tool are in the{" "}
-        <strong style={{ color: C.text }}>Households</strong> section.
-        Government finances, departmental budgets, and public sector employment are in{" "}
-        <strong style={{ color: C.text }}>Government</strong>.
+        Government finances, departmental budgets, and public sector employment are in the{" "}
+        <strong style={{ color: C.text }}>Government</strong> section.
       </div>
 
       <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
@@ -661,116 +702,6 @@ function HealthHomeTab({ C, onNavigate }) {
         <a href="https://coalfinch.com" target="_blank"
           style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
         {" "}· <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
-      </div>
-
-    </div>
-  );
-}
-
-
-// ── Households landing tab ────────────────────────────────────────────────────
-function HouseholdHomeTab({ C, onNavigate }) {
-
-  const card = (title, body, accent, onClick) => (
-    <div onClick={onClick} style={{
-      background: C.surface, border: `1px solid ${C.border2}`,
-      borderRadius: 10, overflow: "hidden", marginBottom: 14,
-      cursor: onClick ? "pointer" : "default",
-      transition: "border-color 0.15s",
-    }}>
-      <div style={{ height: 3, background: accent }}/>
-      <div style={{ padding: "16px 18px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
-        <div style={{ fontSize: 12, color: C.muted2, lineHeight: 1.7 }}>{body}</div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div style={{ maxWidth: 780, margin: "0 auto" }}>
-
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderLeft: "3px solid #fb923c",
-        borderRadius: 10, padding: "20px 22px", marginBottom: 28,
-      }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
-          letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
-          What does life actually cost here?
-        </div>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.8 }}>
-          The Isle of Man looks wealthy on paper. The median wage is marginally above the UK.
-          But once you factor in housing costs, utilities, childcare, and basic essentials,
-          the picture changes sharply. This section shows what residents actually earn,
-          what they pay, and what — if anything — is left over. It ends with a tool
-          you can use to map your own household situation and share it with your representative.
-        </div>
-      </div>
-
-      <div onClick={() => onNavigate("overview")} style={{ cursor: "pointer" }}>
-        {card(
-          "Economic Overview — output vs income",
-          `The Isle of Man is officially one of the richest places on earth. This page explains
-          why that figure misleads, what GDP per head actually measures in a financial centre,
-          and what the median wage tells you that GDP does not. Cross-jurisdiction comparison
-          table with plain language and technical views.`,
-          "#fb923c"
-        )}
-      </div>
-
-      <div onClick={() => onNavigate("wages")} style={{ cursor: "pointer" }}>
-        {card(
-          "Wages",
-          `Median and mean weekly wages, real purchasing power, labour share, and wage growth
-          across the Crown Dependencies and the UK. Includes an IoM house-price-adjusted real
-          earnings series — what wages have actually bought relative to housing costs since 2009.
-          Sources: IoM Earnings Survey, Statistics Jersey IAE, States of Guernsey, ONS ASHE.`,
-          "#fb923c"
-        )}
-      </div>
-
-      <div onClick={() => onNavigate("affordability")} style={{ cursor: "pointer" }}>
-        {card(
-          "Affordability",
-          `House prices, price-to-earnings ratios, real earnings change, and below-living-wage
-          rates across all four jurisdictions. The IoM median earner faces a house price
-          8.6 times annual earnings — above the UK's already-stretched 8.2× and more than
-          double the international affordability threshold of 4×. Three illustrative household
-          Sankeys show what take-home pay actually covers after essential costs.`,
-          "#fb923c"
-        )}
-      </div>
-
-      <div onClick={() => onNavigate("mybudget")} style={{ cursor: "pointer" }}>
-        {card(
-          "My Budget — build your own household Sankey",
-          `Enter your income and actual costs. See a live Sankey diagram of where your money
-          goes and what, if anything, remains. Share a link or print a copy to show your MHK
-          or candidate exactly what your household situation looks like.
-          Nothing is stored — your data never leaves your computer.`,
-          "#fb923c"
-        )}
-      </div>
-
-      <div style={{
-        background: C.surface2, border: `1px solid ${C.border2}`,
-        borderRadius: 8, padding: "14px 16px", marginBottom: 24,
-        fontSize: 11, color: C.muted2, lineHeight: 1.7,
-      }}>
-        <span style={{ color: C.muted, fontWeight: 600 }}>Data note · </span>
-        Spending figures are drawn from the IoM Minimum Income Standard (Living Wage Report,
-        Statistics IoM 2024/25) — a government-defined minimum adequacy basket.
-        We think it understates what many households actually spend, particularly on housing
-        and childcare. Adjust everything in the budget tool to match your real situation.
-        IoM income tax and National Insurance calculated using 2024/25 rates.
-      </div>
-
-      <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
-        <a href="https://coalfinch.com" target="_blank" rel="noopener"
-          style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
-        {" "}·{" "}
-        <a href="mailto:observatory@coalfinch.com"
           style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
       </div>
 
@@ -910,12 +841,11 @@ function AppContent() {
   const totalPop = ISLAND_KEYS.reduce((s, k) => s + ISLANDS[k].population, 0);
 
   const tabContent = {
-    about:          <AboutTab C={C} />,
-    econHome:       <EconHomeTab C={C} onNavigate={setTab} />,
-    healthHome:     <HealthHomeTab C={C} onNavigate={setTab} />,
-    govHome:        <GovHomeTab C={C} onNavigate={setTab} />,
-    privacyHome:    <PrivacyHomeTab C={C} />,
-    householdHome:  <HouseholdHomeTab C={C} onNavigate={setTab} />,
+    about:        <AboutTab C={C} />,
+    econHome:     <EconHomeTab C={C} onNavigate={setTab} />,
+    healthHome:   <HealthHomeTab C={C} onNavigate={setTab} />,
+    govHome:      <GovHomeTab C={C} onNavigate={setTab} />,
+    privacyHome:  <PrivacyHomeTab C={C} />,
 
     reid: (
       <AutoIframe src="/reidentification.html" title="Re-identification Observatory" theme={themeName} />

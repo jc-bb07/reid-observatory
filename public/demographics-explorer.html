@@ -681,7 +681,7 @@ input[type="range"]::-moz-range-thumb {
   }
   .pyramid-grid::-webkit-scrollbar { height: 3px; }
   .pyramid-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .pyramid-item { flex: 1; min-width: 160px; max-width: 380px; }
+  .pyramid-item { flex: 1; min-width: 160px; max-width: 380px; width: 0; }
   .pyr-name {
     font-size: 10px; font-weight: 500; letter-spacing: .07em;
     text-transform: uppercase; border-bottom: 1px solid currentColor;
@@ -713,9 +713,6 @@ input[type="range"]::-moz-range-thumb {
     color: var(--blue); border: 1px solid var(--blue);
   }
   [data-theme="light"] .animate-btn.playing { background: rgba(37,99,235,0.1); }
-
-  /* ── Select used as pill (dropdowns in controls bars) ── */
-  select
 
   /* ── Projections table ── */
   .proj-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
@@ -930,11 +927,11 @@ input[type="range"]::-moz-range-thumb {
     <div class="controls" style="align-items:center">
       <span class="ctrl-label">Year</span>
       <button class="pill" onclick="setYear(0)">1996</button>
-      <button class="pill" onclick="setYear(17)">2001</button>
-      <button class="pill" onclick="setYear(37)">2011</button>
-      <button class="pill" onclick="setYear(57)">2021</button>
-      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(71)">2026~</button>
-      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(86)">2031~</button>
+      <button class="pill" onclick="setYear(16.67)">2001</button>
+      <button class="pill" onclick="setYear(33.33)">2011</button>
+      <button class="pill" onclick="setYear(50)">2021</button>
+      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(66.67)">2026~</button>
+      <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(83.33)">2031~</button>
       <button class="pill" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.6)" onclick="setYear(100)">2041~</button>
       <button class="animate-btn" id="animBtn" onclick="toggleAnim()">▶ Animate</button>
       <div class="year-display" id="yearDisplay">2021</div>
@@ -954,8 +951,8 @@ input[type="range"]::-moz-range-thumb {
         <span style="color:rgba(251,191,36,0.6)">2041~</span>
       </div>
     </div>
-    <div class="chart-wrap" style="overflow:hidden">
-      <div id="pyrContainer" class="pyramid-grid" style="justify-content:center"></div>
+    <div class="chart-wrap" style="overflow:hidden;min-height:340px">
+      <div id="pyrContainer" class="pyramid-grid" style="justify-content:center;min-height:320px"></div>
     </div>
     <div id="pyrStats" class="cards" style="margin-top:10px"></div>
     <div class="plain-box" id="plain-pyr2" style="margin-top:12px">
@@ -1257,7 +1254,7 @@ function getTTtitle(){ return document.documentElement.getAttribute('data-theme'
 // Multi-year interpolation: sliderVal 0-100 maps across 4 census years
 // 0=1996, 33.3=2001, 66.6=2011, 100=2021
 function getInterpDS(key, sv) {
-  const n = CENSUS_YEARS.length - 1; // 3 segments
+  const n = CENSUS_YEARS.length - 1; // 6 segments across 7 years
   const pos = sv / 100 * n;
   const seg = Math.min(Math.floor(pos), n-1);
   const t = pos - seg;
@@ -1299,7 +1296,7 @@ let audience='plain';
 let pyrMode='single';
 let singleIsland='iom';
 let strIsland='all',strYear=1996,scenario='nil';
-let sliderVal=0,animPlaying=false,animRaf=null;
+let sliderVal=0,animPlaying=false,animRaf=null,animGen=0;
 let depCI=null,strCI=null,projCI=null;
 
 function updateSpeed(v){
@@ -1377,6 +1374,7 @@ function setSingleIsland(k,btn){
 function setYear(v){sliderVal=v;document.getElementById('yearSlider').value=v;updateYearDisplay();renderPyramids();}
 function onSlider(v){
   animPlaying=false;
+  animGen++;
   const btn=document.getElementById('animBtn');
   btn.classList.remove('playing');btn.textContent='▶ Animate';
   if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}
@@ -1392,18 +1390,22 @@ function updateYearDisplay(){
 function toggleAnim(){
   if(animPlaying){
     animPlaying=false;
+    animGen++;
     const btn=document.getElementById('animBtn');btn.classList.remove('playing');btn.textContent='▶ Animate';
     if(animRaf){cancelAnimationFrame(animRaf);animRaf=null;}return;
   }
   animPlaying=true;
   const btn=document.getElementById('animBtn');btn.classList.add('playing');btn.textContent='■ Stop';
-  // Always animate from 2011 to 2021
+  // Animate full range: 1996 → 2041
   sliderVal=0;
   document.getElementById('yearSlider').value=0;
   updateYearDisplay();renderPyramids();
-  const start=performance.now(),dur=animDur;
+  const start=performance.now(),dur=animDur,gen=++animGen;
   const tick=now=>{
-    const raw=Math.min((now-start)/dur,1);
+    if(gen!==animGen){return;} // rogue tick from previous animation — discard
+    const elapsed=now-start;
+    if(isNaN(elapsed)||dur<=0){animPlaying=false;btn.classList.remove('playing');btn.textContent='▶ Animate';return;}
+    const raw=Math.min(elapsed/dur,1);
     sliderVal=lerp(0,100,raw);
     document.getElementById('yearSlider').value=sliderVal;
     updateYearDisplay();renderPyramids();
