@@ -158,8 +158,41 @@ body.light .gov-chevron { color: #475569; }
 body.light .stats { background: #f1f5f9; }
 body.light .stat-lbl { color: #64748b; }
 body.light .stat-val { color: #1e293b; }
-/* Observatory max-width */
-body { max-width: 1280px; margin-left: auto; margin-right: auto; }
+/* ── Landscape mobile ── */
+@media (max-width: 900px) and (orientation: landscape) {
+  .hdr { display: none; }
+  #comparator-btn { display: none; }
+  .yr-wrap input[type=range] { display: none; }
+  .yr-marks { display: none; }
+  #yr-pills { display: flex !important; }
+}
+/* Year pill strip — hidden by default, shown in landscape mobile */
+#yr-pills {
+  display: none;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+.yr-pill {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background: none;
+  white-space: nowrap;
+  transition: color .12s;
+}
+.yr-pill:hover { color: var(--text); }
+.yr-pill.active {
+  color: var(--gold);
+  font-weight: 800;
+  border-color: var(--gold);
+  background: rgba(201,162,74,0.1);
+}
 </style>
 </head>
 <body>
@@ -184,6 +217,7 @@ body { max-width: 1280px; margin-left: auto; margin-right: auto; }
     <input type="range" id="yr-slider" min="2016" max="2025" step="1" value="2025" list="yr-ticks">
     <div class="yr-marks"><span>2015-16</span><span>16-17</span><span>17-18</span><span>18-19</span><span>19-20</span><span>20-21</span><span>21-22</span><span>22-23</span><span>23-24</span><span>24-25</span></div>
   </div>
+  <div id="yr-pills"></div>
   <div class="ctrl-sep"></div>
   <select class="node-select" id="node-select">
     <option value="">— Focus on… —</option>
@@ -947,7 +981,7 @@ function updateStats(lyt){
   document.getElementById('s-ss').textContent=fmt(ss)+' ('+pct(ss,t)+')';
   document.getElementById('s-sta').textContent=fmt(sta)+' ('+pct(sta,t)+')';
   // Dynamic price basis label on first stat
-  document.getElementById('lbl-tot').textContent = useConstPrices ? 'Total Spending (real)' : 'Total Spending (nominal)';
+  document.getElementById('lbl-tot').textContent = 'Total Spending';
 }
 
 // ── Time-series popout ────────────────────────────────────────────────────────
@@ -1341,10 +1375,33 @@ function showStockPopup(stockId, beakerRect) {
 // ── Playback ─────────────────────────────────────────────────────────────────
 let curFY=2025, playing=false, timer=null;
 function fyStr(fy){ return (fy-1)+'-'+(String(fy).slice(-2)); }
+
+// ── Year pill strip (landscape mobile) ───────────────────────────────────────
+const FY_YEARS = [2016,2018,2019,2020,2021,2022,2023,2024,2025]; // skip 2017 (classification break)
+(function buildPills(){
+  const container = document.getElementById('yr-pills');
+  FY_YEARS.forEach(fy => {
+    const btn = document.createElement('button');
+    btn.className = 'yr-pill' + (fy === curFY ? ' active' : '');
+    btn.dataset.fy = fy;
+    // Show just the end year digits e.g. "16", "17" etc
+    btn.textContent = String(fy).slice(-2);
+    btn.addEventListener('click', () => { stop(); setFY(fy, false); });
+    container.appendChild(btn);
+  });
+})();
+
+function updatePills(fy) {
+  document.querySelectorAll('.yr-pill').forEach(btn => {
+    btn.classList.toggle('active', +btn.dataset.fy === fy);
+  });
+}
+
 function setFY(fy,animate){
   curFY=fy;
   document.getElementById('yr-slider').value=fy;
   document.getElementById('fy-disp').textContent=fyStr(fy);
+  updatePills(fy);
   draw(fy,animate);
 }
 function play(){
