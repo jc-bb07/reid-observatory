@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -47,7 +47,7 @@
   /* ── SHELL ── */
   .shell {
     width: 100%;
-    max-width: 1400px;
+    max-width: none;
     margin: 0 auto;
     padding: 20px 24px 40px;
     box-sizing: border-box;
@@ -578,6 +578,14 @@
   }
   .page-footer a { color: var(--muted); text-decoration: none; }
   .page-footer a:hover { color: var(--text); }
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
 </style>
 </head>
 <body>
@@ -864,6 +872,27 @@
 </div><!-- /shell -->
 
 <script>
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+
 // ─────────────────────────────────────────────────────────────────────────────
 // THEME COLOURS (mirror CSS vars for canvas use)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2660,6 +2689,18 @@ if (typeof ResizeObserver !== 'undefined') {
   const shellEl = document.querySelector('.shell');
   if (shellEl) ro.observe(shellEl);
 }
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

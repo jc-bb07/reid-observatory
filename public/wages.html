@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -6,7 +6,28 @@
 <title>Wages &amp; Cost of Living · Crown Dependencies Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <style>
 /* ── TOKENS ────────────────────────────────────────────────────────────────── */
 :root {
@@ -44,7 +65,7 @@ html[data-theme="dark"]{
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
-#app{max-width:1100px;margin:0 auto;padding:20px 20px 60px}
+#app{max-width:960px;margin:0 auto;padding:20px 20px 60px}
 
 /* ── HEADER ────────────────────────────────────────────────────────────────── */
 .header{margin-bottom:1.25rem}
@@ -148,12 +169,19 @@ html[data-theme="light"] .warning-box{background:rgba(220,38,38,0.04)}
   .narrative{font-size:12px;padding:.85rem 1rem}
   .view-pill{font-size:11px;padding:3px 11px}
 }
+body.light {
+  --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#0f172a; --muted:#64748b; --muted2:#334155;
+  --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+  --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="header">
-    <h1>What residents actually earn</h1>
+    <h1>GDP per head vs mean vs median wage — Isle of Man</h1>
     <p class="subtitle">
       GDP per head has historically been used as a proxy for household wealth. In most economies, that
       is a reasonable shortcut — output and income track each other fairly closely.
@@ -1025,6 +1053,18 @@ buildToggles('ratio-toggles',  ratioSeries,  'ratio',  buildRatioChart);
 buildMedianStats();
 buildMedianChart();
 applyView('plain');
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

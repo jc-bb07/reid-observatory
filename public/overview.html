@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -6,7 +6,28 @@
 <title>Economic Overview · Crown Dependencies Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <style>
 /* ── TOKENS ── */
 :root {
@@ -36,7 +57,7 @@ html[data-theme="light"]{
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{overflow:hidden}body{overflow-y:auto;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
-#app{max-width:1100px;margin:0 auto;padding:20px 20px 60px}
+#app{max-width:960px;margin:0 auto;padding:20px 20px 60px}
 
 /* ── HERO ── */
 .hero{margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border2)}
@@ -184,13 +205,20 @@ h1 em{font-style:normal;color:var(--red)}
   .cs{font-size:9px}
   .cr-cell{padding:.4rem .35rem}
 }
+body.light {
+  --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#0f172a; --muted:#64748b; --muted2:#334155;
+  --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+  --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+}
 </style>
 </head>
 <body>
 <div id="app">
 
   <div class="hero">
-    <h1>The Isle of Man looks wealthy.<br>Most people here <em>are not.</em></h1>
+    <h1>Economic Overview — Isle of Man</h1>
 
     <div class="narrative narrative-plain" style="margin-top:.75rem">
       <p class="lede">
@@ -845,6 +873,18 @@ applyView('plain');
 setTimeout(reportHeight, 300);
 setTimeout(reportHeight, 800);
 window.addEventListener('resize', reportHeight);
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

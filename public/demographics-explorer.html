@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>Demographics Explorer · Crown Dependencies Re-Identification Observatory</title>
+<title>Population Mix — Crown Dependencies · Crown Dependencies Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/observatory.css"/>
@@ -110,7 +110,7 @@ body.single-view {
 ───────────────────────────────────────────── */
 
 .shell {
-  max-width: 1100px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 20px 20px 40px;
 }
@@ -640,8 +640,37 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <style>
 /* ── Page-specific aliases ── */
   :root {
@@ -652,7 +681,7 @@ input[type="range"]::-moz-range-thumb {
 
   /* ── Layout ── */
   
-  .page    { max-width: 1100px; margin: 0 auto; padding: 20px 20px 40px; }
+  .page    { max-width: 960px; margin: 0 auto; padding: 20px 20px 40px; }
   .section { margin-bottom: 52px; }
 
   /* ── Light mode: chart wrapper and controls need background swap ── */
@@ -790,7 +819,7 @@ input[type="range"]::-moz-range-thumb {
 <div class="page">
 
   <div class="section" style="margin-bottom:32px">
-    <h1>Population &amp; Aging</h1>
+    <h1>Population &amp; Ageing — Crown Dependencies</h1>
     <p style="margin-bottom:14px;max-width:none">How the three Crown Dependencies are aging — and what that means for public finances, housing, and social services. Published census data, 1951–2021, with projections to 2040.</p>
     <div class="audience-bar">
       <span class="aud-label">View</span>
@@ -2177,6 +2206,18 @@ function notifyHeight() {
   window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
 }
 window.addEventListener('resize', () => { checkPyrNotice(); notifyHeight(); });
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

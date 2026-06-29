@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -7,7 +7,28 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/observatory.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <style>
 /* observatory.css — inlined for self-contained operation */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,7 +48,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 h1{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.01em;line-height:1.2;margin-bottom:8px}
 .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
 p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
-.shell{max-width:1100px;margin:0 auto;padding:20px 20px 40px}
+.shell{max-width:960px;margin:0 auto;padding:20px 20px 40px}
 @media(max-width:600px){.shell{padding:16px 14px 32px}}
 .intro{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--iom);border-radius:8px;padding:14px 16px;margin-bottom:22px;font-size:12px;color:var(--muted2);line-height:1.7}
 .intro strong{color:var(--text)}
@@ -127,6 +148,14 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 [data-theme="light"] .source-tag.official{background:rgba(5,150,105,.1);color:var(--gsy);border-color:rgba(5,150,105,.3)}
 [data-theme="light"] .source-tag.estimated{background:rgba(217,119,6,.1);color:var(--amber);border-color:rgba(217,119,6,.3)}
 [data-theme="light"] .source-tag.derived{background:rgba(37,99,235,.08);color:var(--blue);border-color:rgba(37,99,235,.2)}
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
 </style>
 </head>
 <body>
@@ -136,8 +165,7 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
   <strong style="color:var(--text)">A note on how this is built</strong> — I use automated tools to accelerate the extraction and comparison of data from published government and health body reports. The underlying sources are all public documents; they are listed in the footer and linked where possible. Methodology differences between jurisdictions are flagged inline throughout — those flags matter and are worth reading. If you are using figures from this dashboard operationally or in published work, I'd encourage you to cross-check against the primary source. If something looks wrong or you'd like to discuss a specific number, please get in touch: <a href="mailto:observatory@coalfinch.com" style="color:var(--blue)">observatory@coalfinch.com</a>.
 </div>
 
-<div class="eyebrow">Crown Dependencies Observatory · Health System Benchmarking</div>
-<h1>Manx Care Performance Benchmarking</h1>
+<h1>Manx Care Performance Benchmarking — Isle of Man</h1>
 <p style="margin-bottom:16px">Manx Care compared with Health and Care Jersey (HCJ), Guernsey HSC / MSG, NHS Wales, and NHS England. Four KPI groups: Financial, Clinical, Operational, Off-Island. Methodology breaks and data gaps are flagged inline — not suppressed.</p>
 
 <div class="audience-bar">
@@ -1575,6 +1603,18 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('resize', () => {
   setTimeout(notifyHeight, 100);
 });
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

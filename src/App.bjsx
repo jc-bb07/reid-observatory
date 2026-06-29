@@ -30,9 +30,9 @@ const TAB_GROUPS = [
     tabs: [
       { id: "econHome",      label: "Overview"             },
       { id: "econperf",      label: "Economic Performance" },
-      { id: "econmix",       label: "Economic Mix"         },
-      { id: "demog",         label: "Population Mix"       },
+      { id: "demog",         label: "Demographics"         },
       { id: "iomPopChange",  label: "Population Change"    },
+      { id: "econmix",       label: "Productivity"         },
       { id: "inflation",     label: "Inflation"            },
       { id: "unemployment",  label: "Unemployment"         },
       { id: "suicide",       label: "Suicide Rates"        },
@@ -354,17 +354,15 @@ function LandingTab({ C, onNavigate, isNarrow }) {
                 260,000
               </span>{" "}
               people and produce an impressive volume of public statistics.
-              This is about making the unseen seen. 🔭
+              This is an attempt to make them mean something.
             </div>
           </FadeBlock>
 
-          <FadeBlock show={typingDone} delay={4900 * d} style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.9 }}>
-              Go on, click the Netscape eulogy replay, and tell us what you make of it at{" "}
-              <a href="mailto:observatory@coalfinch.com"
-                style={{ color: C.muted2, textDecoration: "underline", textDecorationColor: C.border2 }}>
-                observatory@coalfinch.com
-              </a>.
+          <FadeBlock show={typingDone} delay={4900 * d}>
+            <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.7, fontStyle: "italic",
+              borderTop: `1px solid ${C.border2}`, paddingTop: 12 }}>
+              The headlines below have been collated with LLM assistance.
+              I promise I'll make it more fun when I get round to it. 🔭
             </div>
           </FadeBlock>
         </div>
@@ -402,21 +400,16 @@ function LandingTab({ C, onNavigate, isNarrow }) {
       </div>
 
       {/* Highlights — from highlights.json */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
-          letterSpacing: "0.08em", flexShrink: 0 }}>
-          Headlines
-        </div>
-        <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, fontStyle: "italic" }}>
-          Collated with LLM assistance — I promise I'll make it more fun when I get round to it.
-        </div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
+        letterSpacing: "0.08em", marginBottom: 12 }}>
+        Headlines
       </div>
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
         gap: 10, marginBottom: 28,
       }}>
-        {HIGHLIGHTS.filter(h => h.tabId !== "iomfiscal").map(h => highlight(h))}
+        {HIGHLIGHTS.map(h => highlight(h))}
       </div>
 
       {/* Section navigator */}

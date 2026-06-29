@@ -58,7 +58,7 @@ input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px
 .toggle-wrap input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;cursor:pointer;flex-shrink:0}
 
 /* ── Stats bar ── */
-.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:#080d1a}
 .stat{flex:1;padding:4px 10px;border-right:1px solid var(--border)}
 .stat:last-child{border-right:none}
 .stat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
@@ -80,7 +80,7 @@ rect.node{cursor:pointer}
 /* ── Time series popout ── */
 #ts-popup{
   position:fixed;display:none;
-  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  background:#111827;border:1px solid var(--border);border-radius:8px;
   padding:12px 14px 10px;
   box-shadow:0 8px 32px rgba(0,0,0,.6);
   z-index:100;pointer-events:none;
@@ -91,7 +91,7 @@ rect.node{cursor:pointer}
 #ts-canvas{display:block}
 
 /* ── Governance notes ── */
-.gov-notes{background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.gov-notes{background:#080d1a;border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
 .gov-notes.open{max-height:600px}
 .gov-inner{padding:12px 20px 14px;font-size:10px;line-height:1.65;color:#94a3b8;columns:2;column-gap:32px}
 .gov-inner h4{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 5px;column-span:all}
@@ -99,7 +99,7 @@ rect.node{cursor:pointer}
 .gov-inner p{margin:0 0 4px}
 .gov-inner .flag{color:#f87171;font-weight:600}
 .gov-inner .est{color:#fcd34d;font-weight:600}
-.gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:4px 20px;background:var(--surface);border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
+.gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:4px 20px;background:#080d1a;border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
 .gov-notes-toggle span{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
 .gov-notes-toggle span:hover{color:var(--text)}
 .gov-chevron{font-size:9px;color:#94a3b8;transition:transform .3s}
@@ -129,7 +129,6 @@ body.light {
   --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
   --green: #059669; --amber: #d97706; --red: #dc2626;
 }
-html:has(body.light) { background: #f8fafc; }
 /* Light mode: SVG text labels and hard-coded dark backgrounds */
 body.light .lbl-r { fill: #1e293b; }
 body.light .lbl-l { fill: #1e293b; }
@@ -153,7 +152,7 @@ body.light .stats { background: #f1f5f9; }
 body.light .stat-lbl { color: #64748b; }
 body.light .stat-val { color: #1e293b; }
 /* Observatory max-width */
-body { max-width: 1280px; margin-left: auto; margin-right: auto; }
+body { max-width: 960px; margin-left: auto; margin-right: auto; }
 </style>
 </head>
 <body>
@@ -1017,7 +1016,7 @@ function showTsPopup(nodeId, svgRect){
       responsive:false,
       plugins:{legend:{display:false},tooltip:{
         callbacks:{label:ctx=>fmt(ctx.raw)},
-        backgroundColor:document.body.classList.contains('light')?'#ffffff':'#1e293b',titleColor:document.body.classList.contains('light')?'#64748b':'#e2e8f0',bodyColor:document.body.classList.contains('light')?'#0f172a':'#94a3b8',
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',
         borderColor:'#1e2d4d',borderWidth:1,
       }},
       scales:{
@@ -1147,8 +1146,8 @@ function drawBeakers(fy, lyt) {
     wrap.className = 'beaker-wrap';
     wrap.style.cssText = `left:${beakerLeft}px;top:${topY}px;width:${bW}px;height:${bH}px;`;
 
-    // Reserved space: value + quality note + label + date = needs more room
-    const LABEL_AREA = 58;
+    // Reserved space: label bottom (18px) + date (14px) + footnote (14px) = 46px
+    const LABEL_AREA = 48;
     const fillArea = bH - LABEL_AREA;
     const fillH = fillRatio * fillArea;
     const fillY = isInverted ? 2 : (fillArea - fillH + 2);
@@ -1162,17 +1161,10 @@ function drawBeakers(fy, lyt) {
       : v >= 1000 ? `£${(v/1000).toFixed(2)}bn`
       : `£${Math.round(v)}m`;
 
-    // Fixed positions from top of label area — no overlap possible
-    const labelAreaTop = fillArea + 2;
-    const valTextY    = labelAreaTop + 11;  // value: top of label area
-    const qualTextY   = labelAreaTop + 23;  // quality note: below value
-    const nameTextY   = labelAreaTop + 36;  // stock name
-    const dateTextY   = labelAreaTop + 49;  // date: bottom
-
-    // Value: always centred in the fill bar if tall enough, else top of label area
-    const valY = fillH > 24
-      ? fillY + fillH / 2
-      : valTextY;
+    // Value y: centred in fill area
+    const valY = isInverted
+      ? (fillH > 20 ? fillY + fillH/2 : fillArea/2)
+      : (fillH > 20 ? fillY + fillH/2 : fillArea/2);
 
     // Carry-forward or data quality note
     let qualityStr = '';
@@ -1187,30 +1179,24 @@ function drawBeakers(fy, lyt) {
     const fnId = STOCK_FN_ID[sid];
     const dateStr = STOCK_DATE[sid];
 
-    const isLight = document.body.classList.contains('light');
-    const beakerBg = isLight ? '#f1f5f9' : '#080d1a';
-    const beakerStroke = isLight ? (s.color + 'cc') : s.color;
-
     wrap.innerHTML = `<svg class="beaker-svg" width="${bW}" height="${bH}" viewBox="0 0 ${bW} ${bH}">
       <!-- Beaker body -->
       <rect x="1" y="2" width="${bW-2}" height="${fillArea}" rx="3"
-        fill="${beakerBg}" stroke="${beakerStroke}" stroke-width="${strokeW}" ${strokeDash}/>
+        fill="#080d1a" stroke="${s.color}" stroke-width="${strokeW}" ${strokeDash}/>
       <!-- Fill -->
       <rect x="2" y="${fillY}" width="${bW-4}" height="${Math.max(fillH,0)}"
         fill="${fillColor}" opacity="${fillOp}" rx="2"/>
       ${isInverted && fillH>0 ? `<line x1="2" y1="${fillY}" x2="${bW-2}" y2="${fillY}" stroke="${s.color}" stroke-width="1" opacity="0.6"/>` : ''}
-      <!-- Value — in fill bar if tall enough, else above label row -->
+      <!-- Value -->
       <text class="${valClass}" x="${bW/2}" y="${valY}"
         dominant-baseline="middle" opacity="${v===null?0.25:1}">${valStr}</text>
-      <!-- Quality note — fixed position, never overlaps value in fill bar -->
-      ${qualityStr && fillH > 24 ? `<text class="beaker-type" x="${bW/2}" y="${qualTextY}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
-      ${qualityStr && fillH <= 24 ? `<text class="beaker-type" x="${bW/2}" y="${qualTextY}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
+      ${qualityStr ? `<text class="beaker-type" x="${bW/2}" y="${fillArea-8}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
       <!-- Label row -->
-      <text class="${labelClass}" x="${bW/2}" y="${nameTextY}">${s.label}
+      <text class="${labelClass}" x="${bW/2}" y="${fillArea+14}">${s.label}
         <tspan class="beaker-footnote" dx="2">${fnNum}</tspan>
       </text>
       <!-- Date row -->
-      <text class="beaker-date" x="${bW/2}" y="${dateTextY}">${dateStr}</text>
+      <text class="beaker-date" x="${bW/2}" y="${fillArea+28}">${dateStr}</text>
     </svg>`;
 
     // Click footnote number → open gov notes + scroll to anchor
@@ -1297,7 +1283,7 @@ function showStockPopup(stockId, beakerRect) {
               return (s.unit === '£bn' ? '£' + ctx.raw + 'bn' : '£' + ctx.raw + 'm') + flag;
             }
           },
-          backgroundColor: document.body.classList.contains('light')?'#ffffff':'#1e293b', titleColor: document.body.classList.contains('light')?'#64748b':'#e2e8f0', bodyColor: document.body.classList.contains('light')?'#0f172a':'#94a3b8',
+          backgroundColor: '#1e293b', titleColor: '#e2e8f0', bodyColor: '#94a3b8',
           borderColor: '#1e2d4d', borderWidth: 1,
         }
       },
@@ -1378,23 +1364,19 @@ function toggleGov(){
   toggle.classList.toggle('open',open);
 }
 // ── Boot ──────────────────────────────────────────────────────────────────────
-// Apply stored theme BEFORE first draw so beakers get the right colours
-try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
 function init(){dims();draw(2025,false);}
 const ro=new ResizeObserver(()=>{dims();draw(curFY,false);});
 ro.observe(document.querySelector('.viz'));
 init();
 </script>
 <script>
-/* Observatory theme v3 — redraw on theme change */
+/* Observatory theme v3 */
 (function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (d && (d.type === 'theme' || d.type === 'setTheme')) {
       document.body.classList.toggle('light', d.theme === 'light');
-      if (typeof draw === 'function' && typeof curFY !== 'undefined') {
-        draw(curFY, false);
-      }
     }
   });
 }());

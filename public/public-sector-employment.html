@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -18,7 +18,7 @@
   --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
 }
 html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-.shell{max-width:1100px;margin:0 auto;padding:20px 20px 48px}
+.shell{max-width:960px;margin:0 auto;padding:20px 20px 48px}
 h1{font-size:19px;font-weight:800;letter-spacing:-0.01em;color:var(--text);margin-bottom:4px}
 .subtitle{font-size:12px;color:var(--muted);line-height:1.7;max-width:680px;margin-bottom:16px}
 .caveat-box{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--amber);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--muted);line-height:1.7}
@@ -69,12 +69,20 @@ h1{font-size:19px;font-weight:800;letter-spacing:-0.01em;color:var(--text);margi
 .notes-body p{margin-bottom:6px}
 .page-footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--border2);font-size:10px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .page-footer a{color:var(--muted);text-decoration:none}.page-footer a:hover{color:var(--text)}
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
 </style>
 </head>
 <body>
 <div class="shell">
 
-<h1>Public Sector Employment</h1>
+<h1>Public Sector Employment — Crown Dependencies</h1>
 <p class="subtitle">Government workforce size across the Isle of Man, Jersey, Guernsey and the United Kingdom — employment by sector from the census (1961–2021), OHR payroll FTE (2015–2024), and share of total employment.</p>
 
 <div class="caveat-box">
@@ -239,7 +247,28 @@ h1{font-size:19px;font-weight:800;letter-spacing:-0.01em;color:var(--text);margi
 </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <script>
 // ── COLOURS ──────────────────────────────────────────────────────────────────
 const C = {
@@ -554,6 +583,18 @@ window.addEventListener('resize',h);
 
 renderAbs();
 setTimeout(h,500);
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

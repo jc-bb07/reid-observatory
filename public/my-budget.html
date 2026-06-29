@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -162,6 +162,9 @@ input[type=checkbox]{width:12px;height:12px;accent-color:var(--blue);cursor:poin
 .pf-contact{font-size:11px;color:var(--muted2);line-height:1.65;max-width:560px}
 .pf-contact a{color:var(--blue);text-decoration:none}
 .pf-contact a:hover{text-decoration:underline}
+body.light {
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--border2:#cbd5e1;--text:#0f172a;--muted:#64748b;--muted2:#334155;--blue:#2563eb;--iom:#2563eb;
+}
 </style>
 </head>
 <body>
@@ -444,6 +447,27 @@ input[type=checkbox]{width:12px;height:12px;accent-color:var(--blue);cursor:poin
 </div><!-- /app -->
 
 <script>
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+
 // ── COLOURS ──────────────────────────────────────────────────────────────────
 const COLS={iom:'#3b82f6',tax:'#818cf8',ni:'#6366f1',house:'#f87171',
   utils:'#fb923c',food:'#34d399',trans:'#60a5fa',child:'#f59e0b',
@@ -959,6 +983,18 @@ requestAnimationFrame(()=>{
   setTimeout(reportHeight,300);
   setTimeout(reportHeight,800);
 });
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

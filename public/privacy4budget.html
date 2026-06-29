@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -27,6 +27,9 @@ a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 .back{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);text-decoration:none;margin-bottom:1.5rem;transition:color .12s}
 .back:hover{color:var(--text)}
+body.light {
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--border2:#cbd5e1;--text:#0f172a;--muted:#64748b;--muted2:#334155;--blue:#2563eb;
+}
 </style>
 </head>
 <body>
@@ -81,10 +84,43 @@ a:hover{text-decoration:underline}
 
 </div>
 <script>
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+
 let _lH=0;
 function rh(){const h=document.body.scrollHeight;if(Math.abs(h-_lH)>=4){_lH=h;window.parent.postMessage({type:'resize',height:h},'*');}}
 window.addEventListener('message',e=>{if(e.data&&e.data.theme)document.documentElement.setAttribute('data-theme',e.data.theme);});
 setTimeout(rh,300);
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
 </script>
 </body>
 </html>

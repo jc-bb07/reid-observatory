@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>IoM Population Change · Coalfinch Observatory</title>
+<title>Population Change — Isle of Man · Crown Dependencies Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
@@ -117,13 +117,20 @@ h1{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.01em;line-
   .plain-box{font-size:12px}
   .panel-title{font-size:14px}
 }
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
 </style>
 </head>
 <body>
 <div class="page-shell">
 
-<div class="eyebrow">Isle of Man · Population change</div>
-<h1>How the island's population is changing</h1>
+<h1>Population Change — Isle of Man</h1>
 <p class="subtitle">Isle of Man resident population, 1951–2025. Births, deaths, migration, and the ageing of the existing population — each component drawn from its primary source, with gaps shown honestly.</p>
 
 <div class="audience-bar">
@@ -399,7 +406,28 @@ h1{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.01em;line-
   <span>Sources: Cabinet Office; Civil Registry; Statistics IoM; IoMiN; Manx Care</span>
 </div><!-- /.page-shell -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <script>
 /* ── THEME HELPERS — called at chart-build time ──── */
 function isLight(){ return document.documentElement.getAttribute('data-theme')==='light'; }
@@ -735,5 +763,17 @@ document.addEventListener('DOMContentLoaded',()=>{
 <!-- Plausible analytics -->
 <script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
 <script>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
+</script>
 </body>
 </html>
