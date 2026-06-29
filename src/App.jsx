@@ -1201,7 +1201,7 @@ function Centred({ children }) {
 }
 
 // ── Auto-sizing iframe ────────────────────────────────────────────────────────
-function AutoIframe({ src, title, theme, minWidth }) {
+function AutoIframe({ src, title, theme }) {
   const [height, setHeight] = useState("calc(100vh - 120px)");
   const ref = useRef(null);
 
@@ -1223,7 +1223,7 @@ function AutoIframe({ src, title, theme, minWidth }) {
 
   const bg = THEMES[theme]?.bg ?? THEMES.dark.bg;
 
-  const iframeEl = (
+  return (
     <iframe
       ref={ref}
       src={src}
@@ -1231,8 +1231,7 @@ function AutoIframe({ src, title, theme, minWidth }) {
       scrolling="no"
       onLoad={sendTheme}
       style={{
-        width: minWidth ? Math.max(minWidth, window.innerWidth) + "px" : "100%",
-        minWidth: minWidth || undefined,
+        width: "100%",
         height,
         border: "none",
         display: "block",
@@ -1241,17 +1240,6 @@ function AutoIframe({ src, title, theme, minWidth }) {
       }}
     />
   );
-
-  // When minWidth is set, wrap in a horizontally scrollable container
-  if (minWidth) {
-    return (
-      <div style={{ overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
-        {iframeEl}
-      </div>
-    );
-  }
-
-  return iframeEl;
 }
 
 // ── Dropdown navigation ───────────────────────────────────────────────────────
@@ -1537,8 +1525,28 @@ function AppContent() {
     iomfiscal: (
       <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" theme={themeName} />
     ),
-    iomfiscaldept: (
-      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} minWidth={860} />
+    iomfiscaldept: isNarrow ? (
+      <div style={{ padding: "20px 16px", textAlign: "center" }}>
+        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.7, marginBottom: 20 }}>
+          This diagram works best full-screen on mobile.
+        </div>
+        <a
+          href="/iomg-budget-sankey.html"
+          target="_blank"
+          rel="noopener"
+          style={{
+            display: "inline-block", padding: "10px 22px",
+            background: "none", border: `1px solid ${C.gold}`,
+            borderRadius: 7, color: C.gold,
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
+            textDecoration: "none", cursor: "pointer",
+          }}
+        >
+          Open Budget diagram →
+        </a>
+      </div>
+    ) : (
+      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} />
     ),
     inflation: (
       <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" theme={themeName} />
