@@ -165,6 +165,51 @@ body.light .stat-val { color: #1e293b; }
   .yr-wrap input[type=range] { display: none; }
   .yr-marks { display: none; }
   #yr-pills { display: flex !important; }
+  .beaker-wrap { display: none !important; }
+  #mob-stocks { display: flex !important; }
+}
+/* Portrait-mode nudge overlay */
+#portrait-nudge {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; padding: 32px; text-align: center;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  #portrait-nudge { display: flex; }
+}
+#portrait-nudge .nudge-icon { font-size: 48px; animation: obs-spin 2s ease-in-out infinite alternate; }
+@keyframes obs-spin { from { transform: rotate(0deg); } to { transform: rotate(15deg); } }
+#portrait-nudge .nudge-title { font-size: 16px; font-weight: 700; color: var(--text); }
+#portrait-nudge .nudge-sub { font-size: 13px; color: var(--muted2); line-height: 1.6; }
+/* Simple mobile stock strip */
+#mob-stocks {
+  display: none;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.mob-stock {
+  flex: 1;
+  padding: 4px 8px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.mob-stock:last-child { border-right: none; }
+.mob-stock-val {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.mob-stock-lbl {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  margin-top: 1px;
 }
 /* Year pill strip — hidden by default, shown in landscape mobile */
 #yr-pills {
@@ -196,6 +241,13 @@ body.light .stat-val { color: #1e293b; }
 </style>
 </head>
 <body>
+
+<!-- Portrait-mode rotate nudge -->
+<div id="portrait-nudge">
+  <div class="nudge-icon">📱↻</div>
+  <div class="nudge-title">Rotate your phone</div>
+  <div class="nudge-sub">This diagram works best in landscape mode.<br>Turn your phone sideways to explore it.</div>
+</div>
 
 <div id="mobile-scroll-hint" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:6px 14px;font-size:11px;color:var(--muted);line-height:1.5">
   ← Scroll sideways to explore the full diagram →
@@ -264,6 +316,9 @@ body.light .stat-val { color: #1e293b; }
 
 <div class="viz"><svg id="chart"></svg></div>
 
+<!-- Simple stock strip for landscape mobile — populated by JS -->
+<div id="mob-stocks"></div>
+
 <div class="gov-notes-toggle" id="gov-toggle" onclick="toggleGov()">
   <span class="gov-chevron" id="gov-chevron">▼</span>
   <span>Data Governance &amp; Methodology Notes</span>
@@ -281,7 +336,7 @@ body.light .stat-val { color: #1e293b; }
     <h5 id="fn-nifund" class="fn-target"><span style="color:var(--gold)">②</span> NI Fund — Data Currency</h5>
     <p>Last confirmed balance: <strong>£975.9m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 16). The £992.5m figure shown for FY2024-25 is a budget projection, not a confirmed outturn. The NI Fund is a statutory ring-fenced account; its balance is not part of GRA and does not appear in the revenue account surplus or deficit.</p>
 
-    <h5 id="fn-cfr" class="fn-target"><span style="color:var(--gold)">③</span> Capital Financing Reserve — Data Currency</h5>
+    <h5 id="fn-cfr" class="fn-target"><span style="color:var(--gold)">③</span> Capital Reserve — Data Currency</h5>
     <p>Last confirmed balance: <strong>£24.8m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). The CFR has been in near-continuous drawdown since 2021-22 as capital expenditure has outpaced annual transfer receipts. No 31 March 2025 balance published as at 24 June 2026.</p>
 
     <h5 id="fn-pension" class="fn-target"><span style="color:#fb7185)">④</span> Pension Liability — Data Currency &amp; Methodology</h5>
@@ -351,7 +406,7 @@ const STOCKS = {
     }
   },
   cfr: {
-    label: 'Capital Financing Reserve', unit: '£m', color: '#fbbf24',
+    label: 'Capital Reserve', unit: '£m', color: '#fbbf24',
     desc: 'CFR balance — funds capital investment. Receipts from revenue surplus; payments to capital programme. Near-depletion signals structural pressure on capital spending.',
     data: {
       2016:{v:0.947,t:'actual'},2017:{v:46.5,t:'probable'},
@@ -546,7 +601,8 @@ const fmt=v=>{const m=Math.abs(v)/1000;if(m>=1000)return(v<0?'-':'')+'£'+(m/100
 const pct=(v,t)=>t>0?(v/t*100).toFixed(0)+'%':'—';
 
 // ── Layout constants ──────────────────────────────────────────────────────────
-const NW=18, PAD=5, TPAD=24, BPAD=6, LPAD=168, RPAD=160, OWN_GAP=18;
+const NW=18, PAD=5, TPAD=24, BPAD=6, LPAD=168, OWN_GAP=18;
+function getRPAD(){ return (window.innerWidth<=900 && window.innerHeight<window.innerWidth) ? 0 : 160; }
 const svg=d3.select('#chart');
 let W,H;
 
@@ -560,7 +616,7 @@ function dims(){
 
 // 6 columns: 0=rev sources, 1=GRA, 1.5=NI Fund, 2=depts, 3=exp types, 4=CFR node, 5=beakers (HTML overlay)
 function cx(col){
-  const u=W-LPAD-RPAD;
+  const u=W-LPAD-getRPAD();
   // cols: 0=rev, 1=GRA+NI, 2=unused, 3=depts, 4=exp+CFR
   return[LPAD, LPAD+u*0.26, LPAD+u*0.38, LPAD+u*0.54, LPAD+u*0.78, LPAD+u*0.78][col];
 }
@@ -949,11 +1005,12 @@ function draw(fy,animate){
    [cx(4)+NW/2,'Expenditure & CFR']]
     .forEach(([x,t])=>svg.append('text').attr('class','lbl col-hdr').attr('x',x).attr('y',13).text(t));
   svg.append('text').attr('class','lbl col-hdr')
-    .attr('x', W - RPAD/2).attr('y',13).text('Stocks');
+    .attr('x', W - getRPAD()/2).attr('y',13).text(getRPAD()>0?'Stocks':'');
 
   prevLayout=lyt;
   updateStats(lyt);
   drawBeakers(fy, lyt);
+  drawMobStocks(fy);
 }
 
 function applyHighlight(){
@@ -1141,6 +1198,27 @@ const STOCK_DATE = {
   pension:  'Last confirmed: 31 Mar 2023 · ⚠ no later figure published'
 };
 
+// ── Simple mobile stock strip ─────────────────────────────────────────────────
+function drawMobStocks(fy) {
+  const el = document.getElementById('mob-stocks');
+  if (!el) return;
+  el.innerHTML = '';
+  const order = ['reserve','ni_fund','cfr','pension'];
+  order.forEach(sid => {
+    const s = STOCKS[sid];
+    const result = stockValWithCarry(sid, fy);
+    const v = result ? result.v : null;
+    const valStr = v === null ? '—'
+      : sid === 'pension' ? `£${v.toFixed(1)}bn`
+      : v >= 1000 ? `£${(v/1000).toFixed(2)}bn`
+      : `£${Math.round(v)}m`;
+    const div = document.createElement('div');
+    div.className = 'mob-stock';
+    div.innerHTML = `<div class="mob-stock-val" style="color:${s.color}">${valStr}</div><div class="mob-stock-lbl">${s.label}</div>`;
+    el.appendChild(div);
+  });
+}
+
 function drawBeakers(fy, lyt) {
   document.querySelectorAll('.beaker-wrap').forEach(el => el.remove());
 
@@ -1152,6 +1230,8 @@ function drawBeakers(fy, lyt) {
   const scaleY = svgRect.height / H;
 
   // Beaker column: right margin, centred
+  const RPAD = getRPAD();
+  if (RPAD === 0) return; // landscape mobile — stocks hidden
   const colW = RPAD - 8; // available pixel width
   const bW = Math.min(colW - 4, 130); // beaker width — large but bounded
   const beakerLeft = svgRect.left - vizRect.left + (W - RPAD + (RPAD - bW*scaleX)/2 / scaleX) * scaleX;
