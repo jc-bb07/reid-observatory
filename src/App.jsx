@@ -354,17 +354,15 @@ function LandingTab({ C, onNavigate, isNarrow }) {
                 260,000
               </span>{" "}
               people and produce an impressive volume of public statistics.
-              This is about making the unseen seen. 🔭
+              This is an attempt to make them mean something.
             </div>
           </FadeBlock>
 
-          <FadeBlock show={typingDone} delay={4900 * d} style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.9 }}>
-              Go on, click the Netscape eulogy replay, and tell us what you make of it at{" "}
-              <a href="mailto:observatory@coalfinch.com"
-                style={{ color: C.muted2, textDecoration: "underline", textDecorationColor: C.border2 }}>
-                observatory@coalfinch.com
-              </a>.
+          <FadeBlock show={typingDone} delay={4900 * d}>
+            <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.7, fontStyle: "italic",
+              borderTop: `1px solid ${C.border2}`, paddingTop: 12 }}>
+              The headlines below have been collated with LLM assistance.
+              I promise I'll make it more fun when I get round to it. 🔭
             </div>
           </FadeBlock>
         </div>
@@ -402,21 +400,16 @@ function LandingTab({ C, onNavigate, isNarrow }) {
       </div>
 
       {/* Highlights — from highlights.json */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
-          letterSpacing: "0.08em", flexShrink: 0 }}>
-          Headlines
-        </div>
-        <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6, fontStyle: "italic" }}>
-          Collated with LLM assistance — I promise I'll make it more fun when I get round to it.
-        </div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
+        letterSpacing: "0.08em", marginBottom: 12 }}>
+        Headlines
       </div>
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
         gap: 10, marginBottom: 28,
       }}>
-        {HIGHLIGHTS.filter(h => h.tabId !== "iomfiscal").map(h => highlight(h))}
+        {HIGHLIGHTS.map(h => highlight(h))}
       </div>
 
       {/* Section navigator */}
@@ -1208,7 +1201,7 @@ function Centred({ children }) {
 }
 
 // ── Auto-sizing iframe ────────────────────────────────────────────────────────
-function AutoIframe({ src, title, theme }) {
+function AutoIframe({ src, title, theme, minWidth }) {
   const [height, setHeight] = useState("calc(100vh - 120px)");
   const ref = useRef(null);
 
@@ -1230,7 +1223,7 @@ function AutoIframe({ src, title, theme }) {
 
   const bg = THEMES[theme]?.bg ?? THEMES.dark.bg;
 
-  return (
+  const iframeEl = (
     <iframe
       ref={ref}
       src={src}
@@ -1238,7 +1231,8 @@ function AutoIframe({ src, title, theme }) {
       scrolling="no"
       onLoad={sendTheme}
       style={{
-        width: "100%",
+        width: minWidth ? Math.max(minWidth, window.innerWidth) + "px" : "100%",
+        minWidth: minWidth || undefined,
         height,
         border: "none",
         display: "block",
@@ -1247,6 +1241,17 @@ function AutoIframe({ src, title, theme }) {
       }}
     />
   );
+
+  // When minWidth is set, wrap in a horizontally scrollable container
+  if (minWidth) {
+    return (
+      <div style={{ overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch" }}>
+        {iframeEl}
+      </div>
+    );
+  }
+
+  return iframeEl;
 }
 
 // ── Dropdown navigation ───────────────────────────────────────────────────────
@@ -1533,7 +1538,7 @@ function AppContent() {
       <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" theme={themeName} />
     ),
     iomfiscaldept: (
-      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} />
+      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} minWidth={860} />
     ),
     inflation: (
       <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" theme={themeName} />
