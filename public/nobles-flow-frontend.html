@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Noble's Hospital · A Systems View · Coalfinch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── DARK (default) ── */
+:root {
+  --bg:        #080d1a;
+  --surface:   #0f1729;
+  --surface2:  #141f33;
+  --border:    rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.14);
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --muted2:    #475569;
+  --shadow:    rgba(0,0,0,0.4);
+  --red:       #f87171;
+  --amber:     #fbbf24;
+  --green:     #34d399;
+  --blue:      #60a5fa;
+  --orange:    #fb923c;
+  --purple:    #a78bfa;
+  --gold:      #c9a24a;
+
+  --fs-name:   9px;
+  --fs-stat:   14px;
+  --fs-narr:   11px;
+  --fs-kval:   13px;
+  --fs-klbl:   8px;
+  --fs-hero:   12px;
+  --fs-chip:   10px;
+  --psize:     8px;   /* person width */
+  --phead:     5px;
+}
+
+/* ── LIGHT MODE ── */
+html.light {
+  --bg:        #f0f4f8;
+  --surface:   #ffffff;
+  --surface2:  #e8edf3;
+  --border:    rgba(0,0,0,0.09);
+  --border-hi: rgba(0,0,0,0.18);
+  --text:      #0f172a;
+  --muted:     #475569;
+  --muted2:    #64748b;
+  --shadow:    rgba(0,0,0,0.12);
+  --red:       #dc2626;
+  --amber:     #b45309;
+  --green:     #059669;
+  --blue:      #2563eb;
+  --orange:    #c2410c;
+  --purple:    #7c3aed;
+  --gold:      #92400e;
+}
+
+/* ── LARGE TEXT MODE ── */
+html.large {
+  --fs-name:  11px;
+  --fs-stat:  18px;
+  --fs-narr:  14px;
+  --fs-kval:  16px;
+  --fs-klbl:  10px;
+  --fs-hero:  14px;
+  --fs-chip:  12px;
+  --psize:    10px;
+  --phead:    6px;
+}
+
+html, body {
+  height: 100%; height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  transition: background 0.35s, color 0.35s;
+}
+
+.app {
+  height: 100%; height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────── HEADER ─────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 8px;
+}
+.header-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  flex: 1;
+}
+.header-title span { color: var(--gold); }
+
+/* Mode toggles */
+.header-modes {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.mode-btn {
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border-hi);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  line-height: 1;
+}
+.mode-btn:active { transform: scale(0.92); }
+.mode-btn.active {
+  background: var(--gold);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+html.light .mode-btn.active { color: #fff; }
+
+/* OPEL pill */
+.opel-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(248,113,113,0.35);
+  background: rgba(248,113,113,0.10);
+  transition: border-color 0.5s, background 0.5s;
+  flex-shrink: 0;
+}
+html.light .opel-pill { background: rgba(220,38,38,0.08); }
+.opel-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  transition: background 0.5s;
+  flex-shrink: 0;
+}
+.opel-dot.pulsing { animation: opelPulse 1.3s infinite; }
+@keyframes opelPulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(1.6); }
+}
+.opel-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--red);
+  transition: color 0.5s;
+  white-space: nowrap;
+}
+
+/* ─────────────────── HERO ─────────────────── */
+.hero {
+  padding: 10px 16px 9px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+.hero-quote {
+  font-size: var(--fs-hero);
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 4px;
+  transition: font-size 0.2s;
+}
+.hero-quote em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--text);
+}
+.hero-sub {
+  font-size: calc(var(--fs-hero) - 0.5px);
+  color: var(--muted2);
+  line-height: 1.45;
+  transition: font-size 0.2s;
+}
+.hero-sub strong { color: var(--gold); font-weight: 700; }
+
+/* ─────────────────── VIZ ─────────────────── */
+.viz {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 7px 12px;
+  gap: 0;
+}
+
+.zw { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+.zone {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  padding: 5px 10px;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.5s, background 0.5s, box-shadow 0.5s;
+}
+
+/* ── Zone state classes ── */
+.zone.s-green { border-color: rgba(52,211,153,0.35); }
+html.light .zone.s-green { border-color: rgba(5,150,105,0.4); background: rgba(5,150,105,0.04); }
+
+.zone.s-amber { border-color: rgba(251,191,36,0.4); }
+html.light .zone.s-amber { border-color: rgba(180,83,9,0.35); background: rgba(180,83,9,0.03); }
+
+.zone.s-red {
+  border-color: rgba(248,113,113,0.5);
+  box-shadow: 0 0 20px rgba(248,113,113,0.08) inset;
+  animation: zoneShake 5s ease-in-out infinite;
+}
+html.light .zone.s-red {
+  border-color: rgba(220,38,38,0.5);
+  box-shadow: 0 0 16px rgba(220,38,38,0.07) inset;
+  background: rgba(220,38,38,0.025);
+}
+
+@keyframes zoneShake {
+  0%,82%,100% { transform: translate(0,0) rotate(0); }
+  84%  { transform: translate(-1.5px, 0) rotate(-0.15deg); }
+  86%  { transform: translate(1.5px, 0.5px) rotate(0.15deg); }
+  88%  { transform: translate(-1px, 0) rotate(-0.1deg); }
+  90%  { transform: translate(1px, 0); }
+  92%  { transform: translate(-0.5px, 0); }
+  94%  { transform: translate(0,0); }
+}
+
+.zone.s-exit-closed {
+  border-color: rgba(248,113,113,0.3);
+  border-style: dashed;
+  background: rgba(248,113,113,0.025);
+}
+html.light .zone.s-exit-closed {
+  border-color: rgba(220,38,38,0.35);
+  background: rgba(220,38,38,0.03);
+}
+
+.zone.s-exit-open {
+  border-color: rgba(52,211,153,0.5);
+  border-style: dashed;
+  background: rgba(52,211,153,0.05);
+  animation: doorPulse 2s ease-in-out infinite;
+}
+html.light .zone.s-exit-open {
+  border-color: rgba(5,150,105,0.5);
+  background: rgba(5,150,105,0.06);
+}
+@keyframes doorPulse {
+  0%,100% { box-shadow: none; }
+  50% { box-shadow: 0 0 16px rgba(52,211,153,0.15) inset; }
+}
+
+/* Zone inner elements */
+.zone-icon  { font-size: 18px; flex-shrink: 0; line-height: 1; user-select: none; }
+.zone-info  { flex-shrink: 0; width: 76px; transition: width 0.2s; }
+html.large .zone-info { width: 88px; }
+
+.zone-name {
+  font-size: var(--fs-name);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted2);
+  line-height: 1.2;
+  margin-bottom: 2px;
+  transition: font-size 0.2s;
+}
+.zone-stat {
+  font-size: var(--fs-stat);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: color 0.5s, font-size 0.2s;
+}
+.zone.s-green .zone-stat       { color: var(--green); }
+.zone.s-amber .zone-stat       { color: var(--amber); }
+.zone.s-red   .zone-stat       { color: var(--red); }
+.zone.s-exit-closed .zone-stat { color: var(--red); }
+.zone.s-exit-open   .zone-stat { color: var(--green); }
+
+/* People */
+.zone-ppl {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 2px 2px;
+  overflow: hidden;
+}
+.p {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+  width: var(--psize);
+  height: calc(var(--psize) * 2);
+}
+.ph {
+  width: var(--phead);
+  height: var(--phead);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+.pb {
+  width: 2px;
+  flex: 1;
+  min-height: 4px;
+  border-radius: 1px;
+  flex-shrink: 0;
+  transition: background 0.4s;
+}
+
+/* Footnote inside zone */
+.zone-note {
+  position: absolute;
+  bottom: 3px; right: 8px;
+  font-size: 8px; font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+html.large .zone-note { font-size: 10px; }
+.zone-note.show { opacity: 1; }
+#note-safari { color: var(--orange); }
+#note-social  { color: var(--muted); font-weight: 500; }
+
+/* ─────────────────── CONNECTORS ─────────────────── */
+.conn {
+  height: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+}
+.conn-line {
+  width: 2px;
+  height: 100%;
+  background: var(--border-hi);
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.5s;
+}
+.conn-head {
+  position: absolute;
+  bottom: -1px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--border-hi);
+  transition: border-top-color 0.5s;
+}
+
+/* Blocked: red blink */
+.conn.c-blocked .conn-line { background: rgba(248,113,113,0.6); animation: connBlink 0.8s ease-in-out infinite; }
+.conn.c-blocked .conn-head { border-top-color: rgba(248,113,113,0.6); }
+html.light .conn.c-blocked .conn-line { background: rgba(220,38,38,0.7); }
+html.light .conn.c-blocked .conn-head { border-top-color: rgba(220,38,38,0.7); }
+@keyframes connBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* Flowing: animated gradient pulse */
+.conn.c-flowing .conn-line {
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(52,211,153,0.9) 50%,
+    transparent 100%);
+  background-size: 100% 300%;
+  animation: connFlow 0.7s linear infinite;
+}
+.conn.c-flowing .conn-head { border-top-color: rgba(52,211,153,0.6); }
+html.light .conn.c-flowing .conn-line {
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(5,150,105,0.9) 50%,
+    transparent 100%);
+  background-size: 100% 300%;
+}
+html.light .conn.c-flowing .conn-head { border-top-color: rgba(5,150,105,0.6); }
+@keyframes connFlow {
+  from { background-position: 0 -100%; }
+  to   { background-position: 0 200%;  }
+}
+
+/* ─────────────────── TIMELINE (beds scenario) ─────────────────── */
+.timeline {
+  display: none;
+  padding: 5px 12px 0;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+.timeline.show { display: flex; }
+.tl-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--amber);
+  white-space: nowrap;
+  min-width: 68px;
+  transition: font-size 0.2s;
+}
+html.large .tl-label { font-size: 12px; }
+.tl-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border-hi);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.tl-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--amber);
+  border-radius: 2px;
+  transition: width 0.9s linear, background 0.4s;
+}
+.tl-end {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted2);
+  white-space: nowrap;
+  transition: font-size 0.2s;
+}
+html.large .tl-end { font-size: 11px; }
+
+/* ─────────────────── CONTROLS ─────────────────── */
+.controls {
+  padding: 7px 12px 6px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+}
+.chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+.chip {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border-hi);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: var(--fs-chip);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s, font-size 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  white-space: nowrap;
+}
+.chip:active { transform: scale(0.93); }
+.chip.on-red    { background:rgba(248,113,113,0.12); border-color:rgba(248,113,113,0.5); color:var(--red); }
+.chip.on-amber  { background:rgba(251,191,36,0.12);  border-color:rgba(251,191,36,0.5);  color:var(--amber); }
+.chip.on-green  { background:rgba(52,211,153,0.12);  border-color:rgba(52,211,153,0.5);  color:var(--green); }
+.chip.on-purple { background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.5); color:var(--purple); }
+html.light .chip.on-red    { background:rgba(220,38,38,0.08);  border-color:rgba(220,38,38,0.4);  color:var(--red); }
+html.light .chip.on-amber  { background:rgba(180,83,9,0.08);   border-color:rgba(180,83,9,0.4);   color:var(--amber); }
+html.light .chip.on-green  { background:rgba(5,150,105,0.08);  border-color:rgba(5,150,105,0.4);  color:var(--green); }
+html.light .chip.on-purple { background:rgba(124,58,237,0.08); border-color:rgba(124,58,237,0.4); color:var(--purple); }
+
+.narr {
+  font-size: var(--fs-narr);
+  color: var(--muted);
+  line-height: 1.65;
+  min-height: 34px;
+  transition: font-size 0.2s;
+}
+.narr b  { color: var(--text); }
+.narr .r { color: var(--red);    font-weight: 700; }
+.narr .g { color: var(--green);  font-weight: 700; }
+.narr .a { color: var(--amber);  font-weight: 700; }
+.narr .o { color: var(--orange); font-weight: 700; }
+
+/* ─────────────────── STATS ROW ─────────────────── */
+.stats {
+  display: flex;
+  gap: 5px;
+  padding: 6px 12px 7px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.stat {
+  flex: 1;
+  text-align: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 2px;
+}
+.stat-val {
+  font-size: var(--fs-kval);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: color 0.5s, font-size 0.2s;
+}
+.stat-lbl {
+  font-size: var(--fs-klbl);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-top: 3px;
+  line-height: 1.4;
+  transition: font-size 0.2s;
+}
+
+/* ─────────────────── FOOTER ─────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 14px 7px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.footer-note {
+  font-size: 9px;
+  color: var(--muted2);
+  opacity: 0.6;
+  line-height: 1.5;
+}
+.footer-cta {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.footer-cta:hover { color: #e5c870; }
+
+@media (min-width: 640px) {
+  .app { max-width: 480px; margin: 0 auto; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">Noble's · <span>A Systems View</span></div>
+    <div class="header-modes">
+      <button class="mode-btn" id="btn-light"  onclick="toggleLight()" title="Light / dark mode">☀️</button>
+      <button class="mode-btn" id="btn-large"  onclick="toggleLarge()" title="Larger text">Aa</button>
+    </div>
+    <div class="opel-pill" id="opelPill">
+      <div class="opel-dot pulsing" id="opelDot"></div>
+      <span class="opel-label" id="opelLabel">OPEL 4</span>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-quote">
+      "Clinicians know what happens when a patient is constipated.
+      <em>Here we explore the same concept in a healthcare system.</em>"
+    </div>
+    <div class="hero-sub">
+      Noble's isn't short of patients coming in.&nbsp;
+      <strong>It's short of patients getting out.</strong>
+    </div>
+  </div>
+
+  <!-- Viz -->
+  <div class="viz">
+
+    <div class="zw"><div class="zone s-amber" id="z-amb">
+      <div class="zone-icon">🚑</div>
+      <div class="zone-info"><div class="zone-name">Ambulances</div><div class="zone-stat" id="st-amb">4 waiting</div></div>
+      <div class="zone-ppl" id="pp-amb"></div>
+    </div></div>
+
+    <div class="conn c-blocked" id="cn-0"><div class="conn-line"></div><div class="conn-head"></div></div>
+
+    <div class="zw"><div class="zone s-red" id="z-ed">
+      <div class="zone-icon">🏥</div>
+      <div class="zone-info"><div class="zone-name">Emergency Dept</div><div class="zone-stat" id="st-ed">87% full</div></div>
+      <div class="zone-ppl" id="pp-ed"></div>
+    </div></div>
+
+    <div class="conn c-blocked" id="cn-1"><div class="conn-line"></div><div class="conn-head"></div></div>
+
+    <div class="zw"><div class="zone s-red" id="z-amu">
+      <div class="zone-icon">⚡</div>
+      <div class="zone-info"><div class="zone-name">Acute Medical</div><div class="zone-stat" id="st-amu">91% full</div></div>
+      <div class="zone-ppl" id="pp-amu"></div>
+    </div></div>
+
+    <div class="conn c-blocked" id="cn-2"><div class="conn-line"></div><div class="conn-head"></div></div>
+
+    <div class="zw"><div class="zone s-red" id="z-ward">
+      <div class="zone-icon">🛏️</div>
+      <div class="zone-info"><div class="zone-name">Medical Wards</div><div class="zone-stat" id="st-ward">97% full</div></div>
+      <div class="zone-ppl" id="pp-ward"></div>
+      <div class="zone-note show" id="note-safari">⚠ 12 in the wrong ward</div>
+    </div></div>
+
+    <div class="conn c-blocked" id="cn-3"><div class="conn-line"></div><div class="conn-head"></div></div>
+
+    <div class="zw"><div class="zone s-exit-closed" id="z-exit">
+      <div class="zone-icon">🚪</div>
+      <div class="zone-info"><div class="zone-name">Back Door</div><div class="zone-stat" id="st-exit">Blocked</div></div>
+      <div class="zone-ppl" id="pp-exit"></div>
+      <div class="zone-note show" id="note-social" style="color:var(--muted)">Social care: 65%</div>
+    </div></div>
+
+  </div>
+
+  <!-- Timeline bar (beds scenario only) -->
+  <div class="timeline" id="timeline">
+    <div class="tl-label" id="tl-label">Week 1 / 6</div>
+    <div class="tl-track"><div class="tl-fill" id="tl-fill"></div></div>
+    <div class="tl-end" id="tl-end">6 weeks later…</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="chips">
+      <div class="chip on-red"  id="ch-now"    onclick="go('now')">Noble's today</div>
+      <div class="chip"         id="ch-beds"   onclick="go('beds')">+50 beds</div>
+      <div class="chip"         id="ch-social" onclick="go('social')">Fix social care</div>
+      <div class="chip"         id="ch-gent"   onclick="go('gent')">Gent's vision</div>
+    </div>
+    <div class="narr" id="narr">
+      <b>Right now:</b> 55 people are <span class="r">medically fit but can't leave.</span>
+      The back door is locked. Everything backs up.
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="kv-opel4" style="color:var(--red)">3–4×/wk</div><div class="stat-lbl">OPEL 4<br>events</div></div>
+    <div class="stat"><div class="stat-val" id="kv-dtoc"  style="color:var(--red)">55</div><div class="stat-lbl">Stuck<br>patients</div></div>
+    <div class="stat"><div class="stat-val" id="kv-air"   style="color:var(--orange)">£3.4m</div><div class="stat-lbl">Airbridge<br>/year</div></div>
+    <div class="stat"><div class="stat-val" id="kv-los"   style="color:var(--amber)">+500%</div><div class="stat-lbl">Long-stay<br>since 2023</div></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-note">Coalfinch · Gent/PSG Review May 2026 · Lane, Monefeldt &amp; Rosenhead (2000)</div>
+    <a class="footer-cta" href="nobles-hospital-sim-v15.html">Full model →</a>
+  </div>
+
+</div>
+
+<script>
+/* ── COLOUR PALETTES ──────────────────────────────────────────────────────── */
+const CD = { /* dark */
+  grey:   ['#374151','#2d3748'],
+  slate:  ['#4b5563','#374151'],
+  red:    ['#f87171','#ef4444'],
+  orange: ['#fb923c','#ea580c'],
+  blue:   ['#60a5fa','#3b82f6'],
+  green:  ['#34d399','#10b981'],
+};
+const CL = { /* light */
+  grey:   ['#9ca3af','#6b7280'],
+  slate:  ['#6b7280','#4b5563'],
+  red:    ['#dc2626','#b91c1c'],
+  orange: ['#ea580c','#c2410c'],
+  blue:   ['#2563eb','#1d4ed8'],
+  green:  ['#059669','#047857'],
+};
+function colors() { return document.documentElement.classList.contains('light') ? CL : CD; }
+
+/* ── PEOPLE BUILDER ───────────────────────────────────────────────────────── */
+function ppl(total, main, nAlt1, alt1, nAlt2, alt2) {
+  const arr = [];
+  const n1 = nAlt1 || 0, n2 = nAlt2 || 0, nm = total - n1 - n2;
+  for (let i=0;i<nm;i++) arr.push(main||'slate');
+  for (let i=0;i<n1;i++) arr.push(alt1||'slate');
+  for (let i=0;i<n2;i++) arr.push(alt2||'slate');
+  return arr;
+}
+function renderPpl(id, types) {
+  const el = document.getElementById(id); if (!el) return;
+  const C = colors();
+  const t = [...types].sort(() => Math.random() - 0.49);
+  el.innerHTML = t.map(type => {
+    const [hc,bc] = C[type] || C.slate;
+    return `<div class="p"><div class="ph" style="background:${hc}"></div><div class="pb" style="background:${bc}"></div></div>`;
+  }).join('');
+}
+
+/* ── SCENARIO DEFINITIONS ─────────────────────────────────────────────────── */
+const SC = {
+  now: {
+    opel: { label:'OPEL 4', color:'var(--red)', dot:'#f87171', pBorder:'rgba(248,113,113,0.4)', pBg:'rgba(248,113,113,0.1)', pulse:true },
+    zones: {
+      amb:  { cls:'s-amber',       stat:'4 waiting',    types: ppl(4,'blue') },
+      ed:   { cls:'s-red',         stat:'87% full',     types: ppl(26,'slate',10,'red') },
+      amu:  { cls:'s-red',         stat:'91% full',     types: ppl(18,'slate',7,'red') },
+      ward: { cls:'s-red',         stat:'97% full',     types: ppl(29,'slate',11,'red',8,'orange') },
+      exit: { cls:'s-exit-closed', stat:'Blocked',      types: ppl(3,'red') },
+    },
+    conns: ['c-blocked','c-blocked','c-blocked','c-blocked'],
+    safari:true, socialTxt:'Social care: 65%',
+    chip:'on-red',
+    narr:'<b>Right now:</b> 55 people are <span class="r">medically fit but can\'t leave.</span> The back door is locked. Everything backs up — wards, AMU, ED, ambulances.',
+    kpi:{ opel4:['3–4×/wk','var(--red)'], dtoc:['55','var(--red)'], air:['£3.4m','var(--orange)'], los:['+500%','var(--amber)'] },
+  },
+  social: {
+    opel: { label:'OPEL 2', color:'var(--amber)', dot:'#fbbf24', pBorder:'rgba(251,191,36,0.35)', pBg:'rgba(251,191,36,0.09)', pulse:false },
+    zones: {
+      amb:  { cls:'s-green',     stat:'1 waiting',    types: ppl(1,'blue') },
+      ed:   { cls:'s-amber',     stat:'58% full',     types: ppl(17,'slate',2,'red') },
+      amu:  { cls:'s-amber',     stat:'64% full',     types: ppl(13,'slate',1,'red') },
+      ward: { cls:'s-amber',     stat:'70% full',     types: ppl(21,'slate',2,'red') },
+      exit: { cls:'s-exit-open', stat:'Flowing',      types: ppl(14,'green') },
+    },
+    conns: ['c-flowing','c-flowing','c-flowing','c-flowing'],
+    safari:false, socialTxt:'Social care: 90% ✓',
+    chip:'on-green',
+    narr:'<b>Fix social care:</b> The back door opens. <span class="g">Wards drain. ED breathes. Ambulances clear.</span> OPEL 4 events fall ~60% — without adding a single bed.',
+    kpi:{ opel4:['~1×/mo','var(--green)'], dtoc:['~12','var(--green)'], air:['£2.1m','var(--amber)'], los:['~120%','var(--amber)'] },
+  },
+  gent: {
+    opel: { label:'OPEL 1', color:'var(--green)', dot:'#34d399', pBorder:'rgba(52,211,153,0.35)', pBg:'rgba(52,211,153,0.08)', pulse:false },
+    zones: {
+      amb:  { cls:'s-green',     stat:'On time',      types: ppl(1,'blue') },
+      ed:   { cls:'s-green',     stat:'42% full',     types: ppl(12,'slate') },
+      amu:  { cls:'s-green',     stat:'55% full',     types: ppl(11,'slate') },
+      ward: { cls:'s-green',     stat:'62% full',     types: ppl(18,'slate') },
+      exit: { cls:'s-exit-open', stat:'Flowing',      types: ppl(16,'green') },
+    },
+    conns: ['c-flowing','c-flowing','c-flowing','c-flowing'],
+    safari:false, socialTxt:'Social care: 85% ✓',
+    chip:'on-purple',
+    narr:'<b>Gent\'s full vision:</b> ED streaming + community investment + discharge-first culture. <span class="g">OPEL 4 becomes the exception, not the norm.</span>',
+    kpi:{ opel4:['Rare','var(--green)'], dtoc:['~8','var(--green)'], air:['£1.8m','var(--green)'], los:['<100%','var(--green)'] },
+  },
+};
+
+/* ── +50 BEDS: 6-WEEK TIMELINE ────────────────────────────────────────────── */
+/* Each frame = 1 week. Starts with relief, ends back in crisis. */
+const BEDS_TL = [
+  /* wk0 — initial relief */
+  { label:'Week 1 / 6 — some relief…', fillPct:16, opelLabel:'OPEL 2',
+    amb:{cls:'s-green',stat:'2 waiting',  types:ppl(2,'blue')},
+    ed: {cls:'s-amber',stat:'70% full',  types:ppl(21,'slate',5,'red')},
+    amu:{cls:'s-amber',stat:'74% full',  types:ppl(15,'slate',3,'red')},
+    ward:{cls:'s-amber',stat:'79% full', types:ppl(23,'slate',4,'red',5,'orange')},
+    exit:{cls:'s-exit-closed',stat:'Still blocked',types:ppl(2,'red')},
+    conns:['c-flowing','c-flowing','c-flowing','c-blocked'],
+    narr:'<b>Week 1:</b> Fifty new beds open. Queues ease. <span class="a">Ambulances are moving again.</span> Staff breathe. Headlines say it worked.',
+  },
+  /* wk1 */
+  { label:'Week 2 / 6 — filling…', fillPct:33,  opelLabel:'OPEL 2',
+    amb:{cls:'s-amber',stat:'3 waiting',  types:ppl(3,'blue')},
+    ed: {cls:'s-amber',stat:'75% full',  types:ppl(22,'slate',7,'red')},
+    amu:{cls:'s-amber',stat:'80% full',  types:ppl(16,'slate',5,'red')},
+    ward:{cls:'s-amber',stat:'85% full', types:ppl(25,'slate',7,'red',6,'orange')},
+    exit:{cls:'s-exit-closed',stat:'Still blocked',types:ppl(2,'red')},
+    conns:['c-flowing','c-flowing','c-blocked','c-blocked'],
+    narr:'<b>Week 2:</b> The back door is <span class="a">still locked.</span> Medically-fit patients are still waiting. The new beds are filling up.',
+  },
+  /* wk2 */
+  { label:'Week 3 / 6 — filling faster…', fillPct:50, opelLabel:'OPEL 3',
+    amb:{cls:'s-amber',stat:'4 waiting',  types:ppl(4,'blue')},
+    ed: {cls:'s-red',  stat:'82% full',  types:ppl(24,'slate',10,'red')},
+    amu:{cls:'s-red',  stat:'87% full',  types:ppl(17,'slate',8,'red')},
+    ward:{cls:'s-red', stat:'92% full',  types:ppl(27,'slate',10,'red',7,'orange')},
+    exit:{cls:'s-exit-closed',stat:'Still blocked',types:ppl(2,'red')},
+    conns:['c-blocked','c-blocked','c-blocked','c-blocked'],
+    narr:'<b>Week 3:</b> <span class="r">OPEL 3.</span> The new beds are almost full. The back door hasn\'t moved. Same patients, wider colon.',
+  },
+  /* wk3 */
+  { label:'Week 4 / 6 — nearly full…', fillPct:66, opelLabel:'OPEL 3',
+    amb:{cls:'s-red',  stat:'5 waiting',  types:ppl(5,'blue')},
+    ed: {cls:'s-red',  stat:'85% full',  types:ppl(25,'slate',12,'red')},
+    amu:{cls:'s-red',  stat:'91% full',  types:ppl(18,'slate',10,'red')},
+    ward:{cls:'s-red', stat:'95% full',  types:ppl(28,'slate',12,'red',8,'orange')},
+    exit:{cls:'s-exit-closed',stat:'Still blocked',types:ppl(3,'red')},
+    conns:['c-blocked','c-blocked','c-blocked','c-blocked'],
+    narr:'<b>Week 4:</b> Ambulances are backing up again. Senior staff are being called at weekends. The back door is <span class="r">still locked.</span>',
+  },
+  /* wk4 */
+  { label:'Week 5 / 6 — almost there…', fillPct:83, opelLabel:'OPEL 4',
+    amb:{cls:'s-red',  stat:'6 waiting',  types:ppl(6,'blue')},
+    ed: {cls:'s-red',  stat:'87% full',  types:ppl(26,'slate',13,'red')},
+    amu:{cls:'s-red',  stat:'93% full',  types:ppl(18,'slate',11,'red')},
+    ward:{cls:'s-red', stat:'97% full',  types:ppl(29,'slate',12,'red',8,'orange')},
+    exit:{cls:'s-exit-closed',stat:'Blocked',types:ppl(3,'red')},
+    conns:['c-blocked','c-blocked','c-blocked','c-blocked'],
+    narr:'<span class="r"><b>Week 5: OPEL 4.</b></span> The extra beds are full. The back door never opened. It cost £5m more per year to end up back here.',
+  },
+  /* wk5 — back to crisis */
+  { label:'Week 6 / 6', fillPct:100, opelLabel:'OPEL 4 — again',
+    amb:{cls:'s-red',  stat:'4 waiting',  types:ppl(4,'blue')},
+    ed: {cls:'s-red',  stat:'87% full',  types:ppl(26,'slate',10,'red')},
+    amu:{cls:'s-red',  stat:'91% full',  types:ppl(18,'slate',7,'red')},
+    ward:{cls:'s-red', stat:'97% full',  types:ppl(29,'slate',11,'red',8,'orange')},
+    exit:{cls:'s-exit-closed',stat:'Blocked',types:ppl(3,'red')},
+    conns:['c-blocked','c-blocked','c-blocked','c-blocked'],
+    narr:'<span class="r"><b>6 weeks later. Welcome back to OPEL 4.</b></span> You made the colon wider. You still have a sphincter problem. The beds cost £5m more per year.',
+  },
+];
+
+let bedsTimer = null;
+let bedsFrame = 0;
+
+function applyZoneFrame(frame) {
+  const zids = ['amb','ed','amu','ward','exit'];
+  zids.forEach(zid => {
+    const fd = frame[zid]; if (!fd) return;
+    const zEl = document.getElementById(`z-${zid}`);
+    if (zEl) zEl.className = `zone ${fd.cls}`;
+    const st = document.getElementById(`st-${zid}`); if (st) st.textContent = fd.stat;
+    renderPpl(`pp-${zid}`, fd.types);
+  });
+  if (frame.conns) frame.conns.forEach((cls,i) => {
+    const el = document.getElementById(`cn-${i}`); if (el) el.className = `conn ${cls}`;
+  });
+}
+
+function startBedsTimeline() {
+  clearInterval(bedsTimer);
+  bedsFrame = 0;
+
+  // Show timeline bar
+  document.getElementById('timeline').classList.add('show');
+  document.getElementById('note-safari').classList.add('show');
+  const safEl = document.getElementById('note-social');
+  if (safEl) { safEl.textContent = 'Social care: 65% (unchanged)'; safEl.classList.add('show'); }
+
+  // Initial OPEL
+  setOpel('OPEL 2', '#fbbf24', 'rgba(251,191,36,0.35)', 'rgba(251,191,36,0.09)', false);
+  setKpi({ opel4:['+50 beds','var(--amber)'], dtoc:['52','var(--amber)'], air:['£3.9m','var(--orange)'], los:['+500%','var(--amber)'] });
+
+  function tick() {
+    if (bedsFrame >= BEDS_TL.length) { clearInterval(bedsTimer); return; }
+    const f = BEDS_TL[bedsFrame];
+
+    // Timeline bar
+    document.getElementById('tl-label').textContent = f.label;
+    document.getElementById('tl-fill').style.width = f.fillPct + '%';
+    if (f.fillPct >= 100) {
+      document.getElementById('tl-fill').style.background = 'var(--red)';
+      document.getElementById('tl-end').style.color = 'var(--red)';
+      document.getElementById('tl-end').style.fontWeight = '700';
+    }
+
+    // OPEL label update
+    const dot = document.getElementById('opelDot');
+    const lbl = document.getElementById('opelLabel');
+    if (f.opelLabel.includes('4')) {
+      dot.style.background = '#f87171'; dot.classList.add('pulsing');
+      lbl.style.color = 'var(--red)'; lbl.textContent = f.opelLabel;
+      document.getElementById('opelPill').style.borderColor = 'rgba(248,113,113,0.4)';
+      document.getElementById('opelPill').style.background  = 'rgba(248,113,113,0.1)';
+    } else if (f.opelLabel.includes('3')) {
+      dot.style.background = '#fb923c'; dot.classList.remove('pulsing');
+      lbl.style.color = 'var(--orange)'; lbl.textContent = f.opelLabel;
+    }
+
+    applyZoneFrame(f);
+    document.getElementById('narr').innerHTML = f.narr;
+    bedsFrame++;
+  }
+
+  tick(); // run frame 0 immediately
+  bedsTimer = setInterval(tick, 1100);
+}
+
+/* ── OPEL SETTER ──────────────────────────────────────────────────────────── */
+function setOpel(label, color, border, bg, pulse) {
+  const pill  = document.getElementById('opelPill');
+  const dot   = document.getElementById('opelDot');
+  const lbl   = document.getElementById('opelLabel');
+  pill.style.borderColor = border; pill.style.background = bg;
+  dot.style.background = color; dot.classList.toggle('pulsing', pulse);
+  lbl.style.color = color; lbl.textContent = label;
+}
+
+/* ── KPI SETTER ───────────────────────────────────────────────────────────── */
+function setKpi(kpi) {
+  const map = { opel4:'kv-opel4', dtoc:'kv-dtoc', air:'kv-air', los:'kv-los' };
+  Object.entries(map).forEach(([k,id]) => {
+    const el = document.getElementById(id); if (!el || !kpi[k]) return;
+    el.textContent = kpi[k][0]; el.style.color = kpi[k][1];
+  });
+}
+
+/* ── MAIN SCENARIO LOADER ─────────────────────────────────────────────────── */
+function go(sc) {
+  clearInterval(bedsTimer);
+  document.getElementById('timeline').classList.remove('show');
+  document.getElementById('tl-fill').style.width = '0%';
+  document.getElementById('tl-fill').style.background = 'var(--amber)';
+  document.getElementById('tl-end').style.color = 'var(--muted2)';
+  document.getElementById('tl-end').style.fontWeight = '';
+
+  if (sc === 'beds') { startBedsTimeline(); applyChip('ch-beds','on-amber'); return; }
+
+  const s = SC[sc]; if (!s) return;
+  const o = s.opel;
+  setOpel(o.label, o.color, o.pBorder, o.pBg, o.pulse);
+
+  const zids = ['amb','ed','amu','ward','exit'];
+  zids.forEach(zid => {
+    const zd = s.zones[zid]; if (!zd) return;
+    const zEl = document.getElementById(`z-${zid}`); if (zEl) zEl.className = `zone ${zd.cls}`;
+    const st  = document.getElementById(`st-${zid}`); if (st) st.textContent = zd.stat;
+    renderPpl(`pp-${zid}`, zd.types);
+  });
+  s.conns.forEach((cls,i) => {
+    const el = document.getElementById(`cn-${i}`); if (el) el.className = `conn ${cls}`;
+  });
+
+  const safari = document.getElementById('note-safari');
+  if (safari) safari.classList.toggle('show', s.safari);
+  const social = document.getElementById('note-social');
+  if (social) { social.textContent = s.socialTxt; social.classList.add('show'); }
+
+  document.getElementById('narr').innerHTML = s.narr;
+  setKpi(s.kpi);
+  applyChip(`ch-${sc}`, s.chip);
+}
+
+function applyChip(id, cls) {
+  document.querySelectorAll('.chip').forEach(c => c.className = 'chip');
+  const el = document.getElementById(id); if (el) el.className = `chip ${cls}`;
+}
+
+/* ── MODE TOGGLES ─────────────────────────────────────────────────────────── */
+function toggleLight() {
+  document.documentElement.classList.toggle('light');
+  document.getElementById('btn-light').classList.toggle('active', document.documentElement.classList.contains('light'));
+  // Re-render people with new colour set
+  ['amb','ed','amu','ward','exit'].forEach(id => {
+    const el = document.getElementById(`pp-${id}`);
+    if (!el) return;
+    const types = [...el.querySelectorAll('.p')].map(p => {
+      const hc = p.querySelector('.ph').style.background;
+      if (hc.includes('248,113') || hc.includes('220,38')) return 'red';
+      if (hc.includes('251,146') || hc.includes('234,88')) return 'orange';
+      if (hc.includes('96,165')  || hc.includes('37,99'))  return 'blue';
+      if (hc.includes('52,211')  || hc.includes('5,150'))  return 'green';
+      return 'slate';
+    });
+    renderPpl(id, types);
+  });
+}
+
+function toggleLarge() {
+  document.documentElement.classList.toggle('large');
+  document.getElementById('btn-large').classList.toggle('active', document.documentElement.classList.contains('large'));
+}
+
+/* ── OBSERVATORY THEME SYNC ───────────────────────────────────────────────── */
+window.addEventListener('message', function(e) {
+  if (!e.data) return;
+  var t = e.data.type, th = e.data.theme;
+  if ((t === 'setTheme' || t === 'theme') && th) {
+    var wantLight = th === 'light';
+    var isLight = document.documentElement.classList.contains('light');
+    if (wantLight !== isLight) toggleLight();
+  }
+});
+
+/* ── INIT ─────────────────────────────────────────────────────────────────── */
+go('now');
+</script>
+</body>
+</html>

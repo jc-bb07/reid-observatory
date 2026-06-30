@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Isle of Man — Health Performance Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:       #0f172a;
+      --surface:  #1e293b;
+      --surface2: #162032;
+      --border2:  #334155;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --muted2:   #475569;
+      --blue:     #60a5fa;
+      --green:    #34d399;
+      --amber:    #fbbf24;
+      --red:      #f87171;
+      --purple:   #a78bfa;
+      --orange:   #fb923c;
+      --iom:      #3b82f6;
+      --eng:      #94a3b8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      min-width: 900px;
+    }
+    /* ── Header ── */
+    .header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left h1 {
+      font-size: 19px; font-weight: 800; letter-spacing: -0.01em;
+    }
+    .header-left p {
+      font-size: 11px; color: var(--muted); margin-top: 3px;
+    }
+    .header-badges { display: flex; gap: 8px; align-items: center; }
+    .badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 4px 10px; border-radius: 4px;
+    }
+    .badge-iom {
+      background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3);
+      color: var(--iom);
+    }
+    .badge-date {
+      background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
+    }
+    /* ── Layout ── */
+    .container { max-width: 1240px; margin: 0 auto; padding: 24px 32px; }
+    .section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      margin-bottom: 14px; margin-top: 32px;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border2);
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* ── KPI row ── */
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+      margin-bottom: 8px;
+    }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 14px 14px 12px; position: relative; overflow: hidden;
+    }
+    .kpi-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .kpi-red::after   { background: var(--red); }
+    .kpi-amber::after { background: var(--amber); }
+    .kpi-green::after { background: var(--green); }
+    .kpi-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 26px; font-weight: 800; line-height: 1; margin-bottom: 5px;
+    }
+    .kpi-red   .kpi-value { color: var(--red); }
+    .kpi-amber .kpi-value { color: var(--amber); }
+    .kpi-green .kpi-value { color: var(--green); }
+    .kpi-context { font-size: 10px; color: var(--muted); line-height: 1.4; }
+    .kpi-vs {
+      font-size: 10px; font-weight: 600; margin-top: 5px; line-height: 1.4;
+    }
+    .kpi-red   .kpi-vs { color: var(--red); }
+    .kpi-amber .kpi-vs { color: var(--amber); }
+    .kpi-green .kpi-vs { color: var(--green); }
+
+    /* ── Chart grid ── */
+    .chart-grid {
+      display: grid; gap: 14px; margin-bottom: 4px;
+    }
+    .col-2 { grid-template-columns: 1fr 1fr; }
+    .col-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .col-1 { grid-template-columns: 1fr; }
+
+    .chart-card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 18px 20px;
+    }
+    .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .chart-sub {
+      font-size: 11px; color: var(--muted); margin-bottom: 12px; line-height: 1.5;
+    }
+    .chart-wrap { position: relative; }
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; color: var(--muted);
+    }
+    .l-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .l-dash {
+      width: 16px; height: 0;
+      border-top: 2px dashed currentColor; flex-shrink: 0;
+    }
+    .commentary {
+      font-size: 11px; color: var(--muted); line-height: 1.7;
+      margin-top: 12px; padding: 10px 12px;
+      background: rgba(59,130,246,0.05);
+      border-left: 2px solid rgba(59,130,246,0.35);
+      border-radius: 0 4px 4px 0;
+    }
+    .commentary strong { color: var(--text); }
+
+    /* ── Pressure stats grid (non-chart) ── */
+    .pressure-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 0 12px;
+    }
+    .pressure-stat {
+      border-radius: 6px; padding: 14px; text-align: center;
+    }
+    .pressure-stat.red {
+      background: rgba(248,113,113,0.07);
+      border: 1px solid rgba(248,113,113,0.2);
+    }
+    .pressure-stat.amber {
+      background: rgba(251,191,36,0.07);
+      border: 1px solid rgba(251,191,36,0.2);
+    }
+    .pstat-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px;
+    }
+    .pstat-val { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+    .pstat-val.red   { color: var(--red); }
+    .pstat-val.amber { color: var(--amber); }
+    .pstat-note { font-size: 10px; color: var(--muted); }
+
+    /* ── Outcome panels ── */
+    .outcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .outcome-panel {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 20px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .outcome-stat { text-align: center; flex-shrink: 0; min-width: 90px; }
+    .outcome-stat-lbl {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px;
+    }
+    .outcome-stat-val { font-size: 34px; font-weight: 800; line-height: 1; }
+    .outcome-stat-unit { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .outcome-divider { width: 1px; height: 70px; background: var(--border2); flex-shrink: 0; }
+    .outcome-body { flex: 1; }
+    .outcome-body h3 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .outcome-body p { font-size: 11px; color: var(--muted); line-height: 1.7; }
+    .outcome-chip {
+      display: inline-block; margin-top: 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; padding: 3px 8px; border-radius: 3px;
+      background: rgba(52,211,153,0.12); color: var(--green);
+    }
+
+    /* ── MH snapshot ── */
+    .mh-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .mh-card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 18px 20px;
+    }
+    .mh-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .mh-card .chart-sub { margin-bottom: 8px; }
+    .mh-val-row { display: flex; align-items: baseline; gap: 8px; margin: 12px 0; }
+    .mh-big { font-size: 36px; font-weight: 800; line-height: 1; }
+    .mh-unit { font-size: 12px; color: var(--muted); }
+    .mh-note { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Data gaps ── */
+    .gaps-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    }
+    .gap-card {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 12px 14px;
+    }
+    .gap-card h4 { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+    .gap-pill {
+      display: inline-block; font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 2px 7px; border-radius: 3px; margin-bottom: 7px;
+    }
+    .pill-green { background: rgba(52,211,153,0.12); color: var(--green); }
+    .pill-amber { background: rgba(251,191,36,0.12); color: var(--amber); }
+    .pill-red   { background: rgba(248,113,113,0.10); color: var(--red); }
+    .gap-note-text { font-size: 10px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border2); padding: 18px 32px;
+      font-size: 10px; color: var(--muted2); line-height: 1.8;
+    }
+    .footer strong { color: var(--muted); font-weight: 600; }
+    .src {
+      display: inline; font-family: 'JetBrains Mono', monospace;
+      background: var(--surface); border: 1px solid var(--border2);
+      padding: 1px 5px; border-radius: 3px; font-size: 9px; margin: 0 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+<header class="header">
+  <div class="header-left">
+    <h1>Isle of Man — Health Performance Dashboard</h1>
+    <p>Manx Care · Nobles Hospital · Compiled by Coalfinch · Data to 2024-25 (ED to April 2026)</p>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-iom">IoM Only</span>
+    <span class="badge badge-date">June 2026</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ═══════════════════════ KPI CARDS ═══════════════════════ -->
+  <p class="section-label">At a Glance — Key Performance Indicators</p>
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">ED 4-Hour Wait</div>
+      <div class="kpi-value">59.5%</div>
+      <div class="kpi-context">April 2026 · Nobles A&amp;E</div>
+      <div class="kpi-vs">↓ Target 95% · England 75%</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">Bed Occupancy</div>
+      <div class="kpi-value">90%</div>
+      <div class="kpi-context">2-year avg · Nobles Hospital</div>
+      <div class="kpi-vs">⚠ Safe threshold: 85%</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">Cancer 62-Day</div>
+      <div class="kpi-value">52.1%</div>
+      <div class="kpi-context">2024-25 · GP ref to treatment</div>
+      <div class="kpi-vs">↓ Target 85% · England 71.4%</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-label">Cancer 28-Day FDS</div>
+      <div class="kpi-value">62.5%</div>
+      <div class="kpi-context">2024-25 · Faster Diagnosis Standard</div>
+      <div class="kpi-vs">↓ England: 78.9%</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-label">Life Expectancy</div>
+      <div class="kpi-value">81.7</div>
+      <div class="kpi-context">Years at birth · 2022</div>
+      <div class="kpi-vs">↑ +1.3 yrs vs England (80.4)</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-label">Amenable Mortality</div>
+      <div class="kpi-value">194</div>
+      <div class="kpi-context">ASMR per 100k · 2022</div>
+      <div class="kpi-vs">↓ Better than England (202)</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ EMERGENCY DEPARTMENT ═══════════════════════ -->
+  <p class="section-label">Emergency Department</p>
+  <div class="chart-grid col-2">
+
+    <!-- Chart 1: ED 4-hr trend -->
+    <div class="chart-card">
+      <div class="chart-title">4-Hour Performance — Trend</div>
+      <div class="chart-sub">% of ED attendances seen, treated, admitted or discharged within 4 hours · NHS target: 95%</div>
+      <div class="legend">
+        <div class="legend-item"><div class="l-dot" style="background:var(--iom)"></div> Isle of Man</div>
+        <div class="legend-item"><div class="l-dash" style="color:var(--eng)"></div> England (2024-25)</div>
+        <div class="legend-item"><div class="l-dash" style="color:var(--amber)"></div> NHS Target 95%</div>
+      </div>
+      <div class="chart-wrap"><canvas id="ed4hr" height="200"></canvas></div>
+      <div class="commentary">
+        <strong>Sustained deterioration.</strong> Performance has fallen from 74.5% in 2021-22 to 59.5% in April 2026 — a 15 percentage-point drop in under five years. The April 2026 figure is the most recent available from the Gent capacity review (May 2026). IoM now sits 15pp below England's average and just over half the 95% NHS target.
+      </div>
+    </div>
+
+    <!-- Chart 2: Hospital pressure indicators (HTML stats, not chart) -->
+    <div class="chart-card">
+      <div class="chart-title">Hospital Pressure — Key Indicators</div>
+      <div class="chart-sub">Selected metrics from Manx Care IPR and Gent Rapid Review (May 2026) · Nobles Hospital</div>
+      <div class="pressure-grid">
+        <div class="pressure-stat red">
+          <div class="pstat-label">Bed Occupancy (2-yr avg)</div>
+          <div class="pstat-val red">90%</div>
+          <div class="pstat-note">Safe threshold: 85%</div>
+        </div>
+        <div class="pressure-stat red">
+          <div class="pstat-label">ED 12-hr Waits 2024-25</div>
+          <div class="pstat-val red">4.4%</div>
+          <div class="pstat-note">Up from 2.8% in 2023-24 (+57%)</div>
+        </div>
+        <div class="pressure-stat amber">
+          <div class="pstat-label">Avg Time in ED (Mar 2024)</div>
+          <div class="pstat-val amber">265 min</div>
+          <div class="pstat-note">4 hrs 25 min per attendance</div>
+        </div>
+        <div class="pressure-stat amber">
+          <div class="pstat-label">Cat 1 Ambulance (2024-25)</div>
+          <div class="pstat-val amber">9.45 min</div>
+          <div class="pstat-note">Jersey comparison: 6.67 min</div>
+        </div>
+      </div>
+      <div class="commentary">
+        <strong>Sustained OPEL 4 pressure.</strong> The Gent review (May 2026) found medical patients occupying 8–12 surgical beds daily, and the daily admissions rate (~20/day) unchanged — suggesting the issue is exit block and flow rather than rising demand. Recommissioning an integrated urgent care model was the key structural recommendation.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════ CANCER ═══════════════════════ -->
+  <p class="section-label">Cancer Waiting Times</p>
+  <div class="chart-grid col-2">
+
+    <!-- Chart 3: Cancer vs England -->
+    <div class="chart-card">
+      <div class="chart-title">Current Performance vs England (2024-25)</div>
+      <div class="chart-sub">% meeting each waiting time standard — IoM vs England benchmark</div>
+      <div class="legend">
+        <div class="legend-item"><div class="l-dot" style="background:var(--iom)"></div> Isle of Man</div>
+        <div class="legend-item"><div class="l-dot" style="background:var(--eng)"></div> England</div>
+        <div class="legend-item"><div class="l-dash" style="color:var(--amber)"></div> Standard target</div>
+      </div>
+      <div class="chart-wrap"><canvas id="cancervse" height="200"></canvas></div>
+      <div class="commentary">
+        <strong>Significant gap on the two most critical pathways.</strong> IoM's 62-day referral-to-treatment rate (52.1%) is 19pp below England (71.4%) and 33pp below the 85% target. Decision-to-treat at 85.5% is the strongest metric and broadly comparable to the 96% target's trajectory.
+      </div>
+    </div>
+
+    <!-- Chart 4: Cancer trend -->
+    <div class="chart-card">
+      <div class="chart-title">Cancer Waiting Times — Trend (IoM)</div>
+      <div class="chart-sub">2022-23 to 2024-25 · all three pathway measures</div>
+      <div class="legend">
+        <div class="legend-item"><div class="l-dot" style="background:var(--iom)"></div> 28-day FDS</div>
+        <div class="legend-item"><div class="l-dot" style="background:var(--red)"></div> 62-day referral-to-treat</div>
+        <div class="legend-item"><div class="l-dot" style="background:var(--green)"></div> 31-day decision-to-treat</div>
+      </div>
+      <div class="chart-wrap"><canvas id="cancertrend" height="200"></canvas></div>
+      <div class="commentary">
+        <strong>Mixed trajectory.</strong> Decision-to-treat (31-day) has improved from 79.6% to 85.5%. The 28-day Faster Diagnosis Standard peaked in 2023-24 then fell back, while 62-day treatment has remained stubbornly flat at ~52% — suggesting a persistent capacity constraint in treatment rather than diagnosis.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════ LONG-TERM BURDEN ═══════════════════════ -->
+  <p class="section-label">Long-Term Health Burden — Incapacity Allowance</p>
+  <div class="chart-grid col-2">
+
+    <!-- Chart 5: LTIA profile 2025 -->
+    <div class="chart-card">
+      <div class="chart-title">LTIA Claims by Ailment — 2025</div>
+      <div class="chart-sub">Number of Long-Term Incapacity Allowance claims by ailment category · December 2025 · "Other" includes unclassified conditions</div>
+      <div class="chart-wrap"><canvas id="ltia2025" height="240"></canvas></div>
+      <div class="commentary">
+        <strong>Mental health is the dominant driver.</strong> Depression (666), back pain (410), anxiety (250) and stress (159) together account for 1,485 named claims. Cancer (carcinoma, 219 claims) carries the highest average incapacity level at 61%. The "Other" category (3,100) contains unclassified diagnoses — neurological, cardiac, musculoskeletal — and is included for completeness.
+      </div>
+    </div>
+
+    <!-- Chart 6: LTIA trend -->
+    <div class="chart-card">
+      <div class="chart-title">Mental Health & Cancer Incapacity — 14-Year Trend</div>
+      <div class="chart-sub">LTIA claims · Depression + Anxiety + Stress combined vs Carcinoma · IoM · 2012–2025</div>
+      <div class="legend">
+        <div class="legend-item"><div class="l-dot" style="background:var(--purple)"></div> Mental health total (Dep + Anx + Stress)</div>
+        <div class="legend-item"><div class="l-dot" style="background:var(--red)"></div> Cancer (Carcinoma)</div>
+      </div>
+      <div class="chart-wrap"><canvas id="ltiatrend" height="240"></canvas></div>
+      <div class="commentary">
+        <strong>Persistent upward pressure from both.</strong> Mental health LTIA claims rose 44% from 748 (2012) to 1,075 (2025). Cancer-related claims nearly tripled from 75 to 219 over the same period, driven partly by longer survival extending claim duration. Both trends have continued through the post-pandemic period without reversing.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════ OUTCOMES ═══════════════════════ -->
+  <p class="section-label">Population Health Outcomes vs England</p>
+  <div class="outcome-grid">
+
+    <div class="outcome-panel">
+      <div class="outcome-stat">
+        <div class="outcome-stat-lbl">Isle of Man</div>
+        <div class="outcome-stat-val" style="color:var(--iom)">81.7</div>
+        <div class="outcome-stat-unit">yrs life expectancy (2022)</div>
+      </div>
+      <div class="outcome-divider"></div>
+      <div class="outcome-stat">
+        <div class="outcome-stat-lbl">England</div>
+        <div class="outcome-stat-val" style="color:var(--eng)">80.4</div>
+        <div class="outcome-stat-unit">yrs life expectancy</div>
+      </div>
+      <div class="outcome-body">
+        <h3>Life Expectancy</h3>
+        <p>IoM has 1.3 years higher life expectancy than England — a meaningful difference reflecting a demographically older but relatively healthy island population. Healthy life expectancy (DFLE) data is not separately published for IoM and cannot yet be compared.</p>
+        <span class="outcome-chip">+1.3 yrs above England</span>
+      </div>
+    </div>
+
+    <div class="outcome-panel">
+      <div class="outcome-stat">
+        <div class="outcome-stat-lbl">Isle of Man</div>
+        <div class="outcome-stat-val" style="color:var(--green)">194</div>
+        <div class="outcome-stat-unit">ASMR per 100k (2022)</div>
+      </div>
+      <div class="outcome-divider"></div>
+      <div class="outcome-stat">
+        <div class="outcome-stat-lbl">England</div>
+        <div class="outcome-stat-val" style="color:var(--eng)">202</div>
+        <div class="outcome-stat-unit">ASMR per 100k (2023)</div>
+      </div>
+      <div class="outcome-body">
+        <h3>Amenable Mortality</h3>
+        <p>Deaths from causes preventable by timely healthcare, age-standardised. IoM's rate is lower (better) than England by 8 points per 100,000. Note: IoM data is one year behind; without a time series, trend direction cannot be assessed. Lower is better.</p>
+        <span class="outcome-chip">8 pts better than England</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════ MENTAL HEALTH ═══════════════════════ -->
+  <p class="section-label">Mental Health Services — 2018-19 Baseline (most recent published data)</p>
+  <div class="mh-grid">
+
+    <div class="mh-card">
+      <h3>Open Specialist MH Caseload</h3>
+      <div class="chart-sub">People open to specialist services · monthly range Apr 2018–Mar 2019</div>
+      <div class="mh-val-row">
+        <div class="mh-big" style="color:var(--purple)">4,389</div>
+        <div class="mh-unit">people (peak)</div>
+      </div>
+      <div class="mh-note">Range: 4,263–4,389 across the year. At peak, approximately <strong>5.2%</strong> of the island's population (~84,000) was open to specialist mental health services. Updated comparable data has not been published since 2019.</div>
+    </div>
+
+    <div class="mh-card">
+      <h3>Off-Island MH Placements</h3>
+      <div class="chart-sub">People placed in off-island mental health facilities · 2018-19</div>
+      <div class="mh-val-row">
+        <div class="mh-big" style="color:var(--amber)">17–20</div>
+        <div class="mh-unit">per month</div>
+      </div>
+      <div class="mh-note">Sustained throughout the year. Off-island placements represent high per-capita cost and distance-from-home concerns for patients and families. Current position is unknown — no comparable figure has been published since 2019.</div>
+    </div>
+
+    <div class="mh-card">
+      <h3>Detained Under MH Act</h3>
+      <div class="chart-sub">People currently detained · monthly snapshot · 2018-19</div>
+      <div class="mh-val-row">
+        <div class="mh-big" style="color:var(--red)">22</div>
+        <div class="mh-unit">at March 2019</div>
+      </div>
+      <div class="mh-note">Rose from 12 in April 2018 to 22 by March 2019 — an 83% increase within the reporting year. England comparison (2022-23): ~198 per 100,000. IoM's per-capita position is not directly comparable without age-standardisation.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════ DATA GAPS ═══════════════════════ -->
+  <p class="section-label">Data Coverage — Key Political Metrics</p>
+  <div class="gaps-grid">
+
+    <div class="gap-card">
+      <h4>Emergency Dept</h4>
+      <div><span class="gap-pill pill-green">Published</span></div>
+      <div class="gap-note-text">4-hr, 12-hr waits, ambulance response time. Annual trend available 2021-22 to 2024-25, plus April 2026 from Gent review.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Cancer Waiting Times</h4>
+      <div><span class="gap-pill pill-green">Published</span></div>
+      <div class="gap-note-text">28-day FDS, 62-day referral-to-treat, 31-day decision-to-treat. Three-year trend available. England comparisons available.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Long-Term Incapacity</h4>
+      <div><span class="gap-pill pill-green">Published</span></div>
+      <div class="gap-note-text">LTIA claims by ailment category 2012–2025. Richest IoM health time series available. 14-year trend with 8 ailment breakdowns.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Population Outcomes</h4>
+      <div><span class="gap-pill pill-green">Published</span></div>
+      <div class="gap-note-text">Life expectancy and amenable mortality. Single data points, no multi-year IoM trend. DFLE/healthy life expectancy not separately published.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Mental Health Services</h4>
+      <div><span class="gap-pill pill-amber">Stale — 2019</span></div>
+      <div class="gap-note-text">IoM MHDS published Apr 2018–Mar 2019. No update since. Waiting times, community outcomes and access rates not published.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Stroke Care</h4>
+      <div><span class="gap-pill pill-amber">1 Data Point</span></div>
+      <div class="gap-note-text">March 2024 only: 36% arrival-to-CT scan vs England 52% (annual). No time series exists. Cannot be meaningfully dashboarded yet.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Elective Backlog (RTT)</h4>
+      <div><span class="gap-pill pill-amber">Not Extracted</span></div>
+      <div class="gap-note-text">Backlog referenced in Gent Review (May 2026) as a system pressure. Quantified waiting list data is referenced in IPR but not publicly extracted.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>ACSC (Avoidable Admissions)</h4>
+      <div><span class="gap-pill pill-red">Not Published</span></div>
+      <div class="gap-note-text">ICD-10 codes confirmed in FOI 2074149 (I10, I21, I63 etc). Extraction possible via targeted FOI. England benchmark: 1,832 per 100k (2022-23).</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>Maternity</h4>
+      <div><span class="gap-pill pill-red">Not Published</span></div>
+      <div class="gap-note-text">No comparable waiting time, outcome or safety metric located. Induction rates, C-section rates and continuity of carer data are all FOI targets.</div>
+    </div>
+
+    <div class="gap-card">
+      <h4>GP / Primary Care Access</h4>
+      <div><span class="gap-pill pill-red">Not Published</span></div>
+      <div class="gap-note-text">No comparable IoM access metric exists. England: 56.3% same-day or next-day appointment (2024). A direct relationship to A&E footfall per Gent review.</div>
+    </div>
+
+  </div>
+
+</div><!-- /container -->
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="footer">
+  <strong>Sources:</strong>
+  <span class="src">ed.json / Manx Care IPR</span> ED 4-hr performance 2021-22 to 2024-25 ·
+  <span class="src">Gent/PSG Review May 2026</span> ED April 2026 (59.5%), bed occupancy 90%, 12-hr waits, ambulance ·
+  <span class="src">cancer.json / Manx Care Annual Reports</span> Cancer waiting times 2022-23 to 2024-25 ·
+  <span class="src">NHS England</span> ED 75%, Cancer 71.4% / 78.9% benchmarks ·
+  <span class="src">IoM Treasury — Social Security</span> LTIA by ailment 2012–2025 ·
+  <span class="src">IoM MHDS 2019</span> Mental health service statistics Apr 2018–Mar 2019 ·
+  <span class="src">IoM Statistics 2022</span> Life expectancy 81.7 yrs ·
+  <span class="src">WHO/ONS via Coalfinch</span> Amenable mortality ASMR 194.4 (2022) ·
+  <span class="src">FOI 2074149</span> ICD-10 cardiac / ACSC proof-of-concept
+  <br/>
+  Compiled by Coalfinch for Crown Dependencies Health Observatory · June 2026 · Not for clinical use · Data gaps reflect publication status as of compilation date
+</footer>
+
+<script>
+// ─── Global Chart.js defaults ───────────────────────────────────────────────
+Chart.defaults.color       = '#64748b';
+Chart.defaults.borderColor = '#334155';
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size   = 11;
+
+// ─── Plugins — register ALL before any chart is created ─────────────────────
+
+// Y-axis reference lines (for vertical charts)
+Chart.register({
+  id: 'refLine',
+  afterDraw(chart) {
+    const lines = chart.options._refLines;
+    if (!lines || !lines.length) return;
+    const yScale = chart.scales.y;
+    if (!yScale) return;
+    const { ctx, chartArea: { left, right } } = chart;
+    lines.forEach(({ value, color, label, dash }) => {
+      if (value == null) return;
+      const y = yScale.getPixelForValue(value);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash(dash || [5, 4]);
+      ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(right, y); ctx.stroke();
+      if (label) {
+        ctx.setLineDash([]);
+        ctx.font = '600 9px Inter, sans-serif';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(label, right - 4, y - 3);
+      }
+      ctx.restore();
+    });
+  }
+});
+
+// X-axis reference lines (for horizontal bar charts)
+Chart.register({
+  id: 'xRefLine',
+  afterDraw(chart) {
+    const lines = chart.options._xRefLines;
+    if (!lines || !lines.length) return;
+    const xScale = chart.scales.x;
+    if (!xScale) return;
+    const { ctx, chartArea: { top, bottom } } = chart;
+    lines.forEach(({ value, color, label, dash }) => {
+      if (value == null) return;
+      const x = xScale.getPixelForValue(value);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash(dash || [5, 4]);
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+      if (label) {
+        ctx.setLineDash([]);
+        ctx.font = '600 9px Inter, sans-serif';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(label, x, top + 3);
+      }
+      ctx.restore();
+    });
+  }
+});
+
+// Shared tooltip style
+const tooltipConfig = {
+  backgroundColor: '#1e293b',
+  borderColor: '#334155',
+  borderWidth: 1,
+  titleColor: '#e2e8f0',
+  bodyColor: '#94a3b8',
+  padding: 10,
+  cornerRadius: 6,
+};
+
+// ─── Chart 1: ED 4-Hour Performance Trend ───────────────────────────────────
+new Chart(document.getElementById('ed4hr'), {
+  type: 'line',
+  data: {
+    labels: ['2021-22', '2022-23', '2023-24', '2024-25', 'Apr 2026*'],
+    datasets: [{
+      label: 'Isle of Man',
+      data: [74.5, 69.9, 69.7, 66.5, 59.5],
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59,130,246,0.08)',
+      fill: true,
+      tension: 0.35,
+      pointBackgroundColor: ['#3b82f6','#3b82f6','#3b82f6','#3b82f6','#f87171'],
+      pointBorderColor:     ['#3b82f6','#3b82f6','#3b82f6','#3b82f6','#f87171'],
+      pointRadius: [4,4,4,4,6],
+      pointHoverRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        ...tooltipConfig,
+        callbacks: { label: ctx => ` ${ctx.parsed.y}%${ctx.dataIndex === 4 ? ' (provisional)' : ''}` }
+      }
+    },
+    scales: {
+      y: { min: 45, max: 100, grid: { color: '#1e293b' }, ticks: { callback: v => v + '%', stepSize: 10 } },
+      x: { grid: { display: false } }
+    },
+    _refLines: [
+      { value: 95, color: '#fbbf24', label: 'Target 95%', dash: [6, 4] },
+      { value: 75, color: '#94a3b8', label: 'England 75%', dash: [4, 4] },
+    ]
+  }
+});
+
+// ─── Chart 3: Cancer vs England (horizontal grouped bar) ─────────────────────
+new Chart(document.getElementById('cancervse'), {
+  type: 'bar',
+  data: {
+    labels: ['28-day FDS', '62-day referral-to-treat', '31-day decision-to-treat'],
+    datasets: [
+      {
+        label: 'Isle of Man',
+        data: [62.5, 52.1, 85.5],
+        backgroundColor: 'rgba(59,130,246,0.75)',
+        borderColor: '#3b82f6',
+        borderWidth: 1.5,
+        borderRadius: 3,
+      },
+      {
+        label: 'England',
+        data: [78.9, 71.4, null],
+        backgroundColor: 'rgba(148,163,184,0.35)',
+        borderColor: '#94a3b8',
+        borderWidth: 1.5,
+        borderRadius: 3,
+      }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    scales: {
+      x: {
+        min: 0, max: 100,
+        grid: { color: '#1e293b' },
+        ticks: { callback: v => v + '%', stepSize: 25 }
+      },
+      y: { grid: { display: false } }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 }, padding: 12 }
+      },
+      tooltip: {
+        ...tooltipConfig,
+        callbacks: {
+          label: ctx => ctx.parsed.x != null ? ` ${ctx.dataset.label}: ${ctx.parsed.x}%` : null
+        }
+      }
+    },
+    _xRefLines: [
+      { value: 85, color: 'rgba(251,191,36,0.8)', label: '85% target', dash: [5,4] },
+      { value: 93, color: 'rgba(251,191,36,0.4)', label: '93% FDS', dash: [3,6] },
+    ]
+  }
+});
+
+// ─── Chart 4: Cancer Trend ──────────────────────────────────────────────────
+new Chart(document.getElementById('cancertrend'), {
+  type: 'line',
+  data: {
+    labels: ['2022-23', '2023-24', '2024-25'],
+    datasets: [
+      {
+        label: '28-day FDS',
+        data: [63.8, 66.9, 62.5],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.06)',
+        fill: false,
+        tension: 0.35,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      },
+      {
+        label: '62-day referral-to-treat',
+        data: [null, 51.5, 52.1],
+        borderColor: '#f87171',
+        backgroundColor: 'rgba(248,113,113,0.06)',
+        fill: false,
+        tension: 0.35,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      },
+      {
+        label: '31-day decision-to-treat',
+        data: [null, 79.6, 85.5],
+        borderColor: '#34d399',
+        backgroundColor: 'rgba(52,211,153,0.06)',
+        fill: false,
+        tension: 0.35,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        min: 40, max: 100,
+        grid: { color: '#1e293b' },
+        ticks: { callback: v => v + '%', stepSize: 10 }
+      },
+      x: { grid: { display: false } }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#94a3b8', boxWidth: 8, font: { size: 10 }, padding: 12 }
+      },
+      tooltip: {
+        ...tooltipConfig,
+        callbacks: { label: ctx => ctx.parsed.y != null ? ` ${ctx.dataset.label}: ${ctx.parsed.y}%` : null }
+      }
+    },
+    _refLines: [
+      { value: 85, color: 'rgba(251,191,36,0.5)', label: '62-day target 85%', dash: [5,4] },
+    ]
+  }
+});
+
+// ─── Chart 5: LTIA by Ailment 2025 ──────────────────────────────────────────
+new Chart(document.getElementById('ltia2025'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'Other (unclassified)',
+      'Depression',
+      'Pain — Back',
+      'Anxiety',
+      'Cancer (Carcinoma)',
+      'Stress',
+      'Injury — Back',
+      'Accident / Injury'
+    ],
+    datasets: [{
+      label: 'LTIA Claims (Dec 2025)',
+      data: [3100, 666, 410, 250, 219, 159, 106, 82],
+      backgroundColor: [
+        'rgba(100,116,139,0.5)',   // Other — muted
+        'rgba(167,139,250,0.75)',  // Depression — purple
+        'rgba(251,191,36,0.65)',   // Back pain — amber
+        'rgba(167,139,250,0.55)',  // Anxiety — purple lighter
+        'rgba(248,113,113,0.75)', // Cancer — red
+        'rgba(167,139,250,0.40)', // Stress — purple faint
+        'rgba(251,191,36,0.40)',  // Injury back
+        'rgba(100,116,139,0.40)', // Accident
+      ],
+      borderColor: [
+        '#475569',
+        '#a78bfa',
+        '#fbbf24',
+        '#a78bfa',
+        '#f87171',
+        '#a78bfa',
+        '#fbbf24',
+        '#475569',
+      ],
+      borderWidth: 1.5,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    scales: {
+      x: {
+        grid: { color: '#1e293b' },
+        ticks: { callback: v => v.toLocaleString() }
+      },
+      y: {
+        grid: { display: false },
+        ticks: { font: { size: 10 } }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        ...tooltipConfig,
+        callbacks: {
+          label: ctx => ` ${ctx.parsed.x.toLocaleString()} claims`
+        }
+      }
+    }
+  }
+});
+
+// ─── Chart 6: LTIA Trend 2012-2025 ──────────────────────────────────────────
+const ltiaYears = ['2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const ltiaMH    = [748, 799, 846, 865, 899, 901, 880, 934, 977, 1005, 991, 1023, 1039, 1075];
+const ltiaCancer= [75, 76, 87, 100, 101, 112, 122, 134, 144, 157, 166, 182, 193, 219];
+
+new Chart(document.getElementById('ltiatrend'), {
+  type: 'line',
+  data: {
+    labels: ltiaYears,
+    datasets: [
+      {
+        label: 'Mental Health (Dep + Anx + Stress)',
+        data: ltiaMH,
+        borderColor: '#a78bfa',
+        backgroundColor: 'rgba(167,139,250,0.10)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        yAxisID: 'y',
+      },
+      {
+        label: 'Cancer (Carcinoma)',
+        data: ltiaCancer,
+        borderColor: '#f87171',
+        backgroundColor: 'rgba(248,113,113,0.06)',
+        fill: false,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        yAxisID: 'y2',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      y: {
+        position: 'left',
+        grid: { color: '#1e293b' },
+        title: { display: true, text: 'MH claims', color: '#a78bfa', font: { size: 10 } },
+        ticks: { color: '#a78bfa', font: { size: 10 } }
+      },
+      y2: {
+        position: 'right',
+        grid: { display: false },
+        title: { display: true, text: 'Cancer claims', color: '#f87171', font: { size: 10 } },
+        ticks: { color: '#f87171', font: { size: 10 } }
+      },
+      x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 9 } } }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#94a3b8', boxWidth: 8, font: { size: 10 }, padding: 12 }
+      },
+      tooltip: {
+        ...tooltipConfig,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} claims`
+        }
+      }
+    }
+  }
+});
+
+// ─── Observatory iframe resize ───────────────────────────────────────────────
+function postResize() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+window.addEventListener('load', postResize);
+window.addEventListener('resize', postResize);
+new ResizeObserver(postResize).observe(document.body);
+</script>
+
+</body>
+</html>

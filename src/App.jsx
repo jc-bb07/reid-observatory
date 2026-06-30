@@ -58,6 +58,7 @@ const TAB_GROUPS = [
   { id: "health-group",    label: "Health & Care",       color: "#f87171", homeTab: "healthHome",
     tabs: [
       { id: "healthHome",    label: "Overview"             },
+      { id: "nobles-flow",   label: "Noble's: Systems View"},
       { id: "manxBenchmark", label: "Manx Care Benchmark"  },
       { id: "nobles-v15",    label: "Nobles Simulation"    },
     ]
@@ -1049,11 +1050,13 @@ function HealthHomeTab({ C, onNavigate }) {
       )}
 
       {card(
-        "Nobles Simulation v15",
-        `Extended version of the simulation with additional wards, seasonal admission
-        curves, and scenario controls. Opens as a full page for best performance.`,
+        "Noble's Hospital: A Systems View",
+        `Why adding 50 beds to Noble's won't fix the crisis. A mobile-first explainer
+        built on the Gent Review (June 2026) — queues, OPEL levels, DTOC patients, and
+        the systems dynamics behind "the back door is the problem, not the front."
+        Designed for anyone trying to understand what's actually going wrong.`,
         C.red,
-        () => onNavigate("nobles-v15")
+        () => onNavigate("nobles-flow")
       )}
 
       <div style={{
@@ -1445,6 +1448,7 @@ function AppContent() {
     "reid","demog","iomPopChange","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
     "unemployment","suicide","workforce","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget",
+    "nobles-flow",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
@@ -1525,27 +1529,7 @@ function AppContent() {
     iomfiscal: (
       <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" theme={themeName} />
     ),
-    iomfiscaldept: isNarrow ? (
-      <div style={{ padding: "20px 16px", textAlign: "center" }}>
-        <div style={{ fontSize: 13, color: C.muted2, lineHeight: 1.7, marginBottom: 20 }}>
-          This diagram works best full-screen on mobile.
-        </div>
-        <a
-          href="/iomg-budget-sankey.html"
-          target="_blank"
-          rel="noopener"
-          style={{
-            display: "inline-block", padding: "10px 22px",
-            background: "none", border: `1px solid ${C.gold}`,
-            borderRadius: 7, color: C.gold,
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
-            textDecoration: "none", cursor: "pointer",
-          }}
-        >
-          Open Budget diagram →
-        </a>
-      </div>
-    ) : (
+    iomfiscaldept: (
       <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} />
     ),
     inflation: (
@@ -1580,6 +1564,10 @@ function AppContent() {
     ),
     manxBenchmark: (
       <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" theme={themeName} />
+    ),
+
+    "nobles-flow": (
+      <AutoIframe src="/nobles-flow-frontend.html" title="Noble's Hospital: A Systems View" theme={themeName} />
     ),
 
     "nobles-v15": (
@@ -1697,7 +1685,8 @@ function AppContent() {
         <div style={{ maxWidth:1280, margin:"0 auto" }}>{tabContent[tab]}</div>
       )}
 
-      {/* Global footer */}
+      {/* Global footer — hidden on iframe tabs */}
+      {!IFRAME_TABS.has(tab) && (
       <div style={{
         maxWidth: 960, margin: "32px auto 0", padding: "16px 0 4px",
         borderTop: `1px solid ${C.border2}`,
@@ -1714,11 +1703,9 @@ function AppContent() {
         <span>
           <a href="/privacy4budget.html"
             style={{ color: C.muted2, textDecoration: "none" }}>Privacy Policy</a>
-          {" "}·{" "}
-          <a href="/my-budget.html" target="_blank" rel="noopener"
-            style={{ color: C.muted2, textDecoration: "none" }}>My Budget tool</a>
         </span>
       </div>
+      )}
 
     </div>
   );
