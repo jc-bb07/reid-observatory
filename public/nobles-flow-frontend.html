@@ -73,19 +73,18 @@ html.large {
 }
 
 html, body {
-  height: 100%; height: 100dvh;
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+  overflow-x: hidden;
   transition: background 0.35s, color 0.35s;
 }
 
 .app {
-  height: 100%; height: 100dvh;
   display: flex;
   flex-direction: column;
+  min-height: 100dvh;
 }
 
 /* ─────────────────── HEADER ─────────────────── */
@@ -200,19 +199,16 @@ html.light .opel-pill { background: rgba(220,38,38,0.08); }
 
 /* ─────────────────── VIZ ─────────────────── */
 .viz {
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: 7px 12px;
   gap: 0;
 }
 
-.zw { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.zw { display: flex; flex-direction: column; }
 
 .zone {
-  flex: 1;
-  min-height: 0;
+  min-height: 56px;
   display: flex;
   align-items: center;
   border-radius: 10px;
@@ -282,6 +278,7 @@ html.light .zone.s-exit-open {
 .zone-icon  { font-size: 18px; flex-shrink: 0; line-height: 1; user-select: none; }
 .zone-info  { flex-shrink: 0; width: 76px; transition: width 0.2s; }
 html.large .zone-info { width: 88px; }
+html.large .zone { min-height: 70px; }
 
 .zone-name {
   font-size: var(--fs-name);

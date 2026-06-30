@@ -1448,7 +1448,6 @@ function AppContent() {
     "reid","demog","iomPopChange","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
     "unemployment","suicide","workforce","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget",
-    "nobles-flow",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
@@ -1567,7 +1566,26 @@ function AppContent() {
     ),
 
     "nobles-flow": (
-      <AutoIframe src="/nobles-flow-frontend.html" title="Noble's Hospital: A Systems View" theme={themeName} />
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh", flexDirection:"column", gap:16 }}>
+        <div style={{ fontSize:13, color:C.muted2, textAlign:"center", maxWidth:420, lineHeight:1.7 }}>
+          Noble's Hospital: A Systems View opens as a full page for the best experience — the flow simulator and scenario controls are designed for a dedicated window.
+        </div>
+        <a
+          href="/nobles-flow-frontend.html"
+          target="_blank"
+          rel="noopener"
+          style={{
+            display:"inline-block", padding:"9px 20px",
+            background:"none", border:`1px solid ${C.gold}`,
+            borderRadius:7, color:C.gold,
+            fontFamily:"'JetBrains Mono',monospace", fontSize:12,
+            textDecoration:"none", cursor:"pointer",
+            transition:"background 0.15s",
+          }}
+        >
+          Open Noble's Hospital: A Systems View →
+        </a>
+      </div>
     ),
 
     "nobles-v15": (
