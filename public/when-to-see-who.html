@@ -7,286 +7,321 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-
-:root {
-  --bg:#F5F0E8; --surface:#FFFFFF; --surface2:#EBF4F4; --surface3:#D5E9E9;
-  --border:rgba(0,0,0,0.09); --border-hi:rgba(0,0,0,0.17);
-  --text:#152222; --muted:#4a6e6e; --muted2:#6b8c8c;
-  --teal:#009BA5; --teal-d:#007880;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F0E8;--surface:#FFFFFF;--surface2:#EBF4F4;--surface3:#D5E9E9;
+  --border:rgba(0,0,0,0.09);--border-hi:rgba(0,0,0,0.17);
+  --text:#152222;--muted:#4a6e6e;--muted2:#6b8c8c;
+  --teal:#009BA5;--teal-d:#007880;
   --red:#c0392b;   --red-bg:rgba(192,57,43,0.07);   --red-bdr:rgba(192,57,43,0.20);
   --amber:#b45309; --amber-bg:rgba(180,83,9,0.07);   --amber-bdr:rgba(180,83,9,0.20);
   --green:#047857; --green-bg:rgba(4,120,87,0.07);   --green-bdr:rgba(4,120,87,0.20);
   --blue:#1d4ed8;  --blue-bg:rgba(29,78,216,0.07);   --blue-bdr:rgba(29,78,216,0.20);
   --purple:#6d28d9;--purple-bg:rgba(109,40,217,0.07);--purple-bdr:rgba(109,40,217,0.20);
-  --teal-bg:rgba(0,155,165,0.07); --teal-bdr:rgba(0,155,165,0.22);
+  --teal-bg:rgba(0,155,165,0.07);--teal-bdr:rgba(0,155,165,0.22);
   --pink:#be185d;  --pink-bg:rgba(190,24,93,0.07);   --pink-bdr:rgba(190,24,93,0.20);
-  --fs-hero:13px; --fs-chip:13px; --fs-body:13px; --fs-lbl:9px; --fs-big:26px; --fs-sub:11px;
+  --orange:#c2410c;--orange-bg:rgba(194,65,12,0.07); --orange-bdr:rgba(194,65,12,0.20);
+  --fs-hero:13px;--fs-chip:13px;--fs-body:13px;--fs-lbl:9px;--fs-big:26px;--fs-sub:11px;
 }
-html.dark {
-  --bg:#080d1a; --surface:#0f1729; --surface2:#141f33; --surface3:#1a2740;
-  --border:rgba(255,255,255,0.07); --border-hi:rgba(255,255,255,0.14);
-  --text:#e2e8f0; --muted:#64748b; --muted2:#475569;
-  --teal:#2dd4bf;
+html.dark{
+  --bg:#080d1a;--surface:#0f1729;--surface2:#141f33;--surface3:#1a2740;
+  --border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.14);
+  --text:#e2e8f0;--muted:#64748b;--muted2:#475569;--teal:#2dd4bf;
   --red:#f87171;   --red-bg:rgba(248,113,113,0.1);   --red-bdr:rgba(248,113,113,0.25);
   --amber:#fbbf24; --amber-bg:rgba(251,191,36,0.1);  --amber-bdr:rgba(251,191,36,0.25);
   --green:#34d399; --green-bg:rgba(52,211,153,0.1);  --green-bdr:rgba(52,211,153,0.25);
   --blue:#60a5fa;  --blue-bg:rgba(96,165,250,0.1);   --blue-bdr:rgba(96,165,250,0.25);
   --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.1);--purple-bdr:rgba(167,139,250,0.25);
-  --teal-bg:rgba(45,212,191,0.1); --teal-bdr:rgba(45,212,191,0.25);
+  --teal-bg:rgba(45,212,191,0.1);--teal-bdr:rgba(45,212,191,0.25);
   --pink:#f472b6;  --pink-bg:rgba(244,114,182,0.1);  --pink-bdr:rgba(244,114,182,0.25);
+  --orange:#fb923c;--orange-bg:rgba(251,146,60,0.1); --orange-bdr:rgba(251,146,60,0.25);
 }
-html.large { --fs-hero:15px; --fs-chip:15px; --fs-body:15px; --fs-lbl:11px; --fs-big:30px; --fs-sub:13px; }
+html.large{--fs-hero:15px;--fs-chip:15px;--fs-body:15px;--fs-lbl:11px;--fs-big:30px;--fs-sub:13px;}
 
-html,body { height:100%; height:100dvh; background:var(--bg); color:var(--text); font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:antialiased; overflow:hidden; }
-.app { display:flex; flex-direction:column; height:100%; height:100dvh; max-width:480px; margin:0 auto; }
-.header { padding:14px 16px 0; flex-shrink:0; }
-.header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-.hero h1 { font-size:var(--fs-big); font-weight:900; line-height:1.05; letter-spacing:-0.025em; margin-bottom:3px; }
-.hero p { font-size:var(--fs-hero); color:var(--muted); }
-.controls { display:flex; gap:6px; }
-.ctrl-btn { background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--muted); font-size:11px; padding:4px 9px; cursor:pointer; font-family:inherit; }
-.ctrl-btn.active { border-color:var(--border-hi); color:var(--text); }
+html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;}
+.app{display:flex;flex-direction:column;height:100%;height:100dvh;max-width:480px;margin:0 auto;}
+.header{padding:14px 16px 0;flex-shrink:0;}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.hero h1{font-size:var(--fs-big);font-weight:900;line-height:1.05;letter-spacing:-0.025em;margin-bottom:3px;}
+.hero p{font-size:var(--fs-hero);color:var(--muted);}
+.controls{display:flex;gap:6px;}
+.ctrl-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;padding:4px 9px;cursor:pointer;font-family:inherit;}
+.ctrl-btn.active{border-color:var(--border-hi);color:var(--text);}
 
 /* ── GRID ── */
-.grid-wrap { flex:1; overflow-y:auto; padding:12px 16px 16px; -webkit-overflow-scrolling:touch; }
-.grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.grid-wrap{flex:1;overflow-y:auto;padding:12px 16px 80px;-webkit-overflow-scrolling:touch;}
+/* Panel open: grid stays scrollable, chips below are hidden via sibling CSS */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 
 /* ── CHIPS ── */
-.chip { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:13px 12px 11px; cursor:pointer; text-align:left; font-family:inherit; transition:border-color .15s,background .15s,transform .08s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; display:flex; flex-direction:column; }
-.chip:active { transform:scale(0.97); }
-.chip.active { border-color:var(--cc); background:var(--cb); }
-.chip.c-red    { --cc:var(--red);    --cb:var(--red-bg);    }
-.chip.c-amber  { --cc:var(--amber);  --cb:var(--amber-bg);  }
-.chip.c-green  { --cc:var(--green);  --cb:var(--green-bg);  }
-.chip.c-teal   { --cc:var(--teal);   --cb:var(--teal-bg);   }
-.chip.c-blue   { --cc:var(--blue);   --cb:var(--blue-bg);   }
-.chip.c-purple { --cc:var(--purple); --cb:var(--purple-bg); }
-.chip.c-pink   { --cc:var(--pink);   --cb:var(--pink-bg);   }
-.chip-act { border-color:var(--red-bdr); background:var(--red-bg); }
-.chip-act.active { border-color:var(--red); }
-.chip-full { grid-column:1/-1; flex-direction:row; align-items:flex-start; gap:12px; }
-.chip-full .chip-icon { font-size:22px; margin-bottom:0; margin-top:2px; flex-shrink:0; }
-.chip-full .chip-body { flex:1; }
-.chip-full .chip-stats { margin-top:6px; }
-.chip-icon  { font-size:19px; margin-bottom:5px; line-height:1; }
-.chip-label { font-size:var(--fs-chip); font-weight:800; color:var(--text); line-height:1.2; margin-bottom:3px; }
-.chip-sub   { font-size:var(--fs-sub); color:var(--muted); line-height:1.3; flex:1; }
-.chip-sub .clin { color:var(--green); font-weight:700; }
-.chip-stats { display:flex; gap:0; margin-top:8px; background:var(--surface2); border-radius:8px; overflow:hidden; border:1px solid var(--border); }
-.chip-stats-3 { display:grid; grid-template-columns:1fr 1fr 1fr; margin-top:8px; background:var(--surface2); border-radius:8px; overflow:hidden; border:1px solid var(--border); }
-.chip-stat  { flex:1; display:flex; flex-direction:column; align-items:center; padding:5px 4px; gap:1px; }
-.chip-stat+.chip-stat { border-left:1px solid var(--border); }
-.chip-stats-3 .chip-stat { border-left:1px solid var(--border); border-bottom:1px solid var(--border); }
-.chip-stats-3 .chip-stat:nth-child(3n+1) { border-left:none; }
-.chip-stats-3 .chip-stat:nth-child(n+4) { border-bottom:none; }
-.cs-icon { font-size:12px; line-height:1; }
-.cs-val  { font-size:12px; font-weight:900; color:var(--text); line-height:1; }
-.cs-val.cvg { color:var(--green); }
-.cs-val.cva { color:var(--amber); }
-.cs-val.cvr { color:var(--red); }
-.cs-val.cvb { font-size:16px; }
-.cs-lbl  { font-size:7.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted2); line-height:1; text-align:center; }
-.chip-live { margin-top:7px; padding:5px 8px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; display:flex; align-items:center; gap:6px; }
-.live-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; animation:pulse 2s infinite; }
-.live-dot.green { background:var(--green); }
-.live-dot.amber { background:var(--amber); }
-.live-dot.grey  { background:var(--muted2); animation:none; }
+.chip{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:13px 12px 11px;cursor:pointer;text-align:left;font-family:inherit;transition:border-color .15s,background .15s,transform .08s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;}
+.chip:active{transform:scale(0.97);}
+.chip.active{border-color:var(--cc);background:var(--cb);}
+.chip.c-red    {--cc:var(--red);    --cb:var(--red-bg);}
+.chip.c-amber  {--cc:var(--amber);  --cb:var(--amber-bg);}
+.chip.c-green  {--cc:var(--green);  --cb:var(--green-bg);}
+.chip.c-teal   {--cc:var(--teal);   --cb:var(--teal-bg);}
+.chip.c-blue   {--cc:var(--blue);   --cb:var(--blue-bg);}
+.chip.c-purple {--cc:var(--purple); --cb:var(--purple-bg);}
+.chip.c-pink   {--cc:var(--pink);   --cb:var(--pink-bg);}
+.chip.c-orange {--cc:var(--orange); --cb:var(--orange-bg);}
+.chip-act{border-color:var(--red-bdr);background:var(--red-bg);}
+.chip-act.active{border-color:var(--red);}
+.chip-full{grid-column:1/-1;flex-direction:row;align-items:flex-start;gap:12px;}
+.chip-full .chip-icon{font-size:22px;margin-bottom:0;margin-top:2px;flex-shrink:0;}
+.chip-full .chip-body{flex:1;}
+.chip-full .chip-stats{margin-top:6px;}
+.chip-icon{font-size:19px;margin-bottom:5px;line-height:1;}
+.chip-label{font-size:var(--fs-chip);font-weight:800;color:var(--text);line-height:1.2;margin-bottom:3px;}
+.chip-sub{font-size:var(--fs-sub);color:var(--muted);line-height:1.3;flex:1;}
+.chip-sub .clin{color:var(--green);font-weight:700;}
+.chip-stats{display:flex;gap:0;margin-top:8px;background:var(--surface2);border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.chip-stat{flex:1;display:flex;flex-direction:column;align-items:center;padding:5px 4px;gap:1px;}
+.chip-stat+.chip-stat{border-left:1px solid var(--border);}
+.cs-icon{font-size:12px;line-height:1;}
+.cs-val{font-size:12px;font-weight:900;color:var(--text);line-height:1;}
+.cs-val.cvg{color:var(--green);}
+.cs-val.cva{color:var(--amber);}
+.cs-val.cvr{color:var(--red);}
+.cs-val.cvb{font-size:16px;}
+.cs-lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted2);line-height:1;text-align:center;}
+.chip-live{margin-top:7px;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;gap:6px;}
+.live-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite;}
+.live-dot.green{background:var(--green);}
+.live-dot.amber{background:var(--amber);}
+.live-dot.grey{background:var(--muted2);animation:none;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.live-txt { font-size:11px; font-weight:700; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.chip-badge { position:absolute; top:9px; right:9px; font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:2px 6px; border-radius:4px; }
-.b-open   { background:var(--green-bg); border:1px solid var(--green-bdr); color:var(--green); }
-.b-active { background:var(--amber-bg); border:1px solid var(--amber-bdr); color:var(--amber); }
+.live-txt{font-size:11px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chip-badge{position:absolute;top:9px;right:9px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:4px;}
+.b-open{background:var(--green-bg);border:1px solid var(--green-bdr);color:var(--green);}
+.b-active{background:var(--amber-bg);border:1px solid var(--amber-bdr);color:var(--amber);}
+
+/* Green cross icon for pharmacy */
+.chip-cross{font-size:20px;font-weight:900;color:var(--green);margin-bottom:5px;line-height:1;font-style:normal;}
 
 /* ── PANEL ── */
-.panel { display:none; background:var(--surface); border:1.5px solid var(--border-hi); border-radius:16px; padding:15px; grid-column:1/-1; animation:slideIn .17s ease-out; }
-.panel.show { display:block; }
+.panel{display:none;background:var(--surface);border:1.5px solid var(--border-hi);border-radius:16px;padding:15px;grid-column:1/-1;animation:slideIn .17s ease-out;}
+.panel.show{display:block;}
 @keyframes slideIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-.ub { display:inline-flex; align-items:center; gap:5px; font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; padding:3px 9px; border-radius:20px; margin-bottom:9px; }
-.ub-red    { background:var(--red-bg);    border:1px solid var(--red-bdr);    color:var(--red);    }
-.ub-amber  { background:var(--amber-bg);  border:1px solid var(--amber-bdr);  color:var(--amber);  }
-.ub-green  { background:var(--green-bg);  border:1px solid var(--green-bdr);  color:var(--green);  }
-.ub-teal   { background:var(--teal-bg);   border:1px solid var(--teal-bdr);   color:var(--teal);   }
-.ub-purple { background:var(--purple-bg); border:1px solid var(--purple-bdr); color:var(--purple); }
-.ub-pink   { background:var(--pink-bg);   border:1px solid var(--pink-bdr);   color:var(--pink);   }
-.p-service { font-size:19px; font-weight:900; letter-spacing:-.015em; margin-bottom:4px; line-height:1.1; }
-.p-why { font-size:var(--fs-body); color:var(--muted); line-height:1.5; margin-bottom:12px; }
-.dbox { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:9px 12px; margin-bottom:12px; }
-.dr { display:flex; align-items:flex-start; gap:7px; padding:3px 0; }
-.dr+.dr { border-top:1px solid var(--border); margin-top:4px; padding-top:6px; }
-.di { font-size:12px; flex-shrink:0; margin-top:2px; }
-.dk { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--muted2); min-width:52px; flex-shrink:0; margin-top:3px; }
-.dv { font-size:var(--fs-body); color:var(--text); line-height:1.4; }
-.dv strong{font-weight:700;} .dv em{color:var(--muted);font-style:normal;font-size:11px;} .dv a{color:inherit;}
-.btns { display:flex; gap:7px; flex-wrap:wrap; }
-.btn { display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:11px 14px; border-radius:10px; font-size:var(--fs-body); font-weight:700; font-family:inherit; cursor:pointer; border:none; text-decoration:none; flex:1; min-width:88px; transition:opacity .15s,transform .08s; -webkit-tap-highlight-color:transparent; }
-.btn:active { transform:scale(0.97); opacity:.82; }
-.b2  { background:var(--surface2); border:1.5px solid var(--border-hi); color:var(--text); }
-.b-r { background:var(--red);    color:#fff; }
-.b-a { background:var(--amber);  color:#2a1400; }
-.b-g { background:var(--green);  color:#fff; }
-.b-t { background:var(--teal);   color:#fff; }
-.b-b { background:var(--blue);   color:#fff; }
-.b-p { background:var(--purple); color:#fff; }
-.b-k { background:var(--pink);   color:#fff; }
+/* Mask chips below open panel */
+.panel~.chip,.panel~.chip-full{visibility:hidden;pointer-events:none;}
+
+.ub{display:inline-flex;align-items:center;gap:5px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:20px;margin-bottom:9px;}
+.ub-red   {background:var(--red-bg);   border:1px solid var(--red-bdr);   color:var(--red);}
+.ub-amber {background:var(--amber-bg); border:1px solid var(--amber-bdr); color:var(--amber);}
+.ub-green {background:var(--green-bg); border:1px solid var(--green-bdr); color:var(--green);}
+.ub-teal  {background:var(--teal-bg);  border:1px solid var(--teal-bdr);  color:var(--teal);}
+.ub-purple{background:var(--purple-bg);border:1px solid var(--purple-bdr);color:var(--purple);}
+.ub-pink  {background:var(--pink-bg);  border:1px solid var(--pink-bdr);  color:var(--pink);}
+.ub-orange{background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);}
+.ub-blue  {background:var(--blue-bg);  border:1px solid var(--blue-bdr);  color:var(--blue);}
+.p-service{font-size:19px;font-weight:900;letter-spacing:-.015em;margin-bottom:4px;line-height:1.1;}
+.p-why{font-size:var(--fs-body);color:var(--muted);line-height:1.5;margin-bottom:12px;}
+.dbox{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
+.dr{display:flex;align-items:flex-start;gap:7px;padding:3px 0;}
+.dr+.dr{border-top:1px solid var(--border);margin-top:4px;padding-top:6px;}
+.di{font-size:12px;flex-shrink:0;margin-top:2px;}
+.dk{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);min-width:52px;flex-shrink:0;margin-top:3px;}
+.dv{font-size:var(--fs-body);color:var(--text);line-height:1.4;}
+.dv strong{font-weight:700;}.dv em{color:var(--muted);font-style:normal;font-size:11px;}.dv a{color:inherit;}
+.btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:11px 14px;border-radius:10px;font-size:var(--fs-body);font-weight:700;font-family:inherit;cursor:pointer;border:none;text-decoration:none;flex:1;min-width:88px;transition:opacity .15s,transform .08s;-webkit-tap-highlight-color:transparent;}
+.btn:active{transform:scale(0.97);opacity:.82;}
+.b2 {background:var(--surface2);border:1.5px solid var(--border-hi);color:var(--text);}
+.b-r{background:var(--red);    color:#fff;}
+.b-a{background:var(--amber);  color:#2a1400;}
+.b-g{background:var(--green);  color:#fff;}
+.b-t{background:var(--teal);   color:#fff;}
+.b-b{background:var(--blue);   color:#fff;}
+.b-p{background:var(--purple); color:#fff;}
+.b-k{background:var(--pink);   color:#fff;}
 
 /* ══ SAFE FRAMEWORK ══ */
-.framework-hdr { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--muted2); margin-bottom:10px; }
-.fw-row { display:flex; gap:10px; align-items:flex-start; margin-bottom:9px; }
-.fw-letter { flex-shrink:0; width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:#fff; margin-top:1px; }
-.fw-s .fw-letter { background:var(--red); }
-.fw-a .fw-letter { background:#dc2626; }
-.fw-f .fw-letter { background:#b91c1c; }
-.fw-e .fw-letter { background:#991b1b; }
-.fw-h .fw-letter { background:var(--green); }
-.fw-ev .fw-letter { background:#059669; }
-.fw-l .fw-letter { background:#047857; }
-.fw-p .fw-letter { background:#065f46; }
-.fw-field { flex:1; min-width:0; }
-.fw-lbl { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--muted2); margin-bottom:4px; }
-.fw-inp { width:100%; background:var(--surface2); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:13px; padding:7px 10px; outline:none; transition:border-color .15s; }
-.fw-inp:focus { border-color:var(--red-bdr); }
-.fw-inp-g { border-color:var(--border-hi); }
-.fw-inp-g:focus { border-color:var(--green-bdr) !important; }
-.fw-loc-box { background:var(--red-bg); border:1.5px solid var(--red-bdr); border-radius:7px; padding:8px 10px; }
-.fw-loc-w3w { font-size:14px; font-weight:900; line-height:1.2; margin-bottom:3px; }
-.fw-loc-slash { color:var(--teal); }
-.fw-loc-meta { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-.fw-loc-coord { font-size:10px; color:var(--muted); }
-.fw-loc-badge { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:4px; }
-.fw-verified   { background:var(--green-bg); border:1px solid var(--green-bdr); color:var(--green); }
-.fw-unverified { background:var(--amber-bg); border:1px solid var(--amber-bdr); color:var(--amber); }
-.fw-no-loc     { background:var(--red-bg);   border:1px solid var(--red-bdr);   color:var(--red); }
-.fw-get-loc { display:inline-flex; align-items:center; gap:5px; padding:7px 11px; border-radius:7px; font-size:12px; font-weight:700; font-family:inherit; cursor:pointer; background:var(--surface); border:1px solid var(--border-hi); color:var(--text); margin-top:4px; }
-.fw-checks { display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
-.fw-check { padding:4px 9px; border-radius:5px; font-size:11px; font-weight:700; border:1px solid var(--border-hi); background:var(--surface); color:var(--muted); cursor:pointer; transition:all .12s; user-select:none; -webkit-tap-highlight-color:transparent; }
-.fw-check.on { background:var(--red-bg); border-color:var(--red-bdr); color:var(--red); }
-.fw-inp-extra { width:100%; background:var(--surface2); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:12px; padding:6px 10px; outline:none; margin-top:5px; }
-.fw-inp-extra:focus { border-color:var(--red-bdr); }
-
-/* Script card — high contrast, easy to read aloud */
-.script-card { background:var(--text); color:var(--bg); border-radius:12px; padding:14px 15px; margin-bottom:12px; }
-.script-card-lbl { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; opacity:.5; margin-bottom:7px; }
-.script-card-txt { font-size:14px; font-weight:700; line-height:1.55; }
-html.dark .script-card { background:var(--surface3); color:var(--text); }
-
-.script-card-g { background:var(--green); color:#fff; border-radius:12px; padding:14px 15px; margin-bottom:12px; }
-.script-card-g .script-card-lbl { opacity:.7; }
-.script-card-g .script-card-txt { font-size:14px; font-weight:700; line-height:1.55; }
+.framework-hdr{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:10px;}
+.fw-row{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:flex-start;margin-bottom:9px;}
+.fw-letter{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;margin-top:1px;flex-shrink:0;}
+.fw-s .fw-letter{background:var(--red);}
+.fw-a .fw-letter{background:#1d4ed8;}
+.fw-f .fw-letter{background:#374151;}
+.fw-e .fw-letter{background:var(--green);}
+.fw-h .fw-letter{background:var(--green);}
+.fw-ev .fw-letter{background:#059669;}
+.fw-l .fw-letter{background:#047857;}
+.fw-p .fw-letter{background:#065f46;}
+.fw-field{min-width:0;}
+.fw-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin-bottom:4px;}
+/* Read-only content cards inside SAFE */
+.fw-card-red{background:var(--red-bg);border:1px solid var(--red-bdr);border-radius:7px;padding:8px 11px;font-size:13px;font-weight:700;color:var(--text);line-height:1.4;}
+.fw-card-green{background:var(--green-bg);border:1px solid var(--green-bdr);border-radius:7px;padding:8px 11px;font-size:12px;line-height:1.5;}
+.fw-card-muted{background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;padding:8px 11px;font-size:13px;color:var(--muted);line-height:1.4;}
+/* Location box */
+.fw-loc-box{background:var(--red-bg);border:1.5px solid var(--red-bdr);border-radius:7px;padding:8px 10px;}
+.fw-loc-w3w{font-size:16px;font-weight:900;line-height:1.2;margin-bottom:3px;letter-spacing:.01em;}
+.fw-loc-slash{color:var(--teal);}
+.fw-loc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.fw-loc-coord{font-size:10px;color:var(--muted);}
+.fw-loc-badge{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:4px;}
+.fw-verified  {background:var(--green-bg);border:1px solid var(--green-bdr);color:var(--green);}
+.fw-unverified{background:var(--amber-bg);border:1px solid var(--amber-bdr);color:var(--amber);}
+.fw-no-loc    {background:var(--red-bg);  border:1px solid var(--red-bdr);  color:var(--red);}
+.fw-get-loc{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--surface);border:1px solid var(--border-hi);color:var(--text);}
+/* E — risk tags (green, read-only look) */
+.fw-risk-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;}
+.fw-risk-tag{padding:4px 9px;border-radius:5px;font-size:11px;font-weight:700;background:var(--green-bg);border:1px solid var(--green-bdr);color:var(--green);}
 
 /* Help pref buttons */
-.pref-row { display:flex; gap:6px; margin-top:4px; }
-.pref-btn { flex:1; padding:7px 10px; border-radius:7px; font-size:12px; font-weight:700; font-family:inherit; cursor:pointer; border:1.5px solid var(--border-hi); background:var(--surface); color:var(--muted); transition:all .12s; }
-.pref-btn.on { background:var(--green-bg); border-color:var(--green-bdr); color:var(--green); }
+.pref-row{display:flex;gap:6px;margin-top:4px;}
+.pref-btn{flex:1;padding:7px 10px;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid var(--border-hi);background:var(--surface);color:var(--muted);transition:all .12s;}
+.pref-btn.on{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);}
+.fw-inp{width:100%;background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 10px;outline:none;transition:border-color .15s;}
+.fw-inp-g:focus{border-color:var(--green-bdr)!important;}
+
+/* Script cards */
+.script-card-g{background:var(--green);color:#fff;border-radius:12px;padding:14px 15px;margin-bottom:12px;}
+.script-card-g .script-card-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:7px;}
+.script-card-g .script-card-txt{font-size:14px;font-weight:700;line-height:1.55;}
+
+/* ── CRISIS 4-QUADRANT ── */
+.crisis-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.crisis-card{border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;}
+.crisis-card.cc-buddy {background:var(--purple-bg);border:1.5px solid var(--purple-bdr);}
+.crisis-card.cc-pro   {background:var(--blue-bg);  border:1.5px solid var(--blue-bdr);}
+.crisis-card.cc-sam   {background:var(--green-bg); border:1.5px solid var(--green-bdr);}
+.crisis-card.cc-crhtt {background:var(--red-bg);   border:1.5px solid var(--red-bdr);}
+.cc-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);}
+.cc-buddy .cc-lbl{color:var(--purple);}
+.cc-pro   .cc-lbl{color:var(--blue);}
+.cc-sam   .cc-lbl{color:var(--green);}
+.cc-crhtt .cc-lbl{color:var(--red);}
+.cc-name{font-size:14px;font-weight:900;line-height:1.2;word-break:break-word;}
+.cc-sub{font-size:10px;color:var(--muted);line-height:1.3;}
+.cc-num{font-size:17px;font-weight:900;letter-spacing:-.01em;line-height:1;}
+.cc-btns{display:flex;gap:5px;margin-top:2px;flex-wrap:wrap;}
+.cc-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:none;text-decoration:none;flex:1;-webkit-tap-highlight-color:transparent;}
+.cc-btn-call{background:var(--red);color:#fff;}
+.cc-btn-sms {background:var(--green);color:#fff;}
+.cc-btn-wa  {background:#25D366;color:#fff;}
+.cc-btn-add {background:var(--surface);border:1.5px solid var(--border-hi);color:var(--muted);}
+.cc-btn-tel {background:var(--green);color:#fff;}
 
 /* ── PICKERS ── */
-.picker-wrap { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px; margin-bottom:12px; }
-.picker-title { font-size:9px; font-weight:800; color:var(--muted2); text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; }
-.picker-search { width:100%; background:var(--surface); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:var(--fs-body); padding:8px 10px; margin-bottom:7px; outline:none; }
-.picker-search:focus { border-color:var(--teal-bdr); }
-.picker-list { max-height:155px; overflow-y:auto; }
-.picker-row { padding:8px 8px; border-radius:7px; cursor:pointer; transition:background .12s; }
-.picker-row:hover,.picker-row:active { background:var(--surface3); }
-.picker-name { font-size:var(--fs-body); font-weight:700; }
-.picker-area { font-size:11px; color:var(--muted); }
-.picker-tel  { font-size:11px; color:var(--teal); font-weight:600; }
+.picker-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:12px;}
+.picker-title{font-size:9px;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.picker-search{width:100%;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;color:var(--text);font-family:inherit;font-size:var(--fs-body);padding:8px 10px;margin-bottom:7px;outline:none;}
+.picker-search:focus{border-color:var(--teal-bdr);}
+.picker-list{max-height:155px;overflow-y:auto;}
+.picker-row{padding:8px 8px;border-radius:7px;cursor:pointer;transition:background .12s;}
+.picker-row:hover,.picker-row:active{background:var(--surface3);}
+.picker-name{font-size:var(--fs-body);font-weight:700;}
+.picker-area{font-size:11px;color:var(--muted);}
+.picker-tel {font-size:11px;color:var(--teal);font-weight:600;}
 
 /* ── PHARMACY LIST ── */
-.ph-list { background:var(--surface2); border:1px solid var(--border); border-radius:10px; margin-bottom:12px; overflow:hidden; }
-.ph-row { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--border); }
-.ph-row:last-child { border-bottom:none; }
-.ph-row.ph-hi { background:var(--green-bg); }
-.ph-dist { font-size:11px; font-weight:700; color:var(--muted); min-width:34px; text-align:center; flex-shrink:0; }
-.ph-info { flex:1; min-width:0; }
-.ph-name { font-size:var(--fs-body); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ph-area { font-size:10px; color:var(--muted); }
-.ph-badges { display:flex; gap:3px; margin-top:2px; flex-wrap:wrap; }
-.ph-badge { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:1px 5px; border-radius:3px; }
-.pb-open { background:var(--green-bg); color:var(--green); border:1px solid var(--green-bdr); }
-.pb-fav  { background:var(--teal-bg);  color:var(--teal);  border:1px solid var(--teal-bdr); }
-.ph-actions { display:flex; gap:4px; flex-shrink:0; }
-.ph-call { background:var(--teal-bg); border:1px solid var(--teal-bdr); color:var(--teal); padding:5px 8px; border-radius:7px; font-size:11px; font-weight:700; text-decoration:none; }
-.ph-star { background:var(--surface); border:1px solid var(--border-hi); color:var(--muted); padding:5px 7px; border-radius:7px; font-size:11px; cursor:pointer; font-family:inherit; }
-.ph-star.active { background:var(--teal-bg); border-color:var(--teal-bdr); color:var(--teal); }
+.ph-list{margin-bottom:10px;}
+.ph-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:8px;margin-bottom:5px;border:1px solid var(--border);}
+.ph-hi{border-color:var(--teal-bdr);background:var(--teal-bg);}
+.ph-dist{font-size:10px;font-weight:700;color:var(--muted2);min-width:30px;text-align:right;}
+.ph-info{flex:1;min-width:0;}
+.ph-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ph-badges{display:flex;gap:3px;margin:2px 0;}
+.pb-open{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr);font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;}
+.pb-closed{background:var(--surface3);color:var(--muted2);border:1px solid var(--border);font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;}
+.pb-fav{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-bdr);font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;}
+.ph-area{font-size:10px;color:var(--muted);}
+.ph-actions{display:flex;gap:4px;flex-shrink:0;}
+.ph-call{background:var(--teal-bg);border:1px solid var(--teal-bdr);color:var(--teal);padding:5px 8px;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;}
+.ph-star{background:var(--surface);border:1px solid var(--border-hi);color:var(--muted);padding:5px 7px;border-radius:7px;font-size:11px;cursor:pointer;font-family:inherit;}
+.ph-star.active{background:var(--teal-bg);border-color:var(--teal-bdr);color:var(--teal);}
 
 /* ── SAVED CARDS ── */
-.saved-card { border-radius:12px; padding:12px 14px; margin-bottom:12px; }
-.sc-teal  { background:var(--teal-bg);  border:1.5px solid var(--teal-bdr);  }
-.sc-pink  { background:var(--pink-bg);  border:1.5px solid var(--pink-bdr);  }
-.sc-amber { background:var(--amber-bg); border:1.5px solid var(--amber-bdr); }
-.saved-lbl  { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; margin-bottom:3px; }
-.sc-teal  .saved-lbl { color:var(--teal);  }
-.sc-pink  .saved-lbl { color:var(--pink);  }
-.sc-amber .saved-lbl { color:var(--amber); }
-.saved-name { font-size:16px; font-weight:900; letter-spacing:-.01em; margin-bottom:2px; }
-.saved-sub  { font-size:11px; color:var(--muted); margin-bottom:9px; }
+.saved-card{border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+.sc-teal {background:var(--teal-bg); border:1.5px solid var(--teal-bdr);}
+.sc-pink {background:var(--pink-bg); border:1.5px solid var(--pink-bdr);}
+.sc-amber{background:var(--amber-bg);border:1.5px solid var(--amber-bdr);}
+.saved-lbl {font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.sc-teal  .saved-lbl{color:var(--teal);}
+.sc-pink  .saved-lbl{color:var(--pink);}
+.sc-amber .saved-lbl{color:var(--amber);}
+.saved-name{font-size:16px;font-weight:900;letter-spacing:-.01em;margin-bottom:2px;}
+.saved-sub {font-size:11px;color:var(--muted);margin-bottom:9px;}
 
-/* ── MH TABLE ── */
-.mh-table { background:var(--surface2); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px; }
-.mh-grp { background:var(--surface3); padding:4px 12px; border-bottom:1px solid var(--border); }
-.mh-grp-lbl { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--muted2); }
-.mh-tr { display:flex; align-items:center; gap:8px; padding:9px 12px; border-bottom:1px solid var(--border); }
-.mh-tr:last-child { border-bottom:none; }
-.mh-tr-info { flex:1; min-width:0; }
-.mh-tr-name { font-size:12px; font-weight:800; line-height:1.2; }
-.mh-tr-sub  { font-size:10px; color:var(--muted); margin-top:1px; }
-.mh-tr-wait { display:flex; flex-direction:column; gap:3px; align-items:flex-end; flex-shrink:0; }
-.mh-tr-acts { display:flex; gap:4px; flex-shrink:0; }
-.mh-mini { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:8px; font-size:13px; text-decoration:none; background:var(--surface); border:1px solid var(--border-hi); color:var(--text); -webkit-tap-highlight-color:transparent; cursor:pointer; font-family:inherit; }
-.mh-mini.mh-r { background:var(--red);    border-color:var(--red);    color:#fff; }
-.mh-mini.mh-p { background:var(--purple); border-color:var(--purple); color:#fff; }
-.wt { display:inline-block; font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:2px 6px; border-radius:3px; white-space:nowrap; }
-.wt-g { background:var(--green-bg); color:var(--green); border:1px solid var(--green-bdr); }
-.wt-a { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-bdr); }
-.wt-r { background:var(--red-bg);   color:var(--red);   border:1px solid var(--red-bdr); }
-.wt-m { background:rgba(0,0,0,.05); color:var(--muted); border:1px solid var(--border); }
+/* ── MH ROUTINE TABLE ── */
+.mh-table{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.mh-grp{background:var(--surface3);padding:4px 12px;border-bottom:1px solid var(--border);}
+.mh-grp-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);}
+.mh-tr{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);}
+.mh-tr:last-child{border-bottom:none;}
+.mh-tr-info{flex:1;min-width:0;}
+.mh-tr-name{font-size:12px;font-weight:800;line-height:1.2;}
+.mh-tr-sub {font-size:10px;color:var(--muted);margin-top:1px;}
+.mh-tr-wait{display:flex;flex-direction:column;gap:3px;align-items:flex-end;flex-shrink:0;}
+.mh-tr-acts{display:flex;gap:4px;flex-shrink:0;}
+.mh-mini{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-size:13px;text-decoration:none;background:var(--surface);border:1px solid var(--border-hi);color:var(--text);-webkit-tap-highlight-color:transparent;cursor:pointer;font-family:inherit;}
+.mh-mini.mh-r{background:var(--red);    border-color:var(--red);    color:#fff;}
+.mh-mini.mh-p{background:var(--purple);border-color:var(--purple);color:#fff;}
+.wt{display:inline-block;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 6px;border-radius:3px;white-space:nowrap;}
+.wt-g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr);}
+.wt-a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bdr);}
+.wt-r{background:var(--red-bg);  color:var(--red);  border:1px solid var(--red-bdr);}
+.wt-m{background:rgba(0,0,0,.05);color:var(--muted);border:1px solid var(--border);}
 
 /* ── FAST BOXES ── */
-.fast-box { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
-.fast-item { background:var(--red-bg); border:1.5px solid var(--red-bdr); border-radius:10px; padding:10px 10px 8px; }
-.fast-letter { font-size:20px; font-weight:900; color:var(--red); line-height:1; }
-.fast-word   { font-size:11px; font-weight:800; color:var(--text); margin-bottom:2px; }
-.fast-desc   { font-size:10px; color:var(--muted); line-height:1.3; }
+.fast-box{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.fast-item{background:var(--red-bg);border:1.5px solid var(--red-bdr);border-radius:10px;padding:10px 10px 8px;}
+.fast-letter{font-size:20px;font-weight:900;color:var(--red);line-height:1;}
+.fast-word  {font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.fast-desc  {font-size:10px;color:var(--muted);line-height:1.3;}
 
-/* ── PERSON SETUP ── */
-.person-setup { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:8px; }
-.person-setup p { font-size:12px; color:var(--muted); margin-bottom:7px; line-height:1.4; }
-.p-inp { width:100%; background:var(--surface); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:var(--fs-body); padding:8px 10px; margin-bottom:6px; outline:none; }
-.p-inp:focus { border-color:var(--purple-bdr); }
-.p-sel { width:100%; background:var(--surface); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:var(--fs-body); padding:8px 10px; margin-bottom:6px; outline:none; appearance:none; }
+/* ── PERSON SETUP (crisis) ── */
+.person-setup{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.person-setup p{font-size:12px;color:var(--muted);margin-bottom:7px;line-height:1.4;}
+.p-inp{width:100%;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;color:var(--text);font-family:inherit;font-size:var(--fs-body);padding:8px 10px;margin-bottom:6px;outline:none;}
+.p-inp:focus{border-color:var(--purple-bdr);}
+.p-sel{width:100%;background:var(--surface);border:1px solid var(--border-hi);border-radius:7px;color:var(--text);font-family:inherit;font-size:var(--fs-body);padding:8px 10px;margin-bottom:6px;outline:none;appearance:none;}
 
 /* ── RX TRACKER ── */
-.rx-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:12px; }
-.rx-card { background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:10px 10px 8px; position:relative; }
-.rx-ok   { border-color:var(--green-bdr); background:var(--green-bg); }
-.rx-warn { border-color:var(--amber-bdr); background:var(--amber-bg); }
-.rx-late { border-color:var(--red-bdr);   background:var(--red-bg); }
-.rx-med-name { font-size:11px; font-weight:800; margin-bottom:4px; padding-right:18px; line-height:1.2; }
-.rx-days { font-size:24px; font-weight:900; letter-spacing:-.02em; line-height:1; margin-bottom:2px; }
-.rx-ok   .rx-days { color:var(--green); }
-.rx-warn .rx-days { color:var(--amber); }
-.rx-late .rx-days { color:var(--red); }
-.rx-sub { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--muted2); }
-.rx-late .rx-sub { color:var(--red); }
-.rx-remove { position:absolute; top:7px; right:7px; background:none; border:none; color:var(--muted2); font-size:13px; cursor:pointer; padding:2px; line-height:1; font-family:inherit; }
-.rx-add-card { background:var(--surface); border:1.5px dashed var(--border-hi); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:5px; }
-.rx-input  { width:100%; background:var(--surface2); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:11px; padding:6px 8px; outline:none; }
-.rx-select { width:100%; background:var(--surface2); border:1px solid var(--border-hi); border-radius:7px; color:var(--text); font-family:inherit; font-size:11px; padding:6px 8px; outline:none; appearance:none; }
-.rx-add-btn { background:var(--blue); color:#fff; border:none; border-radius:7px; padding:7px; font-family:inherit; font-size:11px; font-weight:700; cursor:pointer; width:100%; }
-.rx-fav-row { background:var(--teal-bg); border:1px solid var(--teal-bdr); border-radius:10px; padding:9px 12px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-.rx-fav-info { flex:1; }
-.rx-fav-label { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--teal); }
-.rx-fav-name  { font-size:13px; font-weight:800; }
-.rx-fav-tel   { font-size:11px; color:var(--muted); }
-.rx-setup { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:12px; }
-.rx-setup-hdr { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--muted2); margin-bottom:7px; }
+.rx-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+.rx-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:10px 10px 8px;position:relative;}
+.rx-ok  {border-color:var(--green-bdr);background:var(--green-bg);}
+.rx-warn{border-color:var(--amber-bdr);background:var(--amber-bg);}
+.rx-late{border-color:var(--red-bdr);  background:var(--red-bg);}
+.rx-med-name{font-size:11px;font-weight:800;margin-bottom:4px;padding-right:18px;line-height:1.2;}
+.rx-days{font-size:24px;font-weight:900;letter-spacing:-.02em;line-height:1;margin-bottom:2px;}
+.rx-ok   .rx-days{color:var(--green);}
+.rx-warn .rx-days{color:var(--amber);}
+.rx-late .rx-days{color:var(--red);}
+.rx-sub{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted2);}
+.rx-late .rx-sub{color:var(--red);}
+.rx-remove{position:absolute;top:7px;right:7px;background:none;border:none;color:var(--muted2);font-size:13px;cursor:pointer;padding:2px;line-height:1;font-family:inherit;}
+.rx-add-card{background:var(--surface);border:1.5px dashed var(--border-hi);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:5px;}
+.rx-input {width:100%;background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;color:var(--text);font-family:inherit;font-size:11px;padding:6px 8px;outline:none;}
+.rx-select{width:100%;background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;color:var(--text);font-family:inherit;font-size:11px;padding:6px 8px;outline:none;appearance:none;}
+.rx-add-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;width:100%;}
+.rx-fav-row{background:var(--teal-bg);border:1px solid var(--teal-bdr);border-radius:10px;padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.rx-fav-info{flex:1;}
+.rx-fav-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);}
+.rx-fav-name {font-size:13px;font-weight:800;}
+.rx-fav-tel  {font-size:11px;color:var(--muted);}
+.rx-setup{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;}
+.rx-setup-hdr{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:7px;}
+
+/* ── SYMPTOM TRIAGE TABLE ── */
+.sx-table{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.sx-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:9px 12px;border-bottom:1px solid var(--border);}
+.sx-row:last-child{border-bottom:none;}
+.sx-name{font-size:12px;font-weight:800;margin-bottom:2px;}
+.sx-tips{font-size:10px;color:var(--muted);line-height:1.4;}
+.sx-action{font-size:10px;font-weight:800;text-align:right;white-space:nowrap;}
+.sx-g{color:var(--green);}.sx-a{color:var(--amber);}.sx-r{color:var(--red);}
+.sx-grp{background:var(--surface3);padding:4px 12px;border-bottom:1px solid var(--border);}
+.sx-grp-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);}
 
 /* ── FOOTER ── */
-.fnote { font-size:9px; color:var(--muted2); margin-top:9px; line-height:1.4; }
-.footer { flex-shrink:0; padding:8px 16px 13px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-.footer-note { font-size:10px; color:var(--muted2); line-height:1.4; }
-.footer-note strong { color:var(--muted); }
-.footer-tag { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--teal); padding:3px 8px; border-radius:4px; border:1px solid var(--teal-bdr); background:var(--teal-bg); white-space:nowrap; flex-shrink:0; }
+.fnote{font-size:9px;color:var(--muted2);margin-top:9px;line-height:1.4;}
+.footer{flex-shrink:0;padding:8px 16px 13px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.footer-note{font-size:10px;color:var(--muted2);line-height:1.4;}
+.footer-note strong{color:var(--muted);}
+.footer-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);padding:3px 8px;border-radius:4px;border:1px solid var(--teal-bdr);background:var(--teal-bg);white-space:nowrap;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -304,140 +339,123 @@ html.dark .script-card { background:var(--surface3); color:var(--text); }
     </div>
   </div>
 
-  <div class="grid-wrap">
+  <div class="grid-wrap" id="gridWrap">
     <div class="grid" id="grid">
 
-      <!-- STROKE -->
+      <!-- ROW 1: Stroke? | In crisis? -->
       <button class="chip c-red chip-act" data-id="stroke" onclick="sel('stroke')">
         <span class="chip-icon">⚡</span>
-        <span class="chip-label">Stroke</span>
+        <span class="chip-label">Stroke?</span>
         <span class="chip-sub">Face · Arms · Speech · Time</span>
         <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon">🎯</span>
-            <span class="cs-val cvr" style="font-size:10px">60 min</span>
-            <span class="cs-lbl">Target treatment</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🚑</span>
-            <span class="cs-val cvr">8 min</span>
-            <span class="cs-lbl">Ambulance</span>
-          </div>
+          <div class="chip-stat"><span class="cs-icon">🎯</span><span class="cs-val cvr" style="font-size:10px">60 min</span><span class="cs-lbl">Treatment window</span></div>
+          <div class="chip-stat"><span class="cs-icon">🚑</span><span class="cs-val cvg">8 min</span><span class="cs-lbl">Ambulance</span></div>
         </div>
       </button>
 
-      <!-- CHILD -->
-      <button class="chip c-red chip-act" data-id="child" onclick="sel('child')">
-        <span class="chip-icon">👶</span>
-        <span class="chip-label">Child in danger?</span>
-        <span class="chip-sub">Not breathing · Fitting · Rash</span>
+      <button class="chip c-red chip-act" data-id="crisis" id="chipCrisis" onclick="sel('crisis')">
+        <span class="chip-icon">🆘</span>
+        <span class="chip-label">In crisis?</span>
+        <span class="chip-sub">Mental health emergency</span>
         <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon">🔴</span>
-            <span class="cs-val cvr">999</span>
-            <span class="cs-lbl">Act fast</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🟡</span>
-            <span class="cs-val">MEDS</span>
-            <span class="cs-lbl">If GP closed</span>
-          </div>
+          <div class="chip-stat"><span class="cs-icon">💙</span><span class="cs-val" id="mhS1" style="font-size:10px">Add</span><span class="cs-lbl">Your person</span></div>
+          <div class="chip-stat"><span class="cs-icon">📞</span><span class="cs-val cvg" style="font-size:10px">116 123</span><span class="cs-lbl">Samaritans</span></div>
         </div>
       </button>
 
-      <!-- EMERGENCY -->
-      <button class="chip c-red" data-id="emergency" onclick="sel('emergency')">
-        <span class="chip-icon">🧑‍⚕️</span>
-        <span class="chip-label">Emergency</span>
-        <span class="chip-sub">Heart attack, not breathing, collapse</span>
-        <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon">📞</span>
-            <span class="cs-val cvg">10s</span>
-            <span class="cs-lbl">Operator</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🚑</span>
-            <span class="cs-val cvb">8 min</span>
-            <span class="cs-lbl">Ambulance</span>
-          </div>
-        </div>
-      </button>
-
-      <!-- ED -->
+      <!-- ROW 2: ED | Emergency -->
       <button class="chip c-amber" data-id="ed" onclick="sel('ed')">
         <span class="chip-icon">🏥</span>
         <span class="chip-label">Serious but not 999</span>
-        <span class="chip-sub">Head injury, severe pain, high fever</span>
+        <span class="chip-sub">Head injury · Severe pain · High fever</span>
         <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon">⏱</span>
-            <span class="cs-val">30-90m</span>
-            <span class="cs-lbl">Typical wait</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🗺</span>
-            <span class="cs-val" id="edDrive">Directions</span>
-            <span class="cs-lbl" id="edDriveLbl">Noble's ED</span>
-          </div>
+          <div class="chip-stat"><span class="cs-icon">⏱</span><span class="cs-val">30-90m</span><span class="cs-lbl">Typical wait</span></div>
+          <div class="chip-stat"><span class="cs-icon">🚗</span><span class="cs-val" id="edDrive" style="font-size:11px">—</span><span class="cs-lbl" id="edDriveLbl">Drive to ED</span></div>
         </div>
       </button>
 
-      <!-- DOCTOR (morphs) -->
+      <button class="chip c-red chip-act" data-id="emergency" onclick="sel('emergency')">
+        <span class="chip-icon">🚨</span>
+        <span class="chip-label">Emergency</span>
+        <span class="chip-sub">Heart attack · Not breathing · Collapse</span>
+        <div class="chip-stats">
+          <div class="chip-stat"><span class="cs-icon">📞</span><span class="cs-val cvg">10s</span><span class="cs-lbl">Operator</span></div>
+          <div class="chip-stat"><span class="cs-icon">🚑</span><span class="cs-val cvg">8 min</span><span class="cs-lbl">Ambulance</span></div>
+        </div>
+      </button>
+
+      <!-- ROW 3: Common ailments | Pharmacy -->
+      <button class="chip c-green" data-id="selfcare" onclick="sel('selfcare')">
+        <span class="chip-icon">🌿</span>
+        <span class="chip-label">Common ailments</span>
+        <span class="chip-sub">Cold · UTI · Skin · Back pain · Gut</span>
+        <div class="chip-stats">
+          <div class="chip-stat"><span class="cs-icon">✚</span><span class="cs-val cvg" style="font-size:10px">Pharmacy</span><span class="cs-lbl">No appt needed</span></div>
+          <div class="chip-stat"><span class="cs-icon">⏱</span><span class="cs-val cvg" style="font-size:10px">~10 min</span><span class="cs-lbl">Typical wait</span></div>
+        </div>
+      </button>
+
+      <button class="chip c-teal" data-id="pharmacy" id="chipPharmacy" onclick="sel('pharmacy')">
+        <i class="chip-cross">✚</i>
+        <span class="chip-label">Pharmacy</span>
+        <span class="chip-sub"><span class="clin">Clinically trained</span> · walk in</span>
+        <div class="chip-stats">
+          <div class="chip-stat"><span class="cs-icon">📍</span><span class="cs-val" id="phDistVal" style="font-size:11px">—</span><span class="cs-lbl" id="phDistLbl">Nearest open</span></div>
+          <div class="chip-stat"><span class="cs-icon" id="phStatIcon">🟡</span><span class="cs-val" id="phStatVal" style="font-size:11px">Checking</span><span class="cs-lbl" id="phStatLbl">Status</span></div>
+        </div>
+      </button>
+
+      <!-- ROW 4: GP | Mental health -->
       <button class="chip c-green" data-id="doctor" id="chipDoctor" onclick="sel('doctor')">
         <span class="chip-badge b-open" id="drBadge">Open</span>
         <span class="chip-icon" id="drIcon">🩺</span>
         <span class="chip-label" id="drLabel">My GP is open</span>
         <span class="chip-sub" id="drSub">Select your surgery</span>
         <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon">🚑</span>
-            <span class="cs-val cvg" id="drStat1Val">Same day</span>
-            <span class="cs-lbl" id="drStat1Lbl">Emergency</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">📅</span>
-            <span class="cs-val cvg" id="drStat2Val">2-4 wks</span>
-            <span class="cs-lbl" id="drStat2Lbl">Routine</span>
-          </div>
+          <div class="chip-stat"><span class="cs-icon">🚑</span><span class="cs-val cvg" id="drStat1Val">Same day</span><span class="cs-lbl" id="drStat1Lbl">Emergency</span></div>
+          <div class="chip-stat"><span class="cs-icon">📅</span><span class="cs-val cvg" id="drStat2Val">2-4 wks</span><span class="cs-lbl" id="drStat2Lbl">Routine</span></div>
         </div>
       </button>
 
-      <!-- PHARMACY -->
-      <button class="chip c-teal" data-id="pharmacy" id="chipPharmacy" onclick="sel('pharmacy')">
-        <span class="chip-icon">✚</span>
-        <span class="chip-label">Pharmacy</span>
-        <span class="chip-sub"><span class="clin">Clinically trained</span> · walk in</span>
+      <button class="chip c-purple" data-id="mental" id="chipMental" onclick="sel('mental')">
+        <span class="chip-icon">💙</span>
+        <span class="chip-label">Mental health</span>
+        <span class="chip-sub">Support · Therapy · Groups</span>
         <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon">📍</span>
-            <span class="cs-val" id="phDistVal" style="font-size:11px">—</span>
-            <span class="cs-lbl" id="phDistLbl">Nearest open</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon" id="phStatIcon">🟢</span>
-            <span class="cs-val" id="phStatVal" style="font-size:11px">Checking</span>
-            <span class="cs-lbl" id="phStatLbl">Status</span>
-          </div>
+          <div class="chip-stat"><span class="cs-icon">👥</span><span class="cs-val" id="mhS3" style="font-size:10px">Weekly</span><span class="cs-lbl">Peer group</span></div>
+          <div class="chip-stat"><span class="cs-icon">🗣</span><span class="cs-val cva" style="font-size:10px">2-4 wks</span><span class="cs-lbl">Talking therapy</span></div>
         </div>
       </button>
 
-      <!-- DENTAL (morphs) -->
+      <!-- ROW 5: Child unwell | Child & young person MH -->
+      <button class="chip c-orange" data-id="child-care" onclick="sel('child-care')">
+        <span class="chip-icon">🧸</span>
+        <span class="chip-label">Child unwell</span>
+        <span class="chip-sub">When to act · when to watch</span>
+        <div class="chip-stats">
+          <div class="chip-stat"><span class="cs-icon">🌡️</span><span class="cs-val cvr" style="font-size:10px">38°C</span><span class="cs-lbl">&lt;3 months → ED</span></div>
+          <div class="chip-stat"><span class="cs-icon">💊</span><span class="cs-val cvg" style="font-size:10px">Pharmacy</span><span class="cs-lbl">First stop</span></div>
+        </div>
+      </button>
+
+      <button class="chip c-purple" data-id="child-mh" onclick="sel('child-mh')">
+        <span class="chip-icon">🧡</span>
+        <span class="chip-label">Child &amp; young person</span>
+        <span class="chip-sub">Mental health · under 18</span>
+        <div class="chip-stats">
+          <div class="chip-stat"><span class="cs-icon">📞</span><span class="cs-val cvg" style="font-size:10px">Papyrus</span><span class="cs-lbl">Crisis · free</span></div>
+          <div class="chip-stat"><span class="cs-icon">⏳</span><span class="cs-val cva" style="font-size:10px">4 wks</span><span class="cs-lbl">CAMHS triage</span></div>
+        </div>
+      </button>
+
+      <!-- ROW 6: Dental | Later life -->
       <button class="chip c-pink" data-id="dental" id="chipDental" onclick="sel('dental')">
         <span class="chip-icon">🦷</span>
         <span class="chip-label">Dental</span>
         <span class="chip-sub" id="dentSub">Routine · Urgent · Out of hours</span>
         <div class="chip-stats">
-          <div class="chip-stat">
-            <span class="cs-icon" id="dentStat1Icon">📞</span>
-            <span class="cs-val cvg" id="dentStat1Val">Same day</span>
-            <span class="cs-lbl" id="dentStat1Lbl">Emergency</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">📅</span>
-            <span class="cs-val cvg">4-6 wks</span>
-            <span class="cs-lbl">Routine</span>
-          </div>
+          <div class="chip-stat"><span class="cs-icon" id="dentStat1Icon">📞</span><span class="cs-val cvg" id="dentStat1Val">Same day</span><span class="cs-lbl" id="dentStat1Lbl">Emergency</span></div>
+          <div class="chip-stat"><span class="cs-icon">📅</span><span class="cs-val cvg">4-6 wks</span><span class="cs-lbl">Routine</span></div>
         </div>
         <div class="chip-live">
           <span class="live-dot grey" id="dentalDot"></span>
@@ -445,67 +463,26 @@ html.dark .script-card { background:var(--surface3); color:var(--text); }
         </div>
       </button>
 
-      <!-- MENTAL HEALTH -->
-      <button class="chip c-purple" data-id="mental" id="chipMental" onclick="sel('mental')">
-        <span class="chip-icon">💙</span>
-        <span class="chip-label">Mental health</span>
-        <span class="chip-sub" id="mhSub">Talk · Support · Crisis</span>
-        <div class="chip-stats-3">
-          <div class="chip-stat">
-            <span class="cs-icon">💙</span>
-            <span class="cs-val" id="mhS1" style="font-size:10px">Add</span>
-            <span class="cs-lbl">Your person</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🧑‍⚕️</span>
-            <span class="cs-val" id="mhS2" style="font-size:10px">Add</span>
-            <span class="cs-lbl">Your pro</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">👥</span>
-            <span class="cs-val" id="mhS3" style="font-size:10px">Weekly</span>
-            <span class="cs-lbl">Routine</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🗣</span>
-            <span class="cs-val" style="font-size:10px;color:var(--amber)">8+ wks</span>
-            <span class="cs-lbl">Long term</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">📞</span>
-            <span class="cs-val cvg" style="font-size:10px">116 123</span>
-            <span class="cs-lbl">Coping</span>
-          </div>
-          <div class="chip-stat">
-            <span class="cs-icon">🚨</span>
-            <span class="cs-val cvr" style="font-size:10px">999</span>
-            <span class="cs-lbl">Crisis 999</span>
-          </div>
+      <button class="chip c-blue" data-id="olderadult" onclick="sel('olderadult')">
+        <span class="chip-icon">🏡</span>
+        <span class="chip-label">Later life support</span>
+        <span class="chip-sub">Falls · Memory · Carers · Staying well</span>
+        <div class="chip-stats">
+          <div class="chip-stat"><span class="cs-icon">📞</span><span class="cs-val cvg" style="font-size:10px">Age IoM</span><span class="cs-lbl">Free advice</span></div>
+          <div class="chip-stat"><span class="cs-icon">🏠</span><span class="cs-val cvg" style="font-size:10px">At home</span><span class="cs-lbl">Support options</span></div>
         </div>
       </button>
 
-      <!-- MEDICATION — full width -->
+      <!-- ROW 7: Repeat prescriptions — full width -->
       <button class="chip c-blue chip-full" data-id="meds" onclick="sel('meds')">
         <span class="chip-icon">💊</span>
         <div class="chip-body">
           <span class="chip-label">Repeat prescriptions</span>
           <span class="chip-sub">Pickup countdown for your regular medicines</span>
           <div class="chip-stats">
-            <div class="chip-stat">
-              <span class="cs-icon">⏰</span>
-              <span class="cs-val" id="medChipNext">Set up</span>
-              <span class="cs-lbl">Next pickup</span>
-            </div>
-            <div class="chip-stat">
-              <span class="cs-icon">💊</span>
-              <span class="cs-val" id="medChipCount">0</span>
-              <span class="cs-lbl">Medicines</span>
-            </div>
-            <div class="chip-stat">
-              <span class="cs-icon">⭐</span>
-              <span class="cs-val" id="medChipPharm" style="font-size:10px;font-weight:900">Pharmacy</span>
-              <span class="cs-lbl">Your pick-up</span>
-            </div>
+            <div class="chip-stat"><span class="cs-icon">⏰</span><span class="cs-val" id="medChipNext">Set up</span><span class="cs-lbl">Next pickup</span></div>
+            <div class="chip-stat"><span class="cs-icon">💊</span><span class="cs-val" id="medChipCount">0</span><span class="cs-lbl">Medicines</span></div>
+            <div class="chip-stat"><span class="cs-icon">⭐</span><span class="cs-val" id="medChipPharm" style="font-size:10px;font-weight:900">Pharmacy</span><span class="cs-lbl">Your pick-up</span></div>
           </div>
         </div>
       </button>
@@ -521,10 +498,10 @@ html.dark .script-card { background:var(--surface3); color:var(--text); }
 
 <script>
 // ══ BANK HOLIDAYS ══
-var BANK_HOLIDAYS=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-07-05','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-07-05','2027-08-30','2027-12-27','2027-12-28'];
+var BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-07-05','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-07-05','2027-08-30','2027-12-27','2027-12-28'];
 var BH_NAMES={'01-01':"New Year's Day",'04-03':'Good Friday','04-06':'Easter Monday','05-04':'May Day','05-25':'Spring Bank Holiday','07-05':'Tynwald Day','08-31':'Late Summer Bank Holiday','12-25':'Christmas Day','12-28':'Boxing Day','03-26':'Good Friday','03-29':'Easter Monday','05-03':'May Day','05-31':'Spring Bank Holiday','08-30':'Late Summer Bank Holiday','12-27':'Christmas Day'};
 function pad(n){return n<10?'0'+n:''+n;}
-function isBH(d){return BANK_HOLIDAYS.indexOf(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()))>=0;}
+function isBH(d){return BH.indexOf(d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()))>=0;}
 function bhName(d){return BH_NAMES[pad(d.getMonth()+1)+'-'+pad(d.getDate())]||'Bank Holiday';}
 function getState(){var n=new Date(),day=n.getDay(),h=n.getHours(),bh=isBH(n),wk=(day===0||day===6);if(bh)return{open:false,bh:true,bhName:bhName(n)};if(wk)return{open:false,wk:true,wkDay:day===6?'Saturday':'Sunday'};if(h>=8&&h<18){var m=(18*60)-(h*60+n.getMinutes());return{open:true,closeStr:m>90?'closes 6 pm':'closes in '+m+' min'};}return{open:false,opensStr:h>=18?'tomorrow 8 am':'at 8 am'};}
 function isDentalInHours(){var n=new Date(),day=n.getDay(),h=n.getHours()+n.getMinutes()/60;if(isBH(n)||day===0||day===6)return false;return h>=9&&h<17.5;}
@@ -543,42 +520,42 @@ var GP_LIST=[
   {id:'peel',       name:'Peel Medical Centre',             area:'Peel',                     tel:'01624 686968',lat:54.223,lng:-4.697},
   {id:'ballasalla', name:'Ballasalla Group Practice',       area:'Ballasalla',               tel:'01624 823243',lat:54.089,lng:-4.562},
   {id:'castletown', name:'Castletown Medical Centre',       area:'Castletown',               tel:'',            lat:54.076,lng:-4.653},
-  {id:'southern',   name:'Southern Group Practice',         area:'Port Erin · Port St Mary', tel:'01624 686979',lat:54.085,lng:-4.747},
+  {id:'southern',   name:'Southern Group Practice',         area:'Port Erin / Port St Mary', tel:'01624 686979',lat:54.085,lng:-4.747},
 ];
 var PHARMACY_LIST=[
-  {name:'Boots the Chemist',               area:'Douglas',      tel:'',             lat:54.150,lng:-4.482,hrs:'ext'},
-  {name:'Lloyds Pharmacy – Hailwood Court',area:'Douglas',      tel:'',             lat:54.162,lng:-4.474,hrs:'ext'},
-  {name:"Kinrade's Pharmacy",              area:'Douglas',      tel:'',             lat:54.149,lng:-4.483,hrs:'std'},
-  {name:'Lloyds Pharmacy – Anagh Coar',    area:'Douglas',      tel:'',             lat:54.167,lng:-4.479,hrs:'ext'},
-  {name:'Lloyds Pharmacy – Woodbourne Rd', area:'Douglas',      tel:'',             lat:54.152,lng:-4.486,hrs:'ext'},
-  {name:'Lloyds Pharmacy – Shoprite',      area:'Douglas',      tel:'',             lat:54.150,lng:-4.486,hrs:'ext'},
-  {name:'Clear Pharmacy',                  area:'Douglas',      tel:'',             lat:54.149,lng:-4.484,hrs:'ext'},
-  {name:"Hemensley's Pharmacy",            area:'Douglas',      tel:'01624 675162', lat:54.148,lng:-4.481,hrs:'std'},
-  {name:"Karson's Pharmacy",               area:'Onchan',       tel:'',             lat:54.165,lng:-4.449,hrs:'std'},
-  {name:'Lloyds Pharmacy – Village Walk',  area:'Onchan',       tel:'01624 656020', lat:54.163,lng:-4.452,hrs:'ext'},
-  {name:'Lloyds Pharmacy – Shoprite Ramsey',area:'Ramsey',      tel:'',             lat:54.320,lng:-4.386,hrs:'ext'},
-  {name:'Lloyds Pharmacy – Parliament St', area:'Ramsey',       tel:'01624 812167', lat:54.323,lng:-4.384,hrs:'ext'},
-  {name:"Lloyds Pharmacy – St Paul's Sq",  area:'Ramsey',       tel:'',             lat:54.322,lng:-4.383,hrs:'std'},
-  {name:'Cowley Pharmacy',                 area:'Peel',         tel:'',             lat:54.222,lng:-4.698,hrs:'std'},
-  {name:'Clear Pharmacy – Peel',           area:'Peel',         tel:'01624 842264', lat:54.223,lng:-4.697,hrs:'ext'},
-  {name:'Clear Pharmacy – Port Erin',      area:'Port Erin',    tel:'',             lat:54.085,lng:-4.747,hrs:'std'},
-  {name:'Lloyds Pharmacy – Port Erin',     area:'Port Erin',    tel:'',             lat:54.086,lng:-4.746,hrs:'std'},
-  {name:'Clear Pharmacy – Port St Mary',   area:'Port St Mary', tel:'',             lat:54.071,lng:-4.731,hrs:'std'},
-  {name:'Costain Pharmacy',                area:'Ballasalla',   tel:'',             lat:54.089,lng:-4.562,hrs:'std'},
-  {name:'Laxey Chemist',                   area:'Laxey',        tel:'',             lat:54.228,lng:-4.393,hrs:'std'},
-  {name:'Village Pharmacy',                area:'Kirk Michael', tel:'',             lat:54.290,lng:-4.599,hrs:'std'},
+  {name:'Boots the Chemist',                area:'Douglas',      tel:'',             lat:54.150,lng:-4.482,hrs:'ext'},
+  {name:'Lloyds Pharmacy – Hailwood Court', area:'Douglas',      tel:'',             lat:54.162,lng:-4.474,hrs:'ext'},
+  {name:"Kinrade's Pharmacy",               area:'Douglas',      tel:'',             lat:54.149,lng:-4.483,hrs:'std'},
+  {name:'Lloyds Pharmacy – Anagh Coar',     area:'Douglas',      tel:'',             lat:54.167,lng:-4.479,hrs:'ext'},
+  {name:'Lloyds Pharmacy – Woodbourne Rd',  area:'Douglas',      tel:'',             lat:54.152,lng:-4.486,hrs:'ext'},
+  {name:'Lloyds Pharmacy – Shoprite',       area:'Douglas',      tel:'',             lat:54.150,lng:-4.486,hrs:'ext'},
+  {name:'Clear Pharmacy',                   area:'Douglas',      tel:'',             lat:54.149,lng:-4.484,hrs:'ext'},
+  {name:"Hemensley's Pharmacy",             area:'Douglas',      tel:'01624 675162', lat:54.148,lng:-4.481,hrs:'std'},
+  {name:"Karson's Pharmacy",                area:'Onchan',       tel:'',             lat:54.165,lng:-4.449,hrs:'std'},
+  {name:'Lloyds Pharmacy – Village Walk',   area:'Onchan',       tel:'01624 656020', lat:54.163,lng:-4.452,hrs:'ext'},
+  {name:'Lloyds Pharmacy – Shoprite Ramsey',area:'Ramsey',       tel:'',             lat:54.320,lng:-4.386,hrs:'ext'},
+  {name:'Lloyds Pharmacy – Parliament St',  area:'Ramsey',       tel:'01624 812167', lat:54.323,lng:-4.384,hrs:'ext'},
+  {name:"Lloyds Pharmacy – St Paul's Sq",   area:'Ramsey',       tel:'',             lat:54.322,lng:-4.383,hrs:'std'},
+  {name:'Cowley Pharmacy',                  area:'Peel',         tel:'',             lat:54.222,lng:-4.698,hrs:'std'},
+  {name:'Clear Pharmacy – Peel',            area:'Peel',         tel:'01624 842264', lat:54.223,lng:-4.697,hrs:'ext'},
+  {name:'Clear Pharmacy – Port Erin',       area:'Port Erin',    tel:'',             lat:54.085,lng:-4.747,hrs:'std'},
+  {name:'Lloyds Pharmacy – Port Erin',      area:'Port Erin',    tel:'',             lat:54.086,lng:-4.746,hrs:'std'},
+  {name:'Clear Pharmacy – Port St Mary',    area:'Port St Mary', tel:'',             lat:54.071,lng:-4.731,hrs:'std'},
+  {name:'Costain Pharmacy',                 area:'Ballasalla',   tel:'',             lat:54.089,lng:-4.562,hrs:'std'},
+  {name:'Laxey Chemist',                    area:'Laxey',        tel:'',             lat:54.228,lng:-4.393,hrs:'std'},
+  {name:'Village Pharmacy',                 area:'Kirk Michael', tel:'',             lat:54.290,lng:-4.599,hrs:'std'},
 ];
 var DENTIST_LIST=[
-  {name:'Hailwood Dental Practice',  area:'Douglas',                  tel:'',lat:54.162,lng:-4.474},
-  {name:'Dashfield Dental',          area:'Douglas',                  tel:'',lat:54.150,lng:-4.480},
-  {name:'1Dental Clinic',            area:'1 Granville St, Douglas',  tel:'',lat:54.149,lng:-4.483},
-  {name:'Woodbourne Dental (36)',    area:'Douglas',                  tel:'',lat:54.152,lng:-4.486},
-  {name:'Woodbourne Dental (65)',    area:'Douglas',                  tel:'',lat:54.152,lng:-4.487},
-  {name:'Cosmetic Medical & Dental', area:'34 Victoria St, Douglas',  tel:'',lat:54.149,lng:-4.481},
-  {name:'Grove Mount Dental',        area:'Ramsey',                   tel:'',lat:54.323,lng:-4.384},
-  {name:'Concorde House Dental',     area:'Ramsey',                   tel:'',lat:54.322,lng:-4.385},
-  {name:'Abbey Dental',              area:'Ballasalla',               tel:'',lat:54.089,lng:-4.562},
-  {name:'Orange Grove Dental',       area:'Port Erin',                tel:'',lat:54.085,lng:-4.747},
+  {name:'Hailwood Dental Practice', area:'Douglas',                 tel:'',lat:54.162,lng:-4.474},
+  {name:'Dashfield Dental',         area:'Douglas',                 tel:'',lat:54.150,lng:-4.480},
+  {name:'1Dental Clinic',           area:'1 Granville St, Douglas', tel:'',lat:54.149,lng:-4.483},
+  {name:'Woodbourne Dental (36)',   area:'Douglas',                 tel:'',lat:54.152,lng:-4.486},
+  {name:'Woodbourne Dental (65)',   area:'Douglas',                 tel:'',lat:54.152,lng:-4.487},
+  {name:'Cosmetic Medical & Dental',area:'34 Victoria St, Douglas', tel:'',lat:54.149,lng:-4.481},
+  {name:'Grove Mount Dental',       area:'Ramsey',                  tel:'',lat:54.323,lng:-4.384},
+  {name:'Concorde House Dental',    area:'Ramsey',                  tel:'',lat:54.322,lng:-4.385},
+  {name:'Abbey Dental',             area:'Ballasalla',              tel:'',lat:54.089,lng:-4.562},
+  {name:'Orange Grove Dental',      area:'Port Erin',               tel:'',lat:54.085,lng:-4.747},
 ];
 var WOMENS_TALK=[
   {venue:'PromSpace, Methodist Church, Loch Promenade',area:'Douglas',   lat:54.148,lng:-4.470},
@@ -586,124 +563,96 @@ var WOMENS_TALK=[
   {venue:'Civic Centre, Farrants Way',                 area:'Castletown',lat:54.076,lng:-4.653},
   {venue:'Western Wellbeing Centre, Derby Road',       area:'Peel',      lat:54.223,lng:-4.697},
 ];
-var MH_SERVICES=[
-  {g:'Your people',    icon:'💙', name:'Your person',         sub:'Saved trusted contact',                 wait:[{t:'~5 min',c:'wt-g'}],  id:'buddy'},
-  {g:'Your people',    icon:'🧑‍⚕️',name:'Your professional',   sub:'CMHP / Psychiatrist / Therapist',       wait:[{t:'1 tap',c:'wt-g'}],   id:'pro'},
-  {g:'Routine groups', icon:'👨', name:"Ed's Man Club",        sub:'Men · Every Thursday 7pm · Douglas',    wait:[{t:'Next Thu',c:'wt-g'}], acts:[{l:'🌐',h:'https://edspace.im',e:true}]},
-  {g:'Routine groups', icon:'👩', name:"Women's Talk",         sub:'Women · Every Tuesday 7pm · 4 locations',wait:[{t:'Next Tue',c:'wt-g'}],id:'wt'},
-  {g:'Coping in crisis',icon:'📞',name:'Samaritans',           sub:'Free · 24/7 · confidential',            wait:[{t:'Immediate',c:'wt-g'}],acts:[{l:'116 123',h:'tel:116123',cls:'mh-r'}]},
-  {g:'Coping in crisis',icon:'📞',name:'Isle Stand Up to Suicide',sub:'IoM · 2pm–10pm daily',              wait:[{t:'Same day',c:'wt-g'}], acts:[{l:'803040',h:'tel:803040'}]},
-  {g:'Long term',      icon:'🗣', name:'Counselling Wellbeing',sub:'Manx Care talking therapies',           wait:[{t:'Triage: 2-4 wks',c:'wt-a'},{t:'Course: 3-6 mo',c:'wt-r'}],acts:[{l:'📞',h:'tel:01624642540'}]},
-  {g:'Long term',      icon:'🏥', name:'CMHSA',                sub:'Community Mental Health · adults',      wait:[{t:'Referral: 4-8 wks',c:'wt-a'},{t:'Ongoing',c:'wt-m'}],     acts:[{l:'📞',h:'tel:01624686313'}]},
-  {g:'Emergency crisis',icon:'🚨',name:'CRHTT',                sub:'24/7 · 7 days · acute crisis only',     wait:[{t:'Immediate',c:'wt-g'}],acts:[{l:'01624 642860',h:'tel:01624642860',cls:'mh-r'}]},
-  {g:'Emergency crisis',icon:'🚨',name:"999 / Noble's ED",     sub:'Life at risk',                          wait:[{t:'Immediate',c:'wt-g'}],acts:[{l:'999',h:'tel:999',cls:'mh-r'}]},
-  {g:'Under 18',       icon:'👦', name:'CAMHS',                sub:'Child & Adolescent Mental Health',      wait:[{t:'Triage: 4 wks',c:'wt-a'},{t:'Treatment: 4-8 mo',c:'wt-r'}],acts:[{l:'📞',h:'tel:01624642875'}]},
-  {g:'Under 18',       icon:'📞', name:'Papyrus',              sub:'Suicide prevention · young people',     wait:[{t:'Immediate',c:'wt-g'}],acts:[{l:'0800 068 4141',h:'tel:08000684141'}]},
+var MH_ROUTINE=[
+  {g:'Peer support',   icon:'👨',name:"Ed's Man Club",       sub:'Men · Every Thursday 7pm · Douglas',      wait:[{t:'Next Thu',c:'wt-g'}], acts:[{l:'🌐',h:'https://edspace.im',e:true}]},
+  {g:'Peer support',   icon:'👩',name:"Women's Talk",        sub:'Women · Every Tuesday 7pm · 4 locations', wait:[{t:'Next Tue',c:'wt-g'}], id:'wt'},
+  {g:'Talking therapy',icon:'🗣',name:'Counselling Wellbeing',sub:'Manx Care · self-refer',                 wait:[{t:'Triage: 2-4 wks',c:'wt-a'},{t:'Course: 3-6 mo',c:'wt-r'}],acts:[{l:'📞',h:'tel:01624642540'}]},
+  {g:'Specialist',     icon:'🏥',name:'CMHSA',               sub:'Community Mental Health · adults',        wait:[{t:'Referral: 4-8 wks',c:'wt-a'},{t:'Ongoing',c:'wt-m'}],     acts:[{l:'📞',h:'tel:01624686313'}]},
 ];
 
 // ══ HAVERSINE ══
 var NOBLES={lat:54.1515,lng:-4.4808};
 function hav(a1,o1,a2,o2){var R=6371,dA=(a2-a1)*Math.PI/180,dO=(o2-o1)*Math.PI/180,a=Math.sin(dA/2)*Math.sin(dA/2)+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dO/2)*Math.sin(dO/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 
-// ══ W3W ══
-var W3W='IMP0R7BA';
+// ══ W3W + GPS ══
+var W3W_KEY='IMP0R7BA';
 var cachedLoc=null;
-function fetchW3W(lat,lng,cb){fetch('https://api.what3words.com/v3/convert-to-3wa?coordinates='+lat+','+lng+'&api_key='+W3W).then(function(r){return r.json();}).then(function(d){cb(d.words||null);}).catch(function(){cb(null);});}
-function getLocation(cb){if(cachedLoc){cb(cachedLoc);return;}if(!navigator.geolocation){cb(null);return;}navigator.geolocation.getCurrentPosition(function(pos){var lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy;fetchW3W(lat,lng,function(words){cachedLoc={lat:lat,lng:lng,acc:acc,words:words};cb(cachedLoc);});},function(){cb(null);},{timeout:8000,maximumAge:60000,enableHighAccuracy:true});}
+function fetchW3W(lat,lng,cb){fetch('https://api.what3words.com/v3/convert-to-3wa?coordinates='+lat+','+lng+'&api_key='+W3W_KEY).then(function(r){return r.json();}).then(function(d){cb(d.words||null);}).catch(function(){cb(null);});}
+function getLocation(cb){
+  if(cachedLoc&&cachedLoc.words){cb(cachedLoc);return;}
+  if(!navigator.geolocation){cb(null);return;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy;
+    if(cachedLoc&&cachedLoc.words){cachedLoc.lat=lat;cachedLoc.lng=lng;cachedLoc.acc=acc;cb(cachedLoc);return;}
+    fetchW3W(lat,lng,function(words){cachedLoc={lat:lat,lng:lng,acc:acc,words:words};cb(cachedLoc);});
+  },function(){cb(cachedLoc||null);},{timeout:8000,maximumAge:60000,enableHighAccuracy:true});
+}
 
 function locBadge(acc){
-  if(acc===undefined||acc===null)return'<span class="fw-loc-badge fw-no-loc">Location unknown</span>';
-  if(acc<=20)return'<span class="fw-loc-badge fw-verified">✓ Verified · ±'+Math.round(acc)+'m</span>';
-  if(acc<=100)return'<span class="fw-loc-badge fw-unverified">~ Unverified · ±'+Math.round(acc)+'m</span>';
-  return'<span class="fw-loc-badge fw-unverified">Approximate · ±'+Math.round(acc)+'m</span>';
+  if(!acc&&acc!==0)return '<span class="fw-loc-badge fw-no-loc">Location unknown</span>';
+  if(acc<=20)return '<span class="fw-loc-badge fw-verified">✓ Verified · ±'+Math.round(acc)+'m</span>';
+  if(acc<=100)return '<span class="fw-loc-badge fw-unverified">~ Unverified · ±'+Math.round(acc)+'m</span>';
+  return '<span class="fw-loc-badge fw-unverified">Approximate · ±'+Math.round(acc)+'m</span>';
 }
 function renderSafeLocBox(loc){
   var el=document.getElementById('safeABox');if(!el)return;
-  if(!loc){
-    el.innerHTML='<button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get my location</button>';
-    genSafeSummary();return;
-  }
+  if(!loc){el.innerHTML='<button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get my location</button>';return;}
   var latS=Math.abs(loc.lat).toFixed(4)+'°'+(loc.lat>=0?'N':'S'),lngS=Math.abs(loc.lng).toFixed(4)+'°'+(loc.lng>=0?'E':'W');
   var ww=loc.words?'<div class="fw-loc-w3w"><span class="fw-loc-slash">/// </span>'+loc.words+'</div>':'';
   el.innerHTML=ww+'<div class="fw-loc-meta"><span class="fw-loc-coord">'+latS+' '+lngS+'</span>'+locBadge(loc.acc)+'</div>';
-  genSafeSummary();
 }
 function reqSafeLoc(){getLocation(function(loc){renderSafeLocBox(loc);});}
 
-function updateEdTravel(lat,lng){var d=hav(lat,lng,NOBLES.lat,NOBLES.lng),m=Math.round(d/40*60),el=document.getElementById('edDrive'),lb=document.getElementById('edDriveLbl');if(el){el.textContent='~'+m+' min';el.className='cs-val cvg';}if(lb)lb.textContent='Drive to ED';}
+function updateEdTravel(lat,lng){
+  var d=hav(lat,lng,NOBLES.lat,NOBLES.lng),m=Math.round(d/40*60);
+  var el=document.getElementById('edDrive'),lb=document.getElementById('edDriveLbl');
+  if(el){el.textContent='~'+m+' min';el.className='cs-val cvg';}
+  if(lb)lb.textContent='Drive to ED';
+}
 
 // ══ SAFE FRAMEWORK ══
-// Tapping a risk chip toggles it on/off
-function safeCheck(el){el.classList.toggle('on');genSafeSummary();}
-
-function safeLocStr(){
-  if(!cachedLoc)return null;
-  return cachedLoc.words?'/// '+cachedLoc.words:(Math.abs(cachedLoc.lat).toFixed(4)+'°N, '+Math.abs(cachedLoc.lng).toFixed(4)+'°W');
-}
-function genSafeSummary(){
-  var el=document.getElementById('safeSumTxt');if(!el)return;
-  var s=(document.getElementById('safeS')||{}).value||'';
-  var f=(document.getElementById('safeF')||{}).value||'';
-  var e=(document.getElementById('safeE')||{}).value||'';
-  var loc=safeLocStr();
-  var riskLabels=['chest pain','breathing difficulty','bleeding','confusion / collapse','pregnant'];
-  var ticked=[];
-  ['eCh','eBr','eBl','eCo','ePr'].forEach(function(id,i){var x=document.getElementById(id);if(x&&x.classList.contains('on'))ticked.push(riskLabels[i]);});
-  var allE=ticked.concat(e?[e]:[]).join(', ');
-  var parts=[];
-  parts.push(s||'[say what\'s happening]');
-  if(loc)parts.push('We\'re at '+loc);else parts.push('[give your address]');
-  if(f)parts.push('Started '+f);else parts.push('[say when it started]');
-  if(allE)parts.push('Risk factors: '+allE);
-  var closing=(el.dataset.closing)||'I need an ambulance now';
-  parts.push(closing);
-  el.textContent=parts.join('. ')+'.';
-}
-
-function buildSafeWidget(symptomPrefill, closing){
-  var s=symptomPrefill||'';
+function buildSafeWidget(symptom,firstSeen,closing,risks){
   var cl=closing||'I need an ambulance now';
-  var locHtml=cachedLoc?'':' <button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get location</button>';
-  var h='<div class="framework-hdr">SAFE — your 30-second summary</div>';
-  h+='<div class="fw-row fw-s"><div class="fw-letter">S</div><div class="fw-field"><div class="fw-lbl">Symptom — what\'s happening right now?</div><input class="fw-inp" id="safeS" type="text" value="'+s+'" placeholder="e.g. stroke, chest pain, not breathing" oninput="genSafeSummary()"></div></div>';
-  h+='<div class="fw-row fw-a"><div class="fw-letter">A</div><div class="fw-field"><div class="fw-lbl">Address — where are you?</div><div class="fw-loc-box" id="safeABox">'+locHtml+'<span style="font-size:11px;color:var(--muted)">Getting location…</span></div></div></div>';
-  h+='<div class="fw-row fw-f"><div class="fw-letter">F</div><div class="fw-field"><div class="fw-lbl">First seen — when did this start? Getting worse?</div><input class="fw-inp" id="safeF" type="text" placeholder="e.g. 5 minutes ago, worsening fast" oninput="genSafeSummary()"></div></div>';
-  h+='<div class="fw-row fw-e"><div class="fw-letter">E</div><div class="fw-field"><div class="fw-lbl">Extra risk — tap any that apply</div><div class="fw-checks"><span class="fw-check" id="eCh" onclick="safeCheck(this)">Chest pain</span><span class="fw-check" id="eBr" onclick="safeCheck(this)">Breathing</span><span class="fw-check" id="eBl" onclick="safeCheck(this)">Bleeding</span><span class="fw-check" id="eCo" onclick="safeCheck(this)">Confused / collapsed</span><span class="fw-check" id="ePr" onclick="safeCheck(this)">Pregnant</span></div><input class="fw-inp-extra" id="safeE" type="text" placeholder="Allergies, medications, major illness…" oninput="genSafeSummary()"></div></div>';
-  h+='<div class="script-card"><div class="script-card-lbl">📢 Read this to 999</div><div class="script-card-txt" id="safeSumTxt" data-closing="'+cl+'">Fill in above to build your summary.</div></div>';
+  var s=symptom||'';
+  var f=firstSeen||'';
+  var rs=risks||['Chest pain','Breathing difficulty','Bleeding','Confusion / collapse','Pregnant'];
+  var locHtml=cachedLoc&&cachedLoc.words?
+    '<div class="fw-loc-w3w"><span class="fw-loc-slash">/// </span>'+cachedLoc.words+'</div><div class="fw-loc-meta"><span class="fw-loc-coord">'+Math.abs(cachedLoc.lat).toFixed(4)+'°N '+Math.abs(cachedLoc.lng).toFixed(4)+'°W</span>'+locBadge(cachedLoc.acc)+'</div>':
+    '<button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get my location</button>';
+  var riskTags=rs.map(function(r){return '<span class="fw-risk-tag">'+r+'</span>';}).join('');
+  var h='<div class="framework-hdr">S A F E — read this aloud to 999</div>';
+  h+='<div class="fw-row fw-s"><div class="fw-letter">S</div><div class="fw-field"><div class="fw-lbl">Symptom</div><div class="fw-card-red">'+s+'</div></div></div>';
+  h+='<div class="fw-row fw-a"><div class="fw-letter">A</div><div class="fw-field"><div class="fw-lbl">Address — read this aloud</div><div class="fw-loc-box" id="safeABox">'+locHtml+'</div></div></div>';
+  h+='<div class="fw-row fw-f"><div class="fw-letter">F</div><div class="fw-field"><div class="fw-lbl">First seen</div><div class="fw-card-muted">'+f+'</div></div></div>';
+  h+='<div class="fw-row fw-e"><div class="fw-letter">E</div><div class="fw-field"><div class="fw-lbl">Extra risks — tell 999 operator which apply</div><div class="fw-card-green"><div class="fw-risk-list">'+riskTags+'</div></div></div></div>';
+  h+='<div class="btns" style="margin-top:12px"><a href="tel:999" class="btn b-r" style="font-size:16px;padding:14px">📞 Call 999 now</a></div>';
   return h;
 }
 
 // ══ HELP FRAMEWORK ══
 var helpPrefVal='';
-function helpPref(v){
-  helpPrefVal=v;
-  var ph=document.getElementById('prefPhone'),pf=document.getElementById('prefFace');
-  if(ph)ph.classList.toggle('on',v==='phone');
-  if(pf)pf.classList.toggle('on',v==='face');
-  genHelpSummary();
-}
+function helpPref(v){helpPrefVal=v;var ph=document.getElementById('prefPhone'),pf=document.getElementById('prefFace');if(ph)ph.classList.toggle('on',v==='phone');if(pf)pf.classList.toggle('on',v==='face');genHelpSummary();}
 function genHelpSummary(){
   var el=document.getElementById('helpSumTxt');if(!el)return;
   var h=(document.getElementById('helpH')||{}).value||'';
   var e=(document.getElementById('helpE')||{}).value||'';
   var l=(document.getElementById('helpL')||{}).value||'';
   var parts=[];
-  parts.push(h?"I'm calling about "+h:"[say what you're calling about]");
+  parts.push(h?'I\'m calling about '+h:'[say what you\'re calling about]');
   if(e)parts.push('It started '+e);
-  if(l)parts.push("It's affecting my "+l);
-  if(helpPrefVal==='phone')parts.push("I'd prefer a phone consultation");
-  else if(helpPrefVal==='face')parts.push("I'd prefer to come in");
+  if(l)parts.push('It\'s affecting my '+l);
+  if(helpPrefVal==='phone')parts.push('I\'d prefer a phone consultation');
+  else if(helpPrefVal==='face')parts.push('I\'d prefer to come in');
   el.textContent=parts.join('. ')+'.';
 }
-
 function buildHelpWidget(gpName){
   helpPrefVal='';
-  var h='<div class="framework-hdr">HELP — prepare your triage call</div>';
+  var h='<div class="framework-hdr">H E L P — prepare your triage call</div>';
   h+='<div class="fw-row fw-h"><div class="fw-letter">H</div><div class="fw-field"><div class="fw-lbl">Help needed — what are you calling about?</div><input class="fw-inp fw-inp-g" id="helpH" type="text" placeholder="e.g. chest infection, knee pain, medication review" oninput="genHelpSummary()"></div></div>';
   h+='<div class="fw-row fw-ev"><div class="fw-letter">E</div><div class="fw-field"><div class="fw-lbl">Evolution — how long? Worse, same or better?</div><input class="fw-inp fw-inp-g" id="helpE" type="text" placeholder="e.g. 3 days, started worsening yesterday" oninput="genHelpSummary()"></div></div>';
   h+='<div class="fw-row fw-l"><div class="fw-letter">L</div><div class="fw-field"><div class="fw-lbl">Limits — what\'s it stopping you doing?</div><input class="fw-inp fw-inp-g" id="helpL" type="text" placeholder="e.g. can\'t sleep, off work, can\'t walk" oninput="genHelpSummary()"></div></div>';
   h+='<div class="fw-row fw-p"><div class="fw-letter">P</div><div class="fw-field"><div class="fw-lbl">Preferences — phone or face to face?</div><div class="pref-row"><button class="pref-btn" id="prefPhone" onclick="helpPref(\'phone\')">📞 Phone call</button><button class="pref-btn" id="prefFace" onclick="helpPref(\'face\')">🏥 Come in</button></div></div></div>';
-  h+='<div class="script-card-g"><div class="script-card-lbl">📋 Read this when they answer</div><div class="script-card-txt" id="helpSumTxt">Fill in above to prepare your call.</div></div>';
+  h+='<div class="script-card-g"><div class="script-card-lbl">📋 Read this when they answer</div><div class="script-card-txt" id="helpSumTxt">Fill in above.</div></div>';
   return h;
 }
 
@@ -715,7 +664,13 @@ function updatePharmacyChip(){
   if(!icon)return;
   if(open.length>0){icon.textContent='🟢';val.textContent='Open now';val.className='cs-val cvg';lbl.textContent=open.length+' open';}
   else{icon.textContent='🟡';val.textContent='Rota only';val.className='cs-val cva';lbl.textContent='Check link';}
-  if(cachedLoc&&open.length>0){open.forEach(function(p){p._d=hav(cachedLoc.lat,cachedLoc.lng,p.lat,p.lng);});open.sort(function(a,b){return a._d-b._d;});var d=open[0]._d,min=Math.round(d/40*60),dEl=document.getElementById('phDistVal'),dLb=document.getElementById('phDistLbl');if(dEl){dEl.textContent=min<1?'<1 min':'~'+min+' min';dEl.className='cs-val cvg';}if(dLb)dLb.textContent='Nearest open';}
+  if(cachedLoc&&open.length>0){
+    open.forEach(function(p){p._d=hav(cachedLoc.lat,cachedLoc.lng,p.lat,p.lng);});
+    open.sort(function(a,b){return a._d-b._d;});
+    var d=open[0]._d,min=Math.round(d/40*60),dEl=document.getElementById('phDistVal'),dLb=document.getElementById('phDistLbl');
+    if(dEl){dEl.textContent=min<1?'<1 min':'~'+min+' min';dEl.className='cs-val cvg';}
+    if(dLb)dLb.textContent='Nearest open';
+  }
 }
 
 // ══ DOCTOR CHIP ══
@@ -745,11 +700,25 @@ function updateDentalChip(){
 
 // ══ MH CHIP ══
 function updateMhChip(){
-  var b=getBuddy(),pro=getPro();
-  var s1=document.getElementById('mhS1'),s2=document.getElementById('mhS2'),s3=document.getElementById('mhS3');
+  var b=getBuddy();
+  var s1=document.getElementById('mhS1');
   if(s1){s1.textContent=b?b.name.split(' ')[0]:'Add';s1.className='cs-val'+(b?' cvg':'');s1.style.fontSize='10px';}
-  if(s2){s2.textContent=pro?pro.type:'Add';s2.className='cs-val'+(pro?' cvg':'');s2.style.fontSize='10px';}
-  if(s3){var n=new Date(),day=n.getDay(),dn=n.getDate();var thu=new Date(n);thu.setDate(dn+((4-day+7)%7||7));var tue=new Date(n);tue.setDate(dn+((2-day+7)%7||7));s3.textContent='Tue '+tue.getDate()+' / Thu '+thu.getDate();s3.style.fontSize='8px';s3.className='cs-val cvg';}
+  var s3=document.getElementById('mhS3');
+  if(s3){var n=new Date(),day=n.getDay(),dn=n.getDate();var thu=new Date(n);thu.setDate(dn+((4-day+7)%7||7));var tue=new Date(n);tue.setDate(dn+((2-day+7)%7||7));s3.textContent='Tue '+tue.getDate()+'/Thu '+thu.getDate();s3.style.fontSize='8px';s3.className='cs-val cvg';}
+}
+
+// ══ MED CHIP ══
+function updateMedChip(){
+  var list=getRxList(),fav=getFavPharmacy();
+  var next=document.getElementById('medChipNext'),count=document.getElementById('medChipCount'),pharm=document.getElementById('medChipPharm');
+  if(count)count.textContent=list.length;
+  if(pharm)pharm.textContent=fav?fav.name.split(/[\s–]/)[0]:'Set up';
+  if(!next)return;
+  if(!list.length){next.textContent='Set up';next.className='cs-val';return;}
+  var min=list.reduce(function(m,rx){var d=rxDaysLeft(rx);return d<m?d:m;},999);
+  if(min<=0){next.textContent='Overdue';next.className='cs-val cvr';}
+  else if(min<=7){next.textContent=min+'d';next.className='cs-val cva';}
+  else{next.textContent=min+'d';next.className='cs-val cvg';}
 }
 
 // ══ STORAGE ══
@@ -761,185 +730,363 @@ function saveDentist(d){localStorage.setItem('iom_dentist',JSON.stringify(d));up
 function setNoDentist(){saveDentist({type:'none'});}
 function clearDentist(){localStorage.removeItem('iom_dentist');updateDentalChip();sel('dental');}
 function getBuddy(){try{return JSON.parse(localStorage.getItem('iom_buddy'));}catch(e){return null;}}
-function saveBuddy(b){localStorage.setItem('iom_buddy',JSON.stringify(b));updateMhChip();sel('mental');}
-function clearBuddy(){localStorage.removeItem('iom_buddy');updateMhChip();sel('mental');}
+function saveBuddy(b){localStorage.setItem('iom_buddy',JSON.stringify(b));updateMhChip();sel('crisis');}
+function clearBuddy(){localStorage.removeItem('iom_buddy');updateMhChip();sel('crisis');}
 function getPro(){try{return JSON.parse(localStorage.getItem('iom_mh_pro'));}catch(e){return null;}}
-function savePro(p){localStorage.setItem('iom_mh_pro',JSON.stringify(p));updateMhChip();sel('mental');}
-function clearPro(){localStorage.removeItem('iom_mh_pro');updateMhChip();sel('mental');}
+function savePro(p){localStorage.setItem('iom_mh_pro',JSON.stringify(p));updateMhChip();sel('crisis');}
+function clearPro(){localStorage.removeItem('iom_mh_pro');updateMhChip();sel('crisis');}
 function getFavPharmacy(){try{return JSON.parse(localStorage.getItem('iom_fav_pharmacy'));}catch(e){return null;}}
 function saveFavPharmacy(p){localStorage.setItem('iom_fav_pharmacy',JSON.stringify(p));updateMedChip();updatePharmacyChip();sel('pharmacy');}
 function clearFavPharmacy(){localStorage.removeItem('iom_fav_pharmacy');updateMedChip();sel('pharmacy');}
 function getRxList(){try{return JSON.parse(localStorage.getItem('iom_rx_list'))||[];}catch(e){return[];}}
 function saveRxList(l){localStorage.setItem('iom_rx_list',JSON.stringify(l));updateMedChip();}
+function getSavedPeerGroup(){try{return JSON.parse(localStorage.getItem('iom_peer_group'));}catch(e){return null;}}
+function savePeerGroup(g){localStorage.setItem('iom_peer_group',JSON.stringify(g));}
+
+// ══ RX HELPERS ══
+function rxDaysLeft(rx){var last=new Date(rx.lastPickup),next=new Date(last.getTime()+rx.intervalDays*86400000),now=new Date();return Math.ceil((next-now)/86400000);}
+function rxCardClass(d){return'rx-card'+(d<=0?' rx-late':d<=7?' rx-warn':' rx-ok');}
+function rxDaysLabel(d){return d<=0?'Overdue':d+'d';}
+function rxSubLabel(d){return d<=0?'Order now':d<=7?'Order soon':'Days left';}
 function removeRx(i){var l=getRxList();l.splice(i,1);saveRxList(l);sel('meds');}
-
-// ══ MH HELPERS ══
-function fmtTel(t){return t.replace(/\s/g,'');}
-function smsMsg(name){return encodeURIComponent('Hey '+name+', I\'m not doing great right now and could use a chat. No pressure — just letting you know 💙');}
-function waLink(tel,name){var n=tel.replace(/\s/g,'').replace(/^\+/,'');if(n.match(/^07/))n='44'+n.substring(1);return'https://wa.me/'+n+'?text='+smsMsg(name);}
-function buddySaveForm(){var n=document.getElementById('buddyName'),t=document.getElementById('buddyTel');if(!n||!t||!n.value.trim()||!t.value.trim())return;saveBuddy({name:n.value.trim(),tel:t.value.trim()});}
-function proSaveForm(){var n=document.getElementById('proName'),t=document.getElementById('proTel'),tp=document.getElementById('proType');if(!n||!t||!n.value.trim()||!t.value.trim())return;savePro({name:n.value.trim(),tel:t.value.trim(),type:tp?tp.value:'CMHP'});}
-function showBuddyForm(){var f=document.getElementById('buddyForm');if(f)f.style.display=f.style.display==='none'?'block':'none';}
-function showProForm(){var f=document.getElementById('proForm');if(f)f.style.display=f.style.display==='none'?'block':'none';}
-function findWT(){var el=document.getElementById('wtNearest');if(!el)return;el.textContent='Finding…';if(!navigator.geolocation){el.textContent='Location unavailable';return;}navigator.geolocation.getCurrentPosition(function(p){var ls=WOMENS_TALK.slice();ls.forEach(function(w){w._d=hav(p.coords.latitude,p.coords.longitude,w.lat,w.lng);});ls.sort(function(a,b){return a._d-b._d;});var w=ls[0];if(w)el.textContent='📍 Nearest: '+w.area+' — '+w.venue;},function(){el.textContent='Location unavailable';},{timeout:8000,maximumAge:60000});}
-
-// ══ RX ══
-function rxDaysLeft(rx){var due=new Date(rx.lastPickup);due.setDate(due.getDate()+parseInt(rx.intervalDays,10));return Math.round((due-new Date())/(1000*60*60*24));}
-function rxCardClass(d){return'rx-card '+(d<0?'rx-late':d<=7?'rx-warn':'rx-ok');}
-function rxDaysLabel(d){return d<0?Math.abs(d)+'d':d===0?'Today':d+'d';}
-function rxSubLabel(d){return d<0?'Overdue — order now':d<=7?'Order this week':'Until pickup';}
-function updateMedChip(){
-  var list=getRxList(),fav=getFavPharmacy();
-  var next=document.getElementById('medChipNext'),cnt=document.getElementById('medChipCount'),ph=document.getElementById('medChipPharm');
-  if(cnt)cnt.textContent=list.length;if(ph){var fn=fav?fav.name.split('–').pop().trim().split(' ')[0]:'Pharmacy';ph.textContent=fav?fn:'Pharmacy';}
-  if(!next)return;if(!list.length){next.textContent='Set up';next.className='cs-val';return;}
-  var days=list.map(rxDaysLeft),min=Math.min.apply(null,days);
-  if(min<0){next.textContent='Overdue!';next.className='cs-val cvr';}else if(min<=7){next.textContent=min+'d';next.className='cs-val cva';}else{next.textContent=min+'d';next.className='cs-val cvg';}
-}
 function addRxFromForm(){
-  var n=document.getElementById('rxName'),d=document.getElementById('rxDate'),i=document.getElementById('rxInterval');
-  if(!n||!d||!i||!n.value.trim()||!d.value)return;
-  var list=getRxList();if(list.length>=6)return;
-  list.push({name:n.value.trim(),lastPickup:d.value,intervalDays:parseInt(i.value,10)});saveRxList(list);n.value='';sel('meds');
+  var n=document.getElementById('rxName'),dt=document.getElementById('rxDate'),iv=document.getElementById('rxInterval');
+  if(!n||!n.value.trim())return;
+  var l=getRxList();
+  l.push({name:n.value.trim(),lastPickup:dt.value||new Date().toISOString().split('T')[0],intervalDays:parseInt(iv.value)||28});
+  saveRxList(l);sel('meds');
 }
+function fmtTel(t){return(t||'').replace(/\s/g,'');}
+function smsMsg(name){return encodeURIComponent('Hey '+name+", I'm not doing great right now and could use a chat. No pressure — just letting you know \uD83D\uDC99");}
 
-// ══ PICKERS ══
+// ══ CONTACTS API ══
+function pickFromContacts(type){
+  if(navigator.contacts&&navigator.contacts.select){
+    navigator.contacts.select(['name','tel'],{multiple:false}).then(function(cs){
+      if(!cs||!cs.length){showPersonForm(type);return;}
+      var c=cs[0],name=(c.name&&c.name[0])||'',tel=(c.tel&&c.tel[0])||'';
+      if(type==='buddy')saveBuddy({name:name,tel:tel});
+      else{var pt=document.getElementById('proType');savePro({name:name,tel:tel,type:pt?pt.value:'Professional'});}
+    }).catch(function(){showPersonForm(type);});
+  }else{showPersonForm(type);}
+}
+function showPersonForm(type){var el=document.getElementById(type+'Form');if(el)el.style.display='block';}
+function buddySaveForm(){var n=document.getElementById('buddyName'),t=document.getElementById('buddyTel');if(n&&n.value)saveBuddy({name:n.value.trim(),tel:(t&&t.value)||''});}
+function proSaveForm(){var n=document.getElementById('proName'),t=document.getElementById('proTel'),pt=document.getElementById('proType');if(n&&n.value)savePro({name:n.value.trim(),tel:(t&&t.value)||'',type:(pt&&pt.value)||'Professional'});}
+
+// ══ GP PICKER ══
+var gpFilter='';
 function gpPickerHTML(){
-  var rows=GP_LIST.map(function(g){var safe=JSON.stringify(g).replace(/"/g,'&quot;');var num=g.tel?'<div class="picker-tel">'+g.tel+'</div>':'<div class="picker-tel" style="color:var(--muted)">Verify at manxcare.im</div>';return'<div class="picker-row" onclick="saveGP('+safe+')"><div class="picker-name">'+g.name+'</div><div class="picker-area">'+g.area+'</div>'+num+'</div>';}).join('');
-  return'<div class="picker-wrap"><div class="picker-title">Select your surgery</div><input class="picker-search" type="text" placeholder="Search by name or area…" oninput="fGP(this.value)" id="gpBox"><div class="picker-list" id="gpList">'+rows+'</div><div class="fnote"><a href="https://www.gov.im/categories/health-and-wellbeing/doctors/" target="_blank" style="color:var(--teal)">Full list at gov.im ↗</a></div></div>';
+  var h='<div class="picker-wrap"><div class="picker-title">Select your GP surgery</div>';
+  h+='<input class="picker-search" id="gpBox" type="text" placeholder="Search by name or area…" oninput="filterGP(this.value)">';
+  h+='<div class="picker-list" id="gpList">'+gpRows('')+'</div></div>';
+  return h;
 }
-function fGP(q){var lc=q.toLowerCase();document.querySelectorAll('#gpList .picker-row').forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(lc)>=0?'':'none';});}
-function dentistPickerHTML(){
-  var rows=DENTIST_LIST.map(function(d){var safe=JSON.stringify(d).replace(/"/g,'&quot;');return'<div class="picker-row" onclick="saveDentist(Object.assign('+safe+',{type:\'registered\'}))"><div class="picker-name">'+d.name+'</div><div class="picker-area">'+d.area+'</div>'+(d.tel?'<div class="picker-tel">'+d.tel+'</div>':'')+'</div>';}).join('');
-  return'<div class="picker-wrap"><div class="picker-title">Select your dentist</div><input class="picker-search" type="text" placeholder="Search…" oninput="fDentist(this.value)" id="dentBox"><div class="picker-list" id="dentList">'+rows+'</div><div class="fnote"><a href="https://www.gov.im/categories/health-and-wellbeing/dental-services/" target="_blank" style="color:var(--teal)">Full list at gov.im ↗</a></div></div>';
-}
-function fDentist(q){var lc=q.toLowerCase();document.querySelectorAll('#dentList .picker-row').forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(lc)>=0?'':'none';});}
-
-function phRows(uLat,uLng){
-  var fav=getFavPharmacy(),ls=PHARMACY_LIST.slice();
-  if(uLat!==null){ls.forEach(function(p){p._d=hav(uLat,uLng,p.lat,p.lng);});ls.sort(function(a,b){return a._d-b._d;});}
-  var open=ls.filter(function(p){return isPhOpen(p);});var show=(open.length>0?open:ls).slice(0,7);
-  return show.map(function(p){
-    var isOpen=isPhOpen(p),isFav=fav&&fav.name===p.name;var d=(uLat!==null&&p._d!==undefined)?(p._d<1?Math.round(p._d*1000)+'m':p._d.toFixed(1)+'km'):'';
-    var badges=(isOpen?'<span class="ph-badge pb-open">Open</span>':'')+(isFav?'<span class="ph-badge pb-fav">★</span>':'');
-    var c=p.tel?'<a href="tel:'+p.tel.replace(/\s/g,'')+'" class="ph-call">📞</a>':'';
-    var safe=JSON.stringify(p).replace(/"/g,'&quot;');var star='<button class="ph-star'+(isFav?' active':'')+'" onclick="saveFavPharmacy('+safe+');event.stopPropagation()">'+(isFav?'★':'☆')+'</button>';
-    return'<div class="ph-row'+(isFav?' ph-hi':'')+'"><div class="ph-dist">'+d+'</div><div class="ph-info"><div class="ph-name">'+p.name+'</div><div class="ph-badges">'+badges+'</div><div class="ph-area">'+p.area+'</div></div><div class="ph-actions">'+c+star+'</div></div>';
+function gpRows(q){
+  return GP_LIST.filter(function(g){return !q||g.name.toLowerCase().indexOf(q.toLowerCase())>=0||g.area.toLowerCase().indexOf(q.toLowerCase())>=0;}).map(function(g){
+    return '<div class="picker-row" onclick="saveGP('+JSON.stringify(g)+')"><div class="picker-name">'+g.name+'</div><div class="picker-area">'+g.area+'</div>'+(g.tel?'<div class="picker-tel">'+g.tel+'</div>':'')+'</div>';
   }).join('');
 }
-function doPhLocate(){var c=document.getElementById('phList');if(!c)return;c.innerHTML='<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">Finding nearest…</div>';if(!navigator.geolocation){c.innerHTML=phRows(null,null);return;}navigator.geolocation.getCurrentPosition(function(p){c.innerHTML=phRows(p.coords.latitude,p.coords.longitude);updatePharmacyChip();},function(){c.innerHTML=phRows(null,null);},{timeout:8000,maximumAge:60000});}
+function filterGP(q){var el=document.getElementById('gpList');if(el)el.innerHTML=gpRows(q);}
+
+// ══ DENTIST PICKER ══
+function dentistPickerHTML(){
+  var h='<div class="picker-wrap"><div class="picker-title">Select your dentist</div>';
+  h+='<input class="picker-search" id="dentBox" type="text" placeholder="Search…" oninput="filterDentist(this.value)">';
+  h+='<div class="picker-list" id="dentList">'+dentRows('')+'</div></div>';
+  return h;
+}
+function dentRows(q){
+  return DENTIST_LIST.filter(function(d){return !q||d.name.toLowerCase().indexOf(q.toLowerCase())>=0||d.area.toLowerCase().indexOf(q.toLowerCase())>=0;}).map(function(d){
+    return '<div class="picker-row" onclick="saveDentist('+JSON.stringify(d)+')"><div class="picker-name">'+d.name+'</div><div class="picker-area">'+d.area+'</div></div>';
+  }).join('');
+}
+function filterDentist(q){var el=document.getElementById('dentList');if(el)el.innerHTML=dentRows(q);}
+
+// ══ PHARMACY LIST ══
+function phRows(ulat,ulng){
+  var now=new Date(),fav=getFavPharmacy();
+  return PHARMACY_LIST.map(function(p){
+    var open=isPhOpen(p);
+    var dist='';
+    if(ulat!=null){var km=hav(ulat,ulng,p.lat,p.lng),min=Math.round(km/40*60);dist=min<1?'<1m':'~'+min+'m';}
+    var isFav=fav&&fav.name===p.name;
+    var badges=(open?'<span class="pb-open">Open</span>':'<span class="pb-closed">Closed</span>')+(isFav?' <span class="pb-fav">★ Fav</span>':'');
+    var star='<button class="ph-star'+(isFav?' active':'')+'" onclick="saveFavPharmacy('+JSON.stringify(p)+');event.stopPropagation()">'+(isFav?'★':'☆')+'</button>';
+    var call=p.tel?'<a href="tel:'+fmtTel(p.tel)+'" class="ph-call">📞</a>':'';
+    return '<div class="ph-row'+(isFav?' ph-hi':'')+'"><div class="ph-dist">'+dist+'</div><div class="ph-info"><div class="ph-name">'+p.name+'</div><div class="ph-badges">'+badges+'</div><div class="ph-area">'+p.area+'</div></div><div class="ph-actions">'+call+star+'</div></div>';
+  }).join('');
+}
+function doPhLocate(){var c=document.getElementById('phList');if(!c)return;c.innerHTML='<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">Finding…</div>';if(!navigator.geolocation){c.innerHTML=phRows(null,null);return;}navigator.geolocation.getCurrentPosition(function(p){c.innerHTML=phRows(p.coords.latitude,p.coords.longitude);updatePharmacyChip();},function(){c.innerHTML=phRows(null,null);},{timeout:8000,maximumAge:60000});}
 function doPhNearest(){if(!navigator.geolocation){alert('Location not available');return;}navigator.geolocation.getCurrentPosition(function(pos){var ls=PHARMACY_LIST.slice().filter(function(p){return isPhOpen(p);});if(!ls.length)ls=PHARMACY_LIST.slice();ls.forEach(function(p){p._d=hav(pos.coords.latitude,pos.coords.longitude,p.lat,p.lng);});ls.sort(function(a,b){return a._d-b._d;});saveFavPharmacy(ls[0]);},function(){},{timeout:8000,maximumAge:60000});}
 
-// ══ PANEL BUILDERS ══
-function dr(i,k,v){return'<div class="dr"><span class="di">'+i+'</span><span class="dk">'+k+'</span><span class="dv">'+v+'</span></div>';}
-function dbox(h){return'<div class="dbox">'+h+'</div>';}
+// ══ WOMEN'S TALK NEAREST ══
+function findWT(){
+  if(!navigator.geolocation){alert('Location not available');return;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    WOMENS_TALK.forEach(function(w){w._d=hav(pos.coords.latitude,pos.coords.longitude,w.lat,w.lng);});
+    WOMENS_TALK.sort(function(a,b){return a._d-b._d;});
+    var el=document.getElementById('wtNearest');
+    if(el)el.textContent='Nearest: '+WOMENS_TALK[0].venue+' ('+WOMENS_TALK[0].area+')';
+  },function(){},{timeout:8000,maximumAge:60000});
+}
 
-function buildEmergencyPanel(symptomPrefill,isStroke){
-  var closing=isStroke?'I need an ambulance now — suspected stroke':'I need an ambulance now';
+// ══ PANEL BUILDERS ══
+function dr(i,k,v){return '<div class="dr"><span class="di">'+i+'</span><span class="dk">'+k+'</span><span class="dv">'+v+'</span></div>';}
+function dbox(h){return '<div class="dbox">'+h+'</div>';}
+
+// ── Emergency / Stroke ──
+function buildEmergencyPanel(symptom,firstSeen,isStroke){
   var html='';
   if(isStroke){
     html+='<div class="ub ub-red">⚡ Stroke — every second counts</div><div class="p-service">Call 999 now</div>';
-    html+='<p class="p-why">Treatment must start within <strong>60 minutes</strong> for the best outcome. Use SAFE below to give 999 exactly what they need — fast.</p>';
+    html+='<p class="p-why">Treatment must start within <strong>60 minutes</strong>. Use SAFE below to give 999 exactly what they need.</p>';
     html+='<div class="fast-box"><div class="fast-item"><div class="fast-letter">F</div><div class="fast-word">Face</div><div class="fast-desc">Drooped on one side?</div></div><div class="fast-item"><div class="fast-letter">A</div><div class="fast-word">Arms</div><div class="fast-desc">Can they raise both?</div></div><div class="fast-item"><div class="fast-letter">S</div><div class="fast-word">Speech</div><div class="fast-desc">Slurred or garbled?</div></div><div class="fast-item"><div class="fast-letter">T</div><div class="fast-word">Time</div><div class="fast-desc">Note when it started.</div></div></div>';
   }else{
-    html+='<div class="ub ub-red">🧑‍⚕️ Emergency</div><div class="p-service">Call 999</div>';
-    html+='<p class="p-why">Use SAFE to give the operator exactly what they need. Fill in what you can — don\'t wait for it to be perfect.</p>';
+    html+='<div class="ub ub-red">🚨 Emergency</div><div class="p-service">Call 999</div>';
+    html+='<p class="p-why">Use SAFE to give the 999 operator what they need. Read each section aloud.</p>';
   }
-  html+=buildSafeWidget(symptomPrefill,closing);
-  html+='<div class="btns" style="margin-bottom:12px"><a href="tel:999" class="btn b-r" style="font-size:16px;padding:14px;width:100%;flex:none">📞 Call 999 now</a></div>';
-  html+=dbox(dr('🏥','ED','Noble\'s Hospital, Westmoreland Road, Douglas, IM1 4QA · 24/7')+dr('🚑','Response','<strong>8 min</strong> average — Category 1 calls'));
+  html+=buildSafeWidget(symptom,firstSeen,isStroke?'I need an ambulance now — suspected stroke':'I need an ambulance now');
+  html+=dbox(dr('🏥','ED','Noble\'s Hospital, Westmoreland Road, Douglas, IM1 4QA')+dr('🚑','Response','<strong>8 min</strong> average — Category 1 · target met'));
   html+='<p class="fnote">Category 1 average · verify at gov.im</p>';
   return html;
 }
 
+// ── Doctor ──
 function buildDoctorPanel(){
   var st=getState(),saved=getSavedGP(),html='';
   if(st.open){
     html+='<div class="ub ub-green">🩺 GP — routine care</div><div class="p-service">'+(saved?saved.name:'Your GP Surgery')+'</div>';
     if(saved){
-      html+='<p class="p-why">Use HELP to prepare a clear 30-second summary for the receptionist or triage nurse — it gets you routed to the right appointment faster.</p>';
+      html+='<p class="p-why">Use HELP to prepare a clear 30-second summary for the receptionist or triage nurse.</p>';
       html+=buildHelpWidget(saved.name);
-      html+=dbox(dr('📞','Call','<strong>'+saved.tel+'</strong>')+dr('⏱','Hours','Mon–Fri 08:00–18:00 typically')+dr('🚑','Emergency','<strong>Same-day</strong> — ring at 08:00')+dr('📅','Routine','Typically <strong>2–4 weeks</strong>'));
-      html+='<div class="btns"><a href="tel:'+saved.tel.replace(/\s/g,'')+'" class="btn b-g">📞 Call '+saved.name.split(' ')[0]+'</a><button class="btn b2" onclick="clearGP();event.stopPropagation()">Change surgery</button></div>';
-      html+='<p class="fnote">Live appointment availability could show here with a Manx Care data link.</p>';
+      html+=dbox(dr('📞','Call','<strong>'+saved.tel+'</strong>')+dr('⏱','Hours','Mon–Fri 08:00–18:00')+dr('🚑','Emergency','<strong>Same-day</strong> — ring at 08:00')+dr('📅','Routine','Typically <strong>2–4 weeks</strong>'));
+      html+='<div class="btns">'+(saved.tel?'<a href="tel:'+fmtTel(saved.tel)+'" class="btn b-g">📞 Call '+saved.name.split(' ')[0]+'</a>':'')+'<button class="btn b2" onclick="clearGP();event.stopPropagation()">Change surgery</button></div>';
     }else{
-      html+='<p class="p-why">Select your surgery to save it — one tap to call next time. The HELP framework will then appear to help you prepare your call.</p>'+gpPickerHTML();
+      html+='<p class="p-why">Select your surgery to save it — one tap to call next time.</p>'+gpPickerHTML();
     }
   }else{
-    var note=st.bh?bhName(new Date())+' — MEDS is active 24 hours.':st.wk?st.wkDay+' — MEDS is active all day.':'GP surgeries are closed. MEDS provides out-of-hours triage. <strong>Always call first.</strong>';
-    html+='<div class="ub ub-amber">🌙 MEDS — out of hours</div><div class="p-service">MEDS · 01624 650355</div><p class="p-why">'+note+'</p>';
-    html+=dbox(dr('📞','Call','<strong>01624 650355</strong>')+dr('⏱','Hours','Mon–Fri: 6 pm – 8 am · Weekends &amp; Bank Holidays: 24 hours')+dr('💡','Note','Call first — MEDS will triage and direct you.'));
+    var note=st.bh?bhName(new Date())+' — MEDS is active 24 hours.':st.wk?st.wkDay+' — MEDS is active all day.':'GP surgeries are closed. MEDS provides out-of-hours triage.';
+    html+='<div class="ub ub-amber">🌙 MEDS — out of hours</div><div class="p-service">MEDS · 01624 650355</div><p class="p-why">'+note+' <strong>Always call first.</strong></p>';
+    html+=dbox(dr('📞','Call','<strong>01624 650355</strong>')+dr('⏱','Hours','Mon–Fri: 6 pm – 8 am · Weekends &amp; Bank Holidays: 24 hours'));
     html+='<div class="btns"><a href="tel:01624650355" class="btn b-a">📞 Call MEDS</a></div>';
   }
   return html;
 }
 
+// ── Pharmacy ──
 function buildPharmacyPanel(){
   var open=PHARMACY_LIST.filter(function(p){return isPhOpen(p);});var fav=getFavPharmacy();
-  return'<div class="ub ub-teal">✚ Clinically trained · no appointment</div><div class="p-service">Your pharmacy</div>'+
-    '<p class="p-why">Coughs, rashes, UTIs, eye infections, minor wounds — free advice, typically seen in <strong>~10 minutes</strong>. '+(open.length>0?'<strong>'+open.length+' pharmacies open right now.</strong>':'<strong>Regular pharmacies are currently closed.</strong> Check the emergency rota.')+'</p>'+
-    '<p class="p-why" style="font-size:11px">'+(fav?'<strong>Your pharmacy: '+fav.name+'</strong> shown at top.':'Tap ☆ to save your favourite, or <strong>Use nearest</strong> for the closest open pharmacy.')+'</p>'+
-    '<div class="ph-list" id="phList"><div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">Tap Find nearest to sort by distance</div></div>'+
-    '<div class="btns"><button class="btn b-t" onclick="doPhLocate()">📍 Find nearest</button><button class="btn b2" onclick="doPhNearest()">⭐ Use nearest</button><a href="https://www.gov.im/categories/health-and-wellbeing/pharmacy-services/pharmacy-rota/" class="btn b2" target="_blank">📋 Rota</a></div>'+
-    '<p class="fnote">Emergency rota: one pharmacy open each day outside normal hours. Wait time is typical.</p>';
+  return '<div class="ub ub-teal">✚ Clinically trained · no appointment</div><div class="p-service">Your pharmacy</div>'+
+    '<p class="p-why">Coughs, rashes, UTIs, eye infections, minor wounds — free advice, typically in <strong>~10 minutes</strong>. '+(open.length>0?'<strong>'+open.length+' open right now.</strong>':'<strong>Regular pharmacies are closed.</strong> Check the rota.')+'</p>'+
+    '<div class="ph-list" id="phList"><div style="padding:12px;text-align:center;font-size:12px;color:var(--muted)">Tap Find nearest to sort by distance</div></div>'+
+    '<div class="btns"><button class="btn b-t" onclick="doPhLocate()">📍 Find nearest</button><button class="btn b2" onclick="doPhNearest()">★ Set as favourite</button><a href="https://www.gov.im/categories/health-and-wellbeing/pharmacy-services/pharmacy-rota/" class="btn b2" target="_blank">📋 Rota</a></div>'+
+    '<p class="fnote">Emergency rota: one pharmacy open each day outside normal hours.</p>';
 }
 
+// ── Dental ──
 function buildDentalPanel(){
   var d=getSavedDentist(),inH=isDentalInHours(),html='';
   html+='<div class="ub ub-pink">🦷 Dental</div><div class="p-service">Dental care</div>';
   html+='<p class="p-why">Routine check-ups, urgent pain, broken teeth. Spreading facial swelling affecting breathing = <strong>999 now</strong>.</p>';
-  if(!d){html+=dentistPickerHTML()+'<div class="btns" style="margin-bottom:12px"><button class="btn b2" onclick="setNoDentist()">I don\'t have a dentist</button></div>';}
-  else if(d.type==='none'){html+='<div class="saved-card sc-amber"><div class="saved-lbl">Your dentist</div><div class="saved-name">No routine dentist</div><div class="saved-sub">Register via gov.im</div><div class="btns" style="margin-top:8px"><a href="https://www.gov.im/categories/health-and-wellbeing/dental-services/" class="btn b-a" target="_blank">Register at gov.im</a><button class="btn b2" onclick="clearDentist()">I have a dentist</button></div></div>';}
-  else{html+='<div class="saved-card sc-pink"><div class="saved-lbl">Your dentist</div><div class="saved-name">'+d.name+'</div><div class="saved-sub">'+d.area+(d.tel?' · '+d.tel:'')+'</div><div class="btns" style="margin-top:6px">'+(d.tel?'<a href="tel:'+d.tel.replace(/\s/g,'')+'" class="btn b-k">📞 Call</a>':'')+'<button class="btn b2" onclick="clearDentist()">Change</button></div></div>';}
-  html+=dbox((inH?dr('📞','Urgent','Call your dentist — urgent slots typically <strong>same day</strong>. Ring at opening time.'):'')
+  if(!d){html+=dentistPickerHTML()+'<div class="btns"><button class="btn b2" onclick="setNoDentist()">I don\'t have a dentist</button></div>';}
+  else if(d.type==='none'){html+='<div class="saved-card sc-amber"><div class="saved-lbl">Your dentist</div><div class="saved-name">No routine dentist</div><div class="saved-sub">Register via gov.im</div><div class="btns"><a href="https://www.gov.im/categories/health-and-wellbeing/dental-services/" class="btn b-a" target="_blank">Register</a><button class="btn b2" onclick="clearDentist()">I have a dentist</button></div></div>';}
+  else{html+='<div class="saved-card sc-pink"><div class="saved-lbl">Your dentist</div><div class="saved-name">'+d.name+'</div><div class="saved-sub">'+d.area+(d.tel?' · '+d.tel:'')+'</div><div class="btns">'+(d.tel?'<a href="tel:'+fmtTel(d.tel)+'" class="btn b-k">📞 Call</a>':'')+'<button class="btn b2" onclick="clearDentist()">Change</button></div></div>';}
+  html+=dbox((inH?dr('📞','Urgent','Call your dentist — urgent slots typically <strong>same day</strong>'):'')
     +dr('🌙','OOH','<strong>MEDS · 01624 650355</strong> — triage and direction out of hours')
-    +dr('📅','Routine','Typical wait <strong>4–6 weeks</strong> — register and book ahead')
-    +dr('🏥','Swelling','Spreading swelling or breathing affected → <strong>999 or Noble\'s ED</strong>')
-    +dr('💡','Tip','Knocked-out adult tooth: keep in milk, dentist within the hour'));
-  html+='<div class="btns"><a href="tel:01624650355" class="btn b-k">📞 MEDS (out of hours)</a><a href="tel:999" class="btn b2">📞 999 if swelling</a></div>';
+    +dr('📅','Routine','Typical wait <strong>4–6 weeks</strong>')
+    +dr('🏥','Swelling','Spreading swelling or breathing affected → <strong>999</strong>'));
+  html+='<div class="btns"><a href="tel:01624650355" class="btn b-k">📞 MEDS (out of hours)</a></div>';
   return html;
 }
 
-function buildMhRow(svc,b,pro){
-  var waits=svc.wait.map(function(w){return'<span class="wt '+w.c+'">'+w.t+'</span>';}).join(' ');
-  var acts='';
-  if(svc.id==='buddy'){
-    acts=b?'<a href="tel:'+fmtTel(b.tel)+'" class="mh-mini mh-p">📞</a><a href="sms:'+fmtTel(b.tel)+'?body='+smsMsg(b.name)+'" class="mh-mini">💬</a>':'<button class="mh-mini" onclick="showBuddyForm()">+</button>';
-    return'<div class="mh-tr"><div class="mh-tr-info"><div class="mh-tr-name">💙 '+(b?b.name:'Your person')+'</div><div class="mh-tr-sub">'+(b?b.tel:'Not set — tap + to add')+'</div></div><div class="mh-tr-wait">'+waits+'</div><div class="mh-tr-acts">'+acts+'</div></div>';
+// ── Crisis (4-quadrant layout) ──
+function buildCrisisPanel(){
+  var b=getBuddy(),pro=getPro();
+  var html='<div class="ub ub-red">🆘 In crisis</div><div class="p-service">Reach someone now</div>';
+  html+='<p class="p-why">Start with your people. If life is at risk, call 999.</p>';
+  html+='<div class="crisis-grid">';
+  // Buddy card
+  if(b){
+    html+='<div class="crisis-card cc-buddy"><div class="cc-lbl">Your person</div><div class="cc-name">'+b.name+'</div><div class="cc-sub">'+b.tel+'</div><div class="cc-btns"><a href="tel:'+fmtTel(b.tel)+'" class="cc-btn cc-btn-call">📞 Call</a><a href="sms:'+fmtTel(b.tel)+'?body='+smsMsg(b.name)+'" class="cc-btn cc-btn-sms">💬 Text</a></div></div>';
+  }else{
+    html+='<div class="crisis-card cc-buddy"><div class="cc-lbl">Your person</div><div class="cc-name" style="color:var(--muted);font-size:12px">Not set</div><div class="cc-sub">Add a trusted person</div><div class="cc-btns"><button class="cc-btn cc-btn-add" onclick="showPersonForm(\'buddy\')">+ Add</button></div></div>';
   }
-  if(svc.id==='pro'){
-    acts=pro?'<a href="tel:'+fmtTel(pro.tel)+'" class="mh-mini mh-p">📞</a>':'<button class="mh-mini" onclick="showProForm()">+</button>';
-    return'<div class="mh-tr"><div class="mh-tr-info"><div class="mh-tr-name">🧑‍⚕️ '+(pro?pro.type+': '+pro.name:'Your professional')+'</div><div class="mh-tr-sub">'+(pro?pro.tel:'Not set — tap + to add')+'</div></div><div class="mh-tr-wait">'+waits+'</div><div class="mh-tr-acts">'+acts+'</div></div>';
+  // Pro card
+  if(pro){
+    html+='<div class="crisis-card cc-pro"><div class="cc-lbl">Your professional</div><div class="cc-name">'+pro.type+'</div><div class="cc-sub">'+pro.name+(pro.tel?' · '+pro.tel:'')+'</div><div class="cc-btns">'+(pro.tel?'<a href="tel:'+fmtTel(pro.tel)+'" class="cc-btn cc-btn-call">📞 Call</a>':'')+'</div></div>';
+  }else{
+    html+='<div class="crisis-card cc-pro"><div class="cc-lbl">Your professional</div><div class="cc-name" style="color:var(--muted);font-size:12px">Not set</div><div class="cc-sub">CMHP / Therapist</div><div class="cc-btns"><button class="cc-btn cc-btn-add" onclick="showPersonForm(\'pro\')">+ Add</button></div></div>';
   }
-  if(svc.id==='wt'){
-    acts='<button class="mh-mini" onclick="findWT()">📍</button><a href="https://womens-talk.im" class="mh-mini" target="_blank">🌐</a>';
-    return'<div class="mh-tr"><div class="mh-tr-info"><div class="mh-tr-name">'+svc.icon+' '+svc.name+'</div><div class="mh-tr-sub">'+svc.sub+'</div><div class="mh-tr-sub" id="wtNearest" style="color:var(--purple);font-weight:700;margin-top:2px"></div></div><div class="mh-tr-wait">'+waits+'</div><div class="mh-tr-acts">'+acts+'</div></div>';
-  }
-  if(svc.acts&&svc.acts.length){svc.acts.forEach(function(a){acts+='<a href="'+a.h+'" class="mh-mini'+(a.cls?' '+a.cls:'')+'"'+(a.e?' target="_blank"':'')+'>'+a.l+'</a>';});}
-  return'<div class="mh-tr"><div class="mh-tr-info"><div class="mh-tr-name">'+svc.icon+' '+svc.name+'</div><div class="mh-tr-sub">'+svc.sub+'</div></div><div class="mh-tr-wait">'+waits+'</div><div class="mh-tr-acts">'+acts+'</div></div>';
+  // Samaritans
+  html+='<div class="crisis-card cc-sam"><div class="cc-lbl">Coping · any time</div><div class="cc-name">Samaritans</div><div class="cc-sub">Free · 24/7 · confidential</div><div class="cc-num">116 123</div><div class="cc-btns"><a href="tel:116123" class="cc-btn cc-btn-tel">📞 Call free</a></div></div>';
+  // CRHTT
+  html+='<div class="crisis-card cc-crhtt"><div class="cc-lbl">Acute crisis · 24/7</div><div class="cc-name">Crisis Team</div><div class="cc-sub">CRHTT · psychiatric crisis only</div><div class="cc-num">01624 642860</div><div class="cc-btns"><a href="tel:01624642860" class="cc-btn cc-btn-call">📞 Call</a></div></div>';
+  html+='</div>';
+  // Forms (hidden until + Add tapped)
+  if(!b)html+=buildPersonSetupForm('buddy');
+  if(!pro)html+=buildPersonSetupForm('pro');
+  if(b)html+='<p class="fnote">Signal sent: <em>"Hey '+b.name+', I\'m not doing great right now…"</em> · <a href="#" onclick="clearBuddy();return false" style="color:var(--red)">Change</a></p>';
+  html+='<div class="btns" style="margin-top:4px"><a href="tel:999" class="btn b-r">📞 999 — life at risk</a><a href="tel:803040" class="btn b2">📞 Isle Stand Up (2–10pm)</a></div>';
+  html+='<p class="fnote">CRHTT is for acute psychiatric crisis only. Samaritans (116 123) for distress.</p>';
+  return html;
 }
-function buildPersonSetup(type){
+
+function buildPersonSetupForm(type){
   var ib=(type==='buddy');
-  var hint=ib?'Save a trusted person — one tap to call or send a quiet signal.':'Save your mental health professional for one-tap contact.';
+  var col=ib?'b-p':'b-b';
+  var hint=ib?'A trusted person — one tap to call or send a quiet signal.':'Your mental health professional for one-tap contact.';
   var opts=ib?'':'<select class="p-sel" id="proType"><option>CMHP</option><option>Psychiatrist</option><option>Therapist</option><option>Counsellor</option><option>GP (MH)</option></select>';
-  var fn=ib?'buddySaveForm()':'proSaveForm()';var col=ib?'b-p':'b-t';
-  return'<div class="person-setup" id="'+type+'Form" style="display:none"><p>'+hint+'</p>'+opts+'<input class="p-inp" id="'+(ib?'buddyName':'proName')+'" type="text" placeholder="Name" autocomplete="name"><input class="p-inp" id="'+(ib?'buddyTel':'proTel')+'" type="tel" placeholder="Phone number" autocomplete="tel"><button class="btn '+col+'" onclick="'+fn+'" style="width:100%;margin-top:2px">💙 Save</button></div>';
+  var fn=ib?'buddySaveForm()':'proSaveForm()';
+  var hasContacts=!!(navigator.contacts&&navigator.contacts.select);
+  var contactBtn=hasContacts?'<button class="btn b2" onclick="pickFromContacts(\''+type+'\')" style="margin-bottom:6px;width:100%">📋 Pick from Contacts</button>':'';
+  return '<div class="person-setup" id="'+type+'Form" style="display:none"><p>'+hint+'</p>'+contactBtn+opts+'<input class="p-inp" id="'+(ib?'buddyName':'proName')+'" type="text" placeholder="Name" autocomplete="name"><input class="p-inp" id="'+(ib?'buddyTel':'proTel')+'" type="tel" placeholder="Phone number" autocomplete="tel"><button class="btn '+col+'" onclick="'+fn+'" style="width:100%">Save</button></div>';
+}
+
+// ── Mental Health (Routine) ──
+function buildMhRow(svc){
+  var waits=svc.wait.map(function(w){return '<span class="wt '+w.c+'">'+w.t+'</span>';}).join(' ');
+  var acts='';
+  if(svc.id==='wt'){acts='<button class="mh-mini" onclick="findWT()">📍</button><a href="https://womens-talk.im" class="mh-mini" target="_blank">🌐</a>';}
+  else if(svc.acts){svc.acts.forEach(function(a){acts+='<a href="'+a.h+'" class="mh-mini'+(a.cls?' '+a.cls:'')+'"'+(a.e?' target="_blank"':'')+'>'+a.l+'</a>';});}
+  return '<div class="mh-tr"><div class="mh-tr-info"><div class="mh-tr-name">'+svc.icon+' '+svc.name+'</div><div class="mh-tr-sub">'+svc.sub+'</div>'+(svc.id==='wt'?'<div class="mh-tr-sub" id="wtNearest" style="color:var(--purple);font-weight:700;margin-top:2px"></div>':'')+'</div><div class="mh-tr-wait">'+waits+'</div><div class="mh-tr-acts">'+acts+'</div></div>';
 }
 function buildMentalPanel(){
-  var b=getBuddy(),pro=getPro();
-  var html='<div class="ub ub-purple">💙 Mental health</div><div class="p-service">Quickest to most specialist</div><p class="p-why">Start at the top. Right-matching your need means faster, better help.</p>';
-  var groups={};MH_SERVICES.forEach(function(svc){if(!groups[svc.g])groups[svc.g]=[];groups[svc.g].push(svc);});
-  html+='<div class="mh-table">';Object.keys(groups).forEach(function(g){html+='<div class="mh-grp"><span class="mh-grp-lbl">'+g+'</span></div>';groups[g].forEach(function(svc){html+=buildMhRow(svc,b,pro);});});html+='</div>';
-  if(!b)html+=buildPersonSetup('buddy');if(!pro)html+=buildPersonSetup('pro');
-  if(b)html+='<p class="fnote">Signal: <em>"Hey '+b.name+', I\'m not doing great right now…"</em> · <a href="#" onclick="clearBuddy();return false" style="color:var(--purple)">Change</a></p>';
-  html+='<p class="fnote" style="margin-top:6px">Wait times are estimates for self-triage. Crisis services are for genuine crisis only.</p>';
+  var pg=getSavedPeerGroup();
+  var html='<div class="ub ub-purple">💙 Mental health</div><div class="p-service">Support &amp; therapy</div>';
+  html+='<p class="p-why">Peer groups meet weekly — no referral needed. Talking therapy takes a few weeks — refer early. Use <strong>In crisis?</strong> if you need help now.</p>';
+  // Peer group picker
+  var pgGroups=[
+    {id:'edsman', name:"Ed's Man Club", sub:'Men · Thursdays 7pm · Douglas', url:'https://edspace.im'},
+    {id:'wt',     name:"Women's Talk",  sub:'Women · Tuesdays 7pm · 4 locations', url:'https://womens-talk.im'},
+  ];
+  html+='<div class="picker-wrap"><div class="picker-title">Your peer group</div>';
+  pgGroups.forEach(function(g){
+    var sel=(pg&&pg.id===g.id);
+    html+='<div class="picker-row'+(sel?' ph-hi':'')+'" onclick="savePeerGroup('+JSON.stringify(g)+');sel(\'mental\')"><div class="picker-name">'+(sel?'★ ':'')+g.name+'</div><div class="picker-area">'+g.sub+'</div></div>';
+  });
+  if(pg){html+='<div style="padding:6px 8px;font-size:11px;color:var(--muted)">Saved: <strong>'+pg.name+'</strong> · <a href="'+pg.url+'" target="_blank" style="color:var(--purple)">Website</a></div>';}
+  html+='</div>';
+  // Services table
+  var groups={};MH_ROUTINE.forEach(function(s){if(!groups[s.g])groups[s.g]=[];groups[s.g].push(s);});
+  html+='<div class="mh-table">';
+  Object.keys(groups).forEach(function(g){
+    html+='<div class="mh-grp"><span class="mh-grp-lbl">'+g+'</span></div>';
+    groups[g].forEach(function(s){html+=buildMhRow(s);});
+  });
+  html+='</div>';
+  html+='<p class="fnote">Wait times are estimates for self-triage. For crisis support use the <strong>In crisis?</strong> chip.</p>';
   return html;
 }
 
+// ── Child Health / Self-care ──
+function buildChildCarePanel(){
+  return '<div class="ub ub-orange">🧸 Child health</div><div class="p-service">When to act · when to watch</div>'+
+    '<p class="p-why">Most childhood illness is mild and self-limiting. The key is knowing the warning signs that need professional help today.</p>'+
+    '<div class="sx-table">'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Act now — 999 or ED</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Non-blanching rash</div><div class="sx-tips">Press a glass against it — if the rash does not fade, this is an emergency</div></div><div class="sx-action sx-r">999</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Not breathing / blue lips</div><div class="sx-tips">Or gasping, gurgling, choking</div></div><div class="sx-action sx-r">999</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Under 3 months · 38°C+</div><div class="sx-tips">Any fever in a baby under 3 months = ED now, no exceptions</div></div><div class="sx-action sx-r">ED now</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Fitting / seizure</div><div class="sx-tips">First febrile seizure or lasting more than 5 minutes</div></div><div class="sx-action sx-r">999</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">See someone today</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">High fever, lethargic</div><div class="sx-tips">Fever over 39°C not responding to paracetamol · unusual drowsiness</div></div><div class="sx-action sx-a">GP / MEDS</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Dehydration signs</div><div class="sx-tips">No wet nappy in 6hrs · sunken fontanelle · dry mouth · no tears</div></div><div class="sx-action sx-a">GP / MEDS</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Earache</div><div class="sx-tips">Pulling ear, crying, discharge — may need antibiotics</div></div><div class="sx-action sx-a">Pharmacy first</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Watch at home · pharmacy advice</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Cold / sniffles</div><div class="sx-tips">Fluids, rest, children\'s paracetamol for fever. Most resolve in 7–10 days</div></div><div class="sx-action sx-g">Home</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Mild fever (3 months+)</div><div class="sx-tips">Paracetamol or ibuprofen (6m+), fluids, cool room. Review if persists 3 days</div></div><div class="sx-action sx-g">Home</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Stomach upset / diarrhoea</div><div class="sx-tips">Oral rehydration salts, small sips. Watch for dehydration signs above</div></div><div class="sx-action sx-g">Home</div></div>'+
+    '</div>'+
+    '<div class="btns"><a href="tel:999" class="btn b-r">📞 999 (emergency)</a><a href="tel:01624650355" class="btn b-a">📞 MEDS (out of hours)</a></div>'+
+    '<p class="fnote">Always trust your instincts. If something feels seriously wrong, call 999 or go to Noble\'s ED.</p>';
+}
+
+// ── Child MH ──
+function buildChildMhPanel(){
+  return '<div class="ub ub-purple">🧡 Young people · mental health</div><div class="p-service">Under 18 support</div>'+
+    '<p class="p-why">Talking to someone you trust is always the first step. CAMHS is there when it goes deeper — refer early, waits can be long.</p>'+
+    '<div class="sx-table">'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Life at risk — right now</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Immediate risk of harm</div><div class="sx-tips">Life at risk, current crisis</div></div><div class="sx-action sx-r">999</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Papyrus HopelineUK</div><div class="sx-tips">Suicide prevention · young people · 9am–midnight daily</div></div><div class="sx-action sx-r">0800 068 4141</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Struggling — talk to someone</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Childline</div><div class="sx-tips">Free · confidential · 24/7 · any worry, any age under 19</div></div><div class="sx-action sx-g">0800 1111</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Kooth</div><div class="sx-tips">Free online counselling for young people · IoM commissioned</div></div><div class="sx-action sx-g">kooth.com</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Samaritans</div><div class="sx-tips">Free · 24/7 · any age</div></div><div class="sx-action sx-g">116 123</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Ongoing support — refer via GP</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">CAMHS</div><div class="sx-tips">Child & Adolescent Mental Health · GP referral needed · triage ~4 weeks</div></div><div class="sx-action sx-a">GP referral</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">School counselling</div><div class="sx-tips">Many IoM schools have on-site counsellors — ask the school directly</div></div><div class="sx-action sx-g">School</div></div>'+
+    '</div>'+
+    '<div class="btns"><a href="tel:08000684141" class="btn b-p">📞 Papyrus 0800 068 4141</a><a href="tel:08001111" class="btn b2">📞 Childline 0800 1111</a></div>'+
+    dbox(dr('📞','CAMHS','01624 642875 · GP referral required')+dr('💻','Kooth','kooth.com · free online support · no referral'))+
+    '<p class="fnote">Papyrus and Childline are free from any phone. Trust your instincts — if a young person is in immediate danger, call 999.</p>';
+}
+
+// ── Adult self-care ──
+function buildSelfCarePanel(){
+  return '<div class="ub ub-green">🌿 Common ailments</div><div class="p-service">Treat at home or pharmacy first</div>'+
+    '<p class="p-why">Most everyday illness resolves without a GP. The pharmacy can assess, advise, and supply — no appointment, no wait.</p>'+
+    '<div class="sx-table">'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Go to pharmacy first</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Cold / flu</div><div class="sx-tips">Rest, fluids, paracetamol. Pharmacy can advise on decongestants. See GP if fever persists 5+ days or breathing worsens</div></div><div class="sx-action sx-g">Home</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Sore throat</div><div class="sx-tips">Throat lozenges, warm drinks. Most viral — antibiotics rarely help. See GP if white patches or can\'t swallow</div></div><div class="sx-action sx-g">Pharmacy</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">UTI (cystitis)</div><div class="sx-tips">Women 16+: pharmacy can now supply antibiotics via Pharmacy First. Drink plenty. See GP if fever, loin pain or symptoms in men / children</div></div><div class="sx-action sx-g">Pharmacy</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Conjunctivitis</div><div class="sx-tips">Pharmacy can supply chloramphenicol drops. Clean with cotton wool. See GP if vision affected</div></div><div class="sx-action sx-g">Pharmacy</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Minor skin infections / rash</div><div class="sx-tips">Pharmacy can advise and supply topical treatments. See GP if spreading, hot, or you feel unwell</div></div><div class="sx-action sx-g">Pharmacy</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Diarrhoea &amp; vomiting</div><div class="sx-tips">Oral rehydration, rest, plain foods. Most resolve in 2–3 days. See GP if blood, persists 7 days or signs of dehydration</div></div><div class="sx-action sx-g">Home</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">May need GP</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Back pain</div><div class="sx-tips">Keep moving — rest worsens it. Anti-inflammatories from pharmacy. See GP if bladder / bowel affected, or leg weakness</div></div><div class="sx-action sx-a">Pharmacy → GP</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Earache</div><div class="sx-tips">Pharmacy can advise on pain relief. May need antibiotics — GP same or next day. Do not put anything in the ear</div></div><div class="sx-action sx-a">GP same day</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Hay fever / allergies</div><div class="sx-tips">Antihistamines, nasal sprays from pharmacy. See GP if eye drops or prescription steroid nasal spray needed</div></div><div class="sx-action sx-g">Pharmacy</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Go to ED / call 999</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Severe allergic reaction</div><div class="sx-tips">Throat swelling, difficulty breathing, collapse — use epipen if prescribed</div></div><div class="sx-action sx-r">999</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Suspected broken bone</div><div class="sx-tips">Unable to bear weight, deformity, significant swelling</div></div><div class="sx-action sx-r">ED</div></div>'+
+    '</div>'+
+    '<div class="btns"><a href="https://www.manxpharmacy.com/find-a-pharmacy/" class="btn b-g" target="_blank">✚ Find a pharmacy</a></div>'+
+    '<p class="fnote">Not medical advice. If in doubt, call MEDS (01624 650355) or visit your GP.</p>';
+}
+
+// ── Later life support ──
+function buildOlderAdultPanel(){
+  return '<div class="ub ub-blue">🏡 Later life</div><div class="p-service">Staying well · getting support</div>'+
+    '<p class="p-why">Whether you\'re looking for help yourself or for someone you care about — these services are here to help you stay independent, safe, and connected.</p>'+
+    '<div class="sx-table">'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Advice &amp; information</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Age IoM</div><div class="sx-tips">Free advice and information service · help navigating health and care systems · benefits, housing, legal</div></div><div class="sx-action sx-g">01624 692803</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Citizens Advice IoM</div><div class="sx-tips">Free, independent advice on benefits, housing, care costs, rights</div></div><div class="sx-action sx-g">01624 676994</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Falls &amp; safety at home</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Falls prevention</div><div class="sx-tips">Manx Care falls team · home assessment, strength and balance classes, telecare alarms. Ask your GP for referral</div></div><div class="sx-action sx-a">GP referral</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Telecare / community alarm</div><div class="sx-tips">Wearable pendant alarm — help at the press of a button. Ask your GP or social worker, or contact Manx Care direct</div></div><div class="sx-action sx-g">01624 685623</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Memory &amp; dementia</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Memory concerns</div><div class="sx-tips">Forgetfulness, confusion, personality change — see your GP for a memory assessment. Early diagnosis helps</div></div><div class="sx-action sx-a">GP</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Dementia IoM</div><div class="sx-tips">Support for people living with dementia and their carers · social groups, carer breaks, advice</div></div><div class="sx-action sx-g">01624 674516</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Staying connected</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Befriending services</div><div class="sx-tips">Age IoM and volunteer services offer regular phone or home visits for people feeling isolated</div></div><div class="sx-action sx-g">Age IoM</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Community transport</div><div class="sx-tips">Help getting to appointments — Shopper Hopper, community minibuses, voluntary car scheme via Age IoM</div></div><div class="sx-action sx-g">01624 692803</div></div>'+
+      '<div class="sx-grp"><div class="sx-grp-lbl">Carer support</div></div>'+
+      '<div class="sx-row"><div><div class="sx-name">Manx Carers</div><div class="sx-tips">Support, advice and respite for unpaid carers · you may be entitled to a carer\'s assessment</div></div><div class="sx-action sx-g">01624 697975</div></div>'+
+    '</div>'+
+    dbox(dr('📞','Age IoM','01624 692803 · Free advice and navigation')+dr('📞','Carers','01624 697975 · Manx Carers support line')+dr('🏥','Social Care','Manx Care social work team · 01624 685623'))+
+    '<div class="btns"><a href="tel:01624692803" class="btn b-b">📞 Age IoM</a><a href="tel:01624697975" class="btn b2">📞 Manx Carers</a></div>'+
+    '<p class="fnote">These contacts are correct to the best of our knowledge — verify at gov.im or age.im before acting.</p>';
+}
+
+// ── ED Panel ──
+function buildEdPanel(){
+  var maps='https://maps.apple.com/?daddr=Westmoreland+Road,Douglas,Isle+of+Man&dirflg=d';
+  var driveEl=cachedLoc?'~'+Math.round(hav(cachedLoc.lat,cachedLoc.lng,NOBLES.lat,NOBLES.lng)/40*60)+' min drive':'see directions below';
+  return '<div class="ub ub-amber">⚠️ Urgent — go today</div><div class="p-service">Noble\'s Hospital ED</div>'+
+    '<p class="p-why">Too serious to wait, not 999. Head injuries, severe pain, high fever, wounds not stopping. Walk in — sicker patients seen first.</p>'+
+    dbox(dr('📍','Where','Westmoreland Road, Douglas, IM1 4QA')+dr('🚗','Drive',driveEl)+dr('📞','Phone','01624 650000')+dr('⏱','Wait','Typically <strong>30–90 minutes</strong> — longer evenings &amp; weekends')+dr('🚶','Access','Walk in 24/7 · no appointment'))+
+    '<div class="btns"><a href="tel:01624650000" class="btn b-a">📞 01624 650000</a><a href="'+maps+'" class="btn b2" target="_blank">🗺 Directions</a></div>';
+}
+
+// ── Meds ──
 function buildRxFavPharmacy(){
   var fav=getFavPharmacy();
-  if(fav)return'<div class="rx-fav-row">'+(fav.tel?'<a href="tel:'+fav.tel.replace(/\s/g,'')+'" class="mh-mini mh-p">📞</a>':'')+'<div class="rx-fav-info"><div class="rx-fav-label">⭐ Your pharmacy</div><div class="rx-fav-name">'+fav.name+'</div>'+(fav.tel?'<div class="rx-fav-tel">'+fav.tel+'</div>':'')+'</div><button class="ph-star" onclick="clearFavPharmacy();event.stopPropagation()">✕</button></div>';
-  return'<div class="rx-fav-row" style="opacity:.7"><div class="rx-fav-info"><div class="rx-fav-label">Your pharmacy</div><div class="rx-fav-name" style="color:var(--muted)">Not set — select below</div></div><button class="ph-star" onclick="doPhNearest();event.stopPropagation()">📍 Nearest</button></div>';
+  if(fav)return '<div class="rx-fav-row">'+(fav.tel?'<a href="tel:'+fmtTel(fav.tel)+'" class="mh-mini mh-p">📞</a>':'')+'<div class="rx-fav-info"><div class="rx-fav-label">⭐ Your pharmacy</div><div class="rx-fav-name">'+fav.name+'</div>'+(fav.tel?'<div class="rx-fav-tel">'+fav.tel+'</div>':'')+'</div><button class="ph-star" onclick="clearFavPharmacy();event.stopPropagation()">✕</button></div>';
+  return '<div class="rx-fav-row" style="opacity:.7"><div class="rx-fav-info"><div class="rx-fav-label">Your pharmacy</div><div class="rx-fav-name" style="color:var(--muted)">Not set — select in Pharmacy tab</div></div></div>';
 }
 function buildMedTracker(){
   var list=getRxList(),today=new Date().toISOString().split('T')[0];
@@ -951,61 +1098,74 @@ function buildMedTracker(){
 
 // ══ PANEL REGISTRY ══
 var ANSWERS={
-  stroke:   function(){return buildEmergencyPanel('Suspected stroke — face drooping, arm weakness, speech difficulty',true);},
-  emergency:function(){return buildEmergencyPanel('',false);},
-  doctor:   function(){return buildDoctorPanel();},
-  pharmacy: function(){return buildPharmacyPanel();},
-  dental:   function(){return buildDentalPanel();},
-  mental:   function(){return buildMentalPanel();},
-  ed:function(){
-    var maps='https://maps.apple.com/?daddr=Westmoreland+Road,Douglas,Isle+of+Man&dirflg=d';
-    return'<div class="ub ub-amber">⚠️ Urgent — go today</div><div class="p-service">Noble\'s Hospital ED</div><p class="p-why">Too serious to wait, not 999. Head injuries, severe pain, high fever, wounds not stopping. Walk in — sicker patients go first.</p>'+dbox(dr('📍','Where','Westmoreland Road, Douglas, IM1 4QA')+dr('📞','Phone','<strong>01624 650000</strong>')+dr('⏱','Wait','Typically <strong>30–90 minutes</strong> — longer evenings &amp; weekends')+dr('🚶','Access','Walk in 24/7 · no appointment'))+'<div class="btns"><a href="tel:01624650000" class="btn b-a">📞 01624 650000</a><a href="'+maps+'" class="btn b2" target="_blank">🗺 Directions</a></div>';
-  },
-  child:function(){
-    return'<div class="ub ub-red">👶 Child — match symptoms to action</div><div class="p-service">When in doubt — 999.</div><p class="p-why">Press a glass to any rash — if it doesn\'t fade, call 999 now. Baby under 3 months with 38°C+ fever: ED immediately.</p>'+dbox(dr('🔴','999 now','Not breathing · blue lips · fitting · <strong>non-blanching rash</strong> · baby &lt;3 months 38°C+')+dr('🟠','ED today','Severe pain · persistent fever · dehydration · unusual drowsiness')+dr('🟡','Call MEDS','GP closed and worried — <strong>01624 650355</strong>')+dr('🟢','Monitor','Mild cold · low temp · runny nose. Fluids, rest, watch closely.'))+'<div class="btns"><a href="tel:999" class="btn b-r">📞 999 (serious)</a><a href="tel:01624650355" class="btn b-a">📞 MEDS (OOH)</a></div>';
-  },
-  meds:function(){
-    return'<div class="ub ub-blue">💊 Repeat prescriptions</div><div class="p-service">Your pickup countdown</div><p class="p-why">Green = fine, amber = order this week, red = overdue.</p>'+buildRxFavPharmacy()+buildMedTracker()+'<div class="rx-setup"><div class="rx-setup-hdr">Setting up a standing repeat prescription</div>'+dbox(dr('1️⃣','Ask GP','Request medicines as <strong>repeat prescriptions</strong>')+dr('2️⃣','Nominate','Choose a pharmacy to handle your repeats')+dr('3️⃣','Request','Online, by phone, or auto-order — collect when ready')+dr('💡','Tip','Request <strong>5 working days</strong> before you run out')+dr('⚠️','Critical','Blood pressure · epilepsy · insulin · inhalers — set these up first'))+'</div><div class="btns"><a href="https://www.manxpharmacy.com/find-a-pharmacy/" class="btn b-b" target="_blank">💊 Find a pharmacy</a></div>';
-  }
+  stroke:     function(){return buildEmergencyPanel('Suspected stroke — face drooping, arm weakness, speech difficulty','Note the exact time symptoms started — critical for treatment',true);},
+  emergency:  function(){return buildEmergencyPanel('Describe what is happening — not breathing / chest pain / collapse','Note when it started and if getting worse',false);},
+  ed:         function(){return buildEdPanel();},
+  crisis:     function(){return buildCrisisPanel();},
+  doctor:     function(){return buildDoctorPanel();},
+  pharmacy:   function(){return buildPharmacyPanel();},
+  'child-care':function(){return buildChildCarePanel();},
+  'child-mh': function(){return buildChildMhPanel();},
+  selfcare:   function(){return buildSelfCarePanel();},
+  olderadult: function(){return buildOlderAdultPanel();},
+  mental:     function(){return buildMentalPanel();},
+  dental:     function(){return buildDentalPanel();},
+  meds:       function(){return buildMedTracker()+buildRxFavPharmacy()+'<div class="rx-setup"><div class="rx-setup-hdr">Setting up a standing repeat prescription</div>'+dbox(dr('1️⃣','Ask GP','Request medicines as <strong>repeat prescriptions</strong>')+dr('2️⃣','Nominate','Choose a pharmacy to handle your repeats')+dr('3️⃣','Request','Online, by phone, or auto-order — collect when ready')+dr('💡','Tip','Request <strong>5 working days</strong> before you run out'))+'</div><div class="btns"><a href="https://www.manxpharmacy.com/find-a-pharmacy/" class="btn b-b" target="_blank">💊 Find a pharmacy</a></div>';}
 };
 
 // ══ PANEL RENDERER ══
 var cur=null,panelEl=null;
 function sel(id){
-  var grid=document.getElementById('grid');
+  var grid=document.getElementById('grid'),wrap=document.getElementById('gridWrap');
   if(panelEl){panelEl.remove();panelEl=null;}
   grid.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
   if(cur===id){cur=null;return;}
   cur=id;
-  var chip=grid.querySelector('[data-id="'+id+'"]');if(chip)chip.classList.add('active');
-  panelEl=document.createElement('div');panelEl.className='panel show';
-  panelEl.innerHTML=(ANSWERS[id]||function(){return'';})();
+  var chip=grid.querySelector('[data-id="'+id+'"]');
+  if(chip)chip.classList.add('active');
+  panelEl=document.createElement('div');
+  panelEl.className='panel show';
+  panelEl.innerHTML=(ANSWERS[id]||function(){return '';})();
   var chips=Array.from(grid.querySelectorAll('.chip')),idx=chips.indexOf(chip);
   if(chip&&chip.classList.contains('chip-full')){grid.appendChild(panelEl);}
   else{var pair=chips[idx%2===0?idx+1:idx];if(pair&&pair.nextSibling)grid.insertBefore(panelEl,pair.nextSibling);else grid.appendChild(panelEl);}
+  // Chips below panel hidden via CSS sibling selector
   // Post-render init
   if(id==='stroke'||id==='emergency'){
     if(cachedLoc){renderSafeLocBox(cachedLoc);}
-    else{getLocation(function(loc){renderSafeLocBox(loc);});}
-    genSafeSummary();
-    setTimeout(function(){var s=document.getElementById('safeS');if(s&&!s.value)s.focus();},150);
+    else{getLocation(function(loc){if(loc)renderSafeLocBox(loc);});}
   }
   if(id==='doctor'&&!getSavedGP()){var box=document.getElementById('gpBox');if(box)setTimeout(function(){box.focus();},120);}
   if(id==='dental'&&!getSavedDentist()){var db=document.getElementById('dentBox');if(db)setTimeout(function(){db.focus();},120);}
   if(id==='ed'&&cachedLoc)updateEdTravel(cachedLoc.lat,cachedLoc.lng);
-  setTimeout(function(){if(panelEl)panelEl.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
+  // Scroll panel into view within the scroll container
+  setTimeout(function(){
+    if(panelEl){
+      var wrapEl=document.getElementById('gridWrap');
+      var panelTop=panelEl.offsetTop - wrapEl.offsetTop;
+      wrapEl.scrollTo({top:panelTop-12,behavior:'smooth'});
+    }
+  },50);
 }
 
 // ══ THEME ══
 function toggleDark(){document.documentElement.classList.toggle('dark');document.getElementById('btnDark').classList.toggle('active',document.documentElement.classList.contains('dark'));}
 function toggleLarge(){document.documentElement.classList.toggle('large');document.getElementById('btnLarge').classList.toggle('active',document.documentElement.classList.contains('large'));}
-window.addEventListener('message',function(e){if(!e.data)return;var t=e.data.type,th=e.data.theme;if((t==='setTheme'||t==='theme')&&th){var want=th==='dark',is=document.documentElement.classList.contains('dark');if(want!==is)toggleDark();}});
+window.addEventListener('message',function(e){if(!e.data)return;var t=e.data.type,th=e.data.theme;if((t==='setTheme'||t==='theme')&&th){var want=(th==='dark'),is=document.documentElement.classList.contains('dark');if(want!==is)toggleDark();}});
 
 // ══ INIT ══
 updateDoctorChip();updatePharmacyChip();updateDentalChip();updateMhChip();updateMedChip();
 setInterval(updateDoctorChip,30000);setInterval(updatePharmacyChip,60000);setInterval(updateDentalChip,60000);
-// Passive GPS on load
-if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(pos){cachedLoc={lat:pos.coords.latitude,lng:pos.coords.longitude,acc:pos.coords.accuracy,words:null};var edEl=document.getElementById('edDrive');if(edEl&&edEl.textContent==='Directions')updateEdTravel(cachedLoc.lat,cachedLoc.lng);updatePharmacyChip();fetchW3W(pos.coords.latitude,pos.coords.longitude,function(words){if(words)cachedLoc.words=words;});},function(){},{timeout:5000,maximumAge:300000,enableHighAccuracy:false});}
+// Passive GPS on load — pre-cache for ED drive time and pharmacy distance
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy;
+    cachedLoc={lat:lat,lng:lng,acc:acc,words:null};
+    updateEdTravel(lat,lng);
+    updatePharmacyChip();
+    fetchW3W(lat,lng,function(words){if(words)cachedLoc.words=words;});
+  },function(){},{timeout:5000,maximumAge:300000,enableHighAccuracy:false});
+}
 </script>
 </body>
 </html>
