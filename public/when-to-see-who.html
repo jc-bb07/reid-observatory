@@ -36,7 +36,31 @@ html.dark{
   --pink:#f472b6;  --pink-bg:rgba(244,114,182,0.1);  --pink-bdr:rgba(244,114,182,0.25);
   --orange:#fb923c;--orange-bg:rgba(251,146,60,0.1); --orange-bdr:rgba(251,146,60,0.25);
 }
-html.large{--fs-hero:15px;--fs-chip:15px;--fs-body:15px;--fs-lbl:11px;--fs-big:30px;--fs-sub:13px;}
+html.large{--fs-hero:17px;--fs-chip:17px;--fs-body:17px;--fs-lbl:13px;--fs-big:34px;--fs-sub:15px;}
+/* Large mode: single column, full width, larger touch targets */
+html.large .app{max-width:100%;}
+html.large .grid{grid-template-columns:1fr;}
+html.large .chip-full{flex-direction:column;}
+html.large .chip-full .chip-icon{margin-bottom:5px;}
+html.large .chip{padding:16px 14px 13px;border-radius:16px;}
+html.large .chip-stats{margin-top:10px;}
+html.large .chip-stat{padding:7px 6px;}
+html.large .cs-val{font-size:14px;}
+html.large .cs-lbl{font-size:9px;}
+html.large .panel{border-radius:18px;padding:18px;}
+html.large .fw-row{gap:12px;margin-bottom:12px;}
+html.large .fw-letter{width:34px;height:34px;font-size:17px;border-radius:10px;}
+html.large .fw-card,.fw-card-red,.fw-card-muted,.fw-card-green{font-size:16px;padding:12px 14px;}
+html.large .fw-loc-w3w{font-size:20px;}
+html.large .sx-name{font-size:15px;}
+html.large .sx-tips{font-size:13px;}
+html.large .sx-action{font-size:13px;}
+html.large .btn{padding:14px 16px;font-size:16px;border-radius:12px;}
+html.large .cc-num{font-size:22px;}
+html.large .cc-name{font-size:17px;}
+html.large .dv{font-size:15px;}
+html.large .p-why{font-size:15px;}
+html.large .p-service{font-size:22px;}
 
 html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;}
 .app{display:flex;flex-direction:column;height:100%;height:100dvh;max-width:480px;margin:0 auto;}
@@ -150,13 +174,13 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);font-
 .fw-p .fw-letter{background:#065f46;}
 .fw-field{min-width:0;}
 .fw-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin-bottom:4px;}
-/* Read-only content cards inside SAFE */
-.fw-card-red{background:var(--red-bg);border:1px solid var(--red-bdr);border-radius:7px;padding:8px 11px;font-size:13px;font-weight:700;color:var(--text);line-height:1.4;}
-.fw-card-green{background:var(--green-bg);border:1px solid var(--green-bdr);border-radius:7px;padding:8px 11px;font-size:12px;line-height:1.5;}
-.fw-card-muted{background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;padding:8px 11px;font-size:13px;color:var(--muted);line-height:1.4;}
+/* Read-only content cards inside SAFE — all the same style */
+.fw-card{background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--text);line-height:1.5;}
+/* Keep aliases for any residual references */
+.fw-card-red,.fw-card-green,.fw-card-muted{background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--text);line-height:1.5;}
 /* Location box */
-.fw-loc-box{background:var(--red-bg);border:1.5px solid var(--red-bdr);border-radius:7px;padding:8px 10px;}
-.fw-loc-w3w{font-size:16px;font-weight:900;line-height:1.2;margin-bottom:3px;letter-spacing:.01em;}
+.fw-loc-box{background:var(--surface2);border:1px solid var(--border-hi);border-radius:7px;padding:9px 12px;}
+.fw-loc-w3w{font-size:17px;font-weight:900;line-height:1.2;margin-bottom:4px;letter-spacing:.01em;color:var(--text);}
 .fw-loc-slash{color:var(--teal);}
 .fw-loc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .fw-loc-coord{font-size:10px;color:var(--muted);}
@@ -166,7 +190,7 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);font-
 .fw-no-loc    {background:var(--red-bg);  border:1px solid var(--red-bdr);  color:var(--red);}
 .fw-get-loc{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:7px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--surface);border:1px solid var(--border-hi);color:var(--text);}
 /* E — risk tags (green, read-only look) */
-.fw-risk-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;}
+.fw-risk-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:0;}
 .fw-risk-tag{padding:4px 9px;border-radius:5px;font-size:11px;font-weight:700;background:var(--green-bg);border:1px solid var(--green-bdr);color:var(--green);}
 
 /* Help pref buttons */
@@ -309,9 +333,9 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);font-
 .sx-table{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;}
 .sx-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;padding:9px 12px;border-bottom:1px solid var(--border);}
 .sx-row:last-child{border-bottom:none;}
-.sx-name{font-size:12px;font-weight:800;margin-bottom:2px;}
-.sx-tips{font-size:10px;color:var(--muted);line-height:1.4;}
-.sx-action{font-size:10px;font-weight:800;text-align:right;white-space:nowrap;}
+.sx-name{font-size:13px;font-weight:800;margin-bottom:3px;}
+.sx-tips{font-size:11px;color:var(--muted);line-height:1.5;}
+.sx-action{font-size:11px;font-weight:800;text-align:right;white-space:nowrap;min-width:52px;}
 .sx-g{color:var(--green);}.sx-a{color:var(--amber);}.sx-r{color:var(--red);}
 .sx-grp{background:var(--surface3);padding:4px 12px;border-bottom:1px solid var(--border);}
 .sx-grp-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);}
@@ -577,7 +601,33 @@ function hav(a1,o1,a2,o2){var R=6371,dA=(a2-a1)*Math.PI/180,dO=(o2-o1)*Math.PI/1
 // ══ W3W + GPS ══
 var W3W_KEY='IMP0R7BA';
 var cachedLoc=null;
-function fetchW3W(lat,lng,cb){fetch('https://api.what3words.com/v3/convert-to-3wa?coordinates='+lat+','+lng+'&api_key='+W3W_KEY).then(function(r){return r.json();}).then(function(d){cb(d.words||null);}).catch(function(){cb(null);});}
+function fetchW3W(lat,lng,cb){
+  fetch('https://api.what3words.com/v3/convert-to-3wa?coordinates='+lat+','+lng+'&api_key='+W3W_KEY)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.words){cb(d.words);return;}
+      // W3W returned no words — try Nominatim street fallback
+      fetchStreetFallback(lat,lng,cb);
+    })
+    .catch(function(){fetchStreetFallback(lat,lng,cb);});
+}
+function fetchStreetFallback(lat,lng,cb){
+  fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json',{headers:{'Accept-Language':'en'}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      // Build a short readable address from available parts
+      var a=d.address||{};
+      var parts=[];
+      if(a.house_number&&a.road)parts.push(a.house_number+' '+a.road);
+      else if(a.road)parts.push(a.road);
+      if(a.village||a.town||a.city)parts.push(a.village||a.town||a.city);
+      cb(parts.length?parts.join(', '):'±'+Math.round(lat*10000)/10000+'N ±'+Math.round(Math.abs(lng)*10000)/10000+'W');
+    })
+    .catch(function(){
+      // Final fallback: decimal coords
+      cb(null);
+    });
+}
 function getLocation(cb){
   if(cachedLoc&&cachedLoc.words){cb(cachedLoc);return;}
   if(!navigator.geolocation){cb(null);return;}
@@ -598,8 +648,15 @@ function renderSafeLocBox(loc){
   var el=document.getElementById('safeABox');if(!el)return;
   if(!loc){el.innerHTML='<button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get my location</button>';return;}
   var latS=Math.abs(loc.lat).toFixed(4)+'°'+(loc.lat>=0?'N':'S'),lngS=Math.abs(loc.lng).toFixed(4)+'°'+(loc.lng>=0?'E':'W');
-  var ww=loc.words?'<div class="fw-loc-w3w"><span class="fw-loc-slash">/// </span>'+loc.words+'</div>':'';
-  el.innerHTML=ww+'<div class="fw-loc-meta"><span class="fw-loc-coord">'+latS+' '+lngS+'</span>'+locBadge(loc.acc)+'</div>';
+  // words may be a W3W address ("word.word.word") or a street string from fallback
+  var isW3W=loc.words&&loc.words.indexOf('.')!==-1&&loc.words.split('.').length===3;
+  var locDisplay='';
+  if(isW3W){
+    locDisplay='<div class="fw-loc-w3w"><span class="fw-loc-slash">/// </span>'+loc.words+'</div>';
+  }else if(loc.words){
+    locDisplay='<div style="font-size:14px;font-weight:700;margin-bottom:4px;">'+loc.words+'</div>';
+  }
+  el.innerHTML=locDisplay+'<div class="fw-loc-meta"><span class="fw-loc-coord">'+latS+' '+lngS+'</span>'+locBadge(loc.acc)+'</div>';
 }
 function reqSafeLoc(){getLocation(function(loc){renderSafeLocBox(loc);});}
 
@@ -616,15 +673,23 @@ function buildSafeWidget(symptom,firstSeen,closing,risks){
   var s=symptom||'';
   var f=firstSeen||'';
   var rs=risks||['Chest pain','Breathing difficulty','Bleeding','Confusion / collapse','Pregnant'];
-  var locHtml=cachedLoc&&cachedLoc.words?
-    '<div class="fw-loc-w3w"><span class="fw-loc-slash">/// </span>'+cachedLoc.words+'</div><div class="fw-loc-meta"><span class="fw-loc-coord">'+Math.abs(cachedLoc.lat).toFixed(4)+'°N '+Math.abs(cachedLoc.lng).toFixed(4)+'°W</span>'+locBadge(cachedLoc.acc)+'</div>':
-    '<button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get my location</button>';
+  var locHtml;
+  if(cachedLoc){
+    var isW3W=cachedLoc.words&&cachedLoc.words.indexOf('.')!==-1&&cachedLoc.words.split('.').length===3;
+    var locDisplay=isW3W?
+      '<div class="fw-loc-w3w"><span class="fw-loc-slash">/// </span>'+cachedLoc.words+'</div>':
+      (cachedLoc.words?'<div style="font-size:14px;font-weight:700;margin-bottom:4px;">'+cachedLoc.words+'</div>':'');
+    var latS=Math.abs(cachedLoc.lat).toFixed(4)+'°N',lngS=Math.abs(cachedLoc.lng).toFixed(4)+'°W';
+    locHtml=locDisplay+'<div class="fw-loc-meta"><span class="fw-loc-coord">'+latS+' '+lngS+'</span>'+locBadge(cachedLoc.acc)+'</div>';
+  }else{
+    locHtml='<button class="fw-get-loc" onclick="reqSafeLoc()">📍 Get my location</button>';
+  }
   var riskTags=rs.map(function(r){return '<span class="fw-risk-tag">'+r+'</span>';}).join('');
   var h='<div class="framework-hdr">S A F E — read this aloud to 999</div>';
-  h+='<div class="fw-row fw-s"><div class="fw-letter">S</div><div class="fw-field"><div class="fw-lbl">Symptom</div><div class="fw-card-red">'+s+'</div></div></div>';
+  h+='<div class="fw-row fw-s"><div class="fw-letter">S</div><div class="fw-field"><div class="fw-lbl">Symptom</div><div class="fw-card">'+s+'</div></div></div>';
   h+='<div class="fw-row fw-a"><div class="fw-letter">A</div><div class="fw-field"><div class="fw-lbl">Address — read this aloud</div><div class="fw-loc-box" id="safeABox">'+locHtml+'</div></div></div>';
-  h+='<div class="fw-row fw-f"><div class="fw-letter">F</div><div class="fw-field"><div class="fw-lbl">First seen</div><div class="fw-card-muted">'+f+'</div></div></div>';
-  h+='<div class="fw-row fw-e"><div class="fw-letter">E</div><div class="fw-field"><div class="fw-lbl">Extra risks — tell 999 operator which apply</div><div class="fw-card-green"><div class="fw-risk-list">'+riskTags+'</div></div></div></div>';
+  h+='<div class="fw-row fw-f"><div class="fw-letter">F</div><div class="fw-field"><div class="fw-lbl">First seen</div><div class="fw-card">'+f+'</div></div></div>';
+  h+='<div class="fw-row fw-e"><div class="fw-letter">E</div><div class="fw-field"><div class="fw-lbl">Extra risks — tell 999 operator which apply</div><div class="fw-card"><div class="fw-risk-list">'+riskTags+'</div></div></div></div>';
   h+='<div class="btns" style="margin-top:12px"><a href="tel:999" class="btn b-r" style="font-size:16px;padding:14px">📞 Call 999 now</a></div>';
   return h;
 }
@@ -818,6 +883,7 @@ function phRows(ulat,ulng){
   }).join('');
 }
 function doPhLocate(){var c=document.getElementById('phList');if(!c)return;c.innerHTML='<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">Finding…</div>';if(!navigator.geolocation){c.innerHTML=phRows(null,null);return;}navigator.geolocation.getCurrentPosition(function(p){c.innerHTML=phRows(p.coords.latitude,p.coords.longitude);updatePharmacyChip();},function(){c.innerHTML=phRows(null,null);},{timeout:8000,maximumAge:60000});}
+function doChangeFavPh(){clearFavPharmacy();sel('pharmacy');}
 function doPhNearest(){if(!navigator.geolocation){alert('Location not available');return;}navigator.geolocation.getCurrentPosition(function(pos){var ls=PHARMACY_LIST.slice().filter(function(p){return isPhOpen(p);});if(!ls.length)ls=PHARMACY_LIST.slice();ls.forEach(function(p){p._d=hav(pos.coords.latitude,pos.coords.longitude,p.lat,p.lng);});ls.sort(function(a,b){return a._d-b._d;});saveFavPharmacy(ls[0]);},function(){},{timeout:8000,maximumAge:60000});}
 
 // ══ WOMEN'S TALK NEAREST ══
@@ -877,10 +943,24 @@ function buildDoctorPanel(){
 // ── Pharmacy ──
 function buildPharmacyPanel(){
   var open=PHARMACY_LIST.filter(function(p){return isPhOpen(p);});var fav=getFavPharmacy();
+  var favHtml='';
+  if(fav){
+    var favOpen=isPhOpen(fav);
+    favHtml='<div class="saved-card sc-teal" style="margin-bottom:12px">'
+      +'<div class="saved-lbl">⭐ Your pharmacy</div>'
+      +'<div class="saved-name">'+fav.name+'</div>'
+      +'<div class="saved-sub">'+fav.area+(fav.tel?' · '+fav.tel:'')+' · '+(favOpen?'<strong style=\"color:var(--green)\">Open now</strong>':'Closed — check rota')+'</div>'
+      +'<div class="btns" style="margin-top:8px">'
+      +(fav.tel?'<a href="tel:'+fmtTel(fav.tel)+'" class="btn b-t">📞 Call</a>':'')
+      +'<button class="btn b2" onclick="doChangeFavPh()">Change</button>'
+      +'</div>'
+      +'</div>';
+  }
   return '<div class="ub ub-teal">✚ Clinically trained · no appointment</div><div class="p-service">Your pharmacy</div>'+
-    '<p class="p-why">Coughs, rashes, UTIs, eye infections, minor wounds — free advice, typically in <strong>~10 minutes</strong>. '+(open.length>0?'<strong>'+open.length+' open right now.</strong>':'<strong>Regular pharmacies are closed.</strong> Check the rota.')+'</p>'+
+    '<p class="p-why">Coughs, rashes, UTIs, eye infections, minor wounds — free advice, typically in <strong>~10 minutes</strong>. '+(open.length>0?'<strong>'+open.length+' pharmacies open right now.</strong>':'<strong>Regular pharmacies are closed.</strong> Emergency rota below.')+'</p>'+
+    favHtml+
     '<div class="ph-list" id="phList"><div style="padding:12px;text-align:center;font-size:12px;color:var(--muted)">Tap Find nearest to sort by distance</div></div>'+
-    '<div class="btns"><button class="btn b-t" onclick="doPhLocate()">📍 Find nearest</button><button class="btn b2" onclick="doPhNearest()">★ Set as favourite</button><a href="https://www.gov.im/categories/health-and-wellbeing/pharmacy-services/pharmacy-rota/" class="btn b2" target="_blank">📋 Rota</a></div>'+
+    '<div class="btns"><button class="btn b-t" onclick="doPhLocate()">📍 Find nearest</button>'+(fav?'':'<button class="btn b2" onclick="doPhNearest()">★ Use nearest</button>')+'<a href="https://www.gov.im/categories/health-and-wellbeing/pharmacy-services/pharmacy-rota/" class="btn b2" target="_blank">📋 Rota</a></div>'+
     '<p class="fnote">Emergency rota: one pharmacy open each day outside normal hours.</p>';
 }
 
@@ -1018,8 +1098,7 @@ function buildChildMhPanel(){
       '<div class="sx-row"><div><div class="sx-name">CAMHS</div><div class="sx-tips">Child & Adolescent Mental Health · GP referral needed · triage ~4 weeks</div></div><div class="sx-action sx-a">GP referral</div></div>'+
       '<div class="sx-row"><div><div class="sx-name">School counselling</div><div class="sx-tips">Many IoM schools have on-site counsellors — ask the school directly</div></div><div class="sx-action sx-g">School</div></div>'+
     '</div>'+
-    '<div class="btns"><a href="tel:08000684141" class="btn b-p">📞 Papyrus 0800 068 4141</a><a href="tel:08001111" class="btn b2">📞 Childline 0800 1111</a></div>'+
-    dbox(dr('📞','CAMHS','01624 642875 · GP referral required')+dr('💻','Kooth','kooth.com · free online support · no referral'))+
+    dbox(dr('📞','Papyrus','0800 068 4141 · free · 9am–midnight · suicide prevention')+dr('📞','Childline','0800 1111 · free · 24/7 · under 19')+dr('📞','CAMHS','01624 642875 · GP referral required')+dr('💻','Kooth','kooth.com · free online support · no referral'))+
     '<p class="fnote">Papyrus and Childline are free from any phone. Trust your instincts — if a young person is in immediate danger, call 999.</p>';
 }
 
@@ -1043,8 +1122,8 @@ function buildSelfCarePanel(){
       '<div class="sx-row"><div><div class="sx-name">Severe allergic reaction</div><div class="sx-tips">Throat swelling, difficulty breathing, collapse — use epipen if prescribed</div></div><div class="sx-action sx-r">999</div></div>'+
       '<div class="sx-row"><div><div class="sx-name">Suspected broken bone</div><div class="sx-tips">Unable to bear weight, deformity, significant swelling</div></div><div class="sx-action sx-r">ED</div></div>'+
     '</div>'+
-    '<div class="btns"><a href="https://www.manxpharmacy.com/find-a-pharmacy/" class="btn b-g" target="_blank">✚ Find a pharmacy</a></div>'+
-    '<p class="fnote">Not medical advice. If in doubt, call MEDS (01624 650355) or visit your GP.</p>';
+    '<div class="btns"><a href="https://www.nhsinform.scot/illnesses-and-conditions" class="btn b2" target="_blank">🔗 NHS Inform — condition guide</a></div>'+
+    '<p class="fnote">Not medical advice. NHS Inform (Scotland) has the clearest condition guides in plain English. If in doubt, call MEDS (01624 650355).</p>';
 }
 
 // ── Later life support ──
