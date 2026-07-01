@@ -412,20 +412,6 @@ html.light .conn.c-flowing .conn-head { border-top-color: rgba(5,150,105,0.6); }
 }
 
 /* ─────────────────── TIMELINE (beds scenario) ─────────────────── */
-
-.ppl-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  padding: 6px 12px 4px;
-  font-size: 10px;
-  color: var(--muted2);
-}
-.ppl-leg-item { display: flex; align-items: center; gap: 5px; }
-.ppl-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-html.large .ppl-legend { font-size: 12px; }
-html.large .ppl-leg-dot { width: 10px; height: 10px; }
-
 .timeline {
   display: none;
   padding: 5px 12px 0;
@@ -650,21 +636,11 @@ html.light .chip.on-purple { background:rgba(124,58,237,0.08); border-color:rgba
 
   </div>
 
-
-  <!-- People legend -->
-  <div class="ppl-legend" id="ppl-legend">
-    <span class="ppl-leg-item"><span class="ppl-leg-dot" style="background:#4b5563"></span>Patient (flowing)</span>
-    <span class="ppl-leg-item"><span class="ppl-leg-dot" style="background:#f87171"></span>Fit to go — stuck</span>
-    <span class="ppl-leg-item"><span class="ppl-leg-dot" style="background:#fb923c"></span>Long-stay (21+ days)</span>
-    <span class="ppl-leg-item"><span class="ppl-leg-dot" style="background:#60a5fa"></span>Arriving</span>
-    <span class="ppl-leg-item"><span class="ppl-leg-dot" style="background:#34d399"></span>Being discharged</span>
-  </div>
-
-  <!-- Timeline bar -->
+  <!-- Timeline bar (beds scenario only) -->
   <div class="timeline" id="timeline">
     <div class="tl-label" id="tl-label">Week 1 / 6</div>
     <div class="tl-track"><div class="tl-fill" id="tl-fill"></div></div>
-    <div class="tl-end" id="tl-end">→</div>
+    <div class="tl-end" id="tl-end">6 weeks later…</div>
   </div>
 
   <!-- Controls -->
@@ -846,115 +822,12 @@ const BEDS_TL = [
     ward:{cls:'s-red', stat:'97% full',  types:ppl(29,'slate',11,'red',8,'orange')},
     exit:{cls:'s-exit-closed',stat:'Blocked',types:ppl(3,'red')},
     conns:['c-blocked','c-blocked','c-blocked','c-blocked'],
-    narr:'<span class="r"><b>6 weeks later. Welcome back to OPEL 4.</b></span> You made the colon wider. The exit is still the exit. The beds cost £5m more per year.',
-  },
-];
-
-/* ── FIX SOCIAL CARE: timeline from OPEL 4 baseline ─────────────────────── */
-/* Starts from same crisis as Noble's today — parallel alternative to +50 beds */
-const SOCIAL_TL = [
-  { label:'Week 1 / 5 — exit opens…', fillPct:20, opelLabel:'OPEL 4',
-    amb:{cls:'s-red',   stat:'4 waiting',     types:ppl(4,'blue')},
-    ed: {cls:'s-red',   stat:'87% full',      types:ppl(26,'slate',10,'red')},
-    amu:{cls:'s-red',   stat:'91% full',      types:ppl(18,'slate',7,'red')},
-    ward:{cls:'s-red',  stat:'97% full',      types:ppl(29,'slate',11,'red',8,'orange')},
-    exit:{cls:'s-exit-open', stat:'Opening',  types:ppl(4,'green',1,'red')},
-    conns:['c-blocked','c-blocked','c-blocked','c-flowing'],
-    narr:'<b>Week 1:</b> Social care capacity increases. The exit begins to open. <span class="g">Medically-fit patients start moving.</span> The wards don\'t know it yet.',
-    kpi:{ opel4:['OPEL 4','var(--red)'], dtoc:['48','var(--red)'], air:['£3.4m','var(--orange)'], los:['+500%','var(--amber)'] },
-  },
-  { label:'Week 2 / 5 — wards drain…', fillPct:40, opelLabel:'OPEL 3',
-    amb:{cls:'s-amber', stat:'3 waiting',     types:ppl(3,'blue')},
-    ed: {cls:'s-red',   stat:'82% full',      types:ppl(24,'slate',9,'red')},
-    amu:{cls:'s-amber', stat:'80% full',      types:ppl(16,'slate',4,'red')},
-    ward:{cls:'s-amber',stat:'84% full',      types:ppl(25,'slate',6,'red',4,'orange')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(8,'green')},
-    conns:['c-blocked','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Week 2:</b> <span class="a">OPEL 3.</span> Wards are draining. The AMU is breathing. No new beds built — just the back door open.',
-    kpi:{ opel4:['OPEL 3','var(--orange)'], dtoc:['32','var(--orange)'], air:['£3.1m','var(--orange)'], los:['+300%','var(--amber)'] },
-  },
-  { label:'Week 3 / 5 — ED clears…', fillPct:60, opelLabel:'OPEL 2',
-    amb:{cls:'s-amber', stat:'2 waiting',     types:ppl(2,'blue')},
-    ed: {cls:'s-amber', stat:'68% full',      types:ppl(20,'slate',4,'red')},
-    amu:{cls:'s-amber', stat:'70% full',      types:ppl(14,'slate',2,'red')},
-    ward:{cls:'s-amber',stat:'75% full',      types:ppl(22,'slate',3,'red',2,'orange')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(10,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Week 3:</b> <span class="a">OPEL 2.</span> ED is clearing. Ambulances moving. The same number of beds. The same hospital. A different back door.',
-    kpi:{ opel4:['OPEL 2','var(--amber)'], dtoc:['22','var(--amber)'], air:['£2.6m','var(--amber)'], los:['+180%','var(--amber)'] },
-  },
-  { label:'Week 4 / 5 — stabilising…', fillPct:80, opelLabel:'OPEL 2',
-    amb:{cls:'s-green', stat:'1 waiting',     types:ppl(1,'blue')},
-    ed: {cls:'s-amber', stat:'60% full',      types:ppl(18,'slate',2,'red')},
-    amu:{cls:'s-amber', stat:'65% full',      types:ppl(13,'slate',1,'red')},
-    ward:{cls:'s-amber',stat:'72% full',      types:ppl(21,'slate',2,'red',1,'orange')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(12,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Week 4:</b> System stabilising. Ambulances on time. No OPEL 4 this week. <span class="g">Cost: social care investment. Saving: £5m beds budget.</span>',
-    kpi:{ opel4:['~1×/mo','var(--amber)'], dtoc:['18','var(--amber)'], air:['£2.3m','var(--amber)'], los:['+120%','var(--amber)'] },
-  },
-  { label:'Week 5 / 5 — a different system', fillPct:100, opelLabel:'OPEL 2',
-    amb:{cls:'s-green', stat:'1 waiting',     types:ppl(1,'blue')},
-    ed: {cls:'s-amber', stat:'58% full',      types:ppl(17,'slate',2,'red')},
-    amu:{cls:'s-amber', stat:'64% full',      types:ppl(13,'slate',1,'red')},
-    ward:{cls:'s-amber',stat:'70% full',      types:ppl(21,'slate',2,'red')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(14,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Fix social care:</b> The back door opened. <span class="g">Wards drained. ED breathed. Ambulances cleared.</span> OPEL 4 events fell ~60%. No new beds. Same hospital. Different system.',
-    kpi:{ opel4:['~1×/mo','var(--green)'], dtoc:['~12','var(--green)'], air:['£2.1m','var(--amber)'], los:['~120%','var(--amber)'] },
-  },
-];
-
-/* ── GENT'S VISION: timeline from social care end state ──────────────────── */
-const GENT_TL = [
-  { label:'Month 1 — ED streaming…', fillPct:25, opelLabel:'OPEL 2',
-    amb:{cls:'s-green', stat:'1 waiting',     types:ppl(1,'blue')},
-    ed: {cls:'s-green', stat:'52% full',      types:ppl(15,'slate',1,'red')},
-    amu:{cls:'s-amber', stat:'62% full',      types:ppl(12,'slate',1,'red')},
-    ward:{cls:'s-amber',stat:'68% full',      types:ppl(20,'slate',1,'red')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(14,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Month 1:</b> ED streaming introduced. <span class="g">Lower-acuity patients redirected.</span> ED pressure drops without touching ward capacity.',
-    kpi:{ opel4:['Rare','var(--green)'], dtoc:['~12','var(--green)'], air:['£2.1m','var(--amber)'], los:['~100%','var(--amber)'] },
-  },
-  { label:'Month 2 — community investment…', fillPct:50, opelLabel:'OPEL 1',
-    amb:{cls:'s-green', stat:'On time',       types:ppl(1,'blue')},
-    ed: {cls:'s-green', stat:'47% full',      types:ppl(14,'slate')},
-    amu:{cls:'s-green', stat:'58% full',      types:ppl(11,'slate')},
-    ward:{cls:'s-amber',stat:'65% full',      types:ppl(19,'slate',1,'red')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(15,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Month 2:</b> Community teams absorbing demand before it reaches Noble\'s. <span class="g">OPEL 1.</span> Ambulances on time. Wards still coming down.',
-    kpi:{ opel4:['Rare','var(--green)'], dtoc:['~10','var(--green)'], air:['£2.0m','var(--green)'], los:['<100%','var(--green)'] },
-  },
-  { label:'Month 3 — discharge-first culture…', fillPct:75, opelLabel:'OPEL 1',
-    amb:{cls:'s-green', stat:'On time',       types:ppl(1,'blue')},
-    ed: {cls:'s-green', stat:'44% full',      types:ppl(13,'slate')},
-    amu:{cls:'s-green', stat:'56% full',      types:ppl(11,'slate')},
-    ward:{cls:'s-green',stat:'63% full',      types:ppl(19,'slate')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(16,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Month 3:</b> Discharge-first culture embedded. Ward rounds start with who\'s going home, not who arrived. <span class="g">Long-stay patients falling.</span>',
-    kpi:{ opel4:['Rare','var(--green)'], dtoc:['~9','var(--green)'], air:['£1.9m','var(--green)'], los:['<100%','var(--green)'] },
-  },
-  { label:'Gent\'s vision — achieved', fillPct:100, opelLabel:'OPEL 1',
-    amb:{cls:'s-green', stat:'On time',       types:ppl(1,'blue')},
-    ed: {cls:'s-green', stat:'42% full',      types:ppl(12,'slate')},
-    amu:{cls:'s-green', stat:'55% full',      types:ppl(11,'slate')},
-    ward:{cls:'s-green',stat:'62% full',      types:ppl(18,'slate')},
-    exit:{cls:'s-exit-open', stat:'Flowing',  types:ppl(16,'green')},
-    conns:['c-flowing','c-flowing','c-flowing','c-flowing'],
-    narr:'<b>Gent\'s full vision:</b> ED streaming + community investment + discharge-first culture. <span class="g">OPEL 4 is the exception, not the norm. The system works with the beds it has.</span>',
-    kpi:{ opel4:['Rare','var(--green)'], dtoc:['~8','var(--green)'], air:['£1.8m','var(--green)'], los:['<100%','var(--green)'] },
+    narr:'<span class="r"><b>6 weeks later. Welcome back to OPEL 4.</b></span> You made the colon wider. You still have a sphincter problem. The beds cost £5m more per year.',
   },
 ];
 
 let bedsTimer = null;
 let bedsFrame = 0;
-let socialTimer = null;
-let socialFrame = 0;
-let gentTimer = null;
-let gentFrame = 0;
 
 function applyZoneFrame(frame) {
   const zids = ['amb','ed','amu','ward','exit'];
@@ -981,7 +854,6 @@ function startBedsTimeline() {
   if (safEl) { safEl.textContent = 'Social care: 65% (unchanged)'; safEl.classList.add('show'); }
 
   // Initial OPEL
-  document.getElementById('tl-end').textContent = '6 weeks later…';
   setOpel('OPEL 2', '#fbbf24', 'rgba(251,191,36,0.35)', 'rgba(251,191,36,0.09)', false);
   setKpi({ opel4:['+50 beds','var(--amber)'], dtoc:['52','var(--amber)'], air:['£3.9m','var(--orange)'], los:['+500%','var(--amber)'] });
 
@@ -1020,82 +892,6 @@ function startBedsTimeline() {
   bedsTimer = setInterval(tick, 1100);
 }
 
-
-function startSocialTimeline() {
-  clearInterval(socialTimer);
-  socialFrame = 0;
-  document.getElementById('timeline').classList.add('show');
-  const tlfill = document.getElementById('tl-fill');
-  tlfill.style.background = 'var(--green)';
-  document.getElementById('tl-end').style.color = 'var(--muted2)';
-  document.getElementById('tl-end').style.fontWeight = '';
-  const social = document.getElementById('note-social');
-  if (social) { social.textContent = 'Social care: increasing'; social.classList.add('show'); }
-  const safari = document.getElementById('note-safari');
-  if (safari) safari.classList.remove('show');
-
-  document.getElementById('tl-end').textContent = '5 weeks later…';
-  setOpel('OPEL 4', 'var(--red)', 'rgba(248,113,113,0.4)', 'rgba(248,113,113,0.1)', true);
-
-  function tick() {
-    if (socialFrame >= SOCIAL_TL.length) { clearInterval(socialTimer); return; }
-    const f = SOCIAL_TL[socialFrame];
-    document.getElementById('tl-label').textContent = f.label;
-    document.getElementById('tl-fill').style.width = f.fillPct + '%';
-    if (f.fillPct >= 100) {
-      tlfill.style.background = 'var(--green)';
-      document.getElementById('tl-end').style.color = 'var(--green)';
-      document.getElementById('tl-end').style.fontWeight = '700';
-    }
-    const ol = f.opelLabel;
-    if (ol.includes('4')) setOpel(ol, 'var(--red)', 'rgba(248,113,113,0.4)', 'rgba(248,113,113,0.1)', true);
-    else if (ol.includes('3')) setOpel(ol, 'var(--orange)', 'rgba(251,146,60,0.35)', 'rgba(251,146,60,0.09)', false);
-    else setOpel(ol, 'var(--amber)', 'rgba(251,191,36,0.35)', 'rgba(251,191,36,0.09)', false);
-    applyZoneFrame(f);
-    document.getElementById('narr').innerHTML = f.narr;
-    setKpi(f.kpi);
-    socialFrame++;
-  }
-  tick();
-  socialTimer = setInterval(tick, 1200);
-}
-
-function startGentTimeline() {
-  clearInterval(gentTimer);
-  gentFrame = 0;
-  document.getElementById('timeline').classList.add('show');
-  const tlfill = document.getElementById('tl-fill');
-  tlfill.style.background = 'var(--green)';
-  document.getElementById('tl-end').style.color = 'var(--muted2)';
-  document.getElementById('tl-end').style.fontWeight = '';
-  const social = document.getElementById('note-social');
-  if (social) { social.textContent = 'Social care: 85% ✓'; social.classList.add('show'); }
-  const safari = document.getElementById('note-safari');
-  if (safari) safari.classList.remove('show');
-
-  document.getElementById('tl-end').textContent = '3 months later…';
-  setOpel('OPEL 2', 'var(--amber)', 'rgba(251,191,36,0.35)', 'rgba(251,191,36,0.09)', false);
-
-  function tick() {
-    if (gentFrame >= GENT_TL.length) { clearInterval(gentTimer); return; }
-    const f = GENT_TL[gentFrame];
-    document.getElementById('tl-label').textContent = f.label;
-    document.getElementById('tl-fill').style.width = f.fillPct + '%';
-    if (f.fillPct >= 100) {
-      tlfill.style.background = 'var(--green)';
-      document.getElementById('tl-end').style.color = 'var(--green)';
-      document.getElementById('tl-end').style.fontWeight = '700';
-    }
-    setOpel(f.opelLabel, 'var(--green)', 'rgba(52,211,153,0.35)', 'rgba(52,211,153,0.08)', false);
-    applyZoneFrame(f);
-    document.getElementById('narr').innerHTML = f.narr;
-    setKpi(f.kpi);
-    gentFrame++;
-  }
-  tick();
-  gentTimer = setInterval(tick, 1400);
-}
-
 /* ── OPEL SETTER ──────────────────────────────────────────────────────────── */
 function setOpel(label, color, border, bg, pulse) {
   const pill  = document.getElementById('opelPill');
@@ -1117,16 +913,14 @@ function setKpi(kpi) {
 
 /* ── MAIN SCENARIO LOADER ─────────────────────────────────────────────────── */
 function go(sc) {
-  // Clear all timers and reset timeline
-  clearInterval(bedsTimer); clearInterval(socialTimer); clearInterval(gentTimer);
+  clearInterval(bedsTimer);
   document.getElementById('timeline').classList.remove('show');
   document.getElementById('tl-fill').style.width = '0%';
   document.getElementById('tl-fill').style.background = 'var(--amber)';
   document.getElementById('tl-end').style.color = 'var(--muted2)';
   document.getElementById('tl-end').style.fontWeight = '';
-  if (sc === 'beds')   { startBedsTimeline();   applyChip('ch-beds','on-amber');  return; }
-  if (sc === 'social') { startSocialTimeline(); applyChip('ch-social','on-green'); return; }
-  if (sc === 'gent')   { startGentTimeline();   applyChip('ch-gent','on-purple'); return; }
+
+  if (sc === 'beds') { startBedsTimeline(); applyChip('ch-beds','on-amber'); return; }
 
   const s = SC[sc]; if (!s) return;
   const o = s.opel;
