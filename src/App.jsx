@@ -65,7 +65,7 @@ const TAB_GROUPS = [
   { id: "health-group",    label: "Health & Care",       color: "#5ea99a", homeTab: "healthHome",
     tabs: [
       { id: "healthHome",    label: "Overview"         },
-      { id: "manxBenchmark", label: "Performance"      },
+      { id: "manxBenchmark", label: "Healthcare Explorer" },
       { id: "mcWhenWho",     label: "For Patients"     },
       { id: "nobles-flow",   label: "System View"      },
       { id: "nobles-v15",    label: "Simulation"       },
@@ -1553,6 +1553,7 @@ function AppContent() {
     home:           <LandingTab C={C} onNavigate={setTab} isNarrow={isNarrow} />,
     about:          <AboutTab C={C} />,
     econHome:       <EconHomeTab C={C} onNavigate={setTab} />,
+
     healthHome:     <HealthHomeTab C={C} onNavigate={setTab} />,
     govHome:        <GovHomeTab C={C} onNavigate={setTab} />,
     privacyHome:    <PrivacyHomeTab C={C} />,

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Manx Care Reviews &amp; Accountability Tracker · Coalfinch</title>
+<title>Manx Care Reviews and Recommendations · Coalfinch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
@@ -304,15 +304,14 @@ h1 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.0
   border-radius: 10px;
   overflow-x: auto;
 }
-.action-table { min-width: 780px; }
+.action-table { min-width: 720px; }
 
 @media (max-width: 600px) {
   .action-table { min-width: 0; font-size: 11px; }
   .action-table-col-ref,
   .action-table-col-impact,
   .action-table-col-owner,
-  .action-table-col-due,
-  .action-table-col-flag { display: none; }
+  .action-table-col-due { display: none; }
 }
 .action-table {
   width: 100%;
@@ -534,7 +533,7 @@ h1 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.0
 </head>
 <body>
 <div class="shell">
-  <h1>Reviews &amp; Accountability Tracker</h1>
+  <h1>Reviews and Recommendations</h1>
   <div class="page-sub">Isle of Man Health &amp; Social Care · 2019–2026 · All reviews, recommendations and implementation status</div>
 
   <!-- ── Amenable Mortality ── -->
@@ -591,7 +590,6 @@ h1 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.0
           <th class="action-table-col-impact" onclick="sortBy('impact')">Impact<span class="sort-icon" id="sort-impact">↕</span></th>
           <th class="action-table-col-owner" onclick="sortBy('owner')">Owner<span class="sort-icon" id="sort-owner">↕</span></th>
           <th class="action-table-col-due" onclick="sortBy('due')">Due<span class="sort-icon" id="sort-due">↕</span></th>
-          <th class="action-table-col-flag" title="Contested" style="min-width:60px;text-align:center;">⚑</th>
         </tr>
       </thead>
       <tbody id="actionBody"></tbody>
@@ -600,7 +598,7 @@ h1 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.0
   </div>
 
   <div class="page-footer">
-    <span>Manx Care Reviews Tracker · <a href="https://coalfinch.com">Coalfinch</a> · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Manx Care Reviews and Recommendations · <a href="https://coalfinch.com">Coalfinch</a> · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
     <span>Sources: Tynwald Hansard · gov.im · SAPRC hearings · PAC hearings</span>
   </div>
 
@@ -1438,7 +1436,10 @@ function renderActionRows() {
       <td>
         <div class="action-text">${a.text}</div>
         ${a.notes ? `<div class="action-notes">${a.notes}</div>` : ''}
-        ${a.source ? `<span class="source-chip">via ${a.source}</span>` : ''}
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:${(a.notes||a.source)?'0':'4px'}">
+          ${a.source ? `<span class="source-chip">via ${a.source}</span>` : ''}
+          ${objBtn}
+        </div>
       </td>
       <td>
         <span class="review-badge" style="background:${rev.color}22;color:${rev.color};border:1px solid ${rev.color}55;">
@@ -1453,8 +1454,7 @@ function renderActionRows() {
           title="${impactTitle}">${impactDisplay(il)}</span>
       </td>
       <td class="owner-cell action-table-col-owner">${a.owner||'—'}</td>
-      <td class="due-cell action-table-col-due">${a.due||'—'}</td>
-      <td class="action-table-col-flag">${objBtn}</td>`;
+      <td class="due-cell action-table-col-due">${a.due||'—'}</td>`;
     tbody.appendChild(row);
   });
   applyFilters();
