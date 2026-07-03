@@ -61,6 +61,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
 }
+h1 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 8px; }
 
 .shell { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
 
@@ -183,19 +184,21 @@ body {
   color: var(--text);
   transform: translateX(-50%);
   white-space: nowrap;
-  max-width: 80px; overflow: hidden; text-overflow: ellipsis; text-align: center;
+  max-width: 72px; overflow: hidden; text-overflow: ellipsis; text-align: center;
   cursor: pointer;
 }
-.tl-label.above { top: 4px; }
-.tl-label.below { top: 56px; }
+.tl-label.above  { top: 4px; }
+.tl-label.above2 { top: -14px; }
+.tl-label.below  { top: 58px; }
 .tl-tick {
   position: absolute;
   width: 1px;
   background: var(--border2);
   transform: translateX(-50%);
 }
-.tl-tick.above { top: 16px; height: 14px; }
-.tl-tick.below { top: 43px; height: 14px; }
+.tl-tick.above  { top: 16px; height: 14px; }
+.tl-tick.above2 { top: 2px; height: 28px; }
+.tl-tick.below  { top: 43px; height: 16px; }
 
 /* ── Review cards grid ── */
 .review-grid {
@@ -256,7 +259,7 @@ body {
 .rpill.rejected   { background: #7f1d1d22; color: var(--red);    border-color: #7f1d1d66; }
 .rpill.partial    { background: #7c2d1222; color: var(--orange); border-color: #7c2d1266; }
 .rpill.identified { background: #1e3a5f22; color: var(--blue);   border-color: #1e3a5f66; }
-.rpill.unknown    { background: #1e293b;   color: var(--muted);  border-color: var(--border2); }
+.rpill.unknown    { background: var(--surface2); color: var(--muted2); border-color: var(--border2); }
 .rpill.foi-status { background: #78350f22; color: var(--amber);  border-color: #78350f66; }
 
 /* ── Filter bar ── */
@@ -299,7 +302,17 @@ body {
   background: var(--surface);
   border: 1px solid var(--border2);
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto;
+}
+.action-table { min-width: 780px; }
+
+@media (max-width: 600px) {
+  .action-table { min-width: 0; font-size: 11px; }
+  .action-table-col-ref,
+  .action-table-col-impact,
+  .action-table-col-owner,
+  .action-table-col-due,
+  .action-table-col-flag { display: none; }
 }
 .action-table {
   width: 100%;
@@ -419,7 +432,7 @@ body {
 /* Impact tooltip */
 #impact-tooltip {
   position: fixed; z-index: 9999;
-  background: #0f172a;
+  background: var(--surface);
   border: 1px solid var(--border2);
   border-radius: 8px; padding: 10px 13px;
   pointer-events: none; display: none;
@@ -540,7 +553,7 @@ body {
   <div class="scoreboard" id="scoreboard"></div>
 
   <!-- ── Timeline ── -->
-  <div class="section-label">Review timeline <span style="font-size:10px;font-weight:400;color:var(--amber);letter-spacing:0;text-transform:none;">· 3 reviews commissioned but not yet published</span></div>
+  <div class="section-label">Review timeline <span style="font-size:10px;font-weight:700;color:var(--red);letter-spacing:0.06em;text-transform:uppercase;">· 3 reviews commissioned but not yet published</span></div>
   <div class="timeline-wrap">
     <div class="tl-track" id="timeline">
       <div class="tl-line"></div>
@@ -571,14 +584,14 @@ body {
     <table class="action-table" id="actionTable">
       <thead>
         <tr>
-          <th onclick="sortBy('ref')" title="Sort by reference">#<span class="sort-icon" id="sort-ref">↕</span></th>
+          <th class="action-table-col-ref" onclick="sortBy('ref')" title="Sort by reference">#<span class="sort-icon" id="sort-ref">↕</span></th>
           <th onclick="sortBy('text')" style="min-width:260px">Action<span class="sort-icon" id="sort-text">↕</span></th>
           <th onclick="sortBy('review')">Review<span class="sort-icon" id="sort-review">↕</span></th>
           <th onclick="sortBy('status')">Status<span class="sort-icon" id="sort-status">↕</span></th>
-          <th onclick="sortBy('impact')">Impact<span class="sort-icon" id="sort-impact">↕</span></th>
-          <th onclick="sortBy('owner')">Owner<span class="sort-icon" id="sort-owner">↕</span></th>
-          <th onclick="sortBy('due')">Due<span class="sort-icon" id="sort-due">↕</span></th>
-          <th title="Contested">⚑</th>
+          <th class="action-table-col-impact" onclick="sortBy('impact')">Impact<span class="sort-icon" id="sort-impact">↕</span></th>
+          <th class="action-table-col-owner" onclick="sortBy('owner')">Owner<span class="sort-icon" id="sort-owner">↕</span></th>
+          <th class="action-table-col-due" onclick="sortBy('due')">Due<span class="sort-icon" id="sort-due">↕</span></th>
+          <th class="action-table-col-flag" title="Contested" style="min-width:60px;text-align:center;">⚑</th>
         </tr>
       </thead>
       <tbody id="actionBody"></tbody>
@@ -1194,13 +1207,14 @@ function renderTimeline() {
   });
 
   const sorted = [...REVIEWS].sort((a,b) => a.dateSort - b.dateSort);
+  const positions = ['above', 'below', 'above2'];
   sorted.forEach((r, i) => {
     const pct = ((r.dateSort - minY) / span * 100).toFixed(1) + '%';
-    const above = i % 2 === 0;
+    const pos = positions[i % 3];
 
     // Tick line
     const tick = document.createElement('div');
-    tick.className = 'tl-tick ' + (above ? 'above' : 'below');
+    tick.className = 'tl-tick ' + pos;
     tick.style.left = pct;
     tl.appendChild(tick);
 
@@ -1222,7 +1236,7 @@ function renderTimeline() {
 
     // Label
     const lbl = document.createElement('div');
-    lbl.className = 'tl-label ' + (above ? 'above' : 'below');
+    lbl.className = 'tl-label ' + pos;
     lbl.style.left = pct;
     lbl.style.color = r.color;
     lbl.textContent = r.shortName;
@@ -1420,7 +1434,7 @@ function renderActionRows() {
     const impactTitle = `Scope ${a.impact.scope}/3 · Risk ${a.impact.risk}/3 · Urgency ${a.impact.urgency}/3 → ${sc}/9`;
 
     row.innerHTML = `
-      <td class="ref-cell">${a.ref}</td>
+      <td class="ref-cell action-table-col-ref">${a.ref}</td>
       <td>
         <div class="action-text">${a.text}</div>
         ${a.notes ? `<div class="action-notes">${a.notes}</div>` : ''}
@@ -1432,15 +1446,15 @@ function renderActionRows() {
         </span>
       </td>
       <td><span class="st ${a.status}">${STATUS_LABELS[a.status]||a.status}</span></td>
-      <td>
+      <td class="action-table-col-impact">
         <span class="impact-badge ${il}"
           onmouseenter="showImpactTooltip(event,'${a.ref}')"
           onmouseleave="hideImpactTooltip()"
           title="${impactTitle}">${impactDisplay(il)}</span>
       </td>
-      <td class="owner-cell">${a.owner||'—'}</td>
-      <td class="due-cell">${a.due||'—'}</td>
-      <td>${objBtn}</td>`;
+      <td class="owner-cell action-table-col-owner">${a.owner||'—'}</td>
+      <td class="due-cell action-table-col-due">${a.due||'—'}</td>
+      <td class="action-table-col-flag">${objBtn}</td>`;
     tbody.appendChild(row);
   });
   applyFilters();

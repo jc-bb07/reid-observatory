@@ -1034,10 +1034,17 @@ body.light {
 </div><!-- /tab-offisland -->
 
 
-<div class="page-footer">
+<div class="page-footer" id="bench-footer">
   <span>observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
   <span>Manx Care Annual Report 2024-25 · DHSC Assessment 2024-25 · Manx Care IPR March 2024 (Final v3.0) · HCJ/States of Jersey ARA 2024-25 · Guernsey Secondary Healthcare Contract KPIs 2024 · NHS Wales Activity &amp; Performance · NHS England Performance Report 2024-25 · <a href="https://coalfinch.com">Coalfinch</a></span>
 </div>
+<script>
+// Hide own footer when embedded in SPA (outer app provides footer)
+if (window.self !== window.top) {
+  var bf = document.getElementById('bench-footer');
+  if (bf) bf.style.display = 'none';
+}
+</script>
 
 </div><!-- /shell -->
 
