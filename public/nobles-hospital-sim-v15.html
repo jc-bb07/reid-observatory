@@ -214,6 +214,10 @@
   .stat-value.danger  { color: var(--red); }
   .stat-value.warning { color: var(--amber); }
   .stat-value.ok      { color: var(--green); }
+  body.light .stat-value { color: var(--muted); }
+  body.light .stat-value.danger  { color: var(--red); }
+  body.light .stat-value.warning { color: var(--amber); }
+  body.light .stat-value.ok      { color: var(--green); }
 
   /* ── CANVAS PANELS ── */
   .canvas-panel {
@@ -370,7 +374,7 @@
     position: absolute;
     left: 0;
     bottom: calc(100% + 8px);
-    background: #1e2d45;
+    background: var(--surface);
     border: 1px solid var(--border2);
     border-radius: 6px;
     padding: 10px 12px;
@@ -380,7 +384,7 @@
     max-width: 300px;
     min-width: 200px;
     z-index: 100;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
     pointer-events: none;
   }
   .slider-tooltip strong { color: var(--text); }
@@ -881,6 +885,7 @@ body.light {
   window.__obsThemeReady = true;
   function applyTheme(isLight) {
     document.body.classList.toggle('light', isLight);
+    requestAnimationFrame(function() { if (typeof updateThemeColors === 'function') updateThemeColors(); });
   }
   window.addEventListener('message', function (e) {
     if (e.data && e.data.type === 'observatory-theme') {
@@ -911,6 +916,26 @@ const T = {
   purple:   '#a78bfa',
   orange:   '#fb923c',   // R3 Island Financial Trap
 };
+
+// Read CSS custom properties into T so canvas reacts to light/dark mode
+function updateThemeColors() {
+  const isLight = document.body.classList.contains('light');
+  const cs = getComputedStyle(document.body);
+  const g = v => { const r = cs.getPropertyValue(v).trim(); return r || null; };
+  T.bg      = g('--bg')      || T.bg;
+  T.surface = g('--surface') || T.surface;
+  T.surface2= g('--surface2')|| T.surface2;
+  T.border2 = g('--border2') || T.border2;
+  // In light mode use --muted for canvas "foreground" text — same grey as panel headers
+  T.text    = isLight ? (g('--muted') || '#64748b') : (g('--text') || '#e2e8f0');
+  T.muted   = g('--muted')   || T.muted;
+  T.muted2  = g('--muted2')  || T.muted2;
+  T.blue    = g('--blue')    || T.blue;
+  T.green   = g('--green')   || T.green;
+  T.amber   = g('--amber')   || T.amber;
+  T.red     = g('--red')     || T.red;
+  // purple and orange have no CSS var equivalent — kept hardcoded
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
@@ -1872,29 +1897,29 @@ const CLD_NODES = {
 // Arcs — Lane/Monefeldt/Rosenhead (2000) + Gent review + Island extension
 const CLD_ARCS = [
   // R1 — red: reinforcing ED spiral
-  // OCC → ED → HARM → READM → OCC
-  { from:'OCC',  to:'ED',   loop:'R1', sign:'+', perp: 0.20 },
-  { from:'ED',   to:'HARM', loop:'R1', sign:'+', perp: 0.20 },
-  { from:'HARM', to:'READM',loop:'R1', sign:'+', perp: 0.20 },
-  { from:'READM',to:'OCC',  loop:'R1', sign:'+', perp: 0.20 },
+  // OCC → ED → HARM → READM → OCC  (CW loop: perp negative = bow outward)
+  { from:'OCC',  to:'ED',   loop:'R1', sign:'+', perp:-0.20 },
+  { from:'ED',   to:'HARM', loop:'R1', sign:'+', perp:-0.20 },
+  { from:'HARM', to:'READM',loop:'R1', sign:'+', perp:-0.20 },
+  { from:'READM',to:'OCC',  loop:'R1', sign:'+', perp:-0.20 },
 
   // R2 — amber: reinforcing elective trap
-  // OCC → CANC → DETN → OCC
-  { from:'OCC',  to:'CANC', loop:'R2', sign:'+', perp:-0.22 },
-  { from:'CANC', to:'DETN', loop:'R2', sign:'+', perp:-0.22 },
-  { from:'DETN', to:'OCC',  loop:'R2', sign:'+', perp:-0.22 },
+  // OCC → CANC → DETN → OCC  (CCW loop: perp positive = bow outward)
+  { from:'OCC',  to:'CANC', loop:'R2', sign:'+', perp: 0.22 },
+  { from:'CANC', to:'DETN', loop:'R2', sign:'+', perp: 0.22 },
+  { from:'DETN', to:'OCC',  loop:'R2', sign:'+', perp: 0.22 },
 
   // B2 — green: balancing via social care
   // SC -(−)→ DD -(+)→ OCC  (more SC → fewer delayed discharges → lower occupancy)
   { from:'SC',   to:'DD',   loop:'B2', sign:'−', perp: 0.18 },
-  { from:'DD',   to:'OCC',  loop:'B2', sign:'+', perp:-0.18 },
+  { from:'DD',   to:'OCC',  loop:'B2', sign:'+', perp: 0.18 },
 
   // B3 — purple: balancing via OOH senior decision cover
   // PROPER 3-NODE LOOP (was incorrectly 2-node):
   // OCC -(+)→ OOH: rising occupancy creates pressure to improve OOH senior cover
   // OOH -(−)→ UADM: better senior cover reduces unnecessary admissions (Gent: 2/3 OOH, juniors risk-averse)
   // UADM -(−)→ OCC: fewer unnecessary admissions → lower occupancy
-  // Net: B (balancing) — one odd number of negative signs
+  // Net: B (balancing) — one odd number of negative signs  (CCW loop: perp positive = bow outward)
   { from:'OCC',  to:'OOH',  loop:'B3', sign:'+', perp: 0.15 },
   { from:'OOH',  to:'UADM', loop:'B3', sign:'−', perp: 0.15 },
   { from:'UADM', to:'OCC',  loop:'B3', sign:'−', perp: 0.15 },
@@ -1903,10 +1928,11 @@ const CLD_ARCS = [
   // OCC -(+)→ XFER -(+)→ COST -(+)→ BUDG -(−)→ SC -(−)→ OCC
   // More occupancy → more tertiary transfers → higher cost → budget consumed
   // → less investment in social care → weaker discharge → higher occupancy
-  { from:'OCC',  to:'XFER', loop:'R3', sign:'+', perp: 0.10 },
-  { from:'XFER', to:'COST', loop:'R3', sign:'+', perp: 0.10 },
-  { from:'COST', to:'BUDG', loop:'R3', sign:'+', perp: 0.10 },
-  { from:'BUDG', to:'SC',   loop:'R3', sign:'−', perp: 0.10 },
+  // (CW loop: perp negative = bow outward)
+  { from:'OCC',  to:'XFER', loop:'R3', sign:'+', perp:-0.10 },
+  { from:'XFER', to:'COST', loop:'R3', sign:'+', perp:-0.10 },
+  { from:'COST', to:'BUDG', loop:'R3', sign:'+', perp:-0.10 },
+  { from:'BUDG', to:'SC',   loop:'R3', sign:'−', perp:-0.10 },
   { from:'SC',   to:'OCC',  loop:'R3', sign:'−', perp:-0.10 },
 ];
 
@@ -2085,7 +2111,7 @@ function drawUnifiedCLD() {
     grd.addColorStop(1, hexToRgba(col, 0));
     ctx.fillStyle = grd;
     ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = T.text;
     ctx.beginPath(); ctx.arc(px, py, 2.8, 0, Math.PI*2); ctx.fill();
   });
 
@@ -2132,11 +2158,11 @@ function drawUnifiedCLD() {
     ctx.fillText(active ? 'ACTIVE' : 'dormant', x, y + 13);
   }
 
-  loopLabel(w*0.62, h*0.24, 'R1', r1Active);   // right of centre, between ED/HARM/READM
-  loopLabel(w*0.28, h*0.24, 'R2', r2Active);   // left of centre, between CANC/DETN
-  loopLabel(w*0.10, h*0.72, 'B2', true);        // bottom left, near SC/DD arc
-  loopLabel(w*0.34, h*0.58, 'B3', true);        // lower centre, OOH/UADM triangle
-  loopLabel(w*0.91, h*0.80, 'R3', r3Active);    // far right, below R3 chain
+  loopLabel(w*0.61, h*0.22, 'R1', r1Active);   // centre of R1 rectangle (OCC/ED/HARM/READM)
+  loopLabel(w*0.24, h*0.28, 'R2', r2Active);   // centroid of R2 triangle (OCC/CANC/DETN)
+  loopLabel(w*0.56, h*0.80, 'B2', true);        // centroid of B2 triangle (SC/DD/OCC), clear of UADM
+  loopLabel(w*0.34, h*0.60, 'B3', true);        // centroid of B3 triangle (OCC/OOH/UADM)
+  loopLabel(w*0.70, h*0.52, 'R3', r3Active);    // interior of R3 polygon (OCC/XFER/COST/BUDG/SC)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2634,6 +2660,7 @@ function safeInit() {
   const w = flowCanvas.parentElement ? flowCanvas.parentElement.offsetWidth : 0;
   if (w < 50) return; // not ready yet
   _initiated = true;
+  updateThemeColors(); // sync canvas colours to whatever theme is active at load
   initCanvas();
   initTimeCanvas();
   initUnifiedCLD();
@@ -2698,6 +2725,7 @@ if (typeof ResizeObserver !== 'undefined') {
     var d = e.data;
     if (d && (d.type === 'theme' || d.type === 'setTheme')) {
       document.body.classList.toggle('light', d.theme === 'light');
+      requestAnimationFrame(function() { if (typeof updateThemeColors === 'function') updateThemeColors(); });
     }
   });
 }());

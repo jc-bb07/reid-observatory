@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoM FOI 2298337 — Heart &amp; Stroke Admissions 2016–2022</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --iom: #1B6CA8;
+    --gap: #DC2626;
+    --warn: #D97706;
+    --good: #059669;
+    --bg: #F8F9FA;
+    --surface: #FFFFFF;
+    --border: #E5E7EB;
+    --text: #111827;
+    --muted: #6B7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+  .header {
+    border-bottom: 3px solid var(--iom);
+    padding-bottom: 14px;
+    margin-bottom: 24px;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; }
+  .header .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .header .meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .header .meta strong { color: var(--text); }
+
+  .alert {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-left: 4px solid var(--gap);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    color: #7F1D1D;
+    line-height: 1.7;
+  }
+  .alert strong { font-weight: 700; color: #991B1B; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  @media (max-width: 780px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .card-q { font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 4px; }
+  .card-desc { font-size: 11px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .chart-wrap { position: relative; }
+
+  .section { margin-bottom: 30px; }
+  .section-header {
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 { font-size: 15px; font-weight: 700; }
+
+  .insight {
+    background: #EFF6FF;
+    border-left: 3px solid var(--iom);
+    padding: 9px 13px;
+    font-size: 11px;
+    color: #1e3a5f;
+    margin-top: 10px;
+    border-radius: 0 5px 5px 0;
+    line-height: 1.6;
+  }
+  .caveat {
+    background: #FFFBEB;
+    border: 1px solid #FCD34D;
+    border-radius: 5px;
+    padding: 9px 13px;
+    font-size: 11px;
+    color: #78350F;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+  .caveat strong { font-weight: 700; }
+
+  /* Heatmap */
+  .heatmap-wrap { overflow-x: auto; }
+  table.heatmap {
+    border-collapse: collapse;
+    font-size: 12px;
+    width: 100%;
+    min-width: 580px;
+  }
+  table.heatmap th, table.heatmap td {
+    padding: 6px 8px;
+    text-align: center;
+    border: 1px solid #E5E7EB;
+    min-width: 44px;
+  }
+  table.heatmap th { background: #F3F4F6; font-weight: 700; font-size: 11px; }
+  table.heatmap td.year { text-align: left; font-weight: 700; background: #F9FAFB; }
+  table.heatmap td.total { font-weight: 700; background: #F3F4F6; }
+  .gap-label {
+    display: inline-block;
+    background: #FEE2E2;
+    color: #991B1B;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+  .warn-label {
+    display: inline-block;
+    background: #FEF3C7;
+    color: #92400E;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  /* Stat cards */
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 600px) { .stats { grid-template-columns: repeat(2,1fr); } }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat .n { font-size: 26px; font-weight: 800; }
+  .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .stat .n.ok  { color: var(--good); }
+  .stat .n.bad { color: var(--gap); }
+  .stat .n.warn { color: var(--warn); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Isle of Man — Heart &amp; Stroke Hospital Admissions 2016–2022</h1>
+    <div class="sub">FOI Reference 2298337 · Response date: 18 March 2022 · Source: Manx Care / Noble's Hospital</div>
+    <div class="meta">
+      <span><strong>Condition:</strong> Elevated heart conditions and strokes</span>
+      <span><strong>Coverage:</strong> January 2016 – February 2022</span>
+      <span><strong>Population:</strong> ~84,000</span>
+      <span><strong>Relevance:</strong> Phase 3 ACSC gap / Stroke data gap</span>
+    </div>
+  </div>
+
+  <!-- Critical data quality warning -->
+  <div class="alert">
+    <strong>⚠ Critical data quality issue — do not interpret 2019–2021 at face value.</strong><br>
+    Manx Care's contracted clinical coders only commenced coding episodes from April 2021. All episodes before April 2021 are subject to retrospective coding. The collapse in admissions from mid-2019 and near-zero figures in 2020 are an artefact of <em>coding lag</em>, not a real clinical change. Any trend analysis using this data must treat 2019 H2 and all of 2020 as unreliable. The FOI requestor explicitly raised this concern, prompting this response.
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stats">
+    <div class="stat">
+      <div class="n ok">~365</div>
+      <div class="l">Baseline admissions/year (2016–2018 mean)</div>
+    </div>
+    <div class="stat">
+      <div class="n bad">28</div>
+      <div class="l">Admissions coded for all of 2020 (vs ~365 expected)</div>
+    </div>
+    <div class="stat">
+      <div class="n bad">~337</div>
+      <div class="l">Estimated uncoded 2020 episodes (92% gap)</div>
+    </div>
+    <div class="stat">
+      <div class="n warn">Apr 2021</div>
+      <div class="l">When contracted coders started — confirmed recovery point</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       CHART 1: HEATMAP
+       ═══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Chart 1 — Monthly Admissions Heatmap (Anomaly / Outlier Chart)</h2>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      <strong>Why this chart:</strong> A heatmap is the best format for revealing the coding gap — the drastic colour fade in 2020 and partial fade in 2019 makes the problem immediately legible. Also reveals winter seasonality in the baseline years. Darker = more admissions.
+    </p>
+    <div class="card full">
+      <div class="card-title">Admissions by Month and Year — colour intensity = volume</div>
+      <div class="card-desc">Green = at or above baseline. White/pale = likely coding gap. Red = confirmed extreme undercount.</div>
+      <div class="heatmap-wrap">
+        <table class="heatmap" id="heatmapTable"></table>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;margin-top:10px;font-size:11px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#0C4A6E;border-radius:2px"></span> 50+ (high)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#1B6CA8;border-radius:2px"></span> 35–49</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#7ABDE8;border-radius:2px"></span> 20–34</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#DBEAFE;border-radius:2px"></span> 10–19</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#FEE2E2;border-radius:2px"></span> 1–9 (gap)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#991B1B;border-radius:2px"></span> 0 (gap)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:14px;height:14px;background:#F3F4F6;border-radius:2px;border:1px solid #E5E7EB"></span> No data</span>
+      </div>
+    </div>
+    <div class="insight">
+      <strong>Key insight:</strong> The heatmap exposes the coding gap at a glance. 2016–2018 are consistently dark blue. 2019 begins to fade from Q2. 2020 is almost entirely pale/red — a coding failure, not a clinical one. 2021 recovers sharply from April, exactly matching the contracted coders' start date.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════
+       CHART 2: TIME SERIES (all years)
+       ═══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Chart 2 — Monthly Time Series with Coding Gap Highlighted (Executive Summary Chart)</h2>
+    </div>
+    <div class="card full">
+      <div class="card-title">Monthly Hospital Admissions — Heart &amp; Stroke, Jan 2016 – Feb 2022</div>
+      <div class="card-desc">Grey shaded region = period where clinical coding was incomplete. Blue line = actual coded figures. Orange dashed = 2016–18 monthly baseline average.</div>
+      <div class="chart-wrap" style="height:320px">
+        <canvas id="chartTimeSeries"></canvas>
+      </div>
+    </div>
+    <div class="insight">
+      <strong>Key insight:</strong> The time series makes the coding collapse visible as a line drop — from ~30/month in 2018 to near-zero by mid-2020, then a sharp recovery from April 2021. The baseline reference line (orange dashed) shows what the true underlying admission rate likely was throughout.
+    </div>
+    <div class="caveat">
+      <strong>Critical caveat:</strong> The mid-2019 to March 2021 period must be treated as structurally unreliable. Any analysis of trends, seasonality, or COVID-related demand suppression using this data requires the fully-coded retrospective dataset — which had not been completed at the time of this FOI response (March 2022).
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════
+       CHARTS 3 & 4: ANNUAL TOTALS + SEASONALITY
+       ═══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Charts 3 &amp; 4 — Annual Totals and Baseline Seasonality (Comparison + Analytical)</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Chart 3 — Annual Admissions vs Baseline</div>
+        <div class="card-q">How far below baseline did each year fall?</div>
+        <div class="card-desc">2016–2018 bars = reliable. 2019–2021 bars = severely affected by coding lag. Dashed line = ~365 baseline.</div>
+        <div class="chart-wrap" style="height:280px">
+          <canvas id="chartAnnual"></canvas>
+        </div>
+        <div class="insight" style="margin-top:10px">
+          The 2019 annual total (179) looks like a 51% drop from baseline — but most of this is coding lag, not real. 2020's 28 is essentially a data void. 2022 Jan–Feb average of 26/month is tracking slightly below the Jan (~40) and Feb (~31) baseline.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chart 4 — Monthly Seasonality (Baseline 2016–2018 Average)</div>
+        <div class="card-q">Are there predictable peaks and troughs across the year?</div>
+        <div class="card-desc">Mean monthly admissions from the three reliably-coded years only. Shows the underlying seasonal pattern.</div>
+        <div class="chart-wrap" style="height:280px">
+          <canvas id="chartSeasonality"></canvas>
+        </div>
+        <div class="insight" style="margin-top:10px">
+          January is the clear peak (mean 40), consistent with winter cardiovascular demand. October is the second peak (mean 35). Summer months (Jun–Sep) are systematically lower — June and July are the lowest. This pattern is consistent with NHS England cardiovascular seasonality.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════
+       CHART 5: RECOVERY PATTERN
+       ═══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Chart 5 — 2021 Recovery vs Baseline (Analytical Deep-Dive)</h2>
+    </div>
+    <div class="card full">
+      <div class="card-title">2021 Monthly Actuals vs 2016–2018 Monthly Baseline</div>
+      <div class="card-desc">The timing of the recovery mirrors exactly when contracted coders started (April 2021). Post-April, 2021 figures track close to — or slightly above — the pre-gap baseline.</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="chartRecovery"></canvas>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:0">
+      <div class="insight">
+        <strong>Jan–Mar 2021:</strong> Still near-zero (1, 7, 17) — retrospective coding had not yet reached these months.
+      </div>
+      <div class="insight">
+        <strong>Apr–Dec 2021:</strong> Returns to baseline range (25–36/month vs baseline 24–35). No systematic shortfall — suggesting the contracted coders were accurately capturing current admissions once they started.
+      </div>
+    </div>
+    <div class="caveat" style="margin-top:12px">
+      <strong>Implication for Phase 3:</strong> This FOI confirms that Manx Care's hospital episode records do contain the raw clinical data for conditions like heart disease and stroke. The ACSC basket (acsc.json gap) is addressable — but requires a formal data extraction request to ensure the retrospective coding for 2019–early 2021 is complete before any trend analysis is attempted.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════════
+       CHART 6: YEAR-ON-YEAR COMPARISON (small multiples)
+       ═══════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Chart 6 — Year-on-Year Monthly Profiles (Small Multiples)</h2>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+      Each year shown against the 2016–2018 baseline (orange line). Coding-gap years shown with red background to prevent misinterpretation.
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">2016 <span style="color:var(--good);font-size:11px">✓ Fully coded</span></div>
+        <div class="chart-wrap" style="height:160px"><canvas id="c2016"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">2017 <span style="color:var(--good);font-size:11px">✓ Fully coded</span></div>
+        <div class="chart-wrap" style="height:160px"><canvas id="c2017"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">2018 <span style="color:var(--good);font-size:11px">✓ Fully coded</span></div>
+        <div class="chart-wrap" style="height:160px"><canvas id="c2018"></canvas></div>
+      </div>
+      <div class="card" style="background:#FEF2F2">
+        <div class="card-title">2019 <span class="warn-label">CODING GAP</span></div>
+        <div class="chart-wrap" style="height:160px"><canvas id="c2019"></canvas></div>
+      </div>
+      <div class="card" style="background:#FEF2F2">
+        <div class="card-title">2020 <span class="gap-label">NEAR-TOTAL GAP</span></div>
+        <div class="chart-wrap" style="height:160px"><canvas id="c2020"></canvas></div>
+      </div>
+      <div class="card" style="background:#FFFBEB">
+        <div class="card-title">2021 <span class="warn-label">PARTIAL → RECOVERY</span></div>
+        <div class="chart-wrap" style="height:160px"><canvas id="c2021"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:var(--muted);padding:12px 0 4px">
+    IoM FOI 2298337 · Data: Manx Care / Noble's Hospital · Analysis: Crown Dependencies Health Observatory · 30 June 2026
+  </div>
+
+</div>
+
+<script>
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#4B5563';
+
+// ─────────────────────────────────────────
+// Raw data
+// ─────────────────────────────────────────
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const data = {
+  2016: [50, 33, 32, 34, 37, 17, 27, 29, 22, 20, 27, 32],
+  2017: [29, 30, 31, 27, 27, 39, 26, 26, 30, 36, 35, 27],
+  2018: [42, 30, 29, 21, 35, 25, 21, 37, 25, 50, 23, 35],
+  2019: [20, 29, 25, 31, 22, 15,  7, 14,  4,  3,  4,  5],
+  2020: [ 4,  4,  2,  4,  4,  1,  2,  2,  0,  0,  3,  2],
+  2021: [ 1,  7, 17, 34, 36, 32, 32, 31, 29, 34, 25, 25],
+  2022: [28, 24],
+};
+
+const baseline = months.map((_, i) =>
+  (data[2016][i] + data[2017][i] + data[2018][i]) / 3
+);
+
+const annualTotals = {
+  2016: 360, 2017: 363, 2018: 373,
+  2019: 179, 2020: 28, 2021: 303,
+  2022: 52, // 2 months
+};
+
+// ─────────────────────────────────────────
+// CHART 1: HEATMAP (HTML table)
+// ─────────────────────────────────────────
+function cellColor(val, isNull) {
+  if (isNull) return { bg: '#F3F4F6', color: '#9CA3AF', text: '—' };
+  if (val === 0)  return { bg: '#991B1B', color: '#FFF', text: '0' };
+  if (val <= 5)   return { bg: '#FEE2E2', color: '#991B1B', text: val };
+  if (val <= 12)  return { bg: '#FEF3C7', color: '#92400E', text: val };
+  if (val <= 19)  return { bg: '#DBEAFE', color: '#1E40AF', text: val };
+  if (val <= 34)  return { bg: '#7ABDE8', color: '#0C3B60', text: val };
+  if (val <= 49)  return { bg: '#1B6CA8', color: '#FFF', text: val };
+  return { bg: '#0C4A6E', color: '#FFF', text: val };
+}
+
+const table = document.getElementById('heatmapTable');
+// Header
+const thead = table.createTHead();
+const hr = thead.insertRow();
+const th0 = document.createElement('th');
+th0.textContent = 'Year';
+th0.style.textAlign = 'left';
+hr.appendChild(th0);
+months.forEach(m => {
+  const th = document.createElement('th'); th.textContent = m; hr.appendChild(th);
+});
+const thT = document.createElement('th'); thT.textContent = 'Total'; hr.appendChild(thT);
+const thN = document.createElement('th'); thN.textContent = 'Note'; hr.appendChild(thN);
+
+// Rows
+const tbody = table.createTBody();
+const years = [2016, 2017, 2018, 2019, 2020, 2021, 2022];
+const notes = {
+  2016: '✓ Reliable',
+  2017: '✓ Reliable',
+  2018: '✓ Reliable',
+  2019: '⚠ Gap from ~Q2',
+  2020: '✗ Near-total gap',
+  2021: '⚠ Gap Jan–Mar, then recovery',
+  2022: '2 months only',
+};
+years.forEach(yr => {
+  const row = tbody.insertRow();
+  const tdY = row.insertCell(); tdY.className = 'year';
+  tdY.textContent = yr;
+  months.forEach((_, i) => {
+    const val = data[yr][i];
+    const isNull = val === undefined;
+    const { bg, color, text } = cellColor(val, isNull);
+    const td = row.insertCell();
+    td.textContent = text;
+    td.style.background = bg;
+    td.style.color = color;
+    td.style.fontWeight = val >= 35 ? '700' : '400';
+  });
+  const tdT = row.insertCell(); tdT.className = 'total';
+  tdT.textContent = annualTotals[yr];
+  const tdN = row.insertCell();
+  tdN.style.textAlign = 'left'; tdN.style.fontSize = '11px'; tdN.style.color = '#6B7280';
+  tdN.textContent = notes[yr];
+});
+
+// ─────────────────────────────────────────
+// CHART 2: Time series
+// ─────────────────────────────────────────
+const allMonths = [];
+const allVals = [];
+const gapFlags = [];
+
+years.forEach(yr => {
+  months.forEach((m, i) => {
+    const v = data[yr][i];
+    if (v !== undefined) {
+      allMonths.push(`${m} ${yr}`);
+      allVals.push(v);
+      // Gap period: mid-2019 through Mar 2021
+      const inGap = (yr === 2019 && i >= 5) ||
+                    (yr === 2020) ||
+                    (yr === 2021 && i <= 2);
+      gapFlags.push(inGap);
+    }
+  });
+});
+
+const baselineFlat = allMonths.map((lbl, i) => {
+  const mi = months.indexOf(lbl.split(' ')[0]);
+  return baseline[mi];
+});
+
+new Chart(document.getElementById('chartTimeSeries'), {
+  type: 'line',
+  data: {
+    labels: allMonths,
+    datasets: [
+      {
+        label: 'Monthly admissions (coded)',
+        data: allVals,
+        borderColor: '#1B6CA8',
+        backgroundColor: (ctx) => {
+          const i = ctx.dataIndex;
+          return gapFlags[i] ? 'rgba(220,38,38,0.6)' : 'rgba(27,108,168,0.7)';
+        },
+        pointBackgroundColor: allVals.map((v, i) =>
+          gapFlags[i] ? '#DC2626' : '#1B6CA8'),
+        pointRadius: 3,
+        fill: false,
+        tension: 0.2,
+        borderWidth: 1.8,
+      },
+      {
+        label: 'Monthly baseline (2016–18 mean)',
+        data: baselineFlat,
+        borderColor: '#D97706',
+        borderDash: [5, 3],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 12 } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const i = ctx.dataIndex;
+            if (ctx.datasetIndex === 0) {
+              const flag = gapFlags[i] ? ' ⚠ (coding gap period)' : '';
+              return ` ${ctx.parsed.y} admissions${flag}`;
+            }
+            return ` Baseline: ${ctx.parsed.y.toFixed(1)}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxTicksLimit: 20,
+          callback: (val, i) => {
+            const lbl = allMonths[i];
+            return lbl.startsWith('Jan') ? lbl : (lbl.startsWith('Jul') ? lbl.split(' ')[0] : '');
+          }
+        }
+      },
+      y: { min: 0, title: { display: true, text: 'Admissions per month' } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────
+// CHART 3: Annual totals
+// ─────────────────────────────────────────
+new Chart(document.getElementById('chartAnnual'), {
+  type: 'bar',
+  data: {
+    labels: ['2016', '2017', '2018', '2019\n⚠ gap', '2020\n✗ gap', '2021\n⚠ partial', '2022\n(2 mo)'],
+    datasets: [{
+      label: 'Annual admissions',
+      data: [360, 363, 373, 179, 28, 303, 52],
+      backgroundColor: [
+        '#1B6CA8', '#1B6CA8', '#1B6CA8',
+        '#F59E0B', '#DC2626', '#6B9FD4',
+        '#93C5FD'
+      ],
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} admissions` } }
+    },
+    scales: {
+      y: {
+        title: { display: true, text: 'Annual total admissions' },
+        max: 420,
+      }
+    }
+  },
+  plugins: [{
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.setLineDash([6, 3]);
+      ctx.strokeStyle = '#D97706';
+      ctx.lineWidth = 1.5;
+      const y = chart.scales.y.getPixelForValue(365);
+      ctx.beginPath();
+      ctx.moveTo(chart.chartArea.left, y);
+      ctx.lineTo(chart.chartArea.right, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#D97706';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('Baseline ~365', chart.chartArea.right - 80, y - 4);
+      ctx.restore();
+    }
+  }]
+});
+
+// ─────────────────────────────────────────
+// CHART 4: Seasonality
+// ─────────────────────────────────────────
+new Chart(document.getElementById('chartSeasonality'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      label: 'Mean monthly admissions (2016–18)',
+      data: baseline.map(v => Math.round(v * 10) / 10),
+      backgroundColor: baseline.map(v =>
+        v >= 35 ? '#0C4A6E' : v >= 28 ? '#1B6CA8' : '#7ABDE8'),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} mean admissions` } }
+    },
+    scales: {
+      y: {
+        min: 20,
+        title: { display: true, text: 'Mean admissions (2016–18 baseline)' }
+      }
+    }
+  }
+});
+
+// ─────────────────────────────────────────
+// CHART 5: Recovery 2021
+// ─────────────────────────────────────────
+new Chart(document.getElementById('chartRecovery'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: '2021 actuals',
+        data: data[2021],
+        backgroundColor: data[2021].map((v, i) =>
+          i < 3 ? 'rgba(220,38,38,0.7)' : '#1B6CA8'),
+        borderRadius: 4,
+      },
+      {
+        label: 'Baseline mean (2016–18)',
+        data: baseline,
+        type: 'line',
+        borderColor: '#D97706',
+        borderDash: [5, 3],
+        borderWidth: 2,
+        pointRadius: 3,
+        fill: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 12 } },
+      tooltip: { callbacks: {
+        label: ctx => {
+          if (ctx.datasetIndex === 0) {
+            const note = ctx.dataIndex < 3 ? ' (still in coding gap)' : ' (coders active)';
+            return ` 2021: ${ctx.parsed.y}${note}`;
+          }
+          return ` Baseline: ${ctx.parsed.y.toFixed(1)}`;
+        }
+      }}
+    },
+    scales: {
+      y: { min: 0, max: 55, title: { display: true, text: 'Admissions' } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────
+// CHART 6: Small multiples
+// ─────────────────────────────────────────
+function smallMultiple(id, yr, color, maxY) {
+  const vals = data[yr];
+  // Pad 2022 to 12 nulls
+  const padded = months.map((_, i) => vals[i] !== undefined ? vals[i] : null);
+
+  new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: `${yr}`,
+          data: padded,
+          backgroundColor: color,
+          borderRadius: 2,
+        },
+        {
+          label: 'Baseline',
+          data: baseline,
+          type: 'line',
+          borderColor: '#D97706',
+          borderDash: [4, 2],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          label: ctx => ctx.datasetIndex === 0
+            ? ` ${yr}: ${ctx.parsed.y ?? '—'}`
+            : ` Baseline: ${ctx.parsed.y.toFixed(0)}`
+        }}
+      },
+      scales: {
+        x: { ticks: { font: { size: 9 }, maxRotation: 0, callback: (v, i) => months[i][0] } },
+        y: { min: 0, max: maxY || 60,
+             ticks: { font: { size: 9 }, maxTicksLimit: 5 } }
+      }
+    }
+  });
+}
+
+smallMultiple('c2016', 2016, '#1B6CA8', 60);
+smallMultiple('c2017', 2017, '#1B6CA8', 60);
+smallMultiple('c2018', 2018, '#1B6CA8', 60);
+smallMultiple('c2019', 2019, data[2019].map((v,i) =>
+  i >= 6 ? 'rgba(220,38,38,0.6)' : 'rgba(212,96,10,0.6)'), 60);
+smallMultiple('c2020', 2020, 'rgba(220,38,38,0.5)', 60);
+smallMultiple('c2021', 2021, data[2021].map((_,i) =>
+  i < 3 ? 'rgba(220,38,38,0.6)' : '#1B6CA8'), 60);
+</script>
+</body>
+</html>

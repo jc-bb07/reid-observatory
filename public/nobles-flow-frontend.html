@@ -1184,6 +1184,7 @@ function toggleLarge() {
 }
 
 /* ── OBSERVATORY THEME SYNC ───────────────────────────────────────────────── */
+var _autoLarge = false; // tracks whether large mode was auto-set by theme
 window.addEventListener('message', function(e) {
   if (!e.data) return;
   var t = e.data.type, th = e.data.theme;
@@ -1191,8 +1192,31 @@ window.addEventListener('message', function(e) {
     var wantLight = th === 'light';
     var isLight = document.documentElement.classList.contains('light');
     if (wantLight !== isLight) toggleLight();
+    // Auto-enable large text in light (MC) mode; restore on dark
+    var isLarge = document.documentElement.classList.contains('large');
+    if (wantLight && !isLarge) {
+      toggleLarge();
+      _autoLarge = true;
+    } else if (!wantLight && isLarge && _autoLarge) {
+      toggleLarge();
+      _autoLarge = false;
+    }
   }
 });
+
+// Apply stored observatory theme on load
+(function(){
+  try {
+    var s = localStorage.getItem('observatory-theme');
+    if (s === 'light') {
+      if (!document.documentElement.classList.contains('light')) toggleLight();
+      if (!document.documentElement.classList.contains('large')) { toggleLarge(); _autoLarge = true; }
+    }
+  } catch(_) {}
+  function rh(){ window.parent.postMessage({type:'resize', height:document.body.scrollHeight},'*'); }
+  rh(); window.addEventListener('resize', rh);
+  setTimeout(rh, 400); setTimeout(rh, 900);
+})();
 
 /* ── INIT ─────────────────────────────────────────────────────────────────── */
 go('now');

@@ -361,7 +361,7 @@ function setAudience(a) {
 // ── Theme listener — v3 pattern ──
 (function() {
   var stored = localStorage.getItem('observatory-theme');
-  if (stored === 'light') document.body.classList.add('light');
+  if (stored !== 'dark') document.body.classList.add('light'); // H&C default: light
   window.addEventListener('message', function(e) {
     var d = e.data;
     if (d && (d.type === 'theme' || d.type === 'setTheme')) {

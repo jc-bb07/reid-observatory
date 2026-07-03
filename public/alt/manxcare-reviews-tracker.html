@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manx Care Reviews &amp; Accountability Tracker · Coalfinch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f172a;
+  --surface:  #1e293b;
+  --surface2: #162032;
+  --border:   #1e293b;
+  --border2:  #334155;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --blue:     #60a5fa;
+  --blue-dim: #1d4ed8;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;
+  --purple:   #a78bfa;
+  --orange:   #fb923c;
+  --iom:      #3b82f6;
+  --gsy:      #10b981;
+  --jsy:      #f59e0b;
+
+  --st-identified:  #60a5fa;
+  --st-accepted:    #34d399;
+  --st-inprogress:  #fbbf24;
+  --st-completed:   #34d399;
+  --st-rejected:    #f87171;
+  --st-partial:     #fb923c;
+  --st-unknown:     #64748b;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.shell { max-width: 960px; margin: 0 auto; padding: 28px 20px 60px; }
+
+/* ── Eyebrow ── */
+.eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 4px;
+}
+.page-title {
+  font-size: 19px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--text); margin-bottom: 2px;
+}
+.page-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+
+/* ── Section headings ── */
+.section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 12px; margin-top: 32px;
+}
+
+/* ── Amenable mortality ── */
+.am-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.am-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.am-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.am-card.iom::before  { background: var(--iom); }
+.am-card.jsy::before  { background: var(--jsy); }
+.am-card.gsy::before  { background: var(--gsy); }
+.am-card.eng::before  { background: var(--muted2); }
+
+.am-territory {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.am-card.iom .am-territory { color: var(--iom); }
+.am-card.jsy .am-territory { color: var(--jsy); }
+.am-card.gsy .am-territory { color: var(--gsy); }
+.am-card.eng .am-territory { color: var(--muted2); }
+
+.am-score {
+  font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.am-card.iom .am-score { color: var(--amber); }
+.am-card.jsy .am-score { color: var(--green); }
+.am-card.gsy .am-score { color: var(--green); }
+.am-card.eng .am-score { color: var(--red); }
+
+.am-label { font-size: 11px; color: var(--muted2); }
+.am-note  { font-size: 10px; color: var(--muted); margin-top: 6px; font-style: italic; }
+
+.am-explainer {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue-dim);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  font-size: 12px; color: var(--muted2); line-height: 1.7;
+}
+.am-explainer strong { color: var(--text); font-weight: 600; }
+
+/* ── Timeline ── */
+.timeline-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  margin-bottom: 4px;
+  overflow-x: auto;
+}
+.tl-track {
+  position: relative;
+  height: 76px;
+  min-width: 580px;
+}
+.tl-line {
+  position: absolute;
+  top: 37px; left: 0; right: 0;
+  height: 1.5px;
+  background: var(--border2);
+}
+.tl-year {
+  position: absolute;
+  top: 44px;
+  font-size: 9px; color: var(--muted);
+  transform: translateX(-50%);
+}
+.tl-dot {
+  position: absolute;
+  top: 30px;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  transform: translateX(-50%);
+  transition: transform .15s;
+}
+.tl-dot:hover { transform: translateX(-50%) scale(1.35); }
+.tl-label {
+  position: absolute;
+  font-size: 9px; font-weight: 600;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 80px; overflow: hidden; text-overflow: ellipsis; text-align: center;
+  cursor: pointer;
+}
+.tl-label.above { top: 4px; }
+.tl-label.below { top: 56px; }
+.tl-tick {
+  position: absolute;
+  width: 1px;
+  background: var(--border2);
+  transform: translateX(-50%);
+}
+.tl-tick.above { top: 16px; height: 14px; }
+.tl-tick.below { top: 43px; height: 14px; }
+
+/* ── Review cards grid ── */
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.rcard {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.rcard:hover { border-color: var(--muted); }
+.rcard.foi { border-style: dashed; opacity: 0.8; }
+
+.rcard-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.rcard-name {
+  font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3;
+}
+.rcard-date { font-size: 10px; color: var(--muted); white-space: nowrap; margin-top: 1px; }
+.rcard-what { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-bottom: 6px; }
+.rcard-meta { font-size: 10px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+.rcard-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border2); }
+
+.rcard-progress-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 5px;
+}
+.rcard-progress-label { font-size: 10px; color: var(--muted); }
+.rcard-progress-count { font-size: 11px; font-weight: 600; color: var(--text); }
+
+.progress-bar {
+  height: 4px; background: var(--border2); border-radius: 99px; overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill { height: 100%; border-radius: 99px; background: var(--green); transition: width .3s; }
+
+.rcard-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.rpill {
+  font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+  border: 1px solid transparent;
+}
+.rpill.completed  { background: #064e3b22; color: var(--green);  border-color: #064e3b66; }
+.rpill.inprogress { background: #78350f22; color: var(--amber);  border-color: #78350f66; }
+.rpill.rejected   { background: #7f1d1d22; color: var(--red);    border-color: #7f1d1d66; }
+.rpill.partial    { background: #7c2d1222; color: var(--orange); border-color: #7c2d1266; }
+.rpill.identified { background: #1e3a5f22; color: var(--blue);   border-color: #1e3a5f66; }
+.rpill.unknown    { background: #1e293b;   color: var(--muted);  border-color: var(--border2); }
+.rpill.foi-status { background: #78350f22; color: var(--amber);  border-color: #78350f66; }
+
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 12px;
+}
+.filter-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+.filter-pill {
+  font-size: 11px; padding: 4px 11px; border-radius: 20px;
+  border: 1px solid var(--border2); background: transparent; color: var(--muted2);
+  cursor: pointer; transition: all .15s;
+}
+.filter-pill:hover { border-color: var(--blue); color: var(--blue); }
+.filter-pill.on { background: var(--blue-dim); border-color: var(--blue); color: #bfdbfe; }
+
+.search-input {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 4px 10px; color: var(--text);
+  font-family: inherit; font-size: 12px; outline: none;
+  width: 180px; transition: border-color .15s;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--blue); }
+
+.filter-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 2px; }
+
+/* ── Action register ── */
+.action-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.action-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.action-table th {
+  background: var(--surface2);
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color .15s;
+}
+.action-table th:hover { color: var(--text); }
+.action-table th .sort-icon { color: var(--muted2); margin-left: 4px; font-size: 9px; }
+.action-table th.sorted { color: var(--blue); }
+
+.action-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: top;
+}
+.action-table tr:last-child td { border-bottom: none; }
+.action-table tr { transition: background .1s; }
+.action-table tr:hover td { background: #1e293b88; }
+.action-table tr.hidden { display: none; }
+.action-table tr.completed-row td { opacity: 0.55; }
+
+.ref-cell { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.action-text { color: var(--text); line-height: 1.45; }
+.action-notes { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+.review-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+  white-space: nowrap; display: inline-block;
+}
+
+/* Status badges */
+.st {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+  white-space: nowrap; display: inline-block;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.st.identified  { background: #1e3a5f44; color: var(--blue); }
+.st.accepted    { background: #064e3b33; color: var(--green); }
+.st.in-progress { background: #78350f33; color: var(--amber); }
+.st.completed   { background: #064e3b33; color: var(--green); }
+.st.rejected    { background: #7f1d1d33; color: var(--red); }
+.st.partial     { background: #7c2d1233; color: var(--orange); }
+.st.unknown     { background: var(--border2); color: var(--muted2); }
+
+/* Impact badges */
+.impact-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+  white-space: nowrap; display: inline-block; cursor: help;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.impact-badge.high   { background: #7f1d1d33; color: var(--red); }
+.impact-badge.medium { background: #78350f33; color: var(--amber); }
+.impact-badge.low    { background: #064e3b33; color: var(--green); }
+
+/* Objection cell */
+.obj-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+  background: #78350f33; color: var(--amber);
+  cursor: pointer; border: none; font-family: inherit;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.obj-badge:hover { background: #78350f66; }
+
+/* Due date */
+.due-cell { font-size: 11px; color: var(--muted2); white-space: nowrap; }
+.due-cell.overdue { color: var(--red); font-weight: 600; }
+
+/* Owner cell */
+.owner-cell { font-size: 11px; color: var(--muted2); }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 40px 20px;
+  font-size: 13px; color: var(--muted);
+}
+
+/* ── Tooltip ── */
+#tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 340px;
+  background: #0f172a;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  pointer-events: none;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+#tooltip.visible { display: block; }
+.tooltip-obj-item { margin-bottom: 8px; }
+.tooltip-obj-item:last-child { margin-bottom: 0; }
+.tooltip-who { font-size: 11px; font-weight: 700; color: var(--amber); margin-bottom: 2px; }
+.tooltip-reason { font-size: 11px; color: var(--muted2); line-height: 1.5; }
+.tooltip-source {
+  display: inline-block; margin-top: 4px;
+  font-size: 10px; color: var(--blue); text-decoration: none; pointer-events: all;
+}
+.tooltip-source:hover { text-decoration: underline; }
+.tooltip-divider { height: 1px; background: var(--border2); margin: 8px 0; }
+
+/* Impact tooltip */
+#impact-tooltip {
+  position: fixed; z-index: 9999;
+  background: #0f172a;
+  border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 13px;
+  pointer-events: none; display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  min-width: 200px;
+}
+#impact-tooltip.visible { display: block; }
+.it-row { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px; font-size: 11px; }
+.it-row:last-child { margin-bottom: 0; }
+.it-label { color: var(--muted2); }
+.it-score { font-weight: 600; color: var(--text); }
+.it-total { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border2); font-size: 11px; font-weight: 700; }
+
+/* ── Footer ── */
+.page-footer {
+  margin-top: 40px; padding-top: 16px;
+  border-top: 1px solid var(--border2);
+  font-size: 10px; color: var(--muted2);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.page-footer a { color: var(--muted); text-decoration: none; }
+.page-footer a:hover { color: var(--text); }
+
+/* ── Scoreboard ── */
+.scoreboard {
+  display: flex; gap: 0; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 10px; margin-bottom: 4px; overflow: hidden;
+}
+.sb-stat {
+  flex: 1; text-align: center; padding: 12px 10px;
+  border-right: 1px solid var(--border2); min-width: 64px;
+}
+.sb-stat:last-child { border-right: none; }
+.sb-val {
+  font-size: 24px; font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; margin-bottom: 2px; color: var(--text);
+}
+.sb-val.green  { color: var(--green); }
+.sb-val.amber  { color: var(--amber); }
+.sb-val.red    { color: var(--red); }
+.sb-val.blue   { color: var(--blue); }
+.sb-val.orange { color: var(--orange); }
+.sb-val.muted  { color: var(--muted2); }
+.sb-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted);
+}
+
+/* ── Source chip ── */
+.source-chip {
+  display: inline-block; font-size: 9px; font-weight: 600;
+  padding: 1px 6px; border-radius: 3px;
+  background: var(--surface2); color: var(--muted);
+  border: 1px solid var(--border2); margin-top: 3px; white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── AM chart popup ── */
+#am-chart-popup {
+  position: fixed; z-index: 9999;
+  background: #0f172a; border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 12px 8px;
+  display: none; box-shadow: 0 8px 28px rgba(0,0,0,0.65);
+  pointer-events: none;
+}
+.acp-title {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px;
+}
+
+/* ── AM explainer expandable ── */
+.am-explainer-toggle {
+  background: none; border: none; font-family: inherit;
+  font-size: 11px; color: var(--blue); cursor: pointer; padding: 0;
+  margin-left: 6px; text-decoration: underline;
+}
+.am-detail { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border2); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .am-grid { grid-template-columns: repeat(2, 1fr); }
+  .review-grid { grid-template-columns: repeat(2, 1fr); }
+  .sb-stat { min-width: 56px; padding: 10px 6px; }
+  .sb-val { font-size: 20px; }
+}
+@media (max-width: 600px) {
+  .shell { padding: 12px 14px 32px; }
+  body { font-size: 15px; }
+  .am-grid { grid-template-columns: repeat(2, 1fr); }
+  .review-grid { grid-template-columns: 1fr; }
+  .filter-bar { gap: 6px; }
+  .scoreboard { flex-wrap: wrap; }
+  .sb-stat { min-width: 44%; }
+  table { font-size: 12px; }
+  th, td { padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="eyebrow">Manx Care · Coalfinch</div>
+  <div class="page-title">Reviews &amp; Accountability Tracker</div>
+  <div class="page-sub">Isle of Man Health &amp; Social Care · 2019–2026 · All reviews, recommendations and implementation status</div>
+
+  <!-- ── Amenable Mortality ── -->
+  <div class="section-label">Avoidable mortality — age-standardised rate per 100,000, under 75s · OECD/Eurostat cause list · ESP2013</div>
+  <div class="am-grid" id="amGrid"></div>
+  <div class="am-explainer">
+    <strong>Avoidable mortality</strong> counts deaths under 75 from conditions where timely treatment or prevention should have made a difference. A lower rate is better — IoM outperforms England but trails its Crown Dependency peers by ~30%.
+    <button class="am-explainer-toggle" onclick="toggleAmDetail(this)" aria-expanded="false">More ↓</button>
+    <div class="am-detail" id="am-detail" style="display:none; font-size:11px; color:var(--muted2); line-height:1.7;">
+      All figures use the OECD/Eurostat 2019 joint cause list, ESP2013 age-standardisation, per 100,000 under-75s. Single-year rates on small populations are volatile — Guernsey uses a 3-year rolling average for this reason. Hover the score on any card to see the trend over time.
+    </div>
+  </div>
+
+  <!-- ── Scoreboard ── -->
+  <div class="section-label" style="margin-top:20px;">Action scoreboard</div>
+  <div class="scoreboard" id="scoreboard"></div>
+
+  <!-- ── Timeline ── -->
+  <div class="section-label">Review timeline</div>
+  <div class="timeline-wrap">
+    <div class="tl-track" id="timeline">
+      <div class="tl-line"></div>
+    </div>
+  </div>
+
+  <!-- ── Review cards ── -->
+  <div class="section-label">Reviews</div>
+  <div class="review-grid" id="reviewGrid"></div>
+
+  <!-- ── Action register ── -->
+  <div class="section-label">Action register</div>
+
+  <div class="filter-bar">
+    <span class="filter-label">Review</span>
+    <div id="reviewFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Status</span>
+    <div id="statusFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Impact</span>
+    <div id="impactFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <input class="search-input" id="searchInput" type="search" placeholder="Search actions…" oninput="applyFilters()"/>
+  </div>
+
+  <div class="action-table-wrap">
+    <table class="action-table" id="actionTable">
+      <thead>
+        <tr>
+          <th onclick="sortBy('ref')" title="Sort by reference">#<span class="sort-icon" id="sort-ref">↕</span></th>
+          <th onclick="sortBy('text')" style="min-width:260px">Action<span class="sort-icon" id="sort-text">↕</span></th>
+          <th onclick="sortBy('review')">Review<span class="sort-icon" id="sort-review">↕</span></th>
+          <th onclick="sortBy('status')">Status<span class="sort-icon" id="sort-status">↕</span></th>
+          <th onclick="sortBy('impact')">Impact<span class="sort-icon" id="sort-impact">↕</span></th>
+          <th onclick="sortBy('owner')">Owner<span class="sort-icon" id="sort-owner">↕</span></th>
+          <th onclick="sortBy('due')">Due<span class="sort-icon" id="sort-due">↕</span></th>
+          <th title="Contested">⚑</th>
+        </tr>
+      </thead>
+      <tbody id="actionBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">No actions match the current filters.</div>
+  </div>
+
+  <div class="page-footer">
+    <span>Manx Care Reviews Tracker · <a href="https://coalfinch.com">Coalfinch</a> · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Sources: Tynwald Hansard · gov.im · SAPRC hearings · PAC hearings</span>
+  </div>
+
+</div>
+
+<!-- Objection tooltip -->
+<div id="tooltip"></div>
+<!-- Impact tooltip -->
+<div id="impact-tooltip"></div>
+<!-- AM chart popup -->
+<div id="am-chart-popup">
+  <div class="acp-title" id="acp-title">Avoidable mortality trend</div>
+  <canvas id="am-chart-canvas" width="240" height="110"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* =====================================================================
+   AMENABLE MORTALITY DATA
+   ===================================================================== */
+const AM_DATA = [
+  { id: 'jsy', label: 'Jersey',      score: '155.9', year: '2024',        note: 'Single year · Jersey Mortality Report 2024', cls: 'jsy' },
+  { id: 'gsy', label: 'Guernsey',    score: '158',   year: '2022–24 avg', note: '3-yr rolling [95% CI: 141–177] · Guernsey Mortality Trends 2024', cls: 'gsy' },
+  { id: 'iom', label: 'Isle of Man', score: '204.9', year: '2023',        note: 'Single year · IoM Mortality Report 2023', cls: 'iom' },
+  { id: 'eng', label: 'England',     score: '227.6', year: '2024',        note: 'Single year · ONS · OECD/Eurostat 2019 · ESP2013', cls: 'eng' },
+];
+
+/* =====================================================================
+   AM TIME-SERIES DATA (avoidable mortality, persons, OECD 2019 cause list)
+   ===================================================================== */
+const AM_SERIES = {
+  iom: { label: 'Isle of Man', color: '#3b82f6', unit: 'single-year', data: [
+    {y:2006,v:210},{y:2007,v:247},{y:2008,v:288},{y:2009,v:252},{y:2010,v:224},
+    {y:2011,v:225},{y:2012,v:250},{y:2013,v:237},{y:2014,v:193},{y:2015,v:248},
+    {y:2016,v:228},{y:2017,v:226},{y:2018,v:245},{y:2019,v:210},{y:2020,v:258},
+    {y:2021,v:220},{y:2022,v:194},{y:2023,v:205},
+  ]},
+  jsy: { label: 'Jersey', color: '#f59e0b', unit: 'single-year', data: [
+    {y:2012,v:212},{y:2022,v:168},{y:2023,v:153},{y:2024,v:156},
+  ]},
+  gsy: { label: 'Guernsey', color: '#10b981', unit: '3-yr rolling (centre year)', data: [
+    {y:2014,v:183},{y:2015,v:185},{y:2016,v:191},{y:2017,v:188},
+    {y:2018,v:180},{y:2019,v:185},{y:2020,v:185},{y:2023,v:158},
+  ]},
+  eng: { label: 'England', color: '#94a3b8', unit: 'single-year', data: [
+    {y:2001,v:340.5},{y:2002,v:329.9},{y:2003,v:321.9},{y:2004,v:304.5},{y:2005,v:295.2},
+    {y:2006,v:284.8},{y:2007,v:275.7},{y:2008,v:271.4},{y:2009,v:258.1},{y:2010,v:251.6},
+    {y:2011,v:242.0},{y:2012,v:235.1},{y:2013,v:233.9},{y:2014,v:231.9},{y:2015,v:231.8},
+    {y:2016,v:231.1},{y:2017,v:226.1},{y:2018,v:227.4},{y:2019,v:221.5},{y:2020,v:257.0},
+    {y:2021,v:263.3},{y:2022,v:238.0},{y:2023,v:237.4},{y:2024,v:227.6},
+  ]},
+};
+
+/* =====================================================================
+   REVIEW DATA
+   ===================================================================== */
+// Reverse chronological order — most recent first
+const REVIEWS = [
+  {
+    id: 'gent',
+    shortName: 'Gent Capacity',
+    date: 'May 2026 (pub. 15 Jun)', dateSort: 2026.45,
+    what: 'Beds alone do not solve the problem — 8 recommendations on flow, discharge, community resilience',
+    author: 'Peter Gent, PSG Health Ltd',
+    commissioner: 'DHSC (Tim O\'Neill)',
+    published: true,
+    url: 'https://www.gov.im/media/1393257/independent-review-of-bed-capacity-within-nobles-hospital-june-2026.pdf',
+    urlLabel: 'Full Report (gov.im)',
+    color: '#fb923c',
+  },
+  {
+    id: 'miaa',
+    shortName: 'MIAA Governance',
+    date: 'November 2025', dateSort: 2025.88,
+    what: 'Arm\'s-length arrangement "has not operated as intended" — blurred accountability, misaligned funding',
+    author: 'Mersey Internal Audit Agency',
+    commissioner: 'DHSC (Jun 2025)',
+    published: true,
+    url: 'https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2025-GD-0105.pdf',
+    urlLabel: 'Full Report (Tynwald GD 105/2025)',
+    url2: 'https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2026-GD-0005.pdf',
+    url2Label: 'DHSC Response (Tynwald GD 5/2026)',
+    color: '#fbbf24',
+  },
+  {
+    id: 'mcgov',
+    shortName: 'MC Governance Review',
+    date: 'June 2025', dateSort: 2025.5,
+    what: 'Manx Care internal governance review — scope and findings to be populated from document',
+    author: 'Awaiting document',
+    commissioner: 'Manx Care',
+    published: null,
+    url: null,
+    urlLabel: 'Document not yet added',
+    color: '#64748b',
+    stub: true,
+  },
+  {
+    id: 'rcs',
+    shortName: 'RCS Surgery',
+    date: '2025', dateSort: 2025.45,
+    what: 'General Surgery service review — staffing, throughput, training, sustainability',
+    author: 'Royal College of Surgeons of England',
+    commissioner: 'Manx Care / DHSC',
+    published: null,
+    url: null,
+    urlLabel: 'Not publicly indexed',
+    color: '#64748b',
+    foi: true,
+  },
+  {
+    id: 'cordis',
+    shortName: 'Cordis Bright',
+    date: 'March 2025', dateSort: 2025.2,
+    what: '23% staff vacancy rate, services not person-centred, no independent advocacy for LD service users',
+    author: 'Cordis Bright',
+    commissioner: 'Manx Care',
+    published: true,
+    url: 'https://www.gov.im/media/1388830/adult-learning-disabilities-report-cordis-bright_compressed.pdf',
+    urlLabel: 'Full Report (gov.im)',
+    color: '#34d399',
+  },
+  {
+    id: 'kirkby',
+    shortName: 'Kirkby House Review',
+    date: 'August 2024', dateSort: 2024.6,
+    what: 'Financial governance support review of Kirkby House — scope and findings to be populated from document',
+    author: 'Awaiting document',
+    commissioner: 'Awaiting document',
+    published: null,
+    url: null,
+    urlLabel: 'Document not yet added',
+    color: '#64748b',
+    stub: true,
+  },
+  {
+    id: 'okra',
+    shortName: 'Okra Financial Review',
+    date: 'April 2024', dateSort: 2024.3,
+    what: 'Review of financial governance — scope and findings to be populated from document',
+    author: 'Okra',
+    commissioner: 'Awaiting document',
+    published: null,
+    url: null,
+    urlLabel: 'Document not yet added',
+    color: '#64748b',
+    stub: true,
+  },
+  {
+    id: 'deanery',
+    shortName: 'Deanery EQI',
+    date: 'Jun 2023 (updated 2025)', dateSort: 2023.5,
+    what: 'Foundation doctors in General Surgery felt fearful raising concerns — "not the best place to raise concerns"',
+    author: 'NW Postgraduate Medical Deanery',
+    commissioner: 'Deanery',
+    published: false,
+    url: null,
+    urlLabel: 'Not published — provided to Minister',
+    color: '#a78bfa',
+  },
+  {
+    id: 'cqc',
+    shortName: 'CQC Inspection',
+    date: 'Late 2022–23', dateSort: 2022.9,
+    what: 'Comprehensive independent inspection of Noble\'s and Manx Care services against CQC standards',
+    author: 'Care Quality Commission',
+    commissioner: 'DHSC (invited CQC)',
+    published: true,
+    url: 'https://www.gov.im/media/1379714/20221208-acute-community-services-comprehensive-inspection-report-v3_compressed.pdf',
+    urlLabel: 'Inspection Report (gov.im)',
+    color: '#f87171',
+  },
+  {
+    id: 'michael',
+    shortName: 'Michael Review',
+    date: '2019', dateSort: 2019,
+    what: 'Structural overhaul of IoM health & social care — blueprint for Manx Care',
+    author: 'Sir Jonathan Michael',
+    commissioner: 'Council of Ministers',
+    published: true,
+    url: 'https://www.gov.im/media/1365879/independent-health-and-social-care-review-final-report.pdf',
+    urlLabel: 'Full Report (gov.im)',
+    color: '#3b82f6',
+  },
+];
+
+/* =====================================================================
+   ACTION DATA
+   impact: { scope, risk, urgency }  — each 1–3
+     scope:   1=internal  2=specific group  3=system-wide
+     risk:    1=admin     2=quality/£1m+   3=safety/statutory/>£10m
+     urgency: 1=long-term 2=within 12m     3=overdue/immediate
+   score = sum (3–9) → 3–5 Low, 6–7 Medium, 8–9 High
+   objections: [{ who, reason, sourceLabel, sourceUrl }]
+   ===================================================================== */
+const ACTIONS = [
+  /* ── Michael Review ── */
+  {
+    ref:'M1', reviewId:'michael',
+    text: 'Create Manx Care as arm\'s-length body from DHSC',
+    status:'completed', owner:'DHSC / Council of Ministers', due:'Apr 2021',
+    notes:'Manx Care established April 2021.',
+    source:'Tynwald / CoM (2021)',
+    impact:{scope:3,risk:2,urgency:1}, objections:[],
+  },
+  {
+    ref:'M2', reviewId:'michael',
+    text: 'Implement new Mandate funding formula',
+    status:'accepted', owner:'DHSC / Treasury', due:null,
+    notes:'2026-27 budget exceeds formula by £32m — Treasury: "massive Government risk."',
+    source:'Tynwald, 17 Feb 2026',
+    impact:{scope:3,risk:3,urgency:2},
+    objections:[{
+      who:'Treasury Minister',
+      reason:'2026-27 budget is first to depart from the post-Michael formula, exceeding it by £32m. Described as a "massive Government risk" and threat to the medium-term financial plan.',
+      sourceLabel:'Budget debate, Tynwald, 17 Feb 2026',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-02-17T.htm',
+    }],
+  },
+  {
+    ref:'M3', reviewId:'michael',
+    text: 'Modernise legislative framework for health and care (Rec 8)',
+    status:'in-progress', owner:'DHSC', due:'2026',
+    notes:'NHS Reform Bill — Second Reading April 2026; Legislative Council June 2026.',
+    source:'Tynwald Hansard, Apr–Jun 2026',
+    impact:{scope:3,risk:3,urgency:2}, objections:[],
+  },
+  {
+    ref:'M4', reviewId:'michael',
+    text: 'Establish sustainable long-term care funding model',
+    status:'in-progress', owner:'DHSC / Treasury', due:null,
+    notes:'Still unresolved May 2026 — Minister: "successive administrations have wrestled with it."',
+    source:'Tynwald, 20 May 2026',
+    impact:{scope:3,risk:3,urgency:3},
+    objections:[{
+      who:'Successive administrations',
+      reason:'First identified in 2018 CoM report. Minister (May 2026): "the time it is taking reflects the scale and complexity of the challenge." No administration has resolved it.',
+      sourceLabel:'Tynwald, 20 May 2026',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-05-20T.htm',
+    }],
+  },
+  {
+    ref:'M5', reviewId:'michael',
+    text: 'Deliver structural changes improving efficiency and service delivery',
+    status:'partial', owner:'Manx Care', due:null,
+    notes:'Callister (Jul 2025): "no tangible structural changes" despite budget increase since 2021.',
+    source:'Tynwald, 14 Jul 2025',
+    impact:{scope:3,risk:2,urgency:2},
+    objections:[{
+      who:'Mr Callister MHK',
+      reason:'"Tangible and structural changes to Manx Care have not been evident over the past four years, particularly in terms of improvements in efficiency and service delivery, despite a significant increase in budget since April 2021."',
+      sourceLabel:'Tynwald, 14 Jul 2025',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2025-07-14T.htm',
+    }],
+  },
+
+  /* ── CQC Inspection ── */
+  {
+    ref:'C1', reviewId:'cqc',
+    text: 'CQC Action Plan — clinical and social care areas',
+    status:'completed', owner:'Manx Care', due:'Nov 2024',
+    notes:'"Most actions" completed by Nov 2024 (Director of Social Care, SAPRC).',
+    source:'SAPRC, Nov 2024',
+    impact:{scope:3,risk:3,urgency:3}, objections:[],
+  },
+  {
+    ref:'C2', reviewId:'cqc',
+    text: 'Ofsted Action Plan — children\'s services',
+    status:'in-progress', owner:'Manx Care / DHSC', due:null,
+    notes:'Oversight of remaining actions under discussion.',
+    source:'SAPRC, Nov 2024',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'C3', reviewId:'cqc',
+    text: 'DHSC patient transport hygiene standards (flagged by CQC)',
+    status:'unknown', owner:'DHSC', due:null,
+    notes:'Acknowledged March 2025; no outcome subsequently reported.',
+    source:'HoK, Mar 2025',
+    impact:{scope:1,risk:1,urgency:1}, objections:[],
+  },
+  {
+    ref:'C4', reviewId:'cqc',
+    text: 'Commission next independent inspection cycle',
+    status:'in-progress', owner:'DHSC', due:'2027–28',
+    notes:'Scope under exploration — whether CQC remains appropriate provider being reviewed.',
+    source:'HoK, Mar 2026',
+    impact:{scope:3,risk:2,urgency:1}, objections:[],
+  },
+
+  /* ── Deanery EQI ── */
+  {
+    ref:'D1', reviewId:'deanery',
+    text: 'Datix incident reporting training — mandatory for IMT doctors',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'D2', reviewId:'deanery',
+    text: 'Improve induction policy and incident reporting awareness',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:2,risk:1,urgency:2}, objections:[],
+  },
+  {
+    ref:'D3', reviewId:'deanery',
+    text: 'Ensure doctors aware of daily safety huddles where Datix discussed',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:2,risk:1,urgency:1}, objections:[],
+  },
+  {
+    ref:'D4', reviewId:'deanery',
+    text: 'Medical educational leads to check Datix access in supervision sessions',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:1,risk:1,urgency:1}, objections:[],
+  },
+  {
+    ref:'D5', reviewId:'deanery',
+    text: 'Address General Surgery safety culture substantively — not just process changes',
+    status:'unknown', owner:'Manx Care', due:null,
+    notes:'2025 Deanery update repeated original concerns verbatim; cultural shift not verified.',
+    source:'Tynwald, 20 Jan 2026',
+    impact:{scope:2,risk:3,urgency:2},
+    objections:[{
+      who:'NW Deanery (2025 update)',
+      reason:'2025 EQI update repeated the 2023 concerns about General Surgery\'s "political nature" and doctors feeling fearful. Process changes (Datix training, induction) were implemented but the cultural root cause was not directly addressed.',
+      sourceLabel:'Tynwald, 20 Jan 2026 — Speaker quoting Deanery directly',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-01-20T.htm',
+    }],
+  },
+
+  /* ── Cordis Bright ── */
+  {
+    ref:'CB1', reviewId:'cordis',
+    text: 'Address 23% staff vacancy rate in learning disability services',
+    status:'in-progress', owner:'Manx Care', due:null,
+    notes:'"Working really hard on that vacancy factor" (Interim Ops Director). No timeline given.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:3,urgency:2}, objections:[],
+  },
+  {
+    ref:'CB2', reviewId:'cordis',
+    text: 'Develop new commissioning strategy — from institutional to person-centred model',
+    status:'in-progress', owner:'Manx Care', due:null,
+    notes:'CEO: "going to be a long-term piece of work."',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'CB3', reviewId:'cordis',
+    text: 'Commission independent advocacy service for LD service users',
+    status:'in-progress', owner:'Manx Care / DHSC', due:'2026',
+    notes:'Planned for 2026; no independent LD advocacy currently available on Island.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'CB4', reviewId:'cordis',
+    text: 'Develop broader menu of options promoting independence and family support',
+    status:'in-progress', owner:'Manx Care', due:null,
+    notes:'CEO acknowledged gap; no implementation timeline confirmed.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:2,urgency:1}, objections:[],
+  },
+  {
+    ref:'CB5', reviewId:'cordis',
+    text: 'Embed family engagement and advocacy in commissioning plan development',
+    status:'unknown', owner:'Manx Care', due:null,
+    notes:'SAPRC Chair read finding into the record; no specific response given on this point.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:1,urgency:1},
+    objections:[{
+      who:'Manx Care / DHSC (non-response)',
+      reason:'SAPRC Chair read the finding directly into the record at the November 2025 hearing. No formal response was given specifically on family engagement in commissioning — the wider strategy was discussed but this point was not addressed.',
+      sourceLabel:'SAPRC Manx Care No.1, 6 Nov 2025',
+      sourceUrl:'https://www.tynwald.org.im/business/committees/SAPRC/Pages/default.aspx',
+    }],
+  },
+
+  /* ── MIAA Governance ── */
+  {
+    ref:'MG1', reviewId:'miaa',
+    text: 'Select governance model from 4 options presented (Option 3: Strengthened Partnership)',
+    status:'completed', owner:'Tynwald / DHSC', due:'Feb 2026',
+    notes:'Option 3 (Strengthened Partnership) selected by Tynwald motion.',
+    source:'Tynwald, Feb 2026',
+    impact:{scope:3,risk:2,urgency:3}, objections:[],
+  },
+  {
+    ref:'MG2', reviewId:'miaa',
+    text: 'Produce specific action plan with timescales and metrics from MIAA findings',
+    status:'in-progress', owner:'DHSC', due:'Mid-2026',
+    notes:'Speaker\'s amendment required action plan separate from full model redesign.',
+    source:'Tynwald, Feb 2026',
+    impact:{scope:3,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'MG3', reviewId:'miaa',
+    text: 'Resolve blurred accountability between DHSC and Manx Care',
+    status:'in-progress', owner:'DHSC', due:'Mid-2026',
+    notes:'Core MIAA finding; implementation plan in development.',
+    source:'MIAA Report, Nov 2025',
+    impact:{scope:3,risk:3,urgency:2}, objections:[],
+  },
+  {
+    ref:'MG4', reviewId:'miaa',
+    text: 'Address funding misalignment and Manx Care overspend',
+    status:'in-progress', owner:'DHSC / Treasury', due:null,
+    notes:'£32m above post-Michael formula — no return mechanism in place.',
+    source:'Budget, 17 Feb 2026',
+    impact:{scope:3,risk:3,urgency:2},
+    objections:[{
+      who:'Treasury Minister',
+      reason:'2026-27 budget is the first departure from the post-Michael funding formula — £32m above anticipated level. No mechanism has been imposed to return to formula.',
+      sourceLabel:'Budget debate, Tynwald, 17 Feb 2026',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-02-17T.htm',
+    }],
+  },
+  {
+    ref:'MG5', reviewId:'miaa',
+    text: 'Conduct forensic financial audit of Manx Care spending',
+    status:'rejected', owner:'DHSC / CoM', due:null,
+    notes:'Chief Minister gave no explanation when directly challenged by Ms Edge MHK.',
+    source:'HoK, 24 Mar 2026',
+    impact:{scope:3,risk:2,urgency:2},
+    objections:[{
+      who:'DHSC / Chief Minister',
+      reason:'Ms Edge MHK requested a forensic audit alongside the governance review in March 2026. The Chief Minister did not explain the refusal when challenged in HoK. The request was not included in the DHSC Tynwald response.',
+      sourceLabel:'HoK, 24 Mar 2026 — Ms Edge MHK',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-03-24K.htm',
+    }],
+  },
+
+  /* ── Gent Capacity Review ── */
+  {
+    ref:'G1', reviewId:'gent',
+    text: 'Do not increase inpatient bed capacity until current capacity is optimised',
+    status:'identified', owner:'DHSC / Manx Care', due:'24 Jun 2026 (action plan)',
+    notes:'Bed count fallen from 279 to 233 since Manx Care inception.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:3,risk:2,urgency:2},
+    objections:[
+      {
+        who:'Ms Edge MHK',
+        reason:'"If we do not need any more additional beds, can the Minister please explain why bed occupancy has repeatedly exceeded internationally recognised safe thresholds and why patients continue to experience extended waits in A&E?"',
+        sourceLabel:'Tynwald, 16 Jun 2026',
+        sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-06-16T.htm',
+      },
+      {
+        who:'Medical Staffing Committee',
+        reason:'Had demanded 50 additional beds prior to the review being commissioned, citing sustained OPEL 4 status — directly contradicting the reviewer\'s central finding.',
+        sourceLabel:'Background to Gent commission, May 2026',
+        sourceUrl:'https://www.gov.im/media/1393257/independent-review-of-bed-capacity-within-nobles-hospital-june-2026.pdf',
+      },
+    ],
+  },
+  {
+    ref:'G2', reviewId:'gent',
+    text: 'Recommission integrated Urgent Care model with clinical streaming in A&E',
+    status:'identified', owner:'Manx Care / DHSC', due:'Action plan Jun 2026',
+    notes:'Direct GP pathways, prescribing pharmacy, minor injuries, AATU — reduce lower-acuity A&E footfall.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:3,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G3', reviewId:'gent',
+    text: 'Convert AMU to Acute Assessment Unit (max 72-hour LoS for acute medicine and surgery)',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'Presentations via A&E to go direct to specialty; AMU renamed and redesigned.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G4', reviewId:'gent',
+    text: 'Reconfigure bed allocation — reduce surgical beds, allocate ~10 additional to Medicine',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'"Safari model" (medical outliers in surgical wards) not best practice.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:1}, objections:[],
+  },
+  {
+    ref:'G5', reviewId:'gent',
+    text: 'Digital transformation of bed management — live patient data across A&E, AAU and bed base',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'Current system requires significant manual effort; real-time visibility needed.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G6', reviewId:'gent',
+    text: 'Deliver consistent 7-day-a-week bed management and discharge process',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'"Golden patient" discharge targeting, discharge lounge, step-down to ambulatory care.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G7', reviewId:'gent',
+    text: 'Invest in community resilience and admission avoidance — especially frail elderly',
+    status:'identified', owner:'DHSC / Manx Care', due:null,
+    notes:'Higher priority than new beds given IoM\'s ageing demographic.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:3,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G8', reviewId:'gent',
+    text: 'Embed discharge planning from initial patient arrival — not later in the stay',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'Not consistently applied — "essential for maintaining focus on early discharge."',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+];
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const STATUS_ORDER = ['completed','in-progress','accepted','partial','identified','unknown','rejected'];
+
+function impactScore(imp) { return imp.scope + imp.risk + imp.urgency; }
+function impactLabel(imp) {
+  const s = impactScore(imp);
+  if (s >= 8) return 'high';
+  if (s >= 6) return 'medium';
+  return 'low';
+}
+function impactDisplay(label) {
+  return { high: '▲ High', medium: '◆ Mid', low: '▼ Low' }[label];
+}
+
+const STATUS_LABELS = {
+  'identified':'Identified','accepted':'Accepted','in-progress':'In progress',
+  'completed':'Completed','rejected':'Rejected','partial':'Partial','unknown':'Unknown',
+};
+
+function reviewFor(id) { return REVIEWS.find(r => r.id === id); }
+
+function statusCss(s) { return s.replace('-','').toLowerCase(); }
+
+/* =====================================================================
+   AMENABLE MORTALITY CARDS
+   ===================================================================== */
+function renderAM() {
+  document.getElementById('amGrid').innerHTML = AM_DATA.map(d => `
+    <div class="am-card ${d.cls}">
+      <div class="am-territory">${d.label}</div>
+      <div class="am-score" style="cursor:help"
+        onmouseenter="showAmChart(event,'${d.id}')"
+        onmouseleave="hideAmChart()">${d.score}</div>
+      <div class="am-label">per 100,000 · ${d.year}</div>
+      <div class="am-note">${d.note}</div>
+    </div>`).join('');
+}
+
+/* =====================================================================
+   SCOREBOARD
+   ===================================================================== */
+function renderScoreboard() {
+  const total      = ACTIONS.length;
+  const completed  = ACTIONS.filter(a => a.status === 'completed').length;
+  const inProgress = ACTIONS.filter(a => a.status === 'in-progress').length;
+  const identified = ACTIONS.filter(a => a.status === 'identified').length;
+  const accepted   = ACTIONS.filter(a => a.status === 'accepted').length;
+  const partial    = ACTIONS.filter(a => a.status === 'partial').length;
+  const rejected   = ACTIONS.filter(a => a.status === 'rejected').length;
+  const unknown    = ACTIONS.filter(a => a.status === 'unknown').length;
+  const contested  = ACTIONS.filter(a => a.objections && a.objections.length > 0).length;
+  const stats = [
+    { label: 'Total',       val: total,      cls: '' },
+    { label: 'Completed',   val: completed,  cls: 'green' },
+    { label: 'In progress', val: inProgress, cls: 'amber' },
+    { label: 'Identified',  val: identified, cls: 'blue' },
+    { label: 'Accepted',    val: accepted,   cls: 'blue' },
+    { label: 'Partial',     val: partial,    cls: 'orange' },
+    { label: 'Rejected',    val: rejected,   cls: 'red' },
+    { label: 'Unknown',     val: unknown,    cls: 'muted' },
+    { label: 'Contested',   val: contested,  cls: 'amber' },
+  ];
+  document.getElementById('scoreboard').innerHTML = stats.map(s =>
+    `<div class="sb-stat"><div class="sb-val ${s.cls}">${s.val}</div><div class="sb-label">${s.label}</div></div>`
+  ).join('');
+}
+
+/* =====================================================================
+   TIMELINE
+   ===================================================================== */
+function renderTimeline() {
+  const minY = 2018.6, maxY = 2026.9, span = maxY - minY;
+  const tl = document.getElementById('timeline');
+  const years = [2019,2020,2021,2022,2023,2024,2025,2026];
+  years.forEach(y => {
+    const el = document.createElement('div');
+    el.className = 'tl-year';
+    el.style.left = ((y - minY) / span * 100).toFixed(1) + '%';
+    el.textContent = y;
+    tl.appendChild(el);
+  });
+
+  const sorted = [...REVIEWS].sort((a,b) => a.dateSort - b.dateSort);
+  sorted.forEach((r, i) => {
+    const pct = ((r.dateSort - minY) / span * 100).toFixed(1) + '%';
+    const above = i % 2 === 0;
+
+    // Tick line
+    const tick = document.createElement('div');
+    tick.className = 'tl-tick ' + (above ? 'above' : 'below');
+    tick.style.left = pct;
+    tl.appendChild(tick);
+
+    // Dot
+    const dot = document.createElement('div');
+    dot.className = 'tl-dot';
+    dot.style.left = pct;
+    dot.style.background = r.color;
+    dot.title = r.shortName + ' — ' + r.date;
+    dot.onclick = () => {
+      document.querySelectorAll('.filter-pill[data-review]').forEach(p => {
+        p.classList.toggle('on', p.dataset.review === r.id);
+      });
+      activeReviews = new Set([r.id]);
+      applyFilters();
+      document.getElementById('actionTable').scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    tl.appendChild(dot);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.className = 'tl-label ' + (above ? 'above' : 'below');
+    lbl.style.left = pct;
+    lbl.style.color = r.color;
+    lbl.textContent = r.shortName;
+    lbl.onclick = dot.onclick;
+    tl.appendChild(lbl);
+  });
+}
+
+/* =====================================================================
+   REVIEW CARDS
+   ===================================================================== */
+function renderReviewCards() {
+  const grid = document.getElementById('reviewGrid');
+  grid.innerHTML = '';
+  REVIEWS.forEach(r => {
+    const acts = ACTIONS.filter(a => a.reviewId === r.id);
+    const counts = {};
+    acts.forEach(a => { counts[a.status] = (counts[a.status]||0) + 1; });
+    const done = (counts['completed']||0);
+    const total = acts.length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+
+    const pillsHtml = Object.entries(counts).map(([st, n]) => `
+      <span class="rpill ${st === 'in-progress' ? 'inprogress' : st}">${n} ${STATUS_LABELS[st]||st}</span>`).join('');
+
+    const pubHtml = r.published === true
+      ? `<span style="font-size:10px;color:var(--green);">✓ Published</span>`
+      : r.published === false
+      ? `<span style="font-size:10px;color:var(--red);">✗ Not published</span>`
+      : `<span style="font-size:10px;color:var(--muted);">? Publication unclear</span>`;
+
+    const isPlaceholder = r.foi || r.stub;
+    const card = document.createElement('div');
+    card.className = 'rcard' + (isPlaceholder ? ' foi' : '');
+    card.style.borderTopColor = r.color;
+    card.style.borderTopWidth = '2px';
+    card.innerHTML = `
+      <div class="rcard-top">
+        <div class="rcard-name">${r.shortName}</div>
+        <div class="rcard-date">${r.date}</div>
+      </div>
+      <div class="rcard-what">${r.what}</div>
+      <div class="rcard-meta">
+        ${r.author}<br>
+        Commissioned by ${r.commissioner}<br>
+        ${pubHtml}
+        ${r.url ? `· <a href="${r.url}" target="_blank" rel="noopener" style="color:var(--blue);font-size:10px;text-decoration:none;" onclick="event.stopPropagation()">Report ↗</a>` : ''}
+        ${r.url2 ? ` · <a href="${r.url2}" target="_blank" rel="noopener" style="color:var(--blue);font-size:10px;text-decoration:none;" onclick="event.stopPropagation()">Response ↗</a>` : ''}
+      </div>
+      <div class="rcard-footer">
+        ${r.foi  ? `<span class="rpill foi-status">FOI request submitted</span>` :
+          r.stub ? `<span class="rpill unknown" style="font-style:italic;">Awaiting document — stub only</span>` : `
+        <div class="rcard-progress-row">
+          <span class="rcard-progress-label">Actions</span>
+          <span class="rcard-progress-count">${done} / ${total} complete</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="rcard-pills">${pillsHtml}</div>`}
+      </div>`;
+
+    card.onclick = () => {
+      document.querySelectorAll('.filter-pill[data-review]').forEach(p => {
+        p.classList.toggle('on', p.dataset.review === r.id);
+      });
+      activeReviews = new Set([r.id]);
+      applyFilters();
+      document.getElementById('actionTable').scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* =====================================================================
+   FILTER / SORT STATE
+   ===================================================================== */
+let activeReviews = new Set(['all']);
+let activeStatuses = new Set(['all']);
+let activeImpacts  = new Set(['all']);
+let sortKey = 'ref';
+let sortDir = 1;
+
+function renderFilters() {
+  const rfDiv = document.getElementById('reviewFilters');
+  rfDiv.innerHTML = `<button class="filter-pill on" data-review="all" onclick="toggleFilter('review','all',this)">All</button>` +
+    REVIEWS.map(r => `<button class="filter-pill" data-review="${r.id}" onclick="toggleFilter('review','${r.id}',this)" style="--rc:${r.color}">${r.shortName}</button>`).join('');
+
+  const statuses = ['all','completed','in-progress','accepted','partial','identified','unknown','rejected'];
+  document.getElementById('statusFilters').innerHTML = statuses.map(s =>
+    `<button class="filter-pill ${s==='all'?'on':''}" data-status="${s}" onclick="toggleFilter('status','${s}',this)">${s==='all'?'All':STATUS_LABELS[s]||s}</button>`
+  ).join('');
+
+  document.getElementById('impactFilters').innerHTML =
+    `<button class="filter-pill on" data-impact="all" onclick="toggleFilter('impact','all',this)">All</button>` +
+    ['high','medium','low'].map(i =>
+      `<button class="filter-pill" data-impact="${i}" onclick="toggleFilter('impact','${i}',this)">${i.charAt(0).toUpperCase()+i.slice(1)}</button>`
+    ).join('');
+}
+
+function toggleFilter(type, val, btn) {
+  const setMap = { review: activeReviews, status: activeStatuses, impact: activeImpacts };
+  const attrMap = { review: 'data-review', status: 'data-status', impact: 'data-impact' };
+  const set = setMap[type];
+  const attr = attrMap[type];
+  const selector = `.filter-pill[${attr}]`;
+
+  if (val === 'all') {
+    document.querySelectorAll(selector).forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    set.clear(); set.add('all');
+  } else {
+    document.querySelector(`.filter-pill[${attr}="all"]`).classList.remove('on');
+    set.delete('all');
+    btn.classList.toggle('on');
+    if (btn.classList.contains('on')) set.add(val); else set.delete(val);
+    if (set.size === 0) {
+      set.add('all');
+      document.querySelector(`.filter-pill[${attr}="all"]`).classList.add('on');
+    }
+  }
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('#actionBody tr').forEach(row => {
+    const a = ACTIONS.find(x => x.ref === row.dataset.ref);
+    if (!a) return;
+    const rev = reviewFor(a.reviewId);
+    const il = impactLabel(a.impact);
+    const matchReview  = activeReviews.has('all')  || activeReviews.has(a.reviewId);
+    const matchStatus  = activeStatuses.has('all') || activeStatuses.has(a.status);
+    const matchImpact  = activeImpacts.has('all')  || activeImpacts.has(il);
+    const matchSearch  = !q || a.text.toLowerCase().includes(q) || (rev&&rev.shortName.toLowerCase().includes(q)) || (a.notes&&a.notes.toLowerCase().includes(q));
+    const show = matchReview && matchStatus && matchImpact && matchSearch;
+    row.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  document.getElementById('emptyState').style.display = visible ? 'none' : 'block';
+}
+
+/* =====================================================================
+   SORT
+   ===================================================================== */
+const SORT_ORDER_STATUS = STATUS_ORDER;
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+  document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '↕');
+  const icon = document.getElementById('sort-' + key);
+  if (icon) icon.textContent = sortDir === 1 ? '↑' : '↓';
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+  const th = document.querySelector(`th[onclick="sortBy('${key}')"]`);
+  if (th) th.classList.add('sorted');
+  renderActionRows();
+}
+
+/* =====================================================================
+   ACTION TABLE
+   ===================================================================== */
+function renderActionRows() {
+  const sorted = [...ACTIONS].sort((a, b) => {
+    let va, vb;
+    switch (sortKey) {
+      case 'ref':    va = a.ref; vb = b.ref; break;
+      case 'text':   va = a.text.toLowerCase(); vb = b.text.toLowerCase(); break;
+      case 'review': va = a.reviewId; vb = b.reviewId; break;
+      case 'status': va = STATUS_ORDER.indexOf(a.status); vb = STATUS_ORDER.indexOf(b.status); break;
+      case 'impact': va = -impactScore(a.impact); vb = -impactScore(b.impact); break;
+      case 'owner':  va = (a.owner||'').toLowerCase(); vb = (b.owner||'').toLowerCase(); break;
+      case 'due':    va = a.due||'zzz'; vb = b.due||'zzz'; break;
+      default: va = a.ref; vb = b.ref;
+    }
+    if (va < vb) return -1 * sortDir;
+    if (va > vb) return  1 * sortDir;
+    return 0;
+  });
+
+  const tbody = document.getElementById('actionBody');
+  tbody.innerHTML = '';
+  sorted.forEach(a => {
+    const rev = reviewFor(a.reviewId);
+    const il = impactLabel(a.impact);
+    const sc = impactScore(a.impact);
+    const row = document.createElement('tr');
+    row.dataset.ref = a.ref;
+    if (a.status === 'completed') row.classList.add('completed-row');
+
+    const objBtn = a.objections.length
+      ? `<button class="obj-badge"
+           onmouseenter="showObjTooltip(event,'${a.ref}')"
+           onmouseleave="hideTooltip()"
+           onclick="showObjTooltip(event,'${a.ref}')">⚑ ${a.objections.length}</button>`
+      : '';
+
+    const impactTitle = `Scope ${a.impact.scope}/3 · Risk ${a.impact.risk}/3 · Urgency ${a.impact.urgency}/3 → ${sc}/9`;
+
+    row.innerHTML = `
+      <td class="ref-cell">${a.ref}</td>
+      <td>
+        <div class="action-text">${a.text}</div>
+        ${a.notes ? `<div class="action-notes">${a.notes}</div>` : ''}
+        ${a.source ? `<span class="source-chip">via ${a.source}</span>` : ''}
+      </td>
+      <td>
+        <span class="review-badge" style="background:${rev.color}22;color:${rev.color};border:1px solid ${rev.color}55;">
+          ${rev.shortName}
+        </span>
+      </td>
+      <td><span class="st ${a.status}">${STATUS_LABELS[a.status]||a.status}</span></td>
+      <td>
+        <span class="impact-badge ${il}"
+          onmouseenter="showImpactTooltip(event,'${a.ref}')"
+          onmouseleave="hideImpactTooltip()"
+          title="${impactTitle}">${impactDisplay(il)}</span>
+      </td>
+      <td class="owner-cell">${a.owner||'—'}</td>
+      <td class="due-cell">${a.due||'—'}</td>
+      <td>${objBtn}</td>`;
+    tbody.appendChild(row);
+  });
+  applyFilters();
+}
+
+/* =====================================================================
+   TOOLTIPS
+   ===================================================================== */
+const tooltip = document.getElementById('tooltip');
+const impactTt = document.getElementById('impact-tooltip');
+
+function positionTooltip(el, ttEl) {
+  const r = el.getBoundingClientRect();
+  const ttW = 340, ttH = 200;
+  let left = r.left;
+  let top  = r.bottom + 6;
+  if (left + ttW > window.innerWidth - 8) left = window.innerWidth - ttW - 8;
+  if (top + ttH > window.innerHeight - 8) top = r.top - ttH - 6;
+  ttEl.style.left = left + 'px';
+  ttEl.style.top  = top + 'px';
+}
+
+function showObjTooltip(e, ref) {
+  const a = ACTIONS.find(x => x.ref === ref);
+  if (!a || !a.objections.length) return;
+  tooltip.innerHTML = a.objections.map((o, i) => `
+    ${i > 0 ? '<div class="tooltip-divider"></div>' : ''}
+    <div class="tooltip-obj-item">
+      <div class="tooltip-who">⚑ ${o.who}</div>
+      <div class="tooltip-reason">${o.reason}</div>
+      ${o.sourceUrl
+        ? `<a class="tooltip-source" href="${o.sourceUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ ${o.sourceLabel||'Source'}</a>`
+        : o.sourceLabel ? `<div class="tooltip-source" style="color:var(--muted)">${o.sourceLabel}</div>` : ''}
+    </div>`).join('');
+  tooltip.classList.add('visible');
+  positionTooltip(e.currentTarget, tooltip);
+}
+
+function hideTooltip() { tooltip.classList.remove('visible'); }
+
+function showImpactTooltip(e, ref) {
+  const a = ACTIONS.find(x => x.ref === ref);
+  if (!a) return;
+  const il = impactLabel(a.impact);
+  const sc = impactScore(a.impact);
+  impactTt.innerHTML = `
+    <div class="it-row"><span class="it-label">Scope (1–3)</span><span class="it-score">${a.impact.scope}</span></div>
+    <div class="it-row"><span class="it-label">Risk type (1–3)</span><span class="it-score">${a.impact.risk}</span></div>
+    <div class="it-row"><span class="it-label">Urgency (1–3)</span><span class="it-score">${a.impact.urgency}</span></div>
+    <div class="it-total">Score ${sc}/9 — <span style="color:${il==='high'?'var(--red)':il==='medium'?'var(--amber)':'var(--green)'}">${il.toUpperCase()}</span></div>`;
+  impactTt.classList.add('visible');
+  positionTooltip(e.currentTarget, impactTt);
+}
+
+function hideImpactTooltip() { impactTt.classList.remove('visible'); }
+
+// Close tooltips on scroll
+document.addEventListener('scroll', () => { hideTooltip(); hideImpactTooltip(); hideAmChart(); }, true);
+
+/* =====================================================================
+   AM EXPLAINER TOGGLE
+   ===================================================================== */
+function toggleAmDetail(btn) {
+  const detail = document.getElementById('am-detail');
+  const open = detail.style.display === 'block';
+  detail.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? 'More ↓' : 'Less ↑';
+  btn.setAttribute('aria-expanded', String(!open));
+}
+
+/* =====================================================================
+   AM HOVER CHART
+   ===================================================================== */
+let _amChart = null;
+
+function showAmChart(e, id) {
+  const s = AM_SERIES[id];
+  if (!s || !s.data.length) return;
+  const popup = document.getElementById('am-chart-popup');
+  const rect = e.currentTarget.getBoundingClientRect();
+  let left = rect.left;
+  let top  = rect.bottom + 8;
+  if (left + 268 > window.innerWidth - 8) left = window.innerWidth - 268 - 8;
+  if (top + 155 > window.innerHeight - 8) top = rect.top - 155 - 8;
+  popup.style.left = left + 'px';
+  popup.style.top  = top + 'px';
+  popup.style.display = 'block';
+  document.getElementById('acp-title').textContent = s.label + ' — avoidable mortality trend';
+  setTimeout(() => {
+    if (_amChart) { _amChart.destroy(); _amChart = null; }
+    const ctx = document.getElementById('am-chart-canvas').getContext('2d');
+    _amChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: s.data.map(d => d.y),
+        datasets: [{
+          data: s.data.map(d => d.v),
+          borderColor: s.color,
+          backgroundColor: s.color + '18',
+          borderWidth: 2,
+          pointRadius: s.data.length > 12 ? 2 : 3,
+          pointBackgroundColor: s.color,
+          fill: true,
+          tension: 0.3,
+        }],
+      },
+      options: {
+        animation: false,
+        responsive: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ctx.parsed.y + ' per 100k' },
+            backgroundColor: '#1e293b',
+            titleColor: '#94a3b8',
+            bodyColor: '#e2e8f0',
+            borderColor: '#334155',
+            borderWidth: 1,
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 6 },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+          },
+          y: {
+            ticks: { color: '#64748b', font: { size: 9 }, maxTicksLimit: 5 },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            suggestedMin: 100,
+          },
+        },
+      },
+    });
+  }, 0);
+}
+
+function hideAmChart() {
+  document.getElementById('am-chart-popup').style.display = 'none';
+}
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+renderAM();
+renderScoreboard();
+renderTimeline();
+renderReviewCards();
+renderFilters();
+renderActionRows();
+</script>
+</body>
+</html>

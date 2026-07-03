@@ -9,10 +9,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0f9f8;--surface:#FFFFFF;--surface2:#e6f4f1;--surface3:#cce8e4;
+  --bg:#F5F0E8;--surface:#FFFFFF;--surface2:#EBF4F4;--surface3:#D5E9E9;
   --border:rgba(0,0,0,0.09);--border-hi:rgba(0,0,0,0.17);
-  --text:#0f2b26;--muted:#3d6b65;--muted2:#5a8a82;
-  --teal:#2f7d6c;--teal-d:#1e5c52;
+  --text:#152222;--muted:#4a6e6e;--muted2:#6b8c8c;
+  --teal:#009BA5;--teal-d:#007880;
   --red:#c0392b;   --red-bg:rgba(192,57,43,0.07);   --red-bdr:rgba(192,57,43,0.20);
   --amber:#b45309; --amber-bg:rgba(180,83,9,0.07);   --amber-bdr:rgba(180,83,9,0.20);
   --green:#047857; --green-bg:rgba(4,120,87,0.07);   --green-bdr:rgba(4,120,87,0.20);
@@ -526,29 +526,6 @@ html,body{height:100%;height:100dvh;background:var(--bg);color:var(--text);font-
   </div>
 </div>
 
-<script>
-(function(){
-  // Observatory theme bridge — translates postMessage to html.dark class
-  var stored = localStorage.getItem('observatory-theme');
-  // This page defaults to light; html.dark applies dark mode
-  if (stored === 'dark' && !document.documentElement.classList.contains('dark')) {
-    document.documentElement.classList.add('dark');
-  }
-  window.addEventListener('message', function(e){
-    var d = e.data;
-    if (d && (d.type === 'theme' || d.type === 'setTheme')){
-      document.documentElement.classList.toggle('dark', d.theme === 'dark');
-    }
-  });
-  function reportHeight(){
-    window.parent.postMessage({type:'resize', height:document.body.scrollHeight},'*');
-  }
-  reportHeight();
-  window.addEventListener('resize', reportHeight);
-  setTimeout(reportHeight, 400);
-  setTimeout(reportHeight, 1000);
-})();
-</script>
 <script>
 // ══ BANK HOLIDAYS ══
 var BH=['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-07-05','2026-08-31','2026-12-25','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-07-05','2027-08-30','2027-12-27','2027-12-28'];

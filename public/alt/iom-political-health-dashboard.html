@@ -25,13 +25,6 @@
       --iom:      #3b82f6;
       --eng:      #94a3b8;
     }
-    body.light {
-      --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
-      --border2:#d1d5db; --text:#0f172a; --muted:#64748b; --muted2:#374151;
-      --blue:#2563eb; --green:#059669; --amber:#d97706; --red:#dc2626;
-      --purple:#7c3aed; --orange:#ea580c;
-      --iom:#2563eb; --eng:#475569;
-    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
@@ -39,10 +32,11 @@
       font-family: 'Inter', system-ui, sans-serif;
       font-size: 14px;
       line-height: 1.5;
+      min-width: 900px;
     }
     /* ── Header ── */
     .header {
-      padding: 20px 24px;
+      padding: 20px 32px;
       border-bottom: 1px solid var(--border2);
       display: flex;
       justify-content: space-between;
@@ -67,7 +61,7 @@
       background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
     }
     /* ── Layout ── */
-    .container { max-width: 960px; margin: 0 auto; padding: 24px 24px; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 24px 32px; }
     .section-label {
       font-size: 10px; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.08em; color: var(--muted);
@@ -78,7 +72,7 @@
 
     /* ── KPI row ── */
     .kpi-grid {
-      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; flex-wrap: wrap;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
       margin-bottom: 8px;
     }
     .kpi-card {
@@ -141,11 +135,10 @@
     .commentary {
       font-size: 11px; color: var(--muted); line-height: 1.7;
       margin-top: 12px; padding: 10px 12px;
-      background: rgba(59,130,246,0.06);
+      background: rgba(59,130,246,0.05);
       border-left: 2px solid rgba(59,130,246,0.35);
       border-radius: 0 4px 4px 0;
     }
-    body.light .commentary { background: rgba(59,130,246,0.05); }
     .commentary strong { color: var(--text); }
 
     /* ── Pressure stats grid (non-chart) ── */
@@ -231,7 +224,7 @@
 
     /* ── Footer ── */
     .footer {
-      border-top: 1px solid var(--border2); padding: 18px 24px;
+      border-top: 1px solid var(--border2); padding: 18px 32px;
       font-size: 10px; color: var(--muted2); line-height: 1.8;
     }
     .footer strong { color: var(--muted); font-weight: 600; }
@@ -240,52 +233,7 @@
       background: var(--surface); border: 1px solid var(--border2);
       padding: 1px 5px; border-radius: 3px; font-size: 9px; margin: 0 2px;
     }
-  
-    /* Light mode overrides */
-    body.light #tooltip,
-    body.light #impact-tooltip,
-    body.light #am-chart-popup { background:#ffffff; }
-    body.light .src { background:#f1f5f9; }
-    /* Pressure stat light mode */
-    body.light .pressure-stat.red  { background:rgba(220,38,38,.06); border-color:rgba(220,38,38,.2); }
-    body.light .pressure-stat.amber { background:rgba(217,119,6,.06); border-color:rgba(217,119,6,.2); }
-    body.light .badge-iom { background:rgba(37,99,235,.10); border-color:rgba(37,99,235,.25); }
-    body.light .badge-date { background:#f1f5f9; }
-    /* Mobile */
-    @media(max-width:700px){
-      .kpi-grid { grid-template-columns: repeat(2,1fr)!important; }
-      .chart-grid.col-2,.chart-grid.col-3 { grid-template-columns: 1fr!important; }
-      .outcome-grid { grid-template-columns: 1fr!important; }
-      .mh-grid { grid-template-columns: 1fr!important; }
-      .gaps-grid { grid-template-columns: repeat(2,1fr)!important; }
-      .container { padding: 12px 14px!important; }
-      body { font-size: 14px; }
-    }
-    @media(max-width:420px){
-      .gaps-grid { grid-template-columns: 1fr!important; }
-      .kpi-grid { grid-template-columns: repeat(2,1fr)!important; }
-    }
-
   </style>
-<script>
-(function() {
-  var stored = localStorage.getItem('observatory-theme');
-  if (stored === 'light') document.body.classList.add('light');
-  window.addEventListener('message', function(e) {
-    var d = e.data;
-    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
-      document.body.classList.toggle('light', d.theme === 'light');
-      if (typeof applyChartTheme === 'function') applyChartTheme();
-    }
-  });
-})();
-function reportHeight() {
-  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
-}
-window.addEventListener('resize', reportHeight);
-setTimeout(reportHeight, 300);
-setTimeout(reportHeight, 800);
-</script>
 </head>
 <body>
 
@@ -628,14 +576,10 @@ setTimeout(reportHeight, 800);
 
 <script>
 // ─── Global Chart.js defaults ───────────────────────────────────────────────
-function applyChartTheme() {
-  var light = document.body.classList.contains('light');
-  Chart.defaults.color       = light ? '#4B5563' : '#64748b';
-  Chart.defaults.borderColor = light ? '#d1d5db' : '#334155';
-}
+Chart.defaults.color       = '#64748b';
+Chart.defaults.borderColor = '#334155';
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
 Chart.defaults.font.size   = 11;
-applyChartTheme();
 
 // ─── Plugins — register ALL before any chart is created ─────────────────────
 
@@ -699,19 +643,7 @@ Chart.register({
   }
 });
 
-// Shared tooltip style — theme-aware
-function getTooltipConfig() {
-  var light = document.body.classList.contains('light');
-  return {
-    backgroundColor: light ? '#ffffff' : '#1e293b',
-    borderColor: light ? '#d1d5db' : '#334155',
-    borderWidth: 1,
-    titleColor: light ? '#0f172a' : '#e2e8f0',
-    bodyColor:  light ? '#374151' : '#94a3b8',
-    padding: 10,
-    cornerRadius: 6,
-  };
-}
+// Shared tooltip style
 const tooltipConfig = {
   backgroundColor: '#1e293b',
   borderColor: '#334155',
@@ -1018,7 +950,6 @@ function postResize() {
 window.addEventListener('load', postResize);
 window.addEventListener('resize', postResize);
 new ResizeObserver(postResize).observe(document.body);
-applyChartTheme();
 </script>
 
 </body>

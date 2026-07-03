@@ -16,6 +16,13 @@ const THEMES = {
     purple:"#a78bfa", red:"#f87171", gold:"#C9A24A",
     iom:"#3b82f6", gsy:"#10b981", jsy:"#f59e0b", uk:"#94a3b8",
   },
+  health: {
+    bg:"#f0f9f8", surface:"#ffffff", surface2:"#e6f4f1", border:"#cce8e4", border2:"#99d5cc",
+    text:"#0f172a", muted:"#3d6b65", muted2:"#1e4a44",
+    blue:"#2f7d6c", blueDim:"#e6f4f1", green:"#059669", amber:"#d97706",
+    purple:"#7c3aed", red:"#dc2626", gold:"#92600a",
+    iom:"#1d4ed8", gsy:"#059669", jsy:"#b45309", uk:"#475569",
+  },
   light: {
     bg:"#f8fafc", surface:"#ffffff", surface2:"#f1f5f9", border:"#e2e8f0", border2:"#cbd5e1",
     text:"#0f172a", muted:"#334155", muted2:"#475569",
@@ -55,12 +62,14 @@ const TAB_GROUPS = [
       { id: "mybudget",      label: "My Budget"            },
     ]
   },
-  { id: "health-group",    label: "Health & Care",       color: "#f87171", homeTab: "healthHome",
+  { id: "health-group",    label: "Health & Care",       color: "#5ea99a", homeTab: "healthHome",
     tabs: [
-      { id: "healthHome",    label: "Overview"             },
-      { id: "nobles-flow",   label: "Noble's: Systems View"},
-      { id: "manxBenchmark", label: "Manx Care Benchmark"  },
-      { id: "nobles-v15",    label: "Nobles Simulation"    },
+      { id: "healthHome",    label: "Overview"         },
+      { id: "manxBenchmark", label: "Performance"      },
+      { id: "mcReviews",     label: "Governance"       },
+      { id: "mcWhenWho",     label: "For Patients"     },
+      { id: "nobles-flow",   label: "System View"      },
+      { id: "nobles-v15",    label: "Simulation"       },
     ]
   },
   { id: "privacy-group",   label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome",
@@ -971,7 +980,7 @@ function HealthHomeTab({ C, onNavigate }) {
 
   const card = (title, body, accent, onClick) => (
     <div onClick={onClick} style={{
-      background: C.surface, border: `1px solid ${C.border2}`,
+      background: C.surface2, border: `1px solid ${C.border2}`,
       borderRadius: 10, overflow: "hidden", marginBottom: 14,
       cursor: onClick ? "pointer" : "default",
     }}>
@@ -989,10 +998,10 @@ function HealthHomeTab({ C, onNavigate }) {
       {/* Hero */}
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
-        borderLeft: `3px solid ${C.red}`,
+        borderLeft: "3px solid #5ea99a",
         borderRadius: 10, padding: "20px 22px", marginBottom: 28,
       }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text,
+        <div style={{ fontSize: 18, fontWeight: 800, color: C.muted2,
           letterSpacing: "-0.02em", lineHeight: 1.3, marginBottom: 10 }}>
           Health system performance across the Crown Dependencies
         </div>
@@ -1035,7 +1044,7 @@ function HealthHomeTab({ C, onNavigate }) {
         cancer and ED standards, off-island mental health placement costs, and safety
         indicators from the Manx Care Integrated Performance Report (March 2024).
         Methodology breaks and data gaps are flagged inline — not suppressed.`,
-        C.red,
+        "#5ea99a",
         () => onNavigate("manxBenchmark")
       )}
 
@@ -1045,7 +1054,7 @@ function HealthHomeTab({ C, onNavigate }) {
         Hospital. Models admission patterns, length-of-stay distributions, and discharge
         bottlenecks to illustrate how small changes in flow affect whole-system capacity.
         Use this to stress-test planning assumptions rather than as a forecast.`,
-        C.red,
+        "#5ea99a",
         () => onNavigate("nobles-v15")
       )}
 
@@ -1055,7 +1064,7 @@ function HealthHomeTab({ C, onNavigate }) {
         built on the Gent Review (June 2026) — queues, OPEL levels, DTOC patients, and
         the systems dynamics behind "the back door is the problem, not the front."
         Designed for anyone trying to understand what's actually going wrong.`,
-        C.red,
+        "#5ea99a",
         () => onNavigate("nobles-flow")
       )}
 
@@ -1068,13 +1077,6 @@ function HealthHomeTab({ C, onNavigate }) {
         Jersey HCJ deep-dive · Guernsey HSC trend analysis · cross-island
         workforce and bed-capacity modelling · mental health placement cost projections.
         Data sources expand as annual reports are published.
-      </div>
-
-      <div style={{ fontSize: 11, color: C.muted2, lineHeight: 1.7 }}>
-        <a href="https://coalfinch.com" target="_blank"
-          style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
-        {" "}· <a href="mailto:observatory@coalfinch.com"
-          style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
       </div>
 
     </div>
@@ -1395,29 +1397,43 @@ function DropdownNav({ tab, setTab, C, groupOf, isNarrow }) {
         <div style={{ height: 1, background: C.border2, margin: "0 10px 4px" }}/>
         {openGroupData.tabs
           .filter(t => t.id !== openGroupData.homeTab)
-          .map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setTab(t.id); setOpenGroup(null); }}
-              style={{
-                padding: "7px 14px 7px 12px",
-                border: "none", background: "none", cursor: "pointer",
-                fontFamily: "'Inter', system-ui, sans-serif",
-                fontSize: 13,
-                fontWeight: tab === t.id ? 600 : 400,
-                color: (t.id === "restricted" || t.id === "compliance")
-                  ? C.purple
-                  : (tab === t.id ? openGroupData.color : C.muted2),
-                display: "block", width: "100%", textAlign: "left",
-                borderLeft: tab === t.id ? `2px solid ${openGroupData.color}` : "2px solid transparent",
-                transition: "color 0.15s",
-              }}
-              onMouseEnter={e => { if (tab !== t.id) e.currentTarget.style.color = C.text; }}
-              onMouseLeave={e => { if (tab !== t.id) e.currentTarget.style.color = (t.id === "restricted" || t.id === "compliance") ? C.purple : C.muted2; }}
-            >
-              {t.label}
-            </button>
-          ))}
+          .map(t => {
+            if (t.divider) return (
+              <div key={t.id}>
+                <div style={{ height: 1, background: C.border2, margin: "4px 10px" }}/>
+                <div style={{
+                  fontSize: 9, fontWeight: 700, color: C.muted,
+                  textTransform: "uppercase", letterSpacing: "0.1em",
+                  padding: "5px 12px 3px",
+                }}>
+                  {t.label}
+                </div>
+              </div>
+            );
+            return (
+              <button
+                key={t.id}
+                onClick={() => { setTab(t.id); setOpenGroup(null); }}
+                style={{
+                  padding: "7px 14px 7px 12px",
+                  border: "none", background: "none", cursor: "pointer",
+                  fontFamily: "'Inter', system-ui, sans-serif",
+                  fontSize: 13,
+                  fontWeight: tab === t.id ? 600 : 400,
+                  color: (t.id === "restricted" || t.id === "compliance")
+                    ? C.purple
+                    : (tab === t.id ? openGroupData.color : C.muted2),
+                  display: "block", width: "100%", textAlign: "left",
+                  borderLeft: tab === t.id ? `2px solid ${openGroupData.color}` : "2px solid transparent",
+                  transition: "color 0.15s",
+                }}
+                onMouseEnter={e => { if (tab !== t.id) e.currentTarget.style.color = C.text; }}
+                onMouseLeave={e => { if (tab !== t.id) e.currentTarget.style.color = (t.id === "restricted" || t.id === "compliance") ? C.purple : C.muted2; }}
+              >
+                {t.label}
+              </button>
+            );
+          })}
       </div>
     )}
     </>
@@ -1433,13 +1449,44 @@ function AppContent() {
   const [themeName, setThemeName] = useState(() => {
     try { return localStorage.getItem("observatory-theme") || "dark"; } catch { return "dark"; }
   });
-  const C = THEMES[themeName];
+  const C = THEMES[themeName] ?? THEMES.dark;
+
+  // ── Manx Care auto-theme ───────────────────────────────────────────────────
+  const preHCThemeRef = useRef(null);
+  const activeGroup = TAB_GROUPS.find(g => g.tabs.some(t => t.id === tab));
+  const isInHC = activeGroup?.id === "health-group";
+
+  useEffect(() => {
+    if (isInHC && themeName !== "health" && themeName !== "dark") return; // dark override OK
+    if (isInHC && preHCThemeRef.current === null) {
+      // Entering H&C — save current theme and switch to MC light
+      preHCThemeRef.current = themeName === "health" ? "dark" : themeName;
+      if (themeName !== "health") {
+        setThemeName("health");
+        try { localStorage.setItem("observatory-theme", "light"); } catch {}
+      }
+    } else if (!isInHC && preHCThemeRef.current !== null) {
+      // Leaving H&C — restore saved theme
+      const restore = preHCThemeRef.current;
+      preHCThemeRef.current = null;
+      setThemeName(restore);
+      try { localStorage.setItem("observatory-theme", restore); } catch {}
+    }
+  }, [isInHC]);
+
   const toggleTheme = () => {
-    const next = themeName === "dark" ? "light" : "dark";
+    let next;
+    if (isInHC) {
+      next = themeName === "dark" ? "health" : "dark";
+    } else {
+      next = themeName === "dark" ? "light" : "dark";
+    }
     setThemeName(next);
-    try { localStorage.setItem("observatory-theme", next); } catch {}
+    if (next === "health") preHCThemeRef.current = "dark"; // user chose MC light explicitly
+    const lsVal = next === "health" ? "light" : next;
+    try { localStorage.setItem("observatory-theme", lsVal); } catch {}
     document.querySelectorAll("iframe").forEach(f => {
-      try { f.contentWindow.postMessage({ type:"theme", theme:next }, "*"); } catch {}
+      try { f.contentWindow.postMessage({ type:"theme", theme:lsVal }, "*"); } catch {}
     });
   };
 
@@ -1448,13 +1495,15 @@ function AppContent() {
     "reid","demog","iomPopChange","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
     "unemployment","suicide","workforce","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget",
+    "mcReviews","mcWhenWho","nobles-flow","nobles-v15",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
     if (IFRAME_TABS.has(tab)) {
       setTimeout(() => {
         document.querySelectorAll("iframe").forEach(f => {
-          try { f.contentWindow.postMessage({ type:"setTheme", theme:themeName }, "*"); } catch {}
+          const themeForFrame = themeName === "health" ? "light" : themeName;
+          try { f.contentWindow.postMessage({ type:"setTheme", theme:themeForFrame }, "*"); } catch {}
         });
       }, 100);
     }
@@ -1565,6 +1614,19 @@ function AppContent() {
       <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" theme={themeName} />
     ),
 
+    mcReviews: (
+      <AutoIframe src="/manxcare-reviews-tracker.html" title="Manx Care Reviews Tracker" theme={themeName} />
+    ),
+    mcCancer: (
+      <AutoIframe src="/cancer-care.html" title="Cancer Care" theme={themeName} />
+    ),
+    mcED: (
+      <AutoIframe src="/ed-care.html" title="Emergency Department" theme={themeName} />
+    ),
+    mcWhenWho: (
+      <AutoIframe src="/when-to-see-who.html" title="When to See Who" theme={themeName} />
+    ),
+
     "nobles-flow": (
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh", flexDirection:"column", gap:16 }}>
         <div style={{ fontSize:13, color:C.muted2, textAlign:"center", maxWidth:420, lineHeight:1.7 }}>
@@ -1597,6 +1659,7 @@ function AppContent() {
           href="/nobles-hospital-sim-v15.html"
           target="_blank"
           rel="noopener"
+          onClick={() => { try { localStorage.setItem("observatory-theme","dark"); } catch {} }}
           style={{
             display:"inline-block", padding:"9px 20px",
             background:"none", border:`1px solid ${C.gold}`,

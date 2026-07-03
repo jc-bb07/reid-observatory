@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manx Care — Testing · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f172a;
+  --surface:  #1e293b;
+  --surface2: #162032;
+  --border:   #1e293b;
+  --border2:  #334155;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --blue:     #60a5fa;
+  --blue-dim: #1d4ed8;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;
+  --purple:   #a78bfa;
+  --orange:   #fb923c;
+  --iom:      #3b82f6;
+  --gsy:      #10b981;
+  --jsy:      #f59e0b;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── Shell ── */
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+  height: 48px;
+}
+
+.header-brand {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.header-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #78350f33;
+  color: var(--amber);
+  border: 1px solid #78350f66;
+}
+
+.header-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ── Tab bar ── */
+.tab-bar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex-shrink: 0;
+  padding: 0 18px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .12s, border-color .12s;
+  user-select: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  background: none;
+  font-family: inherit;
+}
+.tab:hover:not(.active) { color: #cbd5e1; }
+.tab.active {
+  color: #93c5fd;
+  font-weight: 600;
+  border-bottom-color: #93c5fd;
+}
+
+/* ── Iframe wrapper ── */
+.frame-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ── Loading state ── */
+.frame-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.frame-loading.hidden { opacity: 0; }
+
+/* ── JSON note ── */
+.json-note {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--amber);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--muted2);
+  display: none;
+  z-index: 10;
+  max-width: 340px;
+}
+.json-note strong { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="header">
+    <span class="header-brand">Crown Dependencies Observatory</span>
+    <span style="color:var(--muted2);font-size:13px;">·</span>
+    <span style="font-size:13px;color:var(--muted2);">Manx Care</span>
+    <span class="header-badge">Testing</span>
+    <span class="header-note">Local build — not deployed</span>
+  </div>
+
+  <div class="tab-bar" id="tabBar"></div>
+
+  <div class="frame-wrap">
+    <div class="frame-loading" id="frameLoading">Loading…</div>
+    <iframe id="mainFrame" title="Tool view" allowfullscreen></iframe>
+    <div class="json-note" id="jsonNote">
+      <strong>Note:</strong> This tool fetches a local JSON file. If it appears blank,
+      open this menu via a local server (e.g. VS Code Live Server) rather than <code>file://</code>.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TABS = [
+  {
+    label: 'Reviews Tracker',
+    src: 'manxcare-reviews-tracker.html',
+    needsServer: false,
+  },
+  {
+    label: 'Cancer Care',
+    src: 'cancer-care.html',
+    needsServer: true,
+  },
+  {
+    label: 'Emergency Dept',
+    src: 'ed-care.html',
+    needsServer: true,
+  },
+  {
+    label: 'Nobles Flow',
+    src: 'nobles-flow-frontend.html',
+    needsServer: false,
+  },
+  {
+    label: 'RCS Surgery Review',
+    src: 'iom-rcs-surgery-review-2025.html',
+    needsServer: false,
+  },
+  {
+    label: 'Health Dashboard',
+    src: 'iom-political-health-dashboard.html',
+    needsServer: false,
+  },
+  {
+    label: 'When to See Who',
+    src: 'when-to-see-who.html',
+    needsServer: false,
+  },
+  {
+    label: 'FOI: Heart & Stroke',
+    src: 'iom-foi-heart-stroke-admissions.html',
+    needsServer: false,
+  },
+  {
+    label: 'FOI: Condition Breakdown',
+    src: 'iom-foi-2074149-condition-breakdown.html',
+    needsServer: false,
+  },
+];
+
+let activeIdx = 0;
+
+const tabBar     = document.getElementById('tabBar');
+const mainFrame  = document.getElementById('mainFrame');
+const loadingEl  = document.getElementById('frameLoading');
+const jsonNote   = document.getElementById('jsonNote');
+
+function buildTabs() {
+  tabBar.innerHTML = '';
+  TABS.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (i === activeIdx ? ' active' : '');
+    btn.textContent = t.label;
+    btn.onclick = () => switchTo(i);
+    tabBar.appendChild(btn);
+  });
+}
+
+function switchTo(idx) {
+  activeIdx = idx;
+  const t = TABS[idx];
+
+  // Update tab active state
+  tabBar.querySelectorAll('.tab').forEach((b, i) =>
+    b.classList.toggle('active', i === idx)
+  );
+
+  // Show loading
+  loadingEl.classList.remove('hidden');
+  jsonNote.style.display = 'none';
+
+  // Load iframe
+  mainFrame.src = t.src;
+
+  // Show JSON note for tools that need a server
+  if (t.needsServer && location.protocol === 'file:') {
+    setTimeout(() => { jsonNote.style.display = 'block'; }, 1200);
+  }
+}
+
+// Hide loading when iframe loads
+mainFrame.addEventListener('load', () => {
+  loadingEl.classList.add('hidden');
+});
+
+// Scroll active tab into view
+function scrollActiveTab() {
+  const active = tabBar.querySelector('.tab.active');
+  if (active) active.scrollIntoView({ inline: 'nearest', behavior: 'smooth' });
+}
+
+// Init
+buildTabs();
+switchTo(0);
+setTimeout(scrollActiveTab, 100);
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' && activeIdx < TABS.length - 1) switchTo(activeIdx + 1);
+  if (e.key === 'ArrowLeft'  && activeIdx > 0)               switchTo(activeIdx - 1);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoM General Surgery Review 2025 — Qualitative Analysis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --iom: #1B6CA8; --danger: #DC2626; --warn: #D97706; --ok: #059669;
+    --purple: #7C3AED; --muted: #6B7280; --border: #E5E7EB;
+    --surface: #FFFFFF; --bg: #F8F9FA; --text: #111827;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+  .header { border-bottom: 3px solid var(--danger); padding-bottom: 14px; margin-bottom: 22px; }
+  .header h1 { font-size: 20px; font-weight: 700; }
+  .header .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .header .meta { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .header .meta strong { color: var(--text); }
+
+  .qual-notice {
+    background: #F5F3FF; border: 1px solid #DDD6FE; border-left: 4px solid var(--purple);
+    border-radius: 6px; padding: 11px 15px; margin-bottom: 20px; font-size: 12px; color: #4C1D95; line-height: 1.7;
+  }
+  .qual-notice strong { font-weight: 700; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 780px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .card.full { grid-column: 1 / -1; }
+  .card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .card-desc { font-size: 11px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+
+  .section { margin-bottom: 28px; }
+  .section-header { margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .section-header h2 { font-size: 15px; font-weight: 700; }
+
+  .insight { background: #EFF6FF; border-left: 3px solid var(--iom); padding: 9px 13px; font-size: 11px; color: #1e3a5f; margin-top: 10px; border-radius: 0 5px 5px 0; line-height: 1.6; }
+  .caveat { background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 5px; padding: 9px 13px; font-size: 11px; color: #78350F; margin-top: 10px; line-height: 1.6; }
+  .caveat strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding: 0 0 0 28px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-dot {
+    position: absolute; left: -24px; top: 3px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px currentColor;
+  }
+  .tl-date { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
+  .tl-title { font-size: 13px; font-weight: 700; }
+  .tl-body { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .tl-tag {
+    display: inline-block; padding: 1px 7px; border-radius: 99px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+    margin-top: 5px;
+  }
+  .tag-trigger  { background: #FEE2E2; color: #991B1B; }
+  .tag-process  { background: #DBEAFE; color: #1E40AF; }
+  .tag-finding  { background: #FEF3C7; color: #92400E; }
+  .tag-action   { background: #D1FAE5; color: #065F46; }
+  .tag-ongoing  { background: #EDE9FE; color: #5B21B6; }
+
+  /* ── Issue cards ── */
+  .issue-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  @media (max-width: 700px) { .issue-grid { grid-template-columns: 1fr; } }
+  .issue-card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+    border-left: 4px solid;
+  }
+  .issue-card h4 { font-size: 12px; font-weight: 700; margin-bottom: 5px; }
+  .issue-card p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .issue-card .domain {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 2px 6px; border-radius: 3px; margin-bottom: 6px;
+  }
+  .sev-high   { border-left-color: var(--danger); }
+  .sev-med    { border-left-color: var(--warn); }
+  .sev-info   { border-left-color: var(--iom); }
+
+  /* ── Data-gap table ── */
+  table.dgap { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.dgap th, table.dgap td { padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+  table.dgap th { background: #F3F4F6; font-weight: 700; font-size: 11px; }
+  table.dgap td.exists    { color: var(--ok); font-weight: 700; }
+  table.dgap td.gap       { color: var(--danger); font-weight: 700; }
+  table.dgap td.possible  { color: var(--warn); font-weight: 700; }
+  .badge { display:inline-block; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:700; }
+  .badge-new  { background:#FEE2E2; color:#991B1B; }
+  .badge-link { background:#DBEAFE; color:#1E40AF; }
+
+  /* Quote block */
+  .quote {
+    border-left: 3px solid var(--danger); margin: 12px 0;
+    padding: 8px 14px; background: #FEF2F2; border-radius: 0 6px 6px 0;
+    font-size: 12px; color: #7F1D1D; font-style: italic; line-height: 1.7;
+  }
+  .quote cite { font-style: normal; font-size: 10px; color: var(--muted); display: block; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Noble's Hospital General Surgery Review — Royal College of Surgeons 2025</h1>
+    <div class="sub">Qualitative analysis · Source: IoM Today reporting of confidential review document</div>
+    <div class="meta">
+      <span><strong>Review commissioned:</strong> March 2024</span>
+      <span><strong>Review conducted:</strong> October 2024</span>
+      <span><strong>Report received:</strong> July 2025</span>
+      <span><strong>Status:</strong> Accepted in full · Implementation ongoing</span>
+    </div>
+  </div>
+
+  <div class="qual-notice">
+    <strong>⚠ Qualitative source — not a quantitative dataset.</strong> This document is a journalistic account of a confidential RCS review. There are no rates, denominators, or time-series figures. Visualisations below represent the <em>structure</em> of the findings (timeline, issue categorisation, data-gap mapping) rather than measurements. The review did not identify major concerns about overall clinical quality and safety outcomes.
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 1: TIMELINE
+       ═══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header"><h2>Chart 1 — Event Timeline</h2></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Sequence of events: complaints → review → implementation</div>
+        <div class="card-desc">Reconstructed from the article. Approximate dates where exact dates not stated.</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot" style="color:var(--danger)"></div>
+            <div class="tl-date">2023–early 2024</div>
+            <div class="tl-title">Junior doctor complaints emerge</div>
+            <div class="tl-body">Concerns about insufficient supervision, support, and patient safety incidents. Serious Untoward Incidents (SUIs) classified.</div>
+            <span class="tl-tag tag-trigger">Trigger</span>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="color:var(--iom)"></div>
+            <div class="tl-date">March 2024</div>
+            <div class="tl-title">Review commissioned</div>
+            <div class="tl-body">Interim Executive Medical Director Dr Marina Hudson invites Royal College of Surgeons to review Manx Care's general surgery services.</div>
+            <span class="tl-tag tag-process">Process</span>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="color:var(--iom)"></div>
+            <div class="tl-date">October 2024</div>
+            <div class="tl-title">RCS review visit</div>
+            <div class="tl-body">Review team visits Noble's Hospital. Interviews staff at all levels. Finds no major concerns about overall safety outcomes, but significant governance and culture issues.</div>
+            <span class="tl-tag tag-process">Process</span>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="color:var(--warn)"></div>
+            <div class="tl-date">July 2025</div>
+            <div class="tl-title">Report received &amp; accepted in full</div>
+            <div class="tl-body">Manx Care accepts all recommendations. Report marked private and confidential but reported in IoM Today. Leak suggests institutional concern about transparency.</div>
+            <span class="tl-tag tag-finding">Finding</span>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="color:var(--ok)"></div>
+            <div class="tl-date">Post July 2025</div>
+            <div class="tl-title">Dr Peter Neville appointed Clinical Director for Surgery</div>
+            <div class="tl-body">New Clinical Director appointed from outside the department — per the review's specific recommendation. Implementation programme underway, endorsed by Manx Care board and supported by Divisional Director Mr Ian Wright.</div>
+            <span class="tl-tag tag-action">Action</span>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="color:var(--purple)"></div>
+            <div class="tl-date">June 2026 (current)</div>
+            <div class="tl-title">Implementation ongoing</div>
+            <div class="tl-body">Manx Care confirms "work continues to progress" and staffing issues "carefully addressed". Disciplinary proceedings neither confirmed nor denied.</div>
+            <span class="tl-tag tag-ongoing">Ongoing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Key quotes from the review</div>
+        <div class="card-desc" style="margin-bottom:10px">Verbatim from the article (attributed to the RCS review report)</div>
+
+        <div class="quote">
+          "The dysfunctional consultant body has impacted decision making. The resolution required a change of clinical director."
+          <cite>RCS Review Report, 2025</cite>
+        </div>
+        <div class="quote">
+          "Interpersonal behaviours between some [consultants] were very poor, resulting in silo-type working which was considered dangerous."
+          <cite>RCS Review Report, 2025</cite>
+        </div>
+        <div class="quote">
+          "It was of concern that colorectal and general surgeons have perceived conflicts that have contributed to a toxic culture and claims of isolation and bullying."
+          <cite>RCS Review Report, 2025</cite>
+        </div>
+        <div class="quote">
+          "Disagreements among consultants had led to constant bickering, while some staff feared speaking out and raising issues for fear of repercussions."
+          <cite>RCS Review Report, 2025</cite>
+        </div>
+
+        <div class="caveat" style="margin-top:14px">
+          <strong>Important counterbalance:</strong> The review team "did not identify any major concerns about overall quality and safety in the general surgery service." Staff consensus was that "most consultants were excellent and dedicated to their work." The problems are relational and governance-related, not primarily clinical-outcome related.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 2: ISSUE CATEGORISATION
+       ═══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header"><h2>Chart 2 — Issue Categorisation by Governance Domain</h2></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Seven distinct issue categories identified in the review. Red border = most serious governance concern. Amber = significant operational issue. Blue = structural/systemic.</p>
+    <div class="issue-grid">
+
+      <div class="issue-card sev-high">
+        <div class="domain" style="background:#FEE2E2;color:#991B1B">Culture &amp; Safety</div>
+        <h4>Toxic consultant culture &amp; bullying</h4>
+        <p>Dysfunctional interpersonal behaviours between consultants. Silo working described as "dangerous". Staff fearful of raising concerns. RCS view: most serious finding.</p>
+      </div>
+
+      <div class="issue-card sev-high">
+        <div class="domain" style="background:#FEE2E2;color:#991B1B">Patient Safety</div>
+        <h4>Serious Untoward Incidents (SUIs)</h4>
+        <p>Multiple SUIs reported, linked to insufficient supervision of junior staff. SUIs are formally classified incidents — an audit trail exists within Manx Care's governance system.</p>
+      </div>
+
+      <div class="issue-card sev-high">
+        <div class="domain" style="background:#FEE2E2;color:#991B1B">Financial Integrity</div>
+        <h4>Possible double-payment of consultants</h4>
+        <p>Concern that "practitioners were being paid twice for the same time." Professional Activities (PAs) paid despite not being worked. Potential financial irregularity with an audit trail.</p>
+      </div>
+
+      <div class="issue-card sev-med">
+        <div class="domain" style="background:#FEF3C7;color:#92400E">Workforce</div>
+        <h4>On-call rota manipulation</h4>
+        <p>Consultants taking leave when scheduled to be on-call. Effective coverage and patient safety implications. Rota records exist and are auditable.</p>
+      </div>
+
+      <div class="issue-card sev-med">
+        <div class="domain" style="background:#FEF3C7;color:#92400E">Clinical Governance</div>
+        <h4>Ineffective use of surgical lists</h4>
+        <p>Consultants transferring patients to colleagues and delegating work they should have done themselves. Indicates capacity and accountability gap at consultant level.</p>
+      </div>
+
+      <div class="issue-card sev-med">
+        <div class="domain" style="background:#FEF3C7;color:#92400E">Training</div>
+        <h4>Inadequate surgical training for junior staff</h4>
+        <p>Trainees receiving "little surgical exposure and training" — directly links to the junior doctor complaints that triggered the review. GMC training approval implications.</p>
+      </div>
+
+      <div class="issue-card sev-info">
+        <div class="domain" style="background:#DBEAFE;color:#1E40AF">Leadership</div>
+        <h4>Clinical Director outside the department</h4>
+        <p>Key recommendation: new Clinical Director must be appointed from outside the department. Now enacted — Dr Peter Neville in post. This is the structural resolution to culture issues.</p>
+      </div>
+
+    </div>
+    <div class="insight" style="margin-top:14px">
+      <strong>Pattern:</strong> The issues form a reinforcing loop — toxic consultant culture → junior staff feel unsafe → training suffers → patient safety incidents → complaints → external review. The structural fix (new Clinical Director from outside) is designed to break the loop at leadership level.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 3: CHART — SEVERITY RADAR
+       ═══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header"><h2>Charts 3 &amp; 4 — Issue Severity Mapping &amp; Resolution Status</h2></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Chart 3 — Concern severity by governance domain (qualitative scoring)</div>
+        <div class="card-desc">Scores 1–5 assigned based on language used in the review and article. Culture/Safety scored highest; no major clinical outcome concerns identified.</div>
+        <canvas id="chartRadar" style="max-height:280px"></canvas>
+        <div class="caveat" style="margin-top:10px">
+          <strong>Note:</strong> These are qualitative severity scores, not measurements. They reflect the relative emphasis given to each issue in the available reporting, not a formal assessment.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chart 4 — Resolution status of each finding (as at June 2026)</div>
+        <div class="card-desc">Based on Manx Care's public statements. "In progress" = confirmed underway. "Unknown" = no public confirmation either way.</div>
+        <canvas id="chartResolution" style="max-height:280px"></canvas>
+        <div class="insight" style="margin-top:10px">
+          Only the leadership change (new Clinical Director) is publicly confirmed as complete. Most recommendations are "in progress" or unconfirmed. The financial/PA concern is notably absent from Manx Care's public statements.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══════════════════════════════════════════
+       SECTION 4: DATA GAPS THIS REVEALS
+       ═══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header"><h2>Chart 5 — Data Sources This Article Reveals (Phase 3 Relevance)</h2></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+      The article implicitly references several data sources that exist within Manx Care's systems but are not currently published. These are new potential extraction targets distinct from the Phase 3 JSON files.
+    </p>
+    <div class="card full">
+      <table class="dgap">
+        <thead>
+          <tr>
+            <th>Data source implied by article</th>
+            <th>Exists?</th>
+            <th>Published?</th>
+            <th>Phase 3 file</th>
+            <th>Action needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Serious Untoward Incidents (SUIs) register</strong> — general surgery, Noble's Hospital<br><span style="font-size:11px;color:var(--muted)">Article references "patient safety incidents classified as SUIs" — formal classification implies a register</span></td>
+            <td class="exists">✓ Exists</td>
+            <td class="gap">✗ Not public</td>
+            <td><span class="badge badge-new">New topic</span></td>
+            <td style="font-size:11px">FOI request for SUI count by specialty and year. Benchmark against NHS England SUI rates per 100,000 surgical admissions.</td>
+          </tr>
+          <tr>
+            <td><strong>Professional Activities (PA) audit trail</strong> — consultant job plans, payroll cross-reference<br><span style="font-size:11px;color:var(--muted)">Review found PAs being "manipulated and paid despite not being worked" — HR/payroll records must exist</span></td>
+            <td class="exists">✓ Exists</td>
+            <td class="gap">✗ Not public</td>
+            <td><span class="badge badge-new">New topic</span></td>
+            <td style="font-size:11px">Potential subject of internal investigation / "appropriate actions taken in line with policy." Not suitable for public dashboard — governance matter.</td>
+          </tr>
+          <tr>
+            <td><strong>On-call rota records</strong> — general surgery consultants, Noble's Hospital<br><span style="font-size:11px;color:var(--muted)">Review found on-call rota being "manipulated with consultants taking leave when on-call"</span></td>
+            <td class="exists">✓ Exists</td>
+            <td class="gap">✗ Not public</td>
+            <td><span class="badge badge-new">New topic</span></td>
+            <td style="font-size:11px">Internal audit matter. Could become indirectly relevant to a future surgical workforce capacity metric.</td>
+          </tr>
+          <tr>
+            <td><strong>Junior doctor training exposure logs</strong> — surgical procedures per trainee<br><span style="font-size:11px;color:var(--muted)">Article states trainees receiving "little surgical exposure and training" — training logs exist per GMC requirements</span></td>
+            <td class="exists">✓ Exists (GMC required)</td>
+            <td class="gap">✗ Not public</td>
+            <td><span class="badge badge-new">New topic</span></td>
+            <td style="font-size:11px">GMC holds training survey data (National Training Survey). IoM may or may not be included. Worth checking GMC NTS publications for IoM data.</td>
+          </tr>
+          <tr>
+            <td><strong>Surgical list utilisation data</strong> — theatre scheduling, patient transfers between consultants<br><span style="font-size:11px;color:var(--muted)">Review criticised ineffective use of lists and consultant-to-consultant transfers</span></td>
+            <td class="exists">✓ Exists (theatre system)</td>
+            <td class="gap">✗ Not public</td>
+            <td><span class="badge badge-link">Linked: acsc.json</span></td>
+            <td style="font-size:11px">Relevant to surgical ACSC rates. Theatre utilisation is a standard operational metric — extractable from Noble's Hospital theatre management system.</td>
+          </tr>
+          <tr>
+            <td><strong>RCS review report (full text)</strong><br><span style="font-size:11px;color:var(--muted)">Marked private and confidential. Accepted in full by Manx Care board. Likely subject to FOI.</span></td>
+            <td class="exists">✓ Exists</td>
+            <td class="possible">⚠ Possibly obtainable</td>
+            <td><span class="badge badge-new">New topic</span></td>
+            <td style="font-size:11px">FOI request to Manx Care for the full RCS review report. Board-level acceptance may weaken "private and confidential" exemption. High priority.</td>
+          </tr>
+          <tr>
+            <td><strong>Post-implementation audit</strong> — Dr Neville's improvement programme<br><span style="font-size:11px;color:var(--muted)">Manx Care says "work continues to progress" — implies a formal implementation tracking mechanism exists</span></td>
+            <td class="possible">⚠ Developing</td>
+            <td class="gap">✗ Not yet public</td>
+            <td><span class="badge badge-new">New topic</span></td>
+            <td style="font-size:11px">Future FOI or board paper request. Manx Care board endorsement implies board-level reporting — board papers may become available.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="insight" style="margin-top:12px">
+      <strong>Most actionable immediate step:</strong> FOI request for the full RCS review report. Manx Care has accepted it in full and endorsed it at board level — the "private and confidential" marking is unlikely to withstand an FOI challenge given the board's public acceptance of its findings.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Context connection -->
+  <div class="section">
+    <div class="section-header"><h2>Connection to Phase 3 Data Files</h2></div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title" style="color:var(--ok)">Strengthens</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px">
+          <strong>acsc.json</strong> — Confirms ICD-10 coded surgical episode data exists. Theatre utilisation data exists. The recommendation to fix list management is directly relevant to ACSC admission avoidability.<br><br>
+          <strong>stroke.json</strong> — The culture/supervision issues found in surgery may apply across other specialties. The SUI data this reveals is a new quality metric avenue.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--warn)">Is neutral to</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px">
+          <strong>amenable-mortality.json</strong> — Review found no major concerns about safety outcomes. Avoidable mortality rates in IoM (194/100k) are already below England benchmark. This review doesn't change that picture.<br><br>
+          <strong>healthy-life-expectancy.json, antibiotic-prescribing.json</strong> — No connection.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--danger)">Raises new questions</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px">
+          <strong>No Phase 3 file covers:</strong> SUI rates by specialty, surgical training quality, consultant workforce governance, or theatre utilisation. These are legitimate health system quality metrics that the Observatory could consider adding as a Phase 4 topic if data becomes accessible.<br><br>
+          The GMC National Training Survey may already publish data on IoM training quality — worth checking.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:var(--muted);padding:12px 0 4px">
+    Source: IoM Today reporting of confidential RCS review, June 2026 · Analysis: Crown Dependencies Health Observatory · Qualitative document — not a quantitative dataset
+  </div>
+
+</div>
+
+<script>
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#4B5563';
+
+// Chart 3: Radar — issue severity
+new Chart(document.getElementById('chartRadar'), {
+  type: 'radar',
+  data: {
+    labels: ['Culture &\nSafety', 'Patient\nSafety (SUIs)', 'Financial\nIntegrity', 'Workforce\n(On-call)', 'Clinical\nGovernance', 'Training\nQuality', 'Leadership\nStructure'],
+    datasets: [{
+      label: 'Severity (qualitative, 1–5)',
+      data: [5, 4, 4, 3, 3, 4, 2],
+      borderColor: '#DC2626',
+      backgroundColor: 'rgba(220,38,38,0.1)',
+      borderWidth: 2,
+      pointBackgroundColor: '#DC2626',
+      pointRadius: 4,
+    }, {
+      label: 'Resolution progress (1–5)',
+      data: [2, 2, 1, 2, 2, 2, 5],
+      borderColor: '#059669',
+      backgroundColor: 'rgba(5,150,105,0.08)',
+      borderWidth: 2,
+      borderDash: [4,2],
+      pointBackgroundColor: '#059669',
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.r}/5` } }
+    },
+    scales: {
+      r: {
+        min: 0, max: 5,
+        ticks: { display: false, stepSize: 1 },
+        grid: { color: '#E5E7EB' },
+        pointLabels: { font: { size: 10 } }
+      }
+    }
+  }
+});
+
+// Chart 4: Resolution status bar
+new Chart(document.getElementById('chartResolution'), {
+  type: 'bar',
+  data: {
+    labels: [
+      'New Clinical Director\nappointed',
+      'Culture /\nbullying programme',
+      'Training\nimprovement',
+      'List management\nreform',
+      'On-call rota\nenforcement',
+      'PA audit /\nfinancial review',
+      'Disciplinary\nproceedings'
+    ],
+    datasets: [{
+      label: 'Status',
+      data: [5, 3, 3, 3, 3, 1, 0],
+      backgroundColor: [
+        '#059669','rgba(5,150,105,0.5)','rgba(5,150,105,0.5)',
+        'rgba(5,150,105,0.5)','rgba(5,150,105,0.5)',
+        'rgba(220,38,38,0.4)','rgba(107,114,128,0.3)'
+      ],
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: {
+        label: ctx => {
+          const labels = ['', '', '', '', '', 'Not confirmed publicly', 'Confirmed / denied'];
+          const status = ['Confirmed complete','In progress (stated)','In progress (stated)','In progress (stated)','In progress (stated)','Not confirmed publicly','Neither confirmed nor denied'];
+          return ` ${status[ctx.dataIndex]}`;
+        }
+      }}
+    },
+    scales: {
+      x: {
+        min: 0, max: 5,
+        ticks: { callback: v => ['','Not confirmed','','In progress','','Complete'][v] || '' },
+        grid: { color: '#F3F4F6' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

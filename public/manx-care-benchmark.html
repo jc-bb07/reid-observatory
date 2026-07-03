@@ -7,28 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/observatory.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
-
-/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
-   Receives light/dark instructions from the parent App shell.
-────────────────────────────────────────────────────────────────────────────── */
-(function () {
-  if (window.__obsThemeReady) return;
-  window.__obsThemeReady = true;
-  function applyTheme(isLight) {
-    document.body.classList.toggle('light', isLight);
-  }
-  window.addEventListener('message', function (e) {
-    if (e.data && e.data.type === 'observatory-theme') {
-      applyTheme(!!e.data.light);
-    }
-  });
-  // Ask parent for current theme as soon as possible
-  if (window.parent !== window) {
-    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
-  }
-}());
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* observatory.css — inlined for self-contained operation */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -41,7 +20,10 @@
   --purple:#a78bfa;--orange:#fb923c;
   --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
   /* extra aliases */
-  --eng:#a78bfa;--wal:#94a3b8;--gue:var(--gsy);--jer:var(--jsy);
+  --eng:#a78bfa;
+  /* Health & Care sub-brand */
+  --hc-serif:'Fraunces',Georgia,serif;
+  --hc-accent:#5ea99a;--hc-accent-dim:#16302b;--hc-accent-soft:rgba(94,169,154,.12);--wal:#94a3b8;--gue:var(--gsy);--jer:var(--jsy);
 }
 html{scroll-behavior:smooth}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -71,10 +53,11 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 .pill{background:none;border:1px solid var(--border2);border-radius:20px;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;letter-spacing:.03em;padding:4px 12px;transition:color .15s,border-color .15s,background .15s;white-space:nowrap}
 .pill.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
 .pill:hover:not(.active){border-color:var(--muted);color:var(--text)}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin-bottom:20px}
-.card{background:var(--surface);border:1px solid var(--border2);border-top:3px solid var(--border2);border-radius:8px;padding:13px 15px}
-.card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:5px}
-.card-value{font-size:21px;font-variant-numeric:tabular-nums;font-weight:500;line-height:1}
+.cards-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:4px;margin-top:14px;padding-bottom:3px;border-bottom:1px solid var(--border2)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.card{background:var(--surface);border:1px solid var(--border2);border-top:3px solid;border-radius:6px;padding:9px 11px}
+.card-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+.card-value{font-size:18px;font-variant-numeric:tabular-nums;font-weight:600;line-height:1}
 .card-sub{font-size:11px;color:var(--muted2);margin-top:3px}
 .card-up{color:var(--red);font-size:10px;margin-top:3px}
 .card-dn{color:var(--green);font-size:10px;margin-top:3px}
@@ -116,9 +99,9 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 /* sub-tabs (within a main tab) */
 .subtabs{display:flex;gap:0;border-bottom:1px solid var(--border2);overflow-x:auto;scrollbar-width:none;margin-bottom:20px}
 .subtabs::-webkit-scrollbar{display:none}
-.subtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;margin-bottom:-1px;padding:7px 14px;transition:color .15s,border-color .15s;white-space:nowrap}
-.subtab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
-.subtab:hover:not(.active){color:var(--text)}
+.subtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;margin-bottom:-1px;padding:7px 14px;transition:color .15s,border-color .15s,background .15s;white-space:nowrap;border-radius:4px 4px 0 0}
+.subtab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700;background:var(--surface2)}
+.subtab:hover:not(.active){color:var(--text);background:var(--surface)}
 
 /* specialty bar labels */
 .sp-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px}
@@ -149,24 +132,22 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 [data-theme="light"] .source-tag.estimated{background:rgba(217,119,6,.1);color:var(--amber);border-color:rgba(217,119,6,.3)}
 [data-theme="light"] .source-tag.derived{background:rgba(37,99,235,.08);color:var(--blue);border-color:rgba(37,99,235,.2)}
 body.light {
-  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
-  --border: #e2e8f0; --border2: #cbd5e1;
-  --text: #0f172a; --muted: #64748b; --muted2: #475569;
-  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
-  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
-  --green: #059669; --amber: #d97706; --red: #dc2626;
+  --bg:#f0f9f8; --surface:#ffffff; --surface2:#e6f4f1;
+  --border:#cce8e4; --border2:#99d5cc;
+  --text:#0f172a; --muted:#3d6b65; --muted2:#1e4a44;
+  --blue:#2f7d6c; --blue-dim:rgba(47,125,108,.08);
+  --iom:#1d4ed8; --gsy:#059669; --jsy:#b45309; --uk:#475569;
+  --eng:#7c3aed; --wal:#64748b; --gue:#059669; --jer:#b45309;
+  --green:#059669; --amber:#d97706; --red:#dc2626;
+  --hc-accent:#2f7d6c;--hc-accent-dim:#d9efe9;--hc-accent-soft:rgba(47,125,108,.08);
 }
 </style>
 </head>
-<body>
+<body class="light">
 <div class="shell">
 
-<div style="background:rgba(96,165,250,.07);border:1px solid var(--border2);border-left:3px solid var(--blue);border-radius:8px;padding:11px 14px;margin-bottom:18px;font-size:11px;color:var(--muted2);line-height:1.7">
-  <strong style="color:var(--text)">A note on how this is built</strong> — I use automated tools to accelerate the extraction and comparison of data from published government and health body reports. The underlying sources are all public documents; they are listed in the footer and linked where possible. Methodology differences between jurisdictions are flagged inline throughout — those flags matter and are worth reading. If you are using figures from this dashboard operationally or in published work, I'd encourage you to cross-check against the primary source. If something looks wrong or you'd like to discuss a specific number, please get in touch: <a href="mailto:observatory@coalfinch.com" style="color:var(--blue)">observatory@coalfinch.com</a>.
-</div>
-
 <h1>Manx Care Performance Benchmarking — Isle of Man</h1>
-<p style="margin-bottom:16px">Manx Care compared with Health and Care Jersey (HCJ), Guernsey HSC / MSG, NHS Wales, and NHS England. Four KPI groups: Financial, Clinical, Operational, Off-Island. Methodology breaks and data gaps are flagged inline — not suppressed.</p>
+<p style="font-size:12px;color:var(--muted);margin-bottom:16px">Financial · Clinical · Operational · Off-Island — compared with HCJ, Guernsey HSC, NHS Wales &amp; England. Methodology gaps flagged inline.</p>
 
 <div class="audience-bar">
   <span class="aud-label">View</span>
@@ -176,40 +157,54 @@ body.light {
   </div>
 </div>
 
-<div class="intro">
-  <strong>Focus: Manx Care 2024-25 (with 2023-24 IPR depth).</strong> Manx Care is the Isle of Man's single integrated health and care provider, created in 2021. It serves a population of approximately 84,000 with a mandate budget of £347m (2024-25). Comparators are Crown Dependency health bodies and devolved UK nations — population sizes, governance structures, and accounting treatments differ materially. The Safety clinical sub-tab and selected metrics draw from the Manx Care Integrated Performance Report (IPR) March 2024 to add in-year granularity not available in annual reports. <strong>Direct numerical comparison without reading caveats is misleading.</strong>
-  <div style="margin-top:8px;font-size:11px;color:var(--muted);font-style:italic">IoM fiscal year: April–March · Jersey: calendar year · Guernsey: calendar year · NHS Wales: April–March. Population bases: IoM ~84k · Jersey 104,540 · Guernsey ~64,781 · NHS Wales ~3.17m.</div>
-</div>
-
-<div class="plain-box" id="plain-intro">
-  <strong>What are we measuring?</strong> This dashboard tracks how Manx Care performs financially (is it over budget?), clinically (are patients being seen quickly enough and safely?), operationally (are hospitals running efficiently?), and in terms of how much care has to be sent off-island to UK hospitals. Where data is missing or collected differently by each organisation, we say so clearly rather than hiding the gap.
-</div>
-<div class="plain-box hidden" id="tech-intro">
-  <strong>Methodology.</strong> Data extracted from: Manx Care Annual Report 2024-25; DHSC Assessment of Manx Care 2024-25 (Annex C); Manx Care Waiting Times Report May 2026; HCJ/States of Jersey Annual Report and Accounts 2024–25; Guernsey Secondary Healthcare Contract KPIs 2024; NHS Wales Activity and Performance Summary (Feb/Mar 2026); NHS England Performance Report 2024-25. Financial figures are in nominal GBP. Per-capita denominators: IoM ~84k (estimate); Jersey 104,540 (Statistics Jersey 2024); Guernsey 64,781 (Dec 2023 census). All comparisons are cross-jurisdictional and subject to the caveats described per metric. RTT: IoM cannot measure full RTT — reports referral→first outpatient and decision-to-treat→treatment as separate stages only.
-</div>
-
 <!-- MAIN TABS -->
 <div class="tabs" id="main-tabs">
-  <button class="tab active" onclick="showTab('financial')">Financial</button>
+  <button class="tab active" onclick="showTab('governance')">Public Governance</button>
+  <button class="tab" onclick="showTab('financial')">Financial</button>
   <button class="tab" onclick="showTab('clinical')">Clinical</button>
   <button class="tab" onclick="showTab('operational')">Operational</button>
   <button class="tab" onclick="showTab('offisland')">Off-Island</button>
 </div>
 
 <!-- ══════════════════════════════════════════════ -->
+<!-- TAB: PUBLIC GOVERNANCE -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-governance">
+
+  <div class="plain-box" id="plain-gov">
+    <strong>Direct numerical comparison without reading caveats is misleading.</strong>
+    Use the <em>Technical</em> view for methodology notes, data quality flags, and source caveats before drawing conclusions.
+  </div>
+  <div class="plain-box hidden" id="tech-gov">
+    <strong>Governance data sources.</strong> Review recommendations and implementation status drawn from published review reports and FOI disclosures. Avoidable mortality: OECD/Eurostat cause list, age-standardised rate per 100,000 under-75s, ESP2013 weighting. Action register reflects known recommendations only — unpublished reviews not fully captured.
+  </div>
+
+  <div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:20px">
+    <iframe
+      src="/manxcare-reviews-tracker.html"
+      title="Public Governance"
+      scrolling="no"
+      style="width:100%;border:none;display:block;background:var(--bg)"
+      id="gov-iframe"
+      onload="resizeGovFrame(this)"
+    ></iframe>
+  </div>
+
+</div><!-- /tab-governance -->
+
+<!-- ══════════════════════════════════════════════ -->
 <!-- TAB: FINANCIAL -->
 <!-- ══════════════════════════════════════════════ -->
-<div id="tab-financial">
+<div id="tab-financial" style="display:none">
 
-  <div class="plain-box" id="plain-fin">
-    <strong>All three Crown Dependency health bodies overspent their budgets in their most recent reported year.</strong> Jersey's overspend was the largest in percentage terms (10.7% of original budget), followed by IoM (4.5%), and Guernsey (2.7%). IoM's budget has grown substantially year-on-year, with a new funding formula adding 12% for 2026-27.
-  </div>
+  <div class="plain-box" id="plain-fin"><strong>Direct numerical comparison without reading caveats is misleading.</strong> Switch to <em>Technical</em> view for methodology notes and data quality flags.</div>
   <div class="plain-box hidden" id="tech-fin">
     <strong>Budget comparison caveats.</strong> IoM: £15.6m deficit vs £347m mandate target. Jersey: £30.7m overspend vs £286.2m original Government Plan (but only £2.5m vs £333.4m revised approved budget after in-year reserve allocations). Guernsey: £6.4m overspend vs £234.8m original budget (£416k vs adjusted £235.6m). Jersey original budget excluded £47m of reserves allocated in-year; comparisons should specify which baseline is used. IoM 2024-25 budget = mandate target; excludes DHSC additional claims (£3.6m) and prior supplementary vote.
   </div>
 
   <div class="section">
     <div class="section-head">Budget vs Actual — Latest Year (2024 / 2024-25)</div>
+    <div class="cards-label">Total Expenditure — latest reported year</div>
     <div class="cards">
       <div class="card" style="border-top-color:var(--iom)">
         <div class="card-label">Manx Care (IoM) <span class="source-tag official">Actual</span></div>
@@ -229,6 +224,9 @@ body.light {
         <div class="card-sub">2024 actual expenditure</div>
         <div class="card-up">▲ £6.4m over original budget (2.7%)</div>
       </div>
+    </div>
+    <div class="cards-label">Spend per capita</div>
+    <div class="cards">
       <div class="card" style="border-top-color:var(--iom)">
         <div class="card-label">IoM — Per Capita <span class="source-tag derived">Derived</span></div>
         <div class="card-value" style="color:var(--iom)">~£4,314</div>
@@ -290,9 +288,7 @@ body.light {
 <!-- ══════════════════════════════════════════════ -->
 <div id="tab-clinical" style="display:none">
 
-  <div class="plain-box" id="plain-clin">
-    <strong>Manx Care misses most of its clinical targets.</strong> Emergency department waits, cancer treatment times, and diagnostic waits are all substantially below standard. Guernsey's ED performance is the standout among Crown Dependencies — consistently around 89% over six years. Waiting lists on the Isle of Man grew again in 2024-25, with 6,835 patients waiting more than a year for a first outpatient appointment.
-  </div>
+  <div class="plain-box" id="plain-clin"><strong>Direct numerical comparison without reading caveats is misleading.</strong> Switch to <em>Technical</em> view for methodology notes and data quality flags.</div>
   <div class="plain-box hidden" id="tech-clin">
     <strong>Technical caveats.</strong> ED 4-hour standard: IoM target is ≥76% (not the NHS 95% constitutional standard); Guernsey target is ≥95%; NHS Wales and England standard is 95%. Figures are therefore not directly comparable in terms of target compliance. Cancer: IoM 62-day standard lowered to ≥70% by 2024-25 (was ≥85% in 2022-23 and 2023-24). NHS England met the 70% standard in 2024-25 (71.4%); IoM did not (52.1%). Diagnostics: IoM reports % of patients waiting ≥6 weeks; NHS England reports % receiving test within 6 weeks — metrics are inverses. IoM 58.4% waiting ≥6 weeks = ~41.6% receiving within 6 weeks (NHS England: 81.6%). Waiting lists: IoM cannot measure full RTT; reports two stages separately. Jersey measures 52-week waits from referral to first outpatient only. Metrics are not equivalent.
   </div>
@@ -638,7 +634,7 @@ body.light {
       <strong>Data sources:</strong> Safety KPI cards draw from two sources: (1) Manx Care IPR March 2024 (Final v3.0) covering 2023-24 in-year performance; (2) DHSC Assessment of Manx Care 2024-25 Annual Report. These are different reporting periods — 2023-24 (IPR) and 2024-25 (Annual Report). Where both years are available, they are labelled. Guernsey data from Secondary Healthcare Contract KPIs 2024. Jersey does not publish an equivalent integrated safety report.
     </div>
 
-    <div class="section-head">Serious Incidents &amp; Never Events</div>
+    <div class="cards-label">Serious Incidents &amp; Never Events</div>
     <div class="cards">
       <div class="card" style="border-top-color:var(--iom)">
         <div class="card-label">IoM — Serious incidents 2023-24 <span class="source-tag estimated">IPR</span></div>
@@ -785,9 +781,7 @@ body.light {
 <!-- ══════════════════════════════════════════════ -->
 <div id="tab-operational" style="display:none">
 
-  <div class="plain-box" id="plain-ops">
-    <strong>All three Crown Dependency health bodies struggle to meet theatre utilisation targets.</strong> Manx Care narrowly missed 85% (84.8%), Jersey was below at 76.3%, and Guernsey's theatre timing performance fell to 75% (from 82%). Delayed transfers of care in Guernsey have escalated dramatically — from 91 days/month in 2018 to 338 in 2024. DNA (did not attend) rates are above target in both IoM and Jersey.
-  </div>
+  <div class="plain-box" id="plain-ops"><strong>Direct numerical comparison without reading caveats is misleading.</strong> Switch to <em>Technical</em> view for methodology notes and data quality flags.</div>
   <div class="plain-box hidden" id="tech-ops">
     <strong>Technical notes.</strong> Theatre utilisation: Manx Care reports % of planned sessions delivered (≥85%); Jersey reports elective theatre utilisation (>85%); Guernsey reports % of sessions starting and finishing on time (≥85%). These are different metrics. DNA rate: IoM ≤7.6% target; Jersey &lt;8% target. Guernsey adult FTA rate ≈6% (just within &lt;6% target). Delayed transfer of care (DTOC): Guernsey reports days per month above target (&lt;100 days/month); IoM reports super-stranded patients (≥21 day LOS); not directly comparable. Vacancy rate: IoM notes its 18%+ figure is overstated due to CIP-related establishment reductions.
   </div>
@@ -890,7 +884,7 @@ body.light {
   </div>
 
   <div class="section">
-    <div class="section-head">Care Quality — Safety Indicators (Manx Care 2024-25)</div>
+    <div class="cards-label">Care Quality — Safety Indicators (Manx Care 2024-25)</div>
     <div class="cards">
       <div class="card" style="border-top-color:var(--iom)">
         <div class="card-label">Never Events</div>
@@ -933,15 +927,13 @@ body.light {
 <!-- ══════════════════════════════════════════════ -->
 <div id="tab-offisland" style="display:none">
 
-  <div class="plain-box" id="plain-oi">
-    <strong>Off-island care is a structural cost for all Crown Dependencies.</strong> Manx Care spent £26.3m on UK tertiary providers in 2024-25 — £4.2m over budget, driven by high-cost cancer drugs, intensive care, and 25 patients each costing over £100,000. Jersey has 50+ arrangements with English hospital groups under review, with a new governance committee established in August 2024. Both islands also place patients off-island for mental health care that cannot be provided locally.
-  </div>
+  <div class="plain-box" id="plain-oi"><strong>Direct numerical comparison without reading caveats is misleading.</strong> Switch to <em>Technical</em> view for methodology notes and data quality flags.</div>
   <div class="plain-box hidden" id="tech-oi">
     <strong>Technical notes.</strong> IoM tertiary spend data: from Manx Care Annual Report 2024-25 Appendix (p.73-75). Point of Delivery (PoD) breakdown is based on NHS tariff categories. March 2025 figures for Christie Hospital and Wrightington Wigan &amp; Leigh NHS Trusts were estimated at time of writing (average of monthly costs to Feb 2025) — final figures available June 2025. Mental health placement counts include patients in long-term placements who may be counted in multiple years; 38 unique patients over 2020-2025 cumulative. Jersey off-island data: qualitative only from P.A.C.3/2025; no financial total for Jersey tertiary expenditure extracted.
   </div>
 
   <div class="section">
-    <div class="section-head">IoM Tertiary Provider Spend — 2024-25</div>
+    <div class="cards-label">IoM Tertiary Provider Spend — 2024-25</div>
     <div class="cards">
       <div class="card" style="border-top-color:var(--iom)">
         <div class="card-label">Total tertiary spend (actual)</div>
@@ -1112,21 +1104,29 @@ function axisDefaults(overrides = {}) {
 // ─────────────────────────────────────────────────────────────
 //  Tab switching
 // ─────────────────────────────────────────────────────────────
-let activeTab = 'financial';
+let activeTab = 'governance';
 function showTab(id) {
   activeTab = id;
-  ['financial','clinical','operational','offisland'].forEach(t => {
-    document.getElementById('tab-'+t).style.display = t===id ? '' : 'none';
+  ['governance','financial','clinical','operational','offisland'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t===id ? '' : 'none';
   });
-  document.querySelectorAll('#main-tabs .tab').forEach((btn,i) => {
-    const ids = ['financial','clinical','operational','offisland'];
-    btn.classList.toggle('active', ids[i]===id);
+  document.querySelectorAll('#main-tabs .tab').forEach(btn => {
+    const m = btn.getAttribute('onclick')?.match(/'([^']+)'/);
+    if (m) btn.classList.toggle('active', m[1] === id);
   });
-  if (id==='financial')   initFinCharts();
-  if (id==='clinical')    initClinicalCharts();
-  if (id==='operational') initOpsCharts();
-  if (id==='offisland')   initOffIslandCharts();
-  setTimeout(notifyHeight, 300);
+  if (id === 'governance') {
+    setTimeout(() => {
+      const fr = document.getElementById('gov-iframe');
+      const th = document.body.classList.contains('light') ? 'light' : 'dark';
+      if (fr && fr.contentWindow) fr.contentWindow.postMessage({type:'setTheme', theme:th}, '*');
+    }, 200);
+  }
+  if (id === 'financial')   initFinCharts();
+  if (id === 'clinical')    initClinicalCharts();
+  if (id === 'operational') initOpsCharts();
+  if (id === 'offisland')   initOffIslandCharts();
+  notifyHeight();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1558,7 +1558,9 @@ function initOffIslandCharts() {
 //  Theme switching
 // ─────────────────────────────────────────────────────────────
 function applyTheme(name) {
-  document.documentElement.setAttribute('data-theme', name === 'light' ? 'light' : '');
+  const isLight = name === 'light' || name === 'health';
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : '');
+  document.body.classList.toggle('light', isLight);
   // Rebuild visible charts with new colours
   destroyAll();
   // Re-init whichever tab is showing
@@ -1573,9 +1575,25 @@ function applyTheme(name) {
 // ─────────────────────────────────────────────────────────────
 window.addEventListener('message', e => {
   if (!e.data) return;
-  if (e.data.type === 'theme') applyTheme(e.data.theme);
+  // Theme from parent App
+  if (e.data.type === 'theme' || e.data.type === 'setTheme') {
+    // Re-read localStorage — parent's H&C auto-theme may have updated it after sending this message
+    setTimeout(() => {
+      try {
+        const s = localStorage.getItem('observatory-theme');
+        applyTheme(s === 'dark' ? 'dark' : 'light');
+        const fr = document.getElementById('gov-iframe');
+        if (fr && fr.contentWindow) fr.contentWindow.postMessage({type:'setTheme', theme: s === 'dark' ? 'dark' : 'light'}, '*');
+      } catch(_) { applyTheme(e.data.theme); }
+    }, 200);
+  }
+  // Height from embedded governance iframe — resize it and re-notify parent
+  if (e.data.type === 'resize') {
+    const fr = document.getElementById('gov-iframe');
+    if (fr) { fr.style.height = e.data.height + 'px'; notifyHeight(); }
+  }
+  // Parent switched to this iframe — rebuild charts that may have had 0 dimensions
   if (e.data.type === 'tabVisible') {
-    // Parent switched to this iframe; charts may have had 0 dimensions — rebuild
     destroyAll();
     if (activeTab === 'financial')   initFinCharts();
     if (activeTab === 'clinical')    initClinicalCharts();
@@ -1592,9 +1610,19 @@ function notifyHeight() {
   window.parent.postMessage({ type:'resize', height: document.body.scrollHeight }, '*');
 }
 
+function resizeGovFrame(frame) {
+  frame.style.minHeight = '600px';
+  // Actual height set via postMessage from the tracker iframe
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  // Default is light (H&C context); only switch to dark if explicitly stored
+  try {
+    var s = localStorage.getItem('observatory-theme');
+    if (s === 'dark') applyTheme('dark');
+    // else stays light (body default)
+  } catch(_) {}
   requestAnimationFrame(() => {
-    initFinCharts();
     notifyHeight();
     setTimeout(notifyHeight, 600);
   });
@@ -1603,18 +1631,6 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('resize', () => {
   setTimeout(notifyHeight, 100);
 });
-</script>
-<script>
-/* Observatory theme v3 */
-(function () {
-  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
-  window.addEventListener('message', function (e) {
-    var d = e.data;
-    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
-      document.body.classList.toggle('light', d.theme === 'light');
-    }
-  });
-}());
 </script>
 </body>
 </html>
