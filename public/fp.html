@@ -52,6 +52,7 @@ h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;ma
 .card-birth-inp:hover{border-color:var(--muted);background:var(--input-hover)}
 .card-birth-inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
 .card-birth-display{font-size:.68rem;color:var(--muted2);padding:5px 0;display:block;margin-bottom:5px}
+.card-field-label{font-size:.56rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px}
 .card-employ-sel{background:var(--input-bg);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 26px 5px 8px;font-size:.68rem;width:100%;display:block;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s}
 .card-employ-sel:hover{border-color:var(--muted);background-color:var(--input-hover)}
 .card-employ-sel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
@@ -100,6 +101,11 @@ h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;ma
 .insight-text strong{color:var(--amber)}
 
 .note{font-size:.61rem;color:var(--muted2);line-height:1.7;margin-top:8px}
+.disclaimer{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:8px;padding:11px 16px;margin-bottom:12px;font-size:.74rem;line-height:1.6;color:var(--muted)}
+.disclaimer strong{color:var(--amber)}
+.note-head{font-weight:700;color:var(--text);display:block;margin-top:11px;margin-bottom:3px;font-size:.63rem;text-transform:uppercase;letter-spacing:.06em}
+.note-head:first-child{margin-top:0}
+.note-para{display:block;margin-bottom:2px}
 
 .green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}.blue{color:var(--blue)}
 
@@ -115,6 +121,8 @@ h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;ma
 
 <h1>&#x1F3DD;&#xFE0F; Your Family&#x27;s Pension Picture &#x2014; Isle of Man</h1>
 <div class="sub">Three generations. One island. What does the pension system look like for each of them &#x2014; and who pays?</div>
+
+<div class="disclaimer">&#x26A0;&#xFE0F; <strong>Not financial advice &#x2014; illustration only.</strong> This tool exists to make inter-generational pension liability visible and personal: who accrues value, who funds the gap, and how that balance has shifted between generations. It is not a forecast of your own retirement income and takes no account of your real NI record, scheme history, or personal circumstances. See the full methodology and limitations below &#x2014; for actual retirement planning, use your own pension statements and a licensed financial adviser.</div>
 
 <div class="setup">
   <span class="setup-label">I am the</span>
@@ -132,8 +140,8 @@ h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;ma
     <option value="private_no">Private Sector (no workplace pension)</option>
     <option value="homemaker">Homemaker / Carer</option>
   </select>
-  <span class="setup-label">earning</span>
-  <input type="number" id="mySalary" value="38000" min="10000" max="600000" step="1000" style="width:92px">
+  <span class="setup-label">average salary</span>
+  <input type="number" id="mySalary" value="38000" min="10000" max="600000" step="1000" style="width:92px" title="Average annual salary across your career, in today's real terms (not your final salary — that's auto-estimated for the pre-2011 final-salary years). Used for both DB and DC estimates.">
   <span class="setup-label">£/yr</span>
   <span id="dcRateWrap" style="margin-left:8px;border-left:1px solid var(--border2);padding-left:12px;display:none;align-items:center;gap:10px">
     <span class="setup-label">DC contribution</span>
@@ -154,14 +162,25 @@ h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;ma
 <div class="insight" id="insight"></div>
 
 <div class="note">
-  * All figures in today&#x27;s (2026) real money terms. Salary is user-editable per person (top bar for "you", per-card for the other two generations); defaults to &#xA3;38k, the assumed IoM median &#x2014; raise it to model a consultant, CEO, CFO or any other salary level. Civil service: GUS 2011 CARE scheme (1/57th accrual) from 2011; legacy final salary (1/60th, peak salary, scaled proportionally from your input salary) pre-2011.
-  State pension &#xA3;263.55/week (April 2026 Manx rate); pro-rated by NI qualifying years (35 = full).
-  NI fund: projected exhaustion 2046/47 (IoM Treasury); post-exhaustion state pension assumed 75% of entitlement, funded from general revenue.
-  Private sector DC: 10% total contributions (5%+5%) on your input career salary (default &#xA3;38k), 4% real return, 4% annuity rate.
-  &#x201C;% of median&#x201D; and the Prior Pension Levy % are benchmarked against/calculated on each person&#x27;s own figures (median fixed at &#xA3;38k; levy % of their own input salary).
-  Homemaker: 20 qualifying NI years assumed. Pension deficit: PSPA Annual Report 2024-25 actual (&#xA3;48.1m); projections 6.5%/yr gross, 4%/yr contribution growth.
-  Deficit per worker assumes 42,000 IoM workers. Illustrative &#x2014; actual outcomes depend on scheme reform, migration, and fiscal policy.
-  Analysis: Coalfinch Observatory.
+  <span class="note-head">Purpose</span>
+  <span class="note-para">This tool exists to communicate how pension liability and value are distributed across generations on the Isle of Man &#x2014; who accrues it, who funds it, and how that balance has shifted over time &#x2014; not to produce a personal retirement forecast. Read every number as illustrating a pattern, not predicting your own outcome.</span>
+
+  <span class="note-head">Not financial advice</span>
+  <span class="note-para">Nothing on this page is financial, tax, or retirement planning advice. It does not account for your actual NI record, scheme membership, part-time working, career breaks, transfers, or commutation choices &#x2014; the detail a real pension calculation requires. For decisions about your own retirement, use your pension provider&#x27;s annual statement and speak to a licensed financial adviser.</span>
+
+  <span class="note-head">Methodology &amp; sources</span>
+  <span class="note-para">All figures in today&#x27;s (2026) real money terms. Salary is user-editable per person (top bar for "you", per-card for the other two generations); defaults to &#xA3;38k, the assumed IoM median &#x2014; raise it to model a consultant, CEO, CFO or any other salary level.</span>
+  <span class="note-para">Civil service: GUS 2011 CARE scheme (1/57th accrual) from 2011; legacy final salary (1/60th accrual on your input salary) pre-2011. Total pensionable service across both eras is capped at 40 years (Income Tax (Retirement Benefit Schemes) Act 1978, the statute under which PSPA schemes are tax-exempt approved).</span>
+  <span class="note-para">State pension &#xA3;263.55/week (April 2026 Manx rate); pro-rated by NI qualifying years (35 = full). NI fund: projected exhaustion 2046/47 (IoM Treasury); post-exhaustion state pension assumed 75% of entitlement, funded from general revenue.</span>
+  <span class="note-para">Private sector DC: 10% total contributions (5%+5%) on your input career salary (default &#xA3;38k), 4% real return, 4% annuity rate.</span>
+  <span class="note-para">&#x201C;% of median&#x201D; and the Prior Pension Levy % are benchmarked against/calculated on each person&#x27;s own figures (median fixed at &#xA3;38k; levy % of their own input salary).</span>
+  <span class="note-para">Homemaker: 20 qualifying NI years assumed. Pension deficit: PSPA Annual Report 2024-25 actual (&#xA3;48.1m); projections 6.5%/yr gross, 4%/yr contribution growth. Deficit per worker assumes 42,000 IoM workers.</span>
+
+  <span class="note-head">Known limitations</span>
+  <span class="note-para">Manx state pension is shown at the full rate for every card. In reality, IoM public-sector staff pension scheme members were contracted out of the State Second Pension (S2P/SERPS) for pre-2016 service, which reduces their actual state pension entitlement below the full rate shown here &#x2014; this tool does not yet correct for that, so combined totals for civil service cards are somewhat overstated. Actual outcomes also depend on scheme reform, migration, and fiscal policy, none of which this model attempts to predict.</span>
+
+  <span class="note-head">Analysis</span>
+  <span class="note-para">Coalfinch Observatory.</span>
 </div>
 
 </div><!-- /.shell -->
@@ -178,8 +197,7 @@ window.addEventListener('message', function(e) {
 });
 
 var CS_SALARY  = 38000;   // default salary + assumed IoM median (for '% of median' reference)
-var FS_PEAK    = 45000;   // default peak final-salary; scales proportionally with input salary
-var FS_PEAK_RATIO = FS_PEAK / CS_SALARY;
+var MAX_PENSIONABLE_YRS = 40;  // Income Tax (Retirement Benefit Schemes) Act 1978: 1/60ths capped at 40 years' service
 var SP_FULL    = 263.55;
 var NI_EXH     = 2047;
 var SCHEME_CHG = 2011;
@@ -233,10 +251,14 @@ function calcPension(birthYear, employ, salary) {
                 : 1.0;
   var stateWk   = (niYrs / 35) * SP_FULL * niFactor;
   var wkYrs     = retYear - startWork;
-  var fsPeak    = salary * FS_PEAK_RATIO;
+  // Statutory cap: total pensionable service credited to the 1/60ths + CARE formula is capped at
+  // MAX_PENSIONABLE_YRS (Income Tax (Retirement Benefit Schemes) Act 1978). Pre-2011 years accrue
+  // first chronologically, so the cap is applied to preYrs first and postYrs fill any remainder.
+  preYrs  = Math.min(preYrs, MAX_PENSIONABLE_YRS);
+  postYrs = Math.min(postYrs, MAX_PENSIONABLE_YRS - preYrs);
   var occWk = 0, empCont = 0, erCont = 0;
   if (employ === 'civil') {
-    occWk   = ((preYrs / 60) * fsPeak + (postYrs / 57) * salary) / 52;
+    occWk   = ((preYrs / 60) * salary + (postYrs / 57) * salary) / 52;
     empCont = wkYrs * salary * 0.075;
     erCont  = wkYrs * salary * 0.259;
   } else if (employ === 'private_dc') {
@@ -377,15 +399,18 @@ function renderCards() {
         return '<option value="' + v + '"' + (v === p.employ ? ' selected' : '') + '>'
           + EMPLOY_META[v].label + '</option>';
       }).join('');
-      empSel = '<input type="number" class="card-birth-inp" data-gen="' + gen + '" value="'
-        + cardBirth[gen] + '" min="1925" max="2010" placeholder="Birth year">'
+      empSel = '<div class="card-field-label">Year of birth</div>'
+        + '<input type="number" class="card-birth-inp" data-gen="' + gen + '" value="'
+        + cardBirth[gen] + '" min="1925" max="2010">'
+        + '<div class="card-field-label">Average annual salary (&#xA3;, today&#x27;s terms)</div>'
         + '<input type="number" class="card-birth-inp" data-gen="' + gen + '" data-field="salary" value="'
-        + cardSalary[gen] + '" min="10000" max="600000" step="1000" placeholder="Salary £/yr" title="Annual salary (£/yr)">'
+        + cardSalary[gen] + '" min="10000" max="600000" step="1000" title="Average/career salary in today\'s real terms &#x2014; used for both DB and DC estimates. The pre-2011 final-salary-era peak is auto-estimated proportionally higher.">'
+        + '<div class="card-field-label">Sector</div>'
         + '<select class="card-employ-sel" data-gen="' + gen + '">' + opts + '</select>';
     } else {
-      empSel = '<div class="card-birth-display">Born ' + p.birthYear + '</div>'
-        + '<div class="card-birth-display" style="padding-top:0">£' + (p.salary/1000).toFixed(0) + 'k/yr</div>'
-        + '<div class="card-employ-display" style="color:' + em.color + '">' + em.short + '</div>';
+      empSel = '<div class="card-field-label">Year of birth</div><div class="card-birth-display">' + p.birthYear + '</div>'
+        + '<div class="card-field-label">Average annual salary</div><div class="card-birth-display" style="padding-top:0">&#xA3;' + (p.salary/1000).toFixed(0) + 'k/yr</div>'
+        + '<div class="card-field-label">Sector</div><div class="card-employ-display" style="color:' + em.color + '">' + em.short + '</div>';
     }
 
     var schemeText = '';
