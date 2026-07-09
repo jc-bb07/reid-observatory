@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Health, Your Island · Isle of Man</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f0f9f8;
+  --surface: #ffffff;
+  --surface2: #e6f4f1;
+  --border: rgba(0,0,0,0.08);
+  --border-hi: rgba(0,0,0,0.15);
+  --text: #0f2b26;
+  --muted: #3d6b65;
+  --muted2: #5a8a82;
+  --teal: #2f7d6c;
+  --teal-lt: rgba(47,125,108,0.10);
+  --teal-bdr: rgba(47,125,108,0.25);
+  --red: #dc2626;
+  --red-bg: rgba(220,38,38,0.07);
+  --red-bdr: rgba(220,38,38,0.22);
+  --amber: #b45309;
+  --amber-bg: rgba(180,83,9,0.07);
+  --amber-bdr: rgba(180,83,9,0.22);
+  --green: #047857;
+  --green-bg: rgba(4,120,87,0.07);
+  --green-bdr: rgba(4,120,87,0.22);
+  --chart-grid: rgba(0,0,0,0.05);
+  --chart-text: #5a8a82;
+  --fs: 14px;
+  --fs-sm: 11px;
+  --fs-xs: 10px;
+  --fs-label: 9px;
+  --fs-big: 28px;
+  --fs-h: 22px;
+}
+html.dark {
+  --bg: #080d1a;
+  --surface: #0f1729;
+  --surface2: #141f33;
+  --border: rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.14);
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --muted2: #475569;
+  --teal: #2dd4bf;
+  --teal-lt: rgba(45,212,191,0.10);
+  --teal-bdr: rgba(45,212,191,0.25);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.10);
+  --red-bdr: rgba(248,113,113,0.25);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.10);
+  --amber-bdr: rgba(251,191,36,0.25);
+  --green: #34d399;
+  --green-bg: rgba(52,211,153,0.10);
+  --green-bdr: rgba(52,211,153,0.25);
+  --chart-grid: rgba(255,255,255,0.05);
+  --chart-text: #64748b;
+}
+html.large {
+  --fs: 17px;
+  --fs-sm: 14px;
+  --fs-xs: 13px;
+  --fs-label: 12px;
+  --fs-big: 36px;
+  --fs-h: 28px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: var(--fs);
+  line-height: 1.5;
+}
+
+.shell {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+}
+
+/* ── Header ── */
+.page-header {
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--border-hi);
+  margin-bottom: 0;
+}
+.page-eyebrow {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--teal);
+  margin-bottom: 4px;
+}
+.page-title {
+  font-size: var(--fs-h);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.page-sub {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  line-height: 1.5;
+}
+.page-controls {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ctrl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  padding: 5px 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Section label ── */
+.section-label {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 26px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-hi);
+}
+
+/* ── Traffic light summary ── */
+.rag-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.rag-card {
+  border-radius: 12px;
+  padding: 14px 13px;
+}
+.rag-card.red   { background: var(--red-bg);   border: 1px solid var(--red-bdr); }
+.rag-card.amber { background: var(--amber-bg); border: 1px solid var(--amber-bdr); }
+.rag-card.green { background: var(--green-bg); border: 1px solid var(--green-bdr); }
+.rag-icon { font-size: 18px; margin-bottom: 5px; line-height: 1; }
+.rag-question {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.rag-value {
+  font-size: var(--fs-big);
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.rag-card.red   .rag-value { color: var(--red); }
+.rag-card.amber .rag-value { color: var(--amber); }
+.rag-card.green .rag-value { color: var(--green); }
+.rag-vs {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── Chart card ── */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.chart-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: var(--text);
+}
+.chart-sub {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.chart-wrap { position: relative; }
+
+/* ── Callout ── */
+.callout {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--teal-lt);
+  border-left: 2px solid var(--teal-bdr);
+  border-radius: 0 6px 6px 0;
+}
+.callout strong { color: var(--text); }
+
+/* ── Stat row ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.stat-card {
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-card.red   { background: var(--red-bg);   border: 1px solid var(--red-bdr); }
+.stat-card.amber { background: var(--amber-bg); border: 1px solid var(--amber-bdr); }
+.stat-card.green { background: var(--green-bg); border: 1px solid var(--green-bdr); }
+.stat-lbl {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.stat-val {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+html.large .stat-val { font-size: 28px; }
+.stat-card.red   .stat-val { color: var(--red); }
+.stat-card.amber .stat-val { color: var(--amber); }
+.stat-card.green .stat-val { color: var(--green); }
+.stat-note {
+  font-size: var(--fs-label);
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* ── Outcome compare ── */
+.compare-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.compare-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+.compare-label {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.compare-value {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+}
+html.large .compare-value { font-size: 42px; }
+.compare-unit {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── Mental health items ── */
+.mh-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.mh-big {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--amber);
+  flex-shrink: 0;
+  line-height: 1;
+}
+html.large .mh-big { font-size: 38px; }
+.mh-body-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: var(--text);
+}
+.mh-body-note {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── Data gap items ── */
+.gap-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.gap-item:last-child { border-bottom: none; }
+.gap-pill {
+  flex-shrink: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.pill-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bdr); }
+.pill-red   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bdr); }
+.gap-text { font-size: var(--fs-xs); color: var(--muted); line-height: 1.6; }
+.gap-text strong { color: var(--text); font-weight: 600; }
+
+/* ── LTIA bar ── */
+.ltia-bar-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.ltia-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.ltia-label {
+  font-size: var(--fs-xs);
+  color: var(--text);
+  width: 120px;
+  flex-shrink: 0;
+}
+html.large .ltia-label { width: 150px; }
+.ltia-track {
+  flex: 1;
+  height: 10px;
+  background: var(--surface2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.ltia-fill {
+  height: 100%;
+  border-radius: 5px;
+}
+.ltia-count {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--muted);
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Footer ── */
+.page-footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-label);
+  color: var(--muted);
+  line-height: 1.8;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div class="page-eyebrow">Isle of Man Health &amp; Social Care</div>
+    <div class="page-title">Your Health,<br>Your Island</div>
+    <div class="page-sub">What Manx Care's numbers mean for you · Data to 2024–25</div>
+    <div class="page-controls">
+      <button class="ctrl-btn" id="textBtn" onclick="toggleText()">Aa Larger text</button>
+    </div>
+  </div>
+
+  <!-- ── At a glance ── -->
+  <div class="section-label">At a glance</div>
+  <div class="rag-grid">
+    <div class="rag-card red">
+      <div class="rag-icon">🚨</div>
+      <div class="rag-question">Seen in A&amp;E within 4 hours?</div>
+      <div class="rag-value">59.5%</div>
+      <div class="rag-vs">Target: 95% · England: 75%</div>
+    </div>
+    <div class="rag-card red">
+      <div class="rag-icon">🎗</div>
+      <div class="rag-question">Cancer treatment started within 62 days of referral?</div>
+      <div class="rag-value">52.1%</div>
+      <div class="rag-vs">Target: 85% · England: 71.4%</div>
+    </div>
+    <div class="rag-card amber">
+      <div class="rag-icon">⏳</div>
+      <div class="rag-question">Cancer diagnosed within 28 days?</div>
+      <div class="rag-value">62.5%</div>
+      <div class="rag-vs">England: 78.9%</div>
+    </div>
+    <div class="rag-card green">
+      <div class="rag-icon">🌿</div>
+      <div class="rag-question">Life expectancy at birth?</div>
+      <div class="rag-value">81.7</div>
+      <div class="rag-vs">+1.3 years above England</div>
+    </div>
+  </div>
+
+  <!-- ── A&E ── -->
+  <div class="section-label">A&amp;E — Noble's Hospital</div>
+  <div class="chart-card">
+    <div class="chart-title">How long are people waiting in A&amp;E?</div>
+    <div class="chart-sub">% seen, treated and out within 4 hours · Noble's Hospital · NHS target: 95%</div>
+    <div class="chart-wrap"><canvas id="ed4hr" height="190"></canvas></div>
+    <div class="callout">
+      <strong>Getting worse, year on year.</strong> In 2021–22, around 3 in 4 patients were seen within 4 hours. By April 2026 it was fewer than 3 in 5. The main cause isn't people arriving — it's medically fit patients unable to leave hospital because community care can't yet receive them. The Gent Review (May 2026) called this "exit block."
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card red">
+      <div class="stat-lbl">Bed occupancy</div>
+      <div class="stat-val">90%</div>
+      <div class="stat-note">Safe threshold is 85%</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-lbl">12-hr waits</div>
+      <div class="stat-val">4.4%</div>
+      <div class="stat-note">Up from 2.8% (+57% in a year)</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-lbl">Avg time in A&amp;E</div>
+      <div class="stat-val">4h 25</div>
+      <div class="stat-note">Mar 2024</div>
+    </div>
+  </div>
+
+  <!-- ── Cancer ── -->
+  <div class="section-label">Cancer — Waiting times</div>
+  <div class="chart-card">
+    <div class="chart-title">From GP referral to starting cancer treatment</div>
+    <div class="chart-sub">Isle of Man vs England, 2024–25 · % of patients meeting each standard</div>
+    <div class="chart-wrap"><canvas id="cancerChart" height="190"></canvas></div>
+    <div class="callout">
+      <strong>The 62-day pathway is the biggest gap.</strong> Only about 1 in 2 IoM patients start cancer treatment within 62 days of GP referral, compared with nearly 3 in 4 in England. Once a treatment decision has been made, the 31-day standard (85.5%) is much stronger.
+    </div>
+  </div>
+
+  <!-- ── Long-term health burden ── -->
+  <div class="section-label">Living with long-term illness — Incapacity Allowance claims</div>
+  <div class="chart-card">
+    <div class="chart-title">What are people claiming incapacity allowance for?</div>
+    <div class="chart-sub">Long-Term Incapacity Allowance (LTIA) claims by condition · Isle of Man · December 2025</div>
+    <div class="ltia-bar-wrap" style="margin-top:0;border:none;padding:4px 0;background:transparent;">
+      <div class="ltia-row">
+        <div class="ltia-label">Depression</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:21.5%;background:#a78bfa;"></div></div>
+        <div class="ltia-count">666</div>
+      </div>
+      <div class="ltia-row">
+        <div class="ltia-label">Back pain</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:13.2%;background:#fbbf24;"></div></div>
+        <div class="ltia-count">410</div>
+      </div>
+      <div class="ltia-row">
+        <div class="ltia-label">Anxiety</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:8.1%;background:#a78bfa;"></div></div>
+        <div class="ltia-count">250</div>
+      </div>
+      <div class="ltia-row">
+        <div class="ltia-label">Cancer</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:7.1%;background:#f87171;"></div></div>
+        <div class="ltia-count">219</div>
+      </div>
+      <div class="ltia-row">
+        <div class="ltia-label">Stress</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:5.1%;background:#a78bfa;"></div></div>
+        <div class="ltia-count">159</div>
+      </div>
+      <div class="ltia-row">
+        <div class="ltia-label">Back injury</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:3.4%;background:#fbbf24;"></div></div>
+        <div class="ltia-count">106</div>
+      </div>
+      <div class="ltia-row" style="margin-bottom:0;">
+        <div class="ltia-label">Accident/injury</div>
+        <div class="ltia-track"><div class="ltia-fill" style="width:2.6%;background:#94a3b8;"></div></div>
+        <div class="ltia-count">82</div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Mental health is the biggest driver.</strong> Depression, anxiety and stress together account for 1,075 named claims — and have risen 44% since 2012. Cancer claims have nearly tripled (75 → 219) as more people survive and claim longer. A further 3,100 claims are unclassified.
+    </div>
+  </div>
+
+  <!-- ── Population outcomes ── -->
+  <div class="section-label">How healthy is the Island overall?</div>
+  <div class="compare-row">
+    <div class="compare-card">
+      <div class="compare-label">Isle of Man</div>
+      <div class="compare-value" style="color:var(--teal)">81.7</div>
+      <div class="compare-unit">years life expectancy (2022)</div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-label">England</div>
+      <div class="compare-value" style="color:var(--muted)">80.4</div>
+      <div class="compare-unit">years life expectancy</div>
+    </div>
+  </div>
+  <div class="callout" style="margin-bottom:10px;">
+    <strong>Islanders live longer</strong> — 1.3 years more than the England average. Fewer people per 100,000 also die from conditions where earlier treatment could have saved them: IoM 194 vs England 202 per 100,000. Both are positive signs, but neither replaces data on waiting times, quality of care or patient experience.
+  </div>
+
+  <!-- ── Mental health ── -->
+  <div class="section-label">Mental health services — what we know (and don't)</div>
+  <div class="mh-item">
+    <div class="mh-big">5.2%</div>
+    <div>
+      <div class="mh-body-title">Of the island's population open to specialist mental health services</div>
+      <div class="mh-body-note">Last published figure — 2018–19. That's roughly 1 in 19 people. No comparable data has been published since.</div>
+    </div>
+  </div>
+  <div class="mh-item">
+    <div class="mh-big">17–20</div>
+    <div>
+      <div class="mh-body-title">People placed off-island in mental health facilities each month</div>
+      <div class="mh-body-note">2018–19 baseline. Being placed off-island means being hundreds of miles from family during a crisis. The current number is unknown.</div>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>Mental health data has not been updated since 2019.</strong> We know LTIA claims for depression, anxiety and stress rose 44% between 2012 and 2025. We can't tell you whether services have kept pace, how long you'd wait for an appointment, or what the outcomes are.
+  </div>
+
+  <!-- ── Data gaps ── -->
+  <div class="section-label">What isn't published — and why it matters to you</div>
+  <div class="gap-item">
+    <span class="gap-pill pill-amber">Stale</span>
+    <div class="gap-text"><strong>Mental health waiting times</strong> — not published since 2019. You cannot find out how long you would wait for a first appointment.</div>
+  </div>
+  <div class="gap-item">
+    <span class="gap-pill pill-amber">Partial</span>
+    <div class="gap-text"><strong>Elective (non-urgent) waiting lists</strong> — total backlog is referenced internally but no public breakdown by specialty exists. You can't see how long the queue is for your procedure.</div>
+  </div>
+  <div class="gap-item">
+    <span class="gap-pill pill-red">Missing</span>
+    <div class="gap-text"><strong>GP and primary care access</strong> — how long to get a GP appointment is not published. In England, 56% of appointments are same-day or next-day. IoM has no equivalent figure.</div>
+  </div>
+  <div class="gap-item">
+    <span class="gap-pill pill-red">Missing</span>
+    <div class="gap-text"><strong>Maternity outcomes</strong> — no safety, outcome or waiting time data is publicly available for maternity services on the island.</div>
+  </div>
+  <div class="gap-item">
+    <span class="gap-pill pill-red">Missing</span>
+    <div class="gap-text"><strong>Stroke care</strong> — one data point exists (2024: 36% scanned on time, vs England 52%). Not enough to know whether the service is improving or declining.</div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <div class="page-footer">
+    Data: Manx Care IPR · Gent Capacity Review (May 2026) · Manx Care Annual Reports 2022–25 · IoM Treasury Social Security (LTIA) · IoM Statistics 2022 · NHS England benchmarks<br>
+    Compiled by Coalfinch for Crown Dependencies Health Observatory · June 2026 · Not for clinical use
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+/* ── Theme ── */
+function applyTheme(t) {
+  document.documentElement.classList.toggle('dark', t === 'dark');
+  refreshCharts();
+}
+window.addEventListener('message', e => {
+  if (e.data?.type === 'setTheme') applyTheme(e.data.theme);
+});
+
+/* ── Large text ── */
+function toggleText() {
+  const on = document.documentElement.classList.toggle('large');
+  document.getElementById('textBtn').textContent = on ? 'Aa Normal text' : 'Aa Larger text';
+  refreshCharts();
+}
+
+/* ── Chart.js defaults ── */
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+
+const tooltipCfg = {
+  backgroundColor: '#1e293b',
+  borderColor: '#334155',
+  borderWidth: 1,
+  titleColor: '#e2e8f0',
+  bodyColor: '#94a3b8',
+  padding: 10,
+  cornerRadius: 6,
+};
+
+/* ── ED chart ── */
+const edChart = new Chart(document.getElementById('ed4hr'), {
+  type: 'line',
+  data: {
+    labels: ['2021–22', '2022–23', '2023–24', '2024–25', 'Apr 2026'],
+    datasets: [{
+      label: 'Isle of Man',
+      data: [74.5, 69.9, 69.7, 66.5, 59.5],
+      borderColor: '#2f7d6c',
+      backgroundColor: 'rgba(47,125,108,0.10)',
+      fill: true,
+      tension: 0.35,
+      pointBackgroundColor: ['#2f7d6c','#2f7d6c','#2f7d6c','#2f7d6c','#dc2626'],
+      pointBorderColor:     ['#2f7d6c','#2f7d6c','#2f7d6c','#2f7d6c','#dc2626'],
+      pointRadius: [4,4,4,4,6],
+      pointHoverRadius: 7,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        ...tooltipCfg,
+        callbacks: { label: ctx => ` ${ctx.parsed.y}% seen within 4 hours` }
+      }
+    },
+    scales: {
+      y: {
+        min: 45, max: 100,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { callback: v => v + '%', stepSize: 10 }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 95% target line
+Chart.register({
+  id: 'edRefLine',
+  afterDraw(chart) {
+    if (chart.canvas.id !== 'ed4hr') return;
+    const y = chart.scales.y;
+    const { ctx, chartArea: { left, right } } = chart;
+    const yv = y.getPixelForValue(95);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(180,83,9,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(left, yv); ctx.lineTo(right, yv); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = '600 9px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(180,83,9,0.8)';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('Target 95%', right - 4, yv - 3);
+    ctx.restore();
+  }
+});
+
+/* ── Cancer chart ── */
+const cancerChart = new Chart(document.getElementById('cancerChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Diagnosed in 28 days', 'Treatment in 62 days', 'Treatment in 31 days'],
+    datasets: [
+      {
+        label: 'Isle of Man',
+        data: [62.5, 52.1, 85.5],
+        backgroundColor: 'rgba(47,125,108,0.70)',
+        borderColor: '#2f7d6c',
+        borderWidth: 1.5,
+        borderRadius: 3,
+      },
+      {
+        label: 'England',
+        data: [78.9, 71.4, null],
+        backgroundColor: 'rgba(148,163,184,0.35)',
+        borderColor: '#94a3b8',
+        borderWidth: 1.5,
+        borderRadius: 3,
+      }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    scales: {
+      x: {
+        min: 0, max: 100,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { callback: v => v + '%', stepSize: 25 }
+      },
+      y: { grid: { display: false } }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: { color: '#5a8a82', boxWidth: 10, font: { size: 10 }, padding: 12 }
+      },
+      tooltip: {
+        ...tooltipCfg,
+        callbacks: {
+          label: ctx => ctx.parsed.x != null ? ` ${ctx.dataset.label}: ${ctx.parsed.x}%` : null
+        }
+      }
+    }
+  }
+});
+
+/* ── Refresh chart colours on theme change ── */
+function refreshCharts() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const grid = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const txt  = isDark ? '#64748b' : '#5a8a82';
+  Chart.defaults.color = txt;
+  [edChart, cancerChart].forEach(c => {
+    if (!c) return;
+    if (c.options.scales.x) c.options.scales.x.grid.color = grid;
+    if (c.options.scales.y) c.options.scales.y.grid.color = grid;
+    c.update();
+  });
+}
+
+/* ── Iframe resize ── */
+function postResize() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+window.addEventListener('load', postResize);
+window.addEventListener('resize', postResize);
+new ResizeObserver(postResize).observe(document.body);
+</script>
+</body>
+</html>

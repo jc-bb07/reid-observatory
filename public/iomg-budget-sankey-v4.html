@@ -1,0 +1,2203 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Isle of Man Government Budget v4 · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0f1e;--surface:#0d1526;--border:#1e2d4d;--gold:#C9A24A;--text:#e2e8f0;--muted:#94a3b8;--muted2:#64748b}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── Header ── */
+.hdr{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
+.chart-title{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.fy-label{font-family:"JetBrains Mono",monospace;font-size:24px;font-weight:600;color:var(--gold);letter-spacing:-.02em;line-height:1}
+.fy-sub{font-size:9px;color:var(--muted);text-align:right;margin-top:2px}
+.hdr-left{flex:1;min-width:0;overflow:hidden}
+.hdr-right{flex-shrink:0;text-align:right}
+
+/* ── Controls row ── */
+.controls{display:flex;align-items:center;gap:10px;padding:5px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:nowrap}
+.play-btn{background:var(--gold);color:#0a0f1e;border:none;border-radius:5px;padding:0 12px;height:28px;font-size:11px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;letter-spacing:.03em;white-space:nowrap}
+.play-btn:hover{opacity:.85}
+.yr-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px}
+input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px}
+.yr-marks{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+
+/* node selector */
+.node-select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:"Inter",sans-serif;padding:0 6px;height:28px;cursor:pointer;min-width:160px;flex-shrink:0}
+.node-select:focus{outline:none;border-color:var(--gold)}
+
+/* toggles */
+.ctrl-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.toggle-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap}
+.toggle-wrap label{font-size:10px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle-wrap input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+
+/* ── Stats bar ── */
+.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.stat{flex:1;padding:4px 10px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.stat-val{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--text);margin-top:1px}
+
+/* ── Viz ── */
+.viz{flex:1;overflow:hidden;position:relative;touch-action:none;min-width:0}
+svg{display:block;width:100%;height:100%}
+.col-hdr{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
+.lbl-r{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:start}
+.lbl-l{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:end}
+.lbl-a{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:start}
+.lbl-al{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:end}
+.own-badge{font-size:8px;fill:#94a3b8;text-anchor:middle;letter-spacing:.08em;font-style:italic}
+
+/* node hover cursor */
+rect.node{cursor:pointer}
+
+/* ── Time series popout ── */
+#ts-popup{
+  position:fixed;display:none;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px 10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  z-index:100;pointer-events:none;
+  min-width:240px;
+}
+#ts-popup .ts-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+#ts-popup .ts-sub{font-size:9px;color:var(--muted);margin-bottom:8px}
+#ts-canvas{display:block}
+
+/* ── Governance notes ── */
+.gov-notes{background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.gov-notes.open{max-height:600px}
+.gov-inner{padding:12px 20px 14px;font-size:10px;line-height:1.65;color:#94a3b8;columns:2;column-gap:32px}
+.gov-inner h4{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 5px;column-span:all}
+.gov-inner h5{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:8px 0 3px;break-after:avoid}
+.gov-inner p{margin:0 0 4px}
+.gov-inner .flag{color:#f87171;font-weight:600}
+.gov-inner .est{color:#fcd34d;font-weight:600}
+.gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:4px 20px;background:var(--surface);border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
+.gov-notes-toggle span{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
+.gov-notes-toggle span:hover{color:var(--text)}
+.gov-chevron{font-size:9px;color:#94a3b8;transition:transform .3s}
+.gov-notes-toggle.open .gov-chevron{transform:rotate(180deg)}
+
+/* ── Beakers ── */
+.beaker-wrap{position:absolute;pointer-events:all;cursor:pointer}
+.beaker-svg{display:block;overflow:visible}
+.beaker-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
+.beaker-label-pension{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;fill:#fb7185;text-anchor:middle}
+.beaker-val{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;fill:#e2e8f0;text-anchor:middle}
+.beaker-val-pension{font-family:"JetBrains Mono",monospace;font-size:15px;font-weight:800;fill:#fb7185;text-anchor:middle}
+.beaker-type{font-size:8px;fill:#94a3b8;text-anchor:middle}
+.beaker-date{font-size:7.5px;fill:#64748b;text-anchor:middle;font-style:italic}
+.beaker-footnote{font-size:9px;fill:#64748b;text-anchor:start;cursor:pointer}
+.beaker-flow{font-size:7px;fill:#64748b;text-anchor:start}
+/* Footnote anchors in gov notes */
+.fn-target{scroll-margin-top:8px}
+.fn-marker{color:#C9A24A;font-weight:700;font-size:9px;vertical-align:super;line-height:0;cursor:pointer;text-decoration:none}
+.fn-marker:hover{color:#e2e8f0}
+
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
+html:has(body.light) { background: #f8fafc; }
+/* Light mode: SVG text labels and hard-coded dark backgrounds */
+body.light .lbl-r { fill: #1e293b; }
+body.light .lbl-l { fill: #1e293b; }
+body.light .lbl-a { fill: #475569; }
+body.light .lbl-al { fill: #475569; }
+body.light .own-badge { fill: #475569; }
+body.light .col-hdr { fill: #64748b; }
+.lbl-mono { fill: #e2e8f0; }
+body.light .lbl-mono { fill: #475569; }
+.lbl-dim  { fill: #94a3b8; }
+body.light .lbl-dim  { fill: #64748b; }
+body.light .beaker-label { fill: #475569; }
+body.light .beaker-val { fill: #1e293b; }
+body.light .beaker-type { fill: #64748b; }
+body.light .beaker-date { fill: #64748b; }
+body.light .beaker-footnote { fill: #64748b; }
+body.light .beaker-flow { fill: #64748b; }
+body.light #ts-popup { background: #ffffff; border-color: #e2e8f0; }
+body.light .gov-notes { background: #f1f5f9; }
+body.light .gov-inner { color: #475569; }
+body.light .gov-notes-toggle { background: #f1f5f9; border-color: #e2e8f0; }
+body.light .gov-notes-toggle span { color: #475569; }
+body.light .gov-chevron { color: #475569; }
+body.light .stats { background: #f1f5f9; }
+body.light .stat-lbl { color: #64748b; }
+body.light .stat-val { color: #1e293b; }
+/* ── Landscape mobile ── */
+@media (max-width: 900px) and (orientation: landscape) {
+  .hdr { display: none; }
+  #comparator-btn { display: none; }
+  .yr-wrap input[type=range] { display: none; }
+  .yr-marks { display: none; }
+  #yr-pills { display: flex !important; order: -3; }
+  .play-btn:not(#comparator-btn) { order: -2; }
+  .ctrl-sep { display: none; }
+  .node-select { order: -1; min-width: 0; flex-shrink: 1; }
+  .toggle-wrap { order: 0; }
+  .beaker-wrap { display: none !important; }
+  #mob-stocks { display: flex !important; }
+  body { max-width: 100vw; }
+}
+/* Portrait-mode nudge overlay */
+#portrait-nudge {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; padding: 32px; text-align: center;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  /* portrait nudge shown via JS for iframe compatibility */
+}
+#portrait-nudge .nudge-icon { font-size: 48px; animation: obs-spin 2s ease-in-out infinite alternate; }
+@keyframes obs-spin { from { transform: rotate(0deg); } to { transform: rotate(15deg); } }
+#portrait-nudge .nudge-title { font-size: 16px; font-weight: 700; color: var(--text); }
+#portrait-nudge .nudge-sub { font-size: 13px; color: var(--muted2); line-height: 1.6; }
+/* ── Viz row (sankey + stocks side by side on mobile) ── */
+#viz-row { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+/* Simple mobile stock column */
+#mob-stocks {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+  width: 72px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.mob-stock {
+  flex: 1;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.mob-stock:last-child { border-bottom: none; }
+.mob-stock-val {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.mob-stock-lbl {
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.3;
+  text-align: center;
+}
+/* Pan/zoom container */
+#chart {
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* Year pill strip — hidden by default, shown in landscape mobile */
+#yr-pills {
+  display: none;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+.yr-pill {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background: none;
+  white-space: nowrap;
+  transition: color .12s;
+}
+.yr-pill:hover { color: var(--text); }
+.yr-pill.active {
+  color: var(--gold);
+  font-weight: 800;
+  border-color: var(--gold);
+  background: rgba(201,162,74,0.1);
+}
+/* Desktop: constrain to viewport, never clip stocks */
+body { box-sizing: border-box; }
+</style>
+</head>
+<body>
+
+<!-- Portrait-mode rotate nudge -->
+<div id="portrait-nudge">
+  <div class="nudge-icon">📱↻</div>
+  <div class="nudge-title">Rotate your phone</div>
+  <div class="nudge-sub">This diagram works best in landscape mode.<br>Turn your phone sideways to explore it.</div>
+</div>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Isle of Man Government Budget Sources &amp; Uses</div>
+  </div>
+  <div class="hdr-right">
+    <div class="fy-label" id="fy-disp">2024-25</div>
+    <div class="fy-sub">year ending 31 March</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play-btn"><span id="play-icon">&#9654;</span> <span id="play-label">Animate</span></button>
+  <div class="yr-wrap">
+    <input type="range" id="yr-slider" min="2016" max="2025" step="1" value="2025" list="yr-ticks">
+    <div class="yr-marks"><span>2015-16</span><span>16-17</span><span>17-18</span><span>18-19</span><span>19-20</span><span>20-21</span><span>21-22</span><span>22-23</span><span>23-24</span><span>24-25</span></div>
+  </div>
+  <div id="yr-pills"></div>
+  <div class="ctrl-sep"></div>
+  <select class="node-select" id="node-select">
+    <option value="">— Focus on… —</option>
+    <optgroup label="Revenue Sources">
+      <option value="CustomsExcise">Customs &amp; Excise</option>
+      <option value="IncomeTax">Income Tax</option>
+      <option value="NIOperatingAccount">National Insurance</option>
+      <option value="OtherTreasuryIncome">Other Treasury Income</option>
+    </optgroup>
+    <optgroup label="Department Groups">
+      <option value="Health &amp; Care">Health &amp; Care</option>
+      <option value="Social Security">Social Security</option>
+      <option value="Education">Education</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Enterprise">Enterprise</option>
+      <option value="Treasury Ops">Treasury Ops</option>
+      <option value="Other Gov">Other Gov</option>
+    </optgroup>
+    <optgroup label="Expenditure Types">
+      <option value="Employee Costs">Employee Costs</option>
+      <option value="Social Security">Social Security</option>
+      <option value="Supplies &amp; Services">Supplies &amp; Services</option>
+      <option value="Agency &amp; Contracted">Agency &amp; Contracted</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Loan &amp; Other">Loan &amp; Other</option>
+    </optgroup>
+  </select>
+  <div class="toggle-wrap">
+    <input type="checkbox" id="deflate-chk" checked>
+    <label for="deflate-chk">Constant prices (2024-25)</label>
+  </div>
+  <div class="ctrl-sep"></div>
+  <button class="play-btn" id="comparator-btn" onclick="window.open('iomg-comparator.html','_blank')" style="background:#1e2d4d;color:#94a3b8;border:1px solid #1e2d4d">&#9196; Compare series</button>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lbl" id="lbl-tot">Total Spending</div><div class="stat-val" id="s-tot">—</div></div>
+  <div class="stat"><div class="stat-lbl">Tax Revenue</div><div class="stat-val" id="s-gra">—</div></div>
+  <div class="stat"><div class="stat-lbl">Dept Own Income</div><div class="stat-val" id="s-own">—</div></div>
+  <div class="stat"><div class="stat-lbl">Health &amp; Care</div><div class="stat-val" id="s-hlt">—</div></div>
+  <div class="stat"><div class="stat-lbl">Social Security</div><div class="stat-val" id="s-ss">—</div></div>
+  <div class="stat"><div class="stat-lbl">Staff Costs</div><div class="stat-val" id="s-sta">—</div></div>
+</div>
+
+<div id="viz-row">
+  <div class="viz"><svg id="chart"></svg></div>
+  <!-- Stock column for landscape mobile — populated by JS -->
+  <div id="mob-stocks"></div>
+</div>
+
+<div class="gov-notes-toggle" id="gov-toggle" onclick="toggleGov()">
+  <span class="gov-chevron" id="gov-chevron">▼</span>
+  <span>Data Governance &amp; Methodology Notes</span>
+</div>
+<div class="gov-notes" id="gov-notes">
+  <div class="gov-inner">
+    <h4>Isle of Man Government Budget — Data Governance Notes</h4>
+
+    <h5>Sources</h5>
+    <p>Revenue and expenditure data drawn from IoM Treasury Pink Books (Table 3A departmental breakdowns), covering actuals FY2016 through FY2025. Revenue figures represent General Revenue Account (GRA) inflows; departmental gross spend includes GRA allocations and departments' own income. All figures in £000s converted to £m for display.</p>
+
+    <h5 id="fn-reserve" class="fn-target"><span style="color:var(--gold)">①</span> Reserve Fund — Data Currency</h5>
+    <p>Last confirmed balance: <strong>£596.3m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). Strategic Reserve Fund market value; this reserve is not designated for a specific purpose. No 31 March 2025 figure published as at 24 June 2026.</p>
+
+    <h5 id="fn-nifund" class="fn-target"><span style="color:var(--gold)">②</span> NI Fund — Data Currency</h5>
+    <p>Last confirmed balance: <strong>£975.9m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 16). The £992.5m figure shown for FY2024-25 is a budget projection, not a confirmed outturn. The NI Fund is a statutory ring-fenced account; its balance is not part of GRA and does not appear in the revenue account surplus or deficit.</p>
+
+    <h5 id="fn-cfr" class="fn-target"><span style="color:var(--gold)">③</span> Capital Reserve — Data Currency</h5>
+    <p>Last confirmed balance: <strong>£24.8m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). The CFR has been in near-continuous drawdown since 2021-22 as capital expenditure has outpaced annual transfer receipts. No 31 March 2025 balance published as at 24 June 2026.</p>
+
+    <h5 id="fn-pension" class="fn-target"><span style="color:#fb7185)">④</span> Pension Liability — Data Currency &amp; Methodology</h5>
+    <p><strong class="flag">Last confirmed liability: £2,902m (£2.9bn) at 31 March 2023</strong> — IoM Government Annual Financial Statements, year ended March 2023 (FRS102 basis). This is the accumulated past-service obligation of the PSPA Unified Scheme, an unfunded defined benefit arrangement. <strong class="flag">No figure has been published for 31 March 2024 or 31 March 2025 as at 24 June 2026.</strong> The liability is absent from every Pink Book headline figure. It is highly sensitive to the real discount rate used: a 0.5% movement changes the liability by approximately ±£350m. The peak of £4,800m in FY2020-21 reflected a low-rate environment; the subsequent fall to £2,902m reflects rate rises, not a reduction in the underlying obligation.</p>
+
+
+    <h5>Employee Costs — Breakdown (▶ Detail)</h5>
+    <p><strong>Col 5 — PSPER (Pension Flows):</strong> The PSPER block shows gross cash pension payments flowing to retired civil servants, sourced from PSPA AllSchemes Annual Report. It is funded by two streams: (1) combined employer + employee pension contributions and (2) a GRA top-up (net treasury charge). The PSPER reserve, which once stood at £237m (FY2013-14), was fully exhausted by March 2023 and stands at £0. The PSPER block is colour-coded by department using employer contribution proportions (FY2025-26 budget) as a proxy. Hover for balance time series.</p>
+    <p><strong>Col 6 — Active Workforce:</strong> The active pay items sum to the non-pension portion of Employee Costs. <span class="est">Employee NI (est.)</span>: employer NI × (12÷13.8) — IoM main rate ratio. <span class="est">PAYE (est.)</span>: ~19.5% effective rate on taxable wages. Both are subject to FoI request from IoMG Treasury Payroll.</p>
+    <h5>Social Security — Breakdown (simultaneous)</h5>
+    <p>When any ▶ Detail button is clicked, the Social Security breakdown also appears in Col 5 below PSPER. Items are proportional estimates derived by applying Pink Book benefit proportions to LBB FY2024-25 actuals. NI/GRA split uses the Sankey's own revenue flow data. All item values are marked ~ to indicate estimates.</p>
+    <h5>FY2017 — Accounting Estimates <span class="est">[est.]</span></h5>
+    <p>The underlying FY2016-17 source data contains two confirmed classification breaks that render the raw figures non-comparable with all other years in the series. The figures displayed for FY2017 are <span class="est">accounting estimates</span>, not published actuals.</p>
+    <p><strong>Break 1 — Revenue misclassification:</strong> National Insurance Operating Account receipts (normally ~£187–216m) are absent from the revenue breakdown, and Income Tax is reported at £12m against a plausible range of £184–203m. The excess is absorbed into Other Treasury Income (£261m vs a normal ~£10m). The reconstructed series allocates NI and Income Tax in proportion to the FY16/FY18 ratio, with Other Treasury Income set by interpolation, preserving the published GRA total of £641m.</p>
+    <p><strong>Break 2 — Departmental misclassification:</strong> Social Security gross spend collapses to £9m (against a plausible range of £275–318m) while Health &amp; Care doubles to £527m. The excess in H&amp;C matches the Social Security shortfall to within £19m. The reconstruction reclassifies £287m from H&amp;C to Social Security, with GRA flows adjusted proportionally.</p>
+
+    <h5>Constant Prices</h5>
+    <p>The constant prices deflator uses IoM CPI financial-year averages (Statistics IoM Historic Data Sets, December 2025), rebased to 2024-25 = 100. FY2025-26 uses a partial-year average (April–December 2025). Deflation is applied uniformly to all flows; the Sankey layout, stat bar, and time-series popouts all reflect the selected price basis.</p>
+
+    <h5>Series Coverage</h5>
+    <p>FY2016 data is sourced from an earlier Pink Book edition than FY2018 onwards and should be treated with caution in trend analysis. The animation skips directly from FY2016 to FY2018 to avoid misleading transitions through the estimated FY2017 values.</p>
+
+    <h5>Own Income</h5>
+    <p>Departmental own income (fees, charges, utilities receipts) bypasses the GRA and flows directly to departments. It is shown as a separate column in the revenue sources panel, connected by ribbons directly to the relevant department group, distinct from GRA allocations.</p>
+
+    <h5>Expenditure Categories</h5>
+    <p>Employee Costs, Supplies &amp; Services, Agency &amp; Contracted, and Infrastructure represent gross departmental expenditure. Loan &amp; Other includes loan charges, transfers, and net adjustments; negative values in some years reflect internal recoveries or accounting reversals rather than literal income.</p>
+  </div>
+</div>
+<!-- Time series popup -->
+<div id="ts-popup">
+  <div class="ts-title" id="ts-title"></div>
+  <div class="ts-sub" id="ts-sub"></div>
+  <canvas id="ts-canvas" width="220" height="100"></canvas>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const DATA={"2016":{"rev":{"CustomsExcise":327838.606417434,"IncomeTax":184253.7835512719,"OtherTreasuryIncome":10269.976879109545,"NIOperatingAccount":186753.6331521845},"grp_own":{"Enterprise":29718.0,"Education":3851.0,"Other Gov":149743.0,"Health & Care":50849.0,"Infrastructure":53575.0},"grp_gross":{"Enterprise":30923.0,"Education":94265.0,"Other Gov":225123.0,"Health & Care":244455.0,"Infrastructure":99487.0,"Treasury Ops":27749.0,"Social Security":274850.0},"grp_gra":{"Enterprise":1205.0,"Education":90414.0,"Health & Care":193606.0,"Social Security":274850.0,"Treasury Ops":27749.0,"Other Gov":75380.0,"Infrastructure":45912.0},"grp_cats":{"Enterprise":{"Employee Costs":10096.0,"Infrastructure":1191.0,"Supplies & Services":13441.0,"Loan & Other":6195.0},"Education":{"Employee Costs":65055.0,"Infrastructure":3802.0,"Supplies & Services":6637.0,"Loan & Other":18771.0},"Other Gov":{"Employee Costs":90755.0,"Infrastructure":12087.0,"Supplies & Services":74151.0,"Loan & Other":48130.0},"Health & Care":{"Employee Costs":138091.0,"Infrastructure":1211.0,"Supplies & Services":30030.0,"Agency & Contracted":71317.0,"Loan & Other":3806.0},"Infrastructure":{"Employee Costs":37586.0,"Infrastructure":33880.0,"Supplies & Services":17079.0,"Agency & Contracted":2787.0,"Loan & Other":8155.0},"Treasury Ops":{"Employee Costs":12748.0,"Infrastructure":13.0,"Supplies & Services":1940.0,"Agency & Contracted":3333.0,"Loan & Other":9715.0},"Social Security":{"Social Security":274850.0}},"cats4":{"Employee Costs":354331.0,"Infrastructure":52184.0,"Supplies & Services":143278.0,"Loan & Other":94772.0,"Agency & Contracted":77437.0,"Social Security":274850.0},"total_gross":996852.0,"total_own":287736.0,"total_gra":709116.0},"2017":{"rev":{"CustomsExcise":367330.20088627754,"IncomeTax":129324.09262999902,"OtherTreasuryIncome":9900.0,"NIOperatingAccount":134139.70648372345},"grp_own":{"Enterprise":30064.0,"Education":3554.0,"Other Gov":209705.0,"Health & Care":52648.5,"Infrastructure":54605.0},"grp_gross":{"Enterprise":32710.0,"Education":98997.0,"Other Gov":248824.0,"Health & Care":240168.0,"Infrastructure":108131.0,"Treasury Ops":5861.0,"Social Security":296614.0},"grp_gra":{"Enterprise":2646.0,"Education":95443.0,"Health & Care":147485.0,"Social Security":296614.0,"Treasury Ops":5861.0,"Other Gov":39119.0,"Infrastructure":53526.0},"grp_cats":{"Enterprise":{"Employee Costs":11741.0,"Infrastructure":1408.0,"Supplies & Services":14094.0,"Loan & Other":5467.0},"Education":{"Employee Costs":68960.0,"Infrastructure":3671.0,"Supplies & Services":7063.0,"Loan & Other":19303.0},"Other Gov":{"Employee Costs":167026.0,"Infrastructure":9350.0,"Supplies & Services":53731.0,"Agency & Contracted":0.0,"Loan & Other":18717.0},"Health & Care":{"Employee Costs":150864.0,"Infrastructure":4941.0,"Supplies & Services":25164.0,"Agency & Contracted":74916.0,"Loan & Other":-15717.0},"Infrastructure":{"Employee Costs":41483.0,"Infrastructure":39063.0,"Supplies & Services":13130.0,"Agency & Contracted":2455.0,"Loan & Other":12000.0},"Treasury Ops":{"Employee Costs":17.0,"Infrastructure":1.0,"Supplies & Services":2211.0,"Agency & Contracted":3391.0,"Loan & Other":241.0},"Social Security":{"Social Security":296614.0}},"cats4":{"Employee Costs":440091.0,"Infrastructure":58434.0,"Supplies & Services":115393.0,"Loan & Other":40011.0,"Agency & Contracted":80762.0,"Social Security":296614.0},"total_gross":1031305.0,"total_own":350576.5,"total_gra":640694.0},"2018":{"rev":{"CustomsExcise":312871.69320242567,"IncomeTax":203116.64789310851,"OtherTreasuryIncome":9510.58641920827,"NIOperatingAccount":215602.07248525758},"grp_own":{"Enterprise":29187.0,"Education":3489.0,"Other Gov":147203.0,"Health & Care":54448.0,"Infrastructure":54956.0},"grp_gross":{"Enterprise":32550.0,"Education":100104.0,"Other Gov":157535.0,"Health & Care":273626.0,"Infrastructure":113695.0,"Treasury Ops":34496.0,"Social Security":318378.0},"grp_gra":{"Enterprise":3363.0,"Education":96615.0,"Health & Care":219178.0,"Social Security":318378.0,"Treasury Ops":34496.0,"Other Gov":10332.0,"Infrastructure":58739.0},"grp_cats":{"Enterprise":{"Employee Costs":10942.0,"Infrastructure":1334.0,"Supplies & Services":13567.0,"Loan & Other":6707.0},"Education":{"Employee Costs":69425.0,"Infrastructure":3627.0,"Supplies & Services":5903.0,"Loan & Other":21149.0},"Other Gov":{"Employee Costs":105292.0,"Infrastructure":13806.0,"Supplies & Services":78994.0,"Agency & Contracted":0.0,"Loan & Other":-40557.0},"Health & Care":{"Employee Costs":154673.0,"Infrastructure":1742.0,"Supplies & Services":31940.0,"Agency & Contracted":78380.0,"Loan & Other":6891.0},"Infrastructure":{"Employee Costs":42796.0,"Infrastructure":36591.0,"Supplies & Services":15494.0,"Agency & Contracted":2020.0,"Loan & Other":16794.0},"Treasury Ops":{"Employee Costs":13422.0,"Infrastructure":11.0,"Supplies & Services":3811.0,"Agency & Contracted":3416.0,"Loan & Other":13836.0},"Social Security":{"Social Security":318378.0}},"cats4":{"Employee Costs":396550.0,"Infrastructure":57111.0,"Supplies & Services":149709.0,"Loan & Other":24820.0,"Agency & Contracted":83816.0,"Social Security":318378.0},"total_gross":1030384.0,"total_own":289283.0,"total_gra":741101.0},"2019":{"rev":{"CustomsExcise":354138.2628298151,"IncomeTax":227732.90690550496,"OtherTreasuryIncome":10060.816857048896,"NIOperatingAccount":241109.01340763108},"grp_own":{"Enterprise":27588.0,"Education":9438.0,"Other Gov":150387.0,"Health & Care":56743.0,"Infrastructure":56711.0},"grp_gross":{"Enterprise":27605.0,"Education":111740.0,"Other Gov":244856.0,"Health & Care":276889.0,"Infrastructure":120289.0,"Treasury Ops":31018.0,"Social Security":321511.0},"grp_gra":{"Enterprise":17.0,"Education":102302.0,"Health & Care":220146.0,"Social Security":321511.0,"Treasury Ops":31018.0,"Other Gov":94469.0,"Infrastructure":63578.0},"grp_cats":{"Enterprise":{"Employee Costs":9135.0,"Infrastructure":1221.0,"Supplies & Services":13062.0,"Loan & Other":4187.0},"Education":{"Employee Costs":74033.0,"Infrastructure":4107.0,"Supplies & Services":9742.0,"Loan & Other":23858.0},"Other Gov":{"Employee Costs":108311.0,"Infrastructure":14484.0,"Supplies & Services":84567.0,"Loan & Other":37494.0},"Health & Care":{"Employee Costs":158263.0,"Infrastructure":1581.0,"Supplies & Services":30185.0,"Agency & Contracted":80363.0,"Loan & Other":6497.0},"Infrastructure":{"Employee Costs":44012.0,"Infrastructure":35296.0,"Supplies & Services":16232.0,"Agency & Contracted":2147.0,"Loan & Other":22602.0},"Treasury Ops":{"Employee Costs":14236.0,"Infrastructure":11.0,"Supplies & Services":2197.0,"Agency & Contracted":3529.0,"Loan & Other":11045.0},"Social Security":{"Social Security":321511.0}},"cats4":{"Employee Costs":407990.0,"Infrastructure":56700.0,"Supplies & Services":155985.0,"Loan & Other":105683.0,"Agency & Contracted":86039.0,"Social Security":321511.0},"total_gross":1133908.0,"total_own":300867.0,"total_gra":833041.0},"2020":{"rev":{"CustomsExcise":370962.6111002151,"IncomeTax":201218.787078805,"OtherTreasuryIncome":8599.557077881445,"NIOperatingAccount":223394.04474309843},"grp_own":{"Enterprise":25687.0,"Education":10030.0,"Other Gov":149187.0,"Health & Care":54682.0,"Infrastructure":56011.0},"grp_gross":{"Enterprise":26748.0,"Education":118534.0,"Other Gov":203019.0,"Health & Care":285677.0,"Infrastructure":126270.0,"Treasury Ops":13647.0,"Social Security":325877.0},"grp_gra":{"Enterprise":1061.0,"Education":108504.0,"Health & Care":230995.0,"Social Security":325877.0,"Treasury Ops":13647.0,"Other Gov":53832.0,"Infrastructure":70259.0},"grp_cats":{"Enterprise":{"Employee Costs":9920.0,"Infrastructure":1092.0,"Supplies & Services":14018.0,"Loan & Other":1718.0},"Education":{"Employee Costs":79988.0,"Infrastructure":3926.0,"Supplies & Services":10158.0,"Loan & Other":24462.0},"Other Gov":{"Employee Costs":85577.0,"Infrastructure":13227.0,"Supplies & Services":42328.0,"Loan & Other":61887.0},"Health & Care":{"Employee Costs":164072.0,"Infrastructure":1705.0,"Supplies & Services":30863.0,"Agency & Contracted":83830.0,"Loan & Other":5207.0},"Infrastructure":{"Employee Costs":47021.0,"Infrastructure":34016.0,"Supplies & Services":19808.0,"Agency & Contracted":2571.0,"Loan & Other":22854.0},"Treasury Ops":{"Employee Costs":14959.0,"Infrastructure":7.0,"Supplies & Services":1951.0,"Agency & Contracted":3585.0,"Loan & Other":-6855.0},"Social Security":{"Social Security":325877.0}},"cats4":{"Employee Costs":401537.0,"Infrastructure":53973.0,"Supplies & Services":119126.0,"Loan & Other":109273.0,"Agency & Contracted":89986.0,"Social Security":325877.0},"total_gross":1099772.0,"total_own":295597.0,"total_gra":804175.0},"2021":{"rev":{"CustomsExcise":329765.7860753929,"IncomeTax":235929.52800445104,"OtherTreasuryIncome":6744.113947961315,"NIOperatingAccount":304590.57197219477},"grp_own":{"Enterprise":23032.0,"Education":4793.0,"Other Gov":144489.0,"Health & Care":51310.0,"Infrastructure":43170.0},"grp_gross":{"Enterprise":24377.0,"Education":119374.0,"Other Gov":225866.0,"Health & Care":277824.0,"Infrastructure":115749.0,"Treasury Ops":-1007.0,"Social Security":381641.0},"grp_gra":{"Enterprise":1345.0,"Education":114581.0,"Health & Care":226514.0,"Social Security":381641.0,"Treasury Ops":0,"Other Gov":81377.0,"Infrastructure":72579.0},"grp_cats":{"Enterprise":{"Employee Costs":9946.0,"Infrastructure":513.0,"Supplies & Services":8115.0,"Loan & Other":5803.0},"Education":{"Employee Costs":87670.0,"Infrastructure":4085.0,"Supplies & Services":6918.0,"Loan & Other":20701.0},"Other Gov":{"Employee Costs":118581.0,"Infrastructure":15075.0,"Supplies & Services":67441.0,"Agency & Contracted":0.0,"Loan & Other":24769.0},"Health & Care":{"Employee Costs":172349.0,"Infrastructure":1435.0,"Supplies & Services":36127.0,"Agency & Contracted":79694.0,"Loan & Other":-11781.0},"Infrastructure":{"Employee Costs":41497.0,"Infrastructure":33591.0,"Supplies & Services":24147.0,"Agency & Contracted":3218.0,"Loan & Other":13296.0},"Treasury Ops":{"Employee Costs":16984.0,"Infrastructure":12.0,"Supplies & Services":3355.0,"Agency & Contracted":3576.0,"Loan & Other":-24934.0},"Social Security":{"Social Security":381641.0}},"cats4":{"Employee Costs":447027.0,"Infrastructure":54711.0,"Supplies & Services":146103.0,"Loan & Other":27854.0,"Agency & Contracted":86488.0,"Social Security":381641.0},"total_gross":1143824.0,"total_own":266794.0,"total_gra":877030.0},"2022":{"rev":{"CustomsExcise":408252.2691184888,"IncomeTax":232727.23273195903,"OtherTreasuryIncome":8448.187914080443,"NIOperatingAccount":295505.31023547164},"grp_own":{"Enterprise":25087.0,"Education":9135.0,"Other Gov":166598.0,"Health & Care":52501.0,"Infrastructure":47191.0},"grp_gross":{"Enterprise":24346.0,"Education":118160.0,"Other Gov":248835.0,"Health & Care":294790.0,"Infrastructure":99453.0,"Treasury Ops":64886.0,"Social Security":394975.0},"grp_gra":{"Enterprise":0,"Education":109025.0,"Health & Care":242289.0,"Social Security":394975.0,"Treasury Ops":64886.0,"Other Gov":82237.0,"Infrastructure":52262.0},"grp_cats":{"Enterprise":{"Employee Costs":10204.0,"Infrastructure":1032.0,"Supplies & Services":9241.0,"Loan & Other":3869.0},"Education":{"Employee Costs":90200.0,"Infrastructure":4876.0,"Supplies & Services":9757.0,"Loan & Other":13327.0},"Other Gov":{"Employee Costs":124647.0,"Infrastructure":16350.0,"Supplies & Services":141302.0,"Agency & Contracted":3.0,"Loan & Other":-33467.0},"Health & Care":{"Employee Costs":180549.0,"Infrastructure":1812.0,"Supplies & Services":47930.0,"Agency & Contracted":87812.0,"Loan & Other":-23313.0},"Infrastructure":{"Employee Costs":44364.0,"Infrastructure":35582.0,"Supplies & Services":20675.0,"Agency & Contracted":1505.0,"Loan & Other":-2673.0},"Treasury Ops":{"Employee Costs":17366.0,"Infrastructure":2.0,"Supplies & Services":18883.0,"Agency & Contracted":3835.0,"Loan & Other":24800.0},"Social Security":{"Social Security":394975.0}},"cats4":{"Employee Costs":467330.0,"Infrastructure":59654.0,"Supplies & Services":247788.0,"Loan & Other":-17457.0,"Agency & Contracted":93155.0,"Social Security":394975.0},"total_gross":1245445.0,"total_own":300512.0,"total_gra":944933.0},"2023":{"rev":{"CustomsExcise":447224.0231888606,"IncomeTax":272105.34222896653,"OtherTreasuryIncome":11638.557686548527,"NIOperatingAccount":303308.0768956243},"grp_own":{"Enterprise":27792.0,"Education":9054.0,"Other Gov":196763.0,"Health & Care":66292.0,"Infrastructure":55371.0},"grp_gross":{"Enterprise":29408.0,"Education":121773.0,"Other Gov":372073.0,"Health & Care":314191.0,"Infrastructure":102339.0,"Treasury Ops":73919.0,"Social Security":375845.0},"grp_gra":{"Enterprise":1616.0,"Education":112719.0,"Health & Care":247899.0,"Social Security":375845.0,"Treasury Ops":73919.0,"Other Gov":175310.0,"Infrastructure":46968.0},"grp_cats":{"Enterprise":{"Employee Costs":11049.0,"Infrastructure":1009.0,"Supplies & Services":17189.0,"Loan & Other":161.0},"Education":{"Employee Costs":97409.0,"Infrastructure":6598.0,"Supplies & Services":10321.0,"Loan & Other":7445.0},"Other Gov":{"Employee Costs":148635.0,"Infrastructure":19006.0,"Supplies & Services":155965.0,"Agency & Contracted":55.0,"Loan & Other":48412.0},"Health & Care":{"Employee Costs":197905.0,"Infrastructure":1883.0,"Supplies & Services":40844.0,"Agency & Contracted":98514.0,"Loan & Other":-24955.0},"Infrastructure":{"Employee Costs":45294.0,"Infrastructure":38091.0,"Supplies & Services":21064.0,"Agency & Contracted":1813.0,"Loan & Other":-3923.0},"Treasury Ops":{"Employee Costs":17623.0,"Infrastructure":7.0,"Supplies & Services":7011.0,"Agency & Contracted":3671.0,"Loan & Other":45607.0},"Social Security":{"Social Security":375845.0}},"cats4":{"Employee Costs":517915.0,"Infrastructure":66594.0,"Supplies & Services":252394.0,"Loan & Other":72747.0,"Agency & Contracted":104053.0,"Social Security":375845.0},"total_gross":1389548.0,"total_own":355272.0,"total_gra":1034276.0},"2024":{"rev":{"CustomsExcise":436412.7170733511,"IncomeTax":321056.197256447,"OtherTreasuryIncome":15850.49154452908,"NIOperatingAccount":322437.5941256728},"grp_own":{"Enterprise":27372.0,"Education":9074.0,"Other Gov":181659.0,"Health & Care":69626.0,"Infrastructure":61273.0},"grp_gross":{"Enterprise":27259.0,"Education":142147.0,"Other Gov":336065.0,"Health & Care":369982.0,"Infrastructure":117914.0,"Treasury Ops":60784.0,"Social Security":390610.0},"grp_gra":{"Enterprise":0,"Education":133073.0,"Health & Care":300356.0,"Social Security":390610.0,"Treasury Ops":60784.0,"Other Gov":154406.0,"Infrastructure":56641.0},"grp_cats":{"Enterprise":{"Employee Costs":12644.0,"Infrastructure":745.0,"Supplies & Services":16677.0,"Loan & Other":-2807.0},"Education":{"Employee Costs":107429.0,"Infrastructure":8079.0,"Supplies & Services":9290.0,"Loan & Other":17349.0},"Other Gov":{"Employee Costs":167917.0,"Infrastructure":21685.0,"Supplies & Services":108671.0,"Agency & Contracted":6.0,"Loan & Other":37786.0},"Health & Care":{"Employee Costs":221123.0,"Infrastructure":2461.0,"Supplies & Services":40950.0,"Agency & Contracted":107192.0,"Loan & Other":-1744.0},"Infrastructure":{"Employee Costs":47077.0,"Infrastructure":41272.0,"Supplies & Services":23461.0,"Agency & Contracted":4929.0,"Loan & Other":1175.0},"Treasury Ops":{"Employee Costs":19525.0,"Infrastructure":8.0,"Supplies & Services":5566.0,"Agency & Contracted":3380.0,"Loan & Other":32305.0},"Social Security":{"Social Security":390610.0}},"cats4":{"Employee Costs":575715.0,"Infrastructure":74250.0,"Supplies & Services":204615.0,"Loan & Other":84064.0,"Agency & Contracted":115507.0,"Social Security":390610.0},"total_gross":1444761.0,"total_own":349004.0,"total_gra":1095757.0},"2025":{"rev":{"CustomsExcise":480939.1607099503,"IncomeTax":358210.4657734674,"OtherTreasuryIncome":4865.188692502239,"NIOperatingAccount":302829.18482408003},"grp_own":{"Enterprise":29098.0,"Education":10222.0,"Other Gov":173288.0,"Health & Care":70493.0,"Infrastructure":64501.0},"grp_gross":{"Enterprise":30850.0,"Education":152565.0,"Other Gov":333596.0,"Health & Care":387072.0,"Infrastructure":123247.0,"Treasury Ops":51323.0,"Social Security":415793.0},"grp_gra":{"Enterprise":1752.0,"Education":142343.0,"Health & Care":316579.0,"Social Security":415793.0,"Treasury Ops":51323.0,"Other Gov":160308.0,"Infrastructure":58746.0},"grp_cats":{"Enterprise":{"Employee Costs":14093.0,"Infrastructure":857.0,"Supplies & Services":19685.0,"Loan & Other":-3785.0},"Education":{"Employee Costs":114598.0,"Infrastructure":8897.0,"Supplies & Services":10946.0,"Loan & Other":18124.0},"Other Gov":{"Employee Costs":176553.0,"Infrastructure":25324.0,"Supplies & Services":94359.0,"Agency & Contracted":482.0,"Loan & Other":36878.0},"Health & Care":{"Employee Costs":235338.0,"Infrastructure":2201.0,"Supplies & Services":43935.0,"Agency & Contracted":108101.0,"Loan & Other":-2503.0},"Infrastructure":{"Employee Costs":51703.0,"Infrastructure":42739.0,"Supplies & Services":24287.0,"Agency & Contracted":6106.0,"Loan & Other":-1588.0},"Treasury Ops":{"Employee Costs":21895.0,"Infrastructure":10.0,"Supplies & Services":6676.0,"Agency & Contracted":3433.0,"Loan & Other":19309.0},"Social Security":{"Social Security":415793.0}},"cats4":{"Employee Costs":614180.0,"Infrastructure":80028.0,"Supplies & Services":199888.0,"Loan & Other":66435.0,"Agency & Contracted":118122.0,"Social Security":415793.0},"total_gross":1494446.0,"total_own":347602.0,"total_gra":1146844.0}};
+
+// ── Deflators (IoM CPI, base 2024-25) ────────────────────────────────────────
+const DEFLATORS={2016:1.333936,2017:1.284234,2018:1.252817,2019:1.227988,
+  2020:1.232931,2021:1.17894,2022:1.081041,2023:1.023646,2024:1.0,2025:1.0};
+// FY2025 = 2024-25 = base year = 1.0
+
+// ── Drill-down data ──────────────────────────────────────────────────────────
+// pension = PSPA AllSchemes gross cash pensions to retirees (nominal £000)
+// erni = LBB employer NI; employer/employee_pension = contribution data (nominal £000)
+// Employee NI & PAYE shown as estimates (ᵉˢᵗ) — FoI pending from IoMG Treasury Payroll
+// Methodology: emp_ni = erni × (12/13.8) [IoM rate ratio]; paye = taxable_wages × 0.195
+const DRILL_EMP={
+  2016:{pension:96733, erni:null, employer_pension:34315, employee_pension:null},
+  2017:{pension:91300, erni:null, employer_pension:58191, employee_pension:null},
+  2018:{pension:98607, erni:null, employer_pension:60032, employee_pension:null},
+  2019:{pension:100096,erni:null, employer_pension:63383, employee_pension:null},
+  2020:{pension:100860,erni:null, employer_pension:68120, employee_pension:null},
+  2021:{pension:111460,erni:null, employer_pension:71636, employee_pension:null},
+  2022:{pension:113620,erni:null, employer_pension:72917, employee_pension:null},
+  2023:{pension:120224,erni:null, employer_pension:80420, employee_pension:null},
+  2024:{pension:131419,erni:41734,employer_pension:49182, employee_pension:41686},
+  2025:{pension:143298,erni:44099,employer_pension:53521, employee_pension:42464},
+};
+// Dept share proxy: employer pension contributions FY2025-26 budget (£000), proportional use only
+const PENSION_DEPT=[
+  {id:'Health & Care',v:24441},{id:'Education',v:15605},{id:'Infrastructure',v:5554},
+  {id:'Other Gov',v:9271},{id:'Enterprise',v:1310},{id:'Treasury Ops',v:2880},
+];
+// PSPER (Public Sector Pension Reserve) balance at 31 March (£m)
+// FY2022-23 confirmed £0; prior years estimated (linear decline from £237m in FY2013-14)
+const PSPER_BAL_M={
+  2016:185,2017:158,2018:132,2019:106,2020:79,2021:53,2022:26,2023:0,2024:0,2025:0
+};
+// Social Security item breakdown — PB proportions × LBB FY2024-25 actuals (nominal £000)
+const DRILL_SS={
+  ni:[
+    {label:'State Pension',v:140000},{label:'Manx State Pension',v:62500},
+    {label:'Pension Supplements',v:27500},{label:'Incapacity Benefits',v:13600},
+    {label:"Carer's Allow.",v:4900},{label:'Other NI-funded',v:29207},
+  ],
+  rev:[
+    {label:'Income Support',v:36500},{label:'Disability (DLA/AA)',v:24000},
+    {label:'Child Benefit',v:13500},{label:'EPA',v:8350},
+    {label:'Other',v:4122},
+  ],
+};
+
+// ── Drill value calculator (returns deflated £000s for a given FY) ────────────
+function calcDrillEmp(fy){
+  const raw=DATA[String(fy)]; if(!raw) return null;
+  const d=useConstPrices?deflD(raw,fy):raw;
+  const de=DRILL_EMP[fy]||{};
+  const emp_total=d.cats4['Employee Costs']||0;
+
+  // Employee Costs budget line = gross wages + employer NI + employer pension contributions
+  // Retiree pension payments come from PSPER separately — NOT part of emp_total
+  const erni      = de.erni            ? defl(de.erni,fy)            : emp_total*0.072;
+  const emp_super = de.employer_pension? defl(de.employer_pension,fy): emp_total*0.087;
+  const gross_wages = Math.max(0, emp_total - erni - emp_super);
+
+  // Employee deductions from gross wages (before net pay)
+  const emp_pen = de.employee_pension ? defl(de.employee_pension,fy) : gross_wages*0.082;
+  const emp_ni  = erni*(12/13.8);                        // employee share of NI
+  const paye    = (gross_wages - emp_pen)*0.195;         // estimated income tax
+  const net     = Math.max(0, gross_wages - emp_ni - paye - emp_pen);
+
+  // PSPER: funded by contributions + GRA top-up
+  const pension   = de.pension ? defl(de.pension,fy) : (emp_super+emp_pen)*1.5;
+  const contrib   = emp_super + emp_pen;
+  const gra_topup = Math.max(0, pension - contrib);
+
+  return {emp_total, pension, gross_wages, erni, emp_super, emp_ni, emp_pen, paye, net, contrib, gra_topup};
+}
+
+let useConstPrices=true;
+
+// ── Balance Sheet Stocks ─────────────────────────────────────────────────────
+// Sources documented in iom_stocks_series.json / iom_pension_liability_series.json
+// year_type: 'actual'=confirmed primary, 'probable'=probable at publication,
+//            'budget'=projection, 'secondary'=journalism citing audited accounts
+const STOCKS = {
+  ni_fund: {
+    label: 'NI Fund', unit: '£m', color: '#fdba74',
+    desc: 'National Insurance Fund balance C/F at 31 March. Buffer stock between NI contributions in and NI welfare payments out. Source: IoM Pink Book Table 16.',
+    data: {
+      2017:{v:793.7,t:'actual'},2018:{v:808.5,t:'probable'},
+      2019:{v:884.8,t:'actual'},2020:{v:839.8,t:'actual'},
+      2021:{v:883.4,t:'actual'},2022:{v:924.6,t:'actual'},
+      2023:{v:969.4,t:'actual'},2024:{v:975.9,t:'actual'},
+      2025:{v:992.5,t:'budget'}
+    }
+  },
+  reserve: {
+    label: 'Reserve Fund', unit: '£m', color: '#4ade80',
+    desc: 'Strategic Reserve Fund market value. The only reserve not designated for a specific purpose — the rainy day fund.',
+    data: {
+      2016:{v:375.7,t:'actual'},2017:{v:351.3,t:'actual'},
+      2018:{v:386.4,t:'actual'},2019:{v:380.5,t:'actual'},
+      2020:{v:448.2,t:'actual'},2021:{v:639.5,t:'actual'},
+      2022:{v:565.5,t:'actual'},2023:{v:634.9,t:'actual'},
+      2024:{v:596.3,t:'actual'}
+    }
+  },
+  cfr: {
+    label: 'Capital Reserve', unit: '£m', color: '#fbbf24',
+    desc: 'CFR balance — funds capital investment. Receipts from revenue surplus; payments to capital programme. Near-depletion signals structural pressure on capital spending.',
+    data: {
+      2016:{v:0.947,t:'actual'},2017:{v:46.5,t:'probable'},
+      2018:{v:46.5,t:'budget'},2019:{v:44.1,t:'budget'},
+      2020:{v:85.6,t:'probable'},2021:{v:56.9,t:'actual'},
+      2022:{v:26.0,t:'probable'},2023:{v:34.8,t:'actual'},
+      2024:{v:24.8,t:'actual'}
+    }
+  },
+  pension: {
+    label: 'Pension Liability', unit: '£bn', color: '#fb7185',
+    inverted: true,
+    desc: 'Defined benefit pension obligation (FRS17 to 2014-15; FRS102 from 2015-16). Zero assets assumed — PSEPR not ring-fenced. Highly sensitive to discount rate: ±0.5% ≈ ±£350m.',
+    data: {
+      2013:{v:2.318,t:'actual'},2014:{v:3.009,t:'actual'},
+      2015:{v:2.991,t:'actual'},2016:{v:3.823,t:'actual'},
+      2017:{v:3.723,t:'actual'},2018:{v:4.1,t:'secondary'},
+      2019:{v:3.8,t:'secondary'},2020:{v:4.8,t:'secondary'},
+      2021:{v:4.586,t:'actual'},2022:{v:2.902,t:'actual'}
+    }
+  }
+};
+
+// NI flows: contributions in, welfare out (for beaker flow arrows)
+// These come from the main DATA object at runtime
+// CFR annual transfer from GRA (£m from Pink Book Table 3A, converted to £000s for SC scaling)
+// Source: iomg_fiscal_master.csv / iomg-sankeyvis1 RAW
+const CFR_ANNUAL_M = {
+  2016:45.37, 2017:45.37, 2018:41.74, 2019:25.0,
+  2020:25.0,  2021:25.0,  2022:20.0,  2023:48.5,
+  2024:64.0,  2025:19.0
+};
+function getCFRAnnual(fy){ return (CFR_ANNUAL_M[fy]||0)*1000; }
+
+function getNIFlows(fy) {
+  const d = DATA[String(fy)];
+  if (!d) return null;
+  return {
+    contrib_in: d.rev.NIOperatingAccount || 0,   // £000
+    welfare_out: d.grp_gross['Social Security'] || 0, // £000
+  };
+}
+
+function defl(v,fy){return useConstPrices?(v*(DEFLATORS[fy]||1)):v;}
+function deflD(d,fy){
+  // Return a deflated copy of a year's data object
+  const f=v=>defl(v,fy);
+  const deflObj=(obj)=>{const o={};for(const k in obj)o[k]=f(obj[k]||0);return o;};
+  const deflObjObj=(obj)=>{const o={};for(const k in obj)o[k]=deflObj(obj[k]||{});return o;};
+  return{
+    rev:deflObj(d.rev),
+    grp_own:deflObj(d.grp_own),
+    grp_gross:deflObj(d.grp_gross),
+    grp_gra:deflObj(d.grp_gra),
+    grp_cats:deflObjObj(d.grp_cats),
+    cats4:deflObj(d.cats4),
+    total_gross:f(d.total_gross),
+    total_own:f(d.total_own),
+    total_gra:f(d.total_gra),
+  };
+}
+
+// ── Node taxonomy ─────────────────────────────────────────────────────────────
+const REV_ORDER=['CustomsExcise','IncomeTax','NIOperatingAccount','OtherTreasuryIncome'];
+const REV_LABEL={'CustomsExcise':'Customs & Excise','IncomeTax':'Income Tax',
+  'NIOperatingAccount':'National Insurance','OtherTreasuryIncome':'Other Treasury Income'};
+const REV_COLOR={
+  'CustomsExcise':'#f97316',
+  'IncomeTax':'#fb923c',
+  'NIOperatingAccount':'#fdba74',
+  'OtherTreasuryIncome':'#94a3b8'
+};
+
+const GRP_ORDER=['Health & Care','Education','Infrastructure','Social Security',
+                 'Enterprise','Treasury Ops','Other Gov'];
+const GRP_COLOR={
+  'Health & Care':'#2dd4bf',
+  'Education':'#60a5fa',
+  'Infrastructure':'#818cf8',
+  'Social Security':'#c084fc',
+  'Enterprise':'#34d399',
+  'Treasury Ops':'#C9A24A',
+  'Other Gov':'#64748b'
+};
+const OWN_COLOR={
+  'Health & Care':'#2dd4bfaa',
+  'Education':'#60a5faaa',
+  'Infrastructure':'#818cf8aa',
+  'Social Security':'#c084fcaa',
+  'Enterprise':'#34d399aa',
+  'Treasury Ops':'#C9A24Aaa',
+  'Other Gov':'#64748baa'
+};
+
+const CAT_ORDER=['Employee Costs','Social Security','Supplies & Services',
+                 'Agency & Contracted','Infrastructure','Loan & Other'];
+const CAT_COLOR={
+  'Employee Costs':'#f59e0b',
+  'Social Security':'#c084fc',
+  'Supplies & Services':'#10b981',
+  'Agency & Contracted':'#e879f9',
+  'Infrastructure':'#6366f1',
+  'Loan & Other':'#475569'
+};
+
+const OWN_LABEL={'Health & Care':'Health & Care Income','Other Gov':'Utilities & Boards Income',
+  'Infrastructure':'Infrastructure Income','Enterprise':'Enterprise Income',
+  'Education':'Education Income','Treasury Ops':'Treasury Other Income'};
+
+// Which column a node id belongs to (for link connectivity)
+// col: 'rev' | 'grp' | 'cat'
+function nodeCol(id){
+  if(REV_ORDER.includes(id)) return 'rev';
+  if(GRP_ORDER.includes(id)) return 'grp';
+  if(CAT_ORDER.includes(id)) return 'cat';
+  if(id==='NIFund') return 'stock';
+  if(id==='CFR4') return 'stock';
+  return null;
+}
+
+// Data-aware connectivity — returns {grp: Set, cat: Set, rev: Set, special: Set}
+// so Infrastructure-the-dept and Infrastructure-the-cat can be distinguished.
+function linkedNodeSets(selId, d){
+  const col=nodeCol(selId);
+  const grp=new Set(), cat=new Set(), rev=new Set(), special=new Set();
+  if(!col) return {grp,cat,rev,special};
+  if(col==='rev'){
+    rev.add(selId);
+    special.add('GRA');
+    special.add('CFR4');
+    special.add('NIFund');
+    GRP_ORDER.forEach(g=>grp.add(g));
+    CAT_ORDER.forEach(c=>cat.add(c));
+  } else if(col==='grp'){
+    grp.add(selId);
+    special.add('GRA');
+    if(selId==='Social Security') special.add('NIFund'); // SS funded by NI Fund
+    const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
+    CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) cat.add(c); });
+    // rev sources NOT added — they fade
+  } else if(col==='cat'){
+    cat.add(selId);
+    special.add('GRA');
+    GRP_ORDER.forEach(g=>{
+      const gc=(d&&d.grp_cats&&d.grp_cats[g])||{};
+      if((gc[selId]||0)>0) grp.add(g);
+    });
+    // rev sources NOT added
+  }
+  return {grp,cat,rev,special};
+}
+// Legacy wrapper used by getNodeOpacity
+function linkedNodeIds(selId, d){ return selId; } // replaced by linkedNodeSets
+
+// connectedLinkIds: which link ids should be visible (not hidden in filter mode)
+function connectedLinkIds(selId, d){
+  const col=nodeCol(selId);
+  if(!col) return new Set();
+  const ids=new Set();
+  if(col==='rev'){
+    ids.add('rv-'+selId);
+    // All GRA→dept links
+    GRP_ORDER.forEach(g=>ids.add('gra-'+g));
+    // All dept→cat links
+    GRP_ORDER.forEach(g=>CAT_ORDER.forEach(c=>ids.add('c-'+g+'-'+c)));
+  } else if(col==='grp'){
+    // Income side
+    ids.add('gra-'+selId);
+    ids.add('own-'+selId);
+    if(selId==='Social Security'){
+      ids.add('ni-SocialSecurity');          // NI Fund → SS ribbon
+      ids.add('gra-SocialSecurity-topup');   // GRA top-up → SS ribbon
+    }
+    // Expenditure side
+    const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
+    CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) ids.add('c-'+selId+'-'+c); });
+  } else if(col==='cat'){
+    // Only depts that spend on this cat + their GRA and own ribbons
+    GRP_ORDER.forEach(g=>{
+      const gc=(d&&d.grp_cats&&d.grp_cats[g])||{};
+      if((gc[selId]||0)>0){
+        ids.add('gra-'+g);
+        ids.add('own-'+g);
+        ids.add('c-'+g+'-'+selId);
+      }
+    });
+  }
+  return ids;
+}
+
+const fmt=v=>{const m=Math.abs(v)/1000;if(m>=1000)return(v<0?'-':'')+'£'+(m/1000).toFixed(2)+'bn';if(m>=1)return(v<0?'-':'')+'£'+m.toFixed(0)+'m';return'£'+Math.round(m*1000)+'k'};
+const pct=(v,t)=>t>0?(v/t*100).toFixed(0)+'%':'—';
+
+// ── Layout constants ──────────────────────────────────────────────────────────
+const NW=18, PAD=5, TPAD=24, BPAD=6, LPAD=168, OWN_GAP=18;
+function getRPAD(){ return 0; }  // stocks panel removed — col5 shown in drill mode
+const svg=d3.select('#chart');
+let W,H;
+
+function dims(){
+  const el=document.querySelector('.viz');
+  const isLandMob = window.innerWidth <= 900 && window.innerHeight < window.innerWidth;
+  // On landscape mobile: draw at a fixed generous size so content is readable when zoomed in
+  W = isLandMob ? 860 : el.clientWidth;
+  H = isLandMob ? el.clientHeight : el.clientHeight;
+  svg.attr('viewBox',`0 0 ${W} ${H}`)
+     .attr('width', W)
+     .attr('height', H);
+}
+
+// 6 columns: 0=rev sources, 1=GRA, 1.5=NI Fund, 2=depts, 3=exp types, 4=CFR node, 5=beakers (HTML overlay)
+function cx(col){
+  const u=W-LPAD; // full width — 6 cols always visible
+  // 0=rev, 1=accounts(GRA/NI/Reserve), 2=own(same x as 1), 3=depts, 4=expenditure, 5=stocks, 6=breakdown
+  return[LPAD, LPAD+u*0.16, LPAD+u*0.16, LPAD+u*0.35, LPAD+u*0.54, LPAD+u*0.70, LPAD+u*0.84][col];
+}
+
+function buildLayout(fy){
+  const raw=DATA[String(fy)]; if(!raw) return null;
+  const d=deflD(raw,fy);
+  const avH=H-TPAD-BPAD;
+  const nRev=REV_ORDER.filter(k=>(d.rev[k]||0)>0.1).length;
+  const nOwn=GRP_ORDER.filter(g=>(d.grp_own[g]||0)>=500).length;
+  const col0GapOverhead=(nRev-1)*PAD + OWN_GAP + (nOwn-1)*PAD;
+  const SC=(avH-col0GapOverhead)/d.total_gross;
+
+  // ── Revenue nodes (col0) ──
+  // NI receipts go to NI Fund node, not GRA — split here
+  const niAmt = d.rev['NIOperatingAccount'] || 0;
+  const revNodes=[];
+  let y=TPAD;
+  for(const k of REV_ORDER){
+    const v=d.rev[k]||0; if(v<0.1) continue;
+    const h=Math.max(v*SC,2);
+    revNodes.push({id:k,amt:v,h,y0:y,y1:y+h,col:0,sub:'rev',color:REV_COLOR[k]});
+    y+=h+PAD;
+  }
+  const revBottom=y-PAD;
+
+  // Find NI rev node vertical position
+  const niRevNode = revNodes.find(n=>n.id==='NIOperatingAccount');
+
+  // ── Own income nodes (col0, below all rev nodes) ──
+  const ownNodes=[];
+  y=revBottom+OWN_GAP;
+  for(const grp of GRP_ORDER){
+    const v=d.grp_own[grp]||0; if(v<500) continue;
+    const h=Math.max(v*SC,2);
+    ownNodes.push({id:grp,amt:v,h,y0:y,y1:y+h,col:0,sub:'own',color:OWN_COLOR[grp]||'#888a'});
+    y+=h+PAD;
+  }
+
+  // ── GRA node (col1) — excludes NI receipts ──
+  const graAmt = d.total_gra - niAmt; // NI routes via NI Fund, not GRA
+  const graH=Math.max(graAmt*SC,2);
+  const graNode={id:'GRA',sub:'gra',amt:graAmt,h:graH,y0:TPAD,y1:TPAD+graH,
+    x0:cx(1),x1:cx(1)+NW,color:'#C9A24A'};
+
+  // ── NI Fund node — stock with head room above flow ──
+  const ssSpend = d.grp_gross['Social Security'] || 0;
+  const niTopUp = Math.max(0, ssSpend - niAmt); // shortfall goes via GRA directly to SS
+  const niFundFlowH = Math.max(niAmt*SC, 2);    // ribbon thickness = actual flow
+  const niFundH = niFundFlowH + 4;              // just 4px above flow so node matches ribbon
+  const niY0 = niRevNode ? niRevNode.y0 : TPAD;
+  const niFundNode = {id:'NIFund',sub:'nifund',amt:niAmt,h:niFundH,y0:niY0,y1:niY0+niFundH,
+    x0:cx(1),x1:cx(1)+NW,color:'#fdba74'};
+
+  // ── CFR annual transfer — from CFR_ANNUAL_M lookup (Pink Book Table 3A) ──
+  const cfrAmt = getCFRAnnual(fy); // £000s
+  const cfrAmtD = useConstPrices ? cfrAmt * (DEFLATORS[fy]||1) : cfrAmt;
+  const cfrH = Math.max(cfrAmtD * SC, 2);
+
+  // CFR node built after cat4Nodes — see below
+
+  // ── Dept group nodes (col2) ──
+  const grpNodes=[];
+  y=TPAD;
+  for(const grp of GRP_ORDER){
+    const gross=d.grp_gross[grp]||0; if(gross<500) continue;
+    const h=Math.max(gross*SC,2);
+    const gra_h=(d.grp_gra[grp]||0)*SC;
+    const own_h=(d.grp_own[grp]||0)*SC;
+    grpNodes.push({id:grp,amt:gross,h,y0:y,y1:y+h,gra_h,own_h,sub:'grp',
+      x0:cx(3),x1:cx(3)+NW,color:GRP_COLOR[grp]});
+    y+=h+PAD;
+  }
+
+  // ── Exp type nodes (col3) ──
+  const cat4Nodes=[];
+  y=TPAD;
+  for(const c of CAT_ORDER){
+    const v=d.cats4[c]||0; if(v<500) continue;
+    const h=Math.max(v*SC,2);
+    cat4Nodes.push({id:c,amt:v,h,y0:y,y1:y+h,sub:'cat',x0:cx(4),x1:cx(4)+NW,color:CAT_COLOR[c]});
+    y+=h+PAD;
+  }
+
+  // CFR node in col4 — below the last exp type node, with a small gap
+  const cat4Bottom = cat4Nodes.length ? cat4Nodes[cat4Nodes.length-1].y1 : TPAD;
+  const cfrNodeY0 = cat4Bottom + PAD*2;
+  const cfrNode4 = {id:'CFR4',sub:'cfr4',amt:cfrAmtD,h:cfrH,
+    y0:cfrNodeY0,y1:cfrNodeY0+cfrH,
+    x0:cx(4),x1:cx(4)+NW,color:'#fbbf24'};
+  // Rev → GRA (all except NI which goes to NI Fund)
+  const revLinks=[];
+  let graInY=TPAD;
+  for(const n of revNodes){
+    if(n.id==='NIOperatingAccount') continue; // NI bypasses GRA
+    const th=n.h;
+    revLinks.push({id:'rv-'+n.id,nodeIds:[n.id,'GRA'],
+      x0:cx(0)+NW, sy0:n.y0, sy1:n.y1,
+      x1:cx(1), ty0:graInY, ty1:graInY+th,
+      color:n.color, op:0.55});
+    graInY+=th;
+  }
+
+  // NI receipts → NI Fund node
+  const niLinks=[];
+  if(niRevNode){
+    niLinks.push({id:'rv-NIOperatingAccount',nodeIds:['NIOperatingAccount','NIFund'],
+      x0:cx(0)+NW, sy0:niRevNode.y0, sy1:niRevNode.y1,
+      x1:cx(1), ty0:niFundNode.y1-niFundFlowH, ty1:niFundNode.y1,
+      color:'#fdba74', op:0.55});
+  }
+
+  // GRA → depts (col1 → col2, skipping col1.5)
+  const graLinks=[];
+  let graOutY=TPAD;
+  for(const gn of grpNodes){
+    const sh=gn.gra_h; if(sh<1) continue;
+    if(gn.id==='Social Security') continue; // Social Security funded by NI Fund
+    graLinks.push({id:'gra-'+gn.id,nodeIds:['GRA',gn.id],
+      x0:cx(1)+NW, sy0:graOutY, sy1:graOutY+sh,
+      x1:cx(3), ty0:gn.y0, ty1:gn.y0+gn.gra_h,
+      color:gn.color, op:0.45});
+    graOutY+=sh;
+  }
+
+  // GRA → CFR (annual transfer ribbon, from bottom of GRA)
+  const cfrLinks=[];
+  if(cfrAmtD > 0.1){
+    cfrLinks.push({id:'gra-CFR4',nodeIds:['GRA','CFR4'],
+      x0:cx(1)+NW, sy0:graNode.y1-cfrH, sy1:graNode.y1,
+      x1:cx(4), ty0:cfrNode4.y0, ty1:cfrNode4.y1,
+      color:'#fbbf24', op:0.5});
+  }
+
+  // GRA → Social Security top-up (shortfall between NI receipts and SS spend)
+  if(niTopUp > 0.1){
+    const topUpH = Math.max(niTopUp*SC, 2);
+    const ssGrpNode = grpNodes.find(g=>g.id==='Social Security');
+    if(ssGrpNode){
+      graLinks.push({id:'gra-SocialSecurity-topup',nodeIds:['GRA','Social Security'],
+        x0:cx(1)+NW, sy0:graNode.y1-topUpH, sy1:graNode.y1,
+        x1:cx(3), ty0:ssGrpNode.y0, ty1:ssGrpNode.y0+topUpH,
+        color:'#C9A24A', op:0.45});
+    }
+  }
+
+  // NI Fund → Social Security
+  const niOutLinks=[];
+  const ssNode = grpNodes.find(g=>g.id==='Social Security');
+  if(ssNode){
+    // NI Fund → SS: NI receipts occupy BELOW the GRA topup (GRA on top)
+    const topUpHSS = niTopUp > 0.1 ? Math.max(niTopUp*SC, 2) : 0;
+    niOutLinks.push({id:'ni-SocialSecurity',nodeIds:['NIFund','Social Security'],
+      x0:cx(1)+NW, sy0:niFundNode.y1-niFundFlowH, sy1:niFundNode.y1,
+      x1:cx(3), ty0:ssNode.y0+topUpHSS, ty1:ssNode.y0+topUpHSS+niFundFlowH,
+      color:'#fdba74', op:0.45});
+  }
+
+  // Own income → depts
+  const ownLinks=[];
+  const ownByGrp={};
+  for(const on of ownNodes) ownByGrp[on.id]=on;
+  for(const gn of grpNodes){
+    const on=ownByGrp[gn.id]; if(!on||gn.own_h<1) continue;
+    ownLinks.push({id:'own-'+gn.id,nodeIds:[gn.id],
+      x0:cx(0)+NW, sy0:on.y0, sy1:on.y1,
+      x1:cx(3), ty0:gn.y0+gn.gra_h, ty1:gn.y1,
+      color:gn.color, op:0.50});
+  }
+
+  // Dept → exp category links
+  const grpCatOff={};
+  for(const gn of grpNodes){
+    const gc=d.grp_cats[gn.id]||{};
+    let yy=gn.y0; const offs={};
+    for(const c of CAT_ORDER){
+      const amt=gc[c]||0; if(amt<0.1) continue;
+      const h=amt*SC;
+      offs[c]={y0:yy,y1:yy+h}; yy+=h;
+    }
+    grpCatOff[gn.id]=offs;
+  }
+  const cat4GrpOff={};
+  for(const cn of cat4Nodes){
+    let yy=cn.y0; const offs={};
+    for(const gn of grpNodes){
+      const gc=d.grp_cats[gn.id]||{};
+      const amt=gc[cn.id]||0; if(amt<0.1) continue;
+      const h=amt*SC;
+      offs[gn.id]={y0:yy,y1:yy+h}; yy+=h;
+    }
+    cat4GrpOff[cn.id]=offs;
+  }
+  const cat4Links=[];
+  for(const gn of grpNodes){
+    for(const cn of cat4Nodes){
+      const so=(grpCatOff[gn.id]||{})[cn.id];
+      const to=(cat4GrpOff[cn.id]||{})[gn.id];
+      if(!so||!to) continue;
+      cat4Links.push({id:`c-${gn.id}-${cn.id}`,nodeIds:[gn.id,cn.id],
+        x0:cx(3)+NW, sy0:so.y0, sy1:so.y1,
+        x1:cx(4), ty0:to.y0, ty1:to.y1,
+        color:gn.color, op:0.4});
+    }
+  }
+
+  // ── Reserve Fund node — stock in c1, below NI Fund ──
+  const resFundY0 = niFundNode.y1 + PAD*3;
+  const resFundH  = 38; // fixed height beaker
+  const resFundNode = {id:'ReserveFund',sub:'reserve',amt:0,h:resFundH,
+    y0:resFundY0,y1:resFundY0+resFundH,x0:cx(1),x1:cx(1)+NW,color:'#4ade80'};
+
+  // ── c5 stock positions — three fixed-height beakers stacked down c5 ──
+  const psperH5 = 60;                                          // fixed beaker height for all three
+  const capResH = 60;                                          // same height as PSPER
+  // PSPER: bottom aligned with bottom of Employee Costs node so super ribbons arrive flat
+  const _empCat = cat4Nodes.find(n=>n.id==='Employee Costs');
+  const psperY1_5 = _empCat ? _empCat.y1 + 20 : TPAD + Math.round(avH * 0.38);
+  const psperY0_5 = psperY1_5 - psperH5;
+  // Reserve Fund: below where SS c4→c6 ribbons pass through c5 (~78% of avH)
+  const resFundY0_5 = TPAD + Math.round(avH * 0.78);
+  const resFundY1_5 = resFundY0_5 + 60;
+  const capResY1 = cfrNode4.y1;                                // Capital Reserve: bottom aligned with CFR
+  const capResY0 = capResY1 - capResH;
+
+  return{revNodes,ownNodes,graNode,niFundNode,resFundNode,cfrNode4,grpNodes,cat4Nodes,
+         revLinks,niLinks,graLinks,niOutLinks,ownLinks,cfrLinks,cat4Links,
+         d,fy,SC,psperY0:psperY0_5,psperY1:psperY1_5,
+         resFundY0:resFundY0_5,resFundY1:resFundY1_5,capResY0,capResY1};
+}
+
+function rib(x0,sy0,sy1,x1,ty0,ty1){
+  const mx=(x0+x1)/2;
+  return `M${x0},${sy0}C${mx},${sy0} ${mx},${ty0} ${x1},${ty0}L${x1},${ty1}C${mx},${ty1} ${mx},${sy1} ${x0},${sy1}Z`;
+}
+
+// ── Selection state ───────────────────────────────────────────────────────────
+let selectedNode='';    // '' = none
+let filterMode=true;
+// drillNode removed — all 6 cols permanently visible
+
+function getNodeOpacity(nodeId, selId, d, nodeSub){
+  if(!selId) return 1;
+  const sets=linkedNodeSets(selId, d);
+  if(nodeSub==='gra')    return sets.special.has('GRA') ? 1 : 0.07;
+  if(nodeSub==='rev')    return sets.rev.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='own')    return sets.grp.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='grp')    return sets.grp.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='cat')    return sets.cat.has(nodeId) ? 1 : 0.07;
+  if(nodeSub==='nifund') return sets.special.has('NIFund') ? 1 : 0.07;
+  if(nodeSub==='cfr4')   return sets.special.has('CFR4')   ? 1 : 0.07;
+  return 1;
+}
+function getLinkOpacity(link, selId, baseOp, d){
+  if(!selId) return baseOp;
+  const conn=connectedLinkIds(selId, d);
+  if(filterMode) return conn.has(link.id) ? baseOp : 0;
+  return conn.has(link.id) ? Math.min(baseOp+0.2, 0.85) : 0.04;
+}
+
+
+// setDrillNode removed — no drill toggle needed
+
+// ── Time series popout for drill nodes ───────────────────────────────────────
+const DRILL_TS_META={
+  PSPER:   {label:'PSPER Reserve Balance',  color:'#fb7185', unit:'£m',
+             note:'Estimated decline FY2016-FY2022; £0 confirmed FY2022-23+'},
+  Net:     {label:'Net Wages (est.)',        color:'#fcd34d', unit:'£000'},
+  PAYE:    {label:'PAYE Income Tax (est.)', color:'#fb923c', unit:'£000'},
+  EmpNI:   {label:'Employee NI (est.)',     color:'#fdba74', unit:'£000'},
+  ErNI:    {label:'Employer NI',            color:'#f97316', unit:'£000'},
+  EmpPen:  {label:'Employee Pension',       color:'#5eead4', unit:'£000'},
+  EmpSup:  {label:'Employer Pension (Super)',color:'#2dd4bf',unit:'£000'},
+  Pension: {label:'Civil Service Pensions',color:'#fb7185',unit:'£000'},
+};
+function showDrillPopup(nodeId, rect){
+  clearTimeout(tsHideTimer);
+  const popup=document.getElementById('ts-popup');
+  const meta=DRILL_TS_META[nodeId]; if(!meta) return;
+  const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  let vals;
+  if(nodeId==='PSPER'){
+    vals=years.map(fy=>PSPER_BAL_M[fy]!==undefined?PSPER_BAL_M[fy]:null);
+  } else {
+    const KEY={Net:'net',PAYE:'paye',EmpNI:'emp_ni',ErNI:'erni',EmpPen:'emp_pen',EmpSup:'emp_super',Pension:'pension'};
+    const k=KEY[nodeId];
+    vals=years.map(fy=>{ const v=calcDrillEmp(fy); return v&&k?v[k]:null; });
+  }
+  document.getElementById('ts-title').textContent=meta.label;
+  document.getElementById('ts-sub').textContent=(meta.note||(useConstPrices?'2024-25 constant prices':'Nominal')+' · FY2016–FY2025');
+  const canvas=document.getElementById('ts-canvas');
+  if(tsChart){tsChart.destroy();tsChart=null;}
+  const isPSPER=nodeId==='PSPER';
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:years.map(y=>'FY'+y),
+          datasets:[{data:vals,borderColor:meta.color,backgroundColor:meta.color+'22',
+                     borderWidth:2,pointRadius:3,pointBackgroundColor:meta.color,fill:true,tension:0.3,spanGaps:true}]},
+    options:{animation:false,responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>isPSPER?'£'+ctx.raw+'m':fmt(ctx.raw)},
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
+      scales:{
+        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>isPSPER?'£'+v+'m':fmt(v)},grid:{color:'#1e293b'}},
+      }}});
+  popup.style.visibility='hidden'; popup.style.display='block';
+  const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth,vh=window.innerHeight;
+  let px=rect.right+12,py=rect.top-ph/2;
+  if(px+pw>vw-10) px=rect.left-pw-12;
+  if(py<10) py=10; if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px'; popup.style.top=py+'px';
+}
+
+
+// ── Stock balance time-series popup (col5 nodes) ─────────────────────────────
+function showStockTsPopup(stockId, rect){
+  clearTimeout(tsHideTimer);
+  const s=STOCKS[stockId]; if(!s) return;
+  const popup=document.getElementById('ts-popup');
+  const years=Object.keys(s.data).map(Number).sort();
+  const vals=years.map(y=>s.data[y].v);
+  const types=years.map(y=>s.data[y].t);
+  document.getElementById('ts-title').textContent=s.label+' — Balance';
+  document.getElementById('ts-sub').textContent='At 31 March · '+s.unit;
+  const canvas=document.getElementById('ts-canvas');
+  if(tsChart){tsChart.destroy();tsChart=null;}
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:years.map(y=>'FY'+(y+1)),
+          datasets:[{data:vals,borderColor:s.color,backgroundColor:s.color+'22',
+                     borderWidth:2,pointRadius:3,pointBackgroundColor:s.color,fill:!s.inverted,
+                     tension:0.3,spanGaps:true}]},
+    options:{animation:false,responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>s.unit==='£bn'?'£'+ctx.raw.toFixed(2)+'bn':'£'+ctx.raw.toFixed(0)+'m'},
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
+      scales:{
+        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>s.unit==='£bn'?'£'+v+'bn':'£'+v+'m'},grid:{color:'#1e293b'},reverse:!!s.inverted},
+      }}});
+  popup.style.visibility='hidden'; popup.style.display='block';
+  const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth,vh=window.innerHeight;
+  let px=rect.right+12,py=rect.top-ph/2;
+  if(px+pw>vw-10) px=rect.left-pw-12;
+  if(py<10) py=10; if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px'; popup.style.top=py+'px';
+}
+
+// ── c5 Stocks + c6 Pay & Benefits — keyed morphing transitions ──────────────
+function drawExpanded(lyt,fy,animate){
+  const de=calcDrillEmp(fy); if(!de) return;
+  const SC=lyt.SC, G=6, payGap=4;
+  const g=svg.append('g').attr('class','drill-el');
+  const x5=cx(5), x6=cx(6);
+  const empNode=lyt.cat4Nodes.find(n=>n.id==='Employee Costs');
+  const ssNode =lyt.cat4Nodes.find(n=>n.id==='Social Security');
+  const newDR={};
+
+  // Morphing ribbon: starts at prev coords if animating, transitions to current
+  function drib(id,x0,sy0,sy1,x1,ty0,ty1){
+    newDR[id]={sy0,sy1,ty0,ty1};
+    const pr=prevDrillRibs[id];
+    const el=g.append('path');
+    if(animate&&pr){
+      el.attr('d',rib(x0,pr.sy0,pr.sy1,x1,pr.ty0,pr.ty1));
+      el.transition().duration(DUR).attr('d',rib(x0,sy0,sy1,x1,ty0,ty1));
+    } else { el.attr('d',rib(x0,sy0,sy1,x1,ty0,ty1)); }
+    return el;
+  }
+  // Morphing rect y/height
+  function dyr(id,y,h){
+    newDR[id]={y,h};
+    const pr=prevDrillRibs[id];
+    if(animate&&pr&&(pr.y!==y||pr.h!==h)) return {sy:pr.y,sh:pr.h,ey:y,eh:h,m:true};
+    return {sy:y,sh:h,ey:y,eh:h,m:false};
+  }
+  function ayr(rect,pos){
+    rect.attr('y',pos.sy).attr('height',pos.sh);
+    if(pos.m) rect.transition().duration(DUR).attr('y',pos.ey).attr('height',pos.eh);
+    return rect;
+  }
+
+  const psperH=60;
+  const psperY0=lyt.psperY0, psperY1=lyt.psperY1, psperMid=(psperY0+psperY1)/2;
+  const capResY0=lyt.capResY0, capResY1=lyt.capResY1, capResMid=(capResY0+capResY1)/2;
+  const pensionH=psperY1-psperY0;
+  const bal=PSPER_BAL_M[fy]||0;
+
+  // ── Pension contributions + GRA top-up → PSPER ──
+  // Contributions (emp_super + emp_pen) arrive at PSPER bottom from Employee Costs (c4→c5)
+  // GRA top-up flows GRA(c2) → Employee Costs(c4) → PSPER top (c5)
+  if(empNode&&de.contrib>0.1){
+    const supH=Math.max(de.emp_super*SC,2), penH=Math.max(de.emp_pen*SC,2), totH=supH+penH;
+    const graH_s=de.gra_topup>0.1?Math.max(de.gra_topup*SC,2):0;
+    const srcY0=empNode.y1-totH;
+
+    // Scale destination heights so all three streams fit within the 60px PSPER beaker
+    const totalInH=totH+graH_s;
+    const ps=totalInH>0?Math.min(1,(pensionH-2)/totalInH):1;
+    const totH_d=Math.max(totH*ps,2);
+    const supH_d=supH/totH*totH_d, penH_d=totH_d-supH_d;
+    const graH_d=graH_s>0?Math.max(graH_s*ps,2):0;
+
+    // Contributions → bottom of PSPER (pink streams, c4→c5)
+    drib('dr-super',cx(4)+NW,srcY0,srcY0+supH,x5,psperY1-totH_d,psperY1-penH_d)
+      .attr('fill','#fb7185').attr('opacity',0.40);
+    drib('dr-pension',cx(4)+NW,srcY0+supH,empNode.y1,x5,psperY1-penH_d,psperY1)
+      .attr('fill','#f9a8d4').attr('opacity',0.35);
+
+    // GRA top-up: GRA(c2) → Employee Costs extension(c4) → PSPER top (c5)
+    if(graH_s>0){
+      const graNode=lyt.graNode;
+      const graSrcY0=graNode.y1-graH_s, graSrcY1=graNode.y1;
+      const ecY0=empNode.y1, ecY1=empNode.y1+graH_s;
+      // C2 GRA → C4 Employee Costs (below EC node, gold ribbon)
+      drib('dr-gra-ec',cx(1)+NW,graSrcY0,graSrcY1,cx(4),ecY0,ecY1)
+        .attr('fill','#C9A24A').attr('opacity',0.38);
+      // Small gold extension of EC node showing top-up landing there
+      g.append('rect').attr('x',cx(4)).attr('y',ecY0).attr('width',NW).attr('height',graH_s)
+        .attr('rx',1).attr('fill','#C9A24A').attr('opacity',0.55);
+      // C4 Employee Costs → C5 PSPER top (gold ribbon)
+      drib('dr-gra-topup',cx(4)+NW,ecY0,ecY1,x5,psperY0,psperY0+graH_d)
+        .attr('fill','#C9A24A').attr('opacity',0.45);
+      // Label on GRA→EC ribbon
+      const lblX=(cx(1)+NW+cx(4))/2;
+      const lblY=(graSrcY0+ecY1)/2;
+      g.append('text').attr('class','lbl').attr('x',lblX).attr('y',lblY-3)
+        .attr('text-anchor','middle').attr('font-weight','600').attr('fill','#C9A24A').text('GRA top-up');
+      g.append('text').attr('class','lbl lbl-a').attr('x',lblX).attr('y',lblY+8)
+        .attr('text-anchor','middle').attr('fill','#C9A24A').text(fmt(de.gra_topup));
+    }
+
+    // Contribution labels on c4→c5 ribbons
+    const mx=(cx(4)+NW+x5)/2;
+    const midA=srcY0+supH/2, midB=srcY0+supH+penH/2;
+    g.append('text').attr('class','lbl').attr('x',mx).attr('y',midA-3).attr('text-anchor','middle')
+      .attr('font-weight','600').attr('fill','#fb7185').attr('opacity',0.85).text('Employer Super');
+    g.append('text').attr('class','lbl lbl-a').attr('x',mx).attr('y',midA+5).attr('text-anchor','middle')
+      .attr('fill','#fb7185').attr('opacity',0.7).text(fmt(de.emp_super));
+    if(penH>5){
+      g.append('text').attr('class','lbl').attr('x',mx).attr('y',midB-3).attr('text-anchor','middle')
+        .attr('font-weight','600').attr('fill','#f9a8d4').attr('opacity',0.85).text('Employee Pension');
+      g.append('text').attr('class','lbl lbl-a').attr('x',mx).attr('y',midB+5).attr('text-anchor','middle')
+        .attr('fill','#f9a8d4').attr('opacity',0.7).text(fmt(de.emp_pen));
+    }
+  }
+
+  // ── PSPER beaker ──
+  const psperG=g.append('g').style('cursor','pointer')
+    .on('mouseenter',e=>showDrillPopup('PSPER',e.currentTarget.getBoundingClientRect()))
+    .on('mouseleave',hideTsPopup);
+  ayr(psperG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+    .attr('fill','#2d1525').attr('opacity',0.90), dyr('psper-bg',psperY0,pensionH));
+  if(bal>0){
+    const fillH=Math.min((pensionH-2)*bal/200,pensionH-2);
+    ayr(psperG.append('rect').attr('x',x5+1).attr('width',NW-2).attr('rx',1)
+      .attr('fill','#fb7185').attr('opacity',0.65), dyr('psper-fill',psperY1-fillH,fillH));
+  }
+  ayr(psperG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+    .attr('fill','none').attr('stroke','#fb7185').attr('stroke-width',1.5)
+    .attr('stroke-dasharray','4,3').attr('opacity',0.85), dyr('psper-border',psperY0,pensionH));
+  g.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+    .attr('x',x5-G).attr('y',psperMid-8).attr('font-size','10px').attr('font-weight','700').attr('fill','#fb7185').text('PSPER');
+  g.append('text').attr('class','lbl lbl-dim').attr('text-anchor','end').attr('dominant-baseline','middle')
+    .attr('x',x5-G).attr('y',psperMid+4).attr('font-size','8px').text('Civil Service');
+  g.append('text').attr('class','lbl lbl-dim').attr('text-anchor','end').attr('dominant-baseline','middle')
+    .attr('x',x5-G).attr('y',psperMid+14).attr('font-size','8px').text('Pensions');
+  g.append('text').attr('class','lbl lbl-r').attr('x',x5+NW+G).attr('y',psperMid-6)
+    .text(bal>0?`Reserve £${bal}m`:'Reserve £0');
+  g.append('text').attr('class','lbl lbl-a').attr('x',x5+NW+G).attr('y',psperMid+6)
+    .text(bal>0?fmt(de.pension):'exhausted FY2022-23');
+  g.append('text').attr('class','lbl').attr('x',x5+NW+G).attr('y',psperMid+17)
+    .attr('font-size','7px').attr('fill','#2dd4bf').attr('opacity',0.75).text('Contributions: '+fmt(de.contrib));
+
+  // ── Capital Reserve ──
+  {
+    const cs=STOCKS['cfr']; let csV=null,csT=null;
+    for(let y=fy;y>=2013;y--){ if(cs.data[y]){csV=cs.data[y].v;csT=cs.data[y].t;break;} }
+    const csCF=csT==='budget'||csT==='probable';
+    const capH=capResY1-capResY0;
+    if(lyt.cfrNode4&&lyt.cfrNode4.amt>0.1){
+      const cfn=lyt.cfrNode4;
+      drib('dr-cfr',cx(4)+NW,cfn.y0,cfn.y1,x5,capResY1-Math.min(cfn.h,capH),capResY1)
+        .attr('fill','#fbbf24').attr('opacity',0.38);
+    }
+    const csG=g.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showStockTsPopup('cfr',e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    ayr(csG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','#2e2510').attr('stroke','#fbbf24').attr('stroke-width',1)
+      .attr('stroke-dasharray','4,3').attr('opacity',0.85), dyr('cap-bg',capResY0,capH));
+    if(csV!==null&&csV>0){
+      const cff=Math.min(csV/100,1), cfh=(capH-2)*cff;
+      ayr(csG.append('rect').attr('x',x5+1).attr('width',NW-2).attr('rx',1)
+        .attr('fill','#fbbf24').attr('opacity',csCF?0.50:0.72), dyr('cap-fill',capResY1-cfh,cfh));
+    }
+    g.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',capResMid-7).attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('Capital');
+    g.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',capResMid+5).attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('Reserve');
+    if(csV!==null)
+      g.append('text').attr('class','lbl lbl-mono').attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('x',x5-G).attr('y',capResMid+17).attr('font-size','8px').attr('font-family','JetBrains Mono,monospace')
+        .text((csCF?'~':'')+'£'+csV.toFixed(0)+'m');
+    const arX=x5+NW+G,arY=capResMid;
+    g.append('line').attr('x1',arX).attr('y1',arY).attr('x2',arX+55).attr('y2',arY)
+      .attr('stroke','#fbbf24').attr('stroke-width',2.0).attr('marker-end','url(#arr-gold)').attr('opacity',0.85);
+    g.append('text').attr('x',arX+2).attr('y',arY-5)
+      .attr('font-size','9px').attr('font-weight','600').attr('fill','#fbbf24').attr('opacity',0.95).attr('text-anchor','start').text('Capital Projects');
+  }
+
+  // ── Reserve Fund ──
+  {
+    const rfY0=lyt.resFundY0,rfY1=lyt.resFundY1,rfH=rfY1-rfY0,rfMid=(rfY0+rfY1)/2;
+    const rs=STOCKS['reserve']; let rsV=null;
+    for(let y=fy;y>=2013;y--){ if(rs.data[y]){rsV=rs.data[y].v;break;} }
+    const rfG=g.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showStockTsPopup('reserve',e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    ayr(rfG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','#1a3327').attr('opacity',0.90), dyr('rf-bg',rfY0,rfH));
+    if(rsV!==null){
+      const rff=Math.min(rsV/750,1),rfh=(rfH-2)*rff;
+      ayr(rfG.append('rect').attr('x',x5+1).attr('width',NW-2).attr('rx',1)
+        .attr('fill','#4ade80').attr('opacity',0.70), dyr('rf-fill',rfY1-rfh,rfh));
+    }
+    ayr(rfG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','none').attr('stroke','#4ade80').attr('stroke-width',1.5)
+      .attr('stroke-dasharray','4,3').attr('opacity',0.85), dyr('rf-border',rfY0,rfH));
+    g.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',rfMid-7).attr('font-size','10px').attr('font-weight','700').attr('fill','#4ade80').text('Reserve');
+    g.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',rfMid+5).attr('font-size','10px').attr('font-weight','700').attr('fill','#4ade80').text('Fund');
+    if(rsV!==null)
+      g.append('text').attr('class','lbl lbl-mono').attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('x',x5-G).attr('y',rfMid+17).attr('font-size','8px').attr('font-family','JetBrains Mono,monospace')
+        .text('£'+rsV.toFixed(0)+'m');
+  }
+
+  // ── COL 6: PAY & BENEFITS ──
+  if(!empNode){ prevDrillRibs=newDR; return; }
+  const payItems=[
+    {id:'Net',   label:'Net Wages (incl. overtime)',amt:de.net,   color:'#fcd34d',est:false},
+    {id:'PAYE',  label:'PAYE (Income Tax)',          amt:de.paye,  color:'#fb923c',est:true },
+    {id:'EmpNI', label:'Employee NI',                amt:de.emp_ni,color:'#fdba74',est:true },
+    {id:'ErNI',  label:'Employer NI',                amt:de.erni,  color:'#f97316',est:false},
+  ];
+  const payHeights=payItems.map(item=>Math.max(item.amt*SC,3));
+  // Pay ribbons (c4→c6)
+  {let srcY=empNode.y0,dstY=empNode.y0;
+  for(let pi=0;pi<payItems.length;pi++){
+    const ph=payHeights[pi];
+    drib('dr-pay-'+payItems[pi].id,cx(4)+NW,srcY,srcY+ph,x6,dstY,dstY+ph)
+      .attr('fill',payItems[pi].color).attr('opacity',0.20);
+    srcY+=ph; dstY+=ph+payGap;
+  }}
+  // Pay item nodes
+  let yy=empNode.y0;
+  for(let pi=0;pi<payItems.length;pi++){
+    const item=payItems[pi],h=payHeights[pi],mid=yy+h/2;
+    const ng=g.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showDrillPopup(item.id,e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    ayr(ng.append('rect').attr('x',x6).attr('width',NW).attr('rx',1)
+      .attr('fill',item.color).attr('opacity',0.88), dyr('pay-'+item.id,yy,h));
+    if(h>=10){
+      g.append('text').attr('class','lbl lbl-r').attr('x',x6+NW+G)
+        .attr('y',h>=18?mid-5:mid).text(item.label+(item.est?' ᵉˢᵗ':''));
+      if(h>=18) g.append('text').attr('class','lbl lbl-a').attr('x',x6+NW+G).attr('y',mid+6).text(fmt(item.amt));
+    }
+    yy+=h+payGap;
+  }
+  yy+=6;
+  g.append('text').attr('x',x6).attr('y',yy)
+    .attr('font-size','7px').attr('fill','#475569').attr('text-anchor','start')
+    .text('ᵉˢᵗ PAYE & Emp NI estimated — FoI pending. See Governance Notes.');
+  yy+=14;
+
+  // Civil Service Pensions (c6)
+  const civY0=Math.max(psperY0,yy);
+  const civH=Math.max(de.pension*SC,6),civMid=civY0+civH/2;
+  {const outH=Math.min(civH,psperH),deptTot=PENSION_DEPT.reduce((s,d)=>s+d.v,0);
+  let depOutY=psperY1-outH,depCivY=civY0;
+  for(const dp of PENSION_DEPT){
+    const frac=dp.v/deptTot,dh=outH*frac,ch=civH*frac;
+    drib('dr-csp-'+dp.id,x5+NW,depOutY,depOutY+dh,x6,depCivY,depCivY+ch)
+      .attr('fill',GRP_COLOR[dp.id]||'#888').attr('opacity',0.38);
+    depOutY+=dh; depCivY+=ch;
+  }}
+  ayr(g.append('rect').attr('x',x6).attr('width',NW).attr('rx',2)
+    .attr('fill','#fb7185').attr('opacity',0.80), dyr('csp-node',civY0,civH));
+  if(civH>=10){
+    g.append('text').attr('class','lbl lbl-r').attr('x',x6+NW+G)
+      .attr('y',civH>=20?civMid-6:civMid).attr('fill','#fb7185').text('Civil Service Pensions');
+    if(civH>=20) g.append('text').attr('class','lbl lbl-a').attr('x',x6+NW+G).attr('y',civMid+6).text(fmt(de.pension));
+  }
+
+  // ── SOCIAL SECURITY in c6 ──
+  if(!ssNode){ prevDrillRibs=newDR; return; }
+  const ssTot=ssNode.amt;
+  const niAmtD=lyt.d.rev['NIOperatingAccount']||0;
+  const niPortion=Math.min(niAmtD,ssTot),revPortion=Math.max(0,ssTot-niPortion);
+  const niBase=DRILL_SS.ni.reduce((s,i)=>s+i.v,0);
+  const revBase=DRILL_SS.rev.reduce((s,i)=>s+i.v,0);
+  const ssC6Y0=Math.max(ssNode.y0,civY0+civH+8);
+  const niColors=['#fdba74','#fb923c','#f97316','#ea580c','#fbbf24','#fde68a'];
+  const niItemH=DRILL_SS.ni.map(item=>Math.max((item.v/niBase)*niPortion*SC-0.5,2));
+  const revItemH=DRILL_SS.rev.map(item=>Math.max((item.v/revBase)*revPortion*SC-0.5,1.5));
+  const niFrac=ssTot>0?niPortion/ssTot:0.75;
+  const ssNiH=ssNode.h*niFrac;
+  const niTotalH=niItemH.reduce((s,v)=>s+v,0)+(DRILL_SS.ni.length-1)*2;
+  const revTotalH=revItemH.reduce((s,v)=>s+v,0);
+  let syy=ssC6Y0;
+  const c6NiEnd=syy+niTotalH+3;
+  // Per-item NI ribbons (multi-coloured, each matches its c6 node)
+  {let niSrcY=ssNode.y0,niDstY=syy;
+  for(let ni=0;ni<DRILL_SS.ni.length;ni++){
+    const srcH=ssNiH*(DRILL_SS.ni[ni].v/niBase),dstH=niItemH[ni];
+    drib('dr-ss-ni-'+ni,cx(4)+NW,niSrcY,niSrcY+srcH,x6,niDstY,niDstY+dstH)
+      .attr('fill',niColors[ni%niColors.length]).attr('opacity',0.35);
+    niSrcY+=srcH; niDstY+=dstH+2;
+  }}
+  // GRA ribbon: gold
+  if(revPortion>0)
+    drib('dr-ss-gra',cx(4)+NW,ssNode.y0+ssNiH,ssNode.y1,x6,c6NiEnd+2,c6NiEnd+2+revTotalH)
+      .attr('fill','#C9A24A').attr('opacity',0.38);
+  // NI items
+  for(let ni=0;ni<DRILL_SS.ni.length;ni++){
+    const item=DRILL_SS.ni[ni],h2=niItemH[ni],mid2=syy+h2/2,col=niColors[ni%niColors.length];
+    ayr(g.append('rect').attr('x',x6).attr('width',NW).attr('rx',1)
+      .attr('fill',col).attr('opacity',0.72), dyr('ss-ni-'+ni,syy,h2));
+    if(h2>=10){
+      const sc2=(item.v/niBase)*niPortion;
+      const lbl=h2<14?item.label+' ~'+fmt(sc2):item.label;
+      g.append('text').attr('class','lbl lbl-r').attr('x',x6+NW+G).attr('y',mid2+0.5)
+        .attr('fill',col).attr('dominant-baseline','middle').text(lbl);
+      if(h2>=14) g.append('text').attr('class','lbl lbl-a').attr('x',x6+NW+G).attr('y',mid2+8).text('~'+fmt(sc2));
+    }
+    syy+=h2+2;
+  }
+  syy+=3;
+  // GRA items
+  for(let ri=0;ri<DRILL_SS.rev.length;ri++){
+    const item=DRILL_SS.rev[ri],sc2=(item.v/revBase)*revPortion;
+    const h2=revItemH[ri],mid2=syy+h2/2;
+    ayr(g.append('rect').attr('x',x6).attr('width',NW).attr('rx',1)
+      .attr('fill','#C9A24A').attr('opacity',0.65), dyr('ss-gra-'+ri,syy,h2));
+    if(h2>=8){
+      const lbl=h2<14?item.label+' ~'+fmt(sc2):item.label;
+      g.append('text').attr('class','lbl lbl-r').attr('x',x6+NW+G).attr('y',mid2+0.5)
+        .attr('dominant-baseline','middle').text(lbl);
+      if(h2>=14) g.append('text').attr('class','lbl lbl-a').attr('x',x6+NW+G).attr('y',mid2+8).text('~'+fmt(sc2));
+    }
+    syy+=h2+2;
+  }
+  g.append('text').attr('x',x6).attr('y',syy+6)
+    .attr('font-size','7px').attr('fill','#475569')
+    .text('~ Proportional estimates. Year-by-year SS item data not yet in dataset.');
+
+  prevDrillRibs=newDR;
+}
+
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+const DUR=1400;
+let prevLayout=null;
+let prevDrillRibs={};
+
+function draw(fy,animate){
+  const lyt=buildLayout(fy); if(!lyt) return;
+  // Ensure arrow marker exists
+  if(!svg.select('#arr-gold').node()){
+    const defs=svg.append('defs');
+    defs.append('marker').attr('id','arr-gold').attr('markerWidth',6).attr('markerHeight',6)
+      .attr('refX',5).attr('refY',3).attr('orient','auto')
+      .append('path').attr('d','M0,0 L6,3 L0,6Z').attr('fill','#fbbf24').attr('opacity',0.7);
+  }
+  const ld=lyt.d; // fiscal data for connectivity lookups
+
+  const prevR={};
+  if(prevLayout){
+    [...prevLayout.revLinks,...prevLayout.niLinks,...prevLayout.graLinks,...prevLayout.niOutLinks,...prevLayout.ownLinks,...prevLayout.cfrLinks,...prevLayout.cat4Links]
+      .forEach(l=>{prevR[l.id]=l;});
+  }
+
+  function pathFor(l){return rib(l.x0,l.sy0,l.sy1,l.x1,l.ty0,l.ty1);}
+  function pathFrom(l){const p=prevR[l.id]||l; return rib(l.x0,p.sy0,p.sy1,l.x1,p.ty0,p.ty1);}
+
+  const allLinks=[...lyt.revLinks,...lyt.niLinks,...lyt.graLinks,...lyt.niOutLinks,...lyt.ownLinks,...lyt.cfrLinks,...lyt.cat4Links];
+
+  svg.selectAll('path.link').data(allLinks, d=>d.id)
+    .join(
+      enter=>enter.append('path').attr('class','link')
+        .attr('fill',d=>d.color).attr('d',d=>pathFrom(d)).attr('opacity',0),
+      update=>update,
+      exit=>exit.transition().duration(DUR/2).attr('opacity',0).remove()
+    )
+    .each(function(d){
+      const sel=d3.select(this);
+      const op=getLinkOpacity(d,selectedNode,d.op,ld);
+      sel.attr('fill',d.color);
+      if(animate) sel.transition().duration(DUR).attr('d',pathFor(d)).attr('opacity',op);
+      else sel.attr('d',pathFor(d)).attr('opacity',op);
+    });
+
+  // Nodes
+  const allNodes=[...lyt.revNodes,...lyt.ownNodes,lyt.graNode,lyt.niFundNode,lyt.cfrNode4,...lyt.grpNodes,...lyt.cat4Nodes];
+  const nodeX=n=>n.x0!=null?n.x0:(n.sub==='own'||n.sub==='rev'?cx(0):0);
+
+  svg.selectAll('rect.node').data(allNodes,d=>d.id+(d.sub||d.col||''))
+    .join(
+      enter=>enter.append('rect').attr('class','node')
+        .attr('data-nodeid',d=>d.id)
+        .attr('x',d=>nodeX(d)).attr('y',d=>d.y0).attr('width',NW).attr('height',d=>d.h)
+        .attr('rx',2).attr('fill',d=>d.color)
+        .attr('opacity',d=>getNodeOpacity(d.id,selectedNode,ld,d.sub))
+        .on('mouseenter',nodeMouseEnter)
+        .on('mouseleave',nodeMouseLeave),
+      update=>update.each(function(d){
+        const s=d3.select(this);
+        const op=getNodeOpacity(d.id,selectedNode,ld,d.sub);
+        if(animate) s.transition().duration(DUR).attr('y',d.y0).attr('height',d.h).attr('fill',d.color).attr('opacity',op);
+        else s.attr('y',d.y0).attr('height',d.h).attr('fill',d.color).attr('opacity',op);
+        s.attr('x',nodeX(d)).attr('data-nodeid',d.id);
+      }),
+      exit=>exit.remove()
+    );
+
+  // Labels
+  svg.selectAll('text.lbl').remove();
+  const G=5;
+
+  for(const n of lyt.revNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'rev');
+    svg.append('text').attr('class','lbl lbl-l').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',showAmt?mid-6:mid).text(REV_LABEL[n.id]||n.id);
+    if(showAmt) svg.append('text').attr('class','lbl lbl-al').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  if(lyt.ownNodes.length){
+    const divY=lyt.revNodes[lyt.revNodes.length-1].y1+OWN_GAP/2;
+    // 'Dept Own Income' label removed
+  }
+  for(const n of lyt.ownNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'own');
+    svg.append('text').attr('class','lbl lbl-l').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',showAmt?mid-6:mid).text(OWN_LABEL[n.id]||n.id+' Income');
+    if(showAmt) svg.append('text').attr('class','lbl lbl-al').attr('opacity',op)
+      .attr('x',cx(0)-G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  // GRA label
+  if(lyt.graNode.h>40){
+    const gmid=lyt.graNode.y0+lyt.graNode.h/2;
+    const gx=cx(1)-G;
+    svg.append('text').attr('class','lbl').attr('text-anchor','end')
+      .attr('dominant-baseline','middle').attr('x',gx).attr('y',gmid-7)
+      .attr('font-size','11px').attr('font-weight','700').attr('fill','#C9A24A').text('GRA');
+    svg.append('text').attr('class','lbl lbl-mono').attr('text-anchor','end')
+      .attr('dominant-baseline','middle').attr('x',gx).attr('y',gmid+7)
+      .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace')
+      .text(fmt(lyt.graNode.amt));
+  }
+
+  // NI Fund node label — opacity tied to nifund node
+  if(lyt.niFundNode.h>12){
+    const n=lyt.niFundNode, mid=n.y0+n.h/2, nx=cx(1)-G;
+    const niOp=getNodeOpacity('NIFund',selectedNode,ld,'nifund');
+    svg.append('text').attr('class','lbl').attr('text-anchor','end').attr('opacity',niOp)
+      .attr('dominant-baseline','middle').attr('x',nx).attr('y',mid-7)
+      .attr('font-size','11px').attr('font-weight','700').attr('fill','#fdba74').text('NI Fund');
+    svg.append('text').attr('class','lbl lbl-mono').attr('text-anchor','end').attr('opacity',niOp)
+      .attr('dominant-baseline','middle').attr('x',nx).attr('y',mid+7)
+      .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace')
+      .text(fmt(n.amt));
+  }
+
+  for(const n of lyt.grpNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'grp');
+    svg.append('text').attr('class','lbl lbl-r').attr('opacity',op)
+      .attr('x',cx(3)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
+    if(showAmt) svg.append('text').attr('class','lbl lbl-a').attr('opacity',op)
+      .attr('x',cx(3)+NW+G).attr('y',mid+6).text(fmt(n.amt));
+  }
+
+  for(const n of lyt.cat4Nodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'cat');
+    const isDrillable=(n.id==='Employee Costs'||n.id==='Social Security');
+    svg.append('text').attr('class','lbl lbl-r').attr('opacity',op)
+      .attr('x',cx(4)+NW+G).attr('y',showAmt?mid-6:mid).text(n.id);
+    if(showAmt) svg.append('text').attr('class','lbl lbl-a').attr('opacity',op)
+      .attr('x',cx(4)+NW+G).attr('y',mid+6).text(fmt(n.amt));
+    // (button moved to col header — single button to right of Expenditure & CFR header)
+  }
+
+  // Reserve Fund moved to c5 (drawn in drawExpanded as drill-el) — clean up any stale stock-nodes
+  svg.selectAll('rect.stock-node').remove();
+
+  // CFR col4 node label — opacity tied to cfr4 node opacity
+  { const n=lyt.cfrNode4;
+    if(n && n.h>2){
+      const nx=cx(4)+NW+G, ny=n.y0+n.h/2;
+      const cfrOp=getNodeOpacity('CFR4',selectedNode,ld,'cfr4');
+      svg.append('text').attr('class','lbl').attr('text-anchor','start').attr('opacity',cfrOp)
+        .attr('dominant-baseline','middle').attr('x',nx).attr('y',n.h>16?ny-6:ny)
+        .attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('CFR transfer');
+      if(n.h>16) svg.append('text').attr('class','lbl').attr('text-anchor','start').attr('opacity',cfrOp)
+        .attr('dominant-baseline','middle').attr('x',nx).attr('y',ny+6)
+        .attr('font-size','9px').attr('font-family','JetBrains Mono, monospace').attr('fill','#e2e8f0')
+        .text(fmt(n.amt));
+    }
+  }
+
+  // Col headers — 6 permanent columns
+  svg.selectAll('text.col-hdr').remove();
+  [[cx(0)+NW/2,'Revenue Sources'],[cx(1)+NW/2,'Revenue Accounts'],
+   [cx(3)+NW/2,'Departments'],[cx(4)+NW/2,'Expenditure & CFR'],
+   [cx(5)+NW/2,'Reserve Accounts'],[cx(6)+NW/2,'Pay & Benefits']]
+    .forEach(([x,t])=>svg.append('text').attr('class','lbl col-hdr').attr('x',x).attr('y',13).text(t));
+
+  prevLayout=lyt;
+  updateStats(lyt);
+  // Stocks panel removed; stocks shown as nodes in col5 during drill
+  drawMobStocks(fy);
+  // Keyed morphing — remove old group, draw new with per-element transitions
+  svg.selectAll('g.drill-el,g.drill-old').interrupt().remove();
+  drawExpanded(lyt,fy,animate);
+  // Restore beakers when drill closes
+
+}
+
+function applyHighlight(){
+  // Re-apply opacity to existing elements without full redraw
+  const _ld=prevLayout?prevLayout.d:null;
+  svg.selectAll('path.link').attr('opacity',function(d){return getLinkOpacity(d,selectedNode,d.op,_ld);});
+  svg.selectAll('rect.node').attr('opacity',function(d){return getNodeOpacity(d.id,selectedNode,_ld,d.sub);});
+  svg.selectAll('text.lbl').attr('opacity',function(){
+    // Labels don't carry data easily — simplest is full redraw
+    return null;
+  });
+  if(prevLayout) draw(curFY, false);
+}
+
+function updateStats(lyt){
+  const d=lyt.d;
+  const t=d.total_gross, gra=d.total_gra, own=d.total_own;
+  const hlt=(d.grp_gross['Health & Care']||0);
+  const ss=(d.grp_gross['Social Security']||0);
+  const sta=(d.cats4['Employee Costs']||0);
+  document.getElementById('s-tot').textContent=fmt(t);
+  document.getElementById('s-gra').textContent=fmt(gra)+' ('+pct(gra,t)+')';
+  document.getElementById('s-own').textContent=fmt(own)+' ('+pct(own,t)+')';
+  document.getElementById('s-hlt').textContent=fmt(hlt)+' ('+pct(hlt,t)+')';
+  document.getElementById('s-ss').textContent=fmt(ss)+' ('+pct(ss,t)+')';
+  document.getElementById('s-sta').textContent=fmt(sta)+' ('+pct(sta,t)+')';
+  // Dynamic price basis label on first stat
+  document.getElementById('lbl-tot').textContent = 'Total Spending';
+}
+
+// ── Time-series popout ────────────────────────────────────────────────────────
+let tsChart=null;
+let tsHideTimer=null;
+
+function getNodeTimeSeries(nodeId){
+  const col=nodeCol(nodeId);
+  const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  // NIFund and CFR4 pull from STOCKS balance data, not fiscal flow DATA
+  if(nodeId==='NIFund'){
+    const s=STOCKS['ni_fund'];
+    const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
+    return{years,vals};
+  }
+  if(nodeId==='CFR4'){
+    const s=STOCKS['cfr'];
+    const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
+    return{years,vals};
+  }
+  const vals=years.map(fy=>{
+    const raw=DATA[String(fy)];
+    if(!raw) return null;
+    const d=useConstPrices?deflD(raw,fy):raw;
+    if(col==='rev') return d.rev[nodeId]||null;
+    if(col==='grp') return d.grp_gross[nodeId]||null;
+    if(col==='cat') return d.cats4[nodeId]||null;
+    return null;
+  });
+  return{years,vals};
+}
+
+function getNodeLabel(nodeId){
+  if(nodeId==='NIFund') return 'NI Fund (balance)';
+  if(nodeId==='CFR4') return 'Capital Financing Reserve (balance)';
+  if(REV_LABEL[nodeId]) return REV_LABEL[nodeId];
+  return nodeId;
+}
+
+function getNodeColor(nodeId){
+  if(nodeId==='NIFund') return STOCKS['ni_fund'].color;
+  if(nodeId==='CFR4') return STOCKS['cfr'].color;
+  return REV_COLOR[nodeId]||GRP_COLOR[nodeId]||CAT_COLOR[nodeId]||'#C9A24A';
+}
+
+function showTsPopup(nodeId, svgRect){
+  clearTimeout(tsHideTimer);
+  const popup=document.getElementById('ts-popup');
+  const {years,vals}=getNodeTimeSeries(nodeId);
+  const label=getNodeLabel(nodeId);
+  const color=getNodeColor(nodeId);
+
+  document.getElementById('ts-title').textContent=label;
+  document.getElementById('ts-sub').textContent=
+    (useConstPrices?'2024-25 constant prices':'Nominal')+ ' · FY2016–FY2025';
+
+  const canvas=document.getElementById('ts-canvas');
+
+  if(tsChart){tsChart.destroy();tsChart=null;}
+
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{
+      labels:years.map(y=>'FY'+y),
+      datasets:[{
+        data:vals,
+        borderColor:color,
+        backgroundColor:color+'22',
+        borderWidth:2,
+        pointRadius:3,
+        pointBackgroundColor:color,
+        fill:true,
+        tension:0.3,
+        spanGaps:true,
+      }]
+    },
+    options:{
+      animation:false,
+      responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>fmt(ctx.raw)},
+        backgroundColor:document.body.classList.contains('light')?'#ffffff':'#1e293b',titleColor:document.body.classList.contains('light')?'#64748b':'#e2e8f0',bodyColor:document.body.classList.contains('light')?'#0f172a':'#94a3b8',
+        borderColor:'#1e2d4d',borderWidth:1,
+      }},
+      scales:{
+        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+      }
+    }
+  });
+
+  // Position: prefer right of cursor, flip if near right edge
+  // Position popup: show offscreen first to get real dimensions
+  popup.style.visibility='hidden';
+  popup.style.display='block';
+  const pw=popup.offsetWidth||260, ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth, vh=window.innerHeight;
+  let px=svgRect.right+12;
+  let py=svgRect.top - ph/2;
+  if(px+pw>vw-10) px=svgRect.left-pw-12;
+  if(py<10) py=10;
+  if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px';
+  popup.style.top=py+'px';
+}
+
+function hideTsPopup(){
+  tsHideTimer=setTimeout(()=>{
+    document.getElementById('ts-popup').style.display='none';
+  },120);
+}
+
+function nodeMouseEnter(event,d){
+  if(d.id==='GRA') return; // GRA is a pass-through, no series
+  const rect=event.target.getBoundingClientRect();
+  showTsPopup(d.id, rect);
+}
+function nodeMouseLeave(){
+  hideTsPopup();
+}
+
+
+// ── Beaker rendering ──────────────────────────────────────────────────────────
+// Returns {v, t, sourceYear} — carries forward last-known if current year missing
+function stockValWithCarry(stockId, fy) {
+  const s = STOCKS[stockId];
+  if (!s) return null;
+  const entry = s.data[fy];
+  if (entry) return { v: entry.v, t: entry.t, sourceYear: fy, carriedForward: false };
+  // Carry forward: find most recent prior year with data
+  const years = Object.keys(s.data).map(Number).sort((a,b) => b-a);
+  for (const y of years) {
+    if (y < fy) return { v: s.data[y].v, t: s.data[y].t, sourceYear: y, carriedForward: true };
+  }
+  return null;
+}
+
+const BEAKER_W = 38, BEAKER_H = 60, BEAKER_GAP = 8;
+
+function stockVal(stockId, fy) {
+  const s = STOCKS[stockId];
+  if (!s) return null;
+  const entry = s.data[fy];
+  return entry || null;
+}
+
+// Footnote numbers and anchor ids per stock
+const STOCK_FN = {reserve:'①',ni_fund:'②',cfr:'③',pension:'④'};
+const STOCK_FN_ID = {reserve:'fn-reserve',ni_fund:'fn-nifund',cfr:'fn-cfr',pension:'fn-pension'};
+
+// Last confirmed date strings per stock
+const STOCK_DATE = {
+  reserve:  'Last confirmed: 31 Mar 2024',
+  ni_fund:  'Last confirmed: 31 Mar 2024 · FY25 = budget',
+  cfr:      'Last confirmed: 31 Mar 2024',
+  pension:  'Last confirmed: 31 Mar 2023 · ⚠ no later figure published'
+};
+
+// ── Simple mobile stock strip ─────────────────────────────────────────────────
+function drawMobStocks(fy) {
+  const el = document.getElementById('mob-stocks');
+  if (!el) return;
+  el.innerHTML = '';
+  const order = ['reserve','ni_fund','cfr','pension'];
+  order.forEach(sid => {
+    const s = STOCKS[sid];
+    const result = stockValWithCarry(sid, fy);
+    const v = result ? result.v : null;
+    const valStr = v === null ? '—'
+      : sid === 'pension' ? `£${v.toFixed(1)}bn`
+      : v >= 1000 ? `£${(v/1000).toFixed(2)}bn`
+      : `£${Math.round(v)}m`;
+    const div = document.createElement('div');
+    div.className = 'mob-stock';
+    div.innerHTML = `<div class="mob-stock-val" style="color:${s.color}">${valStr}</div><div class="mob-stock-lbl">${s.label}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function drawBeakers(fy, lyt) {
+  document.querySelectorAll('.beaker-wrap').forEach(el => el.remove());
+
+  const vizEl = document.querySelector('.viz');
+  const svgEl = document.getElementById('chart');
+  const svgRect = svgEl.getBoundingClientRect();
+  const vizRect = vizEl.getBoundingClientRect();
+  const scaleX = svgRect.width / W;
+  const scaleY = svgRect.height / H;
+
+  // Beaker column: right margin, centred
+  const RPAD = getRPAD();
+  if (RPAD === 0) return; // landscape mobile — stocks hidden
+  const colW = RPAD - 8; // available pixel width
+  const bW = Math.min(colW - 4, 130); // beaker width — large but bounded
+  const beakerLeft = svgRect.left - vizRect.left + (W - RPAD + (RPAD - bW*scaleX)/2 / scaleX) * scaleX;
+
+  const stocks = ['reserve','ni_fund','cfr','pension'];
+  const maxVals = {reserve:750, ni_fund:1100, cfr:100, pension:5.0};
+
+  // Use full viz height, distribute evenly with generous gaps
+  const vizH = vizEl.clientHeight;
+  const MARGIN_TOP = 28, MARGIN_BOT = 12;
+  const totalAvail = vizH - MARGIN_TOP - MARGIN_BOT;
+  const BEAKER_GAP_BIG = 14;
+  const nStocks = stocks.length;
+  // Give pension more height than others
+  const pensionExtra = 30;
+  const bH_base = Math.floor((totalAvail - (nStocks-1)*BEAKER_GAP_BIG - pensionExtra) / nStocks);
+  const bH_pension = bH_base + pensionExtra;
+
+  stocks.forEach((sid, i) => {
+    const s = STOCKS[sid];
+    const isPension = sid === 'pension';
+    const bH = isPension ? bH_pension : bH_base;
+    const result = stockValWithCarry(sid, fy);
+    const v = result ? result.v : null;
+    const t = result ? result.t : null;
+    const carriedForward = result ? result.carriedForward : false;
+    const sourceYear = result ? result.sourceYear : null;
+    const maxV = maxVals[sid];
+    const fillRatio = v !== null ? Math.min(v / maxV, 1) : 0;
+    const isInverted = !!s.inverted;
+
+    // Vertical position: stack from top
+    let topY = MARGIN_TOP;
+    for(let j=0;j<i;j++){
+      topY += (j===3?bH_pension:bH_base) + BEAKER_GAP_BIG;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'beaker-wrap';
+    wrap.style.cssText = `left:${beakerLeft}px;top:${topY}px;width:${bW}px;height:${bH}px;`;
+
+    // Reserved space: value + quality note + label + date = needs more room
+    const LABEL_AREA = 58;
+    const fillArea = bH - LABEL_AREA;
+    const fillH = fillRatio * fillArea;
+    const fillY = isInverted ? 2 : (fillArea - fillH + 2);
+    const fillColor = v === null ? '#1e2d4d' : s.color;
+    const fillOp = carriedForward ? 0.35 : t === 'secondary' ? 0.5 : t === 'budget' || t === 'probable' ? 0.65 : 0.85;
+    const strokeDash = (carriedForward || t === 'secondary' || t === 'budget' || t === 'probable') ? 'stroke-dasharray="4,3"' : '';
+    const strokeW = isPension ? 2 : 1.5;
+
+    const valStr = v === null ? '—'
+      : sid === 'pension' ? `£${v.toFixed(1)}bn`
+      : v >= 1000 ? `£${(v/1000).toFixed(2)}bn`
+      : `£${Math.round(v)}m`;
+
+    // Fixed positions from top of label area — no overlap possible
+    const labelAreaTop = fillArea + 2;
+    const valTextY    = labelAreaTop + 11;  // value: top of label area
+    const qualTextY   = labelAreaTop + 23;  // quality note: below value
+    const nameTextY   = labelAreaTop + 36;  // stock name
+    const dateTextY   = labelAreaTop + 49;  // date: bottom
+
+    // Value: always centred in the fill bar if tall enough, else top of label area
+    const valY = fillH > 24
+      ? fillY + fillH / 2
+      : valTextY;
+
+    // Carry-forward or data quality note
+    let qualityStr = '';
+    if (carriedForward && sourceYear) qualityStr = `last confirmed: ${sourceYear-1}–${String(sourceYear).slice(-2)}`;
+    else if (t === 'budget') qualityStr = 'budget projection';
+    else if (t === 'probable') qualityStr = 'provisional';
+    else if (t === 'secondary') qualityStr = 'estimated';
+
+    const labelClass = isPension ? 'beaker-label-pension' : 'beaker-label';
+    const valClass = isPension ? 'beaker-val-pension' : 'beaker-val';
+    const fnNum = STOCK_FN[sid];
+    const fnId = STOCK_FN_ID[sid];
+    const dateStr = STOCK_DATE[sid];
+
+    const isLight = document.body.classList.contains('light');
+    const beakerBg = isLight ? '#f1f5f9' : '#080d1a';
+    const beakerStroke = isLight ? (s.color + 'cc') : s.color;
+
+    wrap.innerHTML = `<svg class="beaker-svg" width="${bW}" height="${bH}" viewBox="0 0 ${bW} ${bH}">
+      <!-- Beaker body -->
+      <rect x="1" y="2" width="${bW-2}" height="${fillArea}" rx="3"
+        fill="${beakerBg}" stroke="${beakerStroke}" stroke-width="${strokeW}" ${strokeDash}/>
+      <!-- Fill -->
+      <rect x="2" y="${fillY}" width="${bW-4}" height="${Math.max(fillH,0)}"
+        fill="${fillColor}" opacity="${fillOp}" rx="2"/>
+      ${isInverted && fillH>0 ? `<line x1="2" y1="${fillY}" x2="${bW-2}" y2="${fillY}" stroke="${s.color}" stroke-width="1" opacity="0.6"/>` : ''}
+      <!-- Value — in fill bar if tall enough, else above label row -->
+      <text class="${valClass}" x="${bW/2}" y="${valY}"
+        dominant-baseline="middle" opacity="${v===null?0.25:1}">${valStr}</text>
+      <!-- Quality note — fixed position, never overlaps value in fill bar -->
+      ${qualityStr && fillH > 24 ? `<text class="beaker-type" x="${bW/2}" y="${qualTextY}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
+      ${qualityStr && fillH <= 24 ? `<text class="beaker-type" x="${bW/2}" y="${qualTextY}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
+      <!-- Label row -->
+      <text class="${labelClass}" x="${bW/2}" y="${nameTextY}">${s.label}
+        <tspan class="beaker-footnote" dx="2">${fnNum}</tspan>
+      </text>
+      <!-- Date row -->
+      <text class="beaker-date" x="${bW/2}" y="${dateTextY}">${dateStr}</text>
+    </svg>`;
+
+    // Click footnote number → open gov notes + scroll to anchor
+    wrap.addEventListener('click', () => {
+      const notes = document.getElementById('gov-notes');
+      const toggle = document.getElementById('gov-toggle');
+      if (!notes.classList.contains('open')) {
+        notes.classList.add('open');
+        toggle.classList.add('open');
+      }
+      setTimeout(() => {
+        const target = document.getElementById(fnId);
+        if (target) target.scrollIntoView({behavior:'smooth',block:'start'});
+      }, 50);
+    });
+
+    wrap.addEventListener('mouseenter', (e) => {
+      const rect = wrap.getBoundingClientRect();
+      showStockPopup(sid, rect);
+    });
+    wrap.addEventListener('mouseleave', hideTsPopup);
+
+    vizEl.appendChild(wrap);
+  });
+}
+
+
+function showStockPopup(stockId, beakerRect) {
+  clearTimeout(tsHideTimer);
+  const s = STOCKS[stockId];
+  const popup = document.getElementById('ts-popup');
+
+  document.getElementById('ts-title').textContent = s.label;
+  document.getElementById('ts-sub').textContent = s.desc.substring(0, 60) + (s.desc.length > 60 ? '…' : '');
+
+  const canvas = document.getElementById('ts-canvas');
+  if (tsChart) { tsChart.destroy(); tsChart = null; }
+
+  // Build series: all years with data
+  const years = Object.keys(s.data).map(Number).sort();
+  const vals = years.map(y => s.data[y].v);
+  const types = years.map(y => s.data[y].t);
+
+  const borderColors = types.map(t =>
+    t === 'secondary' ? s.color + '88' : t === 'budget' ? s.color + 'aa' : s.color
+  );
+  const pointStyles = types.map(t =>
+    t === 'secondary' ? 'triangle' : t === 'budget' || t === 'probable' ? 'rectRot' : 'circle'
+  );
+
+  tsChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: years.map(y => 'FY' + (y + 1)),
+      datasets: [{
+        data: vals,
+        borderColor: s.color,
+        backgroundColor: s.color + '22',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: borderColors,
+        pointStyle: pointStyles,
+        fill: !s.inverted,
+        tension: 0.3,
+        spanGaps: true,
+        segment: {
+          borderDash: ctx => {
+            const t = types[ctx.p0DataIndex];
+            return (t === 'secondary' || t === 'budget') ? [4, 3] : undefined;
+          }
+        }
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const t = types[ctx.dataIndex];
+              const flag = t === 'secondary' ? ' (~sec)' : t === 'budget' ? ' (~bud)' : t === 'probable' ? ' (~prob)' : '';
+              return (s.unit === '£bn' ? '£' + ctx.raw + 'bn' : '£' + ctx.raw + 'm') + flag;
+            }
+          },
+          backgroundColor: document.body.classList.contains('light')?'#ffffff':'#1e293b', titleColor: document.body.classList.contains('light')?'#64748b':'#e2e8f0', bodyColor: document.body.classList.contains('light')?'#0f172a':'#94a3b8',
+          borderColor: '#1e2d4d', borderWidth: 1,
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#cbd5e1', font: { size: 8 }, maxRotation: 0 }, grid: { color: '#1e293b' } },
+        y: {
+          ticks: { color: '#cbd5e1', font: { size: 8 }, callback: v => s.unit === '£bn' ? '£' + v + 'bn' : '£' + v + 'm' },
+          grid: { color: '#1e293b' },
+          reverse: !!s.inverted,
+        }
+      }
+    }
+  });
+
+  popup.style.visibility = 'hidden';
+  popup.style.display = 'block';
+  const pw = popup.offsetWidth || 260, ph = popup.offsetHeight || 160;
+  popup.style.visibility = '';
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let px = beakerRect.right + 12;
+  let py = beakerRect.top - ph / 2;
+  if (px + pw > vw - 10) px = beakerRect.left - pw - 12;
+  if (py < 10) py = 10;
+  if (py + ph > vh - 10) py = vh - ph - 10;
+  popup.style.left = px + 'px';
+  popup.style.top = py + 'px';
+}
+
+// ── Playback ─────────────────────────────────────────────────────────────────
+let curFY=2025, playing=false, timer=null;
+function fyStr(fy){ return (fy-1)+'-'+(String(fy).slice(-2)); }
+
+// ── Year pill strip (landscape mobile) ───────────────────────────────────────
+const FY_YEARS = [2016,2018,2019,2020,2021,2022,2023,2024,2025]; // skip 2017 (classification break)
+(function buildPills(){
+  const container = document.getElementById('yr-pills');
+  FY_YEARS.forEach(fy => {
+    const btn = document.createElement('button');
+    btn.className = 'yr-pill' + (fy === curFY ? ' active' : '');
+    btn.dataset.fy = fy;
+    // Show just the end year digits e.g. "16", "17" etc
+    btn.textContent = String(fy).slice(-2);
+    btn.addEventListener('click', () => { stop(); setFY(fy, false); });
+    container.appendChild(btn);
+  });
+})();
+
+function updatePills(fy) {
+  document.querySelectorAll('.yr-pill').forEach(btn => {
+    btn.classList.toggle('active', +btn.dataset.fy === fy);
+  });
+}
+
+function setFY(fy,animate){
+  curFY=fy;
+  document.getElementById('yr-slider').value=fy;
+  document.getElementById('fy-disp').textContent=fyStr(fy);
+  updatePills(fy);
+  draw(fy,animate);
+}
+function play(){
+  playing=true;
+  document.getElementById('play-icon').innerHTML='&#9646;&#9646;';
+  document.getElementById('play-label').textContent='Stop';
+  timer=setInterval(()=>{
+    let next=curFY<2025?curFY+1:2016;
+    if(next===2017) next=2018; // FY2017 has classification breaks — skip in animation
+    setFY(next,true);
+  },2600);  // increased to match slower DUR
+}
+function stop(){
+  playing=false;
+  document.getElementById('play-icon').innerHTML='&#9654;';
+  document.getElementById('play-label').textContent='Animate';
+  clearInterval(timer);
+}
+
+// ── Control wiring ────────────────────────────────────────────────────────────
+document.getElementById('play-btn').addEventListener('click',()=>playing?stop():play());
+document.getElementById('yr-slider').addEventListener('input',e=>{stop();setFY(+e.target.value,false);});
+
+document.getElementById('node-select').addEventListener('change',e=>{
+  selectedNode=e.target.value;
+  if(prevLayout) draw(curFY,false);
+});
+
+// filter-chk removed — filterMode always true
+
+document.getElementById('deflate-chk').addEventListener('change',e=>{
+  useConstPrices=e.target.checked;
+  draw(curFY,true);  // force full redraw
+});
+
+
+// ── Touch pan/zoom on mobile ──────────────────────────────────────────────────
+(function initPanZoom() {
+  const vizEl = () => document.querySelector('.viz');
+  const svgEl = () => document.getElementById('chart');
+  let scale = 1, tx = 0, ty = 0;
+  let pointers = {};
+  let lastDist = null, lastMid = null;
+
+  function applyTransform() {
+    const s = svgEl();
+    if (!s) return;
+    s.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+  }
+
+  function ptDist(a, b) {
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  }
+  function ptMid(a, b) {
+    return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+  }
+
+  function onPointerDown(e) {
+    if (!isMobileLandscape()) return;
+    pointers[e.pointerId] = e;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const pts = Object.values(pointers);
+    if (pts.length === 2) {
+      lastDist = ptDist(pts[0], pts[1]);
+      lastMid  = ptMid(pts[0], pts[1]);
+    }
+  }
+  function onPointerMove(e) {
+    if (!pointers[e.pointerId]) return;
+    const prev = pointers[e.pointerId];
+    pointers[e.pointerId] = e;
+    const pts = Object.values(pointers);
+
+    if (pts.length === 1) {
+      // Pan
+      tx += e.clientX - prev.clientX;
+      ty += e.clientY - prev.clientY;
+      // Clamp so you can't pan the diagram entirely off-screen
+      const v = vizEl();
+      if (v) {
+        const vw = v.clientWidth, vh = v.clientHeight;
+        const svgW = W * scale, svgH = H * scale;
+        tx = Math.min(vw * 0.7, Math.max(-(svgW - vw * 0.3), tx));
+        ty = Math.min(vh * 0.5, Math.max(-(svgH - vh * 0.5), ty));
+      }
+      applyTransform();
+    } else if (pts.length === 2) {
+      const p = Object.values(pts);
+      const dist = ptDist(p[0], p[1]);
+      const mid  = ptMid(p[0], p[1]);
+      if (lastDist && lastMid) {
+        const ds = dist / lastDist;
+        const v = vizEl();
+        const vr = v ? v.getBoundingClientRect() : { left: 0, top: 0 };
+        // Zoom toward pinch midpoint
+        const ox = mid.x - vr.left;
+        const oy = mid.y - vr.top;
+        tx = ox - ds * (ox - tx);
+        ty = oy - ds * (oy - ty);
+        scale = Math.max(0.4, Math.min(4, scale * ds));
+        // Pan delta from midpoint movement
+        tx += mid.x - lastMid.x;
+        ty += mid.y - lastMid.y;
+      }
+      lastDist = dist;
+      lastMid  = mid;
+      applyTransform();
+    }
+  }
+  function onPointerUp(e) {
+    delete pointers[e.pointerId];
+    const pts = Object.values(pointers);
+    if (pts.length < 2) { lastDist = null; lastMid = null; }
+  }
+  // Double-tap to reset
+  let lastTap = 0;
+  function onDblTap(e) {
+    if (!isMobileLandscape()) return;
+    const now = Date.now();
+    if (now - lastTap < 350) { scale = 1; tx = 0; ty = 0; applyTransform(); }
+    lastTap = now;
+  }
+
+  function isMobileLandscape() {
+    return window.innerWidth <= 900 && window.innerHeight < window.innerWidth;
+  }
+
+  // Attach after DOM ready (called from init)
+  window._initPanZoomHandlers = function() {
+    const v = vizEl();
+    if (!v) return;
+    v.addEventListener('pointerdown', onPointerDown);
+    v.addEventListener('pointermove', onPointerMove);
+    v.addEventListener('pointerup',   onPointerUp);
+    v.addEventListener('pointercancel', onPointerUp);
+    v.addEventListener('click', onDblTap);
+  };
+  // Reset transform on redraw (so new draw matches coordinate system)
+  window._resetPanZoom = function() { scale = 1; tx = 0; ty = 0; applyTransform(); };
+})();
+
+// ── Governance notes toggle ───────────────────────────────────────────────────
+function toggleGov(){
+  const notes=document.getElementById('gov-notes');
+  const toggle=document.getElementById('gov-toggle');
+  const chevron=document.getElementById('gov-chevron');
+  const open=notes.classList.toggle('open');
+  toggle.classList.toggle('open',open);
+}
+// ── Boot ──────────────────────────────────────────────────────────────────────
+// Apply stored theme BEFORE first draw so beakers get the right colours
+try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+
+// Portrait nudge — JS-based so it works inside iframes where CSS orientation may not fire
+function checkOrientation() {
+  const isMobile = window.innerWidth <= 900 || window.innerHeight <= 600;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  const nudge = document.getElementById('portrait-nudge');
+  if (nudge) nudge.style.display = (isMobile && isPortrait) ? 'flex' : 'none';
+}
+checkOrientation();
+window.addEventListener('resize', checkOrientation);
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&selectedNode){selectedNode='';applyHighlight();}});
+function init(){dims();draw(2025,false);window._initPanZoomHandlers && window._initPanZoomHandlers();}
+const ro=new ResizeObserver(()=>{dims();draw(curFY,false);});
+ro.observe(document.querySelector('.viz'));
+init();
+</script>
+<script>
+/* Observatory theme v3 — redraw on theme change */
+(function () {
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+      if (typeof draw === 'function' && typeof curFY !== 'un

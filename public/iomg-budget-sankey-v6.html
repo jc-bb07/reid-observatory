@@ -1,0 +1,2725 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Isle of Man Government Budget v5 · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0f1e;--surface:#0d1526;--border:#1e2d4d;--gold:#C9A24A;--text:#e2e8f0;--muted:#94a3b8;--muted2:#64748b}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── Header ── */
+.hdr{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
+.chart-title{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.fy-label{font-family:"JetBrains Mono",monospace;font-size:24px;font-weight:600;color:var(--gold);letter-spacing:-.02em;line-height:1}
+.fy-sub{font-size:9px;color:var(--muted);text-align:right;margin-top:2px}
+.hdr-left{flex:1;min-width:0;overflow:hidden}
+.hdr-right{flex-shrink:0;text-align:right}
+
+/* ── Controls row ── */
+.controls{display:flex;align-items:center;gap:10px;padding:5px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:nowrap}
+.play-btn{background:var(--gold);color:#0a0f1e;border:none;border-radius:5px;padding:0 12px;height:28px;font-size:11px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;letter-spacing:.03em;white-space:nowrap}
+.play-btn:hover{opacity:.85}
+.yr-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px}
+input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px}
+.yr-marks{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+
+/* node selector */
+.node-select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:"Inter",sans-serif;padding:0 6px;height:28px;cursor:pointer;min-width:160px;flex-shrink:0}
+.node-select:focus{outline:none;border-color:var(--gold)}
+
+/* toggles */
+.ctrl-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.toggle-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap}
+.toggle-wrap label{font-size:10px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle-wrap input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+
+/* ── Stats bar ── */
+.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.stat{flex:1;padding:4px 10px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.stat-val{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;color:var(--text);margin-top:1px}
+
+/* ── Viz ── */
+.viz{flex:1;overflow:hidden;position:relative;touch-action:none;min-width:0}
+svg{display:block;width:100%;height:100%}
+.col-hdr{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
+.lbl-r{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:start}
+.lbl-l{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:end}
+.lbl-a{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:start}
+.lbl-al{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:end}
+/* mid-flow ribbon labels — standard face, theme text colour */
+.lbl-flow{font-size:11px;fill:#cbd5e1;dominant-baseline:middle;text-anchor:middle}
+.lbl-flowa{font-family:"JetBrains Mono",monospace;font-size:9px;fill:#94a3b8;dominant-baseline:middle;text-anchor:middle}
+.lbl-flowa-t{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700}
+body.light .lbl-flow{fill:#0f172a}
+body.light .lbl-flowa{fill:#0f172a}
+.own-badge{font-size:8px;fill:#94a3b8;text-anchor:middle;letter-spacing:.08em;font-style:italic}
+
+/* node + link hover treatment */
+rect.node{cursor:pointer;stroke:rgba(255,255,255,.10);stroke-width:.5;transition:filter .18s ease}
+rect.node:hover{filter:brightness(1.25) saturate(1.1)}
+path.link{transition:filter .18s ease}
+path.link:hover{filter:brightness(1.35) saturate(1.15)}
+body.light rect.node{stroke:rgba(15,23,42,.12)}
+
+/* ── Time series popout ── */
+#ts-popup{
+  position:fixed;display:none;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px 10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  z-index:100;pointer-events:none;
+  min-width:240px;
+}
+#ts-popup .ts-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+#ts-popup .ts-sub{font-size:9px;color:var(--muted);margin-bottom:8px}
+#ts-canvas{display:block}
+
+/* ── Governance notes ── */
+.gov-notes{background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.gov-notes.open{max-height:600px}
+.gov-inner{padding:12px 20px 14px;font-size:10px;line-height:1.65;color:#94a3b8;columns:2;column-gap:32px}
+.gov-inner h4{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 5px;column-span:all}
+.gov-inner h5{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:8px 0 3px;break-after:avoid}
+.gov-inner p{margin:0 0 4px}
+.gov-inner .flag{color:#f87171;font-weight:600}
+.gov-inner .est{color:#fcd34d;font-weight:600}
+.gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:4px 20px;background:var(--surface);border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
+.gov-notes-toggle span{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
+.gov-notes-toggle span:hover{color:var(--text)}
+.gov-chevron{font-size:9px;color:#94a3b8;transition:transform .3s}
+.gov-notes-toggle.open .gov-chevron{transform:rotate(180deg)}
+
+/* ── Beakers ── */
+.beaker-wrap{position:absolute;pointer-events:all;cursor:pointer}
+.beaker-svg{display:block;overflow:visible}
+.beaker-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;fill:#94a3b8;text-anchor:middle}
+.beaker-label-pension{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;fill:#fb7185;text-anchor:middle}
+.beaker-val{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;fill:#e2e8f0;text-anchor:middle}
+.beaker-val-pension{font-family:"JetBrains Mono",monospace;font-size:15px;font-weight:800;fill:#fb7185;text-anchor:middle}
+.beaker-type{font-size:8px;fill:#94a3b8;text-anchor:middle}
+.beaker-date{font-size:7.5px;fill:#64748b;text-anchor:middle;font-style:italic}
+.beaker-footnote{font-size:9px;fill:#64748b;text-anchor:start;cursor:pointer}
+.beaker-flow{font-size:7px;fill:#64748b;text-anchor:start}
+/* Footnote anchors in gov notes */
+.fn-target{scroll-margin-top:8px}
+.fn-marker{color:#C9A24A;font-weight:700;font-size:9px;vertical-align:super;line-height:0;cursor:pointer;text-decoration:none}
+.fn-marker:hover{color:#e2e8f0}
+
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
+html:has(body.light) { background: #f8fafc; }
+/* Light mode: SVG text labels and hard-coded dark backgrounds */
+body.light .lbl-r { fill: #1e293b; }
+body.light .lbl-l { fill: #1e293b; }
+body.light .lbl-a { fill: #475569; }
+body.light .lbl-al { fill: #475569; }
+body.light .own-badge { fill: #475569; }
+body.light .col-hdr { fill: #64748b; }
+.lbl-mono { fill: #e2e8f0; }
+body.light .lbl-mono { fill: #475569; }
+.lbl-dim  { fill: #94a3b8; }
+body.light .lbl-dim  { fill: #64748b; }
+body.light .beaker-label { fill: #475569; }
+body.light .beaker-val { fill: #1e293b; }
+body.light .beaker-type { fill: #64748b; }
+body.light .beaker-date { fill: #64748b; }
+body.light .beaker-footnote { fill: #64748b; }
+body.light .beaker-flow { fill: #64748b; }
+body.light #ts-popup { background: #ffffff; border-color: #e2e8f0; }
+body.light .gov-notes { background: #f1f5f9; }
+body.light .gov-inner { color: #475569; }
+body.light .gov-notes-toggle { background: #f1f5f9; border-color: #e2e8f0; }
+body.light .gov-notes-toggle span { color: #475569; }
+body.light .gov-chevron { color: #475569; }
+body.light .stats { background: #f1f5f9; }
+body.light .stat-lbl { color: #64748b; }
+body.light .stat-val { color: #1e293b; }
+/* ── Landscape mobile ── */
+@media (max-width: 900px) and (orientation: landscape) {
+  .hdr { display: none; }
+  #comparator-btn { display: none; }
+  .yr-wrap input[type=range] { display: none; }
+  .yr-marks { display: none; }
+  #yr-pills { display: flex !important; order: -3; }
+  .play-btn:not(#comparator-btn) { order: -2; }
+  .ctrl-sep { display: none; }
+  .node-select { order: -1; min-width: 0; flex-shrink: 1; }
+  .toggle-wrap { order: 0; }
+  .beaker-wrap { display: none !important; }
+  #mob-stocks { display: flex !important; }
+  body { max-width: 100vw; }
+}
+/* ── Portrait mobile — compact 4-column layout (mobile-optimised) ── */
+@media (max-width: 900px) and (orientation: portrait) {
+  .hdr { padding: 6px 12px; }
+  .chart-title { font-size: 12px; }
+  .fy-label { font-size: 18px; }
+  .fy-sub { display: none; }
+  .controls { flex-wrap: wrap; gap: 6px; padding: 5px 12px; row-gap: 4px; }
+  .yr-wrap { flex-basis: 100%; order: 2; }
+  .yr-marks span:nth-child(even) { display: none; }
+  .node-select { min-width: 0; flex: 1; }
+  #comparator-btn { display: none; }
+  .ctrl-sep { display: none; }
+  .stats { flex-wrap: wrap; }
+  .stat { flex: 1 1 33%; min-width: 33%; border-bottom: 1px solid var(--border); }
+  #mob-stocks { display: flex !important; }
+  .gov-inner { columns: 1; }
+}
+body.compact .lbl-r, body.compact .lbl-l { font-size: 8px; }
+body.compact .lbl-a, body.compact .lbl-al { font-size: 7px; }
+body.compact .col-hdr { font-size: 7px; letter-spacing: .06em; }
+/* ── Viz row (sankey + stocks side by side on mobile) ── */
+#viz-row { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+/* Simple mobile stock column */
+#mob-stocks {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+  width: 72px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.mob-stock {
+  flex: 1;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.mob-stock:last-child { border-bottom: none; }
+.mob-stock-val {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.mob-stock-lbl {
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.3;
+  text-align: center;
+}
+/* Pan/zoom container */
+#chart {
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* Year pill strip — hidden by default, shown in landscape mobile */
+#yr-pills {
+  display: none;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+.yr-pill {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background: none;
+  white-space: nowrap;
+  transition: color .12s;
+}
+.yr-pill:hover { color: var(--text); }
+.yr-pill.active {
+  color: var(--gold);
+  font-weight: 800;
+  border-color: var(--gold);
+  background: rgba(201,162,74,0.1);
+}
+/* Desktop: constrain to viewport, never clip stocks */
+body { box-sizing: border-box; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Isle of Man Government Budget Sources &amp; Uses</div>
+  </div>
+  <div class="hdr-right">
+    <div class="fy-label" id="fy-disp">2024-25</div>
+    <div class="fy-sub">year ending 31 March</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play-btn"><span id="play-icon">&#9654;</span> <span id="play-label">Animate</span></button>
+  <div class="yr-wrap">
+    <input type="range" id="yr-slider" min="2016" max="2025" step="1" value="2025" list="yr-ticks">
+    <div class="yr-marks"><span>2015-16</span><span>16-17</span><span>17-18</span><span>18-19</span><span>19-20</span><span>20-21</span><span>21-22</span><span>22-23</span><span>23-24</span><span>24-25</span></div>
+  </div>
+  <div id="yr-pills"></div>
+  <div class="ctrl-sep"></div>
+  <select class="node-select" id="node-select">
+    <option value="">— Focus on… —</option>
+    <optgroup label="Revenue Sources">
+      <option value="CustomsExcise">Customs &amp; Excise</option>
+      <option value="IncomeTax">Income Tax</option>
+      <option value="RFT">Reserve Fund transfer</option>
+      <option value="NIOperatingAccount">National Insurance</option>
+      <option value="OtherTreasuryIncome">Other Treasury Income</option>
+    </optgroup>
+    <optgroup label="Department Groups">
+      <option value="Health &amp; Care">Health &amp; Care</option>
+      <option value="Social Security">Social Security</option>
+      <option value="Education">Education</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Enterprise">Enterprise</option>
+      <option value="Treasury Ops">Treasury Ops</option>
+      <option value="Other Gov">Other Gov</option>
+    </optgroup>
+    <optgroup label="Expenditure Types">
+      <option value="Employee Costs">Employee Costs</option>
+      <option value="Social Security">Social Security</option>
+      <option value="Supplies &amp; Services">Supplies &amp; Services</option>
+      <option value="Agency &amp; Contracted">Agency &amp; Contracted</option>
+      <option value="Infrastructure">Infrastructure</option>
+      <option value="Loan &amp; Other">Loan &amp; Other</option>
+    </optgroup>
+  </select>
+  <div class="toggle-wrap">
+    <input type="checkbox" id="deflate-chk" checked>
+    <label for="deflate-chk">Constant prices (2024-25)</label>
+  </div>
+  <div class="ctrl-sep"></div>
+  <button class="play-btn" id="comparator-btn" onclick="window.open('iomg-comparator.html','_blank')" style="background:#1e2d4d;color:#94a3b8;border:1px solid #1e2d4d">&#9196; Compare series</button>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lbl" id="lbl-tot">Total Spending</div><div class="stat-val" id="s-tot">—</div></div>
+  <div class="stat"><div class="stat-lbl">Tax Revenue</div><div class="stat-val" id="s-gra">—</div></div>
+  <div class="stat"><div class="stat-lbl">Dept Own Income</div><div class="stat-val" id="s-own">—</div></div>
+  <div class="stat"><div class="stat-lbl">Health &amp; Care</div><div class="stat-val" id="s-hlt">—</div></div>
+  <div class="stat"><div class="stat-lbl">Social Security</div><div class="stat-val" id="s-ss">—</div></div>
+  <div class="stat"><div class="stat-lbl">Staff Costs</div><div class="stat-val" id="s-sta">—</div></div>
+</div>
+
+<div id="viz-row">
+  <div class="viz"><svg id="chart"></svg></div>
+  <!-- Stock column for landscape mobile — populated by JS -->
+  <div id="mob-stocks"></div>
+</div>
+
+<div class="gov-notes-toggle" id="gov-toggle" onclick="toggleGov()">
+  <span class="gov-chevron" id="gov-chevron">▼</span>
+  <span>Data Governance &amp; Methodology Notes</span>
+</div>
+<div class="gov-notes" id="gov-notes">
+  <div class="gov-inner">
+    <h4>Isle of Man Government Budget — Data Governance Notes</h4>
+
+    <h5>Sources</h5>
+    <p>Revenue and expenditure data drawn from IoM Treasury Pink Books (Table 3A departmental breakdowns), covering actuals FY2016 through FY2025. Revenue figures represent General Revenue Account (GRA) inflows; departmental gross spend includes GRA allocations and departments' own income. All figures in £000s converted to £m for display.</p>
+
+    <h5 id="fn-reserve" class="fn-target"><span style="color:var(--gold)">①</span> Reserve Fund — Data Currency</h5>
+    <p>Last confirmed balance: <strong>£596.3m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). Strategic Reserve Fund market value; this reserve is not designated for a specific purpose. No 31 March 2025 figure published as at 24 June 2026.</p>
+
+    <h5 id="fn-nifund" class="fn-target"><span style="color:var(--gold)">②</span> NI Fund — Data Currency</h5>
+    <p>Last confirmed balance: <strong>£1,025.1m at 31 March 2025</strong> (Pink Book 2026-27 actual; full series FY2015-16 onward in the master workbook, NI_Fund sheet). The NI Fund is a statutory ring-fenced account; its balance is not part of GRA and does not appear in the revenue account surplus or deficit.</p>
+
+    <h5 id="fn-cfr" class="fn-target"><span style="color:var(--gold)">③</span> Capital Reserve — Data Currency</h5>
+    <p>Last confirmed balance: <strong>£24.8m at 31 March 2024</strong> (IoM Treasury Pink Book 2026-27, Table 2). The CFR has been in near-continuous drawdown since 2021-22 as capital expenditure has outpaced annual transfer receipts. No 31 March 2025 balance published as at 24 June 2026.</p>
+
+    <h5 id="fn-pension" class="fn-target"><span style="color:#fb7185)">④</span> Pension Liability — Data Currency &amp; Methodology</h5>
+    <p><strong class="flag">Last confirmed liability: £2,902m (£2.9bn) at 31 March 2023</strong> — IoM Government Annual Financial Statements, year ended March 2023 (FRS102 basis). This is the accumulated past-service obligation of the PSPA Unified Scheme, an unfunded defined benefit arrangement. <strong class="flag">No figure has been published for 31 March 2024 or 31 March 2025 as at 24 June 2026.</strong> The liability is absent from every Pink Book headline figure. It is highly sensitive to the real discount rate used: a 0.5% movement changes the liability by approximately ±£350m. The peak of £4,800m in FY2020-21 reflected a low-rate environment; the subsequent fall to £2,902m reflects rate rises, not a reduction in the underlying obligation.</p>
+
+
+    <h5>Col 5 — Pension Flows &amp; Reserve Accounts (v5)</h5>
+    <p><strong>PSPER:</strong> drawn as a true flow node — its height equals gross cash pension payments (AllSchemes fund account / PSPA AR; FY2024-25 = £143.3m confirmed) and its inputs fill it exactly, so node in = node out every year: <em>pensions out = PSPER reserve drawdown + employer superannuation + employee superannuation + GRA net charge</em>. The hatched top segment is the drawdown — pensions paid from the PSPER reserve's own assets (shown as an arrowed flow from the PSPER balance beaker; this reserve is ring-fenced and is NOT the Strategic Reserve Fund). Employer superannuation is the LBB Table 4 actual for every year; employee superannuation is derived as AllSchemes total contributions minus employer superannuation. PSPER balances are confirmed market values (LBB Table 7.6b): £191.6m (Mar 2016) → £9.8m (Mar 2022) → exhausted March 2023, after which the GRA net charge replaces the drawdown. Segment order mirrors source order so no funding ribbon crosses another. Department colour-coding of the outflow uses FY2025-26 employer contribution proportions as a proxy.</p>
+    <p><strong>Below the line ("from balances"):</strong> two flows. (1) The CFR transfer is the Pink Book's own below-the-line appropriation from the revenue account to the Capital Fund (Table 3A). (2) The GRA net pension charge is computed as a residual but reconciles exactly to the PSPA's published Net Treasury Charge plus scheme transfers-in (FY2024-25: 46,220 + 1,093 = 47,313). Both are financed from accumulated Government balances rather than in-year departmental allocations — which sum exactly to GRA inflows, leaving no in-year headroom. v5.5: the hatched section is now MERGED into the GRA node as its foot — the GRA reads as one account whose full height is total throughput: the revenue-funded body on top, the hatched balance-financed segment below, with the inflow = outflow identity still exact.</p>
+    <p><strong>Where "from balances" actually comes from (v5.3, reconciled):</strong> two sources, both now confirmed from the LBB/DBB accounts (Reserves_Reconciliation sheet, master workbook). (1) <em>The GRA's own retained balance</em> — shown as the small "bal" readout beneath the GRA amount (hover for the series). It stood at +£92.0m at March 2020, flipped to deficit in the Covid year (−£7.1m, 2021) and has deepened every year since: −£115.9m (2022), −£165.9m (2023), −£263.9m (2024). (2) <em>Transfers from the Strategic Reserve Fund</em> — £41.9m plus £10.8m of investment income in FY2022-23, £29.2m plus £9.4m in FY2023-24, and £50.0m in FY2024-25. The direction reversed over the decade: in FY2018-19 and FY2019-20 General Revenue paid £20m a year <em>into</em> the Reserve Fund; the £330m bond proceeds passed through General Revenue into the fund in FY2021-22 (~£198m net); since then the fund has been drawn on to support revenue spending.</p>
+    <p><strong>v5.4 — the Reserve Fund drawn as a source:</strong> the Strategic Reserve Fund now appears as a dashed green node between Income Tax and National Insurance, sized to the year's actual transfer (Reserves_Reconciliation sheet). When transfers run INTO General Revenue (FY2017-18 £20.0m; FY2020-21 £7.0m; FY2022-23 £52.8m; FY2023-24 £38.5m; FY2024-25 £50.0m) it feeds the hatched below-the-line extension under the GRA; the remainder of that extension — labelled <em>from GRA balance (overdraft)</em> — is the residual drawn against the GRA's own retained balance. In FY2018-19 and FY2019-20 the ribbon reverses: General Revenue paid £20m a year INTO the fund. FY2021-22 shows the published NET £198m into the fund, which includes £330m of bond proceeds routed through General Revenue — a financing transaction, not revenue. Extension identity: reserve transfer in + overdraft = CFR transfer + pension net charge + transfer out, exact in every year. v5.5: the fund's STOCK is back on the diagram — a dashed green beaker at a fixed position left of the transfer node shows the market value (£559.5m at March 2025) and drains into (or absorbs, in reverse years) the year's transfer via an arrowed flow; hover the beaker for the full series. Beaker positions across the diagram are now fixed between years — only fills, flows and labels move.</p>
+    <p><strong>v5.4 — departmental pay ribbons:</strong> the Employee Costs → pay &amp; benefits ribbons (c4→c6) are subdivided by department and coloured with the departmental palette, using each department's actual share of Employee Costs for that year (LBB Table 4 via the department × category matrix). The allocation of each pay item across departments is proportional — departments' individual PAYE/NI mixes are not published. Focusing a department in the filter lights up only its strips. All c4→c6 ribbons now use the same source→destination colour gradients as the rest of the diagram.</p>
+    <p><strong>Reserve beakers:</strong> Capital Reserve and the FRS102 Pension Liability (last confirmed £2.9bn at 31 March 2023) display alongside PSPER; hover any beaker for its full balance time series. The Reserve Fund balance is shown as a beaker fixed beside its c0 transfer node (hover for the market-value series: v5.3 re-keyed to end-year and FY2023-25 corrected to published actuals — £565.5m, £584.4m, £559.5m; book cost £525.4m at March 2025).</p>
+    <h5>Col 6 — Pay &amp; Benefits (v5)</h5>
+    <p>The pay items sum exactly to the Employee Costs node: net wages + PAYE + employee NI + employer NI + pension contributions = Employee Costs. Employer NI is an LBB Table 4 actual for all ten years. <span class="est">Employee NI (est.)</span>: employer NI × (12÷13.8) — IoM main rate ratio. <span class="est">PAYE (est.)</span>: ~19.5% effective rate on taxable wages. Net wages are the residual. The estimated items are subject to an FoI request to IoMG Treasury Payroll.</p>
+    <h5>Social Security — Per-year Breakdown (v5)</h5>
+    <p>Benefit-level splits are now year-specific. FY2018-19 to FY2020-21 use LBB Tables 6.8g/6.8h <strong>per-benefit actuals</strong> (no tilde), including the FY2020-21 Covid support line (MERA + Salary Support, £78.1m). FY2021-22 onward apply Pink Book base-cost per-benefit proportions to LBB aggregate actual totals and are marked ~ as <span class="est">estimates</span>; FY2015-16 to FY2017-18 carry back FY2018-19 proportions (~). Each year's items sum exactly to the LBB published NI-funded and revenue-funded totals before being scaled to the Pink Book Table 3A node total. The NI/GRA funding split uses the Sankey's own revenue flows.</p>
+    <h5>FY2017 — Accounting Estimates <span class="est">[est.]</span></h5>
+    <p>The underlying FY2016-17 source data contains two confirmed classification breaks that render the raw figures non-comparable with all other years in the series. The figures displayed for FY2017 are <span class="est">accounting estimates</span>, not published actuals.</p>
+    <p><strong>Break 1 — Revenue misclassification:</strong> National Insurance Operating Account receipts (normally ~£187–216m) are absent from the revenue breakdown, and Income Tax is reported at £12m against a plausible range of £184–203m. The excess is absorbed into Other Treasury Income (£261m vs a normal ~£10m). The reconstructed series allocates NI and Income Tax in proportion to the FY16/FY18 ratio, with Other Treasury Income set by interpolation. v5: Customs &amp; Excise and Income Tax are further scaled (+8.1%) so reconstructed revenue fully covers the reconstructed departmental allocations — the published GRA total of £641m left a £40m funding gap against Health &amp; Care's reconstructed allocation, which would have broken flow conservation in the diagram. FY2017 remains an estimate year throughout.</p>
+    <p><strong>Break 2 — Departmental misclassification:</strong> Social Security gross spend collapses to £9m (against a plausible range of £275–318m) while Health &amp; Care doubles to £527m. The excess in H&amp;C matches the Social Security shortfall to within £19m. The reconstruction reclassifies £287m from H&amp;C to Social Security, with GRA flows adjusted proportionally.</p>
+
+    <h5>Constant Prices</h5>
+    <p>The constant prices deflator uses IoM CPI financial-year averages (Statistics IoM Historic Data Sets, December 2025), rebased to 2024-25 = 100. FY2025-26 uses a partial-year average (April–December 2025). Deflation is applied uniformly to all flows; the Sankey layout, stat bar, and time-series popouts all reflect the selected price basis.</p>
+
+    <h5>Series Coverage</h5>
+    <p>FY2016 data is sourced from an earlier Pink Book edition than FY2018 onwards and should be treated with caution in trend analysis. The animation skips directly from FY2016 to FY2018 to avoid misleading transitions through the estimated FY2017 values.</p>
+
+    <h5>Own Income</h5>
+    <p>Departmental own income (fees, charges, utilities receipts) bypasses the GRA and flows directly to departments. It is shown as a separate column in the revenue sources panel, connected by ribbons directly to the relevant department group, distinct from GRA allocations.</p>
+
+    <h5>Expenditure Categories</h5>
+    <p>Employee Costs, Supplies &amp; Services, Agency &amp; Contracted, and Infrastructure represent gross departmental expenditure. Loan &amp; Other includes loan charges, transfers, and net adjustments; negative values in some years reflect internal recoveries or accounting reversals rather than literal income.</p>
+
+    <h5>Known Source-data Artifacts (&lt;0.1% of totals)</h5>
+    <p>Two small inconsistencies exist in the published Pink Book data and are shown as published rather than adjusted: Enterprise own income exceeds its gross spend by £0.7m in FY2021-22 and £0.1m in FY2023-24 (net contributor years), and Treasury Ops records net −£1.0m gross spend in FY2020-21 (its node is suppressed that year). Flow ribbons taper to absorb these differences.</p>
+  </div>
+</div>
+<!-- Time series popup -->
+<div id="ts-popup">
+  <div class="ts-title" id="ts-title"></div>
+  <div class="ts-sub" id="ts-sub"></div>
+  <canvas id="ts-canvas" width="220" height="100"></canvas>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const DATA={"2016":{"rev":{"CustomsExcise":327838.606417434,"IncomeTax":184253.7835512719,"OtherTreasuryIncome":10269.976879109545,"NIOperatingAccount":186753.6331521845},"grp_own":{"Enterprise":29718.0,"Education":3851.0,"Other Gov":149743.0,"Health & Care":50849.0,"Infrastructure":53575.0},"grp_gross":{"Enterprise":30923.0,"Education":94265.0,"Other Gov":225123.0,"Health & Care":244455.0,"Infrastructure":99487.0,"Treasury Ops":27749.0,"Social Security":274850.0},"grp_gra":{"Enterprise":1205.0,"Education":90414.0,"Health & Care":193606.0,"Social Security":274850.0,"Treasury Ops":27749.0,"Other Gov":75380.0,"Infrastructure":45912.0},"grp_cats":{"Enterprise":{"Employee Costs":10096.0,"Infrastructure":1191.0,"Supplies & Services":13441.0,"Loan & Other":6195.0},"Education":{"Employee Costs":65055.0,"Infrastructure":3802.0,"Supplies & Services":6637.0,"Loan & Other":18771.0},"Other Gov":{"Employee Costs":90755.0,"Infrastructure":12087.0,"Supplies & Services":74151.0,"Loan & Other":48130.0},"Health & Care":{"Employee Costs":138091.0,"Infrastructure":1211.0,"Supplies & Services":30030.0,"Agency & Contracted":71317.0,"Loan & Other":3806.0},"Infrastructure":{"Employee Costs":37586.0,"Infrastructure":33880.0,"Supplies & Services":17079.0,"Agency & Contracted":2787.0,"Loan & Other":8155.0},"Treasury Ops":{"Employee Costs":12748.0,"Infrastructure":13.0,"Supplies & Services":1940.0,"Agency & Contracted":3333.0,"Loan & Other":9715.0},"Social Security":{"Social Security":274850.0}},"cats4":{"Employee Costs":354331.0,"Infrastructure":52184.0,"Supplies & Services":143278.0,"Loan & Other":94772.0,"Agency & Contracted":77437.0,"Social Security":274850.0},"total_gross":996852.0,"total_own":287736.0,"total_gra":709116.0},"2017":{"rev":{"CustomsExcise":396940.09476893203,"IncomeTax":139748.69874734452,"OtherTreasuryIncome":9900.0,"NIOperatingAccount":134139.70648372345},"grp_own":{"Enterprise":30064.0,"Education":3554.0,"Other Gov":209705.0,"Health & Care":52648.5,"Infrastructure":54605.0},"grp_gross":{"Enterprise":32710.0,"Education":98997.0,"Other Gov":248824.0,"Health & Care":240168.0,"Infrastructure":108131.0,"Treasury Ops":5861.0,"Social Security":296614.0},"grp_gra":{"Enterprise":2646.0,"Education":95443.0,"Health & Care":187519.5,"Social Security":296614.0,"Treasury Ops":5861.0,"Other Gov":39119.0,"Infrastructure":53526.0},"grp_cats":{"Enterprise":{"Employee Costs":11741.0,"Infrastructure":1408.0,"Supplies & Services":14094.0,"Loan & Other":5467.0},"Education":{"Employee Costs":68960.0,"Infrastructure":3671.0,"Supplies & Services":7063.0,"Loan & Other":19303.0},"Other Gov":{"Employee Costs":167026.0,"Infrastructure":9350.0,"Supplies & Services":53731.0,"Agency & Contracted":0.0,"Loan & Other":18717.0},"Health & Care":{"Employee Costs":150864.0,"Infrastructure":4941.0,"Supplies & Services":25164.0,"Agency & Contracted":74916.0,"Loan & Other":-15717.0},"Infrastructure":{"Employee Costs":41483.0,"Infrastructure":39063.0,"Supplies & Services":13130.0,"Agency & Contracted":2455.0,"Loan & Other":12000.0},"Treasury Ops":{"Employee Costs":17.0,"Infrastructure":1.0,"Supplies & Services":2211.0,"Agency & Contracted":3391.0,"Loan & Other":241.0},"Social Security":{"Social Security":296614.0}},"cats4":{"Employee Costs":440091.0,"Infrastructure":58434.0,"Supplies & Services":115393.0,"Loan & Other":40011.0,"Agency & Contracted":80762.0,"Social Security":296614.0},"total_gross":1031305.0,"total_own":350576.5,"total_gra":680728.5},"2018":{"rev":{"CustomsExcise":312871.69320242567,"IncomeTax":203116.64789310851,"OtherTreasuryIncome":9510.58641920827,"NIOperatingAccount":215602.07248525758},"grp_own":{"Enterprise":29187.0,"Education":3489.0,"Other Gov":147203.0,"Health & Care":54448.0,"Infrastructure":54956.0},"grp_gross":{"Enterprise":32550.0,"Education":100104.0,"Other Gov":157535.0,"Health & Care":273626.0,"Infrastructure":113695.0,"Treasury Ops":34496.0,"Social Security":318378.0},"grp_gra":{"Enterprise":3363.0,"Education":96615.0,"Health & Care":219178.0,"Social Security":318378.0,"Treasury Ops":34496.0,"Other Gov":10332.0,"Infrastructure":58739.0},"grp_cats":{"Enterprise":{"Employee Costs":10942.0,"Infrastructure":1334.0,"Supplies & Services":13567.0,"Loan & Other":6707.0},"Education":{"Employee Costs":69425.0,"Infrastructure":3627.0,"Supplies & Services":5903.0,"Loan & Other":21149.0},"Other Gov":{"Employee Costs":105292.0,"Infrastructure":13806.0,"Supplies & Services":78994.0,"Agency & Contracted":0.0,"Loan & Other":-40557.0},"Health & Care":{"Employee Costs":154673.0,"Infrastructure":1742.0,"Supplies & Services":31940.0,"Agency & Contracted":78380.0,"Loan & Other":6891.0},"Infrastructure":{"Employee Costs":42796.0,"Infrastructure":36591.0,"Supplies & Services":15494.0,"Agency & Contracted":2020.0,"Loan & Other":16794.0},"Treasury Ops":{"Employee Costs":13422.0,"Infrastructure":11.0,"Supplies & Services":3811.0,"Agency & Contracted":3416.0,"Loan & Other":13836.0},"Social Security":{"Social Security":318378.0}},"cats4":{"Employee Costs":396550.0,"Infrastructure":57111.0,"Supplies & Services":149709.0,"Loan & Other":24820.0,"Agency & Contracted":83816.0,"Social Security":318378.0},"total_gross":1030384.0,"total_own":289283.0,"total_gra":741101.0},"2019":{"rev":{"CustomsExcise":354138.2628298151,"IncomeTax":227732.90690550496,"OtherTreasuryIncome":10060.816857048896,"NIOperatingAccount":241109.01340763108},"grp_own":{"Enterprise":27588.0,"Education":9438.0,"Other Gov":150387.0,"Health & Care":56743.0,"Infrastructure":56711.0},"grp_gross":{"Enterprise":27605.0,"Education":111740.0,"Other Gov":244856.0,"Health & Care":276889.0,"Infrastructure":120289.0,"Treasury Ops":31018.0,"Social Security":321511.0},"grp_gra":{"Enterprise":17.0,"Education":102302.0,"Health & Care":220146.0,"Social Security":321511.0,"Treasury Ops":31018.0,"Other Gov":94469.0,"Infrastructure":63578.0},"grp_cats":{"Enterprise":{"Employee Costs":9135.0,"Infrastructure":1221.0,"Supplies & Services":13062.0,"Loan & Other":4187.0},"Education":{"Employee Costs":74033.0,"Infrastructure":4107.0,"Supplies & Services":9742.0,"Loan & Other":23858.0},"Other Gov":{"Employee Costs":108311.0,"Infrastructure":14484.0,"Supplies & Services":84567.0,"Loan & Other":37494.0},"Health & Care":{"Employee Costs":158263.0,"Infrastructure":1581.0,"Supplies & Services":30185.0,"Agency & Contracted":80363.0,"Loan & Other":6497.0},"Infrastructure":{"Employee Costs":44012.0,"Infrastructure":35296.0,"Supplies & Services":16232.0,"Agency & Contracted":2147.0,"Loan & Other":22602.0},"Treasury Ops":{"Employee Costs":14236.0,"Infrastructure":11.0,"Supplies & Services":2197.0,"Agency & Contracted":3529.0,"Loan & Other":11045.0},"Social Security":{"Social Security":321511.0}},"cats4":{"Employee Costs":407990.0,"Infrastructure":56700.0,"Supplies & Services":155985.0,"Loan & Other":105683.0,"Agency & Contracted":86039.0,"Social Security":321511.0},"total_gross":1133908.0,"total_own":300867.0,"total_gra":833041.0},"2020":{"rev":{"CustomsExcise":370962.6111002151,"IncomeTax":201218.787078805,"OtherTreasuryIncome":8599.557077881445,"NIOperatingAccount":223394.04474309843},"grp_own":{"Enterprise":25687.0,"Education":10030.0,"Other Gov":149187.0,"Health & Care":54682.0,"Infrastructure":56011.0},"grp_gross":{"Enterprise":26748.0,"Education":118534.0,"Other Gov":203019.0,"Health & Care":285677.0,"Infrastructure":126270.0,"Treasury Ops":13647.0,"Social Security":325877.0},"grp_gra":{"Enterprise":1061.0,"Education":108504.0,"Health & Care":230995.0,"Social Security":325877.0,"Treasury Ops":13647.0,"Other Gov":53832.0,"Infrastructure":70259.0},"grp_cats":{"Enterprise":{"Employee Costs":9920.0,"Infrastructure":1092.0,"Supplies & Services":14018.0,"Loan & Other":1718.0},"Education":{"Employee Costs":79988.0,"Infrastructure":3926.0,"Supplies & Services":10158.0,"Loan & Other":24462.0},"Other Gov":{"Employee Costs":85577.0,"Infrastructure":13227.0,"Supplies & Services":42328.0,"Loan & Other":61887.0},"Health & Care":{"Employee Costs":164072.0,"Infrastructure":1705.0,"Supplies & Services":30863.0,"Agency & Contracted":83830.0,"Loan & Other":5207.0},"Infrastructure":{"Employee Costs":47021.0,"Infrastructure":34016.0,"Supplies & Services":19808.0,"Agency & Contracted":2571.0,"Loan & Other":22854.0},"Treasury Ops":{"Employee Costs":14959.0,"Infrastructure":7.0,"Supplies & Services":1951.0,"Agency & Contracted":3585.0,"Loan & Other":-6855.0},"Social Security":{"Social Security":325877.0}},"cats4":{"Employee Costs":401537.0,"Infrastructure":53973.0,"Supplies & Services":119126.0,"Loan & Other":109273.0,"Agency & Contracted":89986.0,"Social Security":325877.0},"total_gross":1099772.0,"total_own":295597.0,"total_gra":804175.0},"2021":{"rev":{"CustomsExcise":329765.7860753929,"IncomeTax":235929.52800445104,"OtherTreasuryIncome":6744.113947961315,"NIOperatingAccount":304590.57197219477},"grp_own":{"Enterprise":23032.0,"Education":4793.0,"Other Gov":144489.0,"Health & Care":51310.0,"Infrastructure":43170.0},"grp_gross":{"Enterprise":24377.0,"Education":119374.0,"Other Gov":225866.0,"Health & Care":277824.0,"Infrastructure":115749.0,"Treasury Ops":-1007.0,"Social Security":381641.0},"grp_gra":{"Enterprise":1345.0,"Education":114581.0,"Health & Care":226514.0,"Social Security":381641.0,"Treasury Ops":0,"Other Gov":81377.0,"Infrastructure":72579.0},"grp_cats":{"Enterprise":{"Employee Costs":9946.0,"Infrastructure":513.0,"Supplies & Services":8115.0,"Loan & Other":5803.0},"Education":{"Employee Costs":87670.0,"Infrastructure":4085.0,"Supplies & Services":6918.0,"Loan & Other":20701.0},"Other Gov":{"Employee Costs":118581.0,"Infrastructure":15075.0,"Supplies & Services":67441.0,"Agency & Contracted":0.0,"Loan & Other":24769.0},"Health & Care":{"Employee Costs":172349.0,"Infrastructure":1435.0,"Supplies & Services":36127.0,"Agency & Contracted":79694.0,"Loan & Other":-11781.0},"Infrastructure":{"Employee Costs":41497.0,"Infrastructure":33591.0,"Supplies & Services":24147.0,"Agency & Contracted":3218.0,"Loan & Other":13296.0},"Treasury Ops":{"Employee Costs":16984.0,"Infrastructure":12.0,"Supplies & Services":3355.0,"Agency & Contracted":3576.0,"Loan & Other":-24934.0},"Social Security":{"Social Security":381641.0}},"cats4":{"Employee Costs":447027.0,"Infrastructure":54711.0,"Supplies & Services":146103.0,"Loan & Other":27854.0,"Agency & Contracted":86488.0,"Social Security":381641.0},"total_gross":1143824.0,"total_own":266794.0,"total_gra":877030.0},"2022":{"rev":{"CustomsExcise":408252.2691184888,"IncomeTax":232727.23273195903,"OtherTreasuryIncome":8448.187914080443,"NIOperatingAccount":295505.31023547164},"grp_own":{"Enterprise":25087.0,"Education":9135.0,"Other Gov":166598.0,"Health & Care":52501.0,"Infrastructure":47191.0},"grp_gross":{"Enterprise":24346.0,"Education":118160.0,"Other Gov":248835.0,"Health & Care":294790.0,"Infrastructure":99453.0,"Treasury Ops":64886.0,"Social Security":394975.0},"grp_gra":{"Enterprise":0,"Education":109025.0,"Health & Care":242289.0,"Social Security":394975.0,"Treasury Ops":64886.0,"Other Gov":82237.0,"Infrastructure":52262.0},"grp_cats":{"Enterprise":{"Employee Costs":10204.0,"Infrastructure":1032.0,"Supplies & Services":9241.0,"Loan & Other":3869.0},"Education":{"Employee Costs":90200.0,"Infrastructure":4876.0,"Supplies & Services":9757.0,"Loan & Other":13327.0},"Other Gov":{"Employee Costs":124647.0,"Infrastructure":16350.0,"Supplies & Services":141302.0,"Agency & Contracted":3.0,"Loan & Other":-33467.0},"Health & Care":{"Employee Costs":180549.0,"Infrastructure":1812.0,"Supplies & Services":47930.0,"Agency & Contracted":87812.0,"Loan & Other":-23313.0},"Infrastructure":{"Employee Costs":44364.0,"Infrastructure":35582.0,"Supplies & Services":20675.0,"Agency & Contracted":1505.0,"Loan & Other":-2673.0},"Treasury Ops":{"Employee Costs":17366.0,"Infrastructure":2.0,"Supplies & Services":18883.0,"Agency & Contracted":3835.0,"Loan & Other":24800.0},"Social Security":{"Social Security":394975.0}},"cats4":{"Employee Costs":467330.0,"Infrastructure":59654.0,"Supplies & Services":247788.0,"Loan & Other":-17457.0,"Agency & Contracted":93155.0,"Social Security":394975.0},"total_gross":1245445.0,"total_own":300512.0,"total_gra":944933.0},"2023":{"rev":{"CustomsExcise":447224.0231888606,"IncomeTax":272105.34222896653,"OtherTreasuryIncome":11638.557686548527,"NIOperatingAccount":303308.0768956243},"grp_own":{"Enterprise":27792.0,"Education":9054.0,"Other Gov":196763.0,"Health & Care":66292.0,"Infrastructure":55371.0},"grp_gross":{"Enterprise":29408.0,"Education":121773.0,"Other Gov":372073.0,"Health & Care":314191.0,"Infrastructure":102339.0,"Treasury Ops":73919.0,"Social Security":375845.0},"grp_gra":{"Enterprise":1616.0,"Education":112719.0,"Health & Care":247899.0,"Social Security":375845.0,"Treasury Ops":73919.0,"Other Gov":175310.0,"Infrastructure":46968.0},"grp_cats":{"Enterprise":{"Employee Costs":11049.0,"Infrastructure":1009.0,"Supplies & Services":17189.0,"Loan & Other":161.0},"Education":{"Employee Costs":97409.0,"Infrastructure":6598.0,"Supplies & Services":10321.0,"Loan & Other":7445.0},"Other Gov":{"Employee Costs":148635.0,"Infrastructure":19006.0,"Supplies & Services":155965.0,"Agency & Contracted":55.0,"Loan & Other":48412.0},"Health & Care":{"Employee Costs":197905.0,"Infrastructure":1883.0,"Supplies & Services":40844.0,"Agency & Contracted":98514.0,"Loan & Other":-24955.0},"Infrastructure":{"Employee Costs":45294.0,"Infrastructure":38091.0,"Supplies & Services":21064.0,"Agency & Contracted":1813.0,"Loan & Other":-3923.0},"Treasury Ops":{"Employee Costs":17623.0,"Infrastructure":7.0,"Supplies & Services":7011.0,"Agency & Contracted":3671.0,"Loan & Other":45607.0},"Social Security":{"Social Security":375845.0}},"cats4":{"Employee Costs":517915.0,"Infrastructure":66594.0,"Supplies & Services":252394.0,"Loan & Other":72747.0,"Agency & Contracted":104053.0,"Social Security":375845.0},"total_gross":1389548.0,"total_own":355272.0,"total_gra":1034276.0},"2024":{"rev":{"CustomsExcise":436412.7170733511,"IncomeTax":321056.197256447,"OtherTreasuryIncome":15850.49154452908,"NIOperatingAccount":322437.5941256728},"grp_own":{"Enterprise":27372.0,"Education":9074.0,"Other Gov":181659.0,"Health & Care":69626.0,"Infrastructure":61273.0},"grp_gross":{"Enterprise":27259.0,"Education":142147.0,"Other Gov":336065.0,"Health & Care":369982.0,"Infrastructure":117914.0,"Treasury Ops":60784.0,"Social Security":390610.0},"grp_gra":{"Enterprise":0,"Education":133073.0,"Health & Care":300356.0,"Social Security":390610.0,"Treasury Ops":60784.0,"Other Gov":154406.0,"Infrastructure":56641.0},"grp_cats":{"Enterprise":{"Employee Costs":12644.0,"Infrastructure":745.0,"Supplies & Services":16677.0,"Loan & Other":-2807.0},"Education":{"Employee Costs":107429.0,"Infrastructure":8079.0,"Supplies & Services":9290.0,"Loan & Other":17349.0},"Other Gov":{"Employee Costs":167917.0,"Infrastructure":21685.0,"Supplies & Services":108671.0,"Agency & Contracted":6.0,"Loan & Other":37786.0},"Health & Care":{"Employee Costs":221123.0,"Infrastructure":2461.0,"Supplies & Services":40950.0,"Agency & Contracted":107192.0,"Loan & Other":-1744.0},"Infrastructure":{"Employee Costs":47077.0,"Infrastructure":41272.0,"Supplies & Services":23461.0,"Agency & Contracted":4929.0,"Loan & Other":1175.0},"Treasury Ops":{"Employee Costs":19525.0,"Infrastructure":8.0,"Supplies & Services":5566.0,"Agency & Contracted":3380.0,"Loan & Other":32305.0},"Social Security":{"Social Security":390610.0}},"cats4":{"Employee Costs":575715.0,"Infrastructure":74250.0,"Supplies & Services":204615.0,"Loan & Other":84064.0,"Agency & Contracted":115507.0,"Social Security":390610.0},"total_gross":1444761.0,"total_own":349004.0,"total_gra":1095757.0},"2025":{"rev":{"CustomsExcise":480939.1607099503,"IncomeTax":358210.4657734674,"OtherTreasuryIncome":4865.188692502239,"NIOperatingAccount":302829.18482408003},"grp_own":{"Enterprise":29098.0,"Education":10222.0,"Other Gov":173288.0,"Health & Care":70493.0,"Infrastructure":64501.0},"grp_gross":{"Enterprise":30850.0,"Education":152565.0,"Other Gov":333596.0,"Health & Care":387072.0,"Infrastructure":123247.0,"Treasury Ops":51323.0,"Social Security":415793.0},"grp_gra":{"Enterprise":1752.0,"Education":142343.0,"Health & Care":316579.0,"Social Security":415793.0,"Treasury Ops":51323.0,"Other Gov":160308.0,"Infrastructure":58746.0},"grp_cats":{"Enterprise":{"Employee Costs":14093.0,"Infrastructure":857.0,"Supplies & Services":19685.0,"Loan & Other":-3785.0},"Education":{"Employee Costs":114598.0,"Infrastructure":8897.0,"Supplies & Services":10946.0,"Loan & Other":18124.0},"Other Gov":{"Employee Costs":176553.0,"Infrastructure":25324.0,"Supplies & Services":94359.0,"Agency & Contracted":482.0,"Loan & Other":36878.0},"Health & Care":{"Employee Costs":235338.0,"Infrastructure":2201.0,"Supplies & Services":43935.0,"Agency & Contracted":108101.0,"Loan & Other":-2503.0},"Infrastructure":{"Employee Costs":51703.0,"Infrastructure":42739.0,"Supplies & Services":24287.0,"Agency & Contracted":6106.0,"Loan & Other":-1588.0},"Treasury Ops":{"Employee Costs":21895.0,"Infrastructure":10.0,"Supplies & Services":6676.0,"Agency & Contracted":3433.0,"Loan & Other":19309.0},"Social Security":{"Social Security":415793.0}},"cats4":{"Employee Costs":614180.0,"Infrastructure":80028.0,"Supplies & Services":199888.0,"Loan & Other":66435.0,"Agency & Contracted":118122.0,"Social Security":415793.0},"total_gross":1494446.0,"total_own":347602.0,"total_gra":1146844.0}};
+
+// ── Deflators (IoM CPI, base 2024-25) ────────────────────────────────────────
+const DEFLATORS={2016:1.333936,2017:1.284234,2018:1.252817,2019:1.227988,
+  2020:1.232931,2021:1.17894,2022:1.081041,2023:1.023646,2024:1.0,2025:1.0};
+// FY2025 = 2024-25 = base year = 1.0
+
+// ── Drill-down data (v5: all years sourced from master workbook) ─────────────
+// pension        = AllSchemes_Fund_Account TOTAL EXPENDITURE (gross cash pensions, £000 nominal)
+// erni           = LBB Table 4 Employer NI (all departments, £000 nominal)
+// employer_pension = LBB Table 4 Superannuation (employer cash contributions, £000 nominal)
+// employee_pension = AllSchemes Total Contributions − LBB Superannuation (member share, derived)
+// psepr_draw     = PSEPR drawdown (transfer from reserve) per LBB Table 7.6b / PSPA AR
+// Identity: pension = (employer+employee contributions) + psepr_draw + GRA net charge (residual)
+// NOTE FY2016-17: employer contribution method changed (Superannuation 11.6→34.4) — structural break
+// Employee NI & PAYE remain estimates (ᵉˢᵗ) — FoI pending from IoMG Treasury Payroll
+// Methodology: emp_ni = erni × (12/13.8) [IoM rate ratio]; paye = taxable_wages × 0.195
+const DRILL_EMP={
+  2016:{pension:96733, erni:21620, employer_pension:11590, employee_pension:22725, psepr_draw:29556},
+  2017:{pension:91300, erni:22049, employer_pension:34409, employee_pension:23782, psepr_draw:31495},
+  2018:{pension:98607, erni:23092, employer_pension:35391, employee_pension:24641, psepr_draw:35834},
+  2019:{pension:100096,erni:24477, employer_pension:36920, employee_pension:26463, psepr_draw:33318},
+  2020:{pension:100860,erni:31842, employer_pension:38127, employee_pension:29993, psepr_draw:32014},
+  2021:{pension:111460,erni:32734, employer_pension:39824, employee_pension:31812, psepr_draw:38969},
+  2022:{pension:113620,erni:34927, employer_pension:42761, employee_pension:30156, psepr_draw:38931},
+  2023:{pension:120224,erni:37950, employer_pension:45144, employee_pension:35276, psepr_draw:8272},
+  2024:{pension:131419,erni:41734, employer_pension:49182, employee_pension:38351, psepr_draw:45},
+  2025:{pension:143298,erni:44099, employer_pension:53521, employee_pension:42464, psepr_draw:0},
+};
+// Dept share proxy: employer pension contributions FY2025-26 budget (£000), proportional use only
+const PENSION_DEPT=[
+  {id:'Health & Care',v:24441},{id:'Education',v:15605},{id:'Infrastructure',v:5554},
+  {id:'Other Gov',v:9271},{id:'Enterprise',v:1310},{id:'Treasury Ops',v:2880},
+];
+// PSPER/PSEPR balance at 31 March of end-year (£m) — CONFIRMED ACTUALS
+// Source: PSPA_Fund_Assets (LBB Table 7.6b market values; DBB 2021-22 audited accounts;
+// PSPA Annual Reports GD2024-0063 / GD2025-0003). Fund exhausted March 2023.
+const PSPER_BAL_M={
+  2016:191.6,2017:181.4,2018:144.6,2019:117.3,2020:80.9,2021:47.5,2022:9.8,2023:0,2024:0,2025:0
+};
+const PSPER_PEAK_M=237.3; // March 2014 peak (LBB 2014-15) — beaker fill scale
+// Strategic Reserve Fund ↔ General Revenue transfers (£000 NOMINAL; + = INTO General Revenue).
+// Source: LBB Reserve Fund Account / Central Govt Mgmt Accounts / DBB — Reserves_Reconciliation
+// sheet, master workbook. fy2019/2020: General Revenue paid £20m/yr INTO the fund.
+// fy2022 (FY2021-22) is the published NET figure and includes £330m of bond proceeds routed
+// via General Revenue into the fund. fy2023/2024 include the fund income paid to GR.
+const RF_TRANSFER={2016:0,2017:0,2018:20000,2019:-20004,2020:-20000,2021:7000,
+  2022:-198000,2023:52783,2024:38547,2025:50000};
+// Social Security item breakdown BY YEAR (nominal £000)
+// FY2019–FY2021 (keys 2019–2021): LBB Tables 6.8g/6.8h per-benefit ACTUALS — items sum exactly to LBB totals
+// FY2022–FY2025 (keys 2022–2025): Pink Book base-cost per-benefit proportions × LBB aggregate actual totals (ESTIMATES)
+// keys 2016–2018: FY2018-19 proportions carried back (ESTIMATES — nearest per-benefit actuals)
+// Source sheet: SocialSecurity_Breakdown, IoMG_Personnel_Remuneration_Master.xlsx
+const DRILL_SS_YR={
+  2016:{est:true,src:"FY2018-19 LBB proportions (nearest per-benefit actuals)",niTotal:209330,revTotal:71982,
+    ni:[{label:"State Pension",v:144401},{label:"Pension Supplements",v:36511},{label:"Incapacity Benefits",v:10873},{label:"Maternity & Bereavement",v:5636},{label:"Other NI-funded",v:11909}],
+    rev:[{label:"Income Support",v:31990},{label:"Disability (DLA/AA/SDA)",v:15835},{label:"Child Benefit",v:10523},{label:"Employed Persons Allow.",v:9124},{label:"Other Revenue-funded",v:4510}]},
+  2017:{est:true,src:"FY2018-19 LBB proportions (nearest per-benefit actuals)",niTotal:209330,revTotal:71982,
+    ni:[{label:"State Pension",v:144401},{label:"Pension Supplements",v:36511},{label:"Incapacity Benefits",v:10873},{label:"Maternity & Bereavement",v:5636},{label:"Other NI-funded",v:11909}],
+    rev:[{label:"Income Support",v:31990},{label:"Disability (DLA/AA/SDA)",v:15835},{label:"Child Benefit",v:10523},{label:"Employed Persons Allow.",v:9124},{label:"Other Revenue-funded",v:4510}]},
+  2018:{est:true,src:"FY2018-19 LBB proportions (nearest per-benefit actuals)",niTotal:209330,revTotal:71982,
+    ni:[{label:"State Pension",v:144401},{label:"Pension Supplements",v:36511},{label:"Incapacity Benefits",v:10873},{label:"Maternity & Bereavement",v:5636},{label:"Other NI-funded",v:11909}],
+    rev:[{label:"Income Support",v:31990},{label:"Disability (DLA/AA/SDA)",v:15835},{label:"Child Benefit",v:10523},{label:"Employed Persons Allow.",v:9124},{label:"Other Revenue-funded",v:4510}]},
+  2019:{est:false,src:"LBB 2018-19 Tables 6.8g/6.8h per-benefit actuals",niTotal:209330,revTotal:71982,
+    ni:[{label:"State Pension",v:144401},{label:"Pension Supplements",v:36511},{label:"Incapacity Benefits",v:10873},{label:"Maternity & Bereavement",v:5636},{label:"Other NI-funded",v:11909}],
+    rev:[{label:"Income Support",v:31990},{label:"Disability (DLA/AA/SDA)",v:15835},{label:"Child Benefit",v:10523},{label:"Employed Persons Allow.",v:9124},{label:"Other Revenue-funded",v:4510}]},
+  2020:{est:false,src:"LBB 2019-20 Tables 6.8g/6.8h per-benefit actuals",niTotal:210611,revTotal:74626,
+    ni:[{label:"State Pension",v:144056},{label:"Pension Supplements",v:35456},{label:"Manx State Pension",v:2139},{label:"Incapacity Benefits",v:11784},{label:"Maternity & Bereavement",v:5593},{label:"Other NI-funded",v:11583}],
+    rev:[{label:"Income Support",v:33829},{label:"Disability (DLA/AA/SDA)",v:16962},{label:"Child Benefit",v:10687},{label:"Employed Persons Allow.",v:9073},{label:"Other Revenue-funded",v:4075}]},
+  2021:{est:false,src:"LBB 2020-21 Tables 6.8g/6.8h per-benefit actuals (incl. Covid support)",niTotal:292932,revTotal:77000,
+    ni:[{label:"State Pension",v:142774},{label:"Pension Supplements",v:33907},{label:"Manx State Pension",v:7776},{label:"Incapacity Benefits",v:12552},{label:"Maternity & Bereavement",v:5691},{label:"Covid Support (MERA/SSS)",v:78109},{label:"Other NI-funded",v:12123}],
+    rev:[{label:"Income Support",v:35652},{label:"Disability (DLA/AA/SDA)",v:17380},{label:"Child Benefit",v:10554},{label:"Employed Persons Allow.",v:8394},{label:"Other Revenue-funded",v:5020}]},
+  2022:{est:true,src:"Pink Book 2022-23 base-cost proportions × LBB actual totals",niTotal:233397,revTotal:76308,
+    ni:[{label:"State Pension",v:147423},{label:"Pension Supplements",v:38464},{label:"Manx State Pension",v:17152},{label:"Incapacity Benefits",v:13769},{label:"Maternity & Bereavement",v:6941},{label:"Other NI-funded",v:9648}],
+    rev:[{label:"Income Support",v:35398},{label:"Disability (DLA/AA/SDA)",v:17193},{label:"Child Benefit",v:10114},{label:"Employed Persons Allow.",v:9102},{label:"Other Revenue-funded",v:4501}]},
+  2023:{est:true,src:"Pink Book 2023-24 base-cost proportions × LBB actual totals",niTotal:238374,revTotal:85665,
+    ni:[{label:"State Pension",v:143333},{label:"Pension Supplements",v:37735},{label:"Manx State Pension",v:25816},{label:"Incapacity Benefits",v:14672},{label:"Maternity & Bereavement",v:6400},{label:"Other NI-funded",v:10418}],
+    rev:[{label:"Income Support",v:38662},{label:"Disability (DLA/AA/SDA)",v:21430},{label:"Child Benefit",v:12151},{label:"Employed Persons Allow.",v:9942},{label:"Other Revenue-funded",v:3480}]},
+  2024:{est:true,src:"Pink Book 2024-25 base-cost proportions × LBB actual totals",niTotal:255574,revTotal:81976,
+    ni:[{label:"State Pension",v:145434},{label:"Pension Supplements",v:36508},{label:"Manx State Pension",v:41915},{label:"Incapacity Benefits",v:13432},{label:"Maternity & Bereavement",v:6698},{label:"Other NI-funded",v:11587}],
+    rev:[{label:"Income Support",v:36002},{label:"Disability (DLA/AA/SDA)",v:22144},{label:"Child Benefit",v:12004},{label:"Employed Persons Allow.",v:8384},{label:"Other Revenue-funded",v:3442}]},
+  2025:{est:true,src:"Pink Book 2025-26 base-cost proportions × LBB actual totals",niTotal:277707,revTotal:86472,
+    ni:[{label:"State Pension",v:144908},{label:"Pension Supplements",v:36160},{label:"Manx State Pension",v:64184},{label:"Incapacity Benefits",v:13761},{label:"Maternity & Bereavement",v:6565},{label:"Other NI-funded",v:12129}],
+    rev:[{label:"Income Support",v:36707},{label:"Disability (DLA/AA/SDA)",v:24221},{label:"Child Benefit",v:13577},{label:"Employed Persons Allow.",v:8397},{label:"Other Revenue-funded",v:3570}]},
+};
+function getDrillSS(fy){ return DRILL_SS_YR[fy] || DRILL_SS_YR[2025]; }
+
+// ── Drill value calculator (returns deflated £000s for a given FY) ────────────
+// v5: every input sourced (LBB Table 4 / AllSchemes fund account / PSEPR fund table).
+// Funding identity, exact by construction:
+//   pension (gross) = contributions (employer + employee) + PSEPR drawdown + GRA net charge
+function calcDrillEmp(fy){
+  const raw=DATA[String(fy)]; if(!raw) return null;
+  const d=useConstPrices?deflD(raw,fy):raw;
+  const de=DRILL_EMP[fy]; if(!de) return null;
+  const emp_total=d.cats4['Employee Costs']||0;
+
+  // Employee Costs budget line = gross wages + employer NI + employer pension contributions
+  // Retiree pension payments are funded separately (contributions + PSEPR + GRA) — NOT part of emp_total
+  const erni      = defl(de.erni,fy);
+  const emp_super = defl(de.employer_pension,fy);
+  const gross_wages = Math.max(0, emp_total - erni - emp_super);
+
+  // Employee deductions from gross wages (before net pay)
+  const emp_pen = defl(de.employee_pension,fy);
+  const emp_ni  = erni*(12/13.8);                        // employee share of NI (est.)
+  const paye    = (gross_wages - emp_pen)*0.195;         // estimated income tax (est.)
+  const net     = Math.max(0, gross_wages - emp_ni - paye - emp_pen);
+
+  // Pension funding: contributions + PSEPR drawdown + GRA net charge (residual, ≥0)
+  const pension    = defl(de.pension,fy);
+  const contrib    = emp_super + emp_pen;
+  const psepr_draw = defl(de.psepr_draw,fy);
+  const gra_topup  = Math.max(0, pension - contrib - psepr_draw);
+
+  return {emp_total, pension, gross_wages, erni, emp_super, emp_ni, emp_pen, paye, net, contrib, psepr_draw, gra_topup};
+}
+
+let useConstPrices=true;
+
+// ── Balance Sheet Stocks ─────────────────────────────────────────────────────
+// Sources documented in iom_stocks_series.json / iom_pension_liability_series.json
+// year_type: 'actual'=confirmed primary, 'probable'=probable at publication,
+//            'budget'=projection, 'secondary'=journalism citing audited accounts
+// v5: ALL stock series keyed by END-YEAR (fy=2025 → balance at 31 March 2025), matching the year slider.
+const STOCKS = {
+  ni_fund: {
+    label: 'NI Fund', unit: '£m', color: '#fdba74',
+    desc: 'National Insurance Fund balance C/F at 31 March. Buffer stock between NI contributions in and NI welfare payments out. Source: Pink Book Table 26 / NI Account (NI_Fund sheet, master workbook).',
+    data: {
+      2016:{v:682.0,t:'actual'},2017:{v:756.4,t:'probable'},
+      2018:{v:793.7,t:'actual'},2019:{v:832.3,t:'actual'},
+      2020:{v:884.8,t:'actual'},2021:{v:839.8,t:'actual'},
+      2022:{v:883.4,t:'actual'},2023:{v:924.6,t:'actual'},
+      2024:{v:969.4,t:'actual'},2025:{v:1025.1,t:'actual'}
+    }
+  },
+  reserve: {
+    label: 'Reserve Fund', unit: '£m', color: '#4ade80',
+    desc: 'Strategic Reserve Fund MARKET value at 31 March (LBB / Mgmt Accounts, Summary of Externally Invested Funds; excludes the separate Bond account). v5.3: series re-keyed +1yr and FY2023-25 corrected to published actuals. The £191m jump in FY2021-22 is bond proceeds routed via General Revenue (£330m gross, ~£198m net in); from FY2022-23 the fund transfers OUT to General Revenue (£52.8m, £38.5m, £50.0m). See Reserves_Reconciliation sheet, master workbook.',
+    data: {
+      2016:{v:331.0,t:'actual'},2017:{v:375.7,t:'actual'},
+      2018:{v:351.3,t:'actual'},2019:{v:386.4,t:'actual'},
+      2020:{v:380.5,t:'actual'},2021:{v:448.2,t:'actual'},
+      2022:{v:639.5,t:'actual'},2023:{v:565.5,t:'actual'},
+      2024:{v:584.4,t:'actual'},2025:{v:559.5,t:'actual'}
+    }
+  },
+  gra_bal: {
+    label: 'GRA Balance', unit: '£m', color: '#C9A24A', signed: true,
+    desc: 'General Revenue Account retained balance at 31 March (+ = surplus). LBB Table 4.1 (NGRA) to FY2020-21; DBB Statement of Total Movement on the GRA Balance thereafter. The accumulated balance that finances "below the line" appropriations — in surplus to March 2020, then −£7.1m (2021), −£115.9m (2022), −£165.9m (2023), −£263.9m (2024). Mar 2025 not yet published. See Reserves_Reconciliation sheet.',
+    data: {
+      2016:{v:45.5,t:'actual'},2017:{v:62.7,t:'actual'},
+      2018:{v:91.2,t:'actual'},2019:{v:89.9,t:'actual'},
+      2020:{v:92.0,t:'actual'},2021:{v:-7.1,t:'actual'},
+      2022:{v:-115.9,t:'actual'},2023:{v:-165.9,t:'actual'},
+      2024:{v:-263.9,t:'actual'}
+    }
+  },
+  cfr: {
+    label: 'Capital Reserve', unit: '£m', color: '#fbbf24',
+    desc: 'CFR balance at 31 March — funds capital investment. Receipts from revenue surplus; payments to capital programme. Near-depletion signals structural pressure on capital spending.',
+    data: {
+      2016:{v:0.947,t:'actual'},2017:{v:46.5,t:'probable'},
+      2018:{v:46.5,t:'budget'},2019:{v:44.1,t:'budget'},
+      2020:{v:85.6,t:'probable'},2021:{v:56.9,t:'actual'},
+      2022:{v:26.0,t:'probable'},2023:{v:34.8,t:'actual'},
+      2024:{v:24.8,t:'actual'}
+    }
+  },
+  psper: {
+    label: 'PSPER', unit: '£m', color: '#fb7185',
+    desc: 'Public Service Employees Pension Reserve market value at 31 March. Drawn down to part-fund pension payments until exhausted in March 2023. Source: LBB Table 7.6b / PSPA Annual Reports.',
+    data: {
+      2016:{v:191.6,t:'actual'},2017:{v:181.4,t:'actual'},
+      2018:{v:144.6,t:'actual'},2019:{v:117.3,t:'actual'},
+      2020:{v:80.9,t:'actual'},2021:{v:47.5,t:'actual'},
+      2022:{v:9.8,t:'actual'},2023:{v:0,t:'actual'},
+      2024:{v:0,t:'actual'},2025:{v:0,t:'probable'}
+    }
+  },
+  pension: {
+    label: 'Pension Liability', unit: '£bn', color: '#fb7185',
+    inverted: true,
+    desc: 'Defined benefit pension obligation at 31 March (FRS17 to 2014-15; FRS102 from 2015-16). Zero assets assumed — PSEPR not ring-fenced. Highly sensitive to discount rate: ±0.5% ≈ ±£350m.',
+    data: {
+      2014:{v:2.318,t:'actual'},2015:{v:3.009,t:'actual'},
+      2016:{v:2.991,t:'actual'},2017:{v:3.823,t:'actual'},
+      2018:{v:3.723,t:'actual'},2019:{v:4.1,t:'secondary'},
+      2020:{v:3.8,t:'secondary'},2021:{v:4.8,t:'secondary'},
+      2022:{v:4.586,t:'actual'},2023:{v:2.902,t:'actual'}
+    }
+  }
+};
+
+// NI flows: contributions in, welfare out (for beaker flow arrows)
+// These come from the main DATA object at runtime
+// CFR annual transfer from GRA (£m from Pink Book Table 3A, converted to £000s for SC scaling)
+// Source: iomg_fiscal_master.csv / iomg-sankeyvis1 RAW
+const CFR_ANNUAL_M = {
+  2016:45.37, 2017:45.37, 2018:41.74, 2019:25.0,
+  2020:25.0,  2021:25.0,  2022:20.0,  2023:48.5,
+  2024:64.0,  2025:19.0
+};
+function getCFRAnnual(fy){ return (CFR_ANNUAL_M[fy]||0)*1000; }
+
+function getNIFlows(fy) {
+  const d = DATA[String(fy)];
+  if (!d) return null;
+  return {
+    contrib_in: d.rev.NIOperatingAccount || 0,   // £000
+    welfare_out: d.grp_gross['Social Security'] || 0, // £000
+  };
+}
+
+function defl(v,fy){return useConstPrices?(v*(DEFLATORS[fy]||1)):v;}
+function deflD(d,fy){
+  // Return a deflated copy of a year's data object
+  const f=v=>defl(v,fy);
+  const deflObj=(obj)=>{const o={};for(const k in obj)o[k]=f(obj[k]||0);return o;};
+  const deflObjObj=(obj)=>{const o={};for(const k in obj)o[k]=deflObj(obj[k]||{});return o;};
+  return{
+    rev:deflObj(d.rev),
+    grp_own:deflObj(d.grp_own),
+    grp_gross:deflObj(d.grp_gross),
+    grp_gra:deflObj(d.grp_gra),
+    grp_cats:deflObjObj(d.grp_cats),
+    cats4:deflObj(d.cats4),
+    total_gross:f(d.total_gross),
+    total_own:f(d.total_own),
+    total_gra:f(d.total_gra),
+  };
+}
+
+// ── Node taxonomy ─────────────────────────────────────────────────────────────
+const REV_ORDER=['CustomsExcise','IncomeTax','NIOperatingAccount','OtherTreasuryIncome'];
+const REV_LABEL={'CustomsExcise':'Customs & Excise','IncomeTax':'Income Tax',
+  'NIOperatingAccount':'National Insurance','OtherTreasuryIncome':'Other Treasury Income'};
+const REV_COLOR={
+  'CustomsExcise':'#f97316',
+  'IncomeTax':'#fb923c',
+  'NIOperatingAccount':'#fdba74',
+  'OtherTreasuryIncome':'#94a3b8'
+};
+
+const GRP_ORDER=['Health & Care','Education','Infrastructure','Social Security',
+                 'Enterprise','Treasury Ops','Other Gov'];
+const GRP_COLOR={
+  'Health & Care':'#2dd4bf',
+  'Education':'#60a5fa',
+  'Infrastructure':'#818cf8',
+  'Social Security':'#c084fc',
+  'Enterprise':'#34d399',
+  'Treasury Ops':'#C9A24A',
+  'Other Gov':'#64748b'
+};
+const OWN_COLOR={
+  'Health & Care':'#2dd4bfaa',
+  'Education':'#60a5faaa',
+  'Infrastructure':'#818cf8aa',
+  'Social Security':'#c084fcaa',
+  'Enterprise':'#34d399aa',
+  'Treasury Ops':'#C9A24Aaa',
+  'Other Gov':'#64748baa'
+};
+
+const CAT_ORDER=['Employee Costs','Social Security','Supplies & Services',
+                 'Agency & Contracted','Infrastructure','Loan & Other'];
+const CAT_COLOR={
+  'Employee Costs':'#f59e0b',
+  'Social Security':'#c084fc',
+  'Supplies & Services':'#10b981',
+  'Agency & Contracted':'#e879f9',
+  'Infrastructure':'#6366f1',
+  'Loan & Other':'#475569'
+};
+
+const OWN_LABEL={'Health & Care':'Health & Care Income','Other Gov':'Utilities & Boards Income',
+  'Infrastructure':'Infrastructure Income','Enterprise':'Enterprise Income',
+  'Education':'Education Income','Treasury Ops':'Treasury Other Income'};
+
+// Which column a node id belongs to (for link connectivity)
+// col: 'rev' | 'grp' | 'cat'
+function nodeCol(id){
+  if(REV_ORDER.includes(id)) return 'rev';
+  if(GRP_ORDER.includes(id)) return 'grp';
+  if(CAT_ORDER.includes(id)) return 'cat';
+  if(id==='RFT') return 'rft';
+  if(id==='NIFund') return 'stock';
+  if(id==='CFR4') return 'stock';
+  return null;
+}
+
+// Data-aware connectivity — returns {grp: Set, cat: Set, rev: Set, special: Set}
+// so Infrastructure-the-dept and Infrastructure-the-cat can be distinguished.
+function linkedNodeSets(selId, d){
+  const col=nodeCol(selId);
+  const grp=new Set(), cat=new Set(), rev=new Set(), special=new Set();
+  if(!col) return {grp,cat,rev,special};
+  if(col==='rev'){
+    rev.add(selId);
+    special.add('GRA');
+    special.add('CFR4');
+    special.add('NIFund');
+    GRP_ORDER.forEach(g=>grp.add(g));
+    CAT_ORDER.forEach(c=>cat.add(c));
+  } else if(col==='grp'){
+    grp.add(selId);
+    special.add('GRA');
+    if(selId==='Social Security') special.add('NIFund'); // SS funded by NI Fund
+    const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
+    CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) cat.add(c); });
+    // rev sources NOT added — they fade
+  } else if(col==='cat'){
+    cat.add(selId);
+    special.add('GRA');
+    GRP_ORDER.forEach(g=>{
+      const gc=(d&&d.grp_cats&&d.grp_cats[g])||{};
+      if((gc[selId]||0)>0) grp.add(g);
+    });
+    // rev sources NOT added
+  } else if(col==='rft'){
+    special.add('GRA');       // the below-the-line extension lights up
+    special.add('CFR4');      // ...and its capital-transfer destination
+    cat.add('Employee Costs');// the pension-charge continuation lands at the EC foot
+  }
+  return {grp,cat,rev,special};
+}
+// Legacy wrapper used by getNodeOpacity
+function linkedNodeIds(selId, d){ return selId; } // replaced by linkedNodeSets
+
+// connectedLinkIds: which link ids should be visible (not hidden in filter mode)
+function connectedLinkIds(selId, d){
+  const col=nodeCol(selId);
+  if(!col) return new Set();
+  const ids=new Set();
+  if(col==='rev'){
+    ids.add('rv-'+selId);
+    // All GRA→dept links + below-the-line + SS top-up
+    GRP_ORDER.forEach(g=>ids.add('gra-'+g));
+    ids.add('gra-CFR4');
+    ids.add('gra-SocialSecurity-topup');
+    if(selId==='NIOperatingAccount') ids.add('ni-SocialSecurity');
+    // All dept→cat links
+    GRP_ORDER.forEach(g=>CAT_ORDER.forEach(c=>ids.add('c-'+g+'-'+c)));
+  } else if(col==='grp'){
+    // Income side
+    ids.add('gra-'+selId);
+    ids.add('own-'+selId);
+    if(selId==='Social Security'){
+      ids.add('ni-SocialSecurity');          // NI Fund → SS ribbon
+      ids.add('gra-SocialSecurity-topup');   // GRA top-up → SS ribbon
+    }
+    // Expenditure side
+    const gc=(d&&d.grp_cats&&d.grp_cats[selId])||{};
+    CAT_ORDER.forEach(c=>{ if((gc[c]||0)>0) ids.add('c-'+selId+'-'+c); });
+  } else if(col==='cat'){
+    // Only depts that spend on this cat + their GRA and own ribbons
+    GRP_ORDER.forEach(g=>{
+      const gc=(d&&d.grp_cats&&d.grp_cats[g])||{};
+      if((gc[selId]||0)>0){
+        ids.add('gra-'+g);
+        ids.add('own-'+g);
+        ids.add('c-'+g+'-'+selId);
+      }
+    });
+  } else if(col==='rft'){
+    ids.add('rft-ext');
+    ids.add('gra-CFR4');
+  }
+  return ids;
+}
+
+const fmt=v=>{const m=Math.abs(v)/1000;if(m>=1000)return(v<0?'-':'')+'£'+(m/1000).toFixed(2)+'bn';if(m>=1)return(v<0?'-':'')+'£'+m.toFixed(0)+'m';return'£'+Math.round(m*1000)+'k'};
+const pct=(v,t)=>t>0?(v/t*100).toFixed(0)+'%':'—';
+
+// ── Layout constants ──────────────────────────────────────────────────────────
+const PAD=5, TPAD=24, BPAD=6, OWN_GAP=18;
+let NW=18, LPAD=168;
+function getRPAD(){ return 0; }  // stocks panel removed — col5 shown in drill mode
+const svg=d3.select('#chart');
+let W,H;
+
+// Portrait mobile → compact 4-column layout (mobile-optimised version)
+function isCompact(){
+  return window.innerWidth <= 900 && window.innerHeight > window.innerWidth;
+}
+function isLandMob(){
+  return window.innerWidth <= 900 && window.innerHeight < window.innerWidth;
+}
+
+function dims(){
+  const el=document.querySelector('.viz');
+  const compact=isCompact();
+  document.body.classList.toggle('compact',compact);
+  // On landscape mobile: draw at a fixed generous size so content is readable when zoomed in
+  W = isLandMob() ? 860 : el.clientWidth;
+  H = el.clientHeight;
+  NW   = compact ? 12 : 18;
+  LPAD = compact ? 86 : 168;
+  svg.attr('viewBox',`0 0 ${W} ${H}`)
+     .attr('width', W)
+     .attr('height', H);
+}
+
+// 6 columns: 0=rev sources, 1=GRA/NI Fund, 2=own(same x), 3=depts, 4=exp types, 5=reserves, 6=pay & benefits
+function cx(col){
+  if(isCompact()){
+    const u=W-LPAD-92; // reserve right margin for dept/cat labels
+    return[LPAD, LPAD+u*0.26, LPAD+u*0.26, LPAD+u*0.63, LPAD+u*1.0, LPAD+u*1.0, LPAD+u*1.0][col];
+  }
+  const u=W-LPAD; // full width — 6 cols always visible
+  return[LPAD, LPAD+u*0.16, LPAD+u*0.16, LPAD+u*0.35, LPAD+u*0.54, LPAD+u*0.70, LPAD+u*0.84][col];
+}
+
+function buildLayout(fy){
+  const raw=DATA[String(fy)]; if(!raw) return null;
+  const d=deflD(raw,fy);
+  const avH=H-TPAD-BPAD;
+  const nRev=REV_ORDER.filter(k=>(d.rev[k]||0)>0.1).length;
+  const nOwn=GRP_ORDER.filter(g=>(d.grp_own[g]||0)>=500).length;
+  // v5.4: Reserve Fund transfer node joins c0 (between Income Tax and NI) — include in scale
+  const rfNom=RF_TRANSFER[fy]||0;
+  const rfD=useConstPrices?rfNom*(DEFLATORS[fy]||1):rfNom;
+  const rfAbs=Math.abs(rfD);
+  const col0GapOverhead=(nRev-1)*PAD + OWN_GAP + (nOwn-1)*PAD + (rfAbs>0.1?PAD:0);
+  const SC=(avH-col0GapOverhead)/(d.total_gross+rfAbs);
+
+  // ── Revenue nodes (col0) ──
+  // NI receipts go to NI Fund node, not GRA — split here
+  const niAmt = d.rev['NIOperatingAccount'] || 0;
+  const revNodes=[];
+  let rfNode=null;
+  let y=TPAD;
+  for(const k of REV_ORDER){
+    const v=d.rev[k]||0; if(v<0.1) continue;
+    const h=Math.max(v*SC,2);
+    revNodes.push({id:k,amt:v,h,y0:y,y1:y+h,col:0,sub:'rev',color:REV_COLOR[k]});
+    y+=h+PAD;
+    // v5.4: Reserve Fund transfer node sits between Income Tax and National Insurance
+    if(k==='IncomeTax'&&rfAbs>0.1){
+      const rh=Math.max(rfAbs*SC,3);
+      rfNode={id:'RFT',sub:'rft',amt:rfD,h:rh,y0:y,y1:y+rh,x0:cx(0),x1:cx(0)+NW,color:'#4ade80'};
+      y+=rh+PAD;
+    }
+  }
+  const revBottom=y-PAD;
+
+  // Find NI rev node vertical position
+  const niRevNode = revNodes.find(n=>n.id==='NIOperatingAccount');
+
+  // ── Own income nodes (col0, below all rev nodes) ──
+  const ownNodes=[];
+  y=revBottom+OWN_GAP;
+  for(const grp of GRP_ORDER){
+    const v=d.grp_own[grp]||0; if(v<500) continue;
+    const h=Math.max(v*SC,2);
+    ownNodes.push({id:grp,amt:v,h,y0:y,y1:y+h,col:0,sub:'own',color:OWN_COLOR[grp]||'#888a'});
+    y+=h+PAD;
+  }
+
+  // ── GRA node (col1) — excludes NI receipts ──
+  const graAmt = d.total_gra - niAmt; // NI routes via NI Fund, not GRA
+  const graH=Math.max(graAmt*SC,2);
+  const graNode={id:'GRA',sub:'gra',amt:graAmt,h:graH,y0:TPAD,y1:TPAD+graH,
+    x0:cx(1),x1:cx(1)+NW,color:'#C9A24A'};
+
+  // ── NI Fund node — stock with head room above flow ──
+  const ssSpend = d.grp_gross['Social Security'] || 0;
+  const niTopUp = Math.max(0, ssSpend - niAmt); // shortfall goes via GRA directly to SS
+  const niFundFlowH = Math.max(niAmt*SC, 2);    // ribbon thickness = actual flow
+  const niFundH = niFundFlowH + 4;              // just 4px above flow so node matches ribbon
+  const niY0 = niRevNode ? niRevNode.y0 : TPAD;
+  const niFundNode = {id:'NIFund',sub:'nifund',amt:niAmt,h:niFundH,y0:niY0,y1:niY0+niFundH,
+    x0:cx(1),x1:cx(1)+NW,color:'#fdba74'};
+
+  // ── CFR annual transfer — from CFR_ANNUAL_M lookup (Pink Book Table 3A) ──
+  const cfrAmt = getCFRAnnual(fy); // £000s
+  const cfrAmtD = useConstPrices ? cfrAmt * (DEFLATORS[fy]||1) : cfrAmt;
+  const cfrH = Math.max(cfrAmtD * SC, 2);
+
+  // CFR node built after cat4Nodes — see below
+
+  // ── Dept group nodes (col2) ──
+  const grpNodes=[];
+  y=TPAD;
+  for(const grp of GRP_ORDER){
+    const gross=d.grp_gross[grp]||0; if(gross<500) continue;
+    const h=Math.max(gross*SC,2);
+    const gra_h=(d.grp_gra[grp]||0)*SC;
+    const own_h=(d.grp_own[grp]||0)*SC;
+    grpNodes.push({id:grp,amt:gross,h,y0:y,y1:y+h,gra_h,own_h,sub:'grp',
+      x0:cx(3),x1:cx(3)+NW,color:GRP_COLOR[grp]});
+    y+=h+PAD;
+  }
+
+  // ── Exp type nodes (col3) ──
+  // v5.2: an extra gap is left after Employee Costs so the GRA net pension charge
+  // (which lands at the EC foot en route to PSPER) passes cleanly between
+  // Employee Costs and Social Security instead of overlapping the SS node.
+  const dv=calcDrillEmp(fy);
+  const ecGap=dv&&dv.gra_topup>0.1?Math.min(Math.max(dv.gra_topup*SC,2)+6,30):0;
+  const cat4Nodes=[];
+  y=TPAD;
+  for(const c of CAT_ORDER){
+    const v=d.cats4[c]||0; if(v<500) continue;
+    const h=Math.max(v*SC,2);
+    cat4Nodes.push({id:c,amt:v,h,y0:y,y1:y+h,sub:'cat',x0:cx(4),x1:cx(4)+NW,color:CAT_COLOR[c]});
+    y+=h+PAD+(c==='Employee Costs'?ecGap:0);
+  }
+
+  // CFR node in col4 — below the last exp type node, clamped inside the canvas
+  const cat4Bottom = cat4Nodes.length ? cat4Nodes[cat4Nodes.length-1].y1 : TPAD;
+  const cfrNodeY0 = Math.min(cat4Bottom + PAD*2, H - BPAD - cfrH);
+  const cfrNode4 = {id:'CFR4',sub:'cfr4',amt:cfrAmtD,h:cfrH,
+    y0:cfrNodeY0,y1:cfrNodeY0+cfrH,
+    x0:cx(4),x1:cx(4)+NW,color:'#fbbf24'};
+  // ── Below-the-line GRA extension (v5) ──
+  // The CFR transfer and the pension GRA net charge are appropriations financed from
+  // accumulated Government balances (balance-sheet reserves), NOT part of the in-year
+  // departmental allocations (which sum exactly to GRA inflows). Drawing them from a
+  // hatched extension below the GRA node keeps the main GRA in=out identity exact.
+  const topupAmt=dv?dv.gra_topup:0;
+  const topupPH=topupAmt>0.1?Math.max(topupAmt*SC,2):0;
+  // v5.4: the extension's OUTFLOWS are the CFR transfer + pension net charge + (in reverse
+  // years) the transfer INTO the Reserve Fund; its INFLOWS are the Reserve Fund transfer
+  // (when into GR) + the residual drawn against the GRA's own balance — the "overdraft".
+  // in == out by construction: rfIn + overdraft = cfr + charge + rfOut.
+  const rfIn = rfD>0.1 ? rfD : 0;
+  const rfOut = rfD<-0.1 ? -rfD : 0;
+  const rfInH = rfIn>0.1?Math.max(rfIn*SC,2):0;
+  const rfOutH= rfOut>0.1?Math.max(rfOut*SC,2):0;
+  const extOutAmt = cfrAmtD + topupAmt + rfOut;
+  const odAmt = Math.max(0, extOutAmt - rfIn);   // overdraft: financed from the GRA balance
+  const extH=(cfrAmtD>0.1?cfrH:0)+topupPH+rfOutH;
+  // v5.5: extension MERGED into the GRA node — flush below it (no gap), so the GRA reads
+  // as ONE account: revenue-funded body + hatched balance-financed foot. Fairer: the node's
+  // full height now equals total GRA throughput (in-year revenue + below-the-line).
+  const graExt=extH>0?{id:'GRAEXT',sub:'graext',amt:extOutAmt,odAmt,rfIn,rfOut,h:extH,
+    y0:graNode.y1,y1:graNode.y1+extH,x0:cx(1),x1:cx(1)+NW,color:'#C9A24A'}:null;
+  // v5.2: keep the NI Fund node clear of the hatched extension — shift it below
+  if(graExt&&niFundNode.y0<graExt.y1+10){
+    const nshift=graExt.y1+10-niFundNode.y0;
+    niFundNode.y0+=nshift; niFundNode.y1+=nshift;
+  }
+
+  // Rev → GRA (all except NI which goes to NI Fund)
+  const revLinks=[];
+  let graInY=TPAD;
+  for(const n of revNodes){
+    if(n.id==='NIOperatingAccount') continue; // NI bypasses GRA
+    const th=n.h;
+    revLinks.push({id:'rv-'+n.id,nodeIds:[n.id,'GRA'],
+      x0:cx(0)+NW, sy0:n.y0, sy1:n.y1,
+      x1:cx(1), ty0:graInY, ty1:graInY+th,
+      color:n.color, c0:n.color, c1:'#C9A24A', op:0.55});
+    graInY+=th;
+  }
+
+  // NI receipts → NI Fund node
+  const niLinks=[];
+  if(niRevNode){
+    niLinks.push({id:'rv-NIOperatingAccount',nodeIds:['NIOperatingAccount','NIFund'],
+      x0:cx(0)+NW, sy0:niRevNode.y0, sy1:niRevNode.y1,
+      x1:cx(1), ty0:niFundNode.y1-niFundFlowH, ty1:niFundNode.y1,
+      color:'#fdba74', c0:'#fdba74', c1:'#fdba74', op:0.55});
+  }
+
+  // GRA → depts (col1 → col2, skipping col1.5)
+  const graLinks=[];
+  let graOutY=TPAD;
+  for(const gn of grpNodes){
+    const sh=gn.gra_h; if(sh<1) continue;
+    if(gn.id==='Social Security') continue; // Social Security funded by NI Fund
+    graLinks.push({id:'gra-'+gn.id,nodeIds:['GRA',gn.id],
+      x0:cx(1)+NW, sy0:graOutY, sy1:graOutY+sh,
+      x1:cx(3), ty0:gn.y0, ty1:gn.y0+gn.gra_h,
+      color:gn.color, c0:'#C9A24A', c1:gn.color, op:0.45});
+    graOutY+=sh;
+  }
+
+  // GRA below-the-line → CFR (annual transfer ribbon, from hatched extension)
+  const cfrLinks=[];
+  if(cfrAmtD > 0.1 && graExt){
+    cfrLinks.push({id:'gra-CFR4',nodeIds:['GRA','CFR4'],
+      x0:cx(1)+NW, sy0:graExt.y0, sy1:graExt.y0+cfrH,
+      x1:cx(4), ty0:cfrNode4.y0, ty1:cfrNode4.y1,
+      color:'#fbbf24', c0:'#C9A24A', c1:'#fbbf24', op:0.5});
+  }
+
+  // Reserve Fund ↔ GRA below-the-line (v5.4): the fund fuels the extension when transfers
+  // run into General Revenue; in FY2018-19/2019-20 (and FY2021-22, bond) the flow reverses.
+  const rfLinks=[];
+  if(rfNode&&graExt){
+    if(rfIn>0.1){
+      rfLinks.push({id:'rft-ext',nodeIds:['RFT','GRA'],
+        x0:cx(0)+NW, sy0:rfNode.y0, sy1:rfNode.y1,
+        x1:cx(1), ty0:graExt.y0, ty1:Math.min(graExt.y0+rfInH,graExt.y1),
+        color:'#4ade80', c0:'#4ade80', c1:'#C9A24A', op:0.55});
+    } else if(rfOut>0.1){
+      const oy0=graExt.y0+(cfrAmtD>0.1?cfrH:0);
+      rfLinks.push({id:'rft-ext',nodeIds:['RFT','GRA'],
+        x0:cx(1), sy0:oy0, sy1:oy0+rfOutH,
+        x1:cx(0)+NW, ty0:rfNode.y0, ty1:rfNode.y1,
+        color:'#4ade80', c0:'#4ade80', c1:'#C9A24A', op:0.55, reverse:true});
+    }
+  }
+
+  // GRA → Social Security top-up (shortfall between NI receipts and SS spend)
+  // This IS part of the in-year allocation (grp_gra sums include SS), so it uses the
+  // exact remaining strip at the foot of the main GRA node — no overlap by construction.
+  if(niTopUp > 0.1){
+    const topUpH = Math.max(niTopUp*SC, 2);
+    const ssGrpNode = grpNodes.find(g=>g.id==='Social Security');
+    if(ssGrpNode){
+      graLinks.push({id:'gra-SocialSecurity-topup',nodeIds:['GRA','Social Security'],
+        x0:cx(1)+NW, sy0:graNode.y1-topUpH, sy1:graNode.y1,
+        x1:cx(3), ty0:ssGrpNode.y0, ty1:ssGrpNode.y0+topUpH,
+        color:'#C9A24A', c0:'#C9A24A', c1:'#c084fc', op:0.45});
+    }
+  }
+
+  // NI Fund → Social Security
+  const niOutLinks=[];
+  const ssNode = grpNodes.find(g=>g.id==='Social Security');
+  if(ssNode){
+    // NI Fund → SS: NI receipts occupy BELOW the GRA topup (GRA on top)
+    const topUpHSS = niTopUp > 0.1 ? Math.max(niTopUp*SC, 2) : 0;
+    niOutLinks.push({id:'ni-SocialSecurity',nodeIds:['NIFund','Social Security'],
+      x0:cx(1)+NW, sy0:niFundNode.y1-niFundFlowH, sy1:niFundNode.y1,
+      x1:cx(3), ty0:ssNode.y0+topUpHSS, ty1:ssNode.y0+topUpHSS+niFundFlowH,
+      color:'#fdba74', c0:'#fdba74', c1:'#c084fc', op:0.45});
+  }
+
+  // Own income → depts
+  const ownLinks=[];
+  const ownByGrp={};
+  for(const on of ownNodes) ownByGrp[on.id]=on;
+  for(const gn of grpNodes){
+    const on=ownByGrp[gn.id]; if(!on||gn.own_h<1) continue;
+    ownLinks.push({id:'own-'+gn.id,nodeIds:[gn.id],
+      x0:cx(0)+NW, sy0:on.y0, sy1:on.y1,
+      x1:cx(3), ty0:gn.y0+gn.gra_h, ty1:gn.y1,
+      color:gn.color, c0:gn.color, c1:gn.color, op:0.50});
+  }
+
+  // Dept → exp category links
+  const grpCatOff={};
+  for(const gn of grpNodes){
+    const gc=d.grp_cats[gn.id]||{};
+    let yy=gn.y0; const offs={};
+    for(const c of CAT_ORDER){
+      const amt=gc[c]||0; if(amt<0.1) continue;
+      const h=amt*SC;
+      offs[c]={y0:yy,y1:yy+h}; yy+=h;
+    }
+    grpCatOff[gn.id]=offs;
+  }
+  const cat4GrpOff={};
+  for(const cn of cat4Nodes){
+    let yy=cn.y0; const offs={};
+    for(const gn of grpNodes){
+      const gc=d.grp_cats[gn.id]||{};
+      const amt=gc[cn.id]||0; if(amt<0.1) continue;
+      const h=amt*SC;
+      offs[gn.id]={y0:yy,y1:yy+h}; yy+=h;
+    }
+    cat4GrpOff[cn.id]=offs;
+  }
+  const cat4Links=[];
+  for(const gn of grpNodes){
+    for(const cn of cat4Nodes){
+      const so=(grpCatOff[gn.id]||{})[cn.id];
+      const to=(cat4GrpOff[cn.id]||{})[gn.id];
+      if(!so||!to) continue;
+      cat4Links.push({id:`c-${gn.id}-${cn.id}`,nodeIds:[gn.id,cn.id],
+        x0:cx(3)+NW, sy0:so.y0, sy1:so.y1,
+        x1:cx(4), ty0:to.y0, ty1:to.y1,
+        color:gn.color, c0:gn.color, c1:CAT_COLOR[cn.id]||gn.color, op:0.4});
+    }
+  }
+
+  // ── Reserve Fund node — stock in c1, below NI Fund ──
+  const resFundY0 = niFundNode.y1 + PAD*3;
+  const resFundH  = 38; // fixed height beaker
+  const resFundNode = {id:'ReserveFund',sub:'reserve',amt:0,h:resFundH,
+    y0:resFundY0,y1:resFundY0+resFundH,x0:cx(1),x1:cx(1)+NW,color:'#4ade80'};
+
+  // ── c5 stock positions (v5.1) — PSPER is a TRUE FLOW NODE: height = gross pensions
+  //    out, and inputs (drawdown + employer super + employee super + GRA charge) fill it
+  //    exactly, so node in == node out every year. Anchored so the employer-super ribbon
+  //    leaves the Employee Costs foot horizontally — segment order mirrors source order,
+  //    which makes every ribbon parallel (no crossings). ──
+  const _empCat = cat4Nodes.find(n=>n.id==='Employee Costs');
+  const _totH  = dv ? (dv.emp_super + dv.emp_pen) * SC : 0;
+  const _drawH = dv ? dv.psepr_draw * SC : 0;
+  // v5.4: PSPER dropped below the pay ribbons' path. The pay stack lands 12px lower at c6
+  // than it leaves c4 (3 × 4px gaps); at x5 the Employer NI ribbon underside is therefore
+  // ≈ srcBottom + s·12. Anchoring PSPER 8px below that keeps a clean gap in every year.
+  const _x4r=cx(4)+NW,_x5c=cx(5),_x6c=cx(6);
+  const _t5=(_x6c-_x4r)>1?(_x5c-_x4r)/(_x6c-_x4r):0.5;
+  const _s5=_t5*_t5*(3-2*_t5);
+  const psperY0_5 = _empCat ? _empCat.y1 - _totH + _s5*12 + 8 : TPAD + Math.round(avH * 0.35);
+  const psperY1_5 = dv ? psperY0_5 + dv.pension * SC : psperY0_5 + 60;
+  const BK_H = 50, BK_GAP = 12;                                // beaker height / gap
+  const plY1 = H - BPAD - 2,        plY0 = plY1 - BK_H;        // Pension Liability (bottom)
+  const capResY1 = plY0 - BK_GAP,   capResY0 = capResY1 - BK_H;// Capital Reserve
+  const resFundY1_5 = capResY0 - BK_GAP, resFundY0_5 = resFundY1_5 - BK_H; // Reserve Fund
+
+  return{revNodes,ownNodes,graNode,graExt,rfNode,rfLinks,niFundNode,resFundNode,cfrNode4,grpNodes,cat4Nodes,
+         revLinks,niLinks,graLinks,niOutLinks,ownLinks,cfrLinks,cat4Links,
+         d,fy,SC,dv,psperY0:psperY0_5,psperY1:psperY1_5,
+         resFundY0:resFundY0_5,resFundY1:resFundY1_5,capResY0,capResY1,plY0,plY1};
+}
+
+// v5.5: fixed beaker anchors — beakers keep ONE position across all years ("one less
+// moving part"); only their fill level and flow arrows change. Computed from a cross-year
+// layout pass (geometry is identical in both price bases — SC normalises to fill height),
+// memoised per canvas size.
+let _anchKey='',_anch=null;
+function fixedAnchors(){
+  const key=W+'x'+H+(isCompact()?'c':'f');
+  if(key===_anchKey&&_anch) return _anch;
+  let minPsper=1e9,rfMin=1e9,rfMax=-1e9;
+  for(let fy=2016;fy<=2025;fy++){
+    const l=buildLayout(fy); if(!l) continue;
+    if(l.psperY0<minPsper) minPsper=l.psperY0;
+    if(l.rfNode){ rfMin=Math.min(rfMin,l.rfNode.y0); rfMax=Math.max(rfMax,l.rfNode.y1); }
+  }
+  _anch={psperBkY:Math.max(TPAD+14,minPsper-30-12),
+         rfBkMid:rfMin<1e8?(rfMin+rfMax)/2:H/2};
+  _anchKey=key;
+  return _anch;
+}
+
+function rib(x0,sy0,sy1,x1,ty0,ty1){
+  const mx=(x0+x1)/2;
+  return `M${x0},${sy0}C${mx},${sy0} ${mx},${ty0} ${x1},${ty0}L${x1},${ty1}C${mx},${ty1} ${mx},${sy1} ${x0},${sy1}Z`;
+}
+
+// ── Selection state ───────────────────────────────────────────────────────────
+let selectedNode='';    // '' = none
+let filterMode=true;
+// drillNode removed — all 6 cols permanently visible
+
+// v5: focus mode FADES unrelated flows into the background (rather than hiding them),
+// so the full system stays legible while the chosen node's inputs & outputs pop.
+const FADE_NODE=0.08, FADE_LINK=0.05;
+function getNodeOpacity(nodeId, selId, d, nodeSub){
+  if(!selId) return 1;
+  const sets=linkedNodeSets(selId, d);
+  if(nodeSub==='gra')    return sets.special.has('GRA') ? 1 : FADE_NODE;
+  if(nodeSub==='graext') return sets.special.has('GRA') ? 1 : FADE_NODE;
+  if(nodeSub==='rev')    return sets.rev.has(nodeId) ? 1 : FADE_NODE;
+  if(nodeSub==='own')    return sets.grp.has(nodeId) ? 1 : FADE_NODE;
+  if(nodeSub==='grp')    return sets.grp.has(nodeId) ? 1 : FADE_NODE;
+  if(nodeSub==='cat')    return sets.cat.has(nodeId) ? 1 : FADE_NODE;
+  if(nodeSub==='nifund') return sets.special.has('NIFund') ? 1 : FADE_NODE;
+  if(nodeSub==='cfr4')   return sets.special.has('CFR4')   ? 1 : FADE_NODE;
+  if(nodeSub==='rft')    return selId==='RFT' ? 1 : FADE_NODE;
+  return 1;
+}
+function getLinkOpacity(link, selId, baseOp, d){
+  if(!selId) return baseOp;
+  const conn=connectedLinkIds(selId, d);
+  return conn.has(link.id) ? Math.min(baseOp+0.2, 0.85) : FADE_LINK;
+}
+
+
+// setDrillNode removed — no drill toggle needed
+
+// ── Time series popout for drill nodes ───────────────────────────────────────
+const DRILL_TS_META={
+  PSPER:   {label:'PSPER Reserve Balance',  color:'#fb7185', unit:'£m',
+             note:'Confirmed market values (LBB 7.6b / PSPA AR) · exhausted Mar 2023'},
+  Net:     {label:'Net Wages (est.)',        color:'#fcd34d', unit:'£000'},
+  PAYE:    {label:'PAYE Income Tax (est.)', color:'#fb923c', unit:'£000'},
+  EmpNI:   {label:'Employee NI (est.)',     color:'#fdba74', unit:'£000'},
+  ErNI:    {label:'Employer NI',            color:'#f97316', unit:'£000'},
+  EmpPen:  {label:'Employee Pension',       color:'#5eead4', unit:'£000'},
+  EmpSup:  {label:'Employer Pension (Super)',color:'#2dd4bf',unit:'£000'},
+  Pension: {label:'Civil Service Pensions',color:'#fb7185',unit:'£000'},
+};
+function showDrillPopup(nodeId, rect){
+  clearTimeout(tsHideTimer);
+  const popup=document.getElementById('ts-popup');
+  const meta=DRILL_TS_META[nodeId]; if(!meta) return;
+  const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  let vals;
+  if(nodeId==='PSPER'){
+    vals=years.map(fy=>PSPER_BAL_M[fy]!==undefined?PSPER_BAL_M[fy]:null);
+  } else {
+    const KEY={Net:'net',PAYE:'paye',EmpNI:'emp_ni',ErNI:'erni',EmpPen:'emp_pen',EmpSup:'emp_super',Pension:'pension'};
+    const k=KEY[nodeId];
+    vals=years.map(fy=>{ const v=calcDrillEmp(fy); return v&&k?v[k]:null; });
+  }
+  document.getElementById('ts-title').textContent=meta.label;
+  document.getElementById('ts-sub').textContent=(meta.note||(useConstPrices?'2024-25 constant prices':'Nominal')+' · FY2016–FY2025');
+  const canvas=document.getElementById('ts-canvas');
+  if(tsChart){tsChart.destroy();tsChart=null;}
+  const isPSPER=nodeId==='PSPER';
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:years.map(y=>'FY'+y),
+          datasets:[{data:vals,borderColor:meta.color,backgroundColor:meta.color+'22',
+                     borderWidth:2,pointRadius:3,pointBackgroundColor:meta.color,fill:true,tension:0.3,spanGaps:true}]},
+    options:{animation:false,responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>isPSPER?'£'+ctx.raw+'m':fmt(ctx.raw)},
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
+      scales:{
+        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>isPSPER?'£'+v+'m':fmt(v)},grid:{color:'#1e293b'}},
+      }}});
+  popup.style.visibility='hidden'; popup.style.display='block';
+  const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth,vh=window.innerHeight;
+  let px=rect.right+12,py=rect.top-ph/2;
+  if(px+pw>vw-10) px=rect.left-pw-12;
+  if(py<10) py=10; if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px'; popup.style.top=py+'px';
+}
+
+
+// ── Stock balance time-series popup (col5 nodes) ─────────────────────────────
+function showStockTsPopup(stockId, rect){
+  clearTimeout(tsHideTimer);
+  const s=STOCKS[stockId]; if(!s) return;
+  const popup=document.getElementById('ts-popup');
+  const years=Object.keys(s.data).map(Number).sort();
+  const vals=years.map(y=>s.data[y].v);
+  const types=years.map(y=>s.data[y].t);
+  document.getElementById('ts-title').textContent=s.label+' — Balance';
+  document.getElementById('ts-sub').textContent='At 31 March · '+s.unit;
+  const canvas=document.getElementById('ts-canvas');
+  if(tsChart){tsChart.destroy();tsChart=null;}
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:years.map(y=>"FY'"+String(y).slice(-2)),
+          datasets:[{data:vals,borderColor:s.color,backgroundColor:s.color+'22',
+                     borderWidth:2,pointRadius:3,pointBackgroundColor:s.color,fill:!s.inverted,
+                     tension:0.3,spanGaps:true}]},
+    options:{animation:false,responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>{const v=ctx.raw,sg=v<0?'−':'';return s.unit==='£bn'?sg+'£'+Math.abs(v).toFixed(2)+'bn':sg+'£'+Math.abs(v).toFixed(0)+'m';}},
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
+      scales:{
+        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>{const sg=v<0?'−':'';return s.unit==='£bn'?sg+'£'+Math.abs(v)+'bn':sg+'£'+Math.abs(v)+'m';}},grid:{color:'#1e293b'},reverse:!!s.inverted},
+      }}});
+  popup.style.visibility='hidden'; popup.style.display='block';
+  const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth,vh=window.innerHeight;
+  let px=rect.right+12,py=rect.top-ph/2;
+  if(px+pw>vw-10) px=rect.left-pw-12;
+  if(py<10) py=10; if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px'; popup.style.top=py+'px';
+}
+
+// ── c5 Stocks + c6 Pay & Benefits — keyed morphing transitions ──────────────
+function drawExpanded(lyt,fy,animate){
+  if(typeof isCompact==='function'&&isCompact()){ prevDrillRibs={}; return; } // portrait mobile: cols 0–4 only
+  const de=lyt.dv||calcDrillEmp(fy); if(!de) return;
+  const SC=lyt.SC, G=6, payGap=4;
+  const gRoot=svg.append('g').attr('class','drill-el');
+  const gPen   =gRoot.append('g').attr('class','drill-pen');    // pension flows + pay & benefits
+  const gSS    =gRoot.append('g').attr('class','drill-ssgrp');  // social security breakdown
+  const gStocks=gRoot.append('g').attr('class','drill-stocks'); // balance-sheet beakers (drawn on top)
+  let gCur=gPen;
+  const x5=cx(5), x6=cx(6);
+  const empNode=lyt.cat4Nodes.find(n=>n.id==='Employee Costs');
+  const ssNode =lyt.cat4Nodes.find(n=>n.id==='Social Security');
+  const newDR={};
+
+  // Morphing ribbon: starts at prev coords if animating, transitions to current
+  function drib(id,x0,sy0,sy1,x1,ty0,ty1){
+    newDR[id]={sy0,sy1,ty0,ty1};
+    const pr=prevDrillRibs[id];
+    const el=gCur.append('path');
+    if(animate&&pr){
+      el.attr('d',rib(x0,pr.sy0,pr.sy1,x1,pr.ty0,pr.ty1));
+      el.transition().duration(DUR).ease(EASE).attr('d',rib(x0,sy0,sy1,x1,ty0,ty1));
+    } else { el.attr('d',rib(x0,sy0,sy1,x1,ty0,ty1)); }
+    return el;
+  }
+  // Morphing rect y/height
+  function dyr(id,y,h){
+    newDR[id]={y,h};
+    const pr=prevDrillRibs[id];
+    if(animate&&pr&&(pr.y!==y||pr.h!==h)) return {sy:pr.y,sh:pr.h,ey:y,eh:h,m:true};
+    return {sy:y,sh:h,ey:y,eh:h,m:false};
+  }
+  function ayr(rect,pos){
+    rect.attr('y',pos.sy).attr('height',pos.sh);
+    if(pos.m) rect.transition().duration(DUR).ease(EASE).attr('y',pos.ey).attr('height',pos.eh);
+    return rect;
+  }
+  // v5.5: morphing label — travels from its previous position to the new one alongside
+  // the ribbons/nodes (no more delete-and-reappear). New labels fade in via fill-opacity
+  // (composes with any attribute opacity the caller sets afterwards).
+  const newDL={};
+  function dlbl(grp,id,x,y){
+    newDL[id]={x,y};
+    const pr=prevDrillLbls[id];
+    const el=grp.append('text').attr('class','lbl drl');
+    if(animate&&pr&&(pr.x!==x||pr.y!==y)){
+      el.attr('x',pr.x).attr('y',pr.y);
+      el.transition().duration(DUR).ease(EASE).attr('x',x).attr('y',y);
+    } else if(animate&&!pr){
+      el.attr('x',x).attr('y',y).attr('fill-opacity',0)
+        .transition().delay(DUR*0.45).duration(DUR*0.55).ease(EASE).attr('fill-opacity',1);
+    } else el.attr('x',x).attr('y',y);
+    return el;
+  }
+  // v5.4: per-ribbon gradients for the drill layers — match the main sankey's blended ribbons
+  let dDefs=svg.select('defs'); if(dDefs.empty()) dDefs=svg.append('defs');
+  dDefs.selectAll('linearGradient.dg').remove();
+  function dgrad(key,c0,c1){
+    const id='dg-'+key.replace(/[^A-Za-z0-9]/g,'');
+    const g=dDefs.append('linearGradient').attr('class','dg').attr('id',id)
+      .attr('x1','0%').attr('x2','100%').attr('y1','0%').attr('y2','0%');
+    g.append('stop').attr('offset','0%').attr('stop-color',c0);
+    g.append('stop').attr('offset','100%').attr('stop-color',c1);
+    return 'url(#'+id+')';
+  }
+
+  const psperY0=lyt.psperY0, psperY1=lyt.psperY1, psperMid=(psperY0+psperY1)/2;
+  const capResY0=lyt.capResY0, capResY1=lyt.capResY1, capResMid=(capResY0+capResY1)/2;
+  const psperH=psperY1-psperY0;                 // node height = gross pensions out
+  const bal=PSPER_BAL_M[fy]!==undefined?PSPER_BAL_M[fy]:0;
+
+  // ── PSPER flow node (v5.1) — in == out exactly, every year ──
+  // pensions out = PSPER reserve drawdown + employer super + employee super + GRA net charge.
+  // Segment order (top→bottom) mirrors the source order at c4, so no ribbon crosses another.
+  if(empNode&&de.pension>0.1){
+    const supH=de.emp_super*SC, penH=de.emp_pen*SC, totH=supH+penH;
+    const drawH=de.psepr_draw*SC, topupH=de.gra_topup*SC;
+    const srcY0=empNode.y1-totH;
+    const segDraw0=psperY0, segSup0=psperY0+drawH, segPen0=segSup0+supH, segTop0=segPen0+penH;
+
+    // Employer superannuation — leaves the EC foot horizontally into its segment
+    drib('dr-super',cx(4)+NW,srcY0,srcY0+supH,x5,segSup0,segSup0+supH)
+      .attr('fill',dgrad('super','#fcd34d','#fb7185')).attr('opacity',0.40);
+    // Employee superannuation — parallel, directly below
+    drib('dr-pension',cx(4)+NW,srcY0+supH,empNode.y1,x5,segPen0,segPen0+penH)
+      .attr('fill',dgrad('emppen','#fcd34d','#f9a8d4')).attr('opacity',0.35);
+
+    // GRA net charge: hatched GRA extension(c1) → EC foot(c4) → bottom segment (c5)
+    if(topupH>0.5&&lyt.graExt){
+      const ext=lyt.graExt;
+      const graSrcY1=ext.y1, graSrcY0=ext.y1-topupH;
+      const ecY0=empNode.y1, ecY1=empNode.y1+topupH;
+      drib('dr-gra-ec',cx(1)+NW,graSrcY0,graSrcY1,cx(4),ecY0,ecY1)
+        .attr('fill','#C9A24A').attr('opacity',0.38);
+      gCur.append('rect').attr('x',cx(4)).attr('y',ecY0).attr('width',NW).attr('height',topupH)
+        .attr('rx',1).attr('fill','#C9A24A').attr('opacity',0.55);
+      drib('dr-gra-topup',cx(4)+NW,ecY0,ecY1,x5,segTop0,segTop0+topupH)
+        .attr('fill',dgrad('topup','#C9A24A','#fb7185')).attr('opacity',0.45);
+    }
+
+    // Ribbon labels — one shared face (theme text colour, black in light mode), laid out
+    // as collision-free stacked blocks: each pair is centred on its ribbon where space
+    // allows and pushed down just enough when segments are thin. Order always matches
+    // the ribbon order (employer / employee / GRA charge), so adjacency stays legible.
+    const mx=(cx(4)+NW+x5)/2;
+    const midA=srcY0+supH/2, midB=srcY0+supH+penH/2;
+    const lanes=[
+      {name:'Employer superannuation', val:fmt(de.emp_super), want:midA},
+      {name:'Employee superannuation', val:fmt(de.emp_pen),  want:midB},
+    ];
+    if(topupH>0.5) lanes.push({name:'GRA net pension charge', val:fmt(de.gra_topup), want:empNode.y1+topupH/2});
+    let laneBot=-1e9;
+    for(const L of lanes){
+      const blockH=13; // v5.4: single line — name and value together, centred on the ribbon
+      const top=Math.max(L.want-blockH/2, laneBot+3);
+      const t=dlbl(gCur,'lane-'+L.name,mx,top+blockH/2)
+        .attr('class','lbl drl lbl-flow').attr('dominant-baseline','middle');
+      t.append('tspan').text(L.name+'\u2002');
+      t.append('tspan').attr('class','lbl-flowa-t').text(L.val);
+      laneBot=top+blockH;
+    }
+
+    // ── The node itself ──
+    const psperG=gPen.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showDrillPopup('PSPER',e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    gCur=psperG;
+    ayr(psperG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','#fb7185').attr('opacity',0.82), dyr('psper-node',psperY0,psperH));
+    // Drawdown segment — hatched: the slice of pensions paid from the reserve itself
+    if(drawH>0.5){
+      ayr(psperG.append('rect').attr('x',x5).attr('width',NW)
+        .attr('fill','url(#hatch-pink)'), dyr('psper-draw',segDraw0,drawH));
+    }
+    gCur=gPen;
+
+    // ── PSPER reserve beaker + C-flow: the reserve drains INTO the node (self-funded) ──
+    // v5.2: once the reserve is exhausted and no drawdown remains, the beaker disappears
+    // and the node carries a plain PSPER label instead.
+    const showBeaker = bal>0.05 || drawH>0.5;
+    if(showBeaker){
+      // v5.5: beaker position FIXED across years (fixedAnchors) — it no longer tracks psperY0
+      const bkW=16, bkH=30, bkX=x5-30, bkY=fixedAnchors().psperBkY;
+      const bkG=gPen.append('g').style('cursor','pointer')
+        .on('mouseenter',e=>showDrillPopup('PSPER',e.currentTarget.getBoundingClientRect()))
+        .on('mouseleave',hideTsPopup);
+      bkG.append('rect').attr('x',bkX).attr('y',bkY).attr('width',bkW).attr('height',bkH).attr('rx',2)
+        .attr('fill','#2d1525').attr('opacity',0.9);
+      if(bal>0){
+        const bf=Math.min(bal/PSPER_PEAK_M,1)*(bkH-2);
+        bkG.append('rect').attr('x',bkX+1).attr('y',bkY+bkH-1-bf).attr('width',bkW-2).attr('height',bf)
+          .attr('rx',1).attr('fill','#fb7185').attr('opacity',0.7);
+      }
+      bkG.append('rect').attr('x',bkX).attr('y',bkY).attr('width',bkW).attr('height',bkH).attr('rx',2)
+        .attr('fill','none').attr('stroke','#fb7185').attr('stroke-width',1.2).attr('stroke-dasharray','4,3').attr('opacity',0.85);
+      gPen.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('x',bkX-4).attr('y',bkY+9).attr('font-size','9px').attr('font-weight','700').attr('fill','#fb7185').text('PSPER');
+      gPen.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('x',bkX-4).attr('y',bkY+20).attr('font-size','8px').attr('font-family','JetBrains Mono,monospace').attr('fill','#fb7185')
+        .text(bal>0?('£'+bal.toFixed(1)+'m'):'£0');
+      // C-shaped drawdown flow: beaker → top (drawdown) segment of the node, arrowed
+      if(drawH>0.5){
+        const hookW=Math.max(2,Math.min(drawH,5));
+        const sx=bkX+bkW, sy=bkY+bkH-4, tx=x5-1, ty=segDraw0+drawH/2;
+        gPen.append('path')
+          .attr('d',`M${sx},${sy} C${sx+16},${sy} ${tx-14},${ty} ${tx},${ty}`)
+          .attr('fill','none').attr('stroke','#fb7185').attr('stroke-width',hookW)
+          .attr('opacity',0.75).attr('marker-end','url(#arr-pink)');
+        gPen.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+          .attr('x',bkX-4).attr('y',bkY+bkH+9).attr('font-size','7px').attr('fill','#fb7185').attr('opacity',0.9)
+          .text('drawdown '+fmt(de.psepr_draw));
+      } else {
+        gPen.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+          .attr('x',bkX-4).attr('y',bkY+bkH+9).attr('font-size','7px').attr('fill','#fb7185').attr('opacity',0.8)
+          .text('exhausted Mar 2023');
+      }
+    } else {
+      gPen.append('text').attr('class','lbl').attr('text-anchor','middle')
+        .attr('x',x5+NW/2).attr('y',psperY0-6)
+        .attr('font-size','9px').attr('font-weight','700').attr('fill','#fb7185').text('PSPER');
+    }
+  }
+
+  // ── Balance-sheet beakers (c5, bottom-anchored): Reserve Fund / Capital Reserve / Pension Liability ──
+  gCur=gStocks;
+  // Capital Reserve
+  {
+    const cs=STOCKS['cfr']; let csV=null,csT=null;
+    for(let y=fy;y>=2013;y--){ if(cs.data[y]){csV=cs.data[y].v;csT=cs.data[y].t;break;} }
+    const csCF=csT==='budget'||csT==='probable';
+    const capH=capResY1-capResY0;
+    if(lyt.cfrNode4&&lyt.cfrNode4.amt>0.1){
+      const cfn=lyt.cfrNode4;
+      drib('dr-cfr',cx(4)+NW,cfn.y0,cfn.y1,x5,capResY1-Math.min(cfn.h,capH),capResY1)
+        .attr('fill','#fbbf24').attr('opacity',0.38);
+    }
+    const csG=gStocks.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showStockTsPopup('cfr',e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    gCur=csG;
+    ayr(csG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','#2e2510').attr('stroke','#fbbf24').attr('stroke-width',1)
+      .attr('stroke-dasharray','4,3').attr('opacity',0.85), dyr('cap-bg',capResY0,capH));
+    if(csV!==null&&csV>0){
+      const cff=Math.min(csV/100,1), cfh=(capH-2)*cff;
+      ayr(csG.append('rect').attr('x',x5+1).attr('width',NW-2).attr('rx',1)
+        .attr('fill','#fbbf24').attr('opacity',csCF?0.50:0.72), dyr('cap-fill',capResY1-cfh,cfh));
+    }
+    gCur=gStocks;
+    gStocks.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',capResMid-7).attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('Capital');
+    gStocks.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',capResMid+5).attr('font-size','10px').attr('font-weight','700').attr('fill','#fbbf24').text('Reserve');
+    if(csV!==null)
+      gStocks.append('text').attr('class','lbl lbl-mono').attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('x',x5-G).attr('y',capResMid+17).attr('font-size','8px').attr('font-family','JetBrains Mono,monospace')
+        .text((csCF?'~':'')+'£'+csV.toFixed(0)+'m');
+    const arX=x5+NW+G,arY=capResMid;
+    gStocks.append('line').attr('x1',arX).attr('y1',arY).attr('x2',arX+55).attr('y2',arY)
+      .attr('stroke','#fbbf24').attr('stroke-width',2.0).attr('marker-end','url(#arr-gold)').attr('opacity',0.85);
+    gStocks.append('text').attr('class','lbl').attr('x',arX+2).attr('y',arY-5)
+      .attr('font-size','9px').attr('font-weight','600').attr('fill','#fbbf24').attr('opacity',0.95).attr('text-anchor','start').text('Capital Projects');
+  }
+
+  // Reserve Fund beaker — moved to c0 in v5.4 (transfer node between Income Tax and NI;
+  // hover it for the balance series). Kept in the mobile stock strip.
+
+  // Pension Liability (inverted — an obligation, not an asset)
+  {
+    const plY0=lyt.plY0,plY1=lyt.plY1,plH=plY1-plY0,plMid=(plY0+plY1)/2;
+    const plRes=stockValWithCarry('pension',fy);
+    const plV=plRes?plRes.v:null, plCF=plRes?plRes.carriedForward:false;
+    const plG=gStocks.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showStockTsPopup('pension',e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    gCur=plG;
+    ayr(plG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','#2d1020').attr('opacity',0.90), dyr('pl-bg',plY0,plH));
+    if(plV!==null&&plV>0){
+      const plf=Math.min(plV/5.0,1), plfh=(plH-2)*plf;
+      ayr(plG.append('rect').attr('x',x5+1).attr('width',NW-2).attr('rx',1)
+        .attr('fill','#fb7185').attr('opacity',plCF?0.40:0.65), dyr('pl-fill',plY0+1,plfh));
+    }
+    ayr(plG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
+      .attr('fill','none').attr('stroke','#fb7185').attr('stroke-width',1.5)
+      .attr('stroke-dasharray','2,3').attr('opacity',0.85), dyr('pl-border',plY0,plH));
+    gCur=gStocks;
+    gStocks.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',plMid-7).attr('font-size','10px').attr('font-weight','700').attr('fill','#fb7185').text('Pension');
+    gStocks.append('text').attr('class','lbl').attr('text-anchor','end').attr('dominant-baseline','middle')
+      .attr('x',x5-G).attr('y',plMid+5).attr('font-size','10px').attr('font-weight','700').attr('fill','#fb7185').text('Liability');
+    if(plV!==null){
+      gStocks.append('text').attr('class','lbl lbl-mono').attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('x',x5-G).attr('y',plMid+17).attr('font-size','8px').attr('font-family','JetBrains Mono,monospace')
+        .text((plCF?'~':'')+'£'+plV.toFixed(1)+'bn');
+      gStocks.append('text').attr('class','lbl').attr('x',x5+NW+G).attr('y',plMid)
+        .attr('font-size','7px').attr('fill','#fb7185').attr('opacity',0.8).attr('dominant-baseline','middle')
+        .text(plCF?('unfunded · last confirmed FY'+String(plRes.sourceYear).slice(-2)):'unfunded obligation');
+    }
+  }
+  gCur=gPen;
+
+  // ── COL 6: PAY & BENEFITS ──
+  if(!empNode){ prevDrillRibs=newDR; prevDrillLbls=newDL; return; }
+  const payItems=[
+    {id:'Net',   label:'Net Wages (incl. overtime)',amt:de.net,   color:'#fcd34d',est:true },
+    {id:'PAYE',  label:'PAYE (Income Tax)',          amt:de.paye,  color:'#fb923c',est:true },
+    {id:'EmpNI', label:'Employee NI',                amt:de.emp_ni,color:'#fdba74',est:true },
+    {id:'ErNI',  label:'Employer NI',                amt:de.erni,  color:'#f97316',est:false},
+  ];
+  const payHeights=payItems.map(item=>Math.max(item.amt*SC,3));
+  // Pay ribbons (c4→c6) — v5.4: subdivided by DEPARTMENT (proportional allocation of each
+  // pay item across departments' Employee Costs shares, LBB actuals via grp_cats), coloured
+  // with the departmental palette and gradient-blended into the pay item colour.
+  {
+    const _gc=lyt.d.grp_cats||{};
+    const ecTot=GRP_ORDER.reduce((s,g)=>s+((_gc[g]||{})['Employee Costs']||0),0);
+    const ecDepts=GRP_ORDER.filter(g=>((_gc[g]||{})['Employee Costs']||0)>0.1);
+    let srcY=empNode.y0,dstY=empNode.y0;
+    for(let pi=0;pi<payItems.length;pi++){
+      const ph=payHeights[pi];
+      let sOff=0;
+      for(let di=0;di<ecDepts.length;di++){
+        const g=ecDepts[di];
+        const f=((_gc[g]||{})['Employee Costs']||0)/ecTot;
+        const sh=(di===ecDepts.length-1)?ph-sOff:ph*f; // last strip absorbs rounding
+        drib('dr-pay-'+payItems[pi].id+'-'+g,cx(4)+NW,srcY+sOff,srcY+sOff+sh,x6,dstY+sOff,dstY+sOff+sh)
+          .attr('fill',dgrad('pay'+pi+g,GRP_COLOR[g]||'#94a3b8',payItems[pi].color))
+          .attr('opacity',0.30).attr('data-dept',g).attr('class','dr-pay-strip');
+        sOff+=sh;
+      }
+      srcY+=ph; dstY+=ph+payGap;
+    }
+  }
+  // Pay item nodes
+  let yy=empNode.y0;
+  for(let pi=0;pi<payItems.length;pi++){
+    const item=payItems[pi],h=payHeights[pi],mid=yy+h/2;
+    const ng=gPen.append('g').style('cursor','pointer')
+      .on('mouseenter',e=>showDrillPopup(item.id,e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    gCur=ng;
+    ayr(ng.append('rect').attr('x',x6).attr('width',NW).attr('rx',1)
+      .attr('fill',item.color).attr('opacity',0.88), dyr('pay-'+item.id,yy,h));
+    gCur=gPen;
+    if(h>=10){
+      dlbl(gPen,'pay-l-'+item.id,x6+NW+G,h>=18?mid-5:mid)
+        .attr('class','lbl drl lbl-r').text(item.label+(item.est?' ᵉˢᵗ':''));
+      if(h>=18) dlbl(gPen,'pay-a-'+item.id,x6+NW+G,mid+6)
+        .attr('class','lbl drl lbl-a').text(fmt(item.amt));
+    }
+    yy+=h+payGap;
+  }
+  yy+=6;
+  dlbl(gPen,'pay-fn1',x6,yy).attr('class','lbl drl')
+    .attr('font-size','7px').attr('fill','#475569').attr('text-anchor','start')
+    .text('ᵉˢᵗ Net wages, PAYE & Emp NI estimated — FoI pending.');
+  yy+=9;
+  dlbl(gPen,'pay-fn2',x6,yy).attr('class','lbl drl')
+    .attr('font-size','7px').attr('fill','#475569').attr('text-anchor','start')
+    .text('ERNI, super & pensions sourced: LBB Table 4 / PSPA.');
+  yy+=12;
+
+  // Civil Service Pensions (c6)
+  const civY0=Math.max(psperY0,yy);
+  const civH=Math.max(de.pension*SC,6),civMid=civY0+civH/2;
+  {const outH=Math.min(civH,psperH),deptTot=PENSION_DEPT.reduce((s,d)=>s+d.v,0);
+  let depOutY=psperY1-outH,depCivY=civY0;
+  for(const dp of PENSION_DEPT){
+    const frac=dp.v/deptTot,dh=outH*frac,ch=civH*frac;
+    drib('dr-csp-'+dp.id,x5+NW,depOutY,depOutY+dh,x6,depCivY,depCivY+ch)
+      .attr('fill',dgrad('csp'+dp.id,'#fb7185',GRP_COLOR[dp.id]||'#888')).attr('opacity',0.38);
+    depOutY+=dh; depCivY+=ch;
+  }}
+  ayr(gPen.append('rect').attr('x',x6).attr('width',NW).attr('rx',2)
+    .attr('fill','#fb7185').attr('opacity',0.80), dyr('csp-node',civY0,civH));
+  if(civH>=10){
+    dlbl(gPen,'csp-l',x6+NW+G,civH>=20?civMid-6:civMid)
+      .attr('class','lbl drl lbl-r').attr('fill','#fb7185').text('Civil Service Pensions');
+    if(civH>=20) dlbl(gPen,'csp-a',x6+NW+G,civMid+6)
+      .attr('class','lbl drl lbl-a').text(fmt(de.pension));
+  }
+
+  // ── SOCIAL SECURITY in c6 (v5: per-year breakdown from SocialSecurity_Breakdown sheet) ──
+  if(!ssNode){ prevDrillRibs=newDR; prevDrillLbls=newDL; return; }
+  gCur=gSS;
+  const ds=getDrillSS(fy);
+  const ssTot=ssNode.amt;
+  const niAmtD=lyt.d.rev['NIOperatingAccount']||0;
+  const niPortion=Math.min(niAmtD,ssTot),revPortion=Math.max(0,ssTot-niPortion);
+  const niBase=ds.ni.reduce((s,i)=>s+i.v,0);
+  const revBase=ds.rev.reduce((s,i)=>s+i.v,0);
+  const ssC6Y0=Math.max(ssNode.y0,civY0+civH+8);
+  const SS_NI_COLOR={'State Pension':'#fdba74','Pension Supplements':'#fb923c','Manx State Pension':'#f97316',
+    'Incapacity Benefits':'#ea580c','Maternity & Bereavement':'#fbbf24','Covid Support (MERA/SSS)':'#f87171',
+    'Other NI-funded':'#fde68a'};
+  const tilde=ds.est?'~':'';
+  const niItemH=ds.ni.map(item=>Math.max((item.v/niBase)*niPortion*SC-0.5,2));
+  const revItemH=ds.rev.map(item=>Math.max((item.v/revBase)*revPortion*SC-0.5,1.5));
+  const niFrac=ssTot>0?niPortion/ssTot:0.75;
+  const ssNiH=ssNode.h*niFrac;
+  const niTotalH=niItemH.reduce((s,v)=>s+v,0)+(ds.ni.length-1)*2;
+  const revTotalH=revItemH.reduce((s,v)=>s+v,0);
+  let syy=ssC6Y0;
+  const c6NiEnd=syy+niTotalH+3;
+  // Per-item NI ribbons (multi-coloured, each matches its c6 node)
+  {let niSrcY=ssNode.y0,niDstY=syy;
+  for(let ni=0;ni<ds.ni.length;ni++){
+    const srcH=ssNiH*(ds.ni[ni].v/niBase),dstH=niItemH[ni];
+    drib('dr-ss-ni-'+ds.ni[ni].label,cx(4)+NW,niSrcY,niSrcY+srcH,x6,niDstY,niDstY+dstH)
+      .attr('fill',dgrad('ssni'+ni,'#c084fc',SS_NI_COLOR[ds.ni[ni].label]||'#fdba74')).attr('opacity',0.35);
+    niSrcY+=srcH; niDstY+=dstH+2;
+  }}
+  // GRA-funded ribbons — v5.5: split PER ITEM (mirrors the NI-funded treatment above),
+  // each strip landing exactly on its c6 node.
+  if(revPortion>0){
+    const ssRevH=ssNode.h-ssNiH;
+    let gSrcY=ssNode.y0+ssNiH, gDstY=c6NiEnd+2;
+    for(let ri=0;ri<ds.rev.length;ri++){
+      const srcH=ssRevH*(ds.rev[ri].v/revBase), dstH=revItemH[ri];
+      drib('dr-ss-gra-'+ds.rev[ri].label,cx(4)+NW,gSrcY,gSrcY+srcH,x6,gDstY,gDstY+dstH)
+        .attr('fill',dgrad('ssgra'+ri,'#c084fc','#C9A24A')).attr('opacity',0.38);
+      gSrcY+=srcH; gDstY+=dstH+2;
+    }
+  }
+  // NI items — combined label+amount below 17px to avoid collisions between tight rows
+  for(let ni=0;ni<ds.ni.length;ni++){
+    const item=ds.ni[ni],h2=niItemH[ni],mid2=syy+h2/2,col=SS_NI_COLOR[item.label]||'#fdba74';
+    ayr(gSS.append('rect').attr('x',x6).attr('width',NW).attr('rx',1)
+      .attr('fill',col).attr('opacity',0.72), dyr('ss-ni-'+item.label,syy,h2));
+    if(h2>=11){
+      const sc2=(item.v/niBase)*niPortion;
+      if(h2>=26){
+        dlbl(gSS,'ssni-l-'+item.label,x6+NW+G,mid2-6)
+          .attr('class','lbl drl lbl-r').attr('dominant-baseline','middle').text(item.label);
+        dlbl(gSS,'ssni-a-'+item.label,x6+NW+G,mid2+8)
+          .attr('class','lbl drl lbl-a').text(tilde+fmt(sc2));
+      } else {
+        dlbl(gSS,'ssni-l-'+item.label,x6+NW+G,mid2+0.5)
+          .attr('class','lbl drl lbl-r').attr('dominant-baseline','middle').text(item.label+' '+tilde+fmt(sc2));
+      }
+    }
+    syy+=h2+2;
+  }
+  syy+=3;
+  // GRA items
+  for(let ri=0;ri<ds.rev.length;ri++){
+    const item=ds.rev[ri],sc2=(item.v/revBase)*revPortion;
+    const h2=revItemH[ri],mid2=syy+h2/2;
+    ayr(gSS.append('rect').attr('x',x6).attr('width',NW).attr('rx',1)
+      .attr('fill','#C9A24A').attr('opacity',0.65), dyr('ss-gra-'+item.label,syy,h2));
+    if(h2>=11){
+      if(h2>=26){
+        dlbl(gSS,'ssgra-l-'+item.label,x6+NW+G,mid2-6)
+          .attr('class','lbl drl lbl-r').attr('dominant-baseline','middle').text(item.label);
+        dlbl(gSS,'ssgra-a-'+item.label,x6+NW+G,mid2+8)
+          .attr('class','lbl drl lbl-a').text(tilde+fmt(sc2));
+      } else {
+        dlbl(gSS,'ssgra-l-'+item.label,x6+NW+G,mid2+0.5)
+          .attr('class','lbl drl lbl-r').attr('dominant-baseline','middle').text(item.label+' '+tilde+fmt(sc2));
+      }
+    }
+    syy+=h2+2;
+  }
+  dlbl(gSS,'ss-fn1',x6,syy+6).attr('class','lbl drl')
+    .attr('font-size','7px').attr('fill','#475569')
+    .text(ds.est?'~ Estimated split — Pink Book proportions × LBB totals.':'Split from LBB per-benefit actuals.');
+  dlbl(gSS,'ss-fn2',x6,syy+15).attr('class','lbl drl')
+    .attr('font-size','7px').attr('fill','#475569')
+    .text('Scaled to Pink Book T3A node total. See notes.');
+  gCur=gPen;
+
+  // ── Focus mode: fade drill layers not related to the selected node ──
+  if(selectedNode){
+    const ecSel=selectedNode==='Employee Costs';
+    const ssSel=selectedNode==='Social Security';
+    const _gc2=lyt.d.grp_cats||{};
+    const grpSel=!ssSel&&GRP_ORDER.includes(selectedNode)&&((_gc2[selectedNode]||{})['Employee Costs']||0)>0.1;
+    if(grpSel){
+      // v5.4: department focus — that department's pay strips stay lit, the rest fades
+      gPen.attr('opacity',1);
+      gPen.selectAll(':scope > *').attr('opacity',0.06);
+      gPen.selectAll('.dr-pay-strip').attr('opacity',function(){
+        return d3.select(this).attr('data-dept')===selectedNode?0.85:0.04;
+      });
+    } else {
+      gPen.attr('opacity', ecSel?1:FADE_NODE);
+    }
+    gSS.attr('opacity',  ssSel?1:FADE_NODE);
+    gStocks.attr('opacity', 0.30);
+  }
+
+  prevDrillRibs=newDR;
+  prevDrillLbls=newDL;
+}
+
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+const DUR=1250;
+const EASE=d3.easeCubicInOut;
+let prevLayout=null;
+let prevDrillRibs={};
+let prevDrillLbls={};   // v5.5: previous drill-label positions — labels morph, not blink
+let prevRfFill=null;    // v5.5: previous Reserve Fund beaker fill height
+const gid=s=>'lg-'+String(s).replace(/[^\w-]/g,'_');
+
+function draw(fy,animate){
+  const lyt=buildLayout(fy); if(!lyt) return;
+  // Ensure defs (arrow marker + hatch pattern) exist
+  let defs=svg.select('defs');
+  if(defs.empty()) defs=svg.append('defs');
+  if(!svg.select('#arr-gold').node()){
+    defs.append('marker').attr('id','arr-gold').attr('markerWidth',6).attr('markerHeight',6)
+      .attr('refX',5).attr('refY',3).attr('orient','auto')
+      .append('path').attr('d','M0,0 L6,3 L0,6Z').attr('fill','#fbbf24').attr('opacity',0.7);
+    const pat=defs.append('pattern').attr('id','hatch-gold').attr('width',5).attr('height',5)
+      .attr('patternUnits','userSpaceOnUse').attr('patternTransform','rotate(45)');
+    pat.append('rect').attr('width',5).attr('height',5).attr('fill','#C9A24A').attr('opacity',0.25);
+    pat.append('line').attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',5)
+      .attr('stroke','#C9A24A').attr('stroke-width',2).attr('opacity',0.8);
+    const pat2=defs.append('pattern').attr('id','hatch-pink').attr('width',5).attr('height',5)
+      .attr('patternUnits','userSpaceOnUse').attr('patternTransform','rotate(45)');
+    pat2.append('rect').attr('width',5).attr('height',5).attr('fill','#fb7185').attr('opacity',0.30);
+    pat2.append('line').attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',5)
+      .attr('stroke','#fb7185').attr('stroke-width',2).attr('opacity',0.85);
+    defs.append('marker').attr('id','arr-pink').attr('markerWidth',9).attr('markerHeight',9)
+      .attr('refX',8).attr('refY',4.5).attr('orient','auto').attr('markerUnits','userSpaceOnUse')
+      .append('path').attr('d','M0,0 L9,4.5 L0,9Z').attr('fill','#fb7185').attr('opacity',0.9);
+    defs.append('marker').attr('id','arr-green').attr('markerWidth',9).attr('markerHeight',9)
+      .attr('refX',8).attr('refY',4.5).attr('orient','auto').attr('markerUnits','userSpaceOnUse')
+      .append('path').attr('d','M0,0 L9,4.5 L0,9Z').attr('fill','#4ade80').attr('opacity',0.9);
+  }
+  const ld=lyt.d; // fiscal data for connectivity lookups
+
+  const prevR={};
+  if(prevLayout){
+    [...prevLayout.revLinks,...prevLayout.niLinks,...prevLayout.graLinks,...prevLayout.niOutLinks,...prevLayout.ownLinks,...prevLayout.cfrLinks,...(prevLayout.rfLinks||[]),...prevLayout.cat4Links]
+      .forEach(l=>{prevR[l.id]=l;});
+  }
+
+  function pathFor(l){return rib(l.x0,l.sy0,l.sy1,l.x1,l.ty0,l.ty1);}
+  function pathFrom(l){const p=prevR[l.id]||l; return rib(l.x0,p.sy0,p.sy1,l.x1,p.ty0,p.ty1);}
+
+  const allLinks=[...lyt.revLinks,...lyt.niLinks,...lyt.graLinks,...lyt.niOutLinks,...lyt.ownLinks,...lyt.cfrLinks,...(lyt.rfLinks||[]),...lyt.cat4Links];
+
+  // Per-link gradients — ribbons blend from source colour to destination colour
+  defs.selectAll('linearGradient.lg').data(allLinks,d=>d.id)
+    .join(
+      enter=>{
+        const lg=enter.append('linearGradient').attr('class','lg')
+          .attr('id',d=>gid(d.id)).attr('x1','0%').attr('x2','100%').attr('y1','0%').attr('y2','0%');
+        lg.append('stop').attr('class','s0').attr('offset','0%');
+        lg.append('stop').attr('class','s1').attr('offset','100%');
+        return lg;
+      },
+      update=>update,
+      exit=>exit.remove()
+    )
+    .each(function(d){
+      d3.select(this).select('stop.s0').attr('stop-color',d.c0||d.color);
+      d3.select(this).select('stop.s1').attr('stop-color',d.c1||d.color);
+    });
+
+  svg.selectAll('path.link').data(allLinks, d=>d.id)
+    .join(
+      enter=>enter.append('path').attr('class','link')
+        .attr('fill',d=>`url(#${gid(d.id)})`).attr('d',d=>pathFrom(d)).attr('opacity',0),
+      update=>update,
+      exit=>exit.transition().duration(DUR/2).ease(EASE).attr('opacity',0).remove()
+    )
+    .each(function(d){
+      const sel=d3.select(this);
+      const op=getLinkOpacity(d,selectedNode,d.op,ld);
+      sel.attr('fill',`url(#${gid(d.id)})`);
+      if(animate) sel.transition().duration(DUR).ease(EASE).attr('d',pathFor(d)).attr('opacity',op);
+      else sel.attr('d',pathFor(d)).attr('opacity',op);
+    });
+
+  // Nodes (incl. hatched below-the-line GRA extension when present)
+  const allNodes=[...lyt.revNodes,...lyt.ownNodes,lyt.graNode,lyt.niFundNode,lyt.cfrNode4,...lyt.grpNodes,...lyt.cat4Nodes];
+  if(lyt.graExt) allNodes.push(lyt.graExt);
+  if(lyt.rfNode) allNodes.push(lyt.rfNode);
+  const nodeX=n=>n.x0!=null?n.x0:(n.sub==='own'||n.sub==='rev'?cx(0):0);
+
+  svg.selectAll('rect.node').data(allNodes,d=>d.id+(d.sub||d.col||''))
+    .join(
+      enter=>enter.append('rect').attr('class','node')
+        .attr('data-nodeid',d=>d.id)
+        .attr('x',d=>nodeX(d)).attr('y',d=>d.y0).attr('width',NW).attr('height',d=>d.h)
+        .attr('rx',2).attr('fill',d=>d.sub==='graext'?'url(#hatch-gold)':d.sub==='rft'?'#4ade8055':d.color)
+        .attr('stroke',d=>d.sub==='rft'?'#4ade80':'none')
+        .attr('stroke-dasharray',d=>d.sub==='rft'?'3,2':null)
+        .attr('opacity',d=>getNodeOpacity(d.id,selectedNode,ld,d.sub))
+        .on('mouseenter',nodeMouseEnter)
+        .on('mouseleave',nodeMouseLeave)
+        .on('click',nodeClick),
+      update=>update.each(function(d){
+        const s=d3.select(this);
+        const op=getNodeOpacity(d.id,selectedNode,ld,d.sub);
+        const fill=d.sub==='graext'?'url(#hatch-gold)':d.sub==='rft'?'#4ade8055':d.color;
+        s.attr('stroke',d.sub==='rft'?'#4ade80':'none').attr('stroke-dasharray',d.sub==='rft'?'3,2':null);
+        if(animate) s.transition().duration(DUR).ease(EASE).attr('y',d.y0).attr('height',d.h).attr('fill',fill).attr('opacity',op);
+        else s.attr('y',d.y0).attr('height',d.h).attr('fill',fill).attr('opacity',op);
+        s.attr('x',nodeX(d)).attr('data-nodeid',d.id);
+      }),
+      exit=>exit.remove()
+    );
+
+  // ── Labels — v5.5 KEYED JOIN: labels travel with their nodes/ribbons (no more
+  //    delete-and-reappear), amounts count up/down via number tweens, new labels fade
+  //    in, departed labels fade out. Spec array built first, joined once at the end. ──
+  svg.selectAll('text.lbl:not(.klbl):not(.drl)').remove();
+  const G=5;
+  const LS=[];
+  function lspec(id,x,y,text,o){ LS.push(Object.assign({id,x,y,text,cls:'',op:1},o)); }
+
+  for(const n of lyt.revNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'rev');
+    lspec('rev-l-'+n.id,cx(0)-G,showAmt?mid-6:mid,REV_LABEL[n.id]||n.id,{cls:'lbl-l',op});
+    if(showAmt) lspec('rev-a-'+n.id,cx(0)-G,mid+6,fmt(n.amt),{cls:'lbl-al',op,val:n.amt,fmtFn:fmt});
+  }
+
+  for(const n of lyt.ownNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'own');
+    lspec('own-l-'+n.id,cx(0)-G,showAmt?mid-6:mid,OWN_LABEL[n.id]||n.id+' Income',{cls:'lbl-l',op});
+    if(showAmt) lspec('own-a-'+n.id,cx(0)-G,mid+6,fmt(n.amt),{cls:'lbl-al',op,val:n.amt,fmtFn:fmt});
+  }
+
+  // GRA label — centred on the revenue-funded body of the merged node
+  if(lyt.graNode.h>40){
+    const gmid=lyt.graNode.y0+lyt.graNode.h/2;
+    const gx=cx(1)-G;
+    const gfs=isCompact()?'9px':'11px', gfs2=isCompact()?'7.5px':'9px';
+    lspec('gra-l',gx,gmid-7,'GRA',{anchor:'end',base:'middle',fs:gfs,fw:'700',fill:'#C9A24A'});
+    lspec('gra-a',gx,gmid+7,fmt(lyt.graNode.amt),{cls:'lbl-mono',anchor:'end',base:'middle',
+      fs:gfs2,ff:'JetBrains Mono, monospace',val:lyt.graNode.amt,fmtFn:fmt});
+  }
+
+  // Hatched balance-financed FOOT of the merged GRA node (desktop only — tight in compact)
+  if(lyt.graExt&&lyt.graExt.h>6&&!isCompact()){
+    const ex=lyt.graExt, exMid=ex.y0+ex.h/2;
+    const exOp=getNodeOpacity('GRAEXT',selectedNode,ld,'graext');
+    const exV=ex.odAmt!=null?ex.odAmt:ex.amt;
+    lspec('ext-l',cx(1)-G,exMid-5,'from GRA balance (overdraft)',{anchor:'end',base:'middle',
+      fs:'7.5px',fw:'600',fill:'#C9A24A',op:exOp});
+    lspec('ext-a',cx(1)-G,exMid+6,fmt(exV),{cls:'lbl-mono',anchor:'end',base:'middle',
+      fs:'8px',ff:'JetBrains Mono, monospace',op:exOp,val:exV,fmtFn:fmt});
+  }
+
+  // Reserve Fund transfer node — v5.5: name/balance live on the fixed c0 beaker (below);
+  // compact keeps the old side label since the beaker is desktop-only.
+  if(lyt.rfNode&&isCompact()){
+    const n=lyt.rfNode, mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity('RFT',selectedNode,ld,'rft');
+    lspec('rft-l',cx(0)-G,showAmt?mid-6:mid,'Reserve Fund',{cls:'lbl-l',fill:'#4ade80',op});
+    if(showAmt) lspec('rft-ca',cx(0)-G,mid+6,fmt(Math.abs(n.amt)),{cls:'lbl-al',op,val:Math.abs(n.amt),fmtFn:fmt});
+  }
+
+  // GRA retained balance readout (v5.3) — the stock behind "from balances"; hover for series
+  if(lyt.graNode.h>64&&!isCompact()){
+    const gRes=stockValWithCarry('gra_bal',fy);
+    if(gRes){
+      const gmid=lyt.graNode.y0+lyt.graNode.h/2, gx=cx(1)-G;
+      const cf=gRes.carriedForward;
+      const gFmt=v=>'bal '+(cf?'~':'')+(v<0?'−£':'£')+Math.abs(v).toFixed(0)+'m';
+      lspec('gra-bal',gx,gmid+21,gFmt(gRes.v),{anchor:'end',base:'middle',fs:'7.5px',
+        ff:'JetBrains Mono, monospace',fill:gRes.v<0?'#f87171':'#4ade80',
+        cursor:'pointer',hoverKey:'gra_bal',val:gRes.v,fmtFn:gFmt});
+    }
+  }
+
+  // NI Fund node label — opacity tied to nifund node
+  if(lyt.niFundNode.h>12){
+    const n=lyt.niFundNode, mid=n.y0+n.h/2, nx=cx(1)-G;
+    const niOp=getNodeOpacity('NIFund',selectedNode,ld,'nifund');
+    const nfs=isCompact()?'9px':'11px', nfs2=isCompact()?'7.5px':'9px';
+    lspec('nif-l',nx,mid-7,'NI Fund',{anchor:'end',base:'middle',fs:nfs,fw:'700',fill:'#fdba74',op:niOp});
+    lspec('nif-a',nx,mid+7,fmt(n.amt),{cls:'lbl-mono',anchor:'end',base:'middle',
+      fs:nfs2,ff:'JetBrains Mono, monospace',op:niOp,val:n.amt,fmtFn:fmt});
+  }
+
+  for(const n of lyt.grpNodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'grp');
+    lspec('grp-l-'+n.id,cx(3)+NW+G,showAmt?mid-6:mid,n.id,{cls:'lbl-r',op});
+    if(showAmt) lspec('grp-a-'+n.id,cx(3)+NW+G,mid+6,fmt(n.amt),{cls:'lbl-a',op,val:n.amt,fmtFn:fmt});
+  }
+
+  for(const n of lyt.cat4Nodes){
+    const mid=n.y0+n.h/2, showAmt=n.h>22;
+    const op=getNodeOpacity(n.id,selectedNode,ld,'cat');
+    lspec('cat-l-'+n.id,cx(4)+NW+G,showAmt?mid-6:mid,n.id,{cls:'lbl-r',op});
+    if(showAmt) lspec('cat-a-'+n.id,cx(4)+NW+G,mid+6,fmt(n.amt),{cls:'lbl-a',op,val:n.amt,fmtFn:fmt});
+  }
+
+  // Clean up any stale stock-nodes
+  svg.selectAll('rect.stock-node').remove();
+
+  // CFR col4 node label — opacity tied to cfr4 node opacity
+  { const n=lyt.cfrNode4;
+    if(n && n.h>2){
+      const nx=cx(4)+NW+G, ny=n.y0+n.h/2;
+      const cfrOp=getNodeOpacity('CFR4',selectedNode,ld,'cfr4');
+      lspec('cfr-l',nx,n.h>16?ny-6:ny,'CFR transfer',{anchor:'start',base:'middle',
+        fs:'10px',fw:'700',fill:'#fbbf24',op:cfrOp});
+      if(n.h>16) lspec('cfr-a',nx,ny+6,fmt(n.amt),{anchor:'start',base:'middle',fs:'9px',
+        ff:'JetBrains Mono, monospace',fill:'#e2e8f0',op:cfrOp,val:n.amt,fmtFn:fmt});
+    }
+  }
+
+  // ── Reserve Fund STOCK beaker at c0 (v5.5) — FIXED position (fixedAnchors); the fund's
+  //    balance feeds (or absorbs) the year's transfer via an arrowed C-flow. "Brought back
+  //    in to fund the GRA": the stock is visible again, draining into the transfer node. ──
+  svg.selectAll('g.rf-bk').interrupt().selectAll('*').interrupt();
+  svg.selectAll('g.rf-bk').remove();
+  if(!isCompact()){
+    const rfOpN=getNodeOpacity('RFT',selectedNode,ld,'rft');
+    const rbW=16,rbH=30,rbX=10,rbMid=fixedAnchors().rfBkMid,rbY=rbMid-rbH/2;
+    const rRec=STOCKS.reserve.data[fy];
+    const rV=rRec?rRec.v:null;
+    const rfg=svg.append('g').attr('class','rf-bk').attr('opacity',rfOpN).style('cursor','pointer')
+      .on('mouseenter',e=>showStockTsPopup('reserve',e.currentTarget.getBoundingClientRect()))
+      .on('mouseleave',hideTsPopup);
+    rfg.append('rect').attr('x',rbX).attr('y',rbY).attr('width',rbW).attr('height',rbH).attr('rx',2)
+      .attr('fill','#12241a').attr('opacity',0.9);
+    if(rV!=null&&rV>0){
+      const rfh=Math.min(rV/650,1)*(rbH-2);
+      const fillRect=rfg.append('rect').attr('x',rbX+1).attr('width',rbW-2).attr('rx',1)
+        .attr('fill','#4ade80').attr('opacity',0.65);
+      if(animate&&prevRfFill!=null&&Math.abs(prevRfFill-rfh)>0.5){
+        fillRect.attr('y',rbY+rbH-1-prevRfFill).attr('height',prevRfFill)
+          .transition().duration(DUR).ease(EASE).attr('y',rbY+rbH-1-rfh).attr('height',rfh);
+      } else fillRect.attr('y',rbY+rbH-1-rfh).attr('height',rfh);
+      prevRfFill=rfh;
+    }
+    rfg.append('rect').attr('x',rbX).attr('y',rbY).attr('width',rbW).attr('height',rbH).attr('rx',2)
+      .attr('fill','none').attr('stroke','#4ade80').attr('stroke-width',1.2)
+      .attr('stroke-dasharray','4,3').attr('opacity',0.85);
+    lspec('rfbk-l1',rbX-2,rbY-25,'Reserve',{anchor:'start',fs:'9px',fw:'700',fill:'#4ade80',op:rfOpN});
+    lspec('rfbk-l2',rbX-2,rbY-14,'Fund',{anchor:'start',fs:'9px',fw:'700',fill:'#4ade80',op:rfOpN});
+    if(rV!=null) lspec('rfbk-v',rbX-2,rbY+rbH+11,'£'+rV.toFixed(1)+'m',{anchor:'start',fs:'8px',
+      ff:'JetBrains Mono, monospace',fill:'#4ade80',op:rfOpN,val:rV,fmtFn:v=>'£'+v.toFixed(1)+'m'});
+    lspec('rfbk-d',rbX-2,rbY+rbH+20,'mkt value',{anchor:'start',fs:'6.5px',fill:'#64748b',op:rfOpN});
+    if(lyt.rfNode){
+      const n=lyt.rfNode, nMid=(n.y0+n.y1)/2;
+      const hookW=Math.max(2,Math.min(n.h*0.5,5));
+      const dirIn=n.amt>0; // + = drawn INTO General Revenue (the fund drains)
+      const sx=rbX+rbW+2, sy=rbMid, tx=cx(0)-2, ty=nMid;
+      const p=dirIn?`M${sx},${sy} C${sx+52},${sy} ${tx-52},${ty} ${tx},${ty}`
+                   :`M${tx},${ty} C${tx-52},${ty} ${sx+52},${sy} ${sx},${sy}`;
+      rfg.append('path').attr('d',p).attr('fill','none').attr('stroke','#4ade80')
+        .attr('stroke-width',hookW).attr('opacity',0.7).attr('marker-end','url(#arr-green)');
+      lspec('rft-a',(sx+tx)/2,(sy+ty)/2-7,fmt(Math.abs(n.amt)),{anchor:'middle',fs:'8px',
+        ff:'JetBrains Mono, monospace',fill:'#4ade80',op:rfOpN,val:Math.abs(n.amt),fmtFn:fmt});
+      lspec('rft-dir',(sx+tx)/2,(sy+ty)/2+9,dirIn?'to General Revenue':'from General Revenue',
+        {anchor:'middle',fs:'6.5px',fill:'#4ade80',op:Math.min(rfOpN,0.85)});
+    }
+  }
+
+  // ── The keyed label join ──
+  svg.selectAll('text.klbl').data(LS,d=>d.id).join(
+    enter=>enter.append('text')
+      .attr('class',d=>'lbl klbl'+(d.cls?' '+d.cls:''))
+      .attr('x',d=>d.x).attr('y',d=>d.y)
+      .attr('text-anchor',d=>d.anchor||null)
+      .attr('dominant-baseline',d=>d.base||null)
+      .attr('font-size',d=>d.fs||null).attr('font-weight',d=>d.fw||null)
+      .attr('font-family',d=>d.ff||null).attr('fill',d=>d.fill||null)
+      .style('cursor',d=>d.cursor||null)
+      .text(d=>d.text)
+      .each(function(d){
+        if(d.hoverKey) d3.select(this)
+          .on('mouseenter',e=>showStockTsPopup(d.hoverKey,e.currentTarget.getBoundingClientRect()))
+          .on('mouseleave',hideTsPopup);
+      })
+      .attr('opacity',d=>animate?0:d.op)
+      .call(s=>{ if(animate) s.transition().delay(DUR*0.45).duration(DUR*0.55).ease(EASE).attr('opacity',d=>d.op); }),
+    update=>update.each(function(d){
+      const el=d3.select(this), prev=el.property('__spec')||{};
+      el.interrupt()
+        .attr('class','lbl klbl'+(d.cls?' '+d.cls:''))
+        .attr('text-anchor',d.anchor||null)
+        .attr('dominant-baseline',d.base||null)
+        .attr('font-size',d.fs||null).attr('font-weight',d.fw||null)
+        .attr('font-family',d.ff||null).attr('fill',d.fill||null)
+        .style('cursor',d.cursor||null);
+      if(d.hoverKey&&!prev.hoverKey) el
+        .on('mouseenter',e=>showStockTsPopup(d.hoverKey,e.currentTarget.getBoundingClientRect()))
+        .on('mouseleave',hideTsPopup);
+      if(animate){
+        const t=el.transition().duration(DUR).ease(EASE)
+          .attr('x',d.x).attr('y',d.y).attr('opacity',d.op);
+        if(d.val!=null&&prev.val!=null&&d.fmtFn&&d.text!==prev.text){
+          t.tween('text',function(){
+            const i=d3.interpolateNumber(prev.val,d.val), node=this;
+            return tt=>{node.textContent=d.fmtFn(i(tt));};
+          });
+        } else el.text(d.text);
+      } else {
+        el.attr('x',d.x).attr('y',d.y).attr('opacity',d.op).text(d.text);
+      }
+    }),
+    exit=>exit.each(function(){
+      d3.select(this).interrupt().transition().duration(DUR/3).ease(EASE).attr('opacity',0).remove();
+    })
+  ).property('__spec',d=>d);
+
+  // Col headers — 6 columns on desktop, 4 short ones in compact (portrait mobile)
+  svg.selectAll('text.col-hdr').remove();
+  const hdrs=isCompact()
+    ? [[cx(0)+NW/2,'Sources'],[cx(1)+NW/2,'Accounts'],[cx(3)+NW/2,'Depts'],[cx(4)+NW/2,'Spending']]
+    : [[cx(0)+NW/2,'Revenue Sources'],[cx(1)+NW/2,'Revenue Accounts'],
+       [cx(3)+NW/2,'Departments'],[cx(4)+NW/2,'Expenditure & CFR'],
+       [cx(5)+NW/2,'Reserve Accounts'],[cx(6)+NW/2,'Pay & Benefits']];
+  hdrs.forEach(([x,t])=>svg.append('text').attr('class','lbl col-hdr').attr('x',x).attr('y',13).text(t));
+
+  prevLayout=lyt;
+  updateStats(lyt);
+  drawMobStocks(fy);
+  // Keyed morphing — remove old group, draw new with per-element transitions.
+  // v5.5: no blanket label fade any more — main labels morph via the keyed join above,
+  // drill labels morph via dlbl(); only genuinely NEW labels fade in.
+  svg.selectAll('g.drill-el,g.drill-old').interrupt().remove();
+  drawExpanded(lyt,fy,animate);
+}
+
+// Click a node to focus it (fades everything unrelated); click again to release
+function nodeClick(event,d){
+  if(!d||!d.id||d.sub==='graext') return;
+  const c=nodeCol(d.id);
+  if(c!=='rev'&&c!=='grp'&&c!=='cat'&&c!=='rft') return; // stocks/GRA pass-throughs aren't focusable
+  selectedNode = (selectedNode===d.id) ? '' : d.id;
+  const sel=document.getElementById('node-select');
+  if(sel) sel.value=[...sel.options].some(o=>o.value===selectedNode)?selectedNode:'';
+  draw(curFY,false);
+}
+
+function applyHighlight(){
+  // Re-apply opacity to existing elements without full redraw
+  const _ld=prevLayout?prevLayout.d:null;
+  svg.selectAll('path.link').attr('opacity',function(d){return getLinkOpacity(d,selectedNode,d.op,_ld);});
+  svg.selectAll('rect.node').attr('opacity',function(d){return getNodeOpacity(d.id,selectedNode,_ld,d.sub);});
+  svg.selectAll('text.lbl').attr('opacity',function(){
+    // Labels don't carry data easily — simplest is full redraw
+    return null;
+  });
+  if(prevLayout) draw(curFY, false);
+}
+
+function updateStats(lyt){
+  const d=lyt.d;
+  const t=d.total_gross, gra=d.total_gra, own=d.total_own;
+  const hlt=(d.grp_gross['Health & Care']||0);
+  const ss=(d.grp_gross['Social Security']||0);
+  const sta=(d.cats4['Employee Costs']||0);
+  document.getElementById('s-tot').textContent=fmt(t);
+  document.getElementById('s-gra').textContent=fmt(gra)+' ('+pct(gra,t)+')';
+  document.getElementById('s-own').textContent=fmt(own)+' ('+pct(own,t)+')';
+  document.getElementById('s-hlt').textContent=fmt(hlt)+' ('+pct(hlt,t)+')';
+  document.getElementById('s-ss').textContent=fmt(ss)+' ('+pct(ss,t)+')';
+  document.getElementById('s-sta').textContent=fmt(sta)+' ('+pct(sta,t)+')';
+  // Dynamic price basis label on first stat
+  document.getElementById('lbl-tot').textContent = 'Total Spending';
+}
+
+// ── Time-series popout ────────────────────────────────────────────────────────
+let tsChart=null;
+let tsHideTimer=null;
+
+function getNodeTimeSeries(nodeId){
+  const col=nodeCol(nodeId);
+  const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  // NIFund and CFR4 pull from STOCKS balance data, not fiscal flow DATA
+  if(nodeId==='NIFund'){
+    const s=STOCKS['ni_fund'];
+    const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
+    return{years,vals};
+  }
+  if(nodeId==='CFR4'){
+    const s=STOCKS['cfr'];
+    const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
+    return{years,vals};
+  }
+  const vals=years.map(fy=>{
+    const raw=DATA[String(fy)];
+    if(!raw) return null;
+    const d=useConstPrices?deflD(raw,fy):raw;
+    if(col==='rev') return d.rev[nodeId]||null;
+    if(col==='grp') return d.grp_gross[nodeId]||null;
+    if(col==='cat') return d.cats4[nodeId]||null;
+    return null;
+  });
+  return{years,vals};
+}
+
+function getNodeLabel(nodeId){
+  if(nodeId==='NIFund') return 'NI Fund (balance)';
+  if(nodeId==='CFR4') return 'Capital Financing Reserve (balance)';
+  if(REV_LABEL[nodeId]) return REV_LABEL[nodeId];
+  return nodeId;
+}
+
+function getNodeColor(nodeId){
+  if(nodeId==='NIFund') return STOCKS['ni_fund'].color;
+  if(nodeId==='CFR4') return STOCKS['cfr'].color;
+  return REV_COLOR[nodeId]||GRP_COLOR[nodeId]||CAT_COLOR[nodeId]||'#C9A24A';
+}
+
+function showTsPopup(nodeId, svgRect){
+  clearTimeout(tsHideTimer);
+  const popup=document.getElementById('ts-popup');
+  const {years,vals}=getNodeTimeSeries(nodeId);
+  const label=getNodeLabel(nodeId);
+  const color=getNodeColor(nodeId);
+
+  document.getElementById('ts-title').textContent=label;
+  document.getElementById('ts-sub').textContent=
+    (useConstPrices?'2024-25 constant prices':'Nominal')+ ' · FY2016–FY2025';
+
+  const canvas=document.getElementById('ts-canvas');
+
+  if(tsChart){tsChart.destroy();tsChart=null;}
+
+  tsChart=new Chart(canvas,{
+    type:'line',
+    data:{
+      labels:years.map(y=>'FY'+y),
+      datasets:[{
+        data:vals,
+        borderColor:color,
+        backgroundColor:color+'22',
+        borderWidth:2,
+        pointRadius:3,
+        pointBackgroundColor:color,
+        fill:true,
+        tension:0.3,
+        spanGaps:true,
+      }]
+    },
+    options:{
+      animation:false,
+      responsive:false,
+      plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>fmt(ctx.raw)},
+        backgroundColor:document.body.classList.contains('light')?'#ffffff':'#1e293b',titleColor:document.body.classList.contains('light')?'#64748b':'#e2e8f0',bodyColor:document.body.classList.contains('light')?'#0f172a':'#94a3b8',
+        borderColor:'#1e2d4d',borderWidth:1,
+      }},
+      scales:{
+        x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+      }
+    }
+  });
+
+  // Position: prefer right of cursor, flip if near right edge
+  // Position popup: show offscreen first to get real dimensions
+  popup.style.visibility='hidden';
+  popup.style.display='block';
+  const pw=popup.offsetWidth||260, ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth, vh=window.innerHeight;
+  let px=svgRect.right+12;
+  let py=svgRect.top - ph/2;
+  if(px+pw>vw-10) px=svgRect.left-pw-12;
+  if(py<10) py=10;
+  if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px';
+  popup.style.top=py+'px';
+}
+
+function hideTsPopup(){
+  tsHideTimer=setTimeout(()=>{
+    document.getElementById('ts-popup').style.display='none';
+  },120);
+}
+
+function nodeMouseEnter(event,d){
+  if(d.id==='GRA') return; // GRA is a pass-through, no series
+  const rect=event.target.getBoundingClientRect();
+  if(d.id==='RFT'){ showStockTsPopup('reserve', rect); return; } // fund balance series
+  showTsPopup(d.id, rect);
+}
+function nodeMouseLeave(){
+  hideTsPopup();
+}
+
+
+// ── Beaker rendering ──────────────────────────────────────────────────────────
+// Returns {v, t, sourceYear} — carries forward last-known if current year missing
+function stockValWithCarry(stockId, fy) {
+  const s = STOCKS[stockId];
+  if (!s) return null;
+  const entry = s.data[fy];
+  if (entry) return { v: entry.v, t: entry.t, sourceYear: fy, carriedForward: false };
+  // Carry forward: find most recent prior year with data
+  const years = Object.keys(s.data).map(Number).sort((a,b) => b-a);
+  for (const y of years) {
+    if (y < fy) return { v: s.data[y].v, t: s.data[y].t, sourceYear: y, carriedForward: true };
+  }
+  return null;
+}
+
+const BEAKER_W = 38, BEAKER_H = 60, BEAKER_GAP = 8;
+
+function stockVal(stockId, fy) {
+  const s = STOCKS[stockId];
+  if (!s) return null;
+  const entry = s.data[fy];
+  return entry || null;
+}
+
+// Footnote numbers and anchor ids per stock
+const STOCK_FN = {reserve:'①',ni_fund:'②',cfr:'③',pension:'④'};
+const STOCK_FN_ID = {reserve:'fn-reserve',ni_fund:'fn-nifund',cfr:'fn-cfr',pension:'fn-pension'};
+
+// Last confirmed date strings per stock
+const STOCK_DATE = {
+  reserve:  'Last confirmed: 31 Mar 2024',
+  ni_fund:  'Last confirmed: 31 Mar 2025 (PB 2026-27 actual)',
+  cfr:      'Last confirmed: 31 Mar 2024',
+  psper:    'Exhausted Mar 2023 · balances = actuals',
+  pension:  'Last confirmed: 31 Mar 2023 · ⚠ no later figure published'
+};
+
+// ── Simple mobile stock strip ─────────────────────────────────────────────────
+function drawMobStocks(fy) {
+  const el = document.getElementById('mob-stocks');
+  if (!el) return;
+  el.innerHTML = '';
+  const order = ['reserve','ni_fund','gra_bal','cfr','psper','pension'];
+  order.forEach(sid => {
+    const s = STOCKS[sid];
+    const result = stockValWithCarry(sid, fy);
+    const v = result ? result.v : null;
+    const sg = v !== null && v < 0 ? '−' : '';
+    const av = v === null ? null : Math.abs(v);
+    const valStr = v === null ? '—'
+      : sid === 'pension' ? `£${av.toFixed(1)}bn`
+      : av >= 1000 ? `${sg}£${(av/1000).toFixed(2)}bn`
+      : `${sg}£${Math.round(av)}m`;
+    const div = document.createElement('div');
+    div.className = 'mob-stock';
+    const vc = (v !== null && v < 0) ? '#f87171' : s.color;
+    div.innerHTML = `<div class="mob-stock-val" style="color:${vc}">${valStr}</div><div class="mob-stock-lbl">${s.label}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function drawBeakers(fy, lyt) {
+  document.querySelectorAll('.beaker-wrap').forEach(el => el.remove());
+
+  const vizEl = document.querySelector('.viz');
+  const svgEl = document.getElementById('chart');
+  const svgRect = svgEl.getBoundingClientRect();
+  const vizRect = vizEl.getBoundingClientRect();
+  const scaleX = svgRect.width / W;
+  const scaleY = svgRect.height / H;
+
+  // Beaker column: right margin, centred
+  const RPAD = getRPAD();
+  if (RPAD === 0) return; // landscape mobile — stocks hidden
+  const colW = RPAD - 8; // available pixel width
+  const bW = Math.min(colW - 4, 130); // beaker width — large but bounded
+  const beakerLeft = svgRect.left - vizRect.left + (W - RPAD + (RPAD - bW*scaleX)/2 / scaleX) * scaleX;
+
+  const stocks = ['reserve','ni_fund','cfr','pension'];
+  const maxVals = {reserve:750, ni_fund:1100, cfr:100, pension:5.0};
+
+  // Use full viz height, distribute evenly with generous gaps
+  const vizH = vizEl.clientHeight;
+  const MARGIN_TOP = 28, MARGIN_BOT = 12;
+  const totalAvail = vizH - MARGIN_TOP - MARGIN_BOT;
+  const BEAKER_GAP_BIG = 14;
+  const nStocks = stocks.length;
+  // Give pension more height than others
+  const pensionExtra = 30;
+  const bH_base = Math.floor((totalAvail - (nStocks-1)*BEAKER_GAP_BIG - pensionExtra) / nStocks);
+  const bH_pension = bH_base + pensionExtra;
+
+  stocks.forEach((sid, i) => {
+    const s = STOCKS[sid];
+    const isPension = sid === 'pension';
+    const bH = isPension ? bH_pension : bH_base;
+    const result = stockValWithCarry(sid, fy);
+    const v = result ? result.v : null;
+    const t = result ? result.t : null;
+    const carriedForward = result ? result.carriedForward : false;
+    const sourceYear = result ? result.sourceYear : null;
+    const maxV = maxVals[sid];
+    const fillRatio = v !== null ? Math.min(v / maxV, 1) : 0;
+    const isInverted = !!s.inverted;
+
+    // Vertical position: stack from top
+    let topY = MARGIN_TOP;
+    for(let j=0;j<i;j++){
+      topY += (j===3?bH_pension:bH_base) + BEAKER_GAP_BIG;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'beaker-wrap';
+    wrap.style.cssText = `left:${beakerLeft}px;top:${topY}px;width:${bW}px;height:${bH}px;`;
+
+    // Reserved space: value + quality note + label + date = needs more room
+    const LABEL_AREA = 58;
+    const fillArea = bH - LABEL_AREA;
+    const fillH = fillRatio * fillArea;
+    const fillY = isInverted ? 2 : (fillArea - fillH + 2);
+    const fillColor = v === null ? '#1e2d4d' : s.color;
+    const fillOp = carriedForward ? 0.35 : t === 'secondary' ? 0.5 : t === 'budget' || t === 'probable' ? 0.65 : 0.85;
+    const strokeDash = (carriedForward || t === 'secondary' || t === 'budget' || t === 'probable') ? 'stroke-dasharray="4,3"' : '';
+    const strokeW = isPension ? 2 : 1.5;
+
+    const valStr = v === null ? '—'
+      : sid === 'pension' ? `£${v.toFixed(1)}bn`
+      : v >= 1000 ? `£${(v/1000).toFixed(2)}bn`
+      : `£${Math.round(v)}m`;
+
+    // Fixed positions from top of label area — no overlap possible
+    const labelAreaTop = fillArea + 2;
+    const valTextY    = labelAreaTop + 11;  // value: top of label area
+    const qualTextY   = labelAreaTop + 23;  // quality note: below value
+    const nameTextY   = labelAreaTop + 36;  // stock name
+    const dateTextY   = labelAreaTop + 49;  // date: bottom
+
+    // Value: always centred in the fill bar if tall enough, else top of label area
+    const valY = fillH > 24
+      ? fillY + fillH / 2
+      : valTextY;
+
+    // Carry-forward or data quality note
+    let qualityStr = '';
+    if (carriedForward && sourceYear) qualityStr = `last confirmed: ${sourceYear-1}–${String(sourceYear).slice(-2)}`;
+    else if (t === 'budget') qualityStr = 'budget projection';
+    else if (t === 'probable') qualityStr = 'provisional';
+    else if (t === 'secondary') qualityStr = 'estimated';
+
+    const labelClass = isPension ? 'beaker-label-pension' : 'beaker-label';
+    const valClass = isPension ? 'beaker-val-pension' : 'beaker-val';
+    const fnNum = STOCK_FN[sid];
+    const fnId = STOCK_FN_ID[sid];
+    const dateStr = STOCK_DATE[sid];
+
+    const isLight = document.body.classList.contains('light');
+    const beakerBg = isLight ? '#f1f5f9' : '#080d1a';
+    const beakerStroke = isLight ? (s.color + 'cc') : s.color;
+
+    wrap.innerHTML = `<svg class="beaker-svg" width="${bW}" height="${bH}" viewBox="0 0 ${bW} ${bH}">
+      <!-- Beaker body -->
+      <rect x="1" y="2" width="${bW-2}" height="${fillArea}" rx="3"
+        fill="${beakerBg}" stroke="${beakerStroke}" stroke-width="${strokeW}" ${strokeDash}/>
+      <!-- Fill -->
+      <rect x="2" y="${fillY}" width="${bW-4}" height="${Math.max(fillH,0)}"
+        fill="${fillColor}" opacity="${fillOp}" rx="2"/>
+      ${isInverted && fillH>0 ? `<line x1="2" y1="${fillY}" x2="${bW-2}" y2="${fillY}" stroke="${s.color}" stroke-width="1" opacity="0.6"/>` : ''}
+      <!-- Value — in fill bar if tall enough, else above label row -->
+      <text class="${valClass}" x="${bW/2}" y="${valY}"
+        dominant-baseline="middle" opacity="${v===null?0.25:1}">${valStr}</text>
+      <!-- Quality note — fixed position, never overlaps value in fill bar -->
+      ${qualityStr && fillH > 24 ? `<text class="beaker-type" x="${bW/2}" y="${qualTextY}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
+      ${qualityStr && fillH <= 24 ? `<text class="beaker-type" x="${bW/2}" y="${qualTextY}" dominant-baseline="middle" opacity="0.7">${qualityStr}</text>` : ''}
+      <!-- Label row -->
+      <text class="${labelClass}" x="${bW/2}" y="${nameTextY}">${s.label}
+        <tspan class="beaker-footnote" dx="2">${fnNum}</tspan>
+      </text>
+      <!-- Date row -->
+      <text class="beaker-date" x="${bW/2}" y="${dateTextY}">${dateStr}</text>
+    </svg>`;
+
+    // Click footnote number → open gov notes + scroll to anchor
+    wrap.addEventListener('click', () => {
+      const notes = document.getElementById('gov-notes');
+      const toggle = document.getElementById('gov-toggle');
+      if (!notes.classList.contains('open')) {
+        notes.classList.add('open');
+        toggle.classList.add('open');
+      }
+      setTimeout(() => {
+        const target = document.getElementById(fnId);
+        if (target) target.scrollIntoView({behavior:'smooth',block:'start'});
+      }, 50);
+    });
+
+    wrap.addEventListener('mouseenter', (e) => {
+      const rect = wrap.getBoundingClientRect();
+      showStockPopup(sid, rect);
+    });
+    wrap.addEventListener('mouseleave', hideTsPopup);
+
+    vizEl.appendChild(wrap);
+  });
+}
+
+
+function showStockPopup(stockId, beakerRect) {
+  clearTimeout(tsHideTimer);
+  const s = STOCKS[stockId];
+  const popup = document.getElementById('ts-popup');
+
+  document.getElementById('ts-title').textContent = s.label;
+  document.getElementById('ts-sub').textContent = s.desc.substring(0, 60) + (s.desc.length > 60 ? '…' : '');
+
+  const canvas = document.getElementById('ts-canvas');
+  if (tsChart) { tsChart.destroy(); tsChart = null; }
+
+  // Build series: all years with data
+  const years = Object.keys(s.data).map(Number).sort();
+  const vals = years.map(y => s.data[y].v);
+  const types = years.map(y => s.data[y].t);
+
+  const borderColors = types.map(t =>
+    t === 'secondary' ? s.color + '88' : t === 'budget' ? s.color + 'aa' : s.color
+  );
+  const pointStyles = types.map(t =>
+    t === 'secondary' ? 'triangle' : t === 'budget' || t === 'probable' ? 'rectRot' : 'circle'
+  );
+
+  tsChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: years.map(y => "FY'" + String(y).slice(-2)),
+      datasets: [{
+        data: vals,
+        borderColor: s.color,
+        backgroundColor: s.color + '22',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: borderColors,
+        pointStyle: pointStyles,
+        fill: !s.inverted,
+        tension: 0.3,
+        spanGaps: true,
+        segment: {
+          borderDash: ctx => {
+            const t = types[ctx.p0DataIndex];
+            return (t === 'secondary' || t === 'budget') ? [4, 3] : undefined;
+          }
+        }
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const t = types[ctx.dataIndex];
+              const flag = t === 'secondary' ? ' (~sec)' : t === 'budget' ? ' (~bud)' : t === 'probable' ? ' (~prob)' : '';
+              return (s.unit === '£bn' ? '£' + ctx.raw + 'bn' : '£' + ctx.raw + 'm') + flag;
+            }
+          },
+          backgroundColor: document.body.classList.contains('light')?'#ffffff':'#1e293b', titleColor: document.body.classList.contains('light')?'#64748b':'#e2e8f0', bodyColor: document.body.classList.contains('light')?'#0f172a':'#94a3b8',
+          borderColor: '#1e2d4d', borderWidth: 1,
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#cbd5e1', font: { size: 8 }, maxRotation: 0 }, grid: { color: '#1e293b' } },
+        y: {
+          ticks: { color: '#cbd5e1', font: { size: 8 }, callback: v => s.unit === '£bn' ? '£' + v + 'bn' : '£' + v + 'm' },
+          grid: { color: '#1e293b' },
+          reverse: !!s.inverted,
+        }
+      }
+    }
+  });
+
+  popup.style.visibility = 'hidden';
+  popup.style.display = 'block';
+  const pw = popup.offsetWidth || 260, ph = popup.offsetHeight || 160;
+  popup.style.visibility = '';
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let px = beakerRect.right + 12;
+  let py = beakerRect.top - ph / 2;
+  if (px + pw > vw - 10) px = beakerRect.left - pw - 12;
+  if (py < 10) py = 10;
+  if (py + ph > vh - 10) py = vh - ph - 10;
+  popup.style.left = px + 'px';
+  popup.style.top = py + 'px';
+}
+
+// ── Playback ─────────────────────────────────────────────────────────────────
+let curFY=2025, playing=false, timer=null;
+function fyStr(fy){ return (fy-1)+'-'+(String(fy).slice(-2)); }
+
+// ── Year pill strip (landscape mobile) ───────────────────────────────────────
+const FY_YEARS = [2016,2018,2019,2020,2021,2022,2023,2024,2025]; // skip 2017 (classification break)
+(function buildPills(){
+  const container = document.getElementById('yr-pills');
+  FY_YEARS.forEach(fy => {
+    const btn = document.createElement('button');
+    btn.className = 'yr-pill' + (fy === curFY ? ' active' : '');
+    btn.dataset.fy = fy;
+    // Show just the end year digits e.g. "16", "17" etc
+    btn.textContent = String(fy).slice(-2);
+    btn.addEventListener('click', () => { stop(); setFY(fy, false); });
+    container.appendChild(btn);
+  });
+})();
+
+function updatePills(fy) {
+  document.querySelectorAll('.yr-pill').forEach(btn => {
+    btn.classList.toggle('active', +btn.dataset.fy === fy);
+  });
+}
+
+function setFY(fy,animate){
+  curFY=fy;
+  document.getElementById('yr-slider').value=fy;
+  document.getElementById('fy-disp').textContent=fyStr(fy);
+  updatePills(fy);
+  draw(fy,animate);
+}
+function play(){
+  playing=true;
+  document.getElementById('play-icon').innerHTML='&#9646;&#9646;';
+  document.getElementById('play-label').textContent='Stop';
+  timer=setInterval(()=>{
+    let next=curFY<2025?curFY+1:2016;
+    if(next===2017) next=2018; // FY2017 has classification breaks — skip in animation
+    setFY(next,true);
+  },2600);  // increased to match slower DUR
+}
+function stop(){
+  playing=false;
+  document.getElementById('play-icon').innerHTML='&#9654;';
+  document.getElementById('play-label').textContent='Animate';
+  clearInterval(timer);
+}
+
+// ── Control wiring ────────────────────────────────────────────────────────────
+document.getElementById('play-btn').addEventListener('click',()=>playing?stop():play());
+document.getElementById('yr-slider').addEventListener('input',e=>{stop();setFY(+e.target.value,false);});
+
+document.getElementById('node-select').addEventListener('change',e=>{
+  selectedNode=e.target.value;
+  if(prevLayout) draw(curFY,false);
+});
+
+// filter-chk removed — filterMode always true
+
+document.getElementById('deflate-chk').addEventListener('change',e=>{
+  useConstPrices=e.target.checked;
+  draw(curFY,true);  // force full redraw
+});
+
+
+// ── Touch pan/zoom on mobile ──────────────────────────────────────────────────
+(function initPanZoom() {
+  const vizEl = () => document.querySelector('.viz');
+  const svgEl = () => document.getElementById('chart');
+  let scale = 1, tx = 0, ty = 0;
+  let pointers = {};
+  let lastDist = null, lastMid = null;
+
+  function applyTransform() {
+    const s = svgEl();
+    if (!s) return;
+    s.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+  }
+
+  function ptDist(a, b) {
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  }
+  function ptMid(a, b) {
+    return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+  }
+
+  function onPointerDown(e) {
+    if (!isMobileLandscape()) return;
+    pointers[e.pointerId] = e;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const pts = Object.values(pointers);
+    if (pts.length === 2) {
+      lastDist = ptDist(pts[0], pts[1]);
+      lastMid  = ptMid(pts[0], pts[1]);
+    }
+  }
+  function onPointerMove(e) {
+    if (!pointers[e.pointerId]) return;
+    const prev = pointers[e.pointerId];
+    pointers[e.pointerId] = e;
+    const pts = Object.values(pointers);
+
+    if (pts.length === 1) {
+      // Pan
+      tx += e.clientX - prev.clientX;
+      ty += e.clientY - prev.clientY;
+      // Clamp so you can't pan the diagram entirely off-screen
+      const v = vizEl();
+      if (v) {
+        const vw = v.clientWidth, vh = v.clientHeight;
+        const svgW = W * scale, svgH = H * scale;
+        tx = Math.min(vw * 0.7, Math.max(-(svgW - vw * 0.3), tx));
+        ty = Math.min(vh * 0.5, Math.max(-(svgH - vh * 0.5), ty));
+      }
+      applyTransform();
+    } else if (pts.length === 2) {
+      const p = Object.values(pts);
+      const dist = ptDist(p[0], p[1]);
+      const mid  = ptMid(p[0], p[1]);
+      if (lastDist && lastMid) {
+        const ds = dist / lastDist;
+        const v = vizEl();
+        const vr = v ? v.getBoundingClientRect() : { left: 0, top: 0 };
+        // Zoom toward pinch midpoint
+        const ox = mid.x - vr.left;
+        const oy = mid.y - vr.top;
+        tx = ox - ds * (ox - tx);
+        ty = oy - ds * (oy - ty);
+        scale = Math.max(0.4, Math.min(4, scale * ds));
+        // Pan delta from midpoint movement
+        tx += mid.x - lastMid.x;
+        ty += mid.y - lastMid.y;
+      }
+      lastDist = dist;
+      lastMid  = mid;
+      applyTransform();
+    }
+  }
+  function onPointerUp(e) {
+    delete pointers[e.pointerId];
+    const pts = Object.values(pointers);
+    if (pts.length < 2) { lastDist = null; lastMid = null; }
+  }
+  // Double-tap to reset
+  let lastTap = 0;
+  function onDblTap(e) {
+    if (!isMobileLandscape()) return;
+    const now = Date.now();
+    if (now - lastTap < 350) { scale = 1; tx = 0; ty = 0; applyTransform(); }
+    lastTap = now;
+  }
+
+  function isMobileLandscape() {
+    return window.innerWidth <= 900; // v5: pan/zoom in both mobile orientations
+  }
+
+  // Attach after DOM ready (called from init)
+  window._initPanZoomHandlers = function() {
+    const v = vizEl();
+    if (!v) return;
+    v.addEventListener('pointerdown', onPointerDown);
+    v.addEventListener('pointermove', onPointerMove);
+    v.addEventListener('pointerup',   onPointerUp);
+    v.addEventListener('pointercancel', onPointerUp);
+    v.addEventListener('click', onDblTap);
+  };
+  // Reset transform on redraw (so new draw matches coordinate system)
+  window._resetPanZoom = function() { scale = 1; tx = 0; ty = 0; applyTransform(); };
+})();
+
+// ── Governance notes toggle ───────────────────────────────────────────────────
+function toggleGov(){
+  const notes=document.getElementById('gov-notes');
+  const toggle=document.getElementById('gov-toggle');
+  const chevron=document.getElementById('gov-chevron');
+  const open=notes.classList.toggle('open');
+  toggle.classList.toggle('open',open);
+}
+// ── Boot ──────────────────────────────────────────────────────────────────────
+// Apply stored theme BEFORE first draw so beakers get the right colours
+try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+
+// v5: portrait nudge removed — portrait mobile now gets a functional compact layout.
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&selectedNode){selectedNode='';const ns=document.getElementById('node-select');if(ns)ns.value='';applyHighlight();}});
+function init(){dims();draw(2025,false);window._initPanZoomHandlers && window._initPanZoomHandlers();}
+const ro=new ResizeObserver(()=>{dims();draw(curFY,false);});
+ro.observe(document.querySelector('.viz'));
+init();
+// build: v5.0
+</script>
+<script>
+/* Observatory theme v3 — redraw on theme change (v5: completed — v4 shipped truncated) */
+(function () {
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+      if (typeof draw === 'function' && typeof curFY !== 'undefined') draw(curFY, false);
+    }
+  });
+}());
+</script>
+</body>
+</html>

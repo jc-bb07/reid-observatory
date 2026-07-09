@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Family's Pension Picture — Isle of Man</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
+  --border:rgba(255,255,255,.06);--border2:#334155;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#475569;
+  --blue:#60a5fa;--blue-dim:rgba(96,165,250,0.12);
+  --green:#4ade80;--amber:#fbbf24;--red:#f87171;
+  --input-bg:#1e293b;--input-hover:#243044;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body.light{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;
+  --border:rgba(0,0,0,.06);--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--muted2:#475569;
+  --blue:#2563eb;--blue-dim:rgba(37,99,235,0.08);
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;
+  --input-bg:#f1f5f9;--input-hover:#e2e8f0;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+.shell{max-width:960px;margin:0 auto;padding:20px 20px 48px}
+
+h1{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;margin-bottom:3px}
+.sub{font-size:0.76rem;color:var(--muted2);margin-bottom:14px}
+
+.setup{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:13px 18px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.setup-label{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.setup select,.setup input[type=number]{background:var(--input-bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.8rem;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.setup select{padding-right:28px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+.setup select:hover,.setup input[type=number]:hover{border-color:var(--muted);background:var(--input-hover)}
+.setup select:focus,.setup input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
+.setup input[type=number]{width:82px}
+
+.narrative{background:var(--blue-dim);border:1px solid rgba(96,165,250,.18);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:.78rem;line-height:1.7;color:var(--muted)}
+.narrative strong{color:var(--text)}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:15px;display:flex;flex-direction:column}
+.card.is-you{border-color:rgba(96,165,250,.45);background:var(--blue-dim)}
+.card-gen{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card.is-you .card-gen{color:var(--blue)}
+.you-pip{background:var(--blue);color:var(--bg);font-size:.55rem;font-weight:800;padding:1px 5px;border-radius:3px}
+.card-meta{font-size:.63rem;color:var(--muted2);margin-bottom:11px}
+/* stacked birth / employ controls — same height across all cards */
+.card-birth-inp{background:var(--input-bg);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 8px;font-size:.68rem;width:100%;display:block;margin-bottom:5px;transition:border-color .15s}
+.card-birth-inp:hover{border-color:var(--muted);background:var(--input-hover)}
+.card-birth-inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
+.card-birth-display{font-size:.68rem;color:var(--muted2);padding:5px 0;display:block;margin-bottom:5px}
+.card-employ-sel{background:var(--input-bg);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 26px 5px 8px;font-size:.68rem;width:100%;display:block;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s}
+.card-employ-sel:hover{border-color:var(--muted);background-color:var(--input-hover)}
+.card-employ-sel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-dim)}
+.card-employ-display{font-size:.68rem;font-weight:600;padding:5px 0;display:block}
+.scheme-note{font-size:.61rem;color:var(--muted2);min-height:1.35rem;margin-bottom:8px;line-height:1.5}
+.divider{border:none;border-top:1px solid var(--border2);margin:10px 0;opacity:.5}
+.wk-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:4px}
+.wk-amount{font-size:2.4rem;font-weight:900;line-height:1;margin-bottom:2px;display:flex;align-items:baseline;gap:6px}
+.wk-unit{font-size:1rem;font-weight:500;color:var(--muted2);letter-spacing:0}
+.wk-sub{font-size:.65rem;color:var(--muted2);margin-bottom:10px}
+.bk-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.bk-name{font-size:.65rem;color:var(--muted2)}
+.bk-val{font-size:.72rem;font-weight:600}
+.bk-bar{height:5px;border-radius:2px;background:var(--surface2);margin-bottom:8px;overflow:hidden}
+.bk-fill{height:100%;border-radius:2px;transition:width .3s}
+.risk-slot{min-height:1px;margin-bottom:6px}
+.risk-note{font-size:.61rem;color:var(--red);background:rgba(248,113,113,.08);border-radius:4px;padding:5px 8px;line-height:1.5}
+/* levy: always occupies space; visibility:hidden when not applicable */
+.levy-slot{min-height:82px;margin-bottom:10px;flex-shrink:0}
+.levy-pct{font-size:2.2rem;font-weight:900;color:#f87171;line-height:1;margin:3px 0 2px}
+.levy-unit{font-size:.9rem;font-weight:500;color:#f87171;margin-left:4px}
+.levy-note{font-size:.62rem;color:var(--muted2);line-height:1.45;margin-top:2px}
+.vs-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.vs-label{font-size:.64rem;color:var(--muted2)}
+.vs-val{font-size:.72rem;font-weight:600;color:var(--muted)}
+.vs-val.hi{color:var(--green)}
+.ratio{background:var(--surface2);border-radius:7px;padding:9px;text-align:center;margin-top:8px}
+.ratio-num{font-size:1.7rem;font-weight:900;line-height:1}
+.ratio-label{font-size:.6rem;color:var(--muted2);margin-top:2px}
+@keyframes cardFlash{0%{opacity:.5}100%{opacity:1}}
+.card-flash{animation:cardFlash .25s ease-out}
+.badge{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-top:8px}
+.b-green{background:rgba(74,222,128,.15);color:var(--green)}
+.b-amber{background:rgba(251,191,36,.15);color:var(--amber)}
+.b-red{background:rgba(248,113,113,.15);color:var(--red)}
+
+.bill{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px}
+.bill-head{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:12px}
+.bill-chart-wrap{position:relative;height:160px;margin-bottom:8px}
+.bill-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.bl-item{display:flex;align-items:center;gap:5px;font-size:.64rem;color:var(--muted2)}
+.bl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+.insight{border-left:3px solid var(--amber);padding:10px 14px;margin-bottom:12px;background:rgba(251,191,36,.05);border-radius:0 6px 6px 0}
+.insight-text{font-size:.75rem;color:var(--muted);line-height:1.65}
+.insight-text strong{color:var(--amber)}
+
+.note{font-size:.61rem;color:var(--muted2);line-height:1.7;margin-top:8px}
+
+.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}.blue{color:var(--blue)}
+
+@media(max-width:720px){
+  .cards{grid-template-columns:1fr}
+  .setup{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body class="light">
+
+<div class="shell">
+
+<h1>&#x1F3DD;&#xFE0F; Your Family&#x27;s Pension Picture &#x2014; Isle of Man</h1>
+<div class="sub">Three generations. One island. What does the pension system look like for each of them &#x2014; and who pays?</div>
+
+<div class="setup">
+  <span class="setup-label">I am the</span>
+  <select id="myGen">
+    <option value="grandparent">Grandparent</option>
+    <option value="parent" selected>Parent</option>
+    <option value="child">Child / Grandchild</option>
+  </select>
+  <span class="setup-label">born in</span>
+  <input type="number" id="myBirth" value="1970" min="1940" max="2005">
+  <span class="setup-label">working in</span>
+  <select id="myEmploy">
+    <option value="civil">Civil Service / Public Sector</option>
+    <option value="private_dc">Private Sector (with DC pension)</option>
+    <option value="private_no">Private Sector (no workplace pension)</option>
+    <option value="homemaker">Homemaker / Carer</option>
+  </select>
+  <span id="dcRateWrap" style="margin-left:8px;border-left:1px solid var(--border2);padding-left:12px;display:none;align-items:center;gap:10px">
+    <span class="setup-label">DC contribution</span>
+    <input type="number" id="dcRate" value="10" min="1" max="40" style="width:58px">
+    <span class="setup-label">% of salary</span>
+  </span>
+</div>
+
+<div class="narrative" id="narrative"></div>
+<div class="cards" id="cards"></div>
+
+<div class="bill">
+  <div class="bill-head">The annual pension deficit &#x2014; cost per IoM worker, across three generations</div>
+  <div class="bill-chart-wrap"><canvas id="billChart"></canvas></div>
+  <div class="bill-legend" id="billLegend"></div>
+</div>
+
+<div class="insight" id="insight"></div>
+
+<div class="note">
+  * All figures in today&#x27;s (2026) real money terms. Civil service: GUS 2011 CARE scheme (1/57th accrual) from 2011; legacy final salary (1/60th, peak salary) pre-2011.
+  State pension &#xA3;263.55/week (April 2026 Manx rate); pro-rated by NI qualifying years (35 = full).
+  NI fund: projected exhaustion 2046/47 (IoM Treasury); post-exhaustion state pension assumed 75% of entitlement, funded from general revenue.
+  Private sector DC: 10% total contributions (5%+5%) on &#xA3;38k career salary, 4% real return, 4% annuity rate.
+  Homemaker: 20 qualifying NI years assumed. Pension deficit: PSPA Annual Report 2024-25 actual (&#xA3;48.1m); projections 6.5%/yr gross, 4%/yr contribution growth.
+  Deficit per worker assumes 42,000 IoM workers. Illustrative &#x2014; actual outcomes depend on scheme reform, migration, and fiscal policy.
+  Analysis: Coalfinch Observatory.
+</div>
+
+</div><!-- /.shell -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// Theme listener
+window.addEventListener('message', function(e) {
+  var msg = e.data;
+  if (!msg) return;
+  if (msg.type === 'theme' || msg.type === 'setTheme') {
+    document.body.classList.toggle('light', msg.theme === 'light' || msg.theme === 'health');
+  }
+});
+
+var CS_SALARY  = 38000;
+var FS_PEAK    = 45000;
+var SP_FULL    = 263.55;
+var NI_EXH     = 2047;
+var SCHEME_CHG = 2011;
+var RET_AGE    = 65;
+var START_AGE  = 22;
+var WORK_YEARS = RET_AGE - START_AGE;
+var WORKERS    = 42000;
+var GEN_GAP    = 27;
+
+var EMPLOY_META = {
+  civil:       { label: 'Civil Service / Public Sector', color: '#60a5fa', short: 'Civil Service' },
+  private_dc:  { label: 'Private Sector (DC pension)',   color: '#a78bfa', short: 'Private (DC)' },
+  private_no:  { label: 'Private Sector (no pension)',   color: '#f87171', short: 'Private (none)' },
+  homemaker:   { label: 'Homemaker / Carer',             color: '#fb923c', short: 'Homemaker' }
+};
+var GEN_LABELS = { grandparent: 'Grandparent', parent: 'Parent', child: 'Child / Grandchild' };
+var GEN_ORDER  = ['grandparent', 'parent', 'child'];
+
+var billChart  = null;
+var cardEmploy = { grandparent: 'civil', parent: 'civil', child: 'civil' };
+var cardBirth  = { grandparent: 1943,   parent: 1970,    child: 1997    };
+var DC_RATE    = 0.10;
+
+function fmtK(n)  { return '£' + Math.round(n / 1000) + 'k'; }
+function fmtWk(n) { return '£' + Math.round(n).toLocaleString(); }
+
+function getVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function autoDeriveBirths(myGen, myBirth) {
+  var offsets = { grandparent: -GEN_GAP, parent: 0, child: GEN_GAP };
+  var parentBirth = myBirth - offsets[myGen];
+  return {
+    grandparent: parentBirth - GEN_GAP,
+    parent:      parentBirth,
+    child:       parentBirth + GEN_GAP
+  };
+}
+
+function calcPension(birthYear, employ) {
+  var retYear   = birthYear + RET_AGE;
+  var startWork = birthYear + START_AGE;
+  var preYrs    = Math.max(0, Math.min(SCHEME_CHG, retYear) - startWork);
+  var postYrs   = Math.max(0, retYear - Math.max(SCHEME_CHG, startWork));
+  var niYrs     = employ === 'homemaker' ? 20 : Math.min(WORK_YEARS, 35);
+  var niFactor  = retYear >= NI_EXH ? 0.75
+                : retYear >= 2040   ? (1 - (retYear - 2040) * 0.018)
+                : 1.0;
+  var stateWk   = (niYrs / 35) * SP_FULL * niFactor;
+  var wkYrs     = retYear - startWork;
+  var occWk = 0, empCont = 0, erCont = 0;
+  if (employ === 'civil') {
+    occWk   = ((preYrs / 60) * FS_PEAK + (postYrs / 57) * CS_SALARY) / 52;
+    empCont = wkYrs * CS_SALARY * 0.075;
+    erCont  = wkYrs * CS_SALARY * 0.259;
+  } else if (employ === 'private_dc') {
+    var annC = CS_SALARY * DC_RATE;
+    var pot  = annC * ((Math.pow(1.04, wkYrs) - 1) / 0.04);
+    occWk   = (pot * 0.04) / 52;
+    empCont = wkYrs * CS_SALARY * (DC_RATE / 2);
+    erCont  = wkYrs * CS_SALARY * (DC_RATE / 2);
+  }
+  var totalWk   = stateWk + occWk;
+  var pensionVal = totalWk * 52 * 20;
+  var ratio      = empCont > 0 ? pensionVal / empCont : null;
+  var status, statusCls;
+  if (employ === 'homemaker' || employ === 'private_no') {
+    status = niFactor < 1 ? 'State pension at risk' : 'State pension only';
+    statusCls = niFactor < 1 ? 'b-red' : 'b-amber';
+  } else if (niFactor < 1) {
+    status = 'NI fund uncertain'; statusCls = 'b-amber';
+  } else if (totalWk > 650) {
+    status = 'Secure'; statusCls = 'b-green';
+  } else if (totalWk > 350) {
+    status = 'Adequate'; statusCls = 'b-green';
+  } else {
+    status = 'Below average'; statusCls = 'b-amber';
+  }
+  return {
+    birthYear: birthYear, retYear: retYear, startWork: startWork, employ: employ,
+    preYrs: preYrs, postYrs: postYrs, niYrs: niYrs, niFactor: niFactor,
+    stateWk: stateWk, occWk: occWk, totalWk: totalWk,
+    empCont: empCont, erCont: erCont, pensionVal: pensionVal, ratio: ratio,
+    status: status, statusCls: statusCls
+  };
+}
+
+function buildDeficitSeries() {
+  var hist = [
+    { yr: 1990, net: 0 }, { yr: 1995, net: 0 }, { yr: 2000, net: 0 },
+    { yr: 2005, net: 0 }, { yr: 2010, net: 0 }, { yr: 2015, net: 0 },
+    { yr: 2017, net: 0 },
+    { yr: 2022, net: 28.7 },
+    { yr: 2023, net: 40.6 },
+    { yr: 2025, net: 48.1 }
+  ];
+  var g = 143.3, c = 95.2, proj = [];
+  for (var i = 0; i < 36; i++) {
+    var yr = 2026 + i;
+    g = g * 1.065; c = c * 1.040;
+    proj.push({ yr: yr, net: Math.max(0, g - c) });
+  }
+  return hist.concat(proj);
+}
+var DEFICIT_SERIES = buildDeficitSeries();
+
+function deficitAtYear(yr) {
+  var pts = DEFICIT_SERIES.filter(function(d) { return d.yr <= yr; });
+  if (!pts.length) return 0;
+  var lo = pts[pts.length - 1];
+  var hi = DEFICIT_SERIES.filter(function(d) { return d.yr > yr; })[0];
+  if (!hi) return lo.net;
+  var t = (yr - lo.yr) / (hi.yr - lo.yr);
+  return lo.net + t * (hi.net - lo.net);
+}
+
+function buildNarrative(births, myGen, pensions) {
+  var gp = pensions.grandparent, pa = pensions.parent, ch = pensions.child;
+  var now = new Date().getFullYear();
+  var gpAction = gp.retYear <= now
+    ? ('retired in ' + gp.retYear + ' with')
+    : ('retires in ' + gp.retYear + ' with');
+  var gpScheme = (gp.employ === 'civil' && gp.preYrs > 20)
+    ? ' — largely from a final salary scheme that no new entrant can access today'
+    : '';
+  var gpStr = 'Your grandparent (born ' + gp.birthYear + ') ' + gpAction
+    + ' <strong>' + fmtWk(gp.totalWk) + '/week</strong>' + gpScheme + '.';
+  var paWho = (myGen === 'parent') ? '<strong>own</strong>' : 'parent&#39;s';
+  var paScheme = (pa.preYrs > 0 && pa.employ === 'civil')
+    ? (', blending ' + pa.preYrs + ' years of final salary with ' + pa.postYrs + ' years of career-average accrual')
+    : '';
+  var paStr = 'Your ' + paWho + ' pension (born ' + pa.birthYear + ', '
+    + EMPLOY_META[pa.employ].short + '): <strong>' + fmtWk(pa.totalWk) + '/week</strong>' + paScheme + '.';
+  var chWho = (myGen === 'child') ? '<strong>own</strong>' : 'child&#39;s';
+  var chScheme = (ch.employ === 'civil') ? ' — all on career-average, with no final salary years' : '';
+  var chRisk = (ch.niFactor < 1)
+    ? (' The state pension component (' + fmtWk(ch.stateWk) + '/week) carries real uncertainty'
+       + ' — the IoM NI fund is projected to run dry around ' + NI_EXH + '.')
+    : '';
+  var chStr = 'Your ' + chWho + ' pension (born ' + ch.birthYear + '): <strong>'
+    + fmtWk(ch.totalWk) + '/week</strong>' + chScheme + '.' + chRisk;
+  var deficitNow = Math.round(deficitAtYear(now) * 1e6 / WORKERS);
+  var deficitAtChildWork = Math.round(deficitAtYear(Math.min(ch.startWork + 15, 2055)) * 1e6 / WORKERS);
+  var billStr = (deficitAtChildWork > deficitNow)
+    ? (' Every year your child works, they will pay roughly <strong>£'
+       + deficitAtChildWork.toLocaleString() + '/year in extra taxes</strong>'
+       + ' to cover the pension shortfall — on top of their own contributions.')
+    : '';
+  return gpStr + ' ' + paStr + ' ' + chStr + billStr;
+}
+
+function renderCards() {
+  var myGen   = document.getElementById('myGen').value;
+  var myBirth = parseInt(document.getElementById('myBirth').value) || 1970;
+  var myEmp   = document.getElementById('myEmploy').value;
+  DC_RATE     = (parseInt(document.getElementById('dcRate').value) || 10) / 100;
+
+  cardBirth[myGen]  = myBirth;
+  cardEmploy[myGen] = myEmp;
+
+  var pensions = {};
+  GEN_ORDER.forEach(function(g) { pensions[g] = calcPension(cardBirth[g], cardEmploy[g]); });
+
+  document.getElementById('narrative').innerHTML = buildNarrative(cardBirth, myGen, pensions);
+
+  var container = document.getElementById('cards');
+  container.innerHTML = '';
+
+  var isLight = document.body.classList.contains('light');
+  var stateBarColor = isLight ? '#94a3b8' : '#475569';
+
+  GEN_ORDER.forEach(function(gen) {
+    var p       = pensions[gen];
+    var isYou   = gen === myGen;
+    var em      = EMPLOY_META[p.employ];
+    var color   = p.totalWk >= 600 ? '#4ade80' : p.totalWk >= 350 ? '#fbbf24' : '#f87171';
+    var statePct = p.totalWk > 0 ? Math.round(p.stateWk / p.totalWk * 100) : 0;
+    var occPct   = 100 - statePct;
+    var now      = new Date().getFullYear();
+    var isWorking = p.startWork <= now && p.retYear > now;
+    var hasMixed  = p.preYrs > 0 && p.postYrs > 0 && p.employ === 'civil';
+
+    var card = document.createElement('div');
+    card.className = 'card' + (isYou ? ' is-you' : '');
+
+    var empSel = '';
+    if (!isYou) {
+      var opts = Object.keys(EMPLOY_META).map(function(v) {
+        return '<option value="' + v + '"' + (v === p.employ ? ' selected' : '') + '>'
+          + EMPLOY_META[v].label + '</option>';
+      }).join('');
+      empSel = '<input type="number" class="card-birth-inp" data-gen="' + gen + '" value="'
+        + cardBirth[gen] + '" min="1925" max="2010" placeholder="Birth year">'
+        + '<select class="card-employ-sel" data-gen="' + gen + '">' + opts + '</select>';
+    } else {
+      empSel = '<div class="card-birth-display">Born ' + p.birthYear + '</div>'
+        + '<div class="card-employ-display" style="color:' + em.color + '">' + em.short + '</div>';
+    }
+
+    var schemeText = '';
+    if (hasMixed) {
+      schemeText = p.preYrs + 'y final salary + ' + p.postYrs + 'y career avg';
+    } else if (p.employ === 'civil' && p.preYrs > 0) {
+      schemeText = 'All final salary (pre-2011 retiree)';
+    } else if (p.employ === 'civil' && p.postYrs > 0) {
+      schemeText = 'All career-average (post-2011 entrant)';
+    }
+    var schemeNote = '<div class="scheme-note">' + schemeText + '</div>';
+
+    var riskNote = '<div class="risk-slot">' + (p.niFactor < 1
+      ? '<div class="risk-note">⚠ Retiring ' + p.retYear + ' — NI fund projected exhausted '
+        + NI_EXH + '. State pension shown at ' + Math.round(p.niFactor * 100) + '% of entitlement.</div>'
+      : '') + '</div>';
+
+    var ratioColor = p.ratio >= 6 ? '#4ade80' : p.ratio >= 4 ? '#fbbf24' : '#f87171';
+    var ratioHtml = p.ratio
+      ? '<div class="ratio"><div class="ratio-num" style="color:' + ratioColor + '">'
+        + p.ratio.toFixed(1) + '×</div>'
+        + '<div class="ratio-label">pension value vs own contributions</div></div>'
+      : '<div class="ratio"><div class="ratio-num amber">∞</div>'
+        + '<div class="ratio-label">paid nothing in — receives state pension only</div></div>';
+
+    var statusBadge = '<span class="badge ' + p.statusCls + '">' + p.status + '</span>';
+
+    var workStatus = isWorking
+      ? '<span style="color:#4ade80;font-size:.61rem">◆ Working now</span>'
+      : (p.retYear <= now
+          ? '<span style="color:var(--muted2);font-size:.61rem">Retired ' + p.retYear + '</span>'
+          : '<span style="color:#fbbf24;font-size:.61rem">Retires ' + p.retYear + '</span>');
+
+    var midCareer    = Math.round((p.startWork + p.retYear) / 2);
+    var deficitAtMid = deficitAtYear(midCareer);
+    var burdenPerYr  = Math.round(deficitAtMid * 1e6 / WORKERS);
+    var burdenWk     = Math.round(burdenPerYr / 52);
+    var burdenLife   = Math.round(burdenPerYr * (p.retYear - p.startWork) / 1000);
+    var burdenRate   = Math.round(burdenPerYr / CS_SALARY * 100);
+    var isRetired    = p.retYear <= now;
+
+    // Levy slot — always rendered so cards stay aligned; hidden when not applicable
+    var levyVisible = !isRetired && burdenWk > 0;
+    var levySlot = '<div class="levy-slot"' + (levyVisible ? '' : ' style="visibility:hidden"') + '>'
+      + '<div class="wk-label" style="color:#f87171">Prior pension levy</div>'
+      + '<div class="levy-pct">' + burdenRate + '<span class="levy-unit">% of salary</span></div>'
+      + '<div class="levy-note">on top of income tax, paying for prior generations&#39; pensions<br>'
+      + '(£' + burdenPerYr.toLocaleString() + '/yr · £' + fmtWk(burdenWk) + '/wk)</div>'
+      + '</div>';
+
+    card.innerHTML = ''
+      + '<div class="card-gen">'
+      + (isYou ? '<span class="you-pip">YOU</span>' : '')
+      + GEN_LABELS[gen]
+      + '<span style="margin-left:auto">' + workStatus + '</span>'
+      + '</div>'
+      + empSel
+      + schemeNote
+      + '<div class="card-meta">Works ' + p.startWork + '–' + p.retYear + '</div>'
+      + '<hr class="divider">'
+      + '<div class="wk-label">Pension in retirement</div>'
+      + '<div class="wk-amount" style="color:' + color + '">' + fmtWk(p.totalWk) + '<span class="wk-unit">/ week</span></div>'
+      + '<div class="wk-sub" style="margin-bottom:10px">£' + (p.totalWk * 52 / 1000).toFixed(0) + 'k/yr &nbsp;·&nbsp; ~' + (p.totalWk * 52 / 38000 * 100).toFixed(0) + '% of median</div>'
+      + levySlot
+      + '<div class="bk-row"><span class="bk-name">Manx state pension</span><span class="bk-val" style="color:var(--muted)">' + fmtWk(p.stateWk) + '/wk</span></div>'
+      + '<div class="bk-bar"><div class="bk-fill" style="width:' + statePct + '%;background:' + stateBarColor + '"></div></div>'
+      + '<div class="bk-row"><span class="bk-name">Occupational pension</span><span class="bk-val" style="color:' + em.color + '">' + fmtWk(p.occWk) + '/wk</span></div>'
+      + '<div class="bk-bar"><div class="bk-fill" style="width:' + occPct + '%;background:' + em.color + ';opacity:.75"></div></div>'
+      + riskNote
+      + '<hr class="divider">'
+      + '<div class="vs-row"><span class="vs-label">They contributed (lifetime)</span><span class="vs-val">' + (p.empCont > 0 ? fmtK(p.empCont) : '—') + '</span></div>'
+      + '<div class="vs-row"><span class="vs-label">Employer / taxpayer adds</span><span class="vs-val">' + (p.erCont > 0 ? fmtK(p.erCont) : '—') + '</span></div>'
+      + '<div class="vs-row"><span class="vs-label">Est. total pension received</span><span class="vs-val hi">' + fmtK(p.pensionVal) + '</span></div>'
+      + ratioHtml
+      + (!isRetired && burdenLife > 0 ?
+          '<div style="font-size:.59rem;color:var(--muted2);margin-top:8px;padding:6px 8px;border-top:1px solid rgba(248,113,113,.15)">'
+        + 'Lifetime deficit levy est. <span style="color:#f87171;font-weight:600">~£' + burdenLife + 'k</span>'
+        + ' — paid toward others&#39; pensions on top of income tax and own contributions.'
+        + '</div>'
+        : '')
+      + statusBadge;
+
+    container.appendChild(card);
+  });
+
+  container.querySelectorAll('.card').forEach(function(c) {
+    c.classList.remove('card-flash');
+    void c.offsetWidth;
+    c.classList.add('card-flash');
+  });
+
+  container.querySelectorAll('.card-employ-sel').forEach(function(sel) {
+    sel.addEventListener('change', function(e) {
+      cardEmploy[e.target.dataset.gen] = e.target.value;
+      renderCards();
+    });
+  });
+  container.querySelectorAll('.card-birth-inp').forEach(function(inp) {
+    inp.addEventListener('change', function(e) {
+      var yr = parseInt(e.target.value);
+      if (yr >= 1900 && yr <= 2010) {
+        cardBirth[e.target.dataset.gen] = yr;
+        renderCards();
+      }
+    });
+  });
+
+  renderBill(cardBirth, myGen, pensions);
+  renderInsight(cardBirth, myGen, pensions);
+}
+
+function renderBill(births, myGen, pensions) {
+  var gp = pensions.grandparent, pa = pensions.parent, ch = pensions.child;
+  var years = [];
+  for (var y = 1985; y <= 2065; y++) years.push(y);
+
+  var costPerWorker = years.map(function(y) {
+    var net = deficitAtYear(y);
+    return net > 0 ? Math.round(net * 1e6 / WORKERS) : 0;
+  });
+  var maxCost = Math.max.apply(null, costPerWorker) * 1.05;
+
+  var gpBand = years.map(function(y) { return (y >= gp.startWork && y <= gp.retYear) ? maxCost : null; });
+  var paBand = years.map(function(y) { return (y >= pa.startWork && y <= pa.retYear) ? maxCost : null; });
+  var chBand = years.map(function(y) { return (y >= ch.startWork && y <= ch.retYear) ? maxCost : null; });
+
+  var isLight = document.body.classList.contains('light');
+  var gridColor = isLight ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.04)';
+  var tickColor = isLight ? '#94a3b8' : '#475569';
+
+  var cfg = {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [
+        { label: 'Grandparent working', data: gpBand, backgroundColor: 'rgba(74,222,128,.06)', borderWidth: 0, order: 10, barPercentage: 1, categoryPercentage: 1 },
+        { label: 'Parent working',      data: paBand, backgroundColor: 'rgba(96,165,250,.07)', borderWidth: 0, order: 9,  barPercentage: 1, categoryPercentage: 1 },
+        { label: 'Child working',       data: chBand, backgroundColor: 'rgba(248,113,113,.08)', borderWidth: 0, order: 8,  barPercentage: 1, categoryPercentage: 1 },
+        { type: 'line', label: 'Annual deficit cost per worker', data: costPerWorker,
+          borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,.15)', fill: true,
+          pointRadius: 0, borderWidth: 2, tension: 0.3, order: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e293b', titleColor: '#f1f5f9',
+          bodyColor: '#94a3b8', borderColor: '#334155', borderWidth: 1,
+          callbacks: {
+            title: function(items) { return 'Year ' + items[0].label; },
+            label: function(item) {
+              return item.datasetIndex === 3
+                ? ' Cost per worker: £' + (item.raw ? item.raw.toLocaleString() : 0)
+                : null;
+            },
+            afterLabel: function(item) {
+              if (item.datasetIndex !== 3) return null;
+              var yr = parseInt(item.label), flags = [];
+              if (yr >= gp.startWork && yr <= gp.retYear) flags.push('Grandparent working');
+              if (yr >= pa.startWork && yr <= pa.retYear) flags.push('Parent working');
+              if (yr >= ch.startWork && yr <= ch.retYear) flags.push('Child working');
+              return flags.length ? flags.join(' · ') : null;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'category',
+          ticks: { color: tickColor, font: { size: 8 }, maxTicksLimit: 17,
+            callback: function(val, idx) { return years[idx] % 5 === 0 ? years[idx] : null; } },
+          grid: { color: gridColor }
+        },
+        y: {
+          ticks: { color: tickColor, font: { size: 9 },
+            callback: function(v) { return v === 0 ? '£0' : '£' + (v/1000).toFixed(0) + 'k'; } },
+          grid: { color: gridColor }
+        }
+      }
+    },
+    plugins: [{
+      id: 'genLines',
+      afterDraw: function(chart) {
+        var ctx = chart.ctx;
+        var top = chart.chartArea.top, bottom = chart.chartArea.bottom;
+        var x = chart.scales.x;
+        var events = [
+          { yr: 2017,   label: 'PSEPR\nexhausted',         color: '#fbbf24' },
+          { yr: NI_EXH, label: 'NI fund\nexhausted\n(proj.)', color: '#f87171' }
+        ];
+        events.forEach(function(ev) {
+          var idx = years.indexOf(ev.yr);
+          if (idx < 0) return;
+          var xp = x.getPixelForValue(idx);
+          ctx.save();
+          ctx.strokeStyle = ev.color; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+          ctx.beginPath(); ctx.moveTo(xp, top); ctx.lineTo(xp, bottom); ctx.stroke();
+          ctx.fillStyle = ev.color;
+          ctx.font = '8px -apple-system,sans-serif'; ctx.textAlign = 'center';
+          ev.label.split('\n').forEach(function(line, i) { ctx.fillText(line, xp, top + 10 + i * 9); });
+          ctx.restore();
+        });
+      }
+    }]
+  };
+
+  if (billChart) { billChart.destroy(); }
+  billChart = new Chart(document.getElementById('billChart'), cfg);
+
+  document.getElementById('billLegend').innerHTML = ''
+    + '<div class="bl-item"><div class="bl-dot" style="background:rgba(74,222,128,.4)"></div>Grandparent working (' + gp.startWork + '–' + gp.retYear + ')</div>'
+    + '<div class="bl-item"><div class="bl-dot" style="background:rgba(96,165,250,.45)"></div>Parent working (' + pa.startWork + '–' + pa.retYear + ')</div>'
+    + '<div class="bl-item"><div class="bl-dot" style="background:rgba(248,113,113,.4)"></div>Child working (' + ch.startWork + '–' + ch.retYear + ')</div>'
+    + '<div class="bl-item"><div class="bl-dot" style="background:#f87171"></div>Pension deficit cost / IoM worker / year</div>';
+}
+
+function renderInsight(births, myGen, pensions) {
+  var gp = pensions.grandparent, ch = pensions.child;
+  var now = new Date().getFullYear();
+  var gpDeficit  = Math.round(deficitAtYear(Math.min(gp.startWork + 20, gp.retYear - 5)) * 1e6 / WORKERS);
+  var chPeakYr   = Math.min(ch.startWork + 20, 2060);
+  var chDeficit  = Math.round(deficitAtYear(chPeakYr) * 1e6 / WORKERS);
+  var nowDeficit = Math.round(deficitAtYear(now) * 1e6 / WORKERS);
+  var gpWasZero     = gpDeficit === 0;
+  var gpSchemeAdv   = gp.employ === 'civil' && gp.preYrs > 0;
+  var chSchemeDisadv = ch.employ === 'civil' && ch.preYrs === 0;
+  var lines = [];
+  if (gpSchemeAdv) {
+    lines.push('The grandparent (born ' + gp.birthYear + ') <strong>contributed '
+      + fmtK(gp.empCont) + ' of their own money and will receive an estimated '
+      + fmtK(gp.pensionVal) + '</strong> — a return of '
+      + (gp.ratio ? gp.ratio.toFixed(1) : '?') + '×'
+      + ' — largely funded by taxpayers through employer contributions and the pension deficit.');
+  }
+  if (chSchemeDisadv) {
+    lines.push('The child (born ' + ch.birthYear + ') <strong>enters a system with no final salary years</strong> available.'
+      + ' Their career-average pension is lower for equivalent service — and the state pension they are counting on carries '
+      + (NI_EXH > 2000 ? 'uncertainty after ' + NI_EXH : 'growing uncertainty') + '.');
+  }
+  if (gpWasZero && chDeficit > 500) {
+    lines.push('When the grandparent was working, the pension deficit cost per IoM worker was <strong>effectively £0</strong>'
+      + ' — the PSEPR reserve absorbed shortfalls. When the child is working (mid-'
+      + String(chPeakYr).slice(0,3) + '0s), it is projected to be <strong>~£'
+      + chDeficit.toLocaleString() + ' per worker per year</strong> on top of income tax.');
+  } else if (chDeficit > nowDeficit) {
+    lines.push('Today the pension deficit costs each IoM worker approximately <strong>£'
+      + nowDeficit.toLocaleString() + '/year</strong> in extra taxes.'
+      + ' By the time the child generation is mid-career, that rises to <strong>~£'
+      + chDeficit.toLocaleString() + '/year</strong> — before paying a penny toward their own pension.');
+  }
+  if (ch.employ === 'homemaker' || ch.employ === 'private_no') {
+    lines.push('With <strong>' + fmtWk(ch.totalWk) + '/week in retirement</strong> and the NI fund under strain,'
+      + ' the child faces a retirement income well below the median wage'
+      + ' — in a system increasingly funded by their own working taxes.');
+  }
+  document.getElementById('insight').innerHTML =
+    '<div class="insight-text">' + lines.join('<br><br>') + '</div>';
+}
+
+document.getElementById('myGen').addEventListener('change', function() {
+  var myGen   = document.getElementById('myGen').value;
+  var myBirth = parseInt(document.getElementById('myBirth').value) || 1970;
+  cardEmploy[myGen] = document.getElementById('myEmploy').value;
+  var auto = autoDeriveBirths(myGen, myBirth);
+  GEN_ORDER.forEach(function(g) { if (g !== myGen) cardBirth[g] = auto[g]; });
+  renderCards();
+});
+
+document.getElementById('myBirth').addEventListener('input', function() {
+  var myGen   = document.getElementById('myGen').value;
+  var myBirth = parseInt(document.getElementById('myBirth').value) || 1970;
+  var auto = autoDeriveBirths(myGen, myBirth);
+  GEN_ORDER.forEach(function(g) { if (g !== myGen) cardBirth[g] = auto[g]; });
+  renderCards();
+});
+
+function updateDcRateVisibility() {
+  var employ = document.getElementById('myEmploy').value;
+  var wrap   = document.getElementById('dcRateWrap');
+  wrap.style.display = (employ === 'civil') ? 'none' : 'flex';
+}
+
+document.getElementById('myEmploy').addEventListener('change', function() {
+  updateDcRateVisibility();
+  renderCards();
+});
+document.getElementById('dcRate').addEventListener('input', renderCards);
+
+GEN_ORDER.forEach(function(g) { cardEmploy[g] = 'civil'; });
+var _auto = autoDeriveBirths('parent', 1970);
+GEN_ORDER.forEach(function(g) { cardBirth[g] = _auto[g]; });
+updateDcRateVisibility();
+renderCards();
+</script>
+</body>
+</html>

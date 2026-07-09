@@ -600,7 +600,12 @@ function PrivacyHomeTab({ C }) {
 function AboutTab({ C }) {
   const A = ABOUT;
 
+  // Render a paragraph with inline highlights:
+  // *text* → italic (stage directions)
+  // **text** → bold C.text
+  // Specific phrases get special treatment via a find-and-replace pass
   const renderPara = (p, i, extraStyle = {}) => {
+    // Split on bold **x**, italic *x*, and known highlight phrases
     const HIGHLIGHTS = [
       { find: "Making data visible is not a neutral act.",
         render: (k) => <span key={k} style={{ color: C.text, fontWeight: 600 }}>Making data visible is not a neutral act.</span> },
@@ -620,6 +625,7 @@ function AboutTab({ C }) {
         render: (k) => <span key={k} style={{ color: C.muted2, fontStyle: "italic" }}>Mrs Molyneux</span> },
     ];
 
+    // Build a list of segments
     let segments = [p];
     HIGHLIGHTS.forEach(({ find, render }) => {
       segments = segments.flatMap(seg => {
@@ -631,6 +637,7 @@ function AboutTab({ C }) {
       });
     });
 
+    // Handle *italic* within remaining strings
     segments = segments.flatMap((seg, si) => {
       if (typeof seg !== "string") return [seg];
       const parts = seg.split(/(\*[^*]+\*)/g);
@@ -809,24 +816,6 @@ function GovHomeTab({ C, onNavigate }) {
         2002–2023; Guernsey States FTE 2021–22; UK ONS G7G3 1999–2025.`,
         C.blue,
         () => onNavigate("workforce")
-      )}
-
-      {card(
-        "Pension — Demographic Challenge",
-        `How the 45–64 age bulge translates into escalating pension costs. Population pyramid,
-        all-scheme cashflow, and the ratio of active members to pensioners — animated across
-        2021 to 2041.`,
-        C.blue,
-        () => onNavigate("iomPensionChallenge")
-      )}
-
-      {card(
-        "Your Family's Pension Picture",
-        `Three generations. One island. Customise birth year and employment type for grandparent,
-        parent and child — see pension outcomes side by side, the prior levy each working
-        generation carries, and what the NI fund exhaustion means in practice.`,
-        C.blue,
-        () => onNavigate("familyPension")
       )}
 
       <div style={{
@@ -1623,12 +1612,6 @@ function AppContent() {
     ),
     workforce: (
       <AutoIframe src="/public-sector-employment.html" title="Public Sector Employment" theme={themeName} />
-    ),
-    iomPensionChallenge: (
-      <AutoIframe src="/iom_pension_timebomb.html" title="IoM Pension — Demographic Challenge" theme={themeName} />
-    ),
-    familyPension: (
-      <AutoIframe src="/fp.html" title="Your Family's Pension Picture" theme={themeName} />
     ),
     manxBenchmark: (
       <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" theme={themeName} />

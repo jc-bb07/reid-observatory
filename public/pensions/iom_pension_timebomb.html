@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoM Public Sector Pensions — The Demographic Challenge</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
+  --border:rgba(255,255,255,.06);--border2:#334155;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#475569;
+  --blue:#60a5fa;--blue-dim:rgba(96,165,250,0.12);
+  --green:#4ade80;--amber:#fbbf24;--red:#f87171;
+  --input-bg:#1e293b;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body.light{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;
+  --border:rgba(0,0,0,.06);--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--muted2:#475569;
+  --blue:#2563eb;--blue-dim:rgba(37,99,235,0.08);
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;
+  --input-bg:#f1f5f9;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+.shell{max-width:960px;margin:0 auto;padding:20px 20px 48px}
+
+h1{font-size:1.3rem;font-weight:800;color:var(--text);letter-spacing:-0.01em;margin-bottom:3px}
+.sub{font-size:0.78rem;color:var(--muted2);margin-bottom:16px}
+
+.grid{display:grid;grid-template-columns:42% 58%;gap:10px;margin-bottom:12px}
+.panel{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px;display:flex;flex-direction:column}
+.plabel{font-size:0.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.badge-label{background:rgba(251,191,36,.18);color:var(--amber);border-radius:4px;padding:1px 5px;font-size:.6rem}
+/* Chart.js needs position:relative on the wrapper, not the canvas, to fix height */
+.chart-wrap{position:relative;height:280px;width:100%}
+.chart-wrap canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px;text-align:center}
+.sv{font-size:1.45rem;font-weight:800;line-height:1;margin-bottom:5px}
+.sl{font-size:0.66rem;color:var(--muted2);line-height:1.35}
+.red{color:var(--red)}.amber{color:var(--amber)}.green{color:var(--green)}.blue{color:var(--blue)}
+
+.slider-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.yr-box{text-align:center;min-width:62px}
+.yr-num{font-size:2rem;font-weight:800;color:var(--text);line-height:1}
+.yr-lbl{font-size:.62rem;color:var(--muted2);margin-top:3px}
+.range-wrap{flex:1;min-width:160px}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:linear-gradient(to right,#22c55e,#f59e0b,#ef4444);border-radius:3px;outline:none;cursor:pointer;margin-bottom:5px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+.marks{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted2)}
+.btns{display:flex;gap:6px}
+button{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:6px 14px;font-size:.72rem;cursor:pointer;font-weight:600;transition:background .15s}
+button:hover{background:var(--border2)}
+button.active{background:rgba(239,68,68,.2);border-color:#ef4444;color:var(--red)}
+.proj-note{font-size:.65rem;color:var(--muted2);text-align:right;min-width:90px}
+
+.legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:.67rem;color:var(--muted)}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+.note{font-size:.64rem;color:var(--muted2);line-height:1.6;margin-top:8px}
+
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .chart-wrap{height:220px}
+  .slider-wrap{flex-direction:column;align-items:stretch}
+  .yr-box{text-align:left}
+}
+</style>
+</head>
+<body class="light">
+
+<div class="shell">
+
+<h1>🏝️ IoM Public Sector Pensions — The Demographic Challenge</h1>
+<div class="sub">Drag the slider (or press Play) to see how the 45–64 age bulge translates into escalating pension costs. Projections are illustrative.</div>
+
+<div class="grid">
+  <div class="panel">
+    <div class="plabel">Population by age — Isle of Man</div>
+    <div class="chart-wrap"><canvas id="pyrC"></canvas></div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:#4ade80"></div>Under 45</div>
+      <div class="li"><div class="ld" style="background:#fbbf24"></div>45–64 (the wave)</div>
+      <div class="li"><div class="ld" style="background:#f87171"></div>65+ (pension age)</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="plabel">All-scheme pension cashflow (£m) <span class="badge-label">Projection from FY25-26</span></div>
+    <div class="chart-wrap"><canvas id="finC"></canvas></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="sv amber" id="sApproaching">~2,300</div>
+    <div class="sl">Gov. workers aged 55–64 approaching retirement</div>
+  </div>
+  <div class="stat">
+    <div class="sv red" id="sRatio">1.59:1</div>
+    <div class="sl">GUS active members per pensioner (healthy = 2:1+)</div>
+  </div>
+  <div class="stat">
+    <div class="sv red" id="sNet">£48m</div>
+    <div class="sl">Annual net pension cost to taxpayers</div>
+  </div>
+  <div class="stat">
+    <div class="sv amber" id="sGross">£143m</div>
+    <div class="sl">Total gross pension payments (all schemes)</div>
+  </div>
+</div>
+
+<div class="slider-wrap">
+  <div class="yr-box">
+    <div class="yr-num" id="yrDisp">2024</div>
+    <div class="yr-lbl">Year</div>
+  </div>
+  <div class="range-wrap">
+    <input type="range" id="slider" min="2021" max="2041" value="2024" step="1">
+    <div class="marks"><span>2021</span><span>2025</span><span>2030</span><span>2035</span><span>2041</span></div>
+  </div>
+  <div class="btns">
+    <button id="playBtn">▶ Play</button>
+    <button id="resetBtn">↺ Reset</button>
+  </div>
+  <div class="proj-note" id="projNote">Historical data</div>
+</div>
+
+<div class="note">
+  * FY23-24 gross payments estimated; FY24-25 confirmed from PSPA Annual Report 2024-25 (gross £143.3m, contributions £95.2m, net deficit £48.1m).
+  Projections assume 6.5%/yr pension payment growth and 4%/yr contribution growth — illustrative only.
+  GUS active:pensioner ratio projects pensioners growing 3.5%/yr. Source: IoMG Workforce Quarterly Reports; PSPA Annual Reports; Light Blue Books; Statistics IoM Census 2021.
+  Analysis: Coalfinch Observatory.
+</div>
+
+</div><!-- /.shell -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// Theme listener
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'theme') {
+    document.body.classList.toggle('light', !e.data.dark);
+  }
+});
+
+const BANDS=['85+','80–84','75–79','70–74','65–69','60–64','55–59','50–54','45–49','40–44','35–39','30–34','25–29','20–24','15–19','10–14','5–9','0–4'];
+const POP2021_RAW=[3483,4245,4786,4448,4309,4364,4741,4954,5242,5798,6648,6713,5769,4898,5156,3671,2489,2355];
+const SURV5=[.998,.999,.999,.997,.995,.993,.992,.990,.985,.974,.958,.932,.896,.837,.735,.598,.438];
+const MIG5=[200,0,0,180,-90,400,800,890,480,350,305,42,52,-168,132,60,24,0];
+
+function shiftPop(p){
+  const n=new Array(18).fill(0);
+  n[0]=3400;
+  for(let i=1;i<=16;i++) n[i]=Math.round(p[i-1]*SURV5[i-1]);
+  n[17]=Math.round(p[16]*SURV5[16]+p[17]*0.30);
+  for(let i=0;i<18;i++) n[i]=Math.max(0,n[i]+(MIG5[i]||0));
+  return n;
+}
+
+const SNAPS={2021:[...POP2021_RAW]};
+for(let y=2026;y<=2041;y+=5) SNAPS[y]=shiftPop(SNAPS[y-5]);
+
+function getPop(year){
+  const keys=Object.keys(SNAPS).map(Number).sort((a,b)=>a-b);
+  const lo=keys.filter(k=>k<=year).pop()||2021;
+  const hi=keys.filter(k=>k>=year)[0]||2041;
+  if(lo===hi) return SNAPS[lo];
+  const t=(year-lo)/(hi-lo);
+  return SNAPS[lo].map((v,i)=>Math.round(v+t*(SNAPS[hi][i]-v)));
+}
+
+const HIST=[
+  {fy:'FY16-17',yr:2017,gross:91.3, contrib:59.8,psepr:31.5,net:0},
+  {fy:'FY17-18',yr:2018,gross:98.6, contrib:62.8,psepr:35.8,net:0},
+  {fy:'FY18-19',yr:2019,gross:100.1,contrib:66.8,psepr:33.3,net:0},
+  {fy:'FY19-20',yr:2020,gross:100.9,contrib:68.8,psepr:32.0,net:0},
+  {fy:'FY20-21',yr:2021,gross:111.5,contrib:72.5,psepr:39.0,net:0},
+  {fy:'FY21-22',yr:2022,gross:113.6,contrib:74.7,psepr:38.9,net:0},
+  {fy:'FY22-23',yr:2023,gross:120.2,contrib:83.2,psepr:8.3, net:28.7},
+  {fy:'FY23-24',yr:2024,gross:127.0,contrib:86.4,psepr:0.05,net:40.6},
+  {fy:'FY24-25',yr:2025,gross:143.3,contrib:95.2,psepr:0,   net:48.1},
+];
+const PROJ=[];
+let g=143.3,c=95.2;
+for(let i=0;i<16;i++){
+  const yr=2026+i;
+  g=Math.round(g*1.065*10)/10;
+  c=Math.round(c*1.040*10)/10;
+  PROJ.push({fy:`FY${String(yr-1).slice(-2)}-${String(yr).slice(-2)}`,yr,gross:g,contrib:c,psepr:0,net:Math.round((g-c)*10)/10,isProj:true});
+}
+const ALL=[...HIST,...PROJ];
+const HC=HIST.length;
+
+const GUS={};
+[[2018,9536,5784],[2019,9744,5957],[2020,10287,6229],[2021,9879,6340],
+ [2022,10083,6595],[2023,10493,6835],[2024,10854,6835]].forEach(([y,a,p])=>GUS[y]={a,p});
+let pa=10854,pp=6835;
+for(let y=2025;y<=2041;y++){pa=Math.round(pa*1.005);pp=Math.round(pp*1.035);GUS[y]={a:pa,p:pp};}
+
+const pyrCtx=document.getElementById('pyrC').getContext('2d');
+let pyrChart=null;
+
+function pyrColor(bandIdxFromTop){
+  const raw=17-bandIdxFromTop;
+  if(raw>=13) return 'rgba(248,113,113,0.82)';
+  if(raw>=9)  return 'rgba(251,191,36,0.85)';
+  return 'rgba(74,222,128,0.72)';
+}
+
+function getTickColor(){
+  return document.body.classList.contains('light') ? '#94a3b8' : '#475569';
+}
+function getGridColor(){
+  return document.body.classList.contains('light') ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,0.05)';
+}
+
+function buildPyramid(year){
+  const pop=getPop(year);
+  const rev=[...pop].reverse();
+  const colors=rev.map((_,i)=>pyrColor(i));
+  if(pyrChart){
+    pyrChart.data.datasets[0].data=rev;
+    pyrChart.data.datasets[0].backgroundColor=colors;
+    pyrChart.options.scales.x.ticks.color=getTickColor();
+    pyrChart.options.scales.x.grid.color=getGridColor();
+    pyrChart.options.scales.y.ticks.color=getTickColor();
+    pyrChart.update('none');
+  } else {
+    pyrChart=new Chart(pyrCtx,{
+      type:'bar',
+      data:{labels:BANDS,datasets:[{data:rev,backgroundColor:colors,borderRadius:2,borderSkipped:false}]},
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:(i)=>`${i.raw.toLocaleString()} people`},backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1}},
+        scales:{
+          x:{ticks:{color:getTickColor(),font:{size:9},callback:v=>v>=1000?`${(v/1000).toFixed(0)}k`:v},grid:{color:getGridColor()}},
+          y:{ticks:{color:getTickColor(),font:{size:9}},grid:{display:false}}
+        },
+        animation:{duration:220}
+      }
+    });
+  }
+}
+
+function mkBg(arr,hc,pc){return arr.map((_,i)=>i<HC?hc:pc);}
+
+const finChart=new Chart(document.getElementById('finC').getContext('2d'),{
+  type:'bar',
+  data:{
+    labels:ALL.map(d=>d.fy),
+    datasets:[
+      {label:'Contributions received',data:ALL.map(d=>d.contrib),backgroundColor:mkBg(ALL,'rgba(74,222,128,0.75)','rgba(74,222,128,0.28)'),stack:'s',order:3},
+      {label:'PSEPR buffer drawdown',data:ALL.map(d=>d.psepr),backgroundColor:mkBg(ALL,'rgba(251,191,36,0.75)','rgba(251,191,36,0.2)'),stack:'s',order:2},
+      {label:'Net cost to taxpayers',data:ALL.map(d=>d.net),backgroundColor:mkBg(ALL,'rgba(248,113,113,0.88)','rgba(248,113,113,0.45)'),stack:'s',order:1},
+      {type:'line',label:'Gross payments',data:ALL.map(d=>d.gross),borderColor:mkBg(ALL,'rgba(226,232,240,0.8)','rgba(226,232,240,0.3)'),backgroundColor:'transparent',pointRadius:0,borderWidth:1.5,order:0},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#64748b',font:{size:9},boxWidth:10,padding:10}},
+      tooltip:{callbacks:{title:([i])=>ALL[i.dataIndex].fy+(ALL[i.dataIndex].isProj?' (projected)':''),label:(i)=>` ${i.dataset.label}: £${(+i.raw).toFixed(1)}m`},backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1}
+    },
+    scales:{
+      x:{stacked:true,ticks:{color:'#334155',font:{size:7.5},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
+      y:{stacked:true,max:430,ticks:{color:'#475569',font:{size:9},callback:v=>`£${v}m`},grid:{color:'rgba(255,255,255,0.06)'}}
+    },
+    animation:{duration:200}
+  },
+  plugins:[{
+    id:'curLine',
+    afterDraw(chart){
+      const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
+      if(chart._ci==null) return;
+      const xp=x.getPixelForValue(chart._ci);
+      ctx.save();ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=9;
+      ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();ctx.restore();
+    }
+  },{
+    id:'pseprMark',
+    afterDraw(chart){
+      const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
+      const xp=x.getPixelForValue(5.5);
+      ctx.save();ctx.strokeStyle='rgba(248,113,113,0.55)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();ctx.restore();
+      ctx.save();ctx.fillStyle='rgba(248,113,113,0.65)';ctx.font='9px -apple-system,sans-serif';
+      ctx.fillText('PSEPR exhausted →',xp+5,top+13);ctx.restore();
+    }
+  }]
+});
+
+function updateStats(year){
+  const pop=getPop(year);
+  const nr=pop[11]+pop[12];
+  document.getElementById('sApproaching').textContent=`~${Math.round(nr*0.091).toLocaleString()}`;
+  const gu=GUS[Math.min(year,2041)]||GUS[2041];
+  const ratio=(gu.a/gu.p).toFixed(2);
+  const re=document.getElementById('sRatio');
+  re.textContent=ratio+':1';re.className='sv '+(ratio>=2?'green':ratio>=1.4?'amber':'red');
+  const fd=ALL.find(d=>d.yr===year+1)||ALL[ALL.length-1];
+  document.getElementById('sNet').textContent=fd.net>0?`£${fd.net.toFixed(0)}m`:'—';
+  document.getElementById('sGross').textContent=`£${fd.gross.toFixed(0)}m`;
+  const idx=ALL.findIndex(d=>d.yr===year+1);
+  finChart._ci=idx>=0?idx:null;finChart.draw();
+  const pn=document.getElementById('projNote');
+  if(year>=2026){pn.textContent='⚠ Projection';pn.style.color='#fbbf24';}
+  else if(year>=2024){pn.textContent='~ Estimated';pn.style.color='#fb923c';}
+  else{pn.textContent='Historical';pn.style.color='';}
+}
+
+const slider=document.getElementById('slider');
+const yrDisp=document.getElementById('yrDisp');
+let playTimer=null;
+
+function setYear(y){
+  slider.value=y;yrDisp.textContent=y;
+  buildPyramid(y);updateStats(y);
+}
+
+slider.addEventListener('input',()=>setYear(parseInt(slider.value)));
+
+document.getElementById('playBtn').addEventListener('click',function(){
+  if(playTimer){clearInterval(playTimer);playTimer=null;this.textContent='▶ Play';this.classList.remove('active');return;}
+  this.textContent='⏸ Pause';this.classList.add('active');
+  let y=parseInt(slider.value);if(y>=2041) y=2021;setYear(y);
+  playTimer=setInterval(()=>{
+    y++;
+    if(y>2041){clearInterval(playTimer);playTimer=null;document.getElementById('playBtn').textContent='▶ Play';document.getElementById('playBtn').classList.remove('active');return;}
+    setYear(y);
+  },220);
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(playTimer){clearInterval(playTimer);playTimer=null;document.getElementById('playBtn').textContent='▶ Play';document.getElementById('playBtn').classList.remove('active');}
+  setYear(2021);
+});
+
+setYear(2024);
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { background: #0a0f1e; margin: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
+  svg { display: block; }
+  .note { position: absolute; background: #1e2d4d; border: 1px solid #334155; border-radius: 6px;
+          color: #94a3b8; font-size: 11px; padding: 8px 12px; max-width: 220px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1100 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;min-height:540px">
+<defs>
+  <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+    <path d="M0,0 L6,3 L0,6Z" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="1100" height="560" fill="#0a0f1e"/>
+
+<!-- ── COLUMN HEADER LABELS ─────────────────────────────────────────────────── -->
+<text x="52"  y="18" text-anchor="middle" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1.2">REVENUE SOURCES</text>
+<text x="170" y="18" text-anchor="middle" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1.2">ACCOUNTS</text>
+<text x="310" y="18" text-anchor="middle" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1.2">DEPARTMENTS</text>
+<text x="470" y="18" text-anchor="middle" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1.2">EXPENDITURE</text>
+<text x="640" y="18" text-anchor="middle" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1.2">ACCOUNTS</text>
+<text x="820" y="18" text-anchor="middle" font-size="7" font-weight="700" fill="#64748b" letter-spacing="1.2">PAY &amp; BENEFITS</text>
+
+<!-- column 0 guide line -->
+<line x1="52" y1="22" x2="52" y2="548" stroke="#1e2d4d" stroke-width="1" stroke-dasharray="2,4"/>
+<!-- column 1 guide -->
+<line x1="170" y1="22" x2="170" y2="548" stroke="#1e2d4d" stroke-width="1" stroke-dasharray="2,4"/>
+<!-- column 3 guide -->
+<line x1="310" y1="22" x2="310" y2="548" stroke="#1e2d4d" stroke-width="1" stroke-dasharray="2,4"/>
+<!-- column 4 guide -->
+<line x1="470" y1="22" x2="470" y2="548" stroke="#1e2d4d" stroke-width="1" stroke-dasharray="2,4"/>
+<!-- column 5 guide -->
+<line x1="640" y1="22" x2="640" y2="548" stroke="#1e2d4d" stroke-width="1" stroke-dasharray="2,4"/>
+<!-- column 6 guide -->
+<line x1="820" y1="22" x2="820" y2="548" stroke="#1e2d4d" stroke-width="1" stroke-dasharray="2,4"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COL 0 — REVENUE SOURCES
+════════════════════════════════════════════════════════════════════════════ -->
+<!-- Customs & Excise -->
+<rect x="44" y="28" width="16" height="68" rx="2" fill="#f97316" opacity="0.9"/>
+<text x="42" y="57" text-anchor="end" font-size="9" fill="#cbd5e1" dominant-baseline="middle">Customs &amp; Excise</text>
+<text x="42" y="68" text-anchor="end" font-size="8" fill="#94a3b8" dominant-baseline="middle" font-family="monospace">£481m</text>
+
+<!-- Income Tax -->
+<rect x="44" y="100" width="16" height="62" rx="2" fill="#fb923c" opacity="0.9"/>
+<text x="42" y="126" text-anchor="end" font-size="9" fill="#cbd5e1" dominant-baseline="middle">Income Tax</text>
+<text x="42" y="137" text-anchor="end" font-size="8" fill="#94a3b8" dominant-baseline="middle" font-family="monospace">£358m</text>
+
+<!-- National Insurance -->
+<rect x="44" y="166" width="16" height="54" rx="2" fill="#fdba74" opacity="0.9"/>
+<text x="42" y="189" text-anchor="end" font-size="9" fill="#cbd5e1" dominant-baseline="middle">Nat. Insurance</text>
+<text x="42" y="200" text-anchor="end" font-size="8" fill="#94a3b8" dominant-baseline="middle" font-family="monospace">£303m</text>
+
+<!-- Other Treasury -->
+<rect x="44" y="224" width="16" height="6" rx="2" fill="#94a3b8" opacity="0.9"/>
+<text x="42" y="227" text-anchor="end" font-size="8" fill="#94a3b8" dominant-baseline="middle">Other</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COL 1 — REVENUE ACCOUNTS (GRA + NI Fund + Reserve Fund as stocks)
+     NEW: Reserve Fund moves here as a revenue-side stock
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- GRA node -->
+<rect x="162" y="28" width="16" height="128" rx="2" fill="#C9A24A" opacity="0.9"/>
+<text x="160" y="82" text-anchor="end" font-size="10" fill="#C9A24A" font-weight="700" dominant-baseline="middle">GRA</text>
+<text x="160" y="94" text-anchor="end" font-size="8" fill="#e2e8f0" dominant-baseline="middle" font-family="monospace">£1,147m</text>
+
+<!-- NI Fund node — beaker style with fill level -->
+<rect x="162" y="166" width="16" height="54" rx="2" fill="#1a2e1a" stroke="#fdba74" stroke-width="1"/>
+<rect x="163" y="178" width="14" height="41" rx="1" fill="#fdba74" opacity="0.72"/>
+<text x="160" y="184" text-anchor="end" font-size="9" fill="#fdba74" font-weight="700" dominant-baseline="middle">NI Fund</text>
+<text x="160" y="196" text-anchor="end" font-size="8" fill="#e2e8f0" dominant-baseline="middle" font-family="monospace">£993m</text>
+
+<!-- Reserve Fund node — NEW position in c1, below NI Fund -->
+<rect x="162" y="226" width="16" height="52" rx="2" fill="#1a3327" stroke="#4ade80" stroke-width="1" stroke-dasharray="4,3"/>
+<rect x="163" y="240" width="14" height="37" rx="1" fill="#4ade80" opacity="0.65"/>
+<text x="160" y="245" text-anchor="end" font-size="9" fill="#4ade80" font-weight="700" dominant-baseline="middle">Reserve</text>
+<text x="160" y="256" text-anchor="end" font-size="9" fill="#4ade80" font-weight="700" dominant-baseline="middle">Fund</text>
+<text x="160" y="267" text-anchor="end" font-size="8" fill="#e2e8f0" dominant-baseline="middle" font-family="monospace">£596m</text>
+
+<!-- NEW badge -->
+<rect x="180" y="226" width="26" height="10" rx="3" fill="#4ade8033"/>
+<text x="193" y="232" text-anchor="middle" font-size="6.5" fill="#4ade80" font-weight="700" dominant-baseline="middle">MOVED</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COL 3 — DEPARTMENTS
+════════════════════════════════════════════════════════════════════════════ -->
+<rect x="302" y="28"  width="16" height="104" rx="2" fill="#2dd4bf" opacity="0.85"/>
+<text x="320" y="76" text-anchor="start" font-size="9" fill="#2dd4bf" dominant-baseline="middle" dx="5">Health &amp; Care</text>
+
+<rect x="302" y="136" width="16" height="62" rx="2" fill="#60a5fa" opacity="0.85"/>
+<text x="320" y="163" text-anchor="start" font-size="9" fill="#60a5fa" dominant-baseline="middle" dx="5">Education</text>
+
+<rect x="302" y="202" width="16" height="40" rx="2" fill="#818cf8" opacity="0.85"/>
+<text x="320" y="218" text-anchor="start" font-size="9" fill="#818cf8" dominant-baseline="middle" dx="5">Infrastructure</text>
+
+<rect x="302" y="246" width="16" height="80" rx="2" fill="#c084fc" opacity="0.85"/>
+<text x="320" y="282" text-anchor="start" font-size="9" fill="#c084fc" dominant-baseline="middle" dx="5">Social Security</text>
+
+<rect x="302" y="330" width="16" height="10" rx="2" fill="#34d399" opacity="0.85"/>
+<rect x="302" y="344" width="16" height="20" rx="2" fill="#C9A24A" opacity="0.85"/>
+<rect x="302" y="368" width="16" height="40" rx="2" fill="#64748b" opacity="0.85"/>
+<text x="320" y="384" text-anchor="start" font-size="8" fill="#64748b" dominant-baseline="middle" dx="5">Other Gov</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COL 4 — EXPENDITURE TYPES
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Employee Costs (dept-coloured stacked) -->
+<rect x="462" y="28"  width="16" height="40" rx="0" fill="#2dd4bf" opacity="0.8"/>
+<rect x="462" y="68"  width="16" height="24" rx="0" fill="#60a5fa" opacity="0.8"/>
+<rect x="462" y="92"  width="16" height="16" rx="0" fill="#818cf8" opacity="0.8"/>
+<rect x="462" y="108" width="16" height="10" rx="0" fill="#34d399" opacity="0.8"/>
+<rect x="462" y="118" width="16" height="6"  rx="0" fill="#C9A24A" opacity="0.8"/>
+<rect x="462" y="124" width="16" height="16" rx="2" fill="#64748b" opacity="0.8"/>
+<!-- EC label -->
+<text x="480" y="72" text-anchor="start" font-size="9.5" fill="#f59e0b" font-weight="700" dominant-baseline="middle" dx="5">Employee Costs</text>
+<text x="480" y="84" text-anchor="start" font-size="8" fill="#94a3b8" dominant-baseline="middle" dx="5" font-family="monospace">£614m</text>
+
+<!-- Social Security -->
+<rect x="462" y="150" width="16" height="80" rx="2" fill="#c084fc" opacity="0.85"/>
+<text x="480" y="186" text-anchor="start" font-size="9" fill="#c084fc" dominant-baseline="middle" dx="5">Social Security</text>
+<text x="480" y="197" text-anchor="start" font-size="8" fill="#94a3b8" dominant-baseline="middle" dx="5" font-family="monospace">£416m</text>
+
+<!-- Supplies & Services -->
+<rect x="462" y="234" width="16" height="46" rx="2" fill="#10b981" opacity="0.75"/>
+<text x="480" y="253" text-anchor="start" font-size="9" fill="#10b981" dominant-baseline="middle" dx="5">Supplies &amp; Services</text>
+
+<!-- Agency & Contracted -->
+<rect x="462" y="284" width="16" height="24" rx="2" fill="#e879f9" opacity="0.75"/>
+<text x="480" y="293" text-anchor="start" font-size="9" fill="#e879f9" dominant-baseline="middle" dx="5">Agency &amp; Contracted</text>
+
+<!-- Infrastructure -->
+<rect x="462" y="312" width="16" height="18" rx="2" fill="#6366f1" opacity="0.75"/>
+<text x="480" y="318" text-anchor="start" font-size="9" fill="#6366f1" dominant-baseline="middle" dx="5">Infrastructure</text>
+
+<!-- Loan & Other -->
+<rect x="462" y="334" width="16" height="14" rx="2" fill="#475569" opacity="0.75"/>
+
+<!-- CFR Transfer -->
+<rect x="462" y="358" width="16" height="10" rx="2" fill="#fbbf24" opacity="0.85"/>
+<text x="480" y="364" text-anchor="start" font-size="8.5" fill="#fbbf24" dominant-baseline="middle" dx="5">CFR Transfer</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COL 5 — ACCOUNTS (spending side: PSPER + Capital Reserve only)
+     Reserve Fund has moved to c1
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- PSPER — sits BELOW where EC+SS ribbons pass through; above Capital Reserve -->
+<!-- EC active pay goes straight to c6, pension goes to PSPER here -->
+<!-- SS goes straight to c6, PSPER is retiree pension reserve -->
+<rect x="632" y="310" width="16" height="38" rx="2" fill="#fb7185" stroke="#fb7185" stroke-width="1" stroke-dasharray="5,3" opacity="0.35"/>
+<!-- PSPER fill (depleted by FY2025) -->
+<text x="630" y="310" text-anchor="end" font-size="9" fill="#fb7185" font-weight="700" dominant-baseline="hanging">PSPER</text>
+<text x="630" y="322" text-anchor="end" font-size="8" fill="#94a3b8" dominant-baseline="hanging" font-family="monospace">£0 exhausted</text>
+<text x="630" y="333" text-anchor="end" font-size="7" fill="#f87171" dominant-baseline="hanging">Retired Civil Servants</text>
+
+<!-- PSPER balance indicator note -->
+<rect x="650" y="310" width="36" height="38" rx="2" fill="#fb718511" stroke="#fb7185" stroke-width="0.5" stroke-dasharray="3,2"/>
+<text x="668" y="321" text-anchor="middle" font-size="7" fill="#fb7185" dominant-baseline="middle" font-weight="700">£0</text>
+<text x="668" y="332" text-anchor="middle" font-size="6" fill="#f87171" dominant-baseline="middle">FY2025</text>
+<text x="668" y="342" text-anchor="middle" font-size="6" fill="#64748b" dominant-baseline="middle">exhausted</text>
+
+<!-- Capital Reserve — bottom aligns with bottom of CFR Transfer (y=368) -->
+<rect x="632" y="348" width="16" height="20" rx="2" fill="#2e2510" stroke="#fbbf24" stroke-width="1"/>
+<rect x="633" y="357" width="14" height="10" rx="1" fill="#fbbf24" opacity="0.65"/>
+<text x="630" y="353" text-anchor="end" font-size="9" fill="#fbbf24" font-weight="700" dominant-baseline="middle">Capital</text>
+<text x="630" y="363" text-anchor="end" font-size="9" fill="#fbbf24" font-weight="700" dominant-baseline="middle">Reserve</text>
+<text x="650" y="358" text-anchor="start" font-size="8" fill="#94a3b8" dominant-baseline="middle" dx="4" font-family="monospace">£25m</text>
+
+<!-- Alignment note: CFR bottom = CR bottom (y=368) -->
+<line x1="478" y1="368" x2="686" y2="368" stroke="#fbbf24" stroke-width="0.5" stroke-dasharray="3,4" opacity="0.4"/>
+<text x="560" y="374" text-anchor="middle" font-size="6" fill="#fbbf2466">aligned bottom</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COL 6 — PAY & BENEFITS (dept-coloured breakdown)
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Employee Active Pay — flows straight from c4 top, dept colours -->
+<rect x="812" y="28"  width="16" height="26" rx="0" fill="#2dd4bf" opacity="0.75"/>
+<rect x="812" y="54"  width="16" height="16" rx="0" fill="#60a5fa" opacity="0.75"/>
+<rect x="812" y="70"  width="16" height="10" rx="0" fill="#818cf8" opacity="0.75"/>
+<rect x="812" y="80"  width="16" height="7"  rx="0" fill="#34d399" opacity="0.75"/>
+<rect x="812" y="87"  width="16" height="4"  rx="0" fill="#C9A24A" opacity="0.75"/>
+<rect x="812" y="91"  width="16" height="10" rx="2" fill="#64748b" opacity="0.75"/>
+<!-- Net wages label -->
+<text x="830" y="55" text-anchor="start" font-size="9" fill="#fcd34d" font-weight="700" dominant-baseline="middle" dx="5">Net Wages</text>
+<text x="830" y="66" text-anchor="start" font-size="8" fill="#94a3b8" dominant-baseline="middle" dx="5" font-family="monospace">£~250m</text>
+
+<!-- PAYE -->
+<rect x="812" y="107" width="16" height="20" rx="2" fill="#fb923c" opacity="0.8"/>
+<text x="830" y="117" text-anchor="start" font-size="8.5" fill="#fb923c" dominant-baseline="middle" dx="5">PAYE (Income Tax) ᵉˢᵗ</text>
+
+<!-- Employee NI -->
+<rect x="812" y="131" width="16" height="12" rx="2" fill="#fdba74" opacity="0.8"/>
+<text x="830" y="137" text-anchor="start" font-size="8.5" fill="#fdba74" dominant-baseline="middle" dx="5">Employee NI ᵉˢᵗ</text>
+
+<!-- Emp Pension Contributions -->
+<rect x="812" y="147" width="16" height="14" rx="2" fill="#5eead4" opacity="0.8"/>
+<text x="830" y="154" text-anchor="start" font-size="8.5" fill="#5eead4" dominant-baseline="middle" dx="5">Emp. Pension Contr.</text>
+
+<!-- Employer NI -->
+<rect x="812" y="165" width="16" height="11" rx="2" fill="#f97316" opacity="0.8"/>
+<text x="830" y="171" text-anchor="start" font-size="8.5" fill="#f97316" dominant-baseline="middle" dx="5">Employer NI</text>
+
+<!-- Employer Pension/Super -->
+<rect x="812" y="180" width="16" height="14" rx="2" fill="#2dd4bf" opacity="0.8"/>
+<text x="830" y="187" text-anchor="start" font-size="8.5" fill="#2dd4bf" dominant-baseline="middle" dx="5">Employer Pension</text>
+
+<!-- gap -->
+
+<!-- Social Security items — dept-coloured? or NI/GRA split colours -->
+<rect x="812" y="208" width="16" height="12" rx="2" fill="#fdba74" opacity="0.7"/>
+<rect x="812" y="222" width="16" height="8"  rx="2" fill="#fdba74" opacity="0.55"/>
+<rect x="812" y="232" width="16" height="5"  rx="2" fill="#fdba74" opacity="0.4"/>
+<rect x="812" y="241" width="16" height="4"  rx="2" fill="#C9A24A" opacity="0.65"/>
+<rect x="812" y="248" width="16" height="4"  rx="2" fill="#C9A24A" opacity="0.5"/>
+<text x="830" y="215" text-anchor="start" font-size="8" fill="#fdba74" dominant-baseline="middle" dx="5">State Pension (NI)</text>
+<text x="830" y="226" text-anchor="start" font-size="8" fill="#fdba74" dominant-baseline="middle" dx="5">Manx State Pension (NI)</text>
+<text x="830" y="237" text-anchor="start" font-size="8" fill="#fdba74" dominant-baseline="middle" dx="5">NI Benefits…</text>
+<text x="830" y="247" text-anchor="start" font-size="8" fill="#C9A24A" dominant-baseline="middle" dx="5">Income Support (GRA)</text>
+<text x="830" y="256" text-anchor="start" font-size="8" fill="#C9A24A" dominant-baseline="middle" dx="5">Other GRA benefits…</text>
+
+<!-- Retiree Pensions — flows from PSPER in c5 -->
+<rect x="812" y="310" width="16" height="38" rx="2" fill="#fb7185" opacity="0.75"/>
+<text x="830" y="325" text-anchor="start" font-size="9" fill="#fb7185" font-weight="700" dominant-baseline="middle" dx="5">Retiree Pensions</text>
+<text x="830" y="337" text-anchor="start" font-size="8" fill="#94a3b8" dominant-baseline="middle" dx="5" font-family="monospace">£143m</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     RIBBONS / FLOWS
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Rev → GRA (aggregate ribbon, gold) -->
+<path d="M60,62 C115,62 116,82 162,82" fill="none" stroke="#C9A24A" stroke-width="8" opacity="0.25"/>
+<path d="M60,126 C115,126 116,82 162,82" fill="none" stroke="#C9A24A" stroke-width="7" opacity="0.20"/>
+<!-- NI → NI Fund -->
+<path d="M60,193 C115,193 115,193 162,193" fill="none" stroke="#fdba74" stroke-width="8" opacity="0.30"/>
+
+<!-- GRA → depts (multiple, simplified) -->
+<path d="M178,75 C240,75 240,76 302,76" fill="none" stroke="#C9A24A" stroke-width="5" opacity="0.20"/>
+<path d="M178,89 C240,150 240,162 302,162" fill="none" stroke="#60a5fa" stroke-width="5" opacity="0.25"/>
+
+<!-- Depts → Employee Costs (c3→c4), dept colours -->
+<path d="M318,76  C390,76  390,58  462,58"  fill="none" stroke="#2dd4bf" stroke-width="11" opacity="0.22"/>
+<path d="M318,163 C390,163 390,80  462,80"  fill="none" stroke="#60a5fa" stroke-width="7"  opacity="0.22"/>
+<path d="M318,218 C390,218 390,100 462,100" fill="none" stroke="#818cf8" stroke-width="4"  opacity="0.22"/>
+
+<!-- Depts → Social Security (c3→c4) -->
+<path d="M318,282 C390,282 390,186 462,186" fill="none" stroke="#c084fc" stroke-width="22" opacity="0.20"/>
+
+<!-- Employee Costs → ACTIVE PAY in c6 (passes over c5, goes straight to c6) -->
+<!-- This is the KEY flow: EC top portion goes RIGHT to c6 bypassing c5 -->
+<path d="M478,60 C600,60 600,60 812,60" fill="none" stroke="#f59e0b" stroke-width="18" opacity="0.13"/>
+<text x="600" y="52" text-anchor="middle" font-size="7" fill="#f59e0b" opacity="0.7">Active pay → straight to c6</text>
+
+<!-- Employee Costs → PSPER in c5 (pension portion drops DOWN from bottom of EC) -->
+<path d="M478,135 C580,135 580,328 632,328" fill="none" stroke="#fb7185" stroke-width="6" opacity="0.30"/>
+<text x="530" y="210" text-anchor="middle" font-size="7" fill="#fb7185" opacity="0.8">pension contr.</text>
+<text x="530" y="220" text-anchor="middle" font-size="7" fill="#fb7185" opacity="0.8">flows DOWN to PSPER</text>
+
+<!-- GRA → PSPER top-up (long gold ribbon from c1 to c5) -->
+<path d="M178,148 C400,148 400,329 632,329" fill="none" stroke="#C9A24A" stroke-width="3" opacity="0.22"/>
+<text x="395" y="260" text-anchor="start" font-size="6.5" fill="#C9A24A" opacity="0.8">GRA top-up</text>
+
+<!-- PSPER → Retiree Pensions in c6 -->
+<path d="M648,329 C730,329 730,329 812,329" fill="none" stroke="#fb7185" stroke-width="10" opacity="0.28"/>
+
+<!-- Social Security → SS breakdown in c6 (straight, purple) -->
+<path d="M478,186 C600,186 600,232 812,232" fill="none" stroke="#c084fc" stroke-width="20" opacity="0.15"/>
+
+<!-- CFR Transfer → Capital Reserve in c5 (aligned bottom) -->
+<path d="M478,363 C555,363 555,358 632,358" fill="none" stroke="#fbbf24" stroke-width="4" opacity="0.40"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     ANNOTATION CALLOUTS
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Annotation: Reserve Fund in c1 -->
+<rect x="195" y="205" width="110" height="36" rx="4" fill="#0f1e0f" stroke="#4ade80" stroke-width="0.8"/>
+<text x="250" y="217" text-anchor="middle" font-size="7.5" fill="#4ade80" font-weight="700" dominant-baseline="middle">Reserve Fund moves to c1</text>
+<text x="250" y="228" text-anchor="middle" font-size="7" fill="#64748b" dominant-baseline="middle">Revenue-side stock — GRA surplus</text>
+<text x="250" y="238" text-anchor="middle" font-size="7" fill="#64748b" dominant-baseline="middle">fills it; it's a GRA buffer</text>
+
+<!-- Annotation: No drill button -->
+<rect x="390" y="394" width="130" height="28" rx="4" fill="#1a0a0a" stroke="#f87171" stroke-width="0.8"/>
+<text x="455" y="404" text-anchor="middle" font-size="7.5" fill="#f87171" font-weight="700" dominant-baseline="middle">No "Detail" button needed</text>
+<text x="455" y="414" text-anchor="middle" font-size="7" fill="#64748b" dominant-baseline="middle">All 6 cols always visible</text>
+
+<!-- Annotation: Dept colours in c6 -->
+<rect x="835" y="28" width="130" height="36" rx="4" fill="#0a1020" stroke="#60a5fa" stroke-width="0.8"/>
+<text x="900" y="40" text-anchor="middle" font-size="7.5" fill="#60a5fa" font-weight="700" dominant-baseline="middle">Dept colours flow through</text>
+<text x="900" y="51" text-anchor="middle" font-size="7" fill="#64748b" dominant-baseline="middle">c3 → c4 → c6 (active pay</text>
+<text x="900" y="60" text-anchor="middle" font-size="7" fill="#64748b" dominant-baseline="middle">stacked by department)</text>
+
+<!-- Annotation: PSPER position -->
+<rect x="657" y="278" width="145" height="28" rx="4" fill="#1a0a10" stroke="#fb7185" stroke-width="0.8"/>
+<text x="729" y="289" text-anchor="middle" font-size="7.5" fill="#fb7185" font-weight="700" dominant-baseline="middle">PSPER below EC &amp; SS ribbons</text>
+<text x="729" y="299" text-anchor="middle" font-size="7" fill="#64748b" dominant-baseline="middle">above Capital Reserve</text>
+
+<!-- Annotation: Active pay bypasses c5 -->
+<rect x="540" y="28" width="130" height="20" rx="4" fill="#1a1200" stroke="#f59e0b" stroke-width="0.8"/>
+<text x="605" y="38" text-anchor="middle" font-size="7.5" fill="#f59e0b" font-weight="700" dominant-baseline="middle">Active pay bypasses c5 entirely</text>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     QUESTIONS / DECISIONS FOR USER
+════════════════════════════════════════════════════════════════════════════ -->
+<rect x="22" y="405" width="340" height="130" rx="6" fill="#0d1526" stroke="#334155" stroke-width="1"/>
+<text x="192" y="420" text-anchor="middle" font-size="8" fill="#C9A24A" font-weight="700">DESIGN QUESTIONS TO CONFIRM</text>
+<text x="32" y="435" font-size="7.5" fill="#94a3b8">① Reserve Fund in c1: funded by GRA surplus, not a flow node — shows as stock level. OK?</text>
+<text x="32" y="449" font-size="7.5" fill="#94a3b8">② c6 Net Wages: keep dept-colour stacked bar, or keep flat yellow per pay type?</text>
+<text x="32" y="463" font-size="7.5" fill="#94a3b8">③ SS breakdown: NI-fund colour (orange) vs dept colour (purple)?</text>
+<text x="32" y="477" font-size="7.5" fill="#94a3b8">④ PSPER shown as exhausted (dashed outline) for FY2023+. Keep the fill-level animation?</text>
+<text x="32" y="491" font-size="7.5" fill="#94a3b8">⑤ Pension contributions ribbon: from c4 bottom-of-EC → drops diagonally to PSPER. OK?</text>
+<text x="32" y="505" font-size="7.5" fill="#94a3b8">⑥ Animate/Play removed? (you asked this earlier — confirm and we strip it)</text>
+<text x="32" y="519" font-size="7.5" fill="#94a3b8">⑦ NI Fund: stays in c1 alongside GRA and Reserve Fund — all 3 revenue-side stocks?</text>
+<text x="32" y="533" font-size="7.5" fill="#94a3b8">⑧ c5 has just 2 nodes (PSPER + Capital Reserve). Vertically spread with blank space. OK?</text>
+</svg>
+</body>
+</html>

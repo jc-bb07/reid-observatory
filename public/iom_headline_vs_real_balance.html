@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoM Government — Headline Reserves vs the Real Bank Balance</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0f1e;color:#e2e8f0;font-family:"Inter",-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px 20px;font-size:13px}
+h1{font-size:1.35rem;font-weight:800;color:#f1f5f9;letter-spacing:-0.01em;margin-bottom:4px}
+.sub{font-size:0.8rem;color:#94a3b8;line-height:1.5;max-width:980px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 10px;text-align:center}
+.sv{font-size:1.35rem;font-weight:800;line-height:1;margin-bottom:5px;font-family:"JetBrains Mono",monospace}
+.sl{font-size:0.64rem;color:#64748b;line-height:1.35}
+.red{color:#f87171}.amber{color:#fbbf24}.green{color:#4ade80}.gold{color:#C9A24A}
+.panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.plabel{font-size:0.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#64748b;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.badge{background:rgba(251,191,36,.15);color:#fbbf24;border-radius:4px;padding:2px 6px;font-size:.62rem;font-weight:600;letter-spacing:0}
+canvas{max-height:380px}
+.legend{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-size:.68rem;color:#94a3b8}
+.li{display:flex;align-items:center;gap:5px}
+.ld{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+.ld.line{height:3px;border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:.68rem}
+th,td{padding:5px 7px;text-align:right;border-bottom:1px solid rgba(255,255,255,.06);font-family:"JetBrains Mono",monospace;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;font-family:"Inter",sans-serif;font-weight:600}
+th{color:#64748b;font-weight:600;font-size:.62rem;text-transform:uppercase;letter-spacing:.04em}
+tr.hl td{color:#f1f5f9;font-weight:700}
+tr.hl{background:rgba(248,113,113,.08)}
+.neg{color:#f87171}.pos{color:#4ade80}
+.note{font-size:.66rem;color:#475569;line-height:1.7;margin-top:4px}
+.note b{color:#94a3b8}
+.tablewrap{overflow-x:auto}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<h1>Headline Reserves vs the Real Bank Balance</h1>
+<div class="sub">Isle of Man Government, FY2013-14 to FY2023-24 (11 years, Group/whole-of-government basis, £000s as reported). The Reserve Fund, NI Fund and pension reserve have all grown steadily — but they're investment funds, not spendable cash. Stripping everything back to actual cash + short-term deposits, less actual external borrowings, tells a very different story.</div>
+
+<div class="stats">
+  <div class="stat"><div class="sv green">+£248.5m</div><div class="sl">Real net cash position, FY2013-14</div></div>
+  <div class="stat"><div class="sv red">−£432.0m</div><div class="sl">Real net cash position, FY2023-24</div></div>
+  <div class="stat"><div class="sv red">−£680.5m</div><div class="sl">11-year swing in real cash</div></div>
+  <div class="stat"><div class="sv gold">+£385.5m</div><div class="sl">Headline reserves rose over the same period (to £1,684.5m)</div></div>
+  <div class="stat"><div class="sv red">−£263.9m</div><div class="sl">General Revenue Account balance, FY2023-24 (day-to-day account)</div></div>
+</div>
+
+<div class="panel">
+  <div class="plabel">£000s, Group basis <span class="badge">Real balance crosses into deficit FY2020-21</span></div>
+  <canvas id="mainC"></canvas>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:#4ade8055"></div>Reserve Fund (market value)</div>
+    <div class="li"><div class="ld" style="background:#fdba7455"></div>NI Fund (market value)</div>
+    <div class="li"><div class="ld" style="background:#fb718555"></div>PSPA/PSPER pension reserve</div>
+    <div class="li"><div class="ld line" style="background:#e2e8f0"></div>Real net cash position</div>
+    <div class="li"><div class="ld line" style="background:#60a5fa"></div>General Revenue Account balance</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="plabel">Full series</div>
+  <div class="tablewrap">
+  <table id="tbl"></table>
+  </div>
+</div>
+
+<div class="note">
+  <b>Formula:</b> Real Net Cash Position = (Cash at Bank and in Hand + Short Term Deposits) − (Loans Payable + Finance Debt + Bank Overdrafts), applied identically all 11 years; reproduces the Government's own published Net Debt figures exactly wherever such a note exists (FY2015-16, FY2019-20, FY2020-21, FY2022-23, FY2023-24).<br>
+  <b>NI Fund</b> shown at market value (Operating Account + externally-invested Investment Account, per audited Balance Sheet Note 12.14.5) — corrected Jul 2026 from an earlier Pink Book Table 26 book-value series that missed unrealized investment gains (see IoMG_Personnel_Remuneration_Master.xlsx, NI_Fund sheet).<br>
+  <b>Source:</b> IoMG Audited Accounts / Annual Financial Statements / Dark Blue Books, each year (IoMG_Real_Balance_11yr.xlsx). Not independently audited by us — reorganizes figures from Government's own published accounts. Analysis: Coalfinch Observatory.
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const YEARS=['13-14','14-15','15-16','16-17','17-18','18-19','19-20','20-21','21-22','22-23','23-24'];
+const RESERVE=[334481,342068,331046,375686,351325,386423,380504,448215,639491,565496,584449];
+const NIFUND=[727207,774519,745361,850986,858964,913953,880532,982785,1031611,1007243,1100078];
+const PSPER=[237316,226423,191575,181382,144609,117324,80911,47522,9796,103,0];
+const REAL=[248479,281815,389525,173811,213282,78673,15562,-83710,-424934,-382204,-431974];
+const GRA=[41281,45517,65387,62716,91213,89902,92044,-7084,-115916,-165943,-263931];
+const fmt=v=>{const m=v/1000; return (v<0?'−':'')+'£'+Math.abs(m).toFixed(1)+'m';};
+
+new Chart(document.getElementById('mainC'),{
+  type:'line',
+  data:{labels:YEARS,datasets:[
+    {label:'Reserve Fund',data:RESERVE,borderColor:'#4ade8088',backgroundColor:'#4ade8033',fill:'origin',stack:'headline',borderWidth:1,pointRadius:0,tension:.25},
+    {label:'NI Fund',data:NIFUND,borderColor:'#fdba7488',backgroundColor:'#fdba7433',fill:'stack',stack:'headline',borderWidth:1,pointRadius:0,tension:.25},
+    {label:'PSPA/PSPER',data:PSPER,borderColor:'#fb718588',backgroundColor:'#fb718533',fill:'stack',stack:'headline',borderWidth:1,pointRadius:0,tension:.25},
+    {label:'Real Net Cash Position',data:REAL,borderColor:'#e2e8f0',backgroundColor:'#e2e8f022',borderWidth:3,pointRadius:3,pointBackgroundColor:'#e2e8f0',fill:false,tension:.2,order:-2,
+      segment:{borderColor:ctx=>(ctx.p0.parsed.y<0||ctx.p1.parsed.y<0)?'#f87171':'#4ade80'}},
+    {label:'General Revenue Account',data:GRA,borderColor:'#60a5fa',borderDash:[5,3],borderWidth:1.5,pointRadius:0,fill:false,tension:.2,order:-1},
+    {label:'Zero',data:YEARS.map(()=>0),borderColor:'#475569',borderWidth:1,pointRadius:0,fill:false,order:-3},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)},
+        backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1,
+        filter:item=>item.dataset.label!=='Zero',
+      },
+    },
+    scales:{
+      x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#1e293b'}},
+      y:{ticks:{color:'#94a3b8',font:{size:10},callback:v=>fmt(v*1000).replace('.0','')},grid:{color:'#1e293b'}},
+    }
+  }
+});
+
+const rows=[
+  ['Reserve Fund',RESERVE],['NI Fund',NIFUND],['PSPA/PSPER',PSPER],
+  ['Real Net Cash Position',REAL],['General Revenue Account',GRA],
+];
+let html='<tr><th>£000</th>'+YEARS.map(y=>`<th>FY${y}</th>`).join('')+'</tr>';
+for(const [label,arr] of rows){
+  const hl = label==='Real Net Cash Position' ? ' class="hl"' : '';
+  html+=`<tr${hl}><td>${label}</td>`+arr.map(v=>`<td class="${v<0?'neg':'pos'}">${fmt(v)}</td>`).join('')+'</tr>';
+}
+document.getElementById('tbl').innerHTML=html;
+</script>
+</body>
+</html>
