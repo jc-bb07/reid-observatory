@@ -836,6 +836,25 @@ function connectedLinkIds(selId, d){
 }
 
 const fmt=v=>{const m=Math.abs(v)/1000;if(m>=1000)return(v<0?'-':'')+'£'+(m/1000).toFixed(2)+'bn';if(m>=1)return(v<0?'-':'')+'£'+m.toFixed(0)+'m';return'£'+Math.round(m*1000)+'k'};
+// v5.23: fmt() rounds £m values to 0 decimal places — fine for large aggregate labels
+// (£614m) but on a popup with a narrow value range (e.g. a small department's ~2%
+// share of Civil Service Pensions, £2.0m-£3.5m across all 10 years) several genuinely
+// different y-axis gridlines all round to the SAME label ("£3m" everywhere, despite the
+// line visibly varying — reported via screenshot). fmtAxis reads Chart.js's own
+// computed tick step (the 3rd tick-callback argument) and adds just enough decimal
+// places to keep adjacent gridline labels distinct; large-scale axes (step >= £1m) are
+// untouched and still render as clean whole £m/£bn.
+const fmtAxis=(value,ticks)=>{
+  const step=(ticks&&ticks.length>1)?Math.abs(ticks[1].value-ticks[0].value):0;
+  const m=Math.abs(value)/1000, stepM=step/1000, sign=value<0?'-':'';
+  if(m>=1000) return sign+'£'+(m/1000).toFixed(2)+'bn';
+  if(m>=1){
+    let dp=0;
+    if(stepM>0&&stepM<1) dp=Math.min(2,Math.ceil(-Math.log10(stepM)));
+    return sign+'£'+m.toFixed(dp)+'m';
+  }
+  return '£'+Math.round(m*1000)+'k';
+};
 const pct=(v,t)=>t>0?(v/t*100).toFixed(0)+'%':'—';
 
 // ── Layout constants ──────────────────────────────────────────────────────────
@@ -1212,6 +1231,12 @@ function rib(x0,sy0,sy1,x1,ty0,ty1){
 // ── Selection state ───────────────────────────────────────────────────────────
 let selectedNode='';    // '' = none
 let filterMode=true;
+// v5.20: true when a genuine government department (not Social Security, which has
+// its own separate ssSel-based highlight track) is focused — gates hover-popup
+// suppression for nodes/ribbons that aren't specifically about that department.
+function deptFocusActive(){
+  return !!selectedNode && GRP_ORDER.includes(selectedNode) && selectedNode!=='Social Security';
+}
 // drillNode removed — all 6 cols permanently visible
 
 // v5: focus mode FADES unrelated flows into the background (rather than hiding them),
@@ -1284,7 +1309,7 @@ function showDrillPopup(nodeId, rect){
         backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
       scales:{
         x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
-        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>isPSPER?'£'+v+'m':fmt(v)},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:(v,i,ticks)=>isPSPER?'£'+v+'m':fmtAxis(v,ticks)},grid:{color:'#1e293b'}},
       }}});
   popup.style.visibility='hidden'; popup.style.display='block';
   const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
@@ -1381,7 +1406,7 @@ function showSSDrillPopup(label,group,rect){
         backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
       scales:{
         x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
-        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:(v,i,ticks)=>fmtAxis(v,ticks)},grid:{color:'#1e293b'}},
       }}});
   popup.style.visibility='hidden'; popup.style.display='block';
   const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
@@ -1442,7 +1467,7 @@ function showDeptECPopup(dept,itemId,rect){
         backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
       scales:{
         x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
-        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:(v,i,ticks)=>fmtAxis(v,ticks)},grid:{color:'#1e293b'}},
       }}});
   popup.style.visibility='hidden'; popup.style.display='block';
   const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
@@ -1482,7 +1507,7 @@ function showCSPDeptPopup(dept,rect){
         backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#1e2d4d',borderWidth:1}},
       scales:{
         x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
-        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:(v,i,ticks)=>fmtAxis(v,ticks)},grid:{color:'#1e293b'}},
       }}});
   popup.style.visibility='hidden'; popup.style.display='block';
   const pw=popup.offsetWidth||260,ph=popup.offsetHeight||160;
@@ -1577,10 +1602,10 @@ function drawExpanded(lyt,fy,animate){
 
     // Employer superannuation — leaves the EC foot horizontally into its segment
     drib('dr-super',cx(4)+NW,srcY0,srcY0+supH,x5,segSup0,segSup0+supH)
-      .attr('fill',dgrad('super','#fcd34d','#fb7185')).attr('opacity',0.40);
+      .attr('fill',dgrad('super','#fcd34d','#fb7185')).attr('opacity',0.40).attr('class','psper-flow');
     // Employee superannuation — parallel, directly below
     drib('dr-pension',cx(4)+NW,srcY0+supH,empNode.y1,x5,segPen0,segPen0+penH)
-      .attr('fill',dgrad('emppen','#fcd34d','#f9a8d4')).attr('opacity',0.35);
+      .attr('fill',dgrad('emppen','#fcd34d','#f9a8d4')).attr('opacity',0.35).attr('class','psper-flow');
 
     // GRA net charge: hatched GRA extension(c1) → EC foot(c4) → bottom segment (c5)
     if(topupH>0.5&&lyt.graExt){
@@ -1588,14 +1613,14 @@ function drawExpanded(lyt,fy,animate){
       const graSrcY1=ext.y1, graSrcY0=ext.y1-topupH;
       const ecY0=empNode.y1, ecY1=empNode.y1+topupH;
       drib('dr-gra-ec',cx(1)+NW,graSrcY0,graSrcY1,cx(4),ecY0,ecY1)
-        .attr('fill','#C9A24A').attr('opacity',0.38);
+        .attr('fill','#C9A24A').attr('opacity',0.38).attr('class','psper-flow');
       // v5.12: was a plain .append('rect') with immediate attrs (snapped instead of
       // tweening on redraw, unlike every other node here) — wrapped in ayr()/dyr() so it
       // animates its y/height the same way as the ribbons and segments around it.
       ayr(gCur.append('rect').attr('x',cx(4)).attr('width',NW)
-        .attr('rx',1).attr('fill','#C9A24A').attr('opacity',0.55), dyr('gra-topup-foot',ecY0,topupH));
+        .attr('rx',1).attr('fill','#C9A24A').attr('opacity',0.55).attr('class','psper-flow'), dyr('gra-topup-foot',ecY0,topupH));
       drib('dr-gra-topup',cx(4)+NW,ecY0,ecY1,x5,segTop0,segTop0+topupH)
-        .attr('fill',dgrad('topup','#C9A24A','#fb7185')).attr('opacity',0.45);
+        .attr('fill',dgrad('topup','#C9A24A','#fb7185')).attr('opacity',0.45).attr('class','psper-flow');
     }
 
     // Ribbon labels — one shared face (theme text colour, black in light mode), laid out
@@ -1616,14 +1641,14 @@ function drawExpanded(lyt,fy,animate){
       // v5.8: standard grey two-part styling (lbl-r name + lbl-a value), matching every
       // other c4/c6 label pair, instead of the special bold lbl-flow/lbl-flowa-t treatment.
       const t=dlbl(gCur,'lane-'+L.name,laneX,top+blockH/2)
-        .attr('class','lbl drl lbl-r').attr('dominant-baseline','middle');
+        .attr('class','lbl drl lbl-r psper-flow').attr('dominant-baseline','middle');
       t.append('tspan').text(L.name+'\u2002');
       t.append('tspan').attr('class','lbl-a').text(L.val);
       laneBot=top+blockH;
     }
 
     // ── The node itself ──
-    const psperG=gPen.append('g').style('cursor','pointer')
+    const psperG=gPen.append('g').attr('class','psper-flow').style('cursor','pointer')
       .on('mouseenter',e=>showDrillPopup('PSPER',e.currentTarget.getBoundingClientRect()))
       .on('mouseleave',hideTsPopup);
     gCur=psperG;
@@ -1643,7 +1668,7 @@ function drawExpanded(lyt,fy,animate){
     if(showBeaker){
       // v5.5: beaker position FIXED across years (fixedAnchors) — it no longer tracks psperY0
       const bkW=16, bkH=30, bkX=x5-30, bkY=fixedAnchors().psperBkY;
-      const bkG=gPen.append('g').style('cursor','pointer')
+      const bkG=gPen.append('g').attr('class','psper-flow').style('cursor','pointer')
         .on('mouseenter',e=>showDrillPopup('PSPER',e.currentTarget.getBoundingClientRect()))
         .on('mouseleave',hideTsPopup);
       bkG.append('rect').attr('x',bkX).attr('y',bkY).attr('width',bkW).attr('height',bkH).attr('rx',2)
@@ -1719,7 +1744,7 @@ function drawExpanded(lyt,fy,animate){
           .attr('fill','#fbbf24').attr('opacity',0.38);
       }
       const csG=gStocks.append('g').style('cursor','pointer')
-        .on('mouseenter',e=>showStockTsPopup('cfr',e.currentTarget.getBoundingClientRect()))
+        .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup('cfr',e.currentTarget.getBoundingClientRect()); })
         .on('mouseleave',hideTsPopup);
       gCur=csG;
       ayr(csG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
@@ -1755,7 +1780,7 @@ function drawExpanded(lyt,fy,animate){
       const plRes=stockValWithCarry('pension',fy);
       const plV=plRes?plRes.v:null, plCF=plRes?plRes.carriedForward:false;
       const plG=gStocks.append('g').style('cursor','pointer')
-        .on('mouseenter',e=>showStockTsPopup('pension',e.currentTarget.getBoundingClientRect()))
+        .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup('pension',e.currentTarget.getBoundingClientRect()); })
         .on('mouseleave',hideTsPopup);
       gCur=plG;
       ayr(plG.append('rect').attr('x',x5).attr('width',NW).attr('rx',2)
@@ -1796,7 +1821,7 @@ function drawExpanded(lyt,fy,animate){
       const dtRes=STOCKS.debt.data[fy];
       const dtV=dtRes?dtRes.v:null, dtProb=dtRes&&dtRes.t==='probable';
       const dtG=gStocks.append('g').style('cursor','pointer')
-        .on('mouseenter',e=>showStockTsPopup('debt',e.currentTarget.getBoundingClientRect()))
+        .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup('debt',e.currentTarget.getBoundingClientRect()); })
         .on('mouseleave',hideTsPopup);
       gCur=dtG;
       ayr(dtG.append('rect').attr('x',debtX).attr('width',NW).attr('rx',2)
@@ -1837,7 +1862,7 @@ function drawExpanded(lyt,fy,animate){
       const lqRes=STOCKS.liquid_total.data[fy];
       const lqV=lqRes?lqRes.v:null, lqProb=lqRes&&lqRes.t==='probable';
       const lqG=gStocks.append('g').style('cursor','pointer')
-        .on('mouseenter',e=>showStockTsPopup('liquid_total',e.currentTarget.getBoundingClientRect()))
+        .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup('liquid_total',e.currentTarget.getBoundingClientRect()); })
         .on('mouseleave',hideTsPopup);
       gCur=lqG;
       ayr(lqG.append('rect').attr('x',liqX).attr('width',NW).attr('rx',2)
@@ -1927,7 +1952,7 @@ function drawExpanded(lyt,fy,animate){
           .attr('fill',dgrad('pay'+pi+g,GRP_COLOR[g]||'#94a3b8',payItems[pi].color))
           .attr('opacity',0.30).attr('data-dept',g).attr('data-item',payItems[pi].id).attr('class','dr-pay-strip')
           .style('cursor','pointer')
-          .on('mouseenter',e=>showDeptECPopup(g,payItems[pi].id,e.currentTarget.getBoundingClientRect()))
+          .on('mouseenter',e=>{ if(deptFocusActive()&&g!==selectedNode)return; showDeptECPopup(g,payItems[pi].id,e.currentTarget.getBoundingClientRect()); })
           .on('mouseleave',hideTsPopup);
         sOff+=sh;
       }
@@ -1938,8 +1963,8 @@ function drawExpanded(lyt,fy,animate){
   let yy=empNode.y0;
   for(let pi=0;pi<payItems.length;pi++){
     const item=payItems[pi],h=payHeights[pi],mid=yy+h/2;
-    const ng=gPen.append('g').style('cursor','pointer')
-      .on('mouseenter',e=>showDrillPopup(item.id,e.currentTarget.getBoundingClientRect()))
+    const ng=gPen.append('g').attr('class','c6-agg-node').style('cursor','pointer')
+      .on('mouseenter',e=>{ if(deptFocusActive())return; showDrillPopup(item.id,e.currentTarget.getBoundingClientRect()); })
       .on('mouseleave',hideTsPopup);
     gCur=ng;
     ayr(ng.append('rect').attr('x',x6).attr('width',NW).attr('rx',1).attr('data-stack','c6')
@@ -1950,9 +1975,9 @@ function drawExpanded(lyt,fy,animate){
     const dispLblPay=deptSharing?(item.label+' · '+deptFocusEC+' ᵉˢᵗ'):(item.label+(item.est?' ᵉˢᵗ':''));
     if(h>=10){
       dlbl(gPen,'pay-l-'+item.id,x6+NW+G,h>=18?mid-5:mid)
-        .attr('class','lbl drl lbl-r').text(dispLblPay);
+        .attr('class','lbl drl lbl-r c6-agg-node').text(dispLblPay);
       if(h>=18) dlbl(gPen,'pay-a-'+item.id,x6+NW+G,mid+6)
-        .attr('class','lbl drl lbl-a').text(fmt(dispAmtPay));
+        .attr('class','lbl drl lbl-a c6-agg-node').text(fmt(dispAmtPay));
     }
     yy+=h+payGap;
   }
@@ -1975,19 +2000,20 @@ function drawExpanded(lyt,fy,animate){
     const frac=dp.v/deptTot,dh=outH*frac,ch=civH*frac;
     drib('dr-csp-'+dp.id,x5+NW,depOutY,depOutY+dh,x6,depCivY,depCivY+ch)
       .attr('fill',dgrad('csp'+dp.id,'#fb7185',GRP_COLOR[dp.id]||'#888')).attr('opacity',0.38)
+      .attr('class','dr-csp-strip').attr('data-dept',dp.id) // v5.19: needed so focus mode can re-light this dept's own ribbon
       .style('cursor','pointer')
-      .on('mouseenter',e=>showCSPDeptPopup(dp.id,e.currentTarget.getBoundingClientRect()))
+      .on('mouseenter',e=>{ if(deptFocusActive()&&dp.id!==selectedNode)return; showCSPDeptPopup(dp.id,e.currentTarget.getBoundingClientRect()); })
       .on('mouseleave',hideTsPopup);
     depOutY+=dh; depCivY+=ch;
   }}
-  const cspG=gPen.append('g').style('cursor','pointer')
-    .on('mouseenter',e=>showDrillPopup('Pension',e.currentTarget.getBoundingClientRect()))
+  const cspG=gPen.append('g').attr('class','c6-agg-node').style('cursor','pointer')
+    .on('mouseenter',e=>{ if(deptFocusActive())return; showDrillPopup('Pension',e.currentTarget.getBoundingClientRect()); })
     .on('mouseleave',hideTsPopup);
   ayr(cspG.append('rect').attr('x',x6).attr('width',NW).attr('rx',2).attr('data-stack','c6')
     .attr('fill','#fb7185').attr('opacity',0.80), dyr('csp-node',civY0,civH));
   if(civH>=10){
     dlbl(gPen,'csp-l',x6+NW+G,civH>=20?civMid-6:civMid)
-      .attr('class','lbl drl lbl-r').attr('fill','#fb7185').text('Civil Service Pensions');
+      .attr('class','lbl drl lbl-r c6-agg-node').attr('fill','#fb7185').text('Civil Service Pensions');
     if(civH>=20) dlbl(gPen,'csp-a',x6+NW+G,civMid+6)
       .attr('class','lbl drl lbl-a').text(fmt(de.pension));
   }
@@ -2035,7 +2061,7 @@ function drawExpanded(lyt,fy,animate){
   for(let ni=0;ni<ds.ni.length;ni++){
     const item=ds.ni[ni],h2=niItemH[ni],mid2=syy+h2/2,col=SS_NI_COLOR[item.label]||'#fdba74';
     const ssNiG=gSS.append('g').style('cursor','pointer')
-      .on('mouseenter',e=>showSSDrillPopup(item.label,'ni',e.currentTarget.getBoundingClientRect()))
+      .on('mouseenter',e=>{ if(deptFocusActive())return; showSSDrillPopup(item.label,'ni',e.currentTarget.getBoundingClientRect()); })
       .on('mouseleave',hideTsPopup);
     ayr(ssNiG.append('rect').attr('x',x6).attr('width',NW).attr('rx',1).attr('data-stack','c6')
       .attr('fill',col).attr('opacity',0.72), dyr('ss-ni-'+item.label,syy,h2));
@@ -2059,7 +2085,7 @@ function drawExpanded(lyt,fy,animate){
     const item=ds.rev[ri],sc2=(item.v/revBase)*revPortion;
     const h2=revItemH[ri],mid2=syy+h2/2;
     const ssGraG=gSS.append('g').style('cursor','pointer')
-      .on('mouseenter',e=>showSSDrillPopup(item.label,'rev',e.currentTarget.getBoundingClientRect()))
+      .on('mouseenter',e=>{ if(deptFocusActive())return; showSSDrillPopup(item.label,'rev',e.currentTarget.getBoundingClientRect()); })
       .on('mouseleave',hideTsPopup);
     ayr(ssGraG.append('rect').attr('x',x6).attr('width',NW).attr('rx',1).attr('data-stack','c6')
       .attr('fill','#C9A24A').attr('opacity',0.65), dyr('ss-gra-'+item.label,syy,h2));
@@ -2092,9 +2118,33 @@ function drawExpanded(lyt,fy,animate){
     const grpSel=!ssSel&&GRP_ORDER.includes(selectedNode)&&((_gc2[selectedNode]||{})['Employee Costs']||0)>0.1;
     if(grpSel){
       // v5.4: department focus — that department's pay strips stay lit, the rest fades
+      // v5.19: same re-light rule for its Civil Service Pensions ribbon (dr-csp-strip) —
+      // previously only .dr-pay-strip was re-lit, so the blanket ':scope > *' fade below
+      // left EVERY department's pension ribbon at opacity 0.06, including the focused
+      // department's own ("depts seem to have lost their pensioners").
       gPen.attr('opacity',1);
-      gPen.selectAll(':scope > *').attr('opacity',0.06);
+      // v5.21: PSPER (node, beaker, its superannuation/GRA-topup ribbons, and their
+      // lane labels — all tagged 'psper-flow') is exempt from this blanket fade. It
+      // isn't department-specific, so unlike the pay-strip/CSP-strip treatment below
+      // (fade all, re-light only the focused dept's own slice) there's nothing to
+      // re-light it INTO — it should just stay visible exactly as in the unfocused
+      // state, same as the request "leave PSPER and the ribbon... in place".
+      // v5.22: c6 pay-item/CSP aggregate node bars + their labels ('c6-agg-node') are
+      // ALSO exempted, same reasoning as PSPER — they're the destination of the very
+      // ribbon that just got re-lit for the focused dept (dr-pay-strip/dr-csp-strip
+      // below), and the pay-item labels already switch to that dept's own estimated
+      // share (dispLblPay/dispAmtPay) when focused, so hiding the bar they sit on made
+      // that computed content invisible. Scoped to WITHIN this grpSel branch only (not
+      // unconditional like psper-flow) — but in practice every real department has a
+      // non-negligible share of every pay item (uniform proportional split off Employee
+      // Costs) and appears in PENSION_DEPT, so "implicated by the filter" reduces to
+      // simply "grpSel is true" for every current dataset; kept as a plain exemption
+      // rather than a per-item conditional for that reason, revisit if that stops holding.
+      gPen.selectAll(':scope > *:not(.psper-flow):not(.c6-agg-node)').attr('opacity',0.06);
       gPen.selectAll('.dr-pay-strip').attr('opacity',function(){
+        return d3.select(this).attr('data-dept')===selectedNode?0.85:0.04;
+      });
+      gPen.selectAll('.dr-csp-strip').attr('opacity',function(){
         return d3.select(this).attr('data-dept')===selectedNode?0.85:0.04;
       });
     } else {
@@ -2354,7 +2404,7 @@ function draw(fy,animate){
     const rRec=STOCKS.reserve.data[fy];
     const rV=rRec?rRec.v:null;
     const rfg=svg.append('g').attr('class','rf-bk').attr('opacity',rfOpN).style('cursor','pointer')
-      .on('mouseenter',e=>showStockTsPopup('reserve',e.currentTarget.getBoundingClientRect()))
+      .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup('reserve',e.currentTarget.getBoundingClientRect()); })
       .on('mouseleave',hideTsPopup);
     rfg.append('rect').attr('x',rbX).attr('y',rbY).attr('width',rbW).attr('height',rbH).attr('rx',2)
       .attr('fill','#12241a').attr('opacity',0.9);
@@ -2406,7 +2456,7 @@ function draw(fy,animate){
       .text(d=>d.text)
       .each(function(d){
         if(d.hoverKey) d3.select(this)
-          .on('mouseenter',e=>showStockTsPopup(d.hoverKey,e.currentTarget.getBoundingClientRect()))
+          .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup(d.hoverKey,e.currentTarget.getBoundingClientRect()); })
           .on('mouseleave',hideTsPopup);
       })
       .attr('opacity',d=>animate?0:d.op)
@@ -2421,7 +2471,7 @@ function draw(fy,animate){
         .attr('font-family',d.ff||null).attr('fill',d.fill||null)
         .style('cursor',d.cursor||null);
       if(d.hoverKey&&!prev.hoverKey) el
-        .on('mouseenter',e=>showStockTsPopup(d.hoverKey,e.currentTarget.getBoundingClientRect()))
+        .on('mouseenter',e=>{ if(deptFocusActive())return; showStockTsPopup(d.hoverKey,e.currentTarget.getBoundingClientRect()); })
         .on('mouseleave',hideTsPopup);
       if(animate){
         const t=el.transition().duration(DUR).ease(EASE)
@@ -2503,8 +2553,13 @@ function updateStats(lyt){
 let tsChart=null;
 let tsHideTimer=null;
 
-function getNodeTimeSeries(nodeId){
-  const col=nodeCol(nodeId);
+function getNodeTimeSeries(nodeId,sub){
+  // v5.18: 'sub' (the bound node datum's own type tag) disambiguates ids that exist
+  // as BOTH a department (grp) and a category (cat) node — 'Infrastructure' and
+  // 'Social Security' — which nodeCol(id) alone cannot tell apart (GRP_ORDER is
+  // checked first, so the c4 category node was silently mis-resolved to the c3
+  // department's grp_gross total). Falls back to nodeCol() when sub isn't passed.
+  const col=sub||nodeCol(nodeId);
   const years=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
   // NIFund and CFR4 pull from STOCKS balance data, not fiscal flow DATA
   if(nodeId==='NIFund'){
@@ -2517,41 +2572,62 @@ function getNodeTimeSeries(nodeId){
     const vals=years.map(fy=>s.data[fy]?s.data[fy].v:null);
     return{years,vals};
   }
+  // Department-focus: when a dept is selected and it genuinely reports this
+  // category in the current year (>0.1, same gate as the on-chart label swap),
+  // show that dept's own real actuals (grp_cats — LBB Table 4, not derived)
+  // instead of the all-department total. Mirrors showDeptECPopup's approach.
+  let deptFocus=null;
+  if(col==='cat' && selectedNode && GRP_ORDER.includes(selectedNode)){
+    const curRaw=DATA[String(curFY)];
+    const curD=curRaw?(useConstPrices?deflD(curRaw,curFY):curRaw):null;
+    const gcCur=(curD&&curD.grp_cats&&curD.grp_cats[selectedNode])||{};
+    if((gcCur[nodeId]||0)>0.1) deptFocus=selectedNode;
+  }
   const vals=years.map(fy=>{
     const raw=DATA[String(fy)];
     if(!raw) return null;
     const d=useConstPrices?deflD(raw,fy):raw;
     if(col==='rev') return d.rev[nodeId]||null;
+    if(col==='own') return d.grp_own[nodeId]||null; // v5.20 fix: was unhandled since v5.18 started passing sub explicitly (returned null for every year)
     if(col==='grp') return d.grp_gross[nodeId]||null;
-    if(col==='cat') return d.cats4[nodeId]||null;
+    if(col==='cat'){
+      if(deptFocus){
+        const gc=(d.grp_cats&&d.grp_cats[deptFocus])||{};
+        return gc[nodeId]!=null ? gc[nodeId] : null;
+      }
+      return d.cats4[nodeId]||null;
+    }
     return null;
   });
-  return{years,vals};
+  return{years,vals,deptFocus};
 }
 
-function getNodeLabel(nodeId){
+function getNodeLabel(nodeId,deptFocus,sub){
   if(nodeId==='NIFund') return 'NI Fund (balance)';
   if(nodeId==='CFR4') return 'Capital Financing Reserve (balance)';
+  if(sub==='own'&&OWN_LABEL[nodeId]) return OWN_LABEL[nodeId];
   if(REV_LABEL[nodeId]) return REV_LABEL[nodeId];
-  return nodeId;
+  return deptFocus ? nodeId+' · '+deptFocus : nodeId;
 }
 
-function getNodeColor(nodeId){
+function getNodeColor(nodeId,deptFocus){
   if(nodeId==='NIFund') return STOCKS['ni_fund'].color;
   if(nodeId==='CFR4') return STOCKS['cfr'].color;
+  if(deptFocus) return GRP_COLOR[deptFocus]||REV_COLOR[nodeId]||GRP_COLOR[nodeId]||CAT_COLOR[nodeId]||'#C9A24A';
   return REV_COLOR[nodeId]||GRP_COLOR[nodeId]||CAT_COLOR[nodeId]||'#C9A24A';
 }
 
-function showTsPopup(nodeId, svgRect){
+function showTsPopup(nodeId, svgRect, sub){
   clearTimeout(tsHideTimer);
   const popup=document.getElementById('ts-popup');
-  const {years,vals}=getNodeTimeSeries(nodeId);
-  const label=getNodeLabel(nodeId);
-  const color=getNodeColor(nodeId);
+  const {years,vals,deptFocus}=getNodeTimeSeries(nodeId,sub);
+  const label=getNodeLabel(nodeId,deptFocus,sub);
+  const color=getNodeColor(nodeId,deptFocus);
 
   document.getElementById('ts-title').textContent=label;
   document.getElementById('ts-sub').textContent=
-    (useConstPrices?'2024-25 constant prices':'Nominal')+ ' · FY2016–FY2025';
+    (useConstPrices?'2024-25 constant prices':'Nominal')+ ' · FY2016–FY2025'
+    + (deptFocus?' · department actuals (LBB Table 4)':'');
 
   const canvas=document.getElementById('ts-canvas');
 
@@ -2583,7 +2659,7 @@ function showTsPopup(nodeId, svgRect){
       }},
       scales:{
         x:{ticks:{color:'#cbd5e1',font:{size:8},maxRotation:0},grid:{color:'#1e293b'}},
-        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:v=>fmt(v)},grid:{color:'#1e293b'}},
+        y:{ticks:{color:'#cbd5e1',font:{size:8},callback:(v,i,ticks)=>fmtAxis(v,ticks)},grid:{color:'#1e293b'}},
       }
     }
   });
@@ -2612,9 +2688,18 @@ function hideTsPopup(){
 
 function nodeMouseEnter(event,d){
   const rect=event.target.getBoundingClientRect();
+  if(deptFocusActive()){
+    // v5.20: only the focused department's own node(s) and its genuinely dept-
+    // specific category breakdown stay hoverable while focused — GRA/RFT, other
+    // departments, revenue accounts, and categories the focused dept doesn't
+    // report (previously fell back to the all-department total) are suppressed.
+    if(d.sub==='grp'||d.sub==='own'){ if(d.id!==selectedNode) return; }
+    else if(d.sub==='cat'){ if(!getNodeTimeSeries(d.id,d.sub).deptFocus) return; }
+    else return; // rev / gra / graext / rft / nifund / cfr4
+  }
   if(d.id==='GRA'){ showStockTsPopup('gra_bal', rect); return; } // v5.8: GRA balance series (was: no popup)
   if(d.id==='RFT'){ showStockTsPopup('reserve', rect); return; } // fund balance series
-  showTsPopup(d.id, rect);
+  showTsPopup(d.id, rect, d.sub); // v5.18: pass sub to disambiguate dept-vs-category id collisions
 }
 function nodeMouseLeave(){
   hideTsPopup();
