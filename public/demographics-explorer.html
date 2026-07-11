@@ -471,6 +471,35 @@ select.has-value {
   color: var(--muted);
 }
 
+/* ─────────────────────────────────────────────
+   IOM SCENARIO PANEL (deliberately prominent --
+   this replaces a single invented number with a
+   real, sourced range, so it needs to be seen)
+───────────────────────────────────────────── */
+.iom-scenario-panel {
+  background: rgba(96,165,250,0.08);
+  border: 1px solid rgba(96,165,250,0.35);
+  border-left: 4px solid var(--blue);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+[data-theme="light"] .iom-scenario-panel { background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.3); }
+.iom-scenario-panel .aud-label { color: var(--blue); font-size: 12px; }
+.iom-scen-pill {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  padding: 8px 18px !important;
+  border-width: 2px !important;
+}
+.iom-scen-pill.active {
+  background: var(--blue) !important;
+  border-color: var(--blue) !important;
+  color: #fff !important;
+}
+[data-theme="light"] .iom-scen-pill.active,
+body.light .iom-scen-pill.active { color: #fff !important; }
+
 
 /* ─────────────────────────────────────────────
    SOURCE / STATUS TAGS
@@ -828,6 +857,18 @@ body.light {
         <button class="toggle-btn" id="btn-tech" onclick="setAudience('tech')">Technical</button>
       </div>
     </div>
+    <div class="iom-scenario-panel">
+      <div class="audience-bar" style="margin-bottom:10px">
+        <span class="aud-label">&#9679; IoM scenario <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(2026/2031/2041 only &mdash; 1996-2021 is real census data, unaffected)</span></span>
+      </div>
+      <div class="controls" style="margin-bottom:10px">
+        <button class="pill active iom-scen-pill" onclick="applyIomScenario('historical',this)">Historical trend</button>
+        <button class="pill iom-scen-pill" onclick="applyIomScenario('gad',this)">Actuarial Assumptions (300/yr)</button>
+        <button class="pill iom-scen-pill" onclick="applyIomScenario('recent',this)">Recent trend</button>
+        <button class="pill iom-scen-pill" onclick="applyIomScenario('target',this)">Target &mdash; "Our Island, Our Future" (2022)</button>
+      </div>
+      <div id="iomScenNote" style="font-size:11.5px;color:var(--muted2);line-height:1.6">HISTORICAL TREND PROJECTED FORWARD: IoM's own real cohort-transition rates, 1996-2021 average (includes both the 1990s-2000s finance-sector boom and the 2011-2016 stagnation) -- no migration adjustment on top. Population declines slightly to 80,764 by 2041.</div>
+    </div>
   </div>
 
   <div class="tabs" id="main-tabs">
@@ -986,7 +1027,14 @@ body.light {
     <div id="pyrStats" class="cards" style="margin-top:10px"></div>
     <div class="plain-box" id="plain-pyr2" style="margin-top:12px">
       <strong>Side by side + diff:</strong> The centre panel shows how the two islands differ at each age band. Animate to watch the differences evolve across 1996–2040.
-      <span style="color:rgba(251,191,36,0.75)"> Years marked ~ are projected estimates</span> — cohort-shift model consistent with Statistics Jersey projections, Guernsey Population Projection Bulletin 2024, and ONS principal projections. IoM estimated from Cabinet Office demographic trajectory. Not census data.
+      <span style="color:rgba(251,191,36,0.75)"> Years marked ~ are projected estimates</span> — Jersey uses its own official Population Projections 2025-2080; Guernsey its own Annual Population Projection Bulletin 2024; UK uses ONS principal projections. Not census data.
+    </div>
+    <div class="plain-box" id="plain-pyr3" style="margin-top:12px">
+      <strong>IoM's 2026/2031/2041 years are different from the others:</strong> no official Isle of Man population projection exists (confirmed independently against the Statistics IoM Population Report 2025 and the Government's own housing-need evidence base). Instead of one invented number, the IoM scenario selector above lets you compare three outcomes built on the <em>same real model</em>: cohort-transition rates derived directly from the Island's own real census pyramids at 1996, 2001, 2011 and 2021 (comparing the real population in each age band at one census against the real population one band older at the next census). These rates are net of both mortality and migration exactly as the Island experienced them — a census snapshot can't cleanly separate the two.
+      <br><br>
+      <strong>Historical trend</strong> uses those rates as-is. <strong>Recent trend</strong> adds the confirmed 2022-2024 average net migration (600/yr) on top — and lands within a few hundred people of the Government's own official OAHN housing-need baseline (94,000 by 2041), an independent cross-check rather than a fitted match. <strong>Target</strong> back-solves the migration rate needed to hit the "Our Island, Our Future" Economic Strategy's own ambition of 100,000 by 2037 (~1,087/yr, nearly double the recent confirmed rate) — shown as the stated policy goal, not a forecast; it was a contested policy at the time, and government's own 2024 evidence base already concluded it's off track.
+      <br><br>
+      One disclosed simplification: the male/female split within each age band is held at its real 2021 ratio for all three future years, since no age/sex-specific migration or mortality data exists to project the split independently. This same cohort-transition model (not a separate methodology) also drives the population panel on the Isle of Man Government Pension Explorer.
     </div>
   </div>
 
@@ -1027,21 +1075,36 @@ body.light {
   <!-- ── PROJECTIONS ── -->
   <div id="tab-projections" class="section" style="display:none">
     <div class="plain-box" id="plain-proj">
-      <strong>What happens next?</strong> Even with continued inward migration, the dependency ratio will rise sharply by 2041 across all three islands. Jersey and Guernsey projections are from official published sources. IoM figures are estimated from the Cabinet Office trajectory — no equivalent official publication exists yet.
+      <strong>What happens next?</strong> Jersey, Guernsey and UK projections are from official published sources. The Isle of Man has no official projection at all, so instead of picking one number, this page shows four scenarios built on IoM's own real 1996-2021 census cohort behaviour: a <strong>Historical trend</strong> (no migration adjustment), the Government Actuary's own <strong>Actuarial Assumptions</strong> (300/yr, from the National Insurance Fund's 2023-GD-0005 review), a <strong>Recent trend</strong> (confirmed 2022-2024 migration continuing), and the Government's own stated <strong>Target</strong> of 100,000 people by 2037.
       <br><br>
-      <strong>2026 estimates:</strong> IoM quinary age-band estimates calibrated from the 2021 census baseline using the Statistics IoM Population Report 2025, migration-age patterns and school-roll checks (Q1 2025 anchor: 84,975). Jersey 65+ trend from published Statistics Jersey projections. Guernsey working-age and 85+ from published projection reporting. UK from ONS census anchors and projection framework.
+      <strong>A real result, not an assumption:</strong> the higher-migration scenarios show a <em>lower</em> dependency ratio than the historical trend, not a higher one — because IoM's migrants arrive overwhelmingly working-age (25-49), which grows the workforce faster than the retired population grows. That's the actual mechanism the Government's own strategy is relying on. It also means the "no migration" historical case is the one with the worse dependency ratio outlook, not the reassuring one.
       <br><br>
-      <strong>2031–2041:</strong> Cohort-shift model consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. <span style="color:rgba(251,191,36,0.75)">These are estimates, not census data.</span>
+      <strong>The 100,000 target:</strong> from the "Our Island, Our Future" Economic Strategy, approved by Tynwald in November 2022 — an explicit ambition (~1,000 net inward migrants/yr for 15 years), not a demographic forecast, and one that proved contested at the time. Government's own 2024 Objective Assessment of Housing Need (OAHN) evidence base already concluded it's unlikely to be met on current trends, with a baseline of around 94,000 by 2041 — which lines up closely with this page's own "Recent trend" scenario (93,558 by 2041), built independently from real cohort data rather than fitted to match.
     </div>
 
     <div class="proj-table-wrap"><table class="proj-table" style="margin-bottom:20px">
       <tr>
-        <th>Island</th><th>2021 ratio</th><th>2040 projection</th><th>Scenario</th><th>Source</th>
+        <th>Island / scenario</th><th>2021 ratio</th><th>2040 projection</th><th>Basis</th><th>Source</th>
       </tr>
       <tr>
-        <td style="color:var(--iom)">Isle of Man</td><td>58.3%</td><td>~71%</td>
-        <td>Cabinet Office trajectory</td>
-        <td><span class="source-tag estimated">Estimated</span></td>
+        <td style="color:var(--iom)">Isle of Man — Historical trend</td><td>58.7%</td><td>57.1%</td>
+        <td>Real cohort transitions, 1996-2021 avg., no migration adj.</td>
+        <td><span class="source-tag estimated">Modelled</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--iom)">Isle of Man — Actuarial Assumptions (300/yr)</td><td>58.7%</td><td>52.1%</td>
+        <td>GAD's own NI Fund migration assumption (2023-GD-0005)</td>
+        <td><span class="source-tag estimated">Modelled</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--iom)">Isle of Man — Recent trend</td><td>58.7%</td><td>48.0%</td>
+        <td>+ confirmed 2022-24 avg. net migration (600/yr)</td>
+        <td><span class="source-tag estimated">Modelled</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--iom)">Isle of Man — Target (2037)</td><td>58.7%</td><td>42.7%</td>
+        <td>Back-solved migration to hit 100,000-by-2037 policy goal</td>
+        <td><span class="source-tag estimated">Policy target</span></td>
       </tr>
       <tr>
         <td style="color:var(--jer)">Jersey</td><td>52.0%</td><td>58–64%</td>
@@ -1067,7 +1130,7 @@ body.light {
       <button class="pill" id="scen-800" onclick="setScenario('800',this)">+800/yr</button>
     </div>
     <div class="legend">
-      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--muted2);margin-left:2px">(est.)</span></span>
+      <span class="leg-item"><span class="leg-sw" style="background:var(--iom)"></span>Isle of Man <span style="font-size:9px;color:var(--muted2);margin-left:2px">(scenario selected above)</span></span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--jer)"></span>Jersey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--gue)"></span>Guernsey</span>
       <span class="leg-item"><span class="leg-sw" style="background:var(--uk)"></span>UK</span>
@@ -1077,7 +1140,7 @@ body.light {
       Jersey: Statistics Jersey Population Projections 2025–2080 (Feb 2026) — official. 
       Guernsey: Annual Population Projection Bulletin (Jun 2024) — official. 
       UK: ONS 2022-based national projections — official. 
-      IoM: estimated from Cabinet Office demographic trajectory — no equivalent official publication.
+      IoM: no official projection exists. All three IoM lines above are modelled from the Island's own real 1996-2021 census cohort-transition rates (see Pyramids tab methodology), not from Jersey/Guernsey/ONS methodology, and not from Cabinet Office projections (none exist).
     </div>
   </div>
 
@@ -1086,8 +1149,8 @@ body.light {
       <strong style="color:var(--muted2)">Actual data:</strong>
       IoM Cabinet Office Census 2021 (Tables 2.1–2.3) · IoM Census 1996 Table 3; 2001 Table 6 · Statistics Jersey Census 2021 CSV (opendata.gov.je) · Jersey Census 1996 Table 3; 2001 CSV · Guernsey Historic Population xlsx (gov.gg, OGL) · ONS Census 2011 &amp; 2021 (OGL) · IoM Cabinet Office Table 1.2, Dependency Ratios 1976–2021
       <br>
-      <strong style="color:var(--muted2)">2022–2026 estimates (IoM):</strong>
-      Quinary age-band deltas calibrated from 2021 census baseline using Statistics Isle of Man Population Report 2025 and Manx Radio summary (Q1 2025 anchor: 84,975); migration-age patterns and school-roll checks applied per band. Population total anchors: 84,523 per Manx Radio (2024); 84,975 per IoM Population Report 2025.
+      <strong style="color:var(--muted2)">2026/2031/2041 scenarios (IoM):</strong>
+      No official IoM projection exists. All three figures shown (Historical / Recent / Target) are modelled from cohort-transition rates derived directly from IoM's own real census pyramids at 1996, 2001, 2011 and 2021 (IoM Cabinet Office Census Tables 2.1-2.3, 1996 Table 3, 2001 Table 6). Recent trend additionally uses confirmed 2022-2024 net migration (Statistics IoM Population Report 2025). Target back-solves the migration rate implied by the "Our Island, Our Future" Economic Strategy's 100,000-by-2037 ambition (approved by Tynwald, Nov 2022). Cross-checked against the Government's own 2024 Objective Assessment of Housing Need (OAHN, GD 2024/0041) evidence-base baseline (~94,000 by 2041). Full methodology on the Pyramids tab.
       <br>
       <strong style="color:var(--muted2)">2022–2026 estimates (Jersey):</strong>
       65+ ageing trend from Statistics Jersey published population projections document. 2021 census characteristics: statistics.gov.je.
@@ -1098,10 +1161,8 @@ body.light {
       <strong style="color:var(--muted2)">2022–2026 estimates (UK):</strong>
       2021 census median age and age shares from ONS; 2022–2026 path from UK ageing/projection support sources consistent with ONS principal projection.
       <br>
-      <strong style="color:var(--muted2)">2031–2041 projections:</strong>
+      <strong style="color:var(--muted2)">2031–2041 projections (Jersey/Guernsey/UK):</strong>
       Cohort-shift model from 2026 estimated baseline; consistent with Statistics Jersey Population Projections 2025–2080, Guernsey Annual Population Projection Bulletin 2024, and ONS 2022-based national projections. Not census data.
-      <br>
-      <em style="color:var(--muted2)">"IoM quinary age-band estimates were calibrated from the 2021 census baseline using the Statistics Isle of Man 2025 population report, migration-age patterns and school-roll checks; Jersey and Guernsey ageing trends were drawn from published population projection documents; UK estimates use census anchors and official ageing/projection support."</em>
     </div>
   </div>
 
@@ -1183,9 +1244,13 @@ const PYR={
     2001:{m:[2.92,3.10,3.18,2.89,2.82,2.99,3.68,4.01,3.59,3.36,3.82,3.04,2.59,2.14,1.76,1.48,1.62],f:[2.62,2.96,3.06,2.86,2.75,3.24,3.70,3.92,3.72,3.23,3.67,3.02,2.58,2.26,2.26,2.10,3.09]},
     2011:{m:[2.89,2.95,3.16,3.21,2.80,2.77,3.10,3.82,4.06,4.08,3.71,3.32,2.99,2.23,1.81,1.48,1.93],f:[2.72,2.77,2.98,3.02,2.64,2.61,2.92,3.59,3.82,3.84,3.50,3.12,2.82,2.10,1.71,1.40,2.13]},
     2021:{m:[2.41,2.67,2.81,2.72,2.45,2.56,2.89,3.22,3.44,3.61,4.02,4.06,3.61,2.99,2.51,1.72,2.09],f:[2.41,2.66,2.80,2.72,2.44,2.56,2.89,3.22,3.43,3.60,4.01,4.05,3.61,2.99,2.50,1.72,2.59]},
-    2026:{m:[2.02,2.10,2.33,2.38,1.95,2.55,2.74,2.78,3.14,3.64,3.95,4.35,3.79,3.34,2.75,2.23,3.57],f:[2.02,2.09,2.33,2.38,1.94,2.55,2.74,2.78,3.13,3.63,3.94,4.34,3.79,3.34,2.74,2.23,4.42]}, // Perplexity model: 2021 actuals + migration deltas, scaled to total anchor 85125
-    2031:{m:[2.18,2.25,2.35,2.61,2.74,2.64,2.37,2.47,2.80,3.12,3.36,3.52,3.93,3.97,3.51,2.89,2.97],f:[2.18,2.25,2.35,2.60,2.73,2.63,2.36,2.47,2.80,3.11,3.34,3.50,3.90,3.94,3.49,2.88,3.60]},
-    2041:{m:[1.98,2.05,2.12,2.19,2.29,2.52,2.64,2.54,2.28,2.39,2.70,3.02,3.24,3.40,3.80,3.83,4.30],f:[1.98,2.05,2.12,2.19,2.28,2.51,2.63,2.53,2.28,2.39,2.70,3.00,3.21,3.38,3.77,3.80,5.00]},
+    // 2026/2031/2041: default to the "Historical trend" scenario (see PYR_IOM_SCENARIOS
+    // below and applyIomScenario()) -- swapped live by the IoM scenario selector. Derived
+    // from a real cohort-transition model (TRANS5/TOP_RETENTION), not an invented curve --
+    // see the Pyramids tab methodology note for full sourcing.
+    2026:{m:[1.76,2.25,2.68,2.79,2.62,2.73,2.96,3.13,3.14,3.29,3.59,3.92,3.8,3.17,2.59,2.5,2.79],f:[1.76,2.24,2.67,2.79,2.61,2.73,2.96,3.13,3.13,3.29,3.58,3.91,3.8,3.17,2.58,2.5,3.46]},
+    2031:{m:[1.78,1.92,2.39,2.63,2.77,2.79,3.12,3.29,3.35,3.32,3.44,3.56,3.74,3.52,2.83,2.11,3.11],f:[1.78,1.91,2.38,2.63,2.76,2.79,3.12,3.29,3.34,3.31,3.43,3.56,3.74,3.52,2.81,2.11,3.85]},
+    2041:{m:[1.82,1.96,2.06,2.00,2.32,2.78,3.37,3.55,3.72,3.72,3.69,3.44,3.25,3.15,3.08,2.56,3.19],f:[1.82,1.95,2.05,2.00,2.31,2.78,3.37,3.55,3.70,3.71,3.68,3.43,3.25,3.15,3.07,2.56,3.95]},
   },
   jersey:{
     1996:{m:[2.99,2.92,2.62,2.51,3.31,4.48,4.66,4.15,3.65,3.76,2.85,2.80,2.36,2.04,1.60,1.00,1.25],f:[2.77,2.80,2.50,2.52,3.01,4.72,4.84,4.21,3.72,3.74,2.89,2.69,2.33,2.12,1.92,1.60,2.67]},
@@ -1222,8 +1287,81 @@ const PYR_QUALITY={
   guernsey:{1996:'exact',2001:'exact',2011:'exact',2021:'exact'},
   uk:      {1996:'official',2001:'official',2011:'official',2021:'official'},
 };
+// ── IoM population scenarios (2026/2031/2041 only -- 1996-2021 are real census) ──
+// Three scenarios built on the SAME real cohort-transition engine used by the
+// pension explorer (TRANS5/TOP_RETENTION/BIRTHS5, derived empirically from the
+// Island's own real census pyramids at 1996/2001/2011/2021 -- see the Pyramids
+// tab methodology note for full sourcing and caveats):
+//   historical -- TRANS5 as observed 1996-2021, no migration adjustment
+//   recent     -- adds the confirmed 2022-2024 average net migration (599.7/yr)
+//                 on top of the historical base. Cross-checked independently
+//                 against government's own OAHN evidence-base baseline
+//                 (~94,000 by 2041, GD 2024/0041) -- this scenario lands at
+//                 93,558 by 2041, essentially the same figure.
+//   target     -- back-solved net migration (~1,087/yr) required to hit the
+//                 "Our Island, Our Future" Economic Strategy's own ambition of
+//                 100,000 by 2037 (approved by Tynwald, Nov 2022). Shown as a
+//                 stated POLICY TARGET, not a forecast -- government's own 2024
+//                 OAHN report already concluded it's unlikely to be met, and it
+//                 was a contested figure among Members and the public.
+// Sex splits within each band assume the real 2021 M/F ratio holds constant
+// going forward -- a disclosed simplification, since no age/sex-specific
+// migration or mortality data exists to project the split separately.
+const PYR_IOM_SCENARIOS = {
+  historical:{
+    2026:{m:[1.76,2.25,2.68,2.79,2.62,2.73,2.96,3.13,3.14,3.29,3.59,3.92,3.80,3.17,2.59,2.50,2.79],f:[1.76,2.24,2.67,2.79,2.61,2.73,2.96,3.13,3.13,3.29,3.58,3.91,3.80,3.17,2.58,2.50,3.46]},
+    2031:{m:[1.78,1.92,2.39,2.63,2.77,2.79,3.12,3.29,3.35,3.32,3.44,3.56,3.74,3.52,2.83,2.11,3.11],f:[1.78,1.91,2.38,2.63,2.76,2.79,3.12,3.29,3.34,3.31,3.43,3.56,3.74,3.52,2.81,2.11,3.85]},
+    2041:{m:[1.82,1.96,2.06,2.00,2.32,2.78,3.37,3.55,3.72,3.72,3.69,3.44,3.25,3.15,3.08,2.56,3.19],f:[1.82,1.95,2.05,2.00,2.31,2.78,3.37,3.55,3.70,3.71,3.68,3.43,3.25,3.15,3.07,2.56,3.95]},
+  },
+  gad:{
+    2026:{m:[1.73,2.20,2.63,2.74,2.61,2.66,3.02,3.30,3.32,3.36,3.61,3.92,3.74,3.12,2.50,2.48,2.75],f:[1.73,2.20,2.62,2.74,2.60,2.66,3.02,3.30,3.31,3.35,3.61,3.91,3.74,3.12,2.49,2.48,3.41]},
+    2031:{m:[1.71,1.84,2.30,2.53,2.71,2.71,3.10,3.52,3.70,3.57,3.53,3.60,3.68,3.41,2.69,2.03,3.03],f:[1.71,1.84,2.29,2.53,2.70,2.71,3.10,3.52,3.69,3.56,3.52,3.59,3.68,3.41,2.68,2.03,3.76]},
+    2041:{m:[1.69,1.81,1.90,1.85,2.19,2.60,3.26,3.66,4.01,4.20,4.14,3.72,3.29,3.08,2.89,2.38,2.99],f:[1.69,1.81,1.90,1.85,2.18,2.60,3.26,3.66,4.00,4.19,4.13,3.71,3.29,3.08,2.88,2.38,3.71]},
+  },
+  recent:{
+    2026:{m:[1.70,2.16,2.58,2.69,2.61,2.58,3.08,3.46,3.49,3.43,3.64,3.93,3.68,3.08,2.42,2.47,2.72],f:[1.70,2.16,2.57,2.69,2.60,2.58,3.08,3.46,3.48,3.42,3.63,3.92,3.68,3.08,2.41,2.47,3.37]},
+    2031:{m:[1.65,1.78,2.22,2.44,2.65,2.63,3.07,3.74,4.02,3.81,3.62,3.63,3.63,3.31,2.57,1.96,2.96],f:[1.65,1.77,2.21,2.44,2.64,2.63,3.07,3.74,4.01,3.80,3.61,3.62,3.63,3.31,2.56,1.96,3.67]},
+    2041:{m:[1.57,1.69,1.77,1.72,2.08,2.44,3.17,3.76,4.26,4.61,4.53,3.96,3.33,3.01,2.73,2.23,2.82],f:[1.57,1.68,1.77,1.72,2.08,2.44,3.17,3.76,4.25,4.60,4.51,3.95,3.33,3.01,2.72,2.23,3.50]},
+  },
+  target:{
+    2026:{m:[1.65,2.10,2.51,2.61,2.60,2.47,3.18,3.71,3.76,3.53,3.67,3.93,3.59,3.01,2.29,2.44,2.66],f:[1.65,2.10,2.50,2.61,2.59,2.47,3.18,3.71,3.75,3.52,3.66,3.92,3.59,3.01,2.28,2.44,3.30]},
+    2031:{m:[1.56,1.68,2.09,2.31,2.57,2.52,3.03,4.06,4.50,4.15,3.75,3.67,3.55,3.16,2.39,1.85,2.85],f:[1.56,1.68,2.09,2.31,2.56,2.52,3.03,4.06,4.48,4.14,3.74,3.66,3.55,3.16,2.38,1.85,3.54]},
+    2041:{m:[1.41,1.52,1.60,1.55,1.93,2.22,3.04,3.89,4.60,5.18,5.05,4.29,3.38,2.93,2.51,2.03,2.59],f:[1.41,1.51,1.59,1.55,1.93,2.22,3.04,3.89,4.59,5.16,5.04,4.28,3.38,2.93,2.50,2.03,3.21]},
+  },
+};
+// Total population by scenario/year (used for META.iom.pop overrides + card display)
+const IOM_POP_SCENARIOS = {
+  historical:{2026:83411,2031:82496,2041:80764},
+  gad:       {2026:84976,2031:85664,2041:87163},
+  recent:    {2026:86541,2031:88830,2041:93558},
+  target:    {2026:89086,2031:93979,2041:103963},
+};
+let iomScenario='historical';
+function applyIomScenario(name, btn){
+  iomScenario=name;
+  if(btn){
+    document.querySelectorAll('.iom-scen-pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  [2026,2031,2041].forEach(y=>{
+    PYR.iom[y]=PYR_IOM_SCENARIOS[name][y];
+    META.iom.pop[y]=IOM_POP_SCENARIOS[name][y];
+  });
+  PROJ.iom=PROJ_IOM_SCENARIOS[name];
+  const noteEl=document.getElementById('iomScenNote');
+  if(noteEl)noteEl.textContent=IOM_SCEN_NOTES[name];
+  if(document.getElementById('tab-pyramids').style.display!=='none')renderPyramids();
+  if(document.getElementById('tab-projections').style.display!=='none')renderProjections();
+}
+const IOM_SCEN_NOTES={
+  historical:'HISTORICAL TREND PROJECTED FORWARD: IoM\'s own real cohort-transition rates, 1996-2021 average (includes both the 1990s-2000s finance-sector boom and the 2011-2016 stagnation) -- no migration adjustment on top. Population declines slightly to 80,764 by 2041.',
+  gad:'ACTUARIAL ASSUMPTIONS (300/yr): The Government Actuary\'s (GAD) own principal-projection net migration assumption from the 2023-GD-0005 quinquennial review of the National Insurance Fund -- the same assumption the Pension Explorer\'s State Pension figures are built from, shown here so the two tools sit on a common basis. GAD doesn\'t publish an age breakdown for this figure, so only the magnitude (300/yr) is GAD\'s own; the age distribution borrows this model\'s real 2024 migration shape. Lands at 87,163 by 2041 -- between Historical trend and Recent trend.',
+  recent:'RECENT TREND PROJECTED FORWARD: Adds the confirmed 2022-2024 average net migration (599.7/yr) to the historical base -- i.e. "if migration continues at its recent, higher run-rate rather than reverting to the 25-year average". Lands at 93,558 by 2041, closely matching government\'s own OAHN evidence-base baseline (~94,000).',
+  target:'OUR ISLAND, OUR FUTURE (2022): Back-solved net migration (~1,087/yr, nearly double the recent confirmed rate) required to hit the 100,000-by-2037 ambition in this Economic Strategy (approved by Tynwald, Nov 2022). Shown as the stated policy target, not a forecast -- it was a contested policy, and government\'s own 2024 OAHN report already concluded it\'s unlikely to be met.',
+};
+
 const META={
-  iom:     {label:'Isle of Man',color:'#3b82f6',pop:{1996:71714,2001:76315,2011:84497,2021:84069,2026:85125,2031:85400,2041:85900},median:{1996:36,2001:37,2011:42,2021:45,2026:47,2031:48,2041:50}},
+  iom:     {label:'Isle of Man',color:'#3b82f6',pop:{1996:71714,2001:76315,2011:84497,2021:84069,2026:83411,2031:82496,2041:80764},median:{1996:36,2001:37,2011:42,2021:45,2026:47,2031:48,2041:50}},
   jersey:  {label:'Jersey',    color:'#f59e0b',pop:{1996:85150,2001:87186,2011:97857,2021:103267,2026:104820,2031:105400,2041:106200},median:{1996:36,2001:37,2011:40,2021:43,2026:45,2031:46,2041:48}},
   guernsey:{label:'Guernsey',  color:'#10b981',pop:{1996:58681,2001:59807,2011:62915,2021:63448,2026:64420,2031:64600,2041:65000},median:{1996:37,2001:38,2011:41,2021:44,2026:46,2031:47,2041:49}},
   uk:      {label:'UK',        color:'#94a3b8',pop:{1996:56712700,2001:58941000,2011:63258400,2021:67026292,2026:68500000,2031:70000000,2041:72500000},median:{1996:37,2001:38,2011:39,2021:40,2026:41,2031:42,2041:44}},
@@ -1263,8 +1401,24 @@ const DEP={
   uk:    [null,null,17.9,18.9,23.0,23.8,24.3,24.4,24.8,25.5,26.5,28.1,29.5,31.3],
 };
 const PROJ_L=[2021,2025,2030,2035,2040];
+// IoM total dependency ratio ((0-14 + 65+)/(15-64) x100) computed directly from
+// the same three scenarios as the pyramids above -- NOT independently invented.
+// Counterintuitive but real result: higher-migration scenarios show a LOWER
+// (or flatter) ratio than the historical trend over this horizon, because IoM
+// migration inflows concentrate heavily in working-age bands (25-49), which
+// grows the denominator faster than population ageing grows the numerator.
+// This is the mechanism the Government's own strategy explicitly relies on --
+// using migration to hold the dependency ratio down -- so it is a validation
+// of the strategy's logic, not a contradiction of it, even though the strategy
+// itself has been a contested/unpopular policy and is not on track per OAHN.
+const PROJ_IOM_SCENARIOS = {
+  historical:[58.7,56.9,56.3,56.7,57.1],
+  gad:       [58.7,55.7,53.6,52.7,52.1],
+  recent:    [58.7,54.5,51.1,49.2,48.0],
+  target:    [58.7,52.7,47.6,44.6,42.7],
+};
 const PROJ={
-  iom:[58.3,60.0,63.0,67.0,71.0],
+  iom:PROJ_IOM_SCENARIOS.historical,
   jersey_nil:[52.0,54.5,57.8,61.0,64.2],jersey_400:[52.0,53.8,56.0,58.0,60.0],jersey_800:[52.0,53.0,54.5,56.5,58.0],
   gue:[55.0,57.5,61.0,65.0,69.0],uk:[56.0,57.0,58.5,60.5,62.0],
 };
@@ -1936,13 +2090,14 @@ function setScenario(s,btn){
   ['nil','400','800'].forEach(x=>document.getElementById('scen-'+x).classList.toggle('active',x===s));
   renderProjections();
 }
+const IOM_SCEN_LABELS={historical:'Historical trend',gad:'Actuarial Assumptions',recent:'Recent trend',target:'Target (2037)'};
 function renderProjections(){
   if(projCI)projCI.destroy();
   const gc=getGC(),tc=getTC();
   projCI=new Chart(document.getElementById('projChart'),{
     type:'line',
     data:{labels:PROJ_L,datasets:[
-      {label:'Isle of Man (est.)',data:PROJ.iom,borderColor:'#3b82f6',pointBackgroundColor:'#3b82f6',pointRadius:4,borderWidth:2,borderDash:[6,3],fill:false,tension:0.3},
+      {label:'Isle of Man -- '+IOM_SCEN_LABELS[iomScenario]+' (est.)',data:PROJ.iom,borderColor:'#3b82f6',pointBackgroundColor:'#3b82f6',pointRadius:4,borderWidth:2,borderDash:[6,3],fill:false,tension:0.3},
       {label:'Jersey',data:PROJ['jersey_'+scenario],borderColor:'#f59e0b',pointBackgroundColor:'#f59e0b',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
       {label:'Guernsey',data:PROJ.gue,borderColor:'#10b981',pointBackgroundColor:'#10b981',pointRadius:4,borderWidth:2.5,fill:false,tension:0.3},
       {label:'UK',data:PROJ.uk,borderColor:'#94a3b8',pointBackgroundColor:'#94a3b8',pointRadius:3,borderWidth:1.5,borderDash:[4,3],fill:false,tension:0.3},
@@ -1961,7 +2116,7 @@ function renderProjections(){
         x:{type:'linear',min:2021,max:2040,
            ticks:{color:tc,font:{size:10},stepSize:5,maxRotation:0,callback:v=>[2021,2025,2030,2035,2040].includes(v)?String(v):''},
            grid:{color:gc},border:{color:'#1d3148'}},
-        y:{min:45,max:80,ticks:{color:tc,font:{size:10},callback:v=>v+'%',stepSize:5},
+        y:{min:25,max:75,ticks:{color:tc,font:{size:10},callback:v=>v+'%',stepSize:5},
            grid:{color:gc},border:{color:'#1d3148'},
            title:{display:true,text:'Total dependency ratio',color:tc,font:{size:10}}}
       }

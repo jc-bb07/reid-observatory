@@ -147,6 +147,7 @@ window.addEventListener('message', function(e) {
   if (!msg) return;
   if (msg.type === 'theme' || msg.type === 'setTheme') {
     document.body.classList.toggle('light', msg.theme === 'light' || msg.theme === 'health');
+    if (typeof onThemeChange === 'function') onThemeChange();
   }
 });
 
@@ -269,8 +270,8 @@ const finChart=new Chart(document.getElementById('finC').getContext('2d'),{
       tooltip:{callbacks:{title:([i])=>ALL[i.dataIndex].fy+(ALL[i.dataIndex].isProj?' (projected)':''),label:(i)=>` ${i.dataset.label}: £${(+i.raw).toFixed(1)}m`},backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1}
     },
     scales:{
-      x:{stacked:true,ticks:{color:'#334155',font:{size:7.5},maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
-      y:{stacked:true,max:430,ticks:{color:'#475569',font:{size:9},callback:v=>`£${v}m`},grid:{color:'rgba(255,255,255,0.06)'}}
+      x:{stacked:true,ticks:{color:getTickColor(),font:{size:7.5},maxRotation:45},grid:{color:getGridColor()}},
+      y:{stacked:true,max:430,ticks:{color:getTickColor(),font:{size:9},callback:v=>`£${v}m`},grid:{color:getGridColor()}}
     },
     animation:{duration:200}
   },
@@ -280,7 +281,8 @@ const finChart=new Chart(document.getElementById('finC').getContext('2d'),{
       const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
       if(chart._ci==null) return;
       const xp=x.getPixelForValue(chart._ci);
-      ctx.save();ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=9;
+      const isLight=document.body.classList.contains('light');
+      ctx.save();ctx.strokeStyle=isLight?'rgba(15,23,42,0.55)':'rgba(255,255,255,0.22)';ctx.lineWidth=9;
       ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();ctx.restore();
     }
   },{
@@ -295,6 +297,20 @@ const finChart=new Chart(document.getElementById('finC').getContext('2d'),{
     }
   }]
 });
+
+function onThemeChange(){
+  finChart.options.scales.x.ticks.color=getTickColor();
+  finChart.options.scales.x.grid.color=getGridColor();
+  finChart.options.scales.y.ticks.color=getTickColor();
+  finChart.options.scales.y.grid.color=getGridColor();
+  finChart.update('none');
+  if(pyrChart){
+    pyrChart.options.scales.x.ticks.color=getTickColor();
+    pyrChart.options.scales.x.grid.color=getGridColor();
+    pyrChart.options.scales.y.ticks.color=getTickColor();
+    pyrChart.update('none');
+  }
+}
 
 function updateStats(year){
   const pop=getPop(year);
@@ -343,6 +359,16 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
 });
 
 setYear(2024);
+
+// Height reporting — notifies parent iframe of content height
+function reportHeight() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+reportHeight();
+window.addEventListener('resize', reportHeight);
+setTimeout(reportHeight, 300);
+setTimeout(reportHeight, 800);
+setTimeout(reportHeight, 1500);
 </script>
 </body>
 </html>

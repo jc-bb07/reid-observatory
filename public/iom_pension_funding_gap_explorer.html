@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pension Funding Gap Explorer — IoM Personnel &amp; Remuneration</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
+    --border:#334155; --text:#e2e8f0; --muted:#64748b; --muted2:#94a3b8;
+    --blue:#60a5fa; --blue-dim:#1d4ed8; --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;}
+  .page{max-width:1080px;margin:0 auto;padding:24px 20px 48px;}
+  h1{font-size:21px;font-weight:800;margin:0 0 6px;}
+  h2{font-size:14px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px;}
+  p{color:var(--muted2);font-size:13px;line-height:1.7;max-width:760px;}
+  .intro{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:12.5px;color:var(--muted2);line-height:1.7;}
+  .intro strong{color:var(--text);}
+  .section{margin-bottom:34px;}
+  .grid2{display:grid;grid-template-columns:1.1fr 0.9fr;gap:18px;}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr;}}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
+  .stat{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:8px;padding:12px 14px;}
+  .stat.warn{border-top-color:var(--amber);}
+  .stat.bad{border-top-color:var(--red);}
+  .stat.good{border-top-color:var(--green);}
+  .stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin-bottom:5px;}
+  .stat-value{font-size:22px;font-variant-numeric:tabular-nums;font-weight:600;}
+  .stat-sub{font-size:11px;color:var(--muted2);margin-top:3px;}
+  .lever{margin-bottom:16px;}
+  .lever-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:5px;}
+  .lever-head .lname{color:var(--text);font-weight:600;}
+  .lever-head .lval{color:var(--blue);font-variant-numeric:tabular-nums;font-weight:600;}
+  .lever-sub{font-size:10.5px;color:var(--muted);margin-bottom:6px;}
+  input[type="range"]{-webkit-appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--blue);cursor:pointer;}
+  input[type="range"]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;}
+  .checkrow{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);margin-bottom:10px;}
+  .checkrow input{accent-color:var(--blue);cursor:pointer;}
+  .reset-btn{background:none;border:1px solid var(--border);border-radius:20px;color:var(--muted2);font-size:11px;padding:5px 14px;cursor:pointer;font-family:inherit;}
+  .reset-btn:hover{border-color:var(--blue);color:var(--text);}
+  .chart-wrap{position:relative;height:280px;margin-bottom:6px;}
+  .foot-note{font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:8px;}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:10.5px;color:var(--muted2);margin-bottom:8px;}
+  .leg-item{display:flex;align-items:center;gap:5px;}
+  .leg-sw{width:11px;height:3px;border-radius:1px;display:inline-block;}
+  table.data{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:10px;}
+  table.data th,table.data td{padding:5px 8px;border:1px solid var(--border);text-align:right;}
+  table.data th{color:var(--muted2);font-weight:600;text-transform:uppercase;font-size:9.5px;letter-spacing:.05em;}
+  table.data td:first-child,table.data th:first-child{text-align:left;}
+  .tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;}
+  .tag.actual{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25);}
+  .tag.est{background:rgba(251,191,36,.10);color:var(--amber);border:1px solid rgba(251,191,36,.25);}
+  .footer{border-top:1px solid var(--border);margin-top:36px;padding-top:14px;font-size:10.5px;color:var(--muted2);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Pension Funding Gap Explorer</h1>
+  <p style="margin-bottom:14px">What three separate pension demands — Civil Service (PSPA), the Manx State Pension, and the Pension Supplement — cost over the next 20 years, and what it would take to fund the growth: cut services, raise contributions, delay retirement, or raise revenue. Drag the levers below.</p>
+
+  <div class="intro">
+    <strong>Three different pension streams, two different pots.</strong> Civil Service Pension (PSPA — Unified/GUS, Teachers, Police, Judicial, Manual Workers) is paid from <strong>General Revenue</strong> and directly competes with department budgets today. The Manx State Pension and Pension Supplement are paid from the <strong>National Insurance Fund</strong> — a separate pot that doesn't touch department budgets <em>unless</em> it runs dry (Treasury's own projection: 2046/47, right at the edge of this 20-year window). The "NI Fund already exhausted" toggle below lets you stress-test what happens if that backstop arrives early.
+    <div class="foot-note" style="margin-top:8px">All figures £m nominal. Base year FY2024-25 (confirmed PSPA/Social Security actuals). Every input below is individually sourced — see the methodology footer.</div>
+  </div>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <div class="section">
+    <h2>20-year demand — three streams</h2>
+    <div class="panel">
+      <div class="legend">
+        <span class="leg-item"><span class="leg-sw" style="background:#60a5fa"></span>Civil Service Pension (gross, GRA)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:#f59e0b"></span>Manx State Pension (core, NI Fund)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:#a78bfa"></span>Pension Supplement (NI Fund, declining)</span>
+        <span class="leg-item"><span class="leg-sw" style="background:#f87171"></span>CSP net deficit (GRA pressure)</span>
+      </div>
+      <div class="chart-wrap"><canvas id="demandChart"></canvas></div>
+      <div class="foot-note">Manx State Pension core = Basic + Age Addition + Premium + new single-tier MSP combined (estimated split from FY2018-21 per-benefit actuals, applied to FY2021-25 aggregate NI-funded totals — per-benefit breakdown not published past FY2020-21). <span class="tag est">estimated</span></div>
+    </div>
+  </div>
+
+  <div class="grid2 section">
+    <div class="panel">
+      <h2>Levers</h2>
+
+      <div class="lever">
+        <div class="lever-head"><span class="lname">State Pension age</span><span class="lval" id="v-age">+0 yrs</span></div>
+        <div class="lever-sub">Delays when people start drawing — softens the near-term bulge as the 1990s finance-sector cohort crosses 65.</div>
+        <input type="range" id="s-age" min="0" max="5" step="0.5" value="0">
+      </div>
+
+      <div class="lever">
+        <div class="lever-head"><span class="lname">PSPA contribution rate</span><span class="lval" id="v-contrib">+0 pts</span></div>
+        <div class="lever-sub">Extra active-member/employer contribution, on top of the 4% salary-growth baseline.</div>
+        <input type="range" id="s-contrib" min="-2" max="5" step="0.5" value="0">
+      </div>
+
+      <div class="lever">
+        <div class="lever-head"><span class="lname">Benefit indexation (CSP)</span><span class="lval" id="v-idx">2.0%/yr</span></div>
+        <div class="lever-sub">Hymans Robertson long-term assumption is 2%/yr — shown as the default, adjustable to stress-test.</div>
+        <input type="range" id="s-idx" min="0" max="5" step="0.25" value="2">
+      </div>
+
+      <div class="lever">
+        <div class="lever-head"><span class="lname">Service cut (non-protected depts)</span><span class="lval" id="v-cut">0%</span></div>
+        <div class="lever-sub">Applied evenly to every non-protected department's employee-cost budget.</div>
+        <input type="range" id="s-cut" min="0" max="20" step="1" value="0">
+      </div>
+
+      <div class="lever">
+        <div class="lever-head"><span class="lname">General Revenue / tax increase</span><span class="lval" id="v-tax">0%</span></div>
+        <div class="lever-sub">Alternative to cuts — extra revenue raised as a % of the whole department budget envelope.</div>
+        <input type="range" id="s-tax" min="0" max="10" step="0.5" value="0">
+      </div>
+
+      <div class="checkrow"><input type="checkbox" id="c-manxcare" checked disabled> Protect Manx Care from cuts (42% of budget — health)</div>
+      <div class="checkrow"><input type="checkbox" id="c-education" checked disabled> Protect Education from cuts (21% of budget)</div>
+      <div class="checkrow"><input type="checkbox" id="c-backstop"> Stress-test: NI Fund already exhausted (backstop active from FY2024-25)</div>
+
+      <button class="reset-btn" onclick="resetLevers()">Reset all levers</button>
+    </div>
+
+    <div class="panel">
+      <h2>Department budgets vs the gap</h2>
+      <div class="chart-wrap" style="height:320px"><canvas id="deptChart"></canvas></div>
+      <div class="foot-note">Bars = FY2025-26 department employee-cost budgets (Pink Book 2025-26 Table 14B), grown at 3.0%/yr (indicative-plan CAGR). Red segment = amount removed by the service-cut lever. Manx Care and Education locked as protected by default — the two together are 63% of total department paybill.</div>
+    </div>
+  </div>
+
+  <div class="section panel">
+    <h2>The gap, year by year</h2>
+    <table class="data" id="dataTable"></table>
+    <div class="foot-note" style="margin-top:10px">
+      "GRA-facing gap" = CSP net deficit (gross minus contributions), plus the NI Fund backstop shortfall if that stress-test toggle is on. "After levers" nets off the service-cut and tax-increase levers. FY2024-25 figures are confirmed PSPA/NI Fund actuals; everything to the right compounds from sourced or clearly-flagged assumptions — see footer.
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>Sources &amp; method:</strong> Civil Service Pension base (£143.3m gross / £95.2m contributions, FY2024-25) and demographic decomposition (2%/yr benefit indexation, 4%/yr salary growth — Hymans Robertson long-term assumptions per PSPA Board minutes 25 May 2020; 3.29%/yr pensioner and 2.18%/yr active headcount CAGR — PSPA_Members actuals 2018-2024) per <em>pension_projection_methodology.md</em> (this project, 10 Jul 2026).
+    State Pension core and Pension Supplement bases from <em>SocialSecurity_Breakdown</em> (LBB Table 6.8g/6.8h actuals FY2018-19 to FY2020-21, retirement-family = 86.3% of total NI-funded benefits ex-COVID, applied to FY2024-25 aggregate £277.7m). Pension Supplement statutory phase-out: no awards to anyone reaching pension age after 5 January 2039 (gov.im); modelled here on its observed −3.6%/yr decline (FY2018-21), which is a <em>conservative</em> (slower) proxy for the true post-2039 acceleration.
+    65+ population growth (6.01%/yr 2021-26, 2.16%/yr 2026-31, 1.94%/yr 2031-41) derived from IoM population pyramids in <em>demographics-explorer.html</em> (Crown Dependencies Observatory; 2026/31/41 figures are Cabinet-Office-trajectory estimates, not census).
+    Department budgets: Pink Book 2025-26 Table 14B, Total Employee Costs by Department. NI Fund exhaustion year (2046/47): IoM Treasury.
+    <br><br>This is a scenario tool for exploring trade-offs, not a forecast or policy recommendation — every lever is a genuine, contestable assumption, deliberately exposed rather than baked in.
+  </div>
+
+</div>
+
+<script>
+const N_MAX = 20;
+const YEARS_LBL = [];
+for(let n=0;n<=N_MAX;n++){
+  const startYr = 2024+n, endYr = (2025+n).toString().slice(-2);
+  YEARS_LBL.push(`FY${startYr}-${endYr}`);
+}
+
+const BASE = {
+  csp:{ gross0:143.3, contrib0:95.2, pensHcG:0.0329, actHcG:0.0218, salaryG:0.04 },
+  sp:{ core0:195.7, priceDefault:0.0375, volPeriods:[[0,5,0.0601],[5,10,0.0216],[10,20,0.0194]] },
+  supp:{ base0:44.1, decline:-0.036 },
+};
+
+const DEPTS = [
+  {name:'Manx Care', val:239.721, protectedDefault:true},
+  {name:'Education, Sport & Culture', val:117.798, protectedDefault:true},
+  {name:'Infrastructure', val:52.927, protectedDefault:false},
+  {name:'Home Affairs', val:39.231, protectedDefault:false},
+  {name:'Cabinet Office', val:27.097, protectedDefault:false},
+  {name:'Treasury', val:26.046, protectedDefault:false},
+  {name:'Enterprise', val:13.926, protectedDefault:false},
+  {name:'Environment, Food & Agriculture', val:13.171, protectedDefault:false},
+  {name:'Financial Services Authority', val:9.149, protectedDefault:false},
+  {name:"Attorney General's Chambers", val:7.794, protectedDefault:false},
+  {name:'Health & Social Care (dept HQ)', val:3.843, protectedDefault:false},
+  {name:'General Registry', val:4.953, protectedDefault:false},
+  {name:'Legislature', val:5.047, protectedDefault:false},
+  {name:'Gambling Supervision Commission', val:4.261, protectedDefault:false},
+  {name:'Financial Intelligence Unit', val:1.342, protectedDefault:false},
+  {name:'PSPA', val:1.250, protectedDefault:false},
+  {name:'CURA', val:0.886, protectedDefault:false},
+  {name:'Industrial Relations', val:0.437, protectedDefault:false},
+  {name:'Tynwald Auditor General', val:0.457, protectedDefault:false},
+  {name:'Information Commissioner', val:0.382, protectedDefault:false},
+  {name:"Veterans' Welfare Society", val:0.114, protectedDefault:false},
+  {name:'Tynwald Commissioner for Admin', val:0.037, protectedDefault:false},
+];
+const DEPT_TOTAL = DEPTS.reduce((a,d)=>a+d.val,0); // 569.869
+const DEPT_BASELINE_G = 0.03; // Pink Book 2025-26->2029-30 indicative CAGR
+
+function cspSeries(n, idxRate, contribDelta){
+  const gRate = (1+idxRate)*(1+BASE.csp.pensHcG)-1;
+  const cRate = (1+BASE.csp.salaryG)*(1+BASE.csp.actHcG)-1 + contribDelta/100;
+  const gross = BASE.csp.gross0*Math.pow(1+gRate,n);
+  const contrib = BASE.csp.contrib0*Math.pow(1+Math.max(cRate,-0.5),n);
+  return {gross, contrib, net: gross-contrib};
+}
+
+function spCore(n, ageDelay){
+  let val = BASE.sp.core0;
+  for(const [start,end,vgBase] of BASE.sp.volPeriods){
+    const segEnd = Math.min(end,n);
+    if(segEnd<=start) continue;
+    const span = segEnd-start;
+    let damp = start===0?0.15:(start===5?0.08:0.05);
+    let vg = Math.max(vgBase*(1-damp*ageDelay), 0);
+    const combined = (1+BASE.sp.priceDefault)*(1+vg)-1;
+    val *= Math.pow(1+combined, span);
+    if(segEnd>=n) break;
+  }
+  return val;
+}
+
+function supplement(n){
+  return BASE.supp.base0*Math.pow(1+BASE.supp.decline, n);
+}
+
+function computeSeries(){
+  const ageDelay = parseFloat(document.getElementById('s-age').value);
+  const contribDelta = parseFloat(document.getElementById('s-contrib').value);
+  const idxRate = parseFloat(document.getElementById('s-idx').value)/100;
+  const cutPct = parseFloat(document.getElementById('s-cut').value);
+  const taxPct = parseFloat(document.getElementById('s-tax').value);
+  const backstop = document.getElementById('c-backstop').checked;
+
+  const nonProtectedBase = DEPTS.filter(d=>!d.protectedDefault).reduce((a,d)=>a+d.val,0);
+
+  const rows = [];
+  for(let n=0;n<=N_MAX;n++){
+    const csp = cspSeries(n, idxRate, contribDelta);
+    const sp = spCore(n, ageDelay);
+    const su = supplement(n);
+    const niBaseline0 = BASE.sp.core0+BASE.supp.base0;
+    const niBaselineGrown = niBaseline0*Math.pow(1.03, n); // modest NI contribution-growth baseline
+    const niShortfall = backstop ? Math.max(0, (sp+su)-niBaselineGrown) : 0;
+    const gap = csp.net + niShortfall;
+
+    const totalDeptBudget = DEPT_TOTAL*Math.pow(1+DEPT_BASELINE_G, n);
+    const nonProtectedBudget = nonProtectedBase*Math.pow(1+DEPT_BASELINE_G, n);
+    const cutRevenue = (cutPct/100)*nonProtectedBudget;
+    const taxRevenue = (taxPct/100)*totalDeptBudget;
+    const netGap = gap - cutRevenue - taxRevenue;
+
+    rows.push({n, csp, sp, su, gap, cutRevenue, taxRevenue, netGap, totalDeptBudget, nonProtectedBudget});
+  }
+  return rows;
+}
+
+let demandChart, deptChart;
+
+function fmt(v){ return (Math.abs(v)>=1000? (v/1000).toFixed(2)+'bn' : v.toFixed(1)+'m'); }
+
+function render(){
+  const rows = computeSeries();
+  const cutPct = parseFloat(document.getElementById('s-cut').value);
+
+  document.getElementById('v-age').textContent = `+${parseFloat(document.getElementById('s-age').value)} yrs`;
+  document.getElementById('v-contrib').textContent = `${document.getElementById('s-contrib').value>=0?'+':''}${document.getElementById('s-contrib').value} pts`;
+  document.getElementById('v-idx').textContent = `${parseFloat(document.getElementById('s-idx').value).toFixed(2)}%/yr`;
+  document.getElementById('v-cut').textContent = `${document.getElementById('s-cut').value}%`;
+  document.getElementById('v-tax').textContent = `${document.getElementById('s-tax').value}%`;
+
+  // Stat cards
+  const r0 = rows[0], r5=rows[5], r10=rows[10], r20=rows[20];
+  const statRow = document.getElementById('statRow');
+  statRow.innerHTML = `
+    <div class="stat"><div class="stat-label">FY2024-25 (base)</div><div class="stat-value">£${fmt(r0.gap)}</div><div class="stat-sub">GRA-facing gap today</div></div>
+    <div class="stat ${r10.netGap>r0.gap*1.3?'warn':'good'}"><div class="stat-label">FY2034-35 (10yr)</div><div class="stat-value">£${fmt(r10.netGap)}</div><div class="stat-sub">after current levers</div></div>
+    <div class="stat ${r20.netGap>150?'bad':(r20.netGap>60?'warn':'good')}"><div class="stat-label">FY2044-45 (20yr)</div><div class="stat-value">£${fmt(r20.netGap)}</div><div class="stat-sub">after current levers</div></div>
+    <div class="stat"><div class="stat-label">Combined demand FY44-45</div><div class="stat-value">£${fmt(r20.csp.gross+r20.sp+r20.su)}</div><div class="stat-sub">CSP + State Pension + Supplement</div></div>
+  `;
+
+  // Demand chart
+  const labels = rows.map(r=>YEARS_LBL[r.n]).filter((_,i)=>i%2===0 || i===N_MAX);
+  const idxList = rows.map((r,i)=>i).filter(i=>i%2===0 || i===N_MAX);
+  const pick = arr => idxList.map(i=>arr[i]);
+
+  const dCtx = document.getElementById('demandChart').getContext('2d');
+  const dData = {
+    labels: pick(rows.map(r=>YEARS_LBL[r.n])),
+    datasets:[
+      {label:'CSP gross', data:pick(rows.map(r=>r.csp.gross)), borderColor:'#60a5fa', backgroundColor:'transparent', borderWidth:2, tension:.3},
+      {label:'State Pension core', data:pick(rows.map(r=>r.sp)), borderColor:'#f59e0b', backgroundColor:'transparent', borderWidth:2, tension:.3},
+      {label:'Pension Supplement', data:pick(rows.map(r=>r.su)), borderColor:'#a78bfa', backgroundColor:'transparent', borderWidth:2, tension:.3, borderDash:[5,3]},
+      {label:'CSP net (GRA pressure)', data:pick(rows.map(r=>r.csp.net)), borderColor:'#f87171', backgroundColor:'rgba(248,113,113,0.08)', borderWidth:2, fill:true, tension:.3},
+    ]
+  };
+  if(demandChart){ demandChart.data=dData; demandChart.update(); }
+  else{
+    demandChart = new Chart(dCtx,{type:'line',data:dData,options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: £${c.parsed.y.toFixed(1)}m`}}},
+      scales:{
+        y:{ticks:{color:'#94a3b8',callback:v=>'£'+v+'m'}, grid:{color:'rgba(255,255,255,0.05)'}},
+        x:{ticks:{color:'#94a3b8'}, grid:{display:false}}
+      }
+    }});
+  }
+
+  // Dept chart
+  const cutDepts = DEPTS.filter(d=>!d.protectedDefault);
+  const dNames = DEPTS.map(d=>d.name.length>18?d.name.slice(0,17)+'…':d.name);
+  const dRemaining = DEPTS.map(d=> d.protectedDefault? d.val : d.val*(1-cutPct/100));
+  const dCut = DEPTS.map(d=> d.protectedDefault? 0 : d.val*(cutPct/100));
+
+  const deptCtx = document.getElementById('deptChart').getContext('2d');
+  const deptData = {
+    labels: dNames,
+    datasets:[
+      {label:'Remaining budget', data:dRemaining, backgroundColor:'#60a5fa'},
+      {label:'Cut', data:dCut, backgroundColor:'#f87171'},
+    ]
+  };
+  if(deptChart){ deptChart.data=deptData; deptChart.update(); }
+  else{
+    deptChart = new Chart(deptCtx,{type:'bar',data:deptData,options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{color:'#94a3b8',font:{size:10}}}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: £${c.parsed.x.toFixed(1)}m`}}},
+      scales:{
+        x:{stacked:true, ticks:{color:'#94a3b8',callback:v=>'£'+v+'m'}, grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{stacked:true, ticks:{color:'#94a3b8', font:{size:10}}, grid:{display:false}}
+      }
+    }});
+  }
+
+  // Table
+  const checkpoints = [0,5,10,15,20];
+  let html = '<tr><th>Year</th><th>CSP gross</th><th>CSP contrib</th><th>CSP net</th><th>State Pension core</th><th>Supplement</th><th>GRA-facing gap</th><th>After levers</th></tr>';
+  checkpoints.forEach(n=>{
+    const r = rows[n];
+    html += `<tr><td>${YEARS_LBL[n]}</td><td>${r.csp.gross.toFixed(1)}</td><td>${r.csp.contrib.toFixed(1)}</td><td>${r.csp.net.toFixed(1)}</td><td>${r.sp.toFixed(1)}</td><td>${r.su.toFixed(1)}</td><td>${r.gap.toFixed(1)}</td><td>${r.netGap.toFixed(1)}</td></tr>`;
+  });
+  document.getElementById('dataTable').innerHTML = html;
+}
+
+function resetLevers(){
+  document.getElementById('s-age').value = 0;
+  document.getElementById('s-contrib').value = 0;
+  document.getElementById('s-idx').value = 2;
+  document.getElementById('s-cut').value = 0;
+  document.getElementById('s-tax').value = 0;
+  document.getElementById('c-backstop').checked = false;
+  render();
+}
+
+['s-age','s-contrib','s-idx','s-cut','s-tax'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', render);
+});
+document.getElementById('c-backstop').addEventListener('change', render);
+
+render();
+</script>
+</body>
+</html>

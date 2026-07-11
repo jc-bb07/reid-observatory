@@ -38,7 +38,7 @@ const TAB_GROUPS = [
       { id: "econHome",      label: "Overview"             },
       { id: "econperf",      label: "Economic Performance" },
       { id: "econmix",       label: "Economic Mix"         },
-      { id: "demog",         label: "Population Mix"       },
+      { id: "demog",         label: "Demographics Explorer" },
       { id: "iomPopChange",  label: "Population Change"    },
       { id: "inflation",     label: "Inflation"            },
       { id: "unemployment",  label: "Unemployment"         },
@@ -48,10 +48,9 @@ const TAB_GROUPS = [
   { id: "gov-group",       label: "Government",          color: "#60a5fa", homeTab: "govHome",
     tabs: [
       { id: "govHome",           label: "Overview"             },
-      { id: "iomfiscal",         label: "IoM Fiscal Flows"     },
-      { id: "iomfiscaldept",     label: "Budget Sources & Uses"},
-      { id: "workforce",         label: "Public Sector"        },
-      { id: "iomPensionChallenge", label: "Pension Challenge"  },
+      { id: "iomfiscaldept",     label: "Fiscal Sources & Uses"},
+      { id: "workforce",         label: "Public Sector Workforce" },
+      { id: "iomPensionChallenge", label: "Pension Explorer"  },
       { id: "familyPension",     label: "Pension Picture"      },
     ]
   },
@@ -782,17 +781,7 @@ function GovHomeTab({ C, onNavigate }) {
       </div>
 
       {card(
-        "IoM Fiscal Flows",
-        `A Sankey diagram of Isle of Man government income and expenditure — where money
-        comes from (income tax, VAT sharing, duties, company tax) and where it goes
-        (health, education, social security, infrastructure). Aggregate view from
-        Treasury published accounts.`,
-        C.blue,
-        () => onNavigate("iomfiscal")
-      )}
-
-      {card(
-        "Budget Sources & Uses",
+        "Fiscal Sources & Uses",
         `Departmental breakdown of IoM government income and expenditure, FY2016–2025.
         Revenue sources flow through the General Revenue Account to department groups
         and expenditure types. Animate across years, focus on a department or spending
@@ -812,10 +801,12 @@ function GovHomeTab({ C, onNavigate }) {
       )}
 
       {card(
-        "Pension — Demographic Challenge",
-        `How the 45–64 age bulge translates into escalating pension costs. Population pyramid,
-        all-scheme cashflow, and the ratio of active members to pensioners — animated across
-        2021 to 2041.`,
+        "Pension Explorer",
+        `The Civil Service/GUS pension (PSPA, paid from General Revenue) and the Manx State
+        Pension (paid from the National Insurance Fund) — modelled side by side. Switch
+        between Combined, Public Sector, and State Pension views; drag levers for retirement
+        age, contribution rates, and benefit indexation; and toggle population scenarios
+        to see how the funding gap moves.`,
         C.blue,
         () => onNavigate("iomPensionChallenge")
       )}
@@ -1505,7 +1496,7 @@ function AppContent() {
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "reid","demog","iomPopChange","kanon","areas","iomfiscal","iomfiscaldept","econmix","inflation",
+    "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","econmix","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget",
     "mcReviews","mcWhenWho","yourHealth","nobles-flow","nobles-v15",
@@ -1588,11 +1579,8 @@ function AppContent() {
     iomPopChange: (
       <AutoIframe src="/iom-population-change.html" title="IoM Population Change" theme={themeName} />
     ),
-    iomfiscal: (
-      <AutoIframe src="/iomg-sankeyvis1.html" title="IoM Government Fiscal Flows" theme={themeName} />
-    ),
     iomfiscaldept: (
-      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Budget Sources & Uses" theme={themeName} />
+      <AutoIframe src="/iomg-budget-sankey.html" title="IoM Government Fiscal Sources & Uses" theme={themeName} />
     ),
     inflation: (
       <AutoIframe src="/inflation-explorer.html" title="Inflation Explorer" theme={themeName} />
@@ -1625,7 +1613,7 @@ function AppContent() {
       <AutoIframe src="/public-sector-employment.html" title="Public Sector Employment" theme={themeName} />
     ),
     iomPensionChallenge: (
-      <AutoIframe src="/iom_pension_timebomb.html" title="IoM Pension — Demographic Challenge" theme={themeName} />
+      <AutoIframe src="/iom_pension_explorer.html" title="IoM Pension Explorer — Public Sector & State Pension" theme={themeName} />
     ),
     familyPension: (
       <AutoIframe src="/fp.html" title="Your Family's Pension Picture" theme={themeName} />

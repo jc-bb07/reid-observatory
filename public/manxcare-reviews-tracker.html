@@ -1,890 +1,1622 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manx Care — Reviews &amp; Accountability Tracker</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reviews Tracker · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg: #F4F5F7;
-  --surface: #FFFFFF;
-  --surface2: #F8F9FA;
-  --border: #E1E4E8;
-  --text: #1A1D23;
-  --text2: #5A6272;
-  --text3: #8C93A0;
-
-  --iom: #1B6CA8;
-  --tynwald: #6B21A8;
-  --green: #16A34A;
-  --amber: #D97706;
-  --red: #DC2626;
-  --teal: #0D9488;
-  --slate: #64748B;
-
-  /* action status colours */
-  --st-identified: #2563EB;
-  --st-accepted: #0D9488;
-  --st-in-progress: #D97706;
-  --st-completed: #16A34A;
-  --st-rejected: #DC2626;
-  --st-partial: #EA580C;
-  --st-unknown: #94A3B8;
-}
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── DARK tokens (default) ── */
+:root {
+  --bg:       #0f172a;
+  --surface:  #1e293b;
+  --surface2: #162032;
+  --border:   #1e293b;
+  --border2:  #334155;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --blue:     #60a5fa;
+  --blue-dim: #1d4ed8;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;
+  --purple:   #a78bfa;
+  --orange:   #fb923c;
+  --iom:      #3b82f6;
+  --gsy:      #10b981;
+  --jsy:      #f59e0b;
+}
+
+/* ── LIGHT tokens — exact Observatory spec ── */
+body.light {
+  --bg:       #f8fafc;
+  --surface:  #ffffff;
+  --surface2: #f1f5f9;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --muted2:   #334155;
+  --blue:     #2563eb;
+  --blue-dim: #1d4ed8;
+  --green:    #059669;
+  --amber:    #d97706;
+  --red:      #dc2626;
+  --purple:   #7c3aed;
+  --orange:   #ea580c;
+  --iom:      #2563eb;
+  --gsy:      #059669;
+  --jsy:      #d97706;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
-  min-height: 100dvh;
 }
 
-/* ── Layout ── */
-.page { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
+.shell { max-width: 960px; margin: 0 auto; padding: 20px 20px 60px; }
 
-/* ── Header ── */
-.hdr { margin-bottom: 24px; }
-.hdr h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-.hdr .sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
-.hdr-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-
-.stat-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; padding: 8px 14px;
-  font-size: 12px; color: var(--text2);
-  cursor: pointer; transition: border-color .15s, box-shadow .15s;
+/* ── Section headings ── */
+.section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 10px; margin-top: 28px;
 }
-.stat-pill:hover { border-color: var(--iom); box-shadow: 0 0 0 2px #1B6CA820; }
-.stat-pill .n { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
-.stat-pill.active { border-color: var(--iom); background: #EFF6FF; }
-.stat-pill.active .n { color: var(--iom); }
-.stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-/* ── Filter bar ── */
-.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
-.filter-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-right: 2px; }
-.filter-btn {
-  border: 1px solid var(--border); background: var(--surface);
-  border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text2);
-  cursor: pointer; transition: all .15s;
-}
-.filter-btn:hover { border-color: var(--iom); color: var(--iom); }
-.filter-btn.on { background: var(--iom); border-color: var(--iom); color: #fff; }
-.filter-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
-
-/* ── Review cards ── */
-.reviews { display: flex; flex-direction: column; gap: 14px; }
-
-.rcard {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden;
-  transition: box-shadow .15s;
-}
-.rcard:hover { box-shadow: 0 2px 12px #0001; }
-.rcard.hidden { display: none; }
-
-.rcard-hdr {
-  padding: 16px 18px 14px;
-  cursor: pointer;
-  user-select: none;
+/* ── Avoidable mortality ── */
+.am-grid {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: start;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
 }
-.rcard-hdr:hover { background: var(--surface2); }
-
-.rcard-title-row { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
-.rcard-title { font-size: 15px; font-weight: 700; }
-.rcard-year { font-size: 12px; color: var(--text3); margin-top: 2px; }
-
-.rcard-meta { font-size: 12px; color: var(--text2); display: flex; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
-.rcard-meta span::before { content: '·'; margin-right: 12px; color: var(--border); }
-.rcard-meta span:first-child::before { display: none; }
-
-.rcard-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-
-.pub-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 600; letter-spacing: .2px;
+.am-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
 }
-.pub-badge.yes { background: #DCFCE7; color: #15803D; }
-.pub-badge.no  { background: #FEF2F2; color: #B91C1C; }
-.pub-badge.unclear { background: #FFF7ED; color: #C2410C; }
-
-.domain-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-.dtag {
-  border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600;
-  background: #EFF6FF; color: var(--iom); border: 1px solid #BFDBFE;
+.am-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
 }
+.am-card.iom::before { background: var(--iom); }
+.am-card.jsy::before { background: var(--jsy); }
+.am-card.gsy::before { background: var(--gsy); }
+.am-card.eng::before { background: var(--muted2); }
 
-.chevron { font-size: 14px; color: var(--text3); transition: transform .2s; margin-top: 2px; }
-.rcard.open .chevron { transform: rotate(180deg); }
-
-/* ── Summary ── */
-.rcard-summary {
-  padding: 0 18px 14px;
-  font-size: 13px; color: var(--text2); line-height: 1.6;
-  display: none;
+.am-territory {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 6px;
 }
-.rcard.open .rcard-summary { display: block; }
+.am-card.iom .am-territory { color: var(--iom); }
+.am-card.jsy .am-territory { color: var(--jsy); }
+.am-card.gsy .am-territory { color: var(--gsy); }
+.am-card.eng .am-territory { color: var(--muted2); }
 
-/* ── Tabs ── */
-.rcard-tabs {
-  border-top: 1px solid var(--border);
-  display: none;
+.am-score {
+  font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1; margin-bottom: 4px;
 }
-.rcard.open .rcard-tabs { display: block; }
+.am-card.iom .am-score { color: var(--amber); }
+.am-card.jsy .am-score { color: var(--green); }
+.am-card.gsy .am-score { color: var(--green); }
+.am-card.eng .am-score { color: var(--red); }
 
-.tab-bar { display: flex; border-bottom: 1px solid var(--border); }
-.tab-btn {
-  padding: 9px 16px; font-size: 12px; font-weight: 600; color: var(--text2);
-  cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
-  transition: color .15s;
-}
-.tab-btn:hover { color: var(--iom); }
-.tab-btn.active { color: var(--iom); border-bottom-color: var(--iom); }
+.am-label { font-size: 11px; color: var(--muted2); }
+.am-note  { font-size: 10px; color: var(--muted); margin-top: 6px; font-style: italic; }
 
-.tab-pane { display: none; padding: 14px 18px 18px; }
-.tab-pane.active { display: block; }
-
-/* ── Actions table ── */
-.actions-header {
-  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
-  font-size: 11px;
-}
-.act-mini { display: flex; align-items: center; gap: 4px; }
-.act-mini .dot { width: 7px; height: 7px; border-radius: 50%; }
-
-.action-list { display: flex; flex-direction: column; gap: 6px; }
-.action-row {
-  display: grid; grid-template-columns: auto 1fr auto;
-  align-items: start; gap: 10px;
-  padding: 9px 12px; border-radius: 7px; background: var(--surface2);
-  border: 1px solid var(--border);
-}
-.action-row:hover { border-color: #CBD5E1; }
-
-.act-status {
-  display: inline-flex; align-items: center; gap: 4px;
-  border-radius: 5px; padding: 3px 8px; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .4px; white-space: nowrap;
-}
-.act-status.identified { background: #EFF6FF; color: var(--st-identified); }
-.act-status.accepted   { background: #F0FDFA; color: var(--st-accepted); }
-.act-status.in-progress{ background: #FFFBEB; color: var(--st-in-progress); }
-.act-status.completed  { background: #F0FDF4; color: var(--st-completed); }
-.act-status.rejected   { background: #FEF2F2; color: var(--st-rejected); }
-.act-status.partial    { background: #FFF7ED; color: var(--st-partial); }
-.act-status.unknown    { background: #F8FAFC; color: var(--st-unknown); }
-
-.action-text { font-size: 13px; line-height: 1.4; padding-top: 1px; }
-.action-notes {
-  font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.4;
-  grid-column: 2 / 3;
-}
-
-.no-data { font-size: 13px; color: var(--text3); font-style: italic; padding: 8px 0; }
-
-/* ── Quotes ── */
-.quote-list { display: flex; flex-direction: column; gap: 10px; }
-
-.qcard {
-  border-radius: 8px; padding: 12px 14px;
-  border-left: 3px solid var(--border);
+.am-explainer {
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue-dim);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px; color: var(--muted2); line-height: 1.65;
 }
-.qcard.hansard { border-left-color: var(--tynwald); background: #FAF5FF; border-color: #E9D5FF; }
-.qcard.report  { border-left-color: var(--iom);     background: #EFF6FF; border-color: #BFDBFE; }
-.qcard.news    { border-left-color: var(--amber);   background: #FFFBEB; border-color: #FDE68A; }
-
-.qcard-prov {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: wrap;
+.am-explainer strong { color: var(--text); font-weight: 600; }
+.am-explainer-toggle {
+  background: none; border: none; font-family: inherit;
+  font-size: 11px; color: var(--blue); cursor: pointer; padding: 0;
+  margin-left: 6px; text-decoration: underline;
 }
-.prov-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: .3px;
+.am-detail {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border2);
+  font-size: 11px; color: var(--muted2); line-height: 1.7;
 }
-.prov-badge.hansard { background: var(--tynwald); color: #fff; }
-.prov-badge.report  { background: var(--iom); color: #fff; }
-.prov-badge.news    { background: var(--amber); color: #fff; }
 
-.qcard-source { font-size: 11px; color: var(--text2); font-weight: 600; }
-.qcard-speaker { font-size: 11px; color: var(--text3); }
+/* ── Dual Scoreboard ── */
+.dual-sb { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
 
-.qcard-text {
-  font-size: 13px; line-height: 1.6; color: var(--text);
-  font-style: italic;
+.sb-row {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
 }
-.qcard-text::before { content: '\201C'; }
-.qcard-text::after  { content: '\201D'; }
-
-/* ── Status key ── */
-.key-section {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
+.sb-row-label {
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 1px;
+  padding: 0 12px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted);
+  border-right: 1px solid var(--border2);
+  white-space: nowrap; min-width: 72px; flex-shrink: 0;
 }
-.key-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); margin-bottom: 10px; }
-.key-grid { display: flex; flex-wrap: wrap; gap: 8px 18px; }
-.key-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.sb-row-label .sb-since {
+  font-size: 8px; font-weight: 400; letter-spacing: 0; color: var(--muted);
+  text-transform: none;
+}
+.sb-cells { display: flex; flex: 1; overflow-x: auto; flex-wrap: nowrap; }
+.sb-stat {
+  flex: 1; text-align: center; padding: 10px 6px;
+  border-right: 1px solid var(--border2); min-width: 52px;
+}
+.sb-stat:last-child { border-right: none; }
+.sb-val {
+  font-size: 20px; font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; margin-bottom: 2px; color: var(--text);
+}
+.sb-val.green  { color: var(--green); }
+.sb-val.amber  { color: var(--amber); }
+.sb-val.red    { color: var(--red); }
+.sb-val.blue   { color: var(--blue); }
+.sb-val.orange { color: var(--orange); }
+.sb-val.muted  { color: var(--muted2); }
+.sb-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted); line-height: 1.2;
+}
 
-/* ── Timeline bar ── */
-.timeline-bar {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 18px 16px; margin-bottom: 20px;
+/* Rejected/Contested group */
+.sb-group {
+  display: flex; flex-shrink: 0;
+  background: rgba(127,29,29,0.1);
+  border-left: 2px solid rgba(220,38,38,0.25);
+}
+.sb-group .sb-stat { border-right: 1px solid rgba(220,38,38,0.15); }
+.sb-group .sb-stat:last-child { border-right: none; }
+
+/* ── Timeline ── */
+.timeline-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 18px 12px;
   overflow-x: auto;
 }
-.tl-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); margin-bottom: 12px; }
-.tl-track { position: relative; height: 56px; min-width: 600px; }
-.tl-line { position: absolute; top: 22px; left: 0; right: 0; height: 2px; background: var(--border); }
-.tl-year { position: absolute; top: 30px; font-size: 10px; color: var(--text3); transform: translateX(-50%); }
+.tl-track {
+  position: relative;
+  height: 100px;
+  min-width: 640px;
+}
+.tl-line {
+  position: absolute;
+  top: 48px; left: 0; right: 0;
+  height: 1.5px;
+  background: var(--border2);
+}
+.tl-year {
+  position: absolute;
+  top: 84px;
+  font-size: 9px; color: var(--muted);
+  transform: translateX(-50%);
+}
 .tl-dot {
-  position: absolute; top: 15px; width: 14px; height: 14px;
-  border-radius: 50%; border: 2px solid var(--surface); cursor: pointer;
+  position: absolute;
+  top: 41px;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  cursor: pointer;
   transform: translateX(-50%);
   transition: transform .15s;
 }
-.tl-dot:hover { transform: translateX(-50%) scale(1.3); }
-.tl-dot-label {
-  position: absolute; top: 0px; font-size: 9px; font-weight: 600; color: var(--text2);
-  white-space: nowrap; transform: translateX(-50%);
-  max-width: 70px; overflow: hidden; text-overflow: ellipsis; text-align: center;
+.tl-dot:hover { transform: translateX(-50%) scale(1.35); }
+.tl-dot.tl-stub {
+  width: 9px; height: 9px; top: 43px;
+  opacity: 0.4; cursor: default;
+}
+.tl-dot.tl-stub:hover { transform: translateX(-50%); }
+
+.tl-label {
+  position: absolute;
+  font-size: 9px; font-weight: 600;
+  transform: translateX(-50%);
+  max-width: 80px; overflow: hidden; text-overflow: ellipsis;
+  text-align: center; cursor: pointer; line-height: 1.2; white-space: nowrap;
+}
+/* 3 levels above, 3 below */
+.tl-label.a0 { top:  2px; }
+.tl-label.a1 { top: 13px; }
+.tl-label.a2 { top: 24px; }
+.tl-label.b0 { top: 59px; }
+.tl-label.b1 { top: 70px; }
+.tl-label.b2 { top: 81px; }
+
+.tl-tick {
+  position: absolute;
+  width: 1px;
+  background: var(--border2);
+  transform: translateX(-50%);
+}
+.tl-tick.a0 { top: 12px; height: 29px; }
+.tl-tick.a1 { top: 23px; height: 18px; }
+.tl-tick.a2 { top: 34px; height:  7px; }
+.tl-tick.b0 { top: 50px; height: 9px;  }
+.tl-tick.b1 { top: 50px; height: 20px; }
+.tl-tick.b2 { top: 50px; height: 31px; }
+
+/* ── Filter bar + controls ── */
+.section-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 20px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+}
+.section-label-inline {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.card-controls {
+  display: flex; gap: 5px;
+}
+.expand-btn {
+  font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 5px;
+  border: 1px solid var(--border2); background: transparent; color: var(--muted2);
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.expand-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+.filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 10px;
+}
+.filter-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+.filter-pill {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border2); background: transparent; color: var(--muted2);
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.filter-pill:hover { border-color: var(--blue); color: var(--blue); }
+.filter-pill.on { background: var(--blue-dim); border-color: var(--blue); color: #bfdbfe; }
+body.light .filter-pill.on { color: #dbeafe; }
+
+.search-input {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 4px 10px; color: var(--text);
+  font-family: inherit; font-size: 12px; outline: none;
+  width: 160px; transition: border-color .15s;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--blue); }
+.filter-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 2px; flex-shrink: 0; }
+.filter-count {
+  margin-left: auto; font-size: 10px; color: var(--muted); white-space: nowrap;
 }
 
-/* ── Empty state ── */
-.empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
+/* ── Stacked review cards ── */
+.reviews-stack { display: flex; flex-direction: column; gap: 8px; }
 
+.review-item {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color .15s, opacity .2s;
+}
+.review-item.dimmed { opacity: 0.25; pointer-events: none; }
+.review-item.highlighted { border-color: var(--muted2); box-shadow: 0 0 0 2px rgba(148,163,184,0.2); }
+.review-item.stub-item { border-style: dashed; }
+
+.review-header {
+  padding: 11px 14px;
+  cursor: pointer;
+  user-select: none;
+  border-left: 3px solid var(--rc, var(--muted));
+  transition: background .1s;
+}
+.review-header:hover { background: rgba(255,255,255,0.02); }
+body.light .review-header:hover { background: rgba(0,0,0,0.02); }
+
+.rh-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 8px; margin-bottom: 3px;
+}
+.rh-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.rh-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.rh-date  { font-size: 10px; color: var(--muted); }
+.rh-toggle { font-size: 11px; color: var(--muted); display: inline-block; transition: transform .2s; }
+.review-item.collapsed .rh-toggle { transform: rotate(-90deg); }
+
+.rh-what { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-bottom: 5px; }
+.rh-meta {
+  font-size: 10px; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: center;
+}
+.pub-yes { color: var(--green); font-weight: 600; }
+.pub-no  { color: var(--red);   font-weight: 600; }
+.pub-unk { color: var(--muted); }
+.report-link { color: var(--blue); text-decoration: none; }
+.report-link:hover { text-decoration: underline; }
+.meta-sep { color: var(--border2); }
+
+.rh-pills { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+.rpill {
+  font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+  border: 1px solid transparent;
+}
+.rpill.completed  { background: #064e3b22; color: var(--green);  border-color: #064e3b55; }
+.rpill.inprogress { background: #78350f22; color: var(--amber);  border-color: #78350f55; }
+.rpill.rejected   { background: #7f1d1d22; color: var(--red);    border-color: #7f1d1d55; }
+.rpill.partial    { background: #7c2d1222; color: var(--orange); border-color: #7c2d1255; }
+.rpill.identified { background: #1e3a5f22; color: var(--blue);   border-color: #1e3a5f55; }
+.rpill.accepted   { background: #064e3b22; color: var(--green);  border-color: #064e3b55; }
+.rpill.unknown    { background: var(--surface2); color: var(--muted); border-color: var(--border2); }
+
+/* ── Actions toggle bar ── */
+.actions-toggle-bar {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 9px 14px 9px 17px;
+  background: rgba(96,165,250,0.07); border: none;
+  border-top: 1px solid var(--border2);
+  border-left: 3px solid var(--rc, var(--blue));
+  color: var(--blue); cursor: pointer;
+  font-family: inherit; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.04em; text-align: left;
+  transition: background .15s;
+}
+body.light .actions-toggle-bar { background: rgba(37,99,235,0.06); }
+.actions-toggle-bar:hover { background: rgba(96,165,250,0.16); }
+body.light .actions-toggle-bar:hover { background: rgba(37,99,235,0.1); }
+.atb-hint { font-weight: 400; color: var(--muted); font-size: 10px; margin-left: auto; }
+.review-item.collapsed    .atb-expanded  { display: none; }
+.review-item:not(.collapsed) .atb-collapsed { display: none; }
+
+/* Action list */
+.action-list { border-top: 1px solid var(--border2); }
+.review-item.collapsed .action-list { display: none; }
+
+.action-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(51,65,85,0.4);
+  transition: background .1s;
+}
+body.light .action-row { border-bottom-color: var(--border); }
+.action-row:last-child { border-bottom: none; }
+.action-row:hover { background: rgba(255,255,255,0.025); }
+body.light .action-row:hover { background: rgba(0,0,0,0.025); }
+.action-row.hidden-action  { display: none; }
+.action-row.completed-action { opacity: 0.5; }
+
+.ar-ref {
+  font-size: 10px; color: var(--muted); white-space: nowrap;
+  min-width: 32px; padding-top: 2px; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+}
+.ar-body { flex: 1; min-width: 0; }
+.action-text  { font-size: 12px; color: var(--text); line-height: 1.45; }
+.action-notes { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+.ar-badges { display: flex; gap: 5px; align-items: flex-start; flex-shrink: 0; padding-top: 1px; }
+
+.action-placeholder {
+  padding: 10px 14px; font-size: 11px; color: var(--muted); font-style: italic;
+}
+
+/* Status badges */
+.st {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+  white-space: nowrap; display: inline-block; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.st.identified  { background: #1e3a5f44; color: var(--blue); }
+.st.accepted    { background: #064e3b33; color: var(--green); }
+.st.in-progress { background: #78350f33; color: var(--amber); }
+.st.completed   { background: #064e3b33; color: var(--green); }
+.st.rejected    { background: #7f1d1d33; color: var(--red); }
+.st.partial     { background: #7c2d1233; color: var(--orange); }
+.st.unknown     { background: var(--border2); color: var(--muted2); }
+
+/* Impact badges */
+.impact-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+  white-space: nowrap; display: inline-block; cursor: help; flex-shrink: 0;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.impact-badge.high   { background: #7f1d1d33; color: var(--red); }
+.impact-badge.medium { background: #78350f33; color: var(--amber); }
+.impact-badge.low    { background: #064e3b33; color: var(--green); }
+
+/* Source chip */
+.source-chip {
+  display: inline-block; font-size: 9px; font-weight: 600;
+  padding: 1px 6px; border-radius: 3px;
+  background: var(--surface2); color: var(--muted);
+  border: 1px solid var(--border2); margin-top: 3px; white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Objection badge */
+.obj-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+  background: #78350f33; color: var(--amber);
+  cursor: pointer; border: none; font-family: inherit;
+  transition: background .15s; white-space: nowrap; flex-shrink: 0;
+}
+.obj-badge:hover { background: #78350f66; }
+
+/* ── Tooltips ── */
+#tooltip {
+  position: fixed; z-index: 9999; max-width: 340px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px; padding: 12px 14px;
+  pointer-events: none; display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  color: var(--text);
+}
+#tooltip.visible { display: block; }
+.tooltip-obj-item { margin-bottom: 8px; }
+.tooltip-obj-item:last-child { margin-bottom: 0; }
+.tooltip-who    { font-size: 11px; font-weight: 700; color: var(--amber); margin-bottom: 2px; }
+.tooltip-reason { font-size: 11px; color: var(--muted2); line-height: 1.5; }
+.tooltip-source {
+  display: inline-block; margin-top: 4px;
+  font-size: 10px; color: var(--blue); text-decoration: none; pointer-events: all;
+}
+.tooltip-source:hover { text-decoration: underline; }
+.tooltip-divider { height: 1px; background: var(--border2); margin: 8px 0; }
+
+#impact-tooltip {
+  position: fixed; z-index: 9999;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 13px;
+  pointer-events: none; display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  min-width: 190px; color: var(--text);
+}
+#impact-tooltip.visible { display: block; }
+.it-row { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px; font-size: 11px; }
+.it-row:last-child { margin-bottom: 0; }
+.it-label { color: var(--muted2); }
+.it-score { font-weight: 600; color: var(--text); }
+.it-total { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border2); font-size: 11px; font-weight: 700; }
+
+/* AM chart popup */
+#am-chart-popup {
+  position: fixed; z-index: 9999;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 10px 12px 8px;
+  display: none; box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+  pointer-events: none;
+}
+.acp-title {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px;
+}
+
+/* ── Footer ── */
+.page-footer {
+  margin-top: 40px; padding-top: 16px;
+  border-top: 1px solid var(--border2);
+  font-size: 10px; color: var(--muted2);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.page-footer a { color: var(--muted); text-decoration: none; }
+.page-footer a:hover { color: var(--text); }
+
+/* ── Responsive — mobile baseline from Observatory brief ── */
+@media (max-width: 780px) {
+  .am-grid { grid-template-columns: repeat(2, 1fr); }
+  .sb-row-label { min-width: 60px; padding: 0 8px; font-size: 8px; }
+  .sb-val { font-size: 18px; }
+}
 @media (max-width: 600px) {
-  .page { padding: 16px 12px 40px; }
-  .hdr h1 { font-size: 18px; }
-  .action-row { grid-template-columns: 1fr; }
-  .action-notes { grid-column: 1; }
-  .stat-pill .n { font-size: 16px; }
+  .shell { padding: 12px 14px 32px; }
+  body { font-size: 15px; }
+  .am-grid { grid-template-columns: repeat(2, 1fr); }
+  .am-score { font-size: 26px; }
+  .filter-bar { gap: 6px; }
+  .search-input { width: 130px; }
+  .sb-row-label { display: none; }
+  .sb-stat { padding: 8px 4px; min-width: 44px; }
+  .sb-val { font-size: 17px; }
+  .sb-label { font-size: 8px; }
+  .rh-name { font-size: 12px; }
+  .action-row { flex-wrap: wrap; gap: 5px; }
+  .ar-badges { width: 100%; padding-top: 0; }
+}
+@media (max-width: 400px) {
+  .am-grid { grid-template-columns: 1fr 1fr; }
+  body { font-size: 16px; }
+  .section-controls { flex-direction: column; align-items: flex-start; }
+  .card-controls { align-self: flex-end; }
 }
 </style>
 </head>
 <body>
-<div class="page">
+<div class="shell">
 
-  <!-- Header -->
-  <div class="hdr">
-    <h1>Manx Care — Reviews &amp; Accountability Tracker</h1>
-    <div class="sub">Isle of Man Health &amp; Social Care · 2019–2026 · Coalfinch / Crown Dependencies Observatory</div>
-    <div class="hdr-meta" id="statPills"></div>
+  <!-- ── Avoidable Mortality ── -->
+  <div class="section-label">Avoidable mortality — age-standardised rate per 100,000, under 75s · OECD/Eurostat cause list · ESP2013</div>
+  <div class="am-grid" id="amGrid"></div>
+  <div class="am-explainer">
+    <strong>Avoidable mortality</strong> counts deaths under 75 from conditions where timely treatment or prevention should have made a difference. A lower rate is better — IoM outperforms England but trails its Crown Dependency peers by ~30%.
+    <button class="am-explainer-toggle" onclick="toggleAmDetail(this)" aria-expanded="false">More ↓</button>
+    <div class="am-detail" id="am-detail" style="display:none">
+      All figures use the OECD/Eurostat 2019 joint cause list, ESP2013 age-standardisation, per 100,000 under-75s. Single-year rates on small populations are volatile — Guernsey uses a 3-year rolling average for this reason. Hover any score to see the trend over time.
+    </div>
   </div>
 
-  <!-- Timeline -->
-  <div class="timeline-bar">
-    <div class="tl-title">Review timeline</div>
+  <!-- ── Dual Scoreboard ── -->
+  <div class="section-label" style="margin-top:24px;">At a glance</div>
+  <div class="dual-sb">
+    <div class="sb-row">
+      <div class="sb-row-label">Reviews<span class="sb-since">since 2019</span></div>
+      <div class="sb-cells" id="reviewScoreboard"></div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-row-label">Actions</div>
+      <div class="sb-cells" id="actionScoreboard"></div>
+    </div>
+  </div>
+
+  <!-- ── Timeline ── -->
+  <div class="section-label" style="margin-top:24px;">Review timeline <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:9px;">— click a dot to jump to review · stubs/FOI shown as dim dots</span></div>
+  <div class="timeline-wrap">
     <div class="tl-track" id="timeline">
       <div class="tl-line"></div>
     </div>
   </div>
 
-  <!-- Status key -->
-  <div class="key-section">
-    <div class="key-title">Action status key</div>
-    <div class="key-grid" id="statusKey"></div>
+  <!-- ── Reviews with actions ── -->
+  <div class="section-controls">
+    <div class="section-label-inline">Reviews &amp; Actions</div>
+    <div class="card-controls">
+      <button class="expand-btn" onclick="setAllCollapsed(false)">Expand all</button>
+      <button class="expand-btn" onclick="setAllCollapsed(true)">Collapse all</button>
+    </div>
   </div>
 
-  <!-- Filters -->
-  <div class="filters" id="filters">
-    <span class="filter-label">Domain</span>
+  <div class="filter-bar">
+    <span class="filter-label">Status</span>
+    <div id="statusFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Impact</span>
+    <div id="impactFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <input class="search-input" id="searchInput" type="search" placeholder="Search actions…" oninput="applyFilters()"/>
+    <span class="filter-count" id="filterCount"></span>
   </div>
 
-  <!-- Cards -->
-  <div class="reviews" id="cards"></div>
+  <div class="reviews-stack" id="reviewsStack"></div>
 
+  <div class="page-footer">
+    <span>Manx Care Reviews Tracker · <a href="https://coalfinch.com">Coalfinch</a> · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Sources: Tynwald Hansard · gov.im · SAPRC hearings · PAC hearings</span>
+  </div>
+
+</div><!-- /shell -->
+
+<div id="tooltip"></div>
+<div id="impact-tooltip"></div>
+<div id="am-chart-popup">
+  <div class="acp-title" id="acp-title">Avoidable mortality trend</div>
+  <canvas id="am-chart-canvas" width="240" height="110"></canvas>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 /* =====================================================================
-   DATA
+   THEME — v3 Observatory pattern (handles both message types)
    ===================================================================== */
+(function() {
+  var stored = localStorage.getItem('observatory-theme');
+  if (stored === 'light') document.body.classList.add('light');
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+      // Redraw AM chart if open
+      if (_amChart) { _amChart.destroy(); _amChart = null; }
+    }
+  });
+})();
 
-const STATUS = {
-  'identified':  { label: 'Identified',  color: '#2563EB', bg: '#EFF6FF' },
-  'accepted':    { label: 'Accepted',    color: '#0D9488', bg: '#F0FDFA' },
-  'in-progress': { label: 'In progress', color: '#D97706', bg: '#FFFBEB' },
-  'completed':   { label: 'Completed',   color: '#16A34A', bg: '#F0FDF4' },
-  'rejected':    { label: 'Rejected',    color: '#DC2626', bg: '#FEF2F2' },
-  'partial':     { label: 'Partial',     color: '#EA580C', bg: '#FFF7ED' },
-  'unknown':     { label: 'Unknown',     color: '#94A3B8', bg: '#F8FAFC' },
-};
-
-const REVIEWS = [
-  {
-    id: 'michael-2019',
-    shortName: 'Michael Review',
-    title: 'Independent Review of IoM Health & Social Care',
-    author: 'Sir Jonathan Michael',
-    dateLabel: '2019',
-    dateSort: 2019,
-    commissioner: 'Council of Ministers',
-    published: true,
-    url: 'https://www.gov.im/media/1365879/independent-health-and-social-care-review-final-report.pdf',
-    urlLabel: 'Final Report (gov.im)',
-    domains: ['System Structure', 'Governance', 'Funding'],
-    summary: 'Comprehensive independent review recommending creation of Manx Care as an arm\'s-length body, funded via a new Mandate mechanism, with strengthened legislative underpinning. Set the blueprint for the post-2021 health and social care system. Over 20 years of previous reviews (PwC 2006, Beamans 2013, PAC 2018-19) had identified similar issues — this was the trigger for structural action.',
-    actions: [
-      { text: 'Create Manx Care as arm\'s-length body from DHSC', status: 'completed', notes: 'Manx Care established April 2021' },
-      { text: 'Implement new Mandate funding formula', status: 'accepted', notes: '2026-27 budget exceeded the formula by £32m — framed by Treasury as "massive Government risk"' },
-      { text: 'Modernise legislative framework for health and care (Rec 8)', status: 'in-progress', notes: 'NHS Reform Bill 2026 — passed by both Branches; proceeding to Royal Assent. Enables Schedule 1 of Manx Care Act 2021 to be amended by Tynwald resolution, supporting future governance reform. (GD 83/2026, Jun 2026)' },
-      { text: 'Establish sustainable long-term care funding model', status: 'in-progress', notes: 'Still unresolved as of May 2026; Minister: "successive administrations have wrestled with it"' },
-      { text: 'Deliver structural changes to improve efficiency and service delivery', status: 'partial', notes: 'MHK Callister (Jul 2025): "tangible structural changes have not been evident" despite a significant increase in budget since April 2021' },
-    ]
-  },
-  {
-    id: 'cqc-2022',
-    shortName: 'CQC Inspection',
-    title: 'Care Quality Commission Inspection Report',
-    author: 'Care Quality Commission (CQC)',
-    dateLabel: 'Late 2022 – 2023',
-    dateSort: 2022.9,
-    commissioner: 'DHSC (invited CQC)',
-    published: true,
-    url: 'https://www.gov.im/media/1379714/20221208-acute-community-services-comprehensive-inspection-report-v3_compressed.pdf',
-    urlLabel: 'Acute & Community Inspection Report (gov.im)',
-    url2: 'https://www.gov.im/media/1377786/cqc-report-nobles-pilot-report.pdf',
-    url2Label: 'Noble\'s Hospital Pilot Report (gov.im)',
-    domains: ['Quality & Safety', 'Compliance'],
-    summary: 'Comprehensive independent inspection of Noble\'s Hospital and Manx Care services. Found significant compliance gaps inherited from pre-Manx Care era, requiring substantial investment to rectify. CQC also inspected alongside Ofsted for children\'s services. CEO Cope cited CQC compliance investment as a primary driver of Manx Care\'s persistent overspending.',
-    actions: [
-      { text: 'CQC Action Plan — clinical and social care areas', status: 'completed', notes: '"Most actions" completed by Nov 2024. Director of Social Care Tim O\'Neill: "a lot of hard work to get us to that point" (SAPRC, Nov 2024)' },
-      { text: 'Ofsted Action Plan — children\'s services', status: 'in-progress', notes: 'DHSC and Manx Care discussing next steps for oversight of remaining actions as of Nov 2024' },
-      { text: 'DHSC patient transport hygiene standards (flagged by CQC)', status: 'unknown', notes: 'CQC found DHSC-run minibuses did not meet Manx Care ambulance cleaning standards; Minister acknowledged but no outcome reported (Mar 2025)' },
-      { text: 'Commission next inspection cycle', status: 'in-progress', notes: 'Due 2027–28; Minister exploring scope and whether CQC remains the appropriate provider (HoK Mar 2026)' },
-    ]
-  },
-  {
-    id: 'deanery-2023',
-    shortName: 'Deanery EQI Review',
-    title: 'Educational Quality Interventions Review',
-    author: 'Postgraduate Medical Deanery (North Western)',
-    dateLabel: 'June 2023 (updated 2025)',
-    dateSort: 2023.5,
-    commissioner: 'Postgraduate Medical Deanery',
-    published: false,
-    url: null,
-    urlLabel: 'Not publicly published — provided to Health Minister',
-    domains: ['Workforce', 'Safety Culture', 'Surgery'],
-    summary: 'Found that foundation doctors were reluctant to raise concerns in General Surgery due to the "culture and political nature of the speciality." Described General Surgery as "not the best place to raise concerns." Some doctors reported feeling fearful of their seniors. The 2025 update repeated these concerns. Report provided to the Health Minister; quoted directly by the Speaker in Tynwald January 2026.',
-    actions: [
-      { text: 'Datix incident reporting training — mandatory for IMT doctors', status: 'completed', notes: 'Confirmed by Minister, Jan 2026 Tynwald' },
-      { text: 'Improve induction policy and incident reporting awareness', status: 'completed', notes: 'Confirmed by Minister, Jan 2026 Tynwald' },
-      { text: 'Ensure doctors aware of daily safety huddles where Datix discussed', status: 'completed', notes: 'Confirmed by Minister, Jan 2026 Tynwald' },
-      { text: 'Medical educational leads to check Datix access in supervision sessions', status: 'completed', notes: 'Confirmed by Minister, Jan 2026 Tynwald' },
-      { text: 'Address General Surgery safety culture substantively', status: 'unknown', notes: '2025 Deanery update repeated original concerns — process changes confirmed but cultural shift not verified' },
-    ]
-  },
-  {
-    id: 'cordin-2025',
-    shortName: 'Cordis Bright Review',
-    title: 'Review of Adult Learning Disability Residential Care Services',
-    author: 'Cordis Bright',
-    dateLabel: 'March 2025',
-    dateSort: 2025.2,
-    commissioner: 'Manx Care',
-    published: true,
-    url: 'https://www.gov.im/media/1388830/adult-learning-disabilities-report-cordis-bright_compressed.pdf',
-    urlLabel: 'Full Report (gov.im)',
-    domains: ['Social Care', 'Learning Disabilities'],
-    summary: 'Found a 23% staff vacancy rate, services not person-centred, insufficient breadth of options promoting independence, and an absence of independent advocacy for service users. CEO Cope: "We spend more money than perhaps other areas on learning disability services, but it is not person centred." Published in full. Described as "a very difficult read" by both Manx Care executives and SAPRC members.',
-    actions: [
-      { text: 'Address 23% staff vacancy rate in learning disability services', status: 'in-progress', notes: '"Working really hard on that vacancy factor" — Interim Director of Operations Stacey (SAPRC, Nov 2025). No specific timeline given.' },
-      { text: 'Develop new commissioning strategy — from institutional to person-centred model', status: 'in-progress', notes: 'Stacey: "What we do at the moment is not what we should be doing." CEO: "going to be a long-term piece of work."' },
-      { text: 'Commission independent advocacy service for LD service users', status: 'in-progress', notes: 'Planned for 2026 per SAPRC hearing Nov 2025. Currently no independent advocacy on Island for LD service users.' },
-      { text: 'Develop broader menu of options promoting independence and family support', status: 'in-progress', notes: 'CEO acknowledged the gap; no implementation timeline confirmed' },
-      { text: 'Embed family engagement and advocacy in commissioning plan development', status: 'unknown', notes: 'SAPRC Chair read this finding directly into the record (Nov 2025). No formal response given on this specific point.' },
-    ]
-  },
-  {
-    id: 'miaa-2025',
-    shortName: 'MIAA Governance Review',
-    title: 'Governance Review of Arm\'s-Length Arrangements: DHSC & Manx Care',
-    author: 'Mersey Internal Audit Agency (MIAA)',
-    dateLabel: 'November 2025',
-    dateSort: 2025.88,
-    commissioner: 'DHSC (commissioned June 2025)',
-    published: true,
-    url: 'https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2025-GD-0105.pdf',
-    urlLabel: 'Full Report (Tynwald GD 105/2025)',
-    url2: 'https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2026-GD-0005.pdf',
-    url2Label: 'DHSC Response (Tynwald GD 5/2026)',
-    url3: 'https://tynwald.im/spfile?file=/business/opqp/sittings/20212026/2026-GD-0083.pdf',
-    url3Label: 'Progress Report (GD 83/2026)',
-    domains: ['Governance', 'Accountability'],
-    summary: 'Found the arm\'s-length arrangement between DHSC and Manx Care "has not operated as intended." Identified fundamental governance issues, blurred accountability, and misaligned funding. Echoed findings of every review since 2006. Four structural options presented; Tynwald unanimously selected Option 3 (Strengthened Partnership) in February 2026. Progress report (GD 83/2026) published June 2026: 9-strand implementation plan in development, stakeholder engagement underway summer 2026, final recommendations to Tynwald December 2026.',
-    actions: [
-      { text: 'Select governance model from 4 options presented', status: 'completed', notes: 'Option 3 (Strengthened Partnership) selected unanimously by Tynwald, 18 February 2026' },
-      { text: 'Produce specific action plan with timescales and metrics from MIAA findings', status: 'in-progress', notes: 'Progress report (GD 83/2026) published June 2026. 9-strand implementation plan developed: discovery phase to Jul 2026; interim DHSC Board restructure by end Jul 2026; stakeholder engagement Jul–Sep 2026; final recommendations to Tynwald December 2026.' },
-      { text: 'Resolve blurred accountability between DHSC and Manx Care', status: 'in-progress', notes: 'Work Strand 3 underway. Interim DHSC Board restructure proposed (bringing in Manx Care CEO, Director of Public Health) by end Jul 2026. Roles and escalation routes to be tested in Aug 2026 workshops. Final model for December 2026 Tynwald.' },
-      { text: 'Address funding misalignment and Manx Care overspend', status: 'in-progress', notes: 'Financial Recovery Programme launched early 2026; all key FRP roles recruited. Interim Finance Director appointed to Manx Care; permanent Finance Director recruitment progressing Jul 2026. Early Treasury conversations on 3-year funding model underway.' },
-      { text: 'Conduct forensic financial audit of Manx Care spending', status: 'rejected', notes: 'Requested by Ms Edge MHK alongside governance review (HoK, Mar 2026); Chief Minister gave no explanation when challenged; not included in DHSC response to Tynwald.' },
-    ]
-  },
-  {
-    id: 'gent-2026',
-    shortName: 'Gent Capacity Review',
-    title: 'Independent Rapid Review of Hospital Inpatient Capacity at Noble\'s Hospital',
-    author: 'Peter Gent, PSG Health Ltd',
-    dateLabel: 'May 2026 (published 15 June 2026)',
-    dateSort: 2026.45,
-    commissioner: 'DHSC (by Chief Officer Tim O\'Neill)',
-    published: true,
-    url: 'https://www.gov.im/media/1393257/independent-review-of-bed-capacity-within-nobles-hospital-june-2026.pdf',
-    urlLabel: 'Full Report (gov.im)',
-    domains: ['Capacity', 'Flow', 'Emergency Care', 'Discharge'],
-    summary: 'Commissioned after the Medical Staffing Committee demanded 50 additional beds following sustained OPEL 4 status. Central finding: beds alone do not solve the problem. 8 recommendations covering urgent care streaming, AMU redesign, bed reallocation, digital bed management, seven-day discharge, community resilience and admission avoidance. Action plan expected 24 June 2026 (after publication on 15 June 2026).',
-    actions: [
-      { text: 'Do not increase inpatient bed capacity until current capacity optimised', status: 'identified', notes: 'Central recommendation. Ms Edge MHK challenged this in Tynwald (Jun 2026): "if no more beds needed, why does occupancy repeatedly exceed safe thresholds?"' },
-      { text: 'Recommission integrated Urgent Care model with clinical streaming in A&E', status: 'identified', notes: 'Direct GP pathways, self-care, prescribing pharmacy, minor injuries and AATU access — to reduce A&E footfall from lower-acuity presentations' },
-      { text: 'Convert AMU to Acute Assessment Unit (max 72-hour LoS for acute medicine and surgery)', status: 'identified', notes: 'Reviewer: patients presenting via A&E should go direct to specialty; AMU to be renamed and redesigned' },
-      { text: 'Reconfigure bed allocation — reduce surgical beds, allocate ~10 additional to Medicine', status: 'identified', notes: 'Medicine currently has daily outliers in Surgical wards ("safari model"). Reviewer described this as not best practice and potentially compromising patient outcomes.' },
-      { text: 'Digital transformation of bed management — live patient data across A&E, AAU and bed base', status: 'identified', notes: 'Current system requires significant manual effort; real-time visibility of demand and discharge status needed' },
-      { text: 'Deliver consistent 7-day-a-week bed management and discharge process', status: 'identified', notes: 'Including "golden patient" discharge targeting, discharge lounge to free beds earlier, step-down to ambulatory care' },
-      { text: 'Invest in community resilience and admission avoidance — especially frail elderly', status: 'identified', notes: 'Reviewer advised this as higher priority than increasing inpatient beds given IoM\'s ageing demographic' },
-      { text: 'Embed discharge planning from initial patient arrival — not later in the stay', status: 'identified', notes: 'Reviewer found this was not consistently applied; described as "essential for maintaining focus on early discharge"' },
-    ]
-  },
-  {
-    id: 'rcs-2025',
-    shortName: 'RCS Surgery Review',
-    title: 'General Surgery Service Review',
-    author: 'Royal College of Surgeons of England',
-    dateLabel: '2025',
-    dateSort: 2025.5,
-    commissioner: 'Manx Care / DHSC',
-    published: null,
-    url: null,
-    urlLabel: 'Not publicly indexed — not cited by name in Tynwald Hansard 2024–26',
-    domains: ['Surgery', 'Workforce', 'Safety'],
-    summary: 'Review of general surgery services at Noble\'s Hospital. Covers staffing, surgical throughput, training, and service sustainability. Not cited by name in Tynwald Hansard 2024–2026 — may overlap with the Deanery Educational Quality Interventions Review findings on general surgery culture and foundation doctor safety concerns.',
-    actions: []
-  },
+/* =====================================================================
+   AMENABLE MORTALITY DATA
+   ===================================================================== */
+const AM_DATA = [
+  { id:'jsy', label:'Jersey',      score:'155.9', year:'2024',        note:'Single year · Jersey Mortality Report 2024',                          cls:'jsy' },
+  { id:'gsy', label:'Guernsey',    score:'158',   year:'2022–24 avg', note:'3-yr rolling [95% CI: 141–177] · Guernsey Mortality Trends 2024',     cls:'gsy' },
+  { id:'iom', label:'Isle of Man', score:'204.9', year:'2023',        note:'Single year · IoM Mortality Report 2023',                             cls:'iom' },
+  { id:'eng', label:'England',     score:'227.6', year:'2024',        note:'Single year · ONS · OECD/Eurostat 2019 · ESP2013',                    cls:'eng' },
 ];
 
-const QUOTES = [
-  // Michael Review
+const AM_SERIES = {
+  iom: { label:'Isle of Man', color:'#3b82f6', data:[
+    {y:2006,v:210},{y:2007,v:247},{y:2008,v:288},{y:2009,v:252},{y:2010,v:224},
+    {y:2011,v:225},{y:2012,v:250},{y:2013,v:237},{y:2014,v:193},{y:2015,v:248},
+    {y:2016,v:228},{y:2017,v:226},{y:2018,v:245},{y:2019,v:210},{y:2020,v:258},
+    {y:2021,v:220},{y:2022,v:194},{y:2023,v:205},
+  ]},
+  jsy: { label:'Jersey',    color:'#f59e0b', data:[
+    {y:2012,v:212},{y:2022,v:168},{y:2023,v:153},{y:2024,v:156},
+  ]},
+  gsy: { label:'Guernsey',  color:'#10b981', data:[
+    {y:2014,v:183},{y:2015,v:185},{y:2016,v:191},{y:2017,v:188},
+    {y:2018,v:180},{y:2019,v:185},{y:2020,v:185},{y:2023,v:158},
+  ]},
+  eng: { label:'England',   color:'#94a3b8', data:[
+    {y:2001,v:340.5},{y:2002,v:329.9},{y:2003,v:321.9},{y:2004,v:304.5},{y:2005,v:295.2},
+    {y:2006,v:284.8},{y:2007,v:275.7},{y:2008,v:271.4},{y:2009,v:258.1},{y:2010,v:251.6},
+    {y:2011,v:242.0},{y:2012,v:235.1},{y:2013,v:233.9},{y:2014,v:231.9},{y:2015,v:231.8},
+    {y:2016,v:231.1},{y:2017,v:226.1},{y:2018,v:227.4},{y:2019,v:221.5},{y:2020,v:257.0},
+    {y:2021,v:263.3},{y:2022,v:238.0},{y:2023,v:237.4},{y:2024,v:227.6},
+  ]},
+};
+
+/* =====================================================================
+   REVIEW DATA
+   ===================================================================== */
+const REVIEWS = [
   {
-    reviewId: 'michael-2019', type: 'hansard',
-    source: 'Tynwald, 14 July 2025',
-    speaker: 'Mr Callister MHK',
-    text: 'As Sir Jonathan Michael mentioned in his final report on the independent review of the Isle of Man health and care system, no Government has an unlimited budget. Many would argue that the tangible and structural changes to Manx Care have not been evident over the past four years, particularly in terms of improvements in efficiency and service delivery, despite a significant increase in budget since April 2021.'
+    id:'gent', shortName:'Gent Capacity',
+    date:'May 2026 (pub. 15 Jun)', dateSort:2026.45,
+    what:'Beds alone do not solve the problem — 8 recommendations on flow, discharge, community resilience',
+    author:'Peter Gent, PSG Health Ltd', commissioner:'DHSC (Tim O\'Neill)',
+    published:true,
+    url:'https://www.gov.im/media/1393257/independent-review-of-bed-capacity-within-nobles-hospital-june-2026.pdf',
+    urlLabel:'Full Report (gov.im)',
+    color:'#fb923c',
   },
   {
-    reviewId: 'michael-2019', type: 'hansard',
-    source: 'Tynwald, 9 December 2025',
-    speaker: 'The Speaker (Mr Watterson SHK)',
-    text: 'Over the last 20 years we have charted the hazards, but many of the reefs remain uncomfortably familiar, visible on every chart from PricewaterhouseCoopers in 2006, Beamans in 2013, the Public Accounts Committee inquiries in 2018 and 2019, Sir Jonathan Michael in 2019, and continuing with repeated Audit Advisory reports and now the most recent MIAA governance review in 2025. Eaghtyrane, it is time to stop banging into the reefs before we flounder all together.'
+    id:'miaa', shortName:'MIAA Governance',
+    date:'November 2025', dateSort:2025.88,
+    what:'Arm\'s-length arrangement "has not operated as intended" — blurred accountability, misaligned funding',
+    author:'Mersey Internal Audit Agency', commissioner:'DHSC (Jun 2025)',
+    published:true,
+    url:'https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2025-GD-0105.pdf',
+    urlLabel:'Full Report (GD 105/2025)',
+    url2:'https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2026-GD-0005.pdf',
+    url2Label:'DHSC Response (GD 5/2026)',
+    color:'#fbbf24',
   },
   {
-    reviewId: 'michael-2019', type: 'hansard',
-    source: 'HoK, 28 April 2026 — Second Reading, NHS Reform Bill 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'This Bill represents an important step in a programme of work to modernise the legislative framework that underpins the health and social care services in the Isle of Man. It responds directly to recommendation 8 of the Sir Jonathan Michaels report, which was clear that our current legislative arrangements contain weaknesses and gaps that must be addressed if we are to support a modern, comprehensive health and social care system.'
+    id:'mcgov', shortName:'MC Gov Review',
+    date:'June 2025', dateSort:2025.5,
+    what:'Manx Care internal governance review — scope and findings to be populated from document',
+    author:'Awaiting document', commissioner:'Manx Care',
+    published:null, url:null, color:'#64748b', stub:true,
   },
   {
-    reviewId: 'michael-2019', type: 'hansard',
-    source: 'Budget debate, Tynwald, 17 February 2026',
-    speaker: 'Treasury Minister',
-    text: 'The increase in funding, driven mainly by Mandate funding for Manx Care, marks the first departure from the post-Sir Jonathan Michael funding formula and is £32 million above the anticipated 2026-27 level in the 2025-26 Pink Book. Healthcare is important but the risk arising from sustained costs and an increase in those costs is the achievement of our medium-term financial plan.'
+    id:'rcs', shortName:'RCS Surgery',
+    date:'2025', dateSort:2025.45,
+    what:'General Surgery service review — staffing, throughput, training, sustainability',
+    author:'Royal College of Surgeons of England', commissioner:'Manx Care / DHSC',
+    published:null, url:null, color:'#64748b', foi:true,
   },
   {
-    reviewId: 'michael-2019', type: 'hansard',
-    source: 'Tynwald, 20 May 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'This is not a new issue. The 2018 Council of Ministers Report on the Future Funding of Nursing and Residential Care identified it. The Sir Jonathan Michaels Review in 2019 identified it, and successive administrations have wrestled with it. The time it is taking to find a sustainable solution reflects the scale and complexity of the challenge.'
-  },
-  // CQC
-  {
-    reviewId: 'cqc-2022', type: 'hansard',
-    source: 'PAC Health Care Spending, 5 February 2025',
-    speaker: 'Ms Teresa Cope, CEO Manx Care',
-    text: 'We inherited significant non-compliance with key statutory functions when we commenced. We have had to make significant investment in order to achieve compliance, and then, of course, comprehensive inspection by Care Quality Commission (CQC) and Ofsted arrived, which again set new compliance standards that we needed to achieve. Manx Care has in good faith always tried to deliver what it has been asked to do. The consequence of that is we have not been able to live within the budget that we have been allocated.'
+    id:'cordis', shortName:'Cordis Bright',
+    date:'March 2025', dateSort:2025.2,
+    what:'23% staff vacancy rate, services not person-centred, no independent advocacy for LD service users',
+    author:'Cordis Bright', commissioner:'Manx Care',
+    published:true,
+    url:'https://www.gov.im/media/1388830/adult-learning-disabilities-report-cordis-bright_compressed.pdf',
+    urlLabel:'Full Report (gov.im)',
+    color:'#34d399',
   },
   {
-    reviewId: 'cqc-2022', type: 'hansard',
-    source: 'SAPRC Manx Care No.1, 14 November 2024',
-    speaker: 'Prof Tim O\'Neill, Director of Social Care, Manx Care',
-    text: 'I am proud of the fact that our CQC Action Plan, most of which was delivered before I arrived I hasten to add, most of the actions, not all of them, but most of the actions have been achieved on the CQC Action Plan in my area, which I am really delighted about and that is a lot of hard work to get us to that point. The Ofsted plan, we are just talking to the Department about the next steps in terms of oversight of what remains to be done in that area.'
+    id:'kirkby', shortName:'Kirkby House',
+    date:'August 2024', dateSort:2024.6,
+    what:'Financial governance support review of Kirkby House — scope and findings to be populated from document',
+    author:'Awaiting document', commissioner:'Awaiting document',
+    published:null, url:null, color:'#64748b', stub:true,
   },
   {
-    reviewId: 'cqc-2022', type: 'hansard',
-    source: 'HoK, 3 March 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'The Department is committed to meeting its statutory duty to ensure that Manx Care services are subject to independent inspection at least once every five years, with the next inspection cycle due to commence in the 2027 to 2028 financial year. Planning to support that programme is already under way and is being informed by lessons learnt from the previous inspection cycle. This includes consideration of the appropriate scope of inspections and the large range of potential providers, the choice of inspection provider or alternative mechanisms.'
-  },
-  // Deanery EQI
-  {
-    reviewId: 'deanery-2023', type: 'hansard',
-    source: 'Tynwald, 20 January 2026',
-    speaker: 'The Speaker (Mr Watterson SHK)',
-    text: 'The panel heard that foundation doctors were reluctant to raise concerns in general surgery due to the culture and political nature of the speciality. General surgery was described as "not the best place to raise concerns"… Some foundation doctors felt fearful and did not feel they could feed back to their seniors in general surgery. These concerns were raised again in the 2025 report. Does the Minister accept that this fundamentally undermines safe practices at Noble\'s Hospital?'
+    id:'okra', shortName:'Okra Financial',
+    date:'April 2024', dateSort:2024.3,
+    what:'Review of financial governance — scope and findings to be populated from document',
+    author:'Okra', commissioner:'Awaiting document',
+    published:null, url:null, color:'#64748b', stub:true,
   },
   {
-    reviewId: 'deanery-2023', type: 'hansard',
-    source: 'Tynwald, 20 January 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'Manx Care, in response to the Deanery reports, have ensured that Datix training has been included in mandatory training for all IMT doctors, improved the induction policy and policy awareness around incident reporting, ensured doctors are aware of daily safety huddles where Datix are discussed, and medical educational leads supervising IMTs are to check in supervision sessions if there are any issues with access to reporting completing Datix.'
-  },
-  // Cordis Bright
-  {
-    reviewId: 'cordin-2025', type: 'hansard',
-    source: 'SAPRC Manx Care No.1, 6 November 2025',
-    speaker: 'Ms Teresa Cope, CEO Manx Care',
-    text: 'The learning disability review, the Cordis Bright review was absolutely a very difficult read. But I am pleased we had the ability to publish it in full. What it tells us is that we spend more money than perhaps other areas on learning disability services, but it is not person centred. And we do not have the breadth of menu of options which promote independence and support families. I think that that gives us the opportunity to do things quite differently, but this is going to be a long-term piece of work.'
+    id:'deanery', shortName:'Deanery EQI',
+    date:'Jun 2023 (updated 2025)', dateSort:2023.5,
+    what:'Foundation doctors in General Surgery felt fearful raising concerns — "not the best place to raise concerns"',
+    author:'NW Postgraduate Medical Deanery', commissioner:'Deanery',
+    published:false, url:null, color:'#a78bfa',
   },
   {
-    reviewId: 'cordin-2025', type: 'hansard',
-    source: 'SAPRC Manx Care No.1, 6 November 2025',
-    speaker: 'Mr Shaun Stacey, Interim Director of Operations, Manx Care',
-    text: 'It was, I have to say, a very difficult read. It remains a difficult read. But I would like to say that the team has reflected, they have identified and recognised much of what was said in that report and are really working hard on pulling together the improvements that they can make… What we do at the moment, as is stated clearly in the report, is not what we should be doing, but we need to try and address that through the way we commission services and then the way we fund them.'
-  },
-  // MIAA
-  {
-    reviewId: 'miaa-2025', type: 'hansard',
-    source: 'Tynwald, 9 December 2025',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'The message from the review, and from the wide range of stakeholders who contributed is clear: the status quo is not an option… The Report is candid and identifies ambiguity in the relationship between the Department and Manx Care, while also echoing findings from former reviews prior to the establishment of Manx Care, including the Sir Jonathan Michael Report.'
+    id:'cqc', shortName:'CQC Inspection',
+    date:'Late 2022–23', dateSort:2022.9,
+    what:'Comprehensive independent inspection of Noble\'s and Manx Care services against CQC standards',
+    author:'Care Quality Commission', commissioner:'DHSC (invited CQC)',
+    published:true,
+    url:'https://www.gov.im/media/1379714/20221208-acute-community-services-comprehensive-inspection-report-v3_compressed.pdf',
+    urlLabel:'Inspection Report (gov.im)',
+    color:'#f87171',
   },
   {
-    reviewId: 'miaa-2025', type: 'hansard',
-    source: 'Tynwald, 18 February 2026',
-    speaker: 'The Speaker (Mr Watterson SHK)',
-    text: 'We must remember that we are on a burning platform. Manx Care is continually overspending and underperforming. This is a massive Government risk, but it still does not feel like it is getting the same attention as Moneyval. I do not wish to revisit the myriad of reports with the same recommendations that have not been implemented.'
-  },
-  {
-    reviewId: 'miaa-2025', type: 'hansard',
-    source: 'HoK, 24 March 2026',
-    speaker: 'Ms Edge MHK',
-    text: 'The Mersey Internal Audit Agency (MIAA) Governance Review highlighted blurred accountability and misaligned funding. So can the Chief Minister explain why there is a resistance to do a forensic audit alongside the governance review, so that when Tynwald decides the way forward for Manx Care… there is reassurance to the Manx public that everything that has been spent in Manx Care has been spent in accordance with the Mandate, with the operational plan?'
-  },
-  {
-    reviewId: 'miaa-2025', type: 'hansard',
-    source: 'Tynwald, 9 December 2025 — Speaker referring to 2006–2025 review lineage',
-    speaker: 'The Speaker (Mr Watterson SHK)',
-    text: 'The recommendations have been clear and consistent and only partly fulfilled. So it is no surprise, really, that in 2025 the MIAA\'s Governance Review concludes plainly that the current model has not operated as intended. It highlights fundamental governance issues and presents clear options for structural resolution.'
-  },
-  // Gent
-  {
-    reviewId: 'gent-2026', type: 'report',
-    source: 'Gent Review, May 2026 — Executive Summary',
-    speaker: 'Peter Gent, PSG Health Ltd',
-    text: 'Beds alone do not define the capacity of a hospital\'s ability to deliver care. It is a whole system approach too. Ambulation, admission avoidance, use of alternate pathways and protecting acute hospital capacity for the sickest patients are part and parcel of modern healthcare.'
-  },
-  {
-    reviewId: 'gent-2026', type: 'report',
-    source: 'Gent Review, May 2026 — Recommendations',
-    speaker: 'Peter Gent, PSG Health Ltd',
-    text: 'The reviewer does not advise increasing the inpatient bed capacity without first optimising the potential of the current capacity, skills and transformation opportunities. Adding additional beds without embedding changes to current practices will not deliver improved flow but will significantly increase costs and introduce additional risks.'
-  },
-  {
-    reviewId: 'gent-2026', type: 'report',
-    source: 'Gent Review, May 2026 — Recommendations',
-    speaker: 'Peter Gent, PSG Health Ltd',
-    text: 'The current \'safari\' model is not best practice and may compromise patient outcomes. The reviewer recommends re-configuring bed allocation to Medicine, most specifically by reducing the Surgical bed numbers and allocating an additional circa 10 beds to Medicine.'
-  },
-  {
-    reviewId: 'gent-2026', type: 'hansard',
-    source: 'Tynwald, 16 June 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'The bed capacity review has been completed and was published yesterday. The central message from the report is that the addition of beds without other supportive changes will not resolve the long-term health and social care needs of the Island\'s population, and that the primary goal should be to strengthen processes and procedures.'
-  },
-  {
-    reviewId: 'gent-2026', type: 'hansard',
-    source: 'Tynwald, 16 June 2026',
-    speaker: 'Ms Edge MHK (supplementary)',
-    text: 'The review has actually concluded that there is no need for additional beds. Therefore, why did the Minister react and create additional capacity? If we do not need any more additional beds, can the Minister please explain why bed occupancy has repeatedly exceeded internationally recognised safe thresholds and why patients continue to experience extended waits in A&E?'
-  },
-  {
-    reviewId: 'gent-2026', type: 'hansard',
-    source: 'Tynwald, 17 March 2026',
-    speaker: 'Ms Edge MHK',
-    text: 'We are down 46 beds since Manx Care\'s inception. We are down from 266 beds in 2017. How many bed managers does Noble\'s Hospital have? What is the Minister going to do about accurate data coming into this hon. place and to the public of the Isle of Man? When our Chief Minister stands up in his budget speech and says there are 500 extra frontline staff gone to Manx Care, where are they, Mr President, if we are suffering?'
-  },
-  {
-    reviewId: 'gent-2026', type: 'hansard',
-    source: 'Tynwald, 17 March 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'Manx Care have advised that in 2021, in its inception, there were 279 beds… Currently there are 233 beds.'
-  },
-  {
-    reviewId: 'gent-2026', type: 'hansard',
-    source: 'Tynwald, 19 May 2026',
-    speaker: 'Ms Christian, Minister for Health and Social Care',
-    text: 'The Department has commissioned an urgent independent review of bed capacity at Noble\'s Hospital. I am advised that engagement will commence this week and a report is expected by the end of May, and I am also advised that the interim 12-space clinical decision unit has been delayed because additional flooring issues were discovered during the Ward 2 refurbishment.'
+    id:'michael', shortName:'Michael Review',
+    date:'2019', dateSort:2019,
+    what:'Structural overhaul of IoM health & social care — blueprint for Manx Care',
+    author:'Sir Jonathan Michael', commissioner:'Council of Ministers',
+    published:true,
+    url:'https://www.gov.im/media/1365879/independent-health-and-social-care-review-final-report.pdf',
+    urlLabel:'Full Report (gov.im)',
+    color:'#3b82f6',
   },
 ];
 
 /* =====================================================================
-   RENDER
+   ACTION DATA
+   Validated: all items are written as actions (imperative verbs).
+   impact: scope(1–3) × risk(1–3) × urgency(1–3); sum 3–5=Low 6–7=Med 8–9=High
    ===================================================================== */
+const ACTIONS = [
+  /* ── Michael Review (2019) ── */
+  {
+    ref:'M1', reviewId:'michael',
+    text:'Create Manx Care as arm\'s-length body from DHSC',
+    status:'completed', owner:'DHSC / Council of Ministers', due:'Apr 2021',
+    notes:'Manx Care established April 2021.',
+    source:'Tynwald / CoM (2021)',
+    impact:{scope:3,risk:2,urgency:1}, objections:[],
+  },
+  {
+    ref:'M2', reviewId:'michael',
+    text:'Implement new Mandate funding formula',
+    status:'accepted', owner:'DHSC / Treasury', due:null,
+    notes:'2026-27 budget exceeds formula by £32m — Treasury: "massive Government risk."',
+    source:'Tynwald, 17 Feb 2026',
+    impact:{scope:3,risk:3,urgency:2},
+    objections:[{
+      who:'Treasury Minister',
+      reason:'2026-27 budget is first to depart from the post-Michael formula, exceeding it by £32m. Described as a "massive Government risk" and threat to the medium-term financial plan.',
+      sourceLabel:'Budget debate, Tynwald, 17 Feb 2026',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-02-17T.htm',
+    }],
+  },
+  {
+    ref:'M3', reviewId:'michael',
+    text:'Modernise legislative framework for health and care (Rec 8)',
+    status:'in-progress', owner:'DHSC', due:'2026',
+    notes:'NHS Reform Bill — Second Reading April 2026; Legislative Council June 2026.',
+    source:'Tynwald Hansard, Apr–Jun 2026',
+    impact:{scope:3,risk:3,urgency:2}, objections:[],
+  },
+  {
+    ref:'M4', reviewId:'michael',
+    text:'Establish sustainable long-term care funding model',
+    status:'in-progress', owner:'DHSC / Treasury', due:null,
+    notes:'Still unresolved May 2026 — Minister: "successive administrations have wrestled with it."',
+    source:'Tynwald, 20 May 2026',
+    impact:{scope:3,risk:3,urgency:3},
+    objections:[{
+      who:'Successive administrations',
+      reason:'First identified in 2018 CoM report. Minister (May 2026): "the time it is taking reflects the scale and complexity of the challenge." No administration has resolved it.',
+      sourceLabel:'Tynwald, 20 May 2026',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-05-20T.htm',
+    }],
+  },
+  {
+    ref:'M5', reviewId:'michael',
+    text:'Deliver tangible structural changes to improve efficiency and service delivery',
+    status:'partial', owner:'Manx Care', due:null,
+    notes:'Callister (Jul 2025): "no tangible structural changes" despite budget increase since 2021.',
+    source:'Tynwald, 14 Jul 2025',
+    impact:{scope:3,risk:2,urgency:2},
+    objections:[{
+      who:'Mr Callister MHK',
+      reason:'"Tangible and structural changes to Manx Care have not been evident over the past four years, particularly in terms of improvements in efficiency and service delivery, despite a significant increase in budget since April 2021."',
+      sourceLabel:'Tynwald, 14 Jul 2025',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2025-07-14T.htm',
+    }],
+  },
 
-let activeFilters = new Set(['All']);
-let allDomains = new Set();
-REVIEWS.forEach(r => r.domains.forEach(d => allDomains.add(d)));
+  /* ── CQC Inspection (2022–23) ── */
+  {
+    ref:'C1', reviewId:'cqc',
+    text:'Complete CQC Action Plan across clinical and social care areas',
+    status:'completed', owner:'Manx Care', due:'Nov 2024',
+    notes:'"Most actions" completed by Nov 2024 (Director of Social Care, SAPRC).',
+    source:'SAPRC, Nov 2024',
+    impact:{scope:3,risk:3,urgency:3}, objections:[],
+  },
+  {
+    ref:'C2', reviewId:'cqc',
+    text:'Complete Ofsted Action Plan for children\'s services',
+    status:'in-progress', owner:'Manx Care / DHSC', due:null,
+    notes:'Oversight of remaining actions under discussion.',
+    source:'SAPRC, Nov 2024',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'C3', reviewId:'cqc',
+    text:'Bring DHSC patient transport hygiene up to CQC standards',
+    status:'unknown', owner:'DHSC', due:null,
+    notes:'Acknowledged March 2025; no outcome subsequently reported.',
+    source:'HoK, Mar 2025',
+    impact:{scope:1,risk:1,urgency:1}, objections:[],
+  },
+  {
+    ref:'C4', reviewId:'cqc',
+    text:'Commission next independent inspection cycle',
+    status:'in-progress', owner:'DHSC', due:'2027–28',
+    notes:'Scope under exploration — whether CQC remains appropriate provider being reviewed.',
+    source:'HoK, Mar 2026',
+    impact:{scope:3,risk:2,urgency:1}, objections:[],
+  },
 
-function computeStats() {
-  let total = REVIEWS.length;
-  let pub = REVIEWS.filter(r => r.published === true).length;
-  let notPub = REVIEWS.filter(r => r.published === false).length;
-  let unclear = REVIEWS.filter(r => r.published === null).length;
+  /* ── Deanery EQI (2023, updated 2025) ── */
+  {
+    ref:'D1', reviewId:'deanery',
+    text:'Make Datix incident reporting training mandatory for IMT doctors',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'D2', reviewId:'deanery',
+    text:'Improve induction policy and incident reporting awareness',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:2,risk:1,urgency:2}, objections:[],
+  },
+  {
+    ref:'D3', reviewId:'deanery',
+    text:'Ensure all doctors are aware of daily safety huddles where Datix is discussed',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:2,risk:1,urgency:1}, objections:[],
+  },
+  {
+    ref:'D4', reviewId:'deanery',
+    text:'Require educational leads to verify Datix access at each supervision session',
+    status:'completed', owner:'Manx Care', due:'Jan 2026',
+    notes:'Confirmed by Minister.',
+    source:'Tynwald, Jan 2026',
+    impact:{scope:1,risk:1,urgency:1}, objections:[],
+  },
+  {
+    ref:'D5', reviewId:'deanery',
+    text:'Address General Surgery safety culture substantively — not just process changes',
+    status:'unknown', owner:'Manx Care', due:null,
+    notes:'2025 Deanery update repeated original concerns verbatim; cultural shift not verified.',
+    source:'Tynwald, 20 Jan 2026',
+    impact:{scope:2,risk:3,urgency:2},
+    objections:[{
+      who:'NW Deanery (2025 update)',
+      reason:'2025 EQI update repeated the 2023 concerns about General Surgery\'s "political nature" and doctors feeling fearful. Process changes were implemented but the cultural root cause was not directly addressed.',
+      sourceLabel:'Tynwald, 20 Jan 2026 — Speaker quoting Deanery directly',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-01-20T.htm',
+    }],
+  },
 
-  let allActs = REVIEWS.flatMap(r => r.actions);
-  let cnt = s => allActs.filter(a => a.status === s).length;
+  /* ── Cordis Bright (March 2025) ── */
+  {
+    ref:'CB1', reviewId:'cordis',
+    text:'Address 23% staff vacancy rate in learning disability services',
+    status:'in-progress', owner:'Manx Care', due:null,
+    notes:'"Working really hard on that vacancy factor" (Interim Ops Director). No timeline given.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:3,urgency:2}, objections:[],
+  },
+  {
+    ref:'CB2', reviewId:'cordis',
+    text:'Develop person-centred commissioning strategy to replace institutional model',
+    status:'in-progress', owner:'Manx Care', due:null,
+    notes:'CEO: "going to be a long-term piece of work."',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'CB3', reviewId:'cordis',
+    text:'Commission independent advocacy service for LD service users',
+    status:'in-progress', owner:'Manx Care / DHSC', due:'2026',
+    notes:'Planned for 2026; no independent LD advocacy currently available on Island.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'CB4', reviewId:'cordis',
+    text:'Develop broader menu of options promoting independence and family support',
+    status:'in-progress', owner:'Manx Care', due:null,
+    notes:'CEO acknowledged gap; no implementation timeline confirmed.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:2,urgency:1}, objections:[],
+  },
+  {
+    ref:'CB5', reviewId:'cordis',
+    text:'Embed family engagement and advocacy into commissioning plan development',
+    status:'unknown', owner:'Manx Care', due:null,
+    notes:'SAPRC Chair read finding into the record; no specific response given on this point.',
+    source:'SAPRC, Nov 2025',
+    impact:{scope:2,risk:1,urgency:1},
+    objections:[{
+      who:'Manx Care / DHSC (non-response)',
+      reason:'SAPRC Chair read the finding directly into the record at the November 2025 hearing. No formal response was given specifically on family engagement in commissioning.',
+      sourceLabel:'SAPRC Manx Care No.1, 6 Nov 2025',
+      sourceUrl:'https://www.tynwald.org.im/business/committees/SAPRC/Pages/default.aspx',
+    }],
+  },
 
-  return { total, pub, notPub, unclear,
-    identified: cnt('identified'),
-    accepted: cnt('accepted'),
-    inProgress: cnt('in-progress'),
-    completed: cnt('completed'),
-    rejected: cnt('rejected'),
-    partial: cnt('partial'),
-  };
+  /* ── MIAA Governance (November 2025) ── */
+  {
+    ref:'MG1', reviewId:'miaa',
+    text:'Adopt governance model from MIAA\'s 4 options (Option 3: Strengthened Partnership)',
+    status:'completed', owner:'Tynwald / DHSC', due:'Feb 2026',
+    notes:'Option 3 (Strengthened Partnership) selected by Tynwald motion.',
+    source:'Tynwald, Feb 2026',
+    impact:{scope:3,risk:2,urgency:3}, objections:[],
+  },
+  {
+    ref:'MG2', reviewId:'miaa',
+    text:'Produce specific action plan with timescales and metrics from MIAA findings',
+    status:'in-progress', owner:'DHSC', due:'Mid-2026',
+    notes:'Speaker\'s amendment required action plan separate from full model redesign.',
+    source:'Tynwald, Feb 2026',
+    impact:{scope:3,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'MG3', reviewId:'miaa',
+    text:'Resolve blurred accountability between DHSC and Manx Care',
+    status:'in-progress', owner:'DHSC', due:'Mid-2026',
+    notes:'Core MIAA finding; implementation plan in development.',
+    source:'MIAA Report, Nov 2025',
+    impact:{scope:3,risk:3,urgency:2}, objections:[],
+  },
+  {
+    ref:'MG4', reviewId:'miaa',
+    text:'Address funding misalignment and Manx Care overspend against formula',
+    status:'in-progress', owner:'DHSC / Treasury', due:null,
+    notes:'£32m above post-Michael formula — no return mechanism in place.',
+    source:'Budget, 17 Feb 2026',
+    impact:{scope:3,risk:3,urgency:2},
+    objections:[{
+      who:'Treasury Minister',
+      reason:'2026-27 budget is the first departure from the post-Michael funding formula — £32m above anticipated level. No mechanism has been imposed to return to formula.',
+      sourceLabel:'Budget debate, Tynwald, 17 Feb 2026',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-02-17T.htm',
+    }],
+  },
+  {
+    ref:'MG5', reviewId:'miaa',
+    text:'Commission forensic financial audit of Manx Care spending',
+    status:'rejected', owner:'DHSC / CoM', due:null,
+    notes:'Chief Minister gave no explanation when directly challenged by Ms Edge MHK.',
+    source:'HoK, 24 Mar 2026',
+    impact:{scope:3,risk:2,urgency:2},
+    objections:[{
+      who:'DHSC / Chief Minister',
+      reason:'Ms Edge MHK requested a forensic audit alongside the governance review in March 2026. The Chief Minister did not explain the refusal when challenged in HoK.',
+      sourceLabel:'HoK, 24 Mar 2026 — Ms Edge MHK',
+      sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-03-24K.htm',
+    }],
+  },
+
+  /* ── Gent Capacity Review (June 2026) ── */
+  {
+    ref:'G1', reviewId:'gent',
+    text:'Optimise current bed utilisation and flow before considering any capacity expansion',
+    status:'identified', owner:'DHSC / Manx Care', due:'24 Jun 2026 (action plan)',
+    notes:'Bed count has fallen from 279 to 233 since Manx Care inception.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:3,risk:2,urgency:2},
+    objections:[
+      {
+        who:'Ms Edge MHK',
+        reason:'"If we do not need any more additional beds, can the Minister please explain why bed occupancy has repeatedly exceeded internationally recognised safe thresholds and why patients continue to experience extended waits in A&E?"',
+        sourceLabel:'Tynwald, 16 Jun 2026',
+        sourceUrl:'https://www.tynwald.org.im/business/hansard/20222026Pages/2026-06-16T.htm',
+      },
+      {
+        who:'Medical Staffing Committee',
+        reason:'Had demanded 50 additional beds prior to the review being commissioned, citing sustained OPEL 4 status — directly contradicting the reviewer\'s central finding.',
+        sourceLabel:'Background to Gent commission, May 2026',
+        sourceUrl:'https://www.gov.im/media/1393257/independent-review-of-bed-capacity-within-nobles-hospital-june-2026.pdf',
+      },
+    ],
+  },
+  {
+    ref:'G2', reviewId:'gent',
+    text:'Recommission integrated Urgent Care model with clinical streaming in A&E',
+    status:'identified', owner:'Manx Care / DHSC', due:'Action plan Jun 2026',
+    notes:'Direct GP pathways, prescribing pharmacy, minor injuries, AATU — reduce lower-acuity A&E footfall.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:3,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G3', reviewId:'gent',
+    text:'Convert AMU to Acute Assessment Unit (max 72-hour LoS for acute medicine and surgery)',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'Presentations via A&E to go direct to specialty; AMU renamed and redesigned.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G4', reviewId:'gent',
+    text:'Reconfigure bed allocation — reduce surgical beds, reallocate ~10 to Medicine',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'"Safari model" (medical outliers in surgical wards) not best practice.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:1}, objections:[],
+  },
+  {
+    ref:'G5', reviewId:'gent',
+    text:'Deploy real-time digital bed management system across A&E, AAU and bed base',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'Current system requires significant manual effort; real-time visibility needed.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G6', reviewId:'gent',
+    text:'Deliver consistent 7-day bed management and discharge process',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'"Golden patient" discharge targeting, discharge lounge, step-down to ambulatory care.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G7', reviewId:'gent',
+    text:'Invest in community resilience and admission avoidance — especially frail elderly',
+    status:'identified', owner:'DHSC / Manx Care', due:null,
+    notes:'Higher priority than new beds given IoM\'s ageing demographic.',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:3,risk:2,urgency:2}, objections:[],
+  },
+  {
+    ref:'G8', reviewId:'gent',
+    text:'Embed discharge planning from initial patient arrival — not later in the stay',
+    status:'identified', owner:'Manx Care', due:null,
+    notes:'Not consistently applied — "essential for maintaining focus on early discharge."',
+    source:'Gent Report, Jun 2026',
+    impact:{scope:2,risk:2,urgency:2}, objections:[],
+  },
+];
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const STATUS_ORDER = ['completed','in-progress','accepted','partial','identified','unknown','rejected'];
+const STATUS_LABELS = {
+  'identified':'Identified','accepted':'Accepted','in-progress':'In progress',
+  'completed':'Completed','rejected':'Rejected','partial':'Partial','unknown':'Unknown',
+};
+
+function impactScore(imp) { return imp.scope + imp.risk + imp.urgency; }
+function impactLabel(imp) {
+  const s = impactScore(imp);
+  return s >= 8 ? 'high' : s >= 6 ? 'medium' : 'low';
 }
+function impactDisplay(label) {
+  return { high:'▲ High', medium:'◆ Mid', low:'▼ Low' }[label];
+}
+function reviewFor(id) { return REVIEWS.find(r => r.id === id); }
 
-function renderStatPills() {
-  const s = computeStats();
-  const pills = [
-    { label: 'Reviews', n: s.total, dot: null, filter: null },
-    { label: 'Published', n: s.pub, dot: '#16A34A', filter: '__pub' },
-    { label: 'Not published', n: s.notPub, dot: '#DC2626', filter: '__notpub' },
-    { label: 'Completed actions', n: s.completed, dot: STATUS.completed.color, filter: '__completed' },
-    { label: 'In progress', n: s.inProgress, dot: STATUS['in-progress'].color, filter: '__inprogress' },
-    { label: 'Rejected', n: s.rejected, dot: STATUS.rejected.color, filter: '__rejected' },
-    { label: 'Identified only', n: s.identified, dot: STATUS.identified.color, filter: '__identified' },
-  ];
-  document.getElementById('statPills').innerHTML = pills.map(p => `
-    <div class="stat-pill" onclick="filterStat('${p.filter}')">
-      ${p.dot ? `<span class="dot" style="background:${p.dot}"></span>` : ''}
-      <span class="n">${p.n}</span>
-      <span>${p.label}</span>
+/* =====================================================================
+   AM CARDS
+   ===================================================================== */
+function renderAM() {
+  document.getElementById('amGrid').innerHTML = AM_DATA.map(d => `
+    <div class="am-card ${d.cls}">
+      <div class="am-territory">${d.label}</div>
+      <div class="am-score" style="cursor:help"
+        onmouseenter="showAmChart(event,'${d.id}')"
+        onmouseleave="hideAmChart()">${d.score}</div>
+      <div class="am-label">per 100,000 · ${d.year}</div>
+      <div class="am-note">${d.note}</div>
     </div>`).join('');
 }
 
-function renderKey() {
-  document.getElementById('statusKey').innerHTML = Object.entries(STATUS).map(([k,v]) => `
-    <div class="key-item">
-      <div class="act-status ${k}" style="font-size:10px">${v.label}</div>
-      <span style="font-size:11px;color:#5A6272">${statusDesc(k)}</span>
-    </div>`).join('');
+/* =====================================================================
+   DUAL SCOREBOARDS
+   ===================================================================== */
+function renderScoreboards() {
+  // Reviews row
+  const totalRevs = REVIEWS.length;
+  const published = REVIEWS.filter(r => r.published === true).length;
+  const unpub     = REVIEWS.filter(r => r.published === false).length;
+  const stubFOI   = REVIEWS.filter(r => r.stub || r.foi).length;
+
+  document.getElementById('reviewScoreboard').innerHTML = [
+    { label:'Total',         val:totalRevs, cls:''      },
+    { label:'Published',     val:published, cls:'green'  },
+    { label:'Not published', val:unpub,     cls:'muted'  },
+    { label:'Stubs / FOI',   val:stubFOI,   cls:'muted'  },
+  ].map(s =>
+    `<div class="sb-stat"><div class="sb-val ${s.cls}">${s.val}</div><div class="sb-label">${s.label}</div></div>`
+  ).join('');
+
+  // Actions row
+  const total      = ACTIONS.length;
+  const completed  = ACTIONS.filter(a => a.status === 'completed').length;
+  const inProgress = ACTIONS.filter(a => a.status === 'in-progress').length;
+  const rejected   = ACTIONS.filter(a => a.status === 'rejected').length;
+  const contested  = ACTIONS.filter(a => a.objections && a.objections.length > 0).length;
+  const other      = total - completed - inProgress - rejected;
+
+  document.getElementById('actionScoreboard').innerHTML =
+    `<div class="sb-stat"><div class="sb-val">${total}</div><div class="sb-label">Total</div></div>` +
+    `<div class="sb-stat"><div class="sb-val green">${completed}</div><div class="sb-label">Completed</div></div>` +
+    `<div class="sb-stat"><div class="sb-val amber">${inProgress}</div><div class="sb-label">In progress</div></div>` +
+    `<div class="sb-stat"><div class="sb-val muted">${other}</div><div class="sb-label">Other</div></div>` +
+    `<div class="sb-group">` +
+      `<div class="sb-stat"><div class="sb-val red">${rejected}</div><div class="sb-label">Rejected</div></div>` +
+      `<div class="sb-stat"><div class="sb-val amber">${contested}</div><div class="sb-label">Contested</div></div>` +
+    `</div>`;
 }
 
-function statusDesc(s) {
-  return {
-    identified: 'In the report; no formal response yet',
-    accepted: 'Government has committed to this',
-    'in-progress': 'Accepted and being implemented',
-    completed: 'Done',
-    rejected: 'Explicitly rejected or deprioritised',
-    partial: 'Partially implemented',
-    unknown: 'Cannot determine from available information',
-  }[s] || '';
+/* =====================================================================
+   TIMELINE — greedy 3-level placement; stubs/FOI get dim dots only
+   ===================================================================== */
+function renderTimeline() {
+  const minY = 2018.6, maxY = 2026.9, span = maxY - minY;
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '<div class="tl-line"></div>';
+
+  // Year ticks
+  [2019,2020,2021,2022,2023,2024,2025,2026].forEach(y => {
+    const el = document.createElement('div');
+    el.className = 'tl-year';
+    el.style.left = ((y - minY)/span*100).toFixed(1) + '%';
+    el.textContent = y;
+    tl.appendChild(el);
+  });
+
+  const sorted = [...REVIEWS].sort((a,b) => a.dateSort - b.dateSort);
+
+  // Labelled reviews (non-stubs, non-FOI)
+  const labelled = sorted.filter(r => !r.stub && !r.foi);
+
+  // Greedy placement for labelled reviews using min-track width
+  const TW = 680, LBL_HALF = 40;
+  const lastRight = { a:[-999,-999,-999], b:[-999,-999,-999] };
+
+  function freeDepth(side, px) {
+    const lr = lastRight[side];
+    for (let d = 0; d < 3; d++) if (px - LBL_HALF > lr[d]) return d;
+    return 2;
+  }
+
+  // Place labelled reviews first
+  const placements = {};
+  labelled.forEach(r => {
+    const px = ((r.dateSort - minY)/span) * TW;
+    const dA = freeDepth('a', px);
+    const dB = freeDepth('b', px);
+    let side, depth;
+    if (lastRight.a[dA] <= lastRight.b[dB]) {
+      side = 'a'; depth = dA;
+    } else {
+      side = 'b'; depth = dB;
+    }
+    lastRight[side][depth] = px + LBL_HALF;
+    placements[r.id] = side + depth; // e.g. 'a0', 'b1'
+  });
+
+  // Render all reviews
+  sorted.forEach(r => {
+    const isStub = r.stub || r.foi;
+    const pct = (r.dateSort - minY) / span;
+
+    // Stub/FOI: small dim dot, no label
+    if (isStub) {
+      const dot = document.createElement('div');
+      dot.className = 'tl-dot tl-stub';
+      dot.style.left = (pct*100).toFixed(1) + '%';
+      dot.style.background = r.muted ? '#64748b' : r.color;
+      dot.title = r.shortName + ' — ' + r.date + ' (stub/FOI)';
+      tl.appendChild(dot);
+      return;
+    }
+
+    const cls = placements[r.id];
+
+    // Tick
+    const tick = document.createElement('div');
+    tick.className = `tl-tick ${cls}`;
+    tick.style.left = (pct*100).toFixed(1) + '%';
+    tl.appendChild(tick);
+
+    // Dot
+    const dot = document.createElement('div');
+    dot.className = 'tl-dot';
+    dot.style.left = (pct*100).toFixed(1) + '%';
+    dot.style.background = r.color;
+    dot.title = r.shortName + ' — ' + r.date;
+    dot.onclick = () => jumpToReview(r.id);
+    tl.appendChild(dot);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.className = `tl-label ${cls}`;
+    lbl.style.left = (pct*100).toFixed(1) + '%';
+    lbl.style.color = r.color;
+    lbl.onclick = () => jumpToReview(r.id);
+    if (r.published === false) {
+      // Not published but documented — show label in italic with "(unpub)" suffix
+      lbl.style.fontStyle = 'italic';
+      lbl.style.opacity = '0.82';
+      lbl.innerHTML = r.shortName
+        + '<span style="font-size:8px;font-style:normal;opacity:0.7;margin-left:2px">(unpub)</span>';
+      lbl.title = r.shortName + ' — ' + r.date + ' · not published';
+      // Also dim the dot slightly and give it a dashed ring
+      dot.style.background = r.color + 'bb';
+      dot.style.boxShadow = `0 0 0 2px ${r.color}55`;
+    } else {
+      lbl.textContent = r.shortName;
+      lbl.title = r.shortName + ' — ' + r.date;
+    }
+    tl.appendChild(lbl);
+  });
 }
+
+/* =====================================================================
+   REVIEW CARDS WITH INLINE ACTIONS (collapsed by default)
+   ===================================================================== */
+function renderReviewsWithActions() {
+  const stack = document.getElementById('reviewsStack');
+  stack.innerHTML = '';
+
+  REVIEWS.forEach(r => {
+    const acts   = ACTIONS.filter(a => a.reviewId === r.id);
+    const isStub = r.stub || r.foi;
+
+    // Status pill summary
+    const counts = {};
+    acts.forEach(a => { counts[a.status] = (counts[a.status]||0) + 1; });
+    const pillsHtml = Object.entries(counts).map(([st, n]) =>
+      `<span class="rpill ${st === 'in-progress' ? 'inprogress' : st}">${n} ${STATUS_LABELS[st]||st}</span>`
+    ).join('');
+
+    // Published badge
+    const pubBadge = r.published === true  ? `<span class="pub-yes">✓ Published</span>`
+                   : r.published === false ? `<span class="pub-no">✗ Not published</span>`
+                   :                         `<span class="pub-unk">? Unclear</span>`;
+
+    // Links
+    const links = [
+      r.url  ? `<a class="report-link" href="${r.url}"  target="_blank" rel="noopener" onclick="event.stopPropagation()">${r.urlLabel||'Report ↗'}</a>` : '',
+      r.url2 ? `<a class="report-link" href="${r.url2}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${r.url2Label||'Response ↗'}</a>` : '',
+    ].filter(Boolean).join('<span class="meta-sep"> · </span>');
+
+    // Action rows
+    let actionsHtml;
+    if (r.stub) {
+      actionsHtml = `<div class="action-placeholder">Stub — awaiting document</div>`;
+    } else if (r.foi) {
+      actionsHtml = `<div class="action-placeholder">FOI request submitted — awaiting response</div>`;
+    } else if (acts.length === 0) {
+      actionsHtml = `<div class="action-placeholder">No actions recorded</div>`;
+    } else {
+      actionsHtml = acts.map(a => {
+        const il = impactLabel(a.impact);
+        const objBtn = a.objections.length
+          ? `<button class="obj-badge"
+               onmouseenter="showObjTooltip(event,'${a.ref}')"
+               onmouseleave="hideTooltip()"
+               onclick="showObjTooltip(event,'${a.ref}')">⚑ ${a.objections.length}</button>`
+          : '';
+        return `<div class="action-row${a.status==='completed'?' completed-action':''}"
+                    data-ref="${a.ref}" data-status="${a.status}" data-impact="${il}">
+          <span class="ar-ref">${a.ref}</span>
+          <span class="st ${a.status}">${STATUS_LABELS[a.status]||a.status}</span>
+          <div class="ar-body">
+            <div class="action-text">${a.text}</div>
+            ${a.notes  ? `<div class="action-notes">${a.notes}</div>` : ''}
+            ${a.source ? `<span class="source-chip">via ${a.source}</span>` : ''}
+          </div>
+          <div class="ar-badges">
+            <span class="impact-badge ${il}"
+              onmouseenter="showImpactTooltip(event,'${a.ref}')"
+              onmouseleave="hideImpactTooltip()">${impactDisplay(il)}</span>
+            ${objBtn}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const item = document.createElement('div');
+    // Cards start collapsed — actions hidden until user expands
+    item.className = 'review-item collapsed' + (isStub ? ' stub-item' : '');
+    item.dataset.reviewId = r.id;
+    item.style.setProperty('--rc', r.color);
+
+    item.innerHTML = `
+      <div class="review-header" onclick="toggleCollapse(this.closest('.review-item'))">
+        <div class="rh-top">
+          <div class="rh-name">${r.shortName}</div>
+          <div class="rh-right">
+            ${pubBadge}
+            <span class="rh-date">${r.date}</span>
+            <span class="rh-toggle">▾</span>
+          </div>
+        </div>
+        <div class="rh-what">${r.what}</div>
+        <div class="rh-meta">
+          <span>${r.author}</span>
+          ${r.commissioner && r.commissioner !== r.author ? `<span class="meta-sep">·</span><span>comm. ${r.commissioner}</span>` : ''}
+          ${links ? `<span class="meta-sep">·</span>${links}` : ''}
+        </div>
+        ${!isStub && acts.length ? `<div class="rh-pills">${pillsHtml}</div>` : ''}
+      </div>
+      ${!isStub && acts.length ? `<button class="actions-toggle-bar" onclick="toggleCollapse(this.closest('.review-item'))">
+        <span class="atb-collapsed">▼ Show ${acts.length} action${acts.length !== 1 ? 's' : ''}</span>
+        <span class="atb-expanded">▲ Hide actions</span>
+        <span class="atb-hint">click to expand / collapse</span>
+      </button>` : ''}
+      <div class="action-list" id="alist-${r.id}">${actionsHtml}</div>`;
+
+    stack.appendChild(item);
+  });
+}
+
+/* =====================================================================
+   COLLAPSE / EXPAND
+   ===================================================================== */
+function toggleCollapse(item) {
+  item.classList.toggle('collapsed');
+}
+
+function setAllCollapsed(state) {
+  document.querySelectorAll('.review-item').forEach(item => {
+    item.classList.toggle('collapsed', state);
+  });
+}
+
+function jumpToReview(id) {
+  const item = document.querySelector(`.review-item[data-review-id="${id}"]`);
+  if (!item) return;
+  item.classList.remove('collapsed');
+  item.classList.add('highlighted');
+  setTimeout(() => item.classList.remove('highlighted'), 1800);
+  item.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+/* =====================================================================
+   FILTERS
+   ===================================================================== */
+let activeStatuses = new Set(['all']);
+let activeImpacts  = new Set(['all']);
 
 function renderFilters() {
-  const domains = ['All', ...Array.from(allDomains).sort()];
-  document.getElementById('filters').innerHTML =
-    `<span class="filter-label">Domain</span>` +
-    domains.map(d => `<button class="filter-btn ${d==='All'?'on':''}" onclick="toggleFilter('${d}',this)">${d}</button>`).join('');
+  const statuses = ['all','completed','in-progress','accepted','partial','identified','unknown','rejected'];
+  document.getElementById('statusFilters').innerHTML = statuses.map(s =>
+    `<button class="filter-pill ${s==='all'?'on':''}" data-status="${s}"
+      onclick="toggleFilter('status','${s}',this)">${s==='all'?'All':STATUS_LABELS[s]||s}</button>`
+  ).join('');
+
+  document.getElementById('impactFilters').innerHTML =
+    `<button class="filter-pill on" data-impact="all" onclick="toggleFilter('impact','all',this)">All</button>` +
+    ['high','medium','low'].map(i =>
+      `<button class="filter-pill" data-impact="${i}" onclick="toggleFilter('impact','${i}',this)">${i[0].toUpperCase()+i.slice(1)}</button>`
+    ).join('');
 }
 
-function toggleFilter(domain, btn) {
-  if (domain === 'All') {
-    activeFilters = new Set(['All']);
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+function toggleFilter(type, val, btn) {
+  const setMap  = { status:activeStatuses, impact:activeImpacts };
+  const attrMap = { status:'data-status',  impact:'data-impact' };
+  const set = setMap[type];
+  const attr = attrMap[type];
+
+  if (val === 'all') {
+    document.querySelectorAll(`.filter-pill[${attr}]`).forEach(b => b.classList.remove('on'));
     btn.classList.add('on');
+    set.clear(); set.add('all');
   } else {
-    activeFilters.delete('All');
-    document.querySelector('.filter-btn').classList.remove('on');
+    document.querySelector(`.filter-pill[${attr}="all"]`).classList.remove('on');
+    set.delete('all');
     btn.classList.toggle('on');
-    if (btn.classList.contains('on')) activeFilters.add(domain);
-    else activeFilters.delete(domain);
-    if (activeFilters.size === 0) {
-      activeFilters.add('All');
-      document.querySelector('.filter-btn').classList.add('on');
+    if (btn.classList.contains('on')) set.add(val); else set.delete(val);
+    if (set.size === 0) {
+      set.add('all');
+      document.querySelector(`.filter-pill[${attr}="all"]`).classList.add('on');
     }
   }
   applyFilters();
 }
 
-function filterStat(f) { /* reserved for stat pill clicks */ }
-
 function applyFilters() {
-  document.querySelectorAll('.rcard').forEach(el => {
-    const id = el.dataset.id;
-    const rev = REVIEWS.find(r => r.id === id);
-    if (!rev) return;
-    const show = activeFilters.has('All') ||
-      rev.domains.some(d => activeFilters.has(d));
-    el.classList.toggle('hidden', !show);
-  });
-}
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const isFiltered = !activeStatuses.has('all') || !activeImpacts.has('all') || q;
+  let visibleActions = 0;
 
-function renderTimeline() {
-  const minYear = 2018.5, maxYear = 2026.8;
-  const span = maxYear - minYear;
-  const years = [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
-  const tl = document.getElementById('timeline');
-
-  years.forEach(y => {
-    const pct = ((y - minYear) / span * 100).toFixed(1);
-    const el = document.createElement('div');
-    el.className = 'tl-year';
-    el.style.left = pct + '%';
-    el.textContent = y;
-    tl.appendChild(el);
+  document.querySelectorAll('.action-row').forEach(row => {
+    const a = ACTIONS.find(x => x.ref === row.dataset.ref);
+    if (!a) return;
+    const il  = impactLabel(a.impact);
+    const rev = reviewFor(a.reviewId);
+    const matchStatus = activeStatuses.has('all') || activeStatuses.has(a.status);
+    const matchImpact = activeImpacts.has('all')  || activeImpacts.has(il);
+    const matchSearch = !q
+      || a.text.toLowerCase().includes(q)
+      || (rev && rev.shortName.toLowerCase().includes(q))
+      || (a.notes && a.notes.toLowerCase().includes(q));
+    const show = matchStatus && matchImpact && matchSearch;
+    row.classList.toggle('hidden-action', !show);
+    if (show) visibleActions++;
   });
 
-  const dotColors = ['#1B6CA8','#DC2626','#6B21A8','#16A34A','#0D9488','#EA580C','#D97706'];
-  REVIEWS.forEach((r, i) => {
-    const pct = ((r.dateSort - minYear) / span * 100).toFixed(1);
-    const dot = document.createElement('div');
-    dot.className = 'tl-dot';
-    dot.style.left = pct + '%';
-    dot.style.background = dotColors[i % dotColors.length];
-    dot.title = r.shortName + ' — ' + r.dateLabel;
-    dot.onclick = () => {
-      const card = document.getElementById('card-' + r.id);
-      if (card) { card.scrollIntoView({behavior:'smooth', block:'center'}); openCard(card); }
-    };
-    tl.appendChild(dot);
-
-    const lbl = document.createElement('div');
-    lbl.className = 'tl-dot-label';
-    lbl.style.left = pct + '%';
-    lbl.style.color = dotColors[i % dotColors.length];
-    lbl.textContent = r.shortName;
-    tl.appendChild(lbl);
+  // When a filter is active: expand cards that have matches, dim those with none
+  document.querySelectorAll('.review-item').forEach(item => {
+    const rev = reviewFor(item.dataset.reviewId);
+    if (rev && (rev.stub || rev.foi)) { item.classList.remove('dimmed'); return; }
+    const visible = item.querySelectorAll('.action-row:not(.hidden-action)').length;
+    if (isFiltered && visible > 0) item.classList.remove('collapsed');
+    item.classList.toggle('dimmed', isFiltered && visible === 0);
   });
+
+  const countEl = document.getElementById('filterCount');
+  countEl.textContent = isFiltered
+    ? `${visibleActions} action${visibleActions !== 1 ? 's' : ''} shown`
+    : '';
 }
 
-function actionCountBadges(actions) {
-  const counts = {};
-  actions.forEach(a => { counts[a.status] = (counts[a.status]||0)+1; });
-  return Object.entries(counts).map(([s,n]) =>
-    `<span class="act-mini"><span class="dot" style="background:${STATUS[s]?.color||'#ccc'}"></span> <span style="font-size:11px;color:#5A6272">${n} ${STATUS[s]?.label||s}</span></span>`
-  ).join('');
+/* =====================================================================
+   TOOLTIPS
+   ===================================================================== */
+const tooltip  = document.getElementById('tooltip');
+const impactTt = document.getElementById('impact-tooltip');
+
+function positionTooltip(el, ttEl) {
+  const r = el.getBoundingClientRect();
+  let left = r.left, top = r.bottom + 6;
+  if (left + 344 > window.innerWidth  - 8) left = window.innerWidth  - 344 - 8;
+  if (top  + 200 > window.innerHeight - 8) top  = r.top - 200 - 6;
+  ttEl.style.left = left + 'px';
+  ttEl.style.top  = top  + 'px';
 }
 
-function renderCards() {
-  const container = document.getElementById('cards');
-  container.innerHTML = '';
+function showObjTooltip(e, ref) {
+  const a = ACTIONS.find(x => x.ref === ref);
+  if (!a || !a.objections.length) return;
+  tooltip.innerHTML = a.objections.map((o, i) => `
+    ${i > 0 ? '<div class="tooltip-divider"></div>' : ''}
+    <div class="tooltip-obj-item">
+      <div class="tooltip-who">⚑ ${o.who}</div>
+      <div class="tooltip-reason">${o.reason}</div>
+      ${o.sourceUrl
+        ? `<a class="tooltip-source" href="${o.sourceUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗ ${o.sourceLabel||'Source'}</a>`
+        : o.sourceLabel ? `<div class="tooltip-source" style="color:var(--muted)">${o.sourceLabel}</div>` : ''}
+    </div>`).join('');
+  tooltip.classList.add('visible');
+  positionTooltip(e.currentTarget, tooltip);
+}
+function hideTooltip() { tooltip.classList.remove('visible'); }
 
-  REVIEWS.forEach(rev => {
-    const quotes = QUOTES.filter(q => q.reviewId === rev.id);
-    const pubBadge = rev.published === true ? '<span class="pub-badge yes">✓ Published</span>'
-      : rev.published === false ? '<span class="pub-badge no">✗ Not published</span>'
-      : '<span class="pub-badge unclear">? Publication unclear</span>';
+function showImpactTooltip(e, ref) {
+  const a = ACTIONS.find(x => x.ref === ref);
+  if (!a) return;
+  const il = impactLabel(a.impact);
+  const sc = impactScore(a.impact);
+  impactTt.innerHTML = `
+    <div class="it-row"><span class="it-label">Scope (1–3)</span><span class="it-score">${a.impact.scope}</span></div>
+    <div class="it-row"><span class="it-label">Risk type (1–3)</span><span class="it-score">${a.impact.risk}</span></div>
+    <div class="it-row"><span class="it-label">Urgency (1–3)</span><span class="it-score">${a.impact.urgency}</span></div>
+    <div class="it-total">Score ${sc}/9 — <span style="color:${il==='high'?'var(--red)':il==='medium'?'var(--amber)':'var(--green)'}">${il.toUpperCase()}</span></div>`;
+  impactTt.classList.add('visible');
+  positionTooltip(e.currentTarget, impactTt);
+}
+function hideImpactTooltip() { impactTt.classList.remove('visible'); }
 
-    const domTags = rev.domains.map(d => `<span class="dtag">${d}</span>`).join('');
+document.addEventListener('scroll', () => { hideTooltip(); hideImpactTooltip(); hideAmChart(); }, true);
 
-    const actRows = rev.actions.length
-      ? rev.actions.map(a => `
-        <div class="action-row">
-          <span class="act-status ${a.status}">${STATUS[a.status]?.label||a.status}</span>
-          <div>
-            <div class="action-text">${a.text}</div>
-            ${a.notes ? `<div class="action-notes">ℹ ${a.notes}</div>` : ''}
-          </div>
-        </div>`).join('')
-      : '<div class="no-data">No specific actions extracted yet for this review.</div>';
-
-    const quoteCards = quotes.length
-      ? quotes.map(q => `
-        <div class="qcard ${q.type}">
-          <div class="qcard-prov">
-            <span class="prov-badge ${q.type}">${q.type === 'hansard' ? '📜 Hansard' : q.type === 'report' ? '📄 Report' : '🗞 News'}</span>
-            <span class="qcard-source">${q.source}</span>
-          </div>
-          <div class="qcard-speaker">${q.speaker}</div>
-          <div class="qcard-text" style="margin-top:6px">${q.text}</div>
-        </div>`).join('')
-      : '<div class="no-data">No quotes extracted yet. Add from Hansard, report or news.</div>';
-
-    const card = document.createElement('div');
-    card.className = 'rcard';
-    card.id = 'card-' + rev.id;
-    card.dataset.id = rev.id;
-    card.innerHTML = `
-      <div class="rcard-hdr" onclick="toggleCard(this.closest('.rcard'))">
-        <div>
-          <div class="rcard-title-row">
-            <span class="rcard-title">${rev.shortName}</span>
-            <span class="rcard-year">${rev.dateLabel}</span>
-          </div>
-          <div class="rcard-title" style="font-size:12px;font-weight:400;color:#5A6272;margin-top:1px">${rev.title}</div>
-          <div class="rcard-meta" style="margin-top:6px">
-            <span>${rev.author}</span>
-            <span>Commissioned by ${rev.commissioner}</span>
-          </div>
-          <div style="margin-top:8px">${domTags}</div>
-        </div>
-        <div class="rcard-right">
-          ${pubBadge}
-          ${rev.url ? `<a href="${rev.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:11px;color:var(--iom);text-decoration:none;display:flex;align-items:center;gap:3px">📄 ${rev.urlLabel}</a>` : rev.urlLabel ? `<span style="font-size:11px;color:#94A3B8;font-style:italic">${rev.urlLabel}</span>` : ''}
-          ${rev.url2 ? `<a href="${rev.url2}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:11px;color:var(--iom);text-decoration:none;display:flex;align-items:center;gap:3px">📄 ${rev.url2Label}</a>` : ''}
-          ${rev.url3 ? `<a href="${rev.url3}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:11px;color:var(--iom);text-decoration:none;display:flex;align-items:center;gap:3px">📄 ${rev.url3Label}</a>` : ''}
-          <span style="font-size:11px;color:#94A3B8">${rev.actions.length} actions · ${quotes.length} quotes</span>
-          <span class="chevron">▼</span>
-        </div>
-      </div>
-
-      <div class="rcard-summary">${rev.summary}</div>
-
-      <div class="rcard-tabs">
-        <div class="tab-bar">
-          <div class="tab-btn active" onclick="switchTab(event, '${rev.id}', 'actions')">
-            Actions (${rev.actions.length})
-          </div>
-          <div class="tab-btn" onclick="switchTab(event, '${rev.id}', 'quotes')">
-            Quotes (${quotes.length})
-          </div>
-        </div>
-        <div id="${rev.id}-actions" class="tab-pane active">
-          <div class="actions-header">${actionCountBadges(rev.actions)}</div>
-          <div class="action-list">${actRows}</div>
-        </div>
-        <div id="${rev.id}-quotes" class="tab-pane">
-          <div class="quote-list">${quoteCards}</div>
-        </div>
-      </div>`;
-
-    container.appendChild(card);
-  });
+/* =====================================================================
+   AM EXPLAINER TOGGLE
+   ===================================================================== */
+function toggleAmDetail(btn) {
+  const detail = document.getElementById('am-detail');
+  const open   = detail.style.display === 'block';
+  detail.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? 'More ↓' : 'Less ↑';
+  btn.setAttribute('aria-expanded', String(!open));
 }
 
-function openCard(card) {
-  if (!card.classList.contains('open')) card.classList.add('open');
+/* =====================================================================
+   AM HOVER CHART — dynamic colours for light/dark mode
+   ===================================================================== */
+let _amChart = null;
+
+function tc(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
-function toggleCard(card) {
-  card.classList.toggle('open');
+function showAmChart(e, id) {
+  const s = AM_SERIES[id];
+  if (!s || !s.data.length) return;
+  const popup = document.getElementById('am-chart-popup');
+  const rect  = e.currentTarget.getBoundingClientRect();
+  let left = rect.left, top = rect.bottom + 8;
+  if (left + 268 > window.innerWidth  - 8) left = window.innerWidth  - 268 - 8;
+  if (top  + 155 > window.innerHeight - 8) top  = rect.top - 155 - 8;
+  popup.style.left = left + 'px';
+  popup.style.top  = top  + 'px';
+  popup.style.display = 'block';
+  document.getElementById('acp-title').textContent = s.label + ' — avoidable mortality trend';
+  setTimeout(() => {
+    if (_amChart) { _amChart.destroy(); _amChart = null; }
+    const isLight = document.body.classList.contains('light');
+    const gridCol = isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.05)';
+    const ctx = document.getElementById('am-chart-canvas').getContext('2d');
+    _amChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: s.data.map(d => d.y),
+        datasets: [{
+          data: s.data.map(d => d.v),
+          borderColor: s.color,
+          backgroundColor: s.color + '18',
+          borderWidth: 2,
+          pointRadius: s.data.length > 12 ? 2 : 3,
+          pointBackgroundColor: s.color,
+          fill: true, tension: 0.3,
+        }],
+      },
+      options: {
+        animation: false, responsive: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => ctx.parsed.y + ' per 100k' },
+            backgroundColor: tc('--surface'),
+            titleColor:      tc('--muted2'),
+            bodyColor:       tc('--text'),
+            borderColor:     tc('--border2'),
+            borderWidth: 1,
+          },
+        },
+        scales: {
+          x: { ticks: { color: tc('--muted'), font:{ size:9 }, maxTicksLimit:6 }, grid:{ color:gridCol } },
+          y: { ticks: { color: tc('--muted'), font:{ size:9 }, maxTicksLimit:5 }, grid:{ color:gridCol }, suggestedMin:100 },
+        },
+      },
+    });
+  }, 0);
 }
+function hideAmChart() { document.getElementById('am-chart-popup').style.display = 'none'; }
 
-function switchTab(e, reviewId, pane) {
-  e.stopPropagation();
-  const tabs = e.target.closest('.tab-bar').querySelectorAll('.tab-btn');
-  const panes = e.target.closest('.rcard-tabs').querySelectorAll('.tab-pane');
-  tabs.forEach(t => t.classList.remove('active'));
-  panes.forEach(p => p.classList.remove('active'));
-  e.target.classList.add('active');
-  document.getElementById(reviewId + '-' + pane).classList.add('active');
-}
-
-/* ── Init ── */
-renderStatPills();
-renderKey();
-renderFilters();
+/* =====================================================================
+   INIT
+   ===================================================================== */
+renderAM();
+renderScoreboards();
 renderTimeline();
-renderCards();
+renderReviewsWithActions();
+renderFilters();
+applyFilters();
+
+/* =====================================================================
+   IFRAME HEIGHT REPORTING — notifies Observatory AutoIframe of content height
+   ===================================================================== */
+function reportHeight() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+reportHeight();
+window.addEventListener('resize', reportHeight);
+setTimeout(reportHeight, 300);
+setTimeout(reportHeight, 800);
+setTimeout(reportHeight, 1500);
+// Re-report when cards expand/collapse (height changes dynamically)
+new ResizeObserver(reportHeight).observe(document.body);
 </script>
 </body>
 </html>
