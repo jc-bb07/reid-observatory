@@ -19,7 +19,6 @@
   --green:#34d399;--amber:#fbbf24;--red:#f87171;
   --purple:#a78bfa;--orange:#fb923c;
   --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
-  --shs:#f472b6;--ork:#fb923c;--wis:#22d3ee;
   /* extra aliases */
   --eng:#a78bfa;
   /* Health & Care sub-brand */
@@ -89,40 +88,6 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 
 /* Benchmark table */
 .bench-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
-.metric-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.metric-header{display:flex;gap:6px}
-.metric-header-spacer{flex:0 0 190px}
-.metric-header-col{flex:1;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 6px}
-.metric-row{display:flex;gap:6px;align-items:stretch}
-.metric-label{flex:0 0 190px;font-size:11px;color:var(--muted2);display:flex;align-items:center;padding:6px 8px;line-height:1.35}
-.metric-cell{flex:1;background:var(--surface);border:1px solid var(--border2);border-top:3px solid;border-radius:6px;padding:8px 6px;text-align:center;min-width:0}
-.metric-cell.empty{opacity:.5}
-.metric-val{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
-.metric-sub{font-size:9px;color:var(--muted2);margin-top:3px;line-height:1.3}
-@media(max-width:700px){.metric-label,.metric-header-spacer{flex-basis:100px;font-size:10px}.metric-val{font-size:13px}.metric-sub{display:none}}
-/* Jurisdiction picker + adaptive grid (Public Health tab) */
-.jur-picker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.jur-pill{font-size:11px;font-weight:600;padding:5px 13px;border-radius:999px;border:1.5px solid var(--border2);background:transparent;color:var(--muted2);cursor:pointer;transition:all .15s;font-family:inherit}
-.jur-pill.ref{border-style:dashed}
-.jur-pill.pinned{cursor:default}
-.grid-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:2px 0 14px}
-.hide-toggle{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted2);cursor:pointer;user-select:none}
-.pubhealth-mobile{display:none}
-@media(max-width:700px){.pubhealth-desktop{display:none}.pubhealth-mobile{display:block}}
-.ph-card{background:var(--surface);border:1px solid var(--border2);border-top:3px solid;border-radius:10px;padding:12px 14px;margin-bottom:10px}
-.ph-card-title{font-size:13px;font-weight:700;margin-bottom:6px}
-.ph-card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:7px 0;border-top:1px solid var(--border)}
-.ph-card-row:first-of-type{border-top:none}
-.ph-metric-label{font-size:11px;color:var(--muted2);flex:1;line-height:1.35}
-.ph-metric-val{font-size:13px;font-weight:700;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-.metric-cell.hoverable{cursor:pointer}
-.metric-cell.hoverable:hover{filter:brightness(1.12)}
-.metric-cell.compare-selected{outline:2px solid #fbbf24;outline-offset:-2px}
-.ph-metric-val.hoverable{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
-.ph-metric-val.compare-selected{outline:2px solid #fbbf24;outline-offset:1px;border-radius:4px;padding:0 3px}
-#ph-popup{position:fixed;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 9px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none;display:none}
-#ph-popup .ph-popup-title{font-size:9.5px;font-weight:700;color:var(--text);margin-bottom:4px;max-width:160px}
-.ph-compare-empty{font-size:11px;color:var(--muted2);padding:10px 0;line-height:1.5}
 .bench-table th,.bench-table td{padding:7px 10px;border:1px solid var(--border2);text-align:left}
 .bench-table th{color:var(--muted2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface2)}
 .bench-table tr:hover td{background:rgba(255,255,255,.02)}
@@ -156,7 +121,6 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
   --green:#059669;--amber:#d97706;--red:#dc2626;
   --purple:#7c3aed;--orange:#ea580c;
   --iom:#1d4ed8;--gsy:#059669;--jsy:#d97706;--uk:#64748b;
-  --shs:#db2777;--ork:#ea580c;--wis:#0891b2;
   --eng:#7c3aed;--wal:#64748b;--gue:#059669;--jer:#d97706;
 }
 [data-theme="light"] .flag-note{background:rgba(217,119,6,.06);border-color:rgba(217,119,6,.3)}
@@ -173,7 +137,6 @@ body.light {
   --text:#0f172a; --muted:#3d6b65; --muted2:#1e4a44;
   --blue:#2f7d6c; --blue-dim:rgba(47,125,108,.08);
   --iom:#1d4ed8; --gsy:#059669; --jsy:#b45309; --uk:#475569;
-  --shs:#db2777; --ork:#ea580c; --wis:#0891b2;
   --eng:#7c3aed; --wal:#64748b; --gue:#059669; --jer:#b45309;
   --green:#059669; --amber:#d97706; --red:#dc2626;
   --hc-accent:#2f7d6c;--hc-accent-dim:#d9efe9;--hc-accent-soft:rgba(47,125,108,.08);
@@ -197,10 +160,7 @@ body.light {
 <!-- MAIN TABS -->
 <div class="tabs" id="main-tabs">
   <button class="tab active" onclick="showTab('governance')">Public Governance</button>
-  <button class="tab" onclick="showTab('publichealth')">Public Health</button>
   <button class="tab" onclick="showTab('financial')">Financial</button>
-  <button class="tab" onclick="showTab('primarycare')">Primary Care</button>
-  <button class="tab" onclick="showTab('mental')">Mental Health</button>
   <button class="tab" onclick="showTab('clinical')">Clinical</button>
   <button class="tab" onclick="showTab('operational')">Operational</button>
   <button class="tab" onclick="showTab('offisland')">Off-Island</button>
@@ -233,75 +193,6 @@ body.light {
   </div>
 
 </div><!-- /tab-governance -->
-
-<!-- ══════════════════════════════════════════════ -->
-<!-- TAB: PUBLIC HEALTH -->
-<!-- ══════════════════════════════════════════════ -->
-<div id="tab-publichealth" style="display:none">
-
-  <div class="plain-box" id="plain-ph"><strong>Direct numerical comparison without reading caveats is misleading.</strong> Switch to <em>Technical</em> view for methodology notes and data quality flags.</div>
-  <div class="plain-box hidden" id="tech-ph">
-    <strong>Technical notes.</strong> Population-health indicators here are sourced from a mix of national statistics agencies (ONS for England, National Records of Scotland / Public Health Scotland for the Scottish island authorities) and jurisdiction annual reports (Jersey, Guernsey, Isle of Man). Life expectancy figures are not all for the same period, and some Scottish figures are single-sex only (denoted M/F) where only one sex's period life table has been published at authority level for the latest release. Treat cross-jurisdiction comparisons as directional, not exact. <strong>Avoidable mortality is the exception:</strong> Isle of Man, Jersey, Guernsey and England/ONS all confirm use of the same OECD/Eurostat 2019 joint cause list, age-standardised to the 2013 European Standard Population, under-75s only — these four figures are directly comparable, not merely directional.
-  </div>
-
-  <div class="flag-note"><strong>⚠ Isle of Wight and Isles of Scilly excluded:</strong> This comparator set focuses on small self-governing or quasi-autonomous island health systems (Crown Dependencies + Scottish island council areas) against England as a large-scale reference. IoW and Scilly are NHS England-run systems within the English structure, so they don't add an independent governance comparator in the way Jersey, Guernsey, Shetland, Orkney and the Western Isles do.</div>
-
-  <div class="plain-box" style="border-left:3px solid var(--red)">
-    <strong>If you are struggling, help is available right now.</strong> Samaritans: <strong>116 123</strong> (free, 24/7, all islands) · Isle of Man Lifeline: <strong>0808 808 8000</strong> · <a href="https://www.samaritans.org" target="_blank" rel="noopener" style="color:inherit">www.samaritans.org</a> — relevant to the Suicide &amp; Self-Harm Mortality row below.
-  </div>
-
-  <div class="section-head" style="margin-top:18px">Population Health — Select Jurisdictions</div>
-  <div class="jur-picker" id="ph-pills"></div>
-  <div class="grid-controls">
-    <label class="hide-toggle"><input type="checkbox" id="ph-hide-empty" onchange="phToggleHideEmpty(this)"/> Hide selected jurisdictions with no data for these metrics</label>
-    <span style="font-size:10px;color:var(--muted2)">Cells with a highlighted top border and pointer cursor have a full history — hover for a mini trend, click to add to the comparison chart below.</span>
-  </div>
-
-  <div class="pubhealth-desktop metric-grid" id="ph-desktop"></div>
-  <div class="pubhealth-mobile" id="ph-mobile"></div>
-
-  <div class="chart-wrap" id="ph-compare-panel" style="margin-top:14px"></div>
-
-  <div class="gap-note"><strong>— Data gaps reflect publication, not absence of a health system:</strong> where a cell is empty, the relevant authority has either not published the metric at the same level of detail, or it was not located/verified for this build. Scottish island figures for avoidable mortality, suicide, immunisation and screening are published by Public Health Scotland / ScotPHO / NRS at council-area or board level but were not yet extracted into this comparator.</div>
-  <div class="gap-note"><strong>— Jersey life expectancy — two estimates in conflict:</strong> the 83.1-year figure shown (2021–23) comes from this project's Tier-1 comparator workbook. A separate research pass produced ~80.0 years for the same period, proxied from mean-age-at-death data and explicitly flagged by its own source as an approximation pending confirmation against a formal Jersey period life-expectancy table. The two have not yet been reconciled — treat the Jersey figure as provisional until Jersey's own Mortality Report LE table is checked directly.</div>
-  <div class="gap-note"><strong>— IoM avoidable mortality — direction of travel:</strong> 2023's rate (204.9) interrupts a long-run decline since a 2008 peak, and reverses 2022's series low (194.4). Isle of Man Mortality Report 2023 (Figure 23) plots a full 2006–2023 trend but only publishes 2022/2023 in tabular form; earlier years (shown dashed on hover/compare) are chart-read estimates, ±10–15 per 100,000.</div>
-  <div class="gap-note"><strong>— Suicide &amp; self-harm — small numbers, and a methodology break:</strong> annual counts across all three islands are in the single digits to low twenties, which is why the Isle of Man, Jersey and Guernsey each show 3-year rolling averages (plotted at the window's midpoint year) rather than single-year figures. England &amp; Wales changed its standard of proof from criminal to civil on 26 July 2018 — shown as a dashed segment from that point on hover/compare, and not directly comparable pre/post. Guernsey's figure depends on inquest outcomes: confirmed vs. a higher maximum if all currently open inquests are later classified as suicide. IoM's 2020 registration-year count (24, crude rate 28.2) is a known outlier — the year-of-death count for the same period was 19.</div>
-  <div class="gap-note"><strong>— Infant mortality — mixed confidence:</strong> the Jersey (~1.3) and Guernsey (~3.4) figures come from third-party demographic aggregators, not the official Jersey/Guernsey mortality reports used elsewhere in this comparator — treat as indicative only pending direct verification. England's figure (3.9, 2024) is official ONS data. No IoM figure was located this pass.</div>
-  <div class="gap-note"><strong>— Childhood immunisation and vaccination:</strong> only England is populated here. The Isle of Man, Jersey and Guernsey do not appear to publish comparable childhood immunisation coverage figures. A fuller immunisation cluster (6-in-1, MMR, PCV, MenB) plus child oral health and dental access sits in the <strong>Primary Care ▸ Children's Health</strong> tab.</div>
-
-  <div class="section-head" style="margin-top:24px">Weather &amp; Transport Resilience</div>
-  <div class="plain-box">Island health systems depend on ferries and flights not just for patients travelling off-island for treatment, but for staff, supplies and locum cover. How often weather disrupts that link is directly relevant to service resilience — but it turns out to be one of the least consistently published figures across all these jurisdictions.</div>
-  <div class="cards">
-    <div class="card" style="border-top-color:var(--iom)">
-      <div class="card-label">Isle of Man — Steam Packet sailing reliability <span class="source-tag official">12mo to May 2026</span></div>
-      <div class="card-value" style="color:var(--iom)">94%</div>
-      <div class="card-sub">Actual sailings as % of scheduled, inclusive of weather AND other cancellation causes</div>
-      <div class="card-neu">Not weather-isolated — treat as an upper bound on weather's share</div>
-    </div>
-    <div class="card" style="border-top-color:var(--wis)">
-      <div class="card-label">Western Isles — CalMac network punctuality <span class="source-tag official">Year to Mar 2025</span></div>
-      <div class="card-value" style="color:var(--wis)">~95.3%</div>
-      <div class="card-sub">99.3% if weather-related disruption excluded — i.e. weather cost ~4 percentage points</div>
-      <div class="card-neu">Historical peak: &gt;12% weather-cancellation rate, winter 2019/20, major routes</div>
-    </div>
-    <div class="card" style="border-top-color:var(--gsy)">
-      <div class="card-label">Guernsey / Jersey — airport fog disruption <span class="source-tag estimated">Qualitative</span></div>
-      <div class="card-value" style="color:var(--muted)">—</div>
-      <div class="card-sub">No annual % found — Channel Islands are notably fog-prone in winter</div>
-      <div class="card-neu">e.g. 20 flights cancelled in one day at Jersey, Aug 2024; 178 diversions tracked at both airports, winter 2023</div>
-    </div>
-    <div class="card" style="border-top-color:var(--ork)">
-      <div class="card-label">Orkney / Shetland — Loganair &amp; HIAL <span class="source-tag estimated">Gap</span></div>
-      <div class="card-value" style="color:var(--muted)">—</div>
-      <div class="card-sub">No quantified weather-cancellation statistic located for internal Highlands &amp; Islands routes</div>
-      <div class="card-neu">Qualitatively: morning fog at Sumburgh (Shetland) is a recurring, well-documented issue</div>
-    </div>
-  </div>
-  <div class="gap-note"><strong>— Why this is so incomplete:</strong> ferry operators (CalMac, Steam Packet) publish overall reliability figures, but rarely isolate weather as its own percentage. Airport operators (HIAL, Loganair, Jersey/Guernsey airports) publish even less. Distance and population figures above are approximate, straight-line/typical-journey context rather than officially published statistics — flagged accordingly, not presented as sourced data with the same confidence as the mortality series.</div>
-
-  <div id="ph-popup"><div class="ph-popup-title" id="ph-popup-title"></div><canvas id="ph-popup-canvas" width="160" height="70"></canvas></div>
-
-</div><!-- /tab-publichealth -->
 
 <!-- ══════════════════════════════════════════════ -->
 <!-- TAB: FINANCIAL -->
@@ -409,6 +300,7 @@ body.light {
     <button class="subtab" onclick="showSubTab('clin','cancer')">Cancer</button>
     <button class="subtab" onclick="showSubTab('clin','diagnostics')">Diagnostics</button>
     <button class="subtab" onclick="showSubTab('clin','waiting')">Waiting Lists</button>
+    <button class="subtab" onclick="showSubTab('clin','mental')">Mental Health</button>
     <button class="subtab" onclick="showSubTab('clin','safety')">Safety</button>
   </div>
 
@@ -688,6 +580,53 @@ body.light {
     <div class="gap-note"><strong>— Guernsey comparison:</strong> Guernsey MSG reports an inpatient waiting list of 2,207 (down 21% from 2,799 in 2023) and a combined inpatient/outpatient compliance rate of 62% seen within contractual time (target >95%) — but the contractual time standards differ by specialty and are not equivalent to the IoM/Jersey 52-week measure. No Guernsey >52-week figure is published in comparable form.</div>
   </div>
 
+  <!-- Mental Health -->
+  <div id="clin-mental" style="display:none">
+    <div class="plain-box" id="plain-mh">
+      <strong>Mixed picture across jurisdictions.</strong> Manx Care's CAMHS waiting list fell significantly (from 1,205 to 905) after investment in staffing. Jersey's CAMHS generic pathway meets its target (32 days vs &lt;36-day target) but the neurodevelopmental pathway is 71 weeks — massively over the 13-week target. IoM's crisis response and post-discharge follow-up both meet standards.
+    </div>
+    <div class="cards">
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — CAMHS waiting list</div>
+        <div class="card-value met">905</div>
+        <div class="card-sub">At March 2025</div>
+        <div class="card-dn">▼ Down from 1,205 (Apr 2024)</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Crisis response ≤1hr</div>
+        <div class="card-value met">89.2%</div>
+        <div class="card-sub">2024-25 · target ≥75%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--iom)">
+        <div class="card-label">IoM — Post-discharge follow-up 3d</div>
+        <div class="card-value met">97.9%</div>
+        <div class="card-sub">2024-25 · target ≥90%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — CAMHS generic wait</div>
+        <div class="card-value met">32 days</div>
+        <div class="card-sub">2025 · target &lt;36 days</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — CAMHS neurodevel. wait</div>
+        <div class="card-value miss">71 weeks</div>
+        <div class="card-sub">2025 · target &lt;13 weeks</div>
+        <div class="card-up">▲ Up from 55 weeks in 2024</div>
+      </div>
+      <div class="card" style="border-top-color:var(--jer)">
+        <div class="card-label">Jersey — Crisis assessed ≤4hrs</div>
+        <div class="card-value met">94.4%</div>
+        <div class="card-sub">2025 · target ≥85%</div>
+        <div class="card-dn">✓ Target met</div>
+      </div>
+    </div>
+    <div class="flag-note"><strong>⚠ Data quality — IoM mental health:</strong> Verbatim from DHSC Assessment 2024-25: "waiting list data for mental health services is currently being developed to improve its accuracy." The MH service caseload (5,390) is within target range (4,500–5,500) but reliability is uncertain.</div>
+    <div class="gap-note"><strong>— Guernsey mental health KPIs:</strong> Not extracted from the Guernsey Secondary Healthcare Contract KPIs (which focuses on MSG/acute hospital). Community and mental health data would require separate Guernsey HSC reporting documents.</div>
+  </div>
+
   <!-- Safety -->
   <div id="clin-safety" style="display:none">
     <div class="plain-box" id="plain-safety">
@@ -838,339 +777,6 @@ body.light {
 
 </div><!-- /tab-clinical -->
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- TAB: MENTAL HEALTH -->
-<!-- ══════════════════════════════════════════════ -->
-<div id="tab-mental" style="display:none">
-
-  <div class="plain-box" id="plain-mh"><strong>Mixed picture across jurisdictions.</strong> Manx Care's CAMHS waiting list fell significantly (from 1,205 to 905) after investment in staffing. Jersey's CAMHS generic pathway meets its target (32 days vs &lt;36-day target) but the neurodevelopmental pathway is 71 weeks — massively over the 13-week target. IoM's crisis response and post-discharge follow-up both meet standards.</div>
-  <div class="plain-box hidden" id="tech-mh">
-    <strong>Technical notes.</strong> Mental health service structures differ substantially between jurisdictions (CAMHS pathway definitions, crisis-response target windows, and caseload thresholds are locally defined, not a shared clinical standard). Treat the figures below as within-jurisdiction trend indicators rather than a common cross-jurisdiction scale.
-  </div>
-
-  <div class="cards">
-    <div class="card" style="border-top-color:var(--iom)">
-      <div class="card-label">IoM — CAMHS waiting list</div>
-      <div class="card-value met">905</div>
-      <div class="card-sub">At March 2025</div>
-      <div class="card-dn">▼ Down from 1,205 (Apr 2024)</div>
-    </div>
-    <div class="card" style="border-top-color:var(--iom)">
-      <div class="card-label">IoM — Crisis response ≤1hr</div>
-      <div class="card-value met">89.2%</div>
-      <div class="card-sub">2024-25 · target ≥75%</div>
-      <div class="card-dn">✓ Target met</div>
-    </div>
-    <div class="card" style="border-top-color:var(--iom)">
-      <div class="card-label">IoM — Post-discharge follow-up 3d</div>
-      <div class="card-value met">97.9%</div>
-      <div class="card-sub">2024-25 · target ≥90%</div>
-      <div class="card-dn">✓ Target met</div>
-    </div>
-    <div class="card" style="border-top-color:var(--jer)">
-      <div class="card-label">Jersey — CAMHS generic wait</div>
-      <div class="card-value met">32 days</div>
-      <div class="card-sub">2025 · target &lt;36 days</div>
-      <div class="card-dn">✓ Target met</div>
-    </div>
-    <div class="card" style="border-top-color:var(--jer)">
-      <div class="card-label">Jersey — CAMHS neurodevel. wait</div>
-      <div class="card-value miss">71 weeks</div>
-      <div class="card-sub">2025 · target &lt;13 weeks</div>
-      <div class="card-up">▲ Up from 55 weeks in 2024</div>
-    </div>
-    <div class="card" style="border-top-color:var(--jer)">
-      <div class="card-label">Jersey — Crisis assessed ≤4hrs</div>
-      <div class="card-value met">94.4%</div>
-      <div class="card-sub">2025 · target ≥85%</div>
-      <div class="card-dn">✓ Target met</div>
-    </div>
-  </div>
-  <div class="flag-note"><strong>⚠ Data quality — IoM mental health:</strong> Verbatim from DHSC Assessment 2024-25: "waiting list data for mental health services is currently being developed to improve its accuracy." The MH service caseload (5,390) is within target range (4,500–5,500) but reliability is uncertain.</div>
-  <div class="gap-note"><strong>— Guernsey mental health KPIs:</strong> Not extracted from the Guernsey Secondary Healthcare Contract KPIs (which focuses on MSG/acute hospital). Community and mental health data would require separate Guernsey HSC reporting documents.</div>
-  <div class="gap-note"><strong>— Scottish island boards:</strong> No comparable mental health waiting-time or crisis-response figures were located at Shetland/Orkney/Western Isles board level for this build.</div>
-
-</div><!-- /tab-mental -->
-
-<!-- ══════════════════════════════════════════════ -->
-<!-- TAB: PRIMARY CARE -->
-<!-- ══════════════════════════════════════════════ -->
-<div id="tab-primarycare" style="display:none">
-
-  <div class="plain-box" id="plain-pc"><strong>Direct numerical comparison without reading caveats is misleading.</strong> Switch to <em>Technical</em> view for methodology notes and data quality flags.</div>
-  <div class="plain-box hidden" id="tech-pc">
-    <strong>Technical notes.</strong> "Patients per GP" mixes headcount and FTE measures depending on source and is not adjusted for part-time working. Guernsey and Jersey primary care (GP and dental) operate on a private fee-per-visit basis with partial state subsidy, rather than an NHS-style registered-list/capitation model — ratios shown for these jurisdictions describe a structurally different system, not a data gap in the same sense as a missing IoM figure.
-  </div>
-
-  <div class="subtabs" id="pc-subtabs">
-    <button class="subtab active" onclick="showSubTab('pc','gp')">GP / Primary Care</button>
-    <button class="subtab" onclick="showSubTab('pc','dentist')">Dentistry</button>
-    <button class="subtab" onclick="showSubTab('pc','children')">Children's Health</button>
-  </div>
-
-  <!-- GP / PRIMARY CARE -->
-  <div id="pc-gp">
-    <div class="flag-note"><strong>⚠ Headcount vs FTE:</strong> Figures below mix registered-patient headcount ratios (IoM) with FTE-adjusted ratios (England) and an unverified estimate (Jersey). They are directionally useful but not a clean like-for-like comparison.</div>
-
-    <div class="cards-label">Patients per GP</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Isle of Man <span class="source-tag official">2024</span></div>
-        <div class="card-value" style="color:var(--iom)">2,689</div>
-        <div class="card-sub">Up from 1,851 in 2011 (+45%) · 1,848 in 1999 (+45.5%)</div>
-        <div class="card-neu">89,262 registered patients · 33.2 FTE GPs (down from 47.0 FTE in 2011)</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England <span class="source-tag official">Dec 2024</span></div>
-        <div class="card-value" style="color:var(--eng)">~2,309</div>
-        <div class="card-sub">43.3 FTE GPs per 100,000 · range 2,020 (SW) – 2,560 (London)</div>
-        <div class="card-neu">FTE GP numbers fell ~5–15% since 2015 depending on measure used</div>
-      </div>
-      <div class="card" style="border-top-color:var(--jer)">
-        <div class="card-label">Jersey <span class="source-tag estimated">Unverified</span></div>
-        <div class="card-value warn">~1,000</div>
-        <div class="card-sub">"100+ GPs" vs 104,540 pop. — source doesn't confirm scope</div>
-        <div class="card-neu">Treat as indicative only, not a clean comparator</div>
-      </div>
-      <div class="card" style="border-top-color:var(--gsy)">
-        <div class="card-label">Guernsey <span class="source-tag derived">Structural</span></div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">Primary care fully private, fee-per-visit (partially subsidised)</div>
-        <div class="card-neu">No central patient-list system — ratio not meaningful in same terms</div>
-      </div>
-    </div>
-
-    <div class="chart-wrap" style="margin-top:14px">
-      <h3>IoM GP Workforce vs. Patients per GP — 1999–2024</h3>
-      <div class="flag-note" style="margin-bottom:8px"><strong>⚠ This is a supply story, not just a population story:</strong> the registered patient list grew only 15% over 26 years (77,628 → 89,262), while the number of FTE GPs actually <em>fell</em> 21% (42.0 → 33.2, and down from a peak of 47.3 in 2009). The rising ratio is being driven mainly by fewer GPs, not more patients. 2020's FTE count was taken at 30 June (not the usual 31 March) as data collection was disrupted by the COVID-19 lockdown. From the 2025 edition, the publisher of record changed from DHSC to Manx Care.</div>
-      <div class="chart-canvas-wrap" style="height:260px"><canvas id="gpTrendChart"></canvas></div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px">Source: Isle of Man in Numbers annual statistical digest, Table 9.4/16/18/19 (Dept. of Health &amp; Social Security / DHSC / Manx Care), 1999–2024. Every year cross-checked against at least one other edition where source years overlap; no numeric discrepancies found beyond documented rounding (2007/2008 FTE) and the 2020 collection-date change.</div>
-    </div>
-
-    <div class="cards-label">Access &amp; Referral Performance</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">IoM — Urgent GP referrals seen ≤6 weeks</div>
-        <div class="card-value miss">47%</div>
-        <div class="card-sub">Target ≥85% · IPR</div>
-        <div class="card-up">Measures referral-to-specialist speed, not GP booking itself</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England — Good overall GP experience</div>
-        <div class="card-value" style="color:var(--eng)">75.4%</div>
-        <div class="card-sub">GP Patient Survey 2025 · +1.5pp on 2024</div>
-        <div class="card-neu">69.6% good experience contacting practice (+2.3pp)</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England — Contact success rate</div>
-        <div class="card-value" style="color:var(--eng)">96.4%</div>
-        <div class="card-sub">Made contact same day, next day, or after 2+ days</div>
-        <div class="card-neu">GP Patient Survey 2025</div>
-      </div>
-      <div class="card" style="border-top-color:var(--gsy)">
-        <div class="card-label">Guernsey — Access (qualitative)</div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">Described as easy/short-notice access via private system</div>
-        <div class="card-neu">No quantified satisfaction survey found</div>
-      </div>
-    </div>
-
-    <div class="section-head" style="margin-top:20px">Primary Care Model — Structural Comparison</div>
-    <table class="bench-table">
-      <thead><tr><th>Organisation</th><th>Funding model</th><th>Registration</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--iom)">Isle of Man</td><td>NHS-style contract via Manx Care</td><td>Patient list registration</td><td>14 GP practices</td></tr>
-        <tr><td style="color:var(--eng)">England</td><td>NHS capitation (Carr-Hill formula) + QOF</td><td>Patient list registration</td><td>National GP contract</td></tr>
-        <tr><td style="color:var(--jer)">Jersey</td><td>Mixed — partial States subsidy + patient fees</td><td>Varies by practice</td><td>No central register found</td></tr>
-        <tr><td style="color:var(--gsy)">Guernsey</td><td>Private fee-per-visit, partially reimbursed via Employment &amp; Social Security contributions</td><td>No central list</td><td>No NHS-style equivalent</td></tr>
-      </tbody>
-    </table>
-    <div class="gap-note"><strong>— Data gaps:</strong> Guernsey's GP headcount and a verified primary-care-only Jersey GP count were not found in public sources. Neither jurisdiction publishes a GP patient satisfaction survey comparable to England's.</div>
-
-    <div class="section-head" style="margin-top:20px">GP Continuity of Care</div>
-    <div class="metric-grid">
-      <div class="metric-header">
-        <div class="metric-header-spacer"></div>
-        <div class="metric-header-col" style="color:var(--iom)">Isle of Man</div>
-        <div class="metric-header-col" style="color:var(--jer)">Jersey</div>
-        <div class="metric-header-col" style="color:var(--gsy)">Guernsey</div>
-        <div class="metric-header-col" style="color:var(--eng)">England</div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">Always/almost always see preferred GP or clinician</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">19%</div><div class="metric-sub">GP Patient Survey 2025</div></div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">Sometimes see preferred GP or clinician</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">43%</div><div class="metric-sub">GP Patient Survey 2025</div></div>
-      </div>
-    </div>
-    <div class="flag-note"><strong>⚠ Continuity concern:</strong> Combining "always" and "sometimes," fewer than half of England patients with a preferred GP or clinician see them consistently — the first time this has fallen below half since the GP Patient Survey began. Continuity is linked to better medication adherence, higher screening/immunisation uptake, and fewer A&amp;E attendances.</div>
-    <div class="gap-note"><strong>— No comparator:</strong> No continuity-of-care survey was found for IoM, Jersey, or Guernsey.</div>
-  </div>
-
-  <!-- DENTISTRY -->
-  <div id="pc-dentist" style="display:none">
-    <div class="flag-note"><strong>⚠ Reform in progress:</strong> IoM figures below reflect a major 2025/26 contract change, not a gradual organic trend — treat the before/after figures as marking a policy intervention, not steady-state performance.</div>
-
-    <div class="cards-label">NHS Dental Waiting List — Isle of Man</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Waiting list <span class="source-tag official">May 2025</span></div>
-        <div class="card-value miss">6,463</div>
-        <div class="card-sub">Avg wait: 551 days (adults), 518 days (children)</div>
-      </div>
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Waiting list <span class="source-tag official">Nov 2025</span></div>
-        <div class="card-value" style="color:var(--iom)">~1,500</div>
-        <div class="card-sub">After new GDS contract — 5 of 7 providers signed up</div>
-        <div class="card-dn">▼ ~77% reduction since May 2025</div>
-      </div>
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Additional investment</div>
-        <div class="card-value" style="color:var(--iom)">+£700k/yr</div>
-        <div class="card-sub">Increased Unit of Dental Activity (UDA) value to providers</div>
-      </div>
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Ramsey service expansion</div>
-        <div class="card-value" style="color:var(--iom)">+900</div>
-        <div class="card-sub">New patient capacity, replacing Grove Mount Dental Practice</div>
-        <div class="card-neu">Grove Mount handed back its NHS contract</div>
-      </div>
-    </div>
-
-    <div class="cards-label">Dentists per Population</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Isle of Man <span class="source-tag estimated">Gap</span></div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">No published total NHS dentist headcount found</div>
-        <div class="card-neu">5 of 7 General Dental Service providers on new 2025/26 contract</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England <span class="source-tag official">2024/25</span></div>
-        <div class="card-value" style="color:var(--eng)">42 / 100,000</div>
-        <div class="card-sub">24,655 dentists with NHS activity</div>
-        <div class="card-neu">Varies significantly by ICB region</div>
-      </div>
-      <div class="card" style="border-top-color:var(--jer)">
-        <div class="card-label">Jersey <span class="source-tag estimated">Gap</span></div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">Dental Fitness Scheme provides partial subsidy</div>
-        <div class="card-neu">No headcount or waiting-list data found</div>
-      </div>
-      <div class="card" style="border-top-color:var(--gsy)">
-        <div class="card-label">Guernsey <span class="source-tag derived">Structural</span></div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">Dental care fully private</div>
-        <div class="card-neu">No NHS-style system or waiting list concept</div>
-      </div>
-    </div>
-
-    <div class="flag-note"><strong>⚠ England access context:</strong> The Commons Health and Social Care Committee described a "crisis of access" to NHS dentistry in 2023; the Nuffield Trust concluded in 2024 that "universal dental care has likely gone for good." A 2025 consultation on contract reform (aiming for 700,000 more unscheduled care appointments) is being phased in from 23 June 2026.</div>
-    <div class="gap-note"><strong>— Data gaps:</strong> No verified total NHS dentist headcount for IoM despite detailed waiting-list data being available. Jersey and Guernsey dental access/headcount data were not found in public sources.</div>
-
-    <div class="section-head" style="margin-top:20px">Adult NHS Dental Access</div>
-    <div class="metric-grid">
-      <div class="metric-header">
-        <div class="metric-header-spacer"></div>
-        <div class="metric-header-col" style="color:var(--iom)">Isle of Man</div>
-        <div class="metric-header-col" style="color:var(--jer)">Jersey</div>
-        <div class="metric-header-col" style="color:var(--gsy)">Guernsey</div>
-        <div class="metric-header-col" style="color:var(--eng)">England</div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">Adults seen by an NHS dentist within 24 months</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div><div class="metric-sub">Not published</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div><div class="metric-sub">No NHS-style scheme</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div><div class="metric-sub">No NHS-style scheme</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">40%</div><div class="metric-sub">Jun 2025</div></div>
-      </div>
-    </div>
-    <div class="gap-note"><strong>— Structural note:</strong> Jersey and Guernsey have no NHS-style dental registration scheme, so a "seen within 24 months" figure doesn't apply in the same way. IoM does not publish this statistic despite tracking its dental waiting list closely.</div>
-  </div>
-
-  <!-- CHILDREN'S HEALTH -->
-  <div id="pc-children" style="display:none">
-    <div class="flag-note"><strong>⚠ Clustered indicators:</strong> Child-specific measures are grouped here separately from the adult/whole-population GP and Dentistry views, since they draw on different surveys (public health oral health surveys, immunisation programmes) with different age bases and reporting cycles.</div>
-
-    <div class="cards-label">Child Oral Health &amp; Dental Access</div>
-    <div class="metric-grid">
-      <div class="metric-header">
-        <div class="metric-header-spacer"></div>
-        <div class="metric-header-col" style="color:var(--iom)">Isle of Man</div>
-        <div class="metric-header-col" style="color:var(--jer)">Jersey</div>
-        <div class="metric-header-col" style="color:var(--gsy)">Guernsey</div>
-        <div class="metric-header-col" style="color:var(--eng)">England</div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">5-year-olds with tooth decay experience</div>
-        <div class="metric-cell" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--iom)">26.6%</div><div class="metric-sub">2024/25 public health report</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">22.4%</div><div class="metric-sub">Dentinal decay, NDEP 2023-24 (26.9% incl. enamel decay)</div></div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">Children seen by an NHS dentist within 12 months</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div><div class="metric-sub">Not published</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">57%</div><div class="metric-sub">Jun 2025</div></div>
-      </div>
-    </div>
-    <div class="flag-note"><strong>⚠ Definitions differ:</strong> IoM's 26.6% is described as "decayed, missing or filled teeth"; England's NDEP reports dentinal decay (22.4%) and a broader enamel-or-dentinal measure (26.9%) separately — the IoM figure sits closest to England's broader measure. IoM's own report describes itself as "~3 percentage points above the UK average," using a baseline not specified in the source.</div>
-    <div class="gap-note"><strong>— Local context:</strong> One IoM dental practice alone had around 780 children waiting to register. The Smile of Mann supervised toothbrushing and fluoride varnish programme has since been expanded to primary schools in response.</div>
-
-    <div class="cards-label" style="margin-top:16px">Childhood Immunisation Coverage (12-month milestone antigens)</div>
-    <div class="metric-grid">
-      <div class="metric-header">
-        <div class="metric-header-spacer"></div>
-        <div class="metric-header-col" style="color:var(--iom)">Isle of Man</div>
-        <div class="metric-header-col" style="color:var(--jer)">Jersey</div>
-        <div class="metric-header-col" style="color:var(--gsy)">Guernsey</div>
-        <div class="metric-header-col" style="color:var(--eng)">England</div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">6-in-1 (primary course)</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">91.7%</div></div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">MMR</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val warn">89%</div><div class="metric-sub">Below 95% herd-immunity target</div></div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">PCV (pneumococcal)</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">93.4%</div></div>
-      </div>
-      <div class="metric-row">
-        <div class="metric-label">MenB</div>
-        <div class="metric-cell empty" style="border-top-color:var(--iom)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--jer)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell empty" style="border-top-color:var(--gsy)"><div class="metric-val" style="color:var(--muted)">—</div></div>
-        <div class="metric-cell" style="border-top-color:var(--eng)"><div class="metric-val" style="color:var(--eng)">91.3%</div></div>
-      </div>
-    </div>
-    <div class="flag-note"><strong>⚠ Measles risk:</strong> WHO/UKHSA's herd-immunity target for measles is 95% coverage. England's 89% MMR uptake sits below this threshold; England recorded 2,911 confirmed measles cases in 2024 — the highest annual total since 2012.</div>
-    <div class="gap-note"><strong>— No comparator:</strong> No published childhood immunisation coverage figures were found for IoM, Jersey, or Guernsey.</div>
-  </div>
-
-</div><!-- /tab-primarycare -->
-
 
 <!-- ══════════════════════════════════════════════ -->
 <!-- TAB: OPERATIONAL -->
@@ -1277,98 +883,6 @@ body.light {
       </tbody>
     </table>
     <div class="gap-note"><strong>— Workforce data gaps:</strong> Comparable FTE-per-1,000-population or nurse-per-bed metrics could not be constructed from available sources. Each jurisdiction uses different workforce classification systems. Detailed Guernsey HSC staffing breakdown requires Appendix VII of States Accounts 2024 (PDF truncated during extraction).</div>
-  </div>
-
-  <div class="section">
-    <div class="section-head">Demographics &amp; Primary Care Access</div>
-
-    <div class="cards-label">Dependency Ratio — Total / Old-Age (% of working-age population)</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Isle of Man <span class="source-tag official">2021 Census</span></div>
-        <div class="card-value" style="color:var(--iom)">58.3% / 33.1%</div>
-        <div class="card-sub">Youth dependency 25.2% · working-age (15–64) = 63.1% of pop.</div>
-        <div class="card-neu">Over-65s now 22.0% of residents, up from 21.7% (2016)</div>
-      </div>
-      <div class="card" style="border-top-color:var(--jer)">
-        <div class="card-label">Jersey <span class="source-tag official">2024</span></div>
-        <div class="card-value" style="color:var(--jer)">52.5% / 30.1%</div>
-        <div class="card-sub">Old-age dependency up from 23.1% (2014)</div>
-        <div class="card-neu">Projected to reach 64.2% by 2040 (nil migration)</div>
-      </div>
-      <div class="card" style="border-top-color:var(--gsy)">
-        <div class="card-label">Guernsey <span class="source-tag official">2024</span></div>
-        <div class="card-value" style="color:var(--gsy)">55.9% / 33.5%</div>
-        <div class="card-sub">Average age 44 (2023), rising ~1 year every 5 years</div>
-        <div class="card-neu">Highest old-age dependency of the four</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England / UK <span class="source-tag official">ONS/World Bank 2024</span></div>
-        <div class="card-value" style="color:var(--eng)">57.9% / 30.8%</div>
-        <div class="card-sub">Total dependency includes all under-16 and over-64</div>
-        <div class="card-neu">Lowest old-age dependency of the four</div>
-      </div>
-    </div>
-    <div class="flag-note"><strong>⚠ Definitions vary:</strong> "Total" dependency ratios use slightly different working-age cutoffs and methodologies across sources. Old-age dependency ratio (second figure in each card) is the most directly comparable metric across all four jurisdictions — all measure population 65+ against working-age (15/16–64).</div>
-
-    <div class="cards-label">Patients per GP</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">Isle of Man <span class="source-tag official">2024</span></div>
-        <div class="card-value" style="color:var(--iom)">2,689</div>
-        <div class="card-sub">89,262 registered patients · 33.2 FTE GPs · 14 GP practices</div>
-        <div class="card-up">▲ FTE GPs fell 21% since 1999 — see Primary Care tab for full 1999–2024 trend</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England <span class="source-tag official">Dec 2024</span></div>
-        <div class="card-value" style="color:var(--eng)">~2,309</div>
-        <div class="card-sub">43.3 FTE GPs per 100,000 · range 2,020 (SW) – 2,560 (London)</div>
-        <div class="card-neu">BMA cites UK-wide figure of 2,241</div>
-      </div>
-      <div class="card" style="border-top-color:var(--jer)">
-        <div class="card-label">Jersey <span class="source-tag estimated">Unverified</span></div>
-        <div class="card-value warn">~1,000</div>
-        <div class="card-sub">"100+ GPs" vs 104,540 pop. — source doesn't confirm this excludes hospital doctors</div>
-        <div class="card-neu">Treat as indicative only, not a clean comparator</div>
-      </div>
-      <div class="card" style="border-top-color:var(--gsy)">
-        <div class="card-label">Guernsey <span class="source-tag estimated">Gap</span></div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">No published GP headcount found</div>
-        <div class="card-neu">3 GP partnerships, 9 surgeries — no patient-list data</div>
-      </div>
-    </div>
-    <div class="gap-note"><strong>— GP ratio gaps:</strong> Guernsey's GP headcount and a verified primary-care-only Jersey GP count were not found in public sources. Jersey's commonly cited "100+ GPs" could not be confirmed as excluding hospital-based or private specialist doctors — shown here with a caveat rather than presented as clean data.</div>
-
-    <div class="cards-label">Appointment Access &amp; Satisfaction</div>
-    <div class="cards">
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">IoM — Urgent GP referrals seen ≤6 weeks</div>
-        <div class="card-value miss">47%</div>
-        <div class="card-sub">Target ≥85% · IPR</div>
-        <div class="card-up">Measures referral-to-specialist speed, not GP booking itself</div>
-      </div>
-      <div class="card" style="border-top-color:var(--iom)">
-        <div class="card-label">IoM — NHS dental waiting list</div>
-        <div class="card-value" style="color:var(--iom)">~1,500</div>
-        <div class="card-sub">Nov 2025, down from 6,463 (May 2025)</div>
-        <div class="card-dn">▼ New contracts cost Manx Care +£700k/yr</div>
-      </div>
-      <div class="card" style="border-top-color:var(--eng)">
-        <div class="card-label">England — Good overall GP experience</div>
-        <div class="card-value" style="color:var(--eng)">75.4%</div>
-        <div class="card-sub">GP Patient Survey 2025 · +1.5pp on 2024</div>
-        <div class="card-neu">69.6% good experience contacting practice (+2.3pp)</div>
-      </div>
-      <div class="card" style="border-top-color:var(--gsy)">
-        <div class="card-label">Guernsey — Access (qualitative)</div>
-        <div class="card-value" style="color:var(--muted)">—</div>
-        <div class="card-sub">Described as easy/short-notice — private fee-per-visit system</div>
-        <div class="card-neu">No quantified satisfaction survey found</div>
-      </div>
-    </div>
-    <div class="gap-note"><strong>— No like-for-like access survey:</strong> England's GP Patient Survey has no equivalent in IoM, Jersey or Guernsey. IoM's 47% figure measures urgent GP-to-specialist referral speed, not ease of booking a GP appointment — it is not directly comparable with England's contact/experience survey results. Jersey has no published patient satisfaction or appointment-wait data.</div>
-
   </div>
 
   <div class="section">
@@ -1580,7 +1094,6 @@ function destroyAll() {
   clinChartsInited = false;
   opsChartsInited = false;
   oiChartsInited = false;
-  pcChartsInited = false;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1603,7 +1116,7 @@ function axisDefaults(overrides = {}) {
 let activeTab = 'governance';
 function showTab(id) {
   activeTab = id;
-  ['governance','publichealth','financial','primarycare','mental','clinical','operational','offisland'].forEach(t => {
+  ['governance','financial','clinical','operational','offisland'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t===id ? '' : 'none';
   });
@@ -1620,10 +1133,8 @@ function showTab(id) {
   }
   if (id === 'financial')   initFinCharts();
   if (id === 'clinical')    initClinicalCharts();
-  if (id === 'primarycare') initPCCharts();
   if (id === 'operational') initOpsCharts();
   if (id === 'offisland')   initOffIslandCharts();
-  if (id === 'publichealth') renderPubHealth();
   notifyHeight();
 }
 
@@ -1631,8 +1142,7 @@ function showTab(id) {
 //  Sub-tab switching
 // ─────────────────────────────────────────────────────────────
 const SUBTAB_GROUPS = {
-  clin: ['ed','cancer','diagnostics','waiting','safety'],
-  pc: ['gp','dentist','children']
+  clin: ['ed','cancer','diagnostics','waiting','mental','safety']
 };
 function showSubTab(group, id) {
   SUBTAB_GROUPS[group].forEach(s => {
@@ -1649,332 +1159,6 @@ function showSubTab(group, id) {
 // ─────────────────────────────────────────────────────────────
 //  Audience toggle
 // ─────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────
-//  Public Health — jurisdiction picker + adaptive metric grid
-// ─────────────────────────────────────────────────────────────
-let pcChartsInited = false;
-function initPCCharts() {
-  if (pcChartsInited) return;
-  const canvas = document.getElementById('gpTrendChart');
-  if (!canvas) return;
-  pcChartsInited = true;
-
-  const iom = cv('--iom'), muted = cv('--muted');
-  const t = tc();
-  const years = [1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
-  const gpFte  = [42.0,42.5,43.5,43.5,43.75,43.75,44.75,44.75,45.75,46.25,47.3,46.3,47.0,45.0,45.8,45.4,46.5,46.5,44.6,42.5,40.4,38.6,41.8,40.3,37.6,33.2];
-  const perGp  = [1848,1856,1837,1849,1844,1835,1833,1850,1836,1831,1962,1870,1851,1936,1903,1921,1871,1870,1956,2056,2173,2283,2116,2192,2360,2689];
-
-  CHARTS.gpTrend = new Chart(canvas, {
-    type:'line',
-    data:{
-      labels: years,
-      datasets:[
-        { label:'FTE GPs (left axis)', data:gpFte, yAxisID:'y', borderColor:iom, backgroundColor:iom+'20', borderWidth:2, pointRadius:0, tension:0.25, fill:true },
-        { label:'Patients per FTE GP (right axis)', data:perGp, yAxisID:'y1', borderColor:muted, borderWidth:2, borderDash:[5,4], pointRadius:0, tension:0.25, fill:false }
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:9.5}, color:t } } },
-      scales:{
-        x: axisDefaults({ ticks:{ color:t, maxRotation:0, autoSkip:true, maxTicksLimit:9 } }),
-        y:  axisDefaults({ position:'left',  title:{display:true,text:'FTE GPs',color:iom,font:{size:10}}, ticks:{color:t} }),
-        y1: axisDefaults({ position:'right', title:{display:true,text:'Patients per GP',color:muted,font:{size:10}}, grid:{drawOnChartArea:false}, ticks:{color:t} })
-      }
-    }
-  });
-}
-
-const PH_JURS = [
-  {key:'iom', label:'Isle of Man', css:'iom', pinned:true},
-  {key:'jer', label:'Jersey', css:'jer'},
-  {key:'gue', label:'Guernsey', css:'gsy'},
-  {key:'shs', label:'Shetland', css:'shs'},
-  {key:'ork', label:'Orkney', css:'ork'},
-  {key:'wis', label:'Western Isles', css:'wis'},
-  {key:'eng', label:'England', css:'eng', reference:true}
-];
-const PH_METRICS = [
-  { label:'Population', values:{
-    iom:{val:'~84,500', sub:'2024 estimate'},
-    jer:{val:'~104,500', sub:'2024 estimate'},
-    gue:{val:'~64,000', sub:'2024 estimate'},
-    shs:{val:'~23,000', sub:'2024 estimate'},
-    ork:{val:'~22,000', sub:'2024 estimate'},
-    wis:{val:'~26,500', sub:'2024 estimate'},
-    eng:{val:'~56.5m', sub:'Different scale — shown for reference only'}
-  }},
-  { label:'Distance to nearest mainland tertiary care', values:{
-    iom:{val:'~80 mi', sub:'To Liverpool (main tertiary referral centre) · ~30 min flight'},
-    jer:{val:'~100 mi', sub:'To Southampton (main tertiary referral centre) · ~45 min flight'},
-    gue:{val:'~90 mi', sub:'To Southampton (main tertiary referral centre) · ~40 min flight'},
-    shs:{val:'~210 mi', sub:'To Aberdeen · ~1hr flight or ~12hr overnight ferry'},
-    ork:{val:'~145 mi', sub:'To Aberdeen · ~50 min flight or ~6–8hr ferry'},
-    wis:{val:'~150–200 mi', sub:'To Inverness/Glasgow · ~1hr flight'},
-    eng:{empty:true, sub:'Mainland reference — not applicable'}
-  }},
-  { label:'Life expectancy at birth', values:{
-    iom:{val:'81.7', sub:'2020–22 · M79.4/F84.2 · Public Health IoM'},
-    jer:{val:'83.1', sub:'2021–23 · Tier-1 comparator — see note below'},
-    gue:{val:'83.6', sub:'2022–24 rolling · 5th of 39 OECD countries'},
-    shs:{val:'80.6', sub:'Male only · NRS'},
-    ork:{val:'83.9', sub:'Female only · NRS'},
-    wis:{empty:true, sub:'Below Scot. avg — no figure published'},
-    eng:{val:'79.1 / 83.0', sub:'M / F · 2021–23 · ONS'}
-  }},
-  { label:'Healthy life expectancy at birth', values:{
-    iom:{empty:true, sub:'Not calculated — no LLSI survey question'},
-    jer:{empty:true, sub:'Not calculated — no LLSI survey question'},
-    gue:{empty:true, sub:'Described as "mid-range" but no figure published'},
-    shs:{empty:true},
-    ork:{val:'71.2 / 77.5', sub:'M / F · 2018–20'},
-    wis:{val:'68.3 / 67.5', sub:'M / F · 2018–20'},
-    eng:{val:'61.5 / 61.9', sub:'M / F · 2021–23 · ONS'}
-  }},
-  { label:'Avoidable mortality rate (premature, preventable + treatable deaths)', values:{
-    iom:{val:'204.9', sub:'2023 · per 100,000 · ▲ up from 194.4 in 2022 · hover for trend', breakAt:2022,
-      series:[{x:2006,y:215},{x:2007,y:255},{x:2008,y:300},{x:2009,y:235},{x:2010,y:250},{x:2011,y:240},{x:2012,y:190},{x:2013,y:255},{x:2014,y:220},{x:2015,y:235},{x:2016,y:220},{x:2017,y:225},{x:2018,y:250},{x:2019,y:215},{x:2020,y:200},{x:2021,y:205},{x:2022,y:194.4},{x:2023,y:204.9}]},
-    jer:{val:'155.9', sub:'2024 · per 100,000 · hover for trend',
-      series:[{x:2022,y:170},{x:2023,y:153},{x:2024,y:155.9}]},
-    gue:{val:'158', sub:'2022–24 rolling · per 100,000 · hover for trend',
-      series:[{x:2014,y:183},{x:2015,y:185},{x:2016,y:191},{x:2017,y:188},{x:2018,y:180},{x:2019,y:185},{x:2020,y:185},{x:2023,y:158}]},
-    shs:{empty:true, sub:'ScotPHO publishes — not yet extracted'},
-    ork:{empty:true, sub:'ScotPHO publishes — not yet extracted'},
-    wis:{empty:true, sub:'ScotPHO publishes — not yet extracted'},
-    eng:{val:'227.6', sub:'2024 · per 100,000 · ONS · lowest on record · hover for trend',
-      series:[{x:2001,y:340.5},{x:2002,y:329.9},{x:2003,y:321.9},{x:2004,y:304.5},{x:2005,y:295.2},{x:2006,y:284.8},{x:2007,y:275.7},{x:2008,y:271.4},{x:2009,y:258.1},{x:2010,y:251.6},{x:2011,y:242.0},{x:2012,y:235.1},{x:2013,y:233.9},{x:2014,y:231.9},{x:2015,y:231.8},{x:2016,y:231.1},{x:2017,y:226.1},{x:2018,y:227.4},{x:2019,y:221.5},{x:2020,y:257.7},{x:2021,y:263.3},{x:2022,y:238.0},{x:2023,y:237.4},{x:2024,y:227.6}]}
-  }},
-  { label:'Share of all deaths that were avoidable', values:{
-    iom:{val:'21%', sub:'2022 · 182 of 860 deaths'},
-    jer:{val:'21.3%', sub:'2024 · ~160 deaths'},
-    gue:{val:'16%', sub:'2022–24 rolling · ~103 deaths/yr'},
-    shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'21.3%', sub:'2024 · 113,404 of 531,953 deaths'}
-  }},
-  { label:'Suicide & self-harm mortality rate', values:{
-    iom:{val:'17.8', sub:'2020–22 · 3-yr rolling · per 100,000 · hover for trend',
-      series:[{x:2007,y:10.0},{x:2008,y:14.0},{x:2009,y:13.0},{x:2010,y:12.0},{x:2011,y:12.0},{x:2012,y:10.0},{x:2013,y:12.0},{x:2014,y:10.0},{x:2015,y:7.8},{x:2016,y:10.2},{x:2017,y:10.7},{x:2018,y:10.0},{x:2019,y:18.0},{x:2020,y:17.0},{x:2021,y:17.8}]},
-    jer:{val:'7.0', sub:'2021–23 · 3-yr rolling · per 100,000 · hover for trend',
-      series:[{x:2013,y:8.8},{x:2014,y:8.0},{x:2015,y:10.2},{x:2016,y:9.8},{x:2017,y:10.5},{x:2018,y:9.3},{x:2019,y:10.8},{x:2020,y:7.6},{x:2021,y:7.1},{x:2022,y:7.0}]},
-    gue:{val:'9.6', sub:'2021–23 · confirmed; up to 11.0 if all open inquests confirmed · hover for trend',
-      series:[{x:2014,y:7.0},{x:2015,y:12.2},{x:2016,y:12.4},{x:2017,y:12.1},{x:2018,y:12.8},{x:2019,y:15.4},{x:2020,y:14.1},{x:2021,y:12.2},{x:2022,y:9.6}]},
-    shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'11.4', sub:'2024 · single year · civil standard · hover for trend', breakAt:2018,
-      series:[{x:1981,y:14.7},{x:1982,y:14.5},{x:1983,y:14.2},{x:1984,y:14.3},{x:1985,y:14.1},{x:1986,y:14.6},{x:1987,y:14.9},{x:1988,y:14.7},{x:1989,y:13.8},{x:1990,y:13.6},{x:1991,y:13.2},{x:1992,y:12.7},{x:1993,y:12.2},{x:1994,y:11.9},{x:1995,y:11.7},{x:1996,y:11.4},{x:1997,y:11.2},{x:1998,y:11.4},{x:1999,y:11.5},{x:2000,y:11.2},{x:2001,y:11.1},{x:2002,y:11.0},{x:2003,y:11.0},{x:2004,y:10.9},{x:2005,y:10.6},{x:2006,y:10.3},{x:2007,y:10.2},{x:2008,y:10.5},{x:2009,y:10.8},{x:2010,y:11.1},{x:2011,y:11.5},{x:2012,y:10.9},{x:2013,y:11.0},{x:2014,y:10.8},{x:2015,y:10.5},{x:2016,y:10.2},{x:2017,y:10.1},{x:2018,y:11.2},{x:2019,y:11.0},{x:2020,y:10.0},{x:2021,y:10.7},{x:2022,y:10.7},{x:2023,y:11.2},{x:2024,y:11.4}]}
-  }},
-  { label:'Childhood immunisation — 6-in-1 (primary course)', values:{
-    iom:{empty:true}, jer:{empty:true}, gue:{empty:true}, shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'91.7%', sub:'12-month milestone antigens'}
-  }},
-  { label:'Childhood immunisation — MMR', values:{
-    iom:{empty:true}, jer:{empty:true}, gue:{empty:true}, shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'89%', sub:'Below 95% herd-immunity target'}
-  }},
-  { label:'Infant mortality rate (per 1,000 live births)', values:{
-    iom:{empty:true, sub:'Not located this pass'},
-    jer:{val:'~1.3', sub:'Low-confidence, third-party aggregator — not the official Jersey report'},
-    gue:{val:'~3.4', sub:'2021 estimate, third-party aggregator — not the official Guernsey report'},
-    shs:{empty:true, sub:'NRS publishes Scotland-wide, not island-isolated'},
-    ork:{empty:true, sub:'NRS publishes Scotland-wide, not island-isolated'},
-    wis:{empty:true, sub:'NRS publishes Scotland-wide, not island-isolated'},
-    eng:{val:'3.9', sub:'2024 · ONS · official'}
-  }},
-  { label:'Breast cancer screening coverage', values:{
-    iom:{empty:true}, jer:{empty:true}, gue:{empty:true}, shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'69.9%', sub:'3-yr to Mar 2024'}
-  }},
-  { label:'Cervical screening coverage', values:{
-    iom:{empty:true}, jer:{empty:true}, gue:{empty:true}, shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'68.8%', sub:'2023/24'}
-  }},
-  { label:'Bowel screening coverage', values:{
-    iom:{empty:true}, jer:{empty:true}, gue:{empty:true}, shs:{empty:true}, ork:{empty:true}, wis:{empty:true},
-    eng:{val:'72%', sub:'Mar 2024 · FIT extension to 50+'}
-  }}
-];
-let phActive = new Set(PH_JURS.map(j => j.key));
-let phHideEmpty = false;
-let phCompareSet = [];
-let PH_POPUP_CHART = null;
-function phTogglePill(key) {
-  const j = PH_JURS.find(x => x.key === key);
-  if (j && j.pinned) return;
-  if (phActive.has(key)) phActive.delete(key); else phActive.add(key);
-  renderPubHealth();
-}
-function phToggleHideEmpty(cb) { phHideEmpty = cb.checked; renderPubHealth(); }
-function phColumnHasData(key) {
-  return PH_METRICS.some(m => m.values[key] && !m.values[key].empty);
-}
-function phHasSeries(v) { return !!(v && v.series && v.series.length >= 2); }
-
-function phShowPopup(mi, jurKey, evt) {
-  const m = PH_METRICS[mi];
-  const v = m && m.values[jurKey];
-  if (!phHasSeries(v)) return;
-  const jur = PH_JURS.find(j => j.key === jurKey);
-  const popup = document.getElementById('ph-popup');
-  const title = document.getElementById('ph-popup-title');
-  const canvas = document.getElementById('ph-popup-canvas');
-  if (!popup || !title || !canvas) return;
-  title.textContent = jur.label + ' — ' + m.label;
-  popup.style.display = 'block';
-  phMovePopup(evt);
-
-  if (PH_POPUP_CHART) { PH_POPUP_CHART.destroy(); PH_POPUP_CHART = null; }
-  const color = cv('--' + jur.css);
-  PH_POPUP_CHART = new Chart(canvas, {
-    type: 'line',
-    data: { datasets: [{
-      data: v.series, borderColor: color, backgroundColor: color + '25',
-      borderWidth: 2, pointRadius: 0, tension: 0.25, fill: true,
-      segment: v.breakAt ? { borderDash: ctx => (ctx.p0.parsed.x >= v.breakAt ? [4, 3] : undefined) } : undefined
-    }]},
-    options: {
-      responsive: false, animation: false,
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: { x: { display: false, type: 'linear' }, y: { display: false } },
-      elements: { point: { radius: 0 } }
-    }
-  });
-}
-function phMovePopup(evt) {
-  const popup = document.getElementById('ph-popup');
-  if (!popup || popup.style.display === 'none' || !evt) return;
-  const pad = 14;
-  let x = evt.clientX + pad, y = evt.clientY + pad;
-  if (x > window.innerWidth - 190) x = evt.clientX - 190 - pad;
-  if (y > window.innerHeight - 100) y = evt.clientY - 100 - pad;
-  popup.style.left = x + 'px';
-  popup.style.top = y + 'px';
-}
-function phHidePopup() {
-  const popup = document.getElementById('ph-popup');
-  if (popup) popup.style.display = 'none';
-}
-function phToggleCompare(mi, jurKey) {
-  const v = PH_METRICS[mi] && PH_METRICS[mi].values[jurKey];
-  if (!phHasSeries(v)) return;
-  const idx = phCompareSet.findIndex(c => c.mi === mi && c.jur === jurKey);
-  if (idx >= 0) phCompareSet.splice(idx, 1); else phCompareSet.push({ mi, jur: jurKey });
-  renderPubHealth();
-  renderPHCompareChart();
-}
-function phClearCompare() { phCompareSet = []; renderPubHealth(); renderPHCompareChart(); }
-
-function renderPHCompareChart() {
-  const panel = document.getElementById('ph-compare-panel');
-  if (!panel) return;
-  if (!phCompareSet.length) {
-    if (CHARTS.phCompare) { CHARTS.phCompare.destroy(); delete CHARTS.phCompare; }
-    panel.innerHTML = '<div class="ph-compare-empty">Click any highlighted cell in the Avoidable Mortality or Suicide &amp; Self-Harm Mortality rows to add it here and compare trends — each metric gets its own axis so scales don\'t clash.</div>';
-    setTimeout(notifyHeight, 50);
-    return;
-  }
-  panel.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11px;color:var(--muted2)">Comparing ' + phCompareSet.length + ' series</span><button onclick="phClearCompare()" style="font-size:10px;background:var(--surface2);color:var(--muted2);border:1px solid var(--border2);border-radius:5px;padding:3px 9px;cursor:pointer">Clear</button></div><div class="chart-canvas-wrap" style="height:280px"><canvas id="phCompareCanvas"></canvas></div>';
-
-  const t = tc(), g = gc();
-  const metricIds = [...new Set(phCompareSet.map(c => c.mi))];
-  const datasets = phCompareSet.map(c => {
-    const m = PH_METRICS[c.mi];
-    const v = m.values[c.jur];
-    const jur = PH_JURS.find(j => j.key === c.jur);
-    const color = cv('--' + jur.css);
-    return {
-      label: jur.label + ' — ' + m.label,
-      data: v.series, yAxisID: 'y' + c.mi,
-      borderColor: color, backgroundColor: color + '15', borderWidth: 2, pointRadius: 2, tension: 0.25, fill: false,
-      segment: v.breakAt ? { borderDash: ctx => (ctx.p0.parsed.x >= v.breakAt ? [5, 4] : undefined) } : undefined
-    };
-  });
-  const scales = { x: axisDefaults({ type: 'linear', ticks: { color: t } }) };
-  metricIds.forEach((mi, i) => {
-    const label = PH_METRICS[mi].label;
-    scales['y' + mi] = axisDefaults({
-      position: i % 2 === 0 ? 'left' : 'right',
-      ticks: { color: t },
-      title: { display: true, text: label.length > 26 ? label.slice(0, 26) + '…' : label, color: cv('--muted'), font: { size: 9 } },
-      grid: { drawOnChartArea: i === 0, color: g }
-    });
-  });
-
-  if (CHARTS.phCompare) CHARTS.phCompare.destroy();
-  CHARTS.phCompare = new Chart(document.getElementById('phCompareCanvas'), {
-    type: 'line',
-    data: { datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 9 }, color: t } } },
-      scales
-    }
-  });
-  setTimeout(notifyHeight, 50);
-}
-
-function renderPubHealth() {
-  const pillsEl = document.getElementById('ph-pills');
-  const deskEl = document.getElementById('ph-desktop');
-  const mobEl = document.getElementById('ph-mobile');
-  if (!pillsEl || !deskEl || !mobEl) return;
-
-  const visible = PH_JURS.filter(j => phActive.has(j.key) && (!phHideEmpty || j.pinned || phColumnHasData(j.key)));
-
-  pillsEl.innerHTML = PH_JURS.map(j => {
-    const isActive = phActive.has(j.key);
-    const bg = isActive ? `var(--${j.css})` : 'transparent';
-    const col = isActive ? '#fff' : 'var(--muted2)';
-    const bd = isActive ? `var(--${j.css})` : 'var(--border2)';
-    const cls = 'jur-pill' + (j.reference ? ' ref' : '') + (j.pinned ? ' pinned' : '');
-    const suffix = j.pinned ? ' · Home' : (j.reference ? ' · Ref' : '');
-    return `<button class="${cls}" style="background:${bg};color:${col};border-color:${bd}" onclick="phTogglePill('${j.key}')"${j.pinned ? ' title="Home jurisdiction — always shown"' : ''}>${j.label}${suffix}</button>`;
-  }).join('');
-
-  if (!visible.length) {
-    deskEl.innerHTML = '<div class="gap-note">No jurisdictions selected — choose at least one above.</div>';
-    mobEl.innerHTML = deskEl.innerHTML;
-    setTimeout(notifyHeight, 50);
-    return;
-  }
-
-  const head = '<div class="metric-header"><div class="metric-header-spacer"></div>' +
-    visible.map(j => `<div class="metric-header-col" style="color:var(--${j.css})">${j.label}</div>`).join('') +
-    '</div>';
-  const rows = PH_METRICS.map((m, mi) => {
-    const cells = visible.map(j => {
-      const v = m.values[j.key];
-      const hasSeries = phHasSeries(v);
-      const selected = phCompareSet.some(c => c.mi === mi && c.jur === j.key);
-      const interactive = hasSeries ? ` onmouseenter="phShowPopup(${mi},'${j.key}',event)" onmousemove="phMovePopup(event)" onmouseleave="phHidePopup()" onclick="phToggleCompare(${mi},'${j.key}')"` : '';
-      const cls = 'metric-cell' + (!v || v.empty ? ' empty' : '') + (hasSeries ? ' hoverable' : '') + (selected ? ' compare-selected' : '');
-      if (!v || v.empty) {
-        return `<div class="${cls}" style="border-top-color:var(--${j.css})"${interactive}><div class="metric-val" style="color:var(--muted)">—</div>${v && v.sub ? `<div class="metric-sub">${v.sub}</div>` : ''}</div>`;
-      }
-      return `<div class="${cls}" style="border-top-color:var(--${j.css})"${interactive}><div class="metric-val" style="color:var(--${j.css})">${v.val}</div>${v.sub ? `<div class="metric-sub">${v.sub}</div>` : ''}</div>`;
-    }).join('');
-    return `<div class="metric-row"><div class="metric-label">${m.label}</div>${cells}</div>`;
-  }).join('');
-  deskEl.innerHTML = head + rows;
-
-  mobEl.innerHTML = visible.map(j => {
-    const rows2 = PH_METRICS.map((m, mi) => {
-      const v = m.values[j.key];
-      const hasSeries = phHasSeries(v);
-      const selected = phCompareSet.some(c => c.mi === mi && c.jur === j.key);
-      const interactive = hasSeries ? ` onclick="phToggleCompare(${mi},'${j.key}')"` : '';
-      const val = (!v || v.empty) ? '<span style="color:var(--muted)">—</span>' : v.val;
-      const sub = v && v.sub ? `<div style="font-size:9px;color:var(--muted2);margin-top:2px">${v.sub}</div>` : '';
-      const cls = 'ph-metric-val' + (hasSeries ? ' hoverable' : '') + (selected ? ' compare-selected' : '');
-      return `<div class="ph-card-row"><div class="ph-metric-label">${m.label}${sub}</div><div class="${cls}" style="color:var(--${j.css})"${interactive}>${val}</div></div>`;
-    }).join('');
-    const tag = j.pinned ? ' · Home' : (j.reference ? ' · Reference' : '');
-    return `<div class="ph-card" style="border-top-color:var(--${j.css})"><div class="ph-card-title" style="color:var(--${j.css})">${j.label}${tag}</div>${rows2}</div>`;
-  }).join('');
-
-  renderPHCompareChart();
-  setTimeout(notifyHeight, 50);
-}
-
 function setAudience(a) {
   document.getElementById('btn-plain').classList.toggle('active', a==='plain');
   document.getElementById('btn-tech').classList.toggle('active', a==='tech');
@@ -2393,8 +1577,6 @@ function applyTheme(name) {
   if (activeTab === 'clinical')    { clinChartsInited=false; initClinicalCharts(); }
   if (activeTab === 'operational') { opsChartsInited=false;  initOpsCharts(); }
   if (activeTab === 'offisland')   { oiChartsInited=false;   initOffIslandCharts(); }
-  if (activeTab === 'publichealth') renderPubHealth();
-  if (activeTab === 'primarycare') { pcChartsInited=false;   initPCCharts(); }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -2426,8 +1608,6 @@ window.addEventListener('message', e => {
     if (activeTab === 'clinical')    initClinicalCharts();
     if (activeTab === 'operational') initOpsCharts();
     if (activeTab === 'offisland')   initOffIslandCharts();
-    if (activeTab === 'publichealth') renderPubHealth();
-    if (activeTab === 'primarycare') initPCCharts();
     setTimeout(notifyHeight, 200);
   }
 });
@@ -2451,7 +1631,6 @@ window.addEventListener('DOMContentLoaded', () => {
     if (s === 'dark') applyTheme('dark');
     // else stays light (body default)
   } catch(_) {}
-  renderPubHealth();
   requestAnimationFrame(() => {
     notifyHeight();
     setTimeout(notifyHeight, 600);

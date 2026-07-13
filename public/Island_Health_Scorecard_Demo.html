@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Island Health Scorecard — Demo</title>
+<style>
+  :root{
+    --deep:#065A82; --teal:#1C7293; --mid:#21295C; --mint:#9BD1C7;
+    --ink:#1A2A33; --mute:#5A6B75; --light:#EAF2F6; --bg:#F4F8FA;
+    --green:#2E7D32; --amber:#B26A00; --red:#B3261E;
+    --greenbg:#E8F3E9; --amberbg:#FBF3E4; --redbg:#FDF0EF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Calibri,Arial,sans-serif}
+  body{background:var(--bg);color:var(--ink)}
+  header{background:var(--mid);color:#fff;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  header h1{font-size:22px;font-weight:700}
+  header h1 span{color:var(--mint);font-weight:400}
+  .demo-badge{background:var(--mint);color:var(--mid);font-size:11px;font-weight:700;letter-spacing:1.5px;padding:4px 10px;border-radius:20px;margin-left:12px;vertical-align:middle}
+  .banner{background:#FFF6DE;border-bottom:1px solid #E8D9A8;color:#6B5A1E;font-size:12.5px;padding:7px 32px}
+  nav{display:flex;gap:4px;background:#fff;padding:0 32px;border-bottom:1px solid #D8E4EA}
+  nav button{border:none;background:none;padding:14px 20px;font-size:14px;font-weight:600;color:var(--mute);cursor:pointer;border-bottom:3px solid transparent}
+  nav button.active{color:var(--deep);border-bottom-color:var(--deep)}
+  nav button:hover{color:var(--deep)}
+  .controls{display:flex;align-items:center;gap:14px;padding:18px 32px 6px;flex-wrap:wrap}
+  .seg{display:inline-flex;background:#fff;border:1px solid #C9DAE3;border-radius:22px;overflow:hidden}
+  .seg button{border:none;background:none;padding:8px 18px;font-size:13.5px;font-weight:600;color:var(--mute);cursor:pointer}
+  .seg button.active{background:var(--deep);color:#fff}
+  .legend{margin-left:auto;display:flex;gap:14px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+  .legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  main{padding:10px 32px 40px;max-width:1500px;margin:0 auto}
+  .persp{margin-top:22px}
+  .persp-head{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+  .persp-head h2{font-size:17px;color:var(--deep)}
+  .persp-head .sub{font-size:12.5px;color:var(--mute);font-style:italic}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+  .card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 4px rgba(30,60,80,.10);position:relative;cursor:default;transition:box-shadow .15s}
+  .card:hover{box-shadow:0 3px 10px rgba(30,60,80,.18)}
+  .card .mname{font-size:13px;font-weight:600;color:var(--ink);padding-right:56px;min-height:34px}
+  .card .val{font-size:27px;font-weight:800;margin-top:4px}
+  .card .val small{font-size:13px;font-weight:600;color:var(--mute)}
+  .card .target{font-size:11.5px;color:var(--mute);margin-top:2px}
+  .rag{position:absolute;top:14px;right:14px;width:13px;height:13px;border-radius:50%}
+  .d0{position:absolute;top:11px;right:34px;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:9px;letter-spacing:.5px}
+  .d0.G{background:var(--greenbg);color:var(--green)} .d0.A{background:var(--amberbg);color:var(--amber)} .d0.R{background:var(--redbg);color:var(--red)}
+  .spark{margin-top:8px}
+  .peer{font-size:11.5px;margin-top:7px;padding-top:7px;border-top:1px dashed #DCE7ED;color:var(--mute)}
+  .peer b{color:var(--teal)}
+  /* compare table */
+  .cmp{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(30,60,80,.10);overflow:hidden;margin-top:20px}
+  .cmp h3{font-size:15px;color:#fff;background:var(--deep);padding:11px 18px}
+  .cmp table{width:100%;border-collapse:collapse;font-size:13px}
+  .cmp th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mute);padding:9px 18px;border-bottom:1px solid #E2ECF1;background:#F7FAFC}
+  .cmp td{padding:9px 18px;border-bottom:1px solid #EEF4F7;vertical-align:middle}
+  .cmp tr:last-child td{border-bottom:none}
+  .cmp .mc,.cmp .je{font-weight:700}
+  .cmp .better{color:var(--green)} .cmp .worse{color:var(--red)} .cmp .neutral{color:var(--ink)}
+  .gapbar{height:8px;border-radius:4px;background:#E4EDF2;position:relative;min-width:120px}
+  .gapbar i{position:absolute;top:0;height:8px;border-radius:4px}
+  .notecmp{font-size:12px;color:var(--mute);padding:10px 18px;background:#F7FAFC;font-style:italic}
+  /* strategy map */
+  .mapwrap{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(30,60,80,.10);padding:24px;margin-top:20px}
+  .mapwrap h3{color:var(--deep);font-size:16px;margin-bottom:4px}
+  .mapwrap .sub{font-size:12.5px;color:var(--mute);font-style:italic;margin-bottom:16px}
+  .tier{display:flex;align-items:stretch;gap:14px;margin-bottom:8px}
+  .tierlabel{width:150px;flex-shrink:0;display:flex;align-items:center;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mute)}
+  .objrow{display:flex;gap:12px;flex-wrap:wrap;flex:1}
+  .obj{border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:600;flex:1;min-width:170px;position:relative}
+  .obj .metrics{font-size:11px;font-weight:400;margin-top:4px;opacity:.85}
+  .arrowrow{display:flex;justify-content:center;color:#9FB6C2;font-size:18px;margin:2px 0 6px 150px}
+  footer{padding:18px 32px;font-size:11.5px;color:var(--mute);border-top:1px solid #DFE9EE;background:#fff}
+  .hidden{display:none}
+  @media(max-width:760px){main,header,nav,.controls,.banner{padding-left:14px;padding-right:14px}.tierlabel{width:80px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>The Island Health Scorecard <span>· Manx Care × Health and Care Jersey</span><span class="demo-badge">DEMO</span></h1>
+  <div style="font-size:12px;color:#AFC3E0">Coalfinch · founding pilot concept</div>
+</header>
+<div class="banner">⚠ All figures are <b>illustrative demonstration data</b> — plausible magnitudes for discussion, not actual published statistics. The live version populates Green metrics from the Manx Care IPR and HCJ QPR.</div>
+<nav>
+  <button class="active" data-tab="scorecard">Scorecard</button>
+  <button data-tab="compare">Island vs Island</button>
+  <button data-tab="factor">Island Factor</button>
+  <button data-tab="map">Strategy Map</button>
+</nav>
+
+<!-- =================== SCORECARD TAB =================== -->
+<section id="tab-scorecard">
+  <div class="controls">
+    <div class="seg" id="jurisdiction-seg">
+      <button class="active" data-j="mc">Manx Care</button>
+      <button data-j="je">Health &amp; Care Jersey</button>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--green)"></span>On/above target</span>
+      <span><span class="dot" style="background:var(--amber)"></span>Within tolerance</span>
+      <span><span class="dot" style="background:var(--red)"></span>Below target</span>
+      <span style="border-left:1px solid #C9DAE3;padding-left:14px"><b>G/A/R</b>&nbsp;= Day-0 data availability</span>
+    </div>
+  </div>
+  <main id="scorecard-main"></main>
+</section>
+
+<!-- =================== COMPARE TAB =================== -->
+<section id="tab-compare" class="hidden"><main id="compare-main"></main></section>
+
+<!-- =================== ISLAND FACTOR TAB =================== -->
+<section id="tab-factor" class="hidden"><main id="factor-main"></main></section>
+
+<!-- =================== STRATEGY MAP TAB =================== -->
+<section id="tab-map" class="hidden">
+  <div class="controls">
+    <div class="seg" id="map-seg">
+      <button class="active" data-m="mc">Manx Care map</button>
+      <button data-m="je">HCJ map</button>
+    </div>
+  </div>
+  <main id="map-main"></main>
+</section>
+
+<footer>
+  Demo build · five perspectives: Financial Stewardship · Clinical Outcomes · Service &amp; Access · Operations · Workforce &amp; Learning ·
+  Waiting-list measures shown as within-jurisdiction trends only, never cross-island league tables ·
+  Day-0 ratings: G = published now (IPR/QPR/public health) · A = in board packs, definitions to reconcile · R = new joint island definition
+</footer>
+
+<script>
+// ---------------------------------------------------------------
+// DEMO DATA — illustrative only
+// Each metric: name, unit, target, dir (1 = higher better, -1 = lower better),
+// d0 (G/A/R), mc/je: {v: current, trend: [12 months]}
+// ---------------------------------------------------------------
+const PERSPECTIVES = [
+ { id:"fin", name:"Financial Stewardship", sub:"every pound demonstrably buying care", color:"#21295C", metrics:[
+  {name:"Health spend per head", unit:"£", target:"declared scope basis", dir:-1, d0:"G",
+   mc:{v:3120, trend:[2980,3000,3010,3030,3050,3060,3070,3080,3090,3100,3110,3120]},
+   je:{v:2740, trend:[2600,2615,2630,2645,2660,2675,2685,2700,2710,2720,2730,2740]}, fmt:v=>"£"+v.toLocaleString()},
+  {name:"Budget variance (YTD)", unit:"%", target:"±1%", dir:-1, d0:"G",
+   mc:{v:2.8, trend:[0.4,0.8,1.1,1.5,1.7,1.9,2.1,2.3,2.4,2.6,2.7,2.8]},
+   je:{v:1.2, trend:[0.2,0.4,0.5,0.7,0.8,0.9,1.0,1.0,1.1,1.1,1.2,1.2]}, fmt:v=>"+"+v.toFixed(1)+"%"},
+  {name:"Premium staffing spend share", unit:"% of pay bill", target:"< 6%", dir:-1, d0:"A",
+   mc:{v:9.4, trend:[11.2,11.0,10.8,10.6,10.4,10.2,10.0,9.9,9.8,9.6,9.5,9.4]},
+   je:{v:7.1, trend:[8.4,8.3,8.2,8.1,8.0,7.8,7.7,7.6,7.4,7.3,7.2,7.1]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Off-island care cost per head", unit:"£/yr", target:"joint definition", dir:-1, d0:"R",
+   mc:{v:412, trend:[380,384,388,392,395,398,400,403,406,408,410,412]},
+   je:{v:365, trend:[340,342,345,348,350,352,355,357,359,361,363,365]}, fmt:v=>"£"+v},
+  {name:"Patient travel spend per head", unit:"£/yr", target:"joint definition", dir:-1, d0:"R",
+   mc:{v:11.8, trend:[13.5,13.3,13.1,12.9,12.7,12.5,12.4,12.2,12.1,12.0,11.9,11.8]},
+   je:{v:9.6, trend:[10.4,10.3,10.2,10.1,10.0,9.9,9.9,9.8,9.8,9.7,9.7,9.6]}, fmt:v=>"£"+v.toFixed(2)}
+ ]},
+ { id:"cli", name:"Clinical Outcomes", sub:"longer, healthier lives; safe care", color:"#065A82", metrics:[
+  {name:"Healthy life expectancy", unit:"years", target:"improving trend", dir:1, d0:"G",
+   mc:{v:63.1, trend:[62.6,62.6,62.7,62.7,62.8,62.8,62.9,62.9,63.0,63.0,63.1,63.1]},
+   je:{v:64.8, trend:[64.3,64.4,64.4,64.5,64.5,64.6,64.6,64.7,64.7,64.7,64.8,64.8]}, fmt:v=>v.toFixed(1)+" yrs"},
+  {name:"Avoidable mortality", unit:"per 100k", target:"< 180", dir:-1, d0:"A",
+   mc:{v:196, trend:[210,208,207,205,204,203,201,200,199,198,197,196]},
+   je:{v:172, trend:[181,180,179,178,177,176,175,175,174,173,172,172]}, fmt:v=>v},
+  {name:"Emergency readmissions (30-day)", unit:"%", target:"< 8%", dir:-1, d0:"A",
+   mc:{v:9.6, trend:[10.4,10.3,10.2,10.1,10.0,9.9,9.9,9.8,9.8,9.7,9.7,9.6]},
+   je:{v:8.2, trend:[8.9,8.8,8.8,8.7,8.6,8.6,8.5,8.4,8.4,8.3,8.2,8.2]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Childhood immunisation (5y complete)", unit:"%", target:"≥ 95%", dir:1, d0:"G",
+   mc:{v:93.4, trend:[92.1,92.2,92.4,92.5,92.6,92.8,92.9,93.0,93.1,93.2,93.3,93.4]},
+   je:{v:91.8, trend:[90.9,91.0,91.1,91.2,91.3,91.4,91.4,91.5,91.6,91.6,91.7,91.8]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Patient safety incidents reported", unit:"per 1k bed-days", target:"healthy reporting ↑", dir:1, d0:"A",
+   mc:{v:42, trend:[35,36,36,37,38,38,39,40,40,41,41,42]},
+   je:{v:48, trend:[38,39,40,41,42,43,44,45,46,46,47,48]}, fmt:v=>v}
+ ]},
+ { id:"srv", name:"Service & Access", sub:"care when islanders need it, experienced with respect", color:"#1C7293", metrics:[
+  {name:"Waiting list (indexed, own baseline = 100)", unit:"index", target:"< 100 & falling", dir:-1, d0:"G",
+   mc:{v:108, trend:[100,101,103,104,106,107,108,109,109,109,108,108]},
+   je:{v:96, trend:[100,100,99,99,98,98,97,97,97,96,96,96]}, fmt:v=>v, noCompare:true},
+  {name:"52-week waiters (share of list)", unit:"%", target:"→ 0", dir:-1, d0:"G",
+   mc:{v:6.8, trend:[8.9,8.7,8.4,8.2,8.0,7.8,7.6,7.4,7.2,7.1,6.9,6.8]},
+   je:{v:4.1, trend:[5.6,5.5,5.3,5.2,5.0,4.9,4.7,4.6,4.4,4.3,4.2,4.1]}, fmt:v=>v.toFixed(1)+"%", noCompare:true},
+  {name:"Outpatient DNA rate", unit:"%", target:"< 7%", dir:-1, d0:"G",
+   mc:{v:8.3, trend:[9.4,9.3,9.2,9.1,9.0,8.9,8.8,8.7,8.6,8.5,8.4,8.3]},
+   je:{v:6.9, trend:[7.8,7.7,7.6,7.5,7.4,7.3,7.3,7.2,7.1,7.0,7.0,6.9]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Complaints responded in standard", unit:"%", target:"≥ 85%", dir:1, d0:"A",
+   mc:{v:78, trend:[70,71,72,73,74,74,75,76,76,77,78,78]},
+   je:{v:84, trend:[76,77,78,79,80,80,81,82,82,83,84,84]}, fmt:v=>v+"%"},
+  {name:"Remote consultation share", unit:"% of OP contacts", target:"≥ 20%", dir:1, d0:"R",
+   mc:{v:12.4, trend:[9.0,9.4,9.8,10.1,10.5,10.8,11.1,11.4,11.7,12.0,12.2,12.4]},
+   je:{v:16.8, trend:[13.0,13.4,13.8,14.2,14.6,15.0,15.4,15.7,16.0,16.3,16.6,16.8]}, fmt:v=>v.toFixed(1)+"%"}
+ ]},
+ { id:"ops", name:"Operations", sub:"flow without avoidable friction", color:"#2E6E7E", metrics:[
+  {name:"ED 4-hour performance", unit:"%", target:"≥ 95%", dir:1, d0:"G",
+   mc:{v:81.2, trend:[76.5,77.0,77.6,78.1,78.7,79.2,79.7,80.1,80.5,80.8,81.0,81.2]},
+   je:{v:87.6, trend:[84.0,84.4,84.8,85.2,85.6,86.0,86.3,86.6,86.9,87.2,87.4,87.6]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Bed occupancy (G&A)", unit:"%", target:"85–92%", dir:-1, d0:"A",
+   mc:{v:94.1, trend:[96.0,95.8,95.6,95.4,95.2,95.0,94.8,94.7,94.5,94.4,94.2,94.1]},
+   je:{v:90.3, trend:[92.5,92.3,92.1,91.9,91.7,91.5,91.3,91.1,90.9,90.7,90.5,90.3]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Beds lost to delayed discharge", unit:"% of G&A beds", target:"< 5%", dir:-1, d0:"A",
+   mc:{v:11.2, trend:[13.0,12.8,12.7,12.5,12.3,12.1,12.0,11.8,11.6,11.5,11.3,11.2]},
+   je:{v:7.8, trend:[9.2,9.0,8.9,8.8,8.6,8.5,8.4,8.2,8.1,8.0,7.9,7.8]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Day-case rate (basket)", unit:"%", target:"≥ 85%", dir:1, d0:"A",
+   mc:{v:79.4, trend:[76.0,76.4,76.8,77.1,77.5,77.8,78.1,78.4,78.7,79.0,79.2,79.4]},
+   je:{v:83.1, trend:[80.0,80.3,80.6,80.9,81.2,81.5,81.8,82.1,82.4,82.7,82.9,83.1]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Off-island transfers", unit:"per 1k pop/yr", target:"joint definition", dir:-1, d0:"R",
+   mc:{v:38.2, trend:[36.0,36.3,36.6,36.9,37.1,37.3,37.5,37.7,37.8,38.0,38.1,38.2]},
+   je:{v:31.5, trend:[30.0,30.2,30.3,30.5,30.6,30.7,30.9,31.0,31.1,31.3,31.4,31.5]}, fmt:v=>v.toFixed(1)}
+ ]},
+ { id:"lrn", name:"Workforce & Learning", sub:"permanent people, not premium cover", color:"#4A5D8A", metrics:[
+  {name:"Locum share of consultant cover", unit:"% of PAs", target:"< 15%", dir:-1, d0:"R",
+   mc:{v:24.6, trend:[28.0,27.7,27.4,27.0,26.7,26.4,26.0,25.7,25.4,25.1,24.8,24.6]},
+   je:{v:18.3, trend:[20.5,20.3,20.1,19.9,19.7,19.5,19.3,19.1,18.9,18.7,18.5,18.3]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Medical vacancy rate", unit:"%", target:"< 8%", dir:-1, d0:"A",
+   mc:{v:13.8, trend:[15.5,15.3,15.2,15.0,14.8,14.7,14.5,14.4,14.2,14.1,13.9,13.8]},
+   je:{v:10.4, trend:[11.8,11.7,11.5,11.4,11.3,11.1,11.0,10.9,10.7,10.6,10.5,10.4]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Time-to-fill consultant posts", unit:"median days", target:"< 180", dir:-1, d0:"R",
+   mc:{v:312, trend:[345,342,339,336,333,330,327,324,321,318,315,312]},
+   je:{v:246, trend:[270,268,266,264,262,260,258,255,252,250,248,246]}, fmt:v=>v+" days"},
+  {name:"Sickness absence (rolling 12m)", unit:"%", target:"< 4%", dir:-1, d0:"G",
+   mc:{v:5.2, trend:[5.7,5.7,5.6,5.6,5.5,5.5,5.4,5.4,5.3,5.3,5.2,5.2]},
+   je:{v:4.6, trend:[5.0,5.0,4.9,4.9,4.8,4.8,4.8,4.7,4.7,4.7,4.6,4.6]}, fmt:v=>v.toFixed(1)+"%"},
+  {name:"Appraisals in date", unit:"%", target:"≥ 90%", dir:1, d0:"G",
+   mc:{v:83, trend:[74,75,76,77,78,79,80,81,81,82,82,83]},
+   je:{v:88, trend:[78,79,80,81,82,83,84,85,86,86,87,88]}, fmt:v=>v+"%"}
+ ]}
+];
+
+const JNAME = {mc:"Manx Care", je:"Health & Care Jersey"};
+const JOTHER = {mc:"je", je:"mc"};
+
+// ---------------------------------------------------------------
+// ISLAND FACTOR — customisable remoteness profile per jurisdiction
+// travel: one-way door-to-door minutes to nearest tertiary centre
+// link:   transport exposure 0 (fixed link / short frequent crossing) → 100 (weather-exposed sea/air only)
+// dep:    % of specialty services requiring off-island referral
+// ---------------------------------------------------------------
+const REMOTE = {
+  mc:{travel:210, link:70, dep:35},
+  je:{travel:150, link:60, dep:30}
+};
+function remoteIndex(r){ return Math.round( (0.4*Math.min(r.travel,480)/480 + 0.3*r.link/100 + 0.3*r.dep/100) * 100 ); }
+
+// Remoteness sensitivity per metric (0–1): how much of a gap on this metric
+// can plausibly be explained by geography rather than management
+const REMOTE_SENS = {
+  "Health spend per head":0.5,
+  "Premium staffing spend share":0.7,
+  "Off-island care cost per head":1.0,
+  "Patient travel spend per head":1.0,
+  "Off-island transfers":1.0,
+  "Locum share of consultant cover":0.8,
+  "Medical vacancy rate":0.5,
+  "Time-to-fill consultant posts":0.6,
+  "Remote consultation share":0.4
+};
+
+// Illustrative context indices for the wider island group (fixed reference bars)
+const ISLAND_REF = [
+  ["Isle of Wight", 22, "10-min hovercraft / car ferry to Southampton & Portsmouth teaching hospitals"],
+  ["Jersey", 48, "40-min scheduled flights; weather-exposed; UK tertiary contracts"],
+  ["Guernsey", 52, "smaller airfield, Alderney dependency adds internal remoteness"],
+  ["Isle of Man", 55, "sea + air only; tertiary flows to Liverpool & Manchester"],
+  ["Orkney", 68, "ferry/air to Aberdeen; internal isles logistics"],
+  ["Western Isles", 74, "long chain, multiple internal crossings, Stornoway–Glasgow flows"],
+  ["Shetland", 82, "200+ miles of North Sea; overnight ferry or weather-exposed flights"],
+  ["Alderney*", 88, "double remoteness: dependent on Guernsey, which is itself remote — small GP-led hospital"],
+  ["Sark*", 96, "no hospital, single GP; emergency evacuation by sea/air to Guernsey"]
+];
+
+// ---- helpers ----
+function ragFor(m, j){
+  // crude demo RAG: compare to peer + direction of trend
+  const t = m[j].trend, cur = t[t.length-1], prev = t[0];
+  const improving = m.dir === 1 ? cur >= prev : cur <= prev;
+  const peer = m[JOTHER[j]].v;
+  const betterThanPeer = m.dir === 1 ? m[j].v >= peer : m[j].v <= peer;
+  if (betterThanPeer && improving) return "green";
+  if (improving || betterThanPeer) return "amber";
+  return "red";
+}
+function ragColor(r){return r==="green"?"var(--green)":r==="amber"?"var(--amber)":"var(--red)"}
+function spark(trend, color){
+  const w=232,h=34,min=Math.min(...trend),max=Math.max(...trend),rng=(max-min)||1;
+  const pts=trend.map((v,i)=>`${(i/(trend.length-1))*w},${h-4-((v-min)/rng)*(h-8)}`).join(" ");
+  const last=trend[trend.length-1], lx=w, ly=h-4-((last-min)/rng)*(h-8);
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${lx}" cy="${ly}" r="3" fill="${color}"/></svg>`;
+}
+
+// ---- scorecard render ----
+let curJ = "mc";
+function renderScorecard(){
+  const el = document.getElementById("scorecard-main");
+  el.innerHTML = PERSPECTIVES.map(p=>`
+    <div class="persp">
+      <div class="persp-head"><h2 style="color:${p.color}">${p.name}</h2><span class="sub">${p.sub}</span></div>
+      <div class="grid">
+        ${p.metrics.map(m=>{
+          const r = ragFor(m,curJ);
+          const peer = m[JOTHER[curJ]];
+          const peerLine = m.noCompare
+            ? `<div class="peer">↔ within-jurisdiction trend only — not cross-compared</div>`
+            : `<div class="peer">Peer (${JNAME[JOTHER[curJ]]}): <b>${m.fmt(peer.v)}</b></div>`;
+          const anchor = REMOTE_SENS[m.name] ? `<span title="remoteness-sensitive: island-factor allowance applies in comparisons" style="font-size:11px">⚓</span> ` : "";
+          return `<div class="card">
+            <span class="d0 ${m.d0}">${m.d0}</span>
+            <span class="rag" style="background:${ragColor(r)}" title="${r}"></span>
+            <div class="mname">${anchor}${m.name}</div>
+            <div class="val" style="color:${p.color}">${m.fmt(m[curJ].v)} <small>${m.unit&&!m.fmt(m[curJ].v).includes('%')&&!m.fmt(m[curJ].v).includes('£')?m.unit:""}</small></div>
+            <div class="target">Target: ${m.target} · 12-month trend</div>
+            ${spark(m[curJ].trend, p.color)}
+            ${peerLine}
+          </div>`;}).join("")}
+      </div>
+    </div>`).join("");
+}
+
+// ---- compare render ----
+function renderCompare(){
+  const el = document.getElementById("compare-main");
+  el.innerHTML = PERSPECTIVES.map(p=>{
+    const rows = p.metrics.map(m=>{
+      if (m.noCompare){
+        return `<tr><td>${m.name} <span class="d0 ${m.d0}" style="position:static">${m.d0}</span></td>
+          <td class="mc neutral">${m.fmt(m.mc.v)}</td><td class="je neutral">${m.fmt(m.je.v)}</td>
+          <td colspan="2" style="font-style:italic;color:var(--mute)">own-baseline trends only — no cross-island comparison</td></tr>`;
+      }
+      const mcBetter = m.dir===1 ? m.mc.v>=m.je.v : m.mc.v<=m.je.v;
+      const a=m.mc.v,b=m.je.v,max=Math.max(a,b)||1;
+      const wa=Math.round((a/max)*100), wb=Math.round((b/max)*100);
+      const gap = m.dir===-1 ? ((Math.max(a,b)/Math.min(a,b)-1)*100) : ((Math.max(a,b)-Math.min(a,b))/Math.max(a,b)*100);
+      const sens = REMOTE_SENS[m.name]||0;
+      let gapCell;
+      if (sens>0){
+        const idxGap = Math.abs(remoteIndex(REMOTE.mc)-remoteIndex(REMOTE.je));
+        const allowance = idxGap * sens * 0.5;                 // illustrative allowance model
+        const adj = Math.max(0, gap - allowance);
+        gapCell = `<td style="font-size:12px;color:var(--mute)">raw ≈ ${gap.toFixed(0)}%<br>
+          <b style="color:${adj>10?'var(--red)':'var(--green)'}">⚓ adj ≈ ${adj.toFixed(0)}%</b>
+          <span style="opacity:.7">(−${allowance.toFixed(0)} island factor)</span></td>`;
+      } else {
+        gapCell = `<td style="font-size:12px;color:var(--mute)">gap ≈ ${gap.toFixed(0)}%</td>`;
+      }
+      return `<tr>
+        <td>${sens>0?"⚓ ":""}${m.name} <span class="d0 ${m.d0}" style="position:static">${m.d0}</span></td>
+        <td class="mc ${mcBetter?'better':'worse'}">${m.fmt(m.mc.v)}</td>
+        <td class="je ${!mcBetter?'better':'worse'}">${m.fmt(m.je.v)}</td>
+        <td><div class="gapbar"><i style="left:0;width:${wa}%;background:#21295C;opacity:.85"></i></div>
+            <div class="gapbar" style="margin-top:3px"><i style="left:0;width:${wb}%;background:#1C7293;opacity:.85"></i></div></td>
+        ${gapCell}</tr>`;
+    }).join("");
+    return `<div class="cmp"><h3 style="background:${p.color}">${p.name}</h3>
+      <table><thead><tr><th style="width:34%">Metric · Day-0 rating</th><th>Manx Care</th><th>HCJ</th><th style="width:22%">Relative (dark = MC, teal = HCJ)</th><th>Variation</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+  }).join("") + `<p class="notecmp" style="margin-top:14px">The variation column is the conversation-starter: every gap is either unavoidable geography or unwarranted variation — the deep-dive programme exists to find out which. Demo data, illustrative only.</p>`;
+}
+
+// ---- island factor render ----
+function renderFactor(){
+  const mcIdx = remoteIndex(REMOTE.mc), jeIdx = remoteIndex(REMOTE.je);
+  const slider = (j,key,label,min,max,step,unit) => `
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+        <span>${label}</span><b>${REMOTE[j][key]}${unit}</b>
+      </div>
+      <input type="range" min="${min}" max="${max}" step="${step}" value="${REMOTE[j][key]}"
+        style="width:100%;accent-color:var(--deep)"
+        oninput="REMOTE['${j}']['${key}']=+this.value; renderFactor(); renderCompare();">
+    </div>`;
+  const card = (j,color) => `
+    <div style="flex:1;min-width:300px;background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(30,60,80,.10);padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="font-size:15px;color:${color}">${JNAME[j]}</h3>
+        <div style="text-align:center;background:${color};color:#fff;border-radius:10px;padding:6px 14px">
+          <div style="font-size:22px;font-weight:800">${remoteIndex(REMOTE[j])}</div>
+          <div style="font-size:9.5px;letter-spacing:.5px">ISLAND FACTOR</div>
+        </div>
+      </div>
+      ${slider(j,"travel","Door-to-door time to nearest tertiary centre",30,480,10," min")}
+      ${slider(j,"link","Transport exposure (0 = fixed link · 100 = weather-exposed sea/air only)",0,100,5,"")}
+      ${slider(j,"dep","Specialty services requiring off-island referral",0,60,1,"%")}
+    </div>`;
+  const refBars = ISLAND_REF.map(([n,idx,note])=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">
+      <div style="width:110px;font-size:12.5px;font-weight:600;text-align:right">${n}</div>
+      <div style="flex:1;height:16px;background:#E4EDF2;border-radius:8px;position:relative">
+        <div style="position:absolute;left:0;top:0;height:16px;width:${idx}%;border-radius:8px;background:linear-gradient(90deg,#1C7293,#21295C)"></div>
+      </div>
+      <div style="width:34px;font-size:12.5px;font-weight:700;color:var(--deep)">${idx}</div>
+      <div style="flex:1.2;font-size:11px;color:var(--mute)">${note}</div>
+    </div>`).join("");
+  document.getElementById("factor-main").innerHTML = `
+    <div class="mapwrap" style="margin-top:20px">
+      <h3>The island factor — customisable, transparent, owned by each island</h3>
+      <div class="sub">"Island" is not one condition. The Isle of Wight is a short crossing from Southampton's teaching hospitals; Shetland is 200+ miles of North Sea from Aberdeen. Each jurisdiction sets its own context profile — the framework applies it as a declared allowance (⚓) on remoteness-sensitive metrics, so comparisons separate geography from management.</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px">${card("mc","#21295C")}${card("je","#1C7293")}</div>
+      <p style="font-size:12px;color:var(--mute);font-style:italic;margin:8px 0 20px">
+        Index = 40% travel time (capped 8h) + 30% transport exposure + 30% off-island dependence — an illustrative starting formula; the founding workshop agrees the real weights.
+        Current allowance applied in Island&nbsp;vs&nbsp;Island: |${mcIdx} − ${jeIdx}| × metric sensitivity × 0.5 percentage points.
+      </p>
+      <h3 style="font-size:14px;color:var(--deep);margin-bottom:10px">Where the wider island family sits (illustrative)</h3>
+      ${refBars}
+      <p style="font-size:12px;color:var(--mute);font-style:italic;margin-top:12px">
+        This is also the expansion argument: with a declared island factor, the IoW and Shetland can sit in the same framework without either crying foul — near-mainland islands are simply expected to carry a smaller allowance.
+        <br>* Alderney and Sark join inside a Bailiwick of Guernsey membership as dependent-isle resilience profiles, not separate reporting systems.
+      </p>
+    </div>`;
+}
+
+// ---- strategy map render ----
+const MAPS = {
+ mc:{title:"Manx Care — Strategy Map (illustrative)",sub:"anchored to the Mandate & Operating Plan: Home First, within the financial envelope",
+  tiers:[
+   {label:"Mission & outcomes",color:"#065A82",objs:[
+     {o:"More years lived well at home",m:"healthy LE · avoidable mortality"},
+     {o:"Safe care, on-island where possible",m:"readmissions · safety reporting"}]},
+   {label:"Service & access",color:"#1C7293",objs:[
+     {o:"Shorter, visible waits",m:"waiting-list index · 52-week share"},
+     {o:"Care closer to home",m:"remote consultation share · off-island transfers"}]},
+   {label:"Operations",color:"#2E6E7E",objs:[
+     {o:"Home First flow",m:"delayed-discharge beds · bed occupancy"},
+     {o:"Productive elective care",m:"day-case rate · DNA rate"}]},
+   {label:"Workforce & learning",color:"#4A5D8A",objs:[
+     {o:"Permanent teams, fewer premiums",m:"locum share · time-to-fill · vacancy rate"},
+     {o:"A place people stay",m:"sickness · appraisals"}]},
+   {label:"Financial foundation",color:"#21295C",objs:[
+     {o:"Live within the envelope",m:"budget variance · premium staffing share"},
+     {o:"Off-island spend understood",m:"off-island cost/head · travel spend"}]}
+  ]},
+ je:{title:"Health & Care Jersey — Strategy Map (illustrative)",sub:"anchored to the post-Mascie-Taylor turnaround: standardisation, governance, trust",
+  tiers:[
+   {label:"Mission & outcomes",color:"#065A82",objs:[
+     {o:"Rebuild public trust in safe care",m:"avoidable mortality · complaints handling"},
+     {o:"Healthier island lives",m:"healthy LE · immunisation"}]},
+   {label:"Service & access",color:"#1C7293",objs:[
+     {o:"Predictable, fair access",m:"waiting-list index · DNA rate"},
+     {o:"Modern contact channels",m:"remote consultation share"}]},
+   {label:"Operations",color:"#2E6E7E",objs:[
+     {o:"Standardised pathways",m:"day-case rate · bed occupancy"},
+     {o:"Flow without friction",m:"ED 4-hour · delayed discharges"}]},
+   {label:"Workforce & learning",color:"#4A5D8A",objs:[
+     {o:"An open reporting culture",m:"safety incident reporting · staff experience"},
+     {o:"Accountable, developed teams",m:"appraisals · vacancy rate · locum share"}]},
+   {label:"Financial foundation",color:"#21295C",objs:[
+     {o:"Credible financial grip",m:"budget variance · premium staffing share"},
+     {o:"Value in off-island contracts",m:"off-island cost/head · transfer volumes"}]}
+  ]}
+};
+let curMap="mc";
+function renderMap(){
+  const d=MAPS[curMap];
+  document.getElementById("map-main").innerHTML=`
+   <div class="mapwrap">
+    <h3>${d.title}</h3><div class="sub">${d.sub} — objectives are local; every metric is drawn from the common scorecard core</div>
+    ${d.tiers.map((t,i)=>`
+      <div class="tier">
+        <div class="tierlabel">${t.label}</div>
+        <div class="objrow">${t.objs.map(o=>`
+          <div class="obj" style="background:${t.color}14;border:1.5px solid ${t.color};color:${t.color}">
+            ${o.o}<div class="metrics" style="color:var(--mute)">▸ ${o.m}</div>
+          </div>`).join("")}</div>
+      </div>
+      ${i<d.tiers.length-1?'<div class="arrowrow">▲ &nbsp; causal contribution &nbsp; ▲</div>':''}`).join("")}
+   </div>
+   <p class="notecmp" style="margin-top:14px;background:none">Read bottom-up: financial grip funds workforce stability; stable teams standardise operations; reliable operations open access; access delivers the mission. The same scorecard, two different strategies.</p>`;
+}
+
+// ---- tabs & segs ----
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  ["scorecard","compare","factor","map"].forEach(t=>document.getElementById("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));
+}));
+document.querySelectorAll("#jurisdiction-seg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#jurisdiction-seg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); curJ=b.dataset.j; renderScorecard();
+}));
+document.querySelectorAll("#map-seg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#map-seg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); curMap=b.dataset.m; renderMap();
+}));
+
+renderScorecard(); renderCompare(); renderFactor(); renderMap();
+</script>
+</body>
+</html>
