@@ -20,20 +20,10 @@
     if (window._msRedraw) window._msRedraw();
   }
   window.addEventListener('message', function (e) {
-    if (!e.data) return;
-    if (e.data.type === 'observatory-theme') {
+    if (e.data && e.data.type === 'observatory-theme') {
       applyTheme(!!e.data.light);
-    } else if (e.data.type === 'setTheme' || e.data.type === 'theme') {
-      // App shell (AutoIframe) protocol — 'health' teal theme arrives as 'light'
-      applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
     }
   });
-  // Same-origin as the shell: pick up the stored theme immediately (no flash),
-  // then let whichever parent protocol answers override.
-  try {
-    var stored = localStorage.getItem('observatory-theme');
-    if (stored) applyTheme(stored === 'light' || stored === 'health');
-  } catch (err) {}
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
   }

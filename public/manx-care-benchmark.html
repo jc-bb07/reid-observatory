@@ -121,7 +121,7 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 .ph-metric-val.hoverable{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
 .ph-metric-val.compare-selected{outline:2px solid #fbbf24;outline-offset:1px;border-radius:4px;padding:0 3px}
 #ph-popup{position:fixed;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 9px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none;display:none}
-#ph-popup .ph-popup-title{font-size:9.5px;font-weight:700;color:var(--text);margin-bottom:4px;max-width:160px}
+#ph-popup .ph-popup-title{font-size:9.5px;font-weight:700;color:var(--text);margin-bottom:4px;max-width:210px;text-transform:uppercase;letter-spacing:.03em}
 .ph-compare-empty{font-size:11px;color:var(--muted2);padding:10px 0;line-height:1.5}
 .bench-table th,.bench-table td{padding:7px 10px;border:1px solid var(--border2);text-align:left}
 .bench-table th{color:var(--muted2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:var(--surface2)}
@@ -269,37 +269,9 @@ body.light {
   <div class="gap-note"><strong>— Infant mortality — mixed confidence:</strong> the Jersey (~1.3) and Guernsey (~3.4) figures come from third-party demographic aggregators, not the official Jersey/Guernsey mortality reports used elsewhere in this comparator — treat as indicative only pending direct verification. England's figure (3.9, 2024) is official ONS data. No IoM figure was located this pass.</div>
   <div class="gap-note"><strong>— Childhood immunisation and vaccination:</strong> only England is populated here. The Isle of Man, Jersey and Guernsey do not appear to publish comparable childhood immunisation coverage figures. A fuller immunisation cluster (6-in-1, MMR, PCV, MenB) plus child oral health and dental access sits in the <strong>Primary Care ▸ Children's Health</strong> tab.</div>
 
-  <div class="section-head" style="margin-top:24px">Weather &amp; Transport Resilience</div>
-  <div class="plain-box">Island health systems depend on ferries and flights not just for patients travelling off-island for treatment, but for staff, supplies and locum cover. How often weather disrupts that link is directly relevant to service resilience — but it turns out to be one of the least consistently published figures across all these jurisdictions.</div>
-  <div class="cards">
-    <div class="card" style="border-top-color:var(--iom)">
-      <div class="card-label">Isle of Man — Steam Packet sailing reliability <span class="source-tag official">12mo to May 2026</span></div>
-      <div class="card-value" style="color:var(--iom)">94%</div>
-      <div class="card-sub">Actual sailings as % of scheduled, inclusive of weather AND other cancellation causes</div>
-      <div class="card-neu">Not weather-isolated — treat as an upper bound on weather's share</div>
-    </div>
-    <div class="card" style="border-top-color:var(--wis)">
-      <div class="card-label">Western Isles — CalMac network punctuality <span class="source-tag official">Year to Mar 2025</span></div>
-      <div class="card-value" style="color:var(--wis)">~95.3%</div>
-      <div class="card-sub">99.3% if weather-related disruption excluded — i.e. weather cost ~4 percentage points</div>
-      <div class="card-neu">Historical peak: &gt;12% weather-cancellation rate, winter 2019/20, major routes</div>
-    </div>
-    <div class="card" style="border-top-color:var(--gsy)">
-      <div class="card-label">Guernsey / Jersey — airport fog disruption <span class="source-tag estimated">Qualitative</span></div>
-      <div class="card-value" style="color:var(--muted)">—</div>
-      <div class="card-sub">No annual % found — Channel Islands are notably fog-prone in winter</div>
-      <div class="card-neu">e.g. 20 flights cancelled in one day at Jersey, Aug 2024; 178 diversions tracked at both airports, winter 2023</div>
-    </div>
-    <div class="card" style="border-top-color:var(--ork)">
-      <div class="card-label">Orkney / Shetland — Loganair &amp; HIAL <span class="source-tag estimated">Gap</span></div>
-      <div class="card-value" style="color:var(--muted)">—</div>
-      <div class="card-sub">No quantified weather-cancellation statistic located for internal Highlands &amp; Islands routes</div>
-      <div class="card-neu">Qualitatively: morning fog at Sumburgh (Shetland) is a recurring, well-documented issue</div>
-    </div>
-  </div>
-  <div class="gap-note"><strong>— Why this is so incomplete:</strong> ferry operators (CalMac, Steam Packet) publish overall reliability figures, but rarely isolate weather as its own percentage. Airport operators (HIAL, Loganair, Jersey/Guernsey airports) publish even less. Distance and population figures above are approximate, straight-line/typical-journey context rather than officially published statistics — flagged accordingly, not presented as sourced data with the same confidence as the mortality series.</div>
+  <div class="gap-note"><strong>— Weather &amp; transport resilience:</strong> ferries and flights carry staff, supplies and locum cover, not just patients travelling off-island — so weather disruption is directly relevant to service resilience, but it's one of the least consistently published figures across these jurisdictions. IoM's ferry reliability figure is genuinely comparable across its two points (98% calendar 2024 → 94% latest 12 months) since both use the same all-cause reliability measure; CalMac's two figures use different methodologies (weather-cancellation % vs. punctuality-point-loss) and are shown as separate facts, not a trend. Flight time, ferry and air rows above are approximate/typical-journey context rather than officially published statistics with the same confidence as the mortality series.</div>
 
-  <div id="ph-popup"><div class="ph-popup-title" id="ph-popup-title"></div><canvas id="ph-popup-canvas" width="160" height="70"></canvas></div>
+  <div id="ph-popup"><div class="ph-popup-title" id="ph-popup-title"></div><canvas id="ph-popup-canvas" width="220" height="120"></canvas></div>
 
 </div><!-- /tab-publichealth -->
 
@@ -1705,14 +1677,33 @@ const PH_METRICS = [
     wis:{val:'~26,500', sub:'2024 estimate'},
     eng:{val:'~56.5m', sub:'Different scale — shown for reference only'}
   }},
-  { label:'Distance to nearest mainland tertiary care', values:{
-    iom:{val:'~80 mi', sub:'To Liverpool (main tertiary referral centre) · ~30 min flight'},
-    jer:{val:'~100 mi', sub:'To Southampton (main tertiary referral centre) · ~45 min flight'},
-    gue:{val:'~90 mi', sub:'To Southampton (main tertiary referral centre) · ~40 min flight'},
-    shs:{val:'~210 mi', sub:'To Aberdeen · ~1hr flight or ~12hr overnight ferry'},
-    ork:{val:'~145 mi', sub:'To Aberdeen · ~50 min flight or ~6–8hr ferry'},
-    wis:{val:'~150–200 mi', sub:'To Inverness/Glasgow · ~1hr flight'},
+  { label:'Flight time to nearest mainland tertiary care (approx.)', values:{
+    iom:{val:'~30 min', sub:'To Liverpool (main tertiary referral centre)'},
+    jer:{val:'~45 min', sub:'To Southampton (main tertiary referral centre)'},
+    gue:{val:'~40 min', sub:'To Southampton (main tertiary referral centre)'},
+    shs:{val:'~1 hr', sub:'To Aberdeen · overnight ferry also used, ~12 hr'},
+    ork:{val:'~50 min', sub:'To Aberdeen · ferry also used, ~6–8 hr'},
+    wis:{val:'~55 min', sub:'To Glasgow (Inverness also served)'},
     eng:{empty:true, sub:'Mainland reference — not applicable'}
+  }},
+  { label:'Ferry service reliability', values:{
+    iom:{val:'94%', sub:'Sailing reliability, all-cause · 2024 calendar year vs. latest 12mo (to May 2026) · hover for trend',
+      series:[{x:2024,y:98},{x:2026,y:94}]},
+    jer:{empty:true, sub:'Condor Ferries — no published reliability % located'},
+    gue:{empty:true, sub:'Condor Ferries — no published reliability % located'},
+    shs:{empty:true, sub:'NorthLink Ferries — no published reliability % located'},
+    ork:{empty:true, sub:'NorthLink/Orkney Ferries — no published reliability % located'},
+    wis:{val:'~95.3%', sub:'CalMac network punctuality, year to Mar 2025 — weather cost ~4pp (99.3% excl.); historical peak >12% weather-cancellation, winter 2019/20 — different metric, not a comparable trend'},
+    eng:{empty:true}
+  }},
+  { label:'Air service weather disruption', values:{
+    iom:{empty:true, sub:'Fog a recurring issue at Ronaldsway — no annual % located'},
+    jer:{empty:true, sub:'Fog-prone in winter — no annual % located (e.g. 20 flights cancelled in one day, Aug 2024)'},
+    gue:{empty:true, sub:'Fog-prone in winter — no annual % located (178 diversions tracked, both CI airports, winter 2023)'},
+    shs:{empty:true, sub:'Sumburgh — morning fog well-documented, no annual % located'},
+    ork:{empty:true, sub:'Kirkwall/Loganair — no annual % located'},
+    wis:{empty:true, sub:'Stornoway/Loganair — no annual % located'},
+    eng:{empty:true}
   }},
   { label:'Life expectancy at birth', values:{
     iom:{val:'81.7', sub:'2020–22 · M79.4/F84.2 · Public Health IoM'},
@@ -1809,6 +1800,25 @@ function phColumnHasData(key) {
 }
 function phHasSeries(v) { return !!(v && v.series && v.series.length >= 2); }
 
+// Plain integer year labels — Chart.js's default Intl.NumberFormat tick
+// formatting would otherwise render "2,024" on a linear numeric axis.
+function phYearTick(v) { return Math.round(v).toString(); }
+
+// Lighten (positive percent) or darken (negative percent) a '#rrggbb' hex color,
+// so multiple series from the same jurisdiction read as shades of one hue rather
+// than identical lines.
+function shadeColor(hex, percent) {
+  hex = (hex || '').replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  if (hex.length !== 6) return '#' + hex;
+  const amt = Math.round(2.55 * percent);
+  const clamp = n => Math.min(255, Math.max(0, n));
+  const r = clamp(parseInt(hex.substr(0, 2), 16) + amt);
+  const g = clamp(parseInt(hex.substr(2, 2), 16) + amt);
+  const b = clamp(parseInt(hex.substr(4, 2), 16) + amt);
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
 function phShowPopup(mi, jurKey, evt) {
   const m = PH_METRICS[mi];
   const v = m && m.values[jurKey];
@@ -1818,24 +1828,28 @@ function phShowPopup(mi, jurKey, evt) {
   const title = document.getElementById('ph-popup-title');
   const canvas = document.getElementById('ph-popup-canvas');
   if (!popup || !title || !canvas) return;
-  title.textContent = jur.label + ' — ' + m.label;
+  title.textContent = jur.label + ' — ' + m.label + ' trend';
   popup.style.display = 'block';
   phMovePopup(evt);
 
   if (PH_POPUP_CHART) { PH_POPUP_CHART.destroy(); PH_POPUP_CHART = null; }
   const color = cv('--' + jur.css);
+  const muted = cv('--muted2'), grid = gc();
   PH_POPUP_CHART = new Chart(canvas, {
     type: 'line',
     data: { datasets: [{
       data: v.series, borderColor: color, backgroundColor: color + '25',
-      borderWidth: 2, pointRadius: 0, tension: 0.25, fill: true,
+      borderWidth: 2, pointRadius: 3, pointBackgroundColor: color, pointBorderWidth: 0,
+      tension: 0.25, fill: true,
       segment: v.breakAt ? { borderDash: ctx => (ctx.p0.parsed.x >= v.breakAt ? [4, 3] : undefined) } : undefined
     }]},
     options: {
       responsive: false, animation: false,
       plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: { x: { display: false, type: 'linear' }, y: { display: false } },
-      elements: { point: { radius: 0 } }
+      scales: {
+        x: { type: 'linear', ticks: { color: muted, font: { size: 8.5 }, callback: phYearTick, maxTicksLimit: 5 }, grid: { color: grid } },
+        y: { ticks: { color: muted, font: { size: 8.5 } }, grid: { color: grid } }
+      }
     }
   });
 }
@@ -1844,8 +1858,8 @@ function phMovePopup(evt) {
   if (!popup || popup.style.display === 'none' || !evt) return;
   const pad = 14;
   let x = evt.clientX + pad, y = evt.clientY + pad;
-  if (x > window.innerWidth - 190) x = evt.clientX - 190 - pad;
-  if (y > window.innerHeight - 100) y = evt.clientY - 100 - pad;
+  if (x > window.innerWidth - 250) x = evt.clientX - 250 - pad;
+  if (y > window.innerHeight - 150) y = evt.clientY - 150 - pad;
   popup.style.left = x + 'px';
   popup.style.top = y + 'px';
 }
@@ -1868,7 +1882,7 @@ function renderPHCompareChart() {
   if (!panel) return;
   if (!phCompareSet.length) {
     if (CHARTS.phCompare) { CHARTS.phCompare.destroy(); delete CHARTS.phCompare; }
-    panel.innerHTML = '<div class="ph-compare-empty">Click any highlighted cell in the Avoidable Mortality or Suicide &amp; Self-Harm Mortality rows to add it here and compare trends — each metric gets its own axis so scales don\'t clash.</div>';
+    panel.innerHTML = '<div class="ph-compare-empty">Click any highlighted cell in the Avoidable Mortality, Suicide &amp; Self-Harm Mortality, or Ferry Service Reliability rows to add it here and compare trends — each metric gets its own axis so scales don\'t clash, and repeat jurisdictions get a different shade of their colour.</div>';
     setTimeout(notifyHeight, 50);
     return;
   }
@@ -1876,11 +1890,16 @@ function renderPHCompareChart() {
 
   const t = tc(), g = gc();
   const metricIds = [...new Set(phCompareSet.map(c => c.mi))];
+  const jurShadeCount = {};
+  const shadeSteps = [0, -30, 30, -50, 50, -65];
   const datasets = phCompareSet.map(c => {
     const m = PH_METRICS[c.mi];
     const v = m.values[c.jur];
     const jur = PH_JURS.find(j => j.key === c.jur);
-    const color = cv('--' + jur.css);
+    const baseColor = cv('--' + jur.css);
+    const shadeIdx = jurShadeCount[c.jur] || 0;
+    jurShadeCount[c.jur] = shadeIdx + 1;
+    const color = shadeIdx === 0 ? baseColor : shadeColor(baseColor, shadeSteps[shadeIdx] ?? (shadeIdx % 2 === 0 ? -65 : 65));
     return {
       label: jur.label + ' — ' + m.label,
       data: v.series, yAxisID: 'y' + c.mi,
@@ -1888,7 +1907,7 @@ function renderPHCompareChart() {
       segment: v.breakAt ? { borderDash: ctx => (ctx.p0.parsed.x >= v.breakAt ? [5, 4] : undefined) } : undefined
     };
   });
-  const scales = { x: axisDefaults({ type: 'linear', ticks: { color: t } }) };
+  const scales = { x: axisDefaults({ type: 'linear', ticks: { color: t, callback: phYearTick } }) };
   metricIds.forEach((mi, i) => {
     const label = PH_METRICS[mi].label;
     scales['y' + mi] = axisDefaults({

@@ -65,12 +65,23 @@ const TAB_GROUPS = [
   },
   { id: "health-group",    label: "Health & Care",       color: "#5ea99a", homeTab: "healthHome",
     tabs: [
-      { id: "healthHome",    label: "Overview"         },
-      { id: "manxBenchmark", label: "Healthcare Explorer" },
-      { id: "yourHealth",    label: "Your Health"      },
-      { id: "mcWhenWho",     label: "Something's Wrong?" },
-      { id: "nobles-flow",   label: "System View"      },
-      { id: "nobles-v15",    label: "Simulation"       },
+      { id: "healthHome",       label: "Overview"         },
+      { id: "div-islands",      label: "Six-Island Comparisons", divider: true },
+      { id: "islandsHub",       label: "Islands Observatory" },
+      { id: "islandsClinical",  label: "Clinical & Waiting"  },
+      { id: "islandsPrimary",   label: "Primary Care & Dental" },
+      { id: "islandsPH",        label: "Public Health"       },
+      { id: "islandsMoney",     label: "Money Flows"         },
+      { id: "islandsReviews",   label: "Reviews & Actions"   },
+      { id: "islandsPremium",   label: "The Island Premium"  },
+      { id: "islandsTiers",     label: "Care Tiers"          },
+      { id: "div-iom",          label: "Isle of Man Deep Dives", divider: true },
+      { id: "manxBenchmark",    label: "Healthcare Explorer" },
+      { id: "mcBudgetFlows",    label: "Budget — Money In, Money Out" },
+      { id: "yourHealth",       label: "Your Health"      },
+      { id: "mcWhenWho",        label: "Something's Wrong?" },
+      { id: "nobles-flow",      label: "System View"      },
+      { id: "nobles-v15",       label: "Simulation"       },
     ]
   },
   { id: "privacy-group",   label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome",
@@ -1041,6 +1052,18 @@ function HealthHomeTab({ C, onNavigate }) {
       </div>
 
       {card(
+        "Islands Observatory — six island health systems, compared",
+        `Isle of Man, Jersey, Guernsey, NHS Orkney, NHS Shetland and NHS Western Isles,
+        with England, Wales and Scotland as baselines. Avoidable mortality trends,
+        clinical & waiting-time KPIs (one card per jurisdiction, per metric),
+        primary care & dentistry costs, review-recommendation tracking, and Sankey
+        money-flow diagrams. Three views — public, politician, management — switchable
+        on every page. Every figure carries its source; every gap is shown, not hidden.`,
+        "#5ea99a",
+        () => onNavigate("islandsHub")
+      )}
+
+      {card(
         "Manx Care Benchmarking Dashboard",
         `Four KPI groups — Financial, Clinical, Operational, and Off-Island — comparing
         Manx Care's 2024-25 performance against Health and Care Jersey, Guernsey HSC,
@@ -1500,6 +1523,7 @@ function AppContent() {
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget",
     "mcReviews","mcWhenWho","yourHealth","nobles-flow","nobles-v15",
+    "islandsHub","islandsClinical","islandsPrimary","islandsPH","islandsMoney","islandsReviews","islandsPremium","islandsTiers","mcBudgetFlows",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
@@ -1620,6 +1644,34 @@ function AppContent() {
     ),
     manxBenchmark: (
       <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" theme={themeName} />
+    ),
+
+    islandsHub: (
+      <AutoIframe src="/islands/01_index.html" title="Islands Observatory — Hub" theme={themeName} />
+    ),
+    islandsPH: (
+      <AutoIframe src="/islands/02_public-health.html" title="Islands — Public Health" theme={themeName} />
+    ),
+    islandsReviews: (
+      <AutoIframe src="/islands/03_reviews-actions.html" title="Islands — Reviews & Actions" theme={themeName} />
+    ),
+    islandsPremium: (
+      <AutoIframe src="/islands/05_island-premium.html" title="Islands — The Island Premium" theme={themeName} />
+    ),
+    islandsClinical: (
+      <AutoIframe src="/islands/07_clinical-operational.html" title="Islands — Clinical & Operational" theme={themeName} />
+    ),
+    islandsPrimary: (
+      <AutoIframe src="/islands/08_primary-care.html" title="Islands — Primary Care & Dentistry" theme={themeName} />
+    ),
+    islandsTiers: (
+      <AutoIframe src="/islands/09_care-pathway.html" title="Islands — Care Tiers" theme={themeName} />
+    ),
+    islandsMoney: (
+      <AutoIframe src="/islands/10_money-flows.html" title="Islands — Money Flows" theme={themeName} />
+    ),
+    mcBudgetFlows: (
+      <AutoIframe src="/manxcare-budget-sankey.html" title="Manx Care Budget — Money In, Money Out" theme={themeName} />
     ),
 
     mcReviews: (
