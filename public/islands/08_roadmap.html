@@ -1007,6 +1007,80 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   a { color: #111827 !important; text-decoration: none; }
   .page-footer { margin-top: 20px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOBILE SIMPLIFIED MODE — public view only, text cut drastically,
+   graphics and numbers brought forward. Scoped to ≤780px; desktop and
+   tablet layouts above that width are completely untouched.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 780px) {
+
+  /* Public view only on mobile — lock the lens, hide the switch */
+  body[data-lens] [data-lens] { display: none !important; }
+  body[data-lens] [data-lens~="public"] { display: block !important; }
+  .lens-switch { display: none !important; }
+  .opp-actions, .wn-out { display: none !important; }
+
+  /* Trim the header chrome */
+  .brand-sub { display: none; }
+  .topbar-inner { gap: 8px; }
+  .obs-nav {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+  }
+
+  /* Onboarding whisper: one short line, not a three-step lecture */
+  .whisper > b { display: none; }
+  .whisper .w-step:nth-of-type(1) { display: none; }
+  .whisper::before {
+    content: "Tap a tile to explore an island · tap any number for its source";
+    font-size: 11px; color: var(--muted2); flex: 1 1 100%;
+  }
+
+  /* Lens framing text: the point is the number, not the paragraph */
+  .lens-note {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    overflow: hidden; font-size: 11px; padding: 10px 12px;
+  }
+
+  /* Section labels: headline only — no long subtitle trailing off the edge */
+  .section-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
+
+  /* Comparability caveat: methodology chrome, not a mobile-first read */
+  .compare-banner { display: none; }
+
+  /* Chip legend: keep the coloured chips as a visual key, drop the sentences */
+  .chip-legend { grid-template-columns: repeat(2, auto); gap: 6px 12px; padding: 9px 11px; }
+  .chip-legend .cl-def { display: none; }
+
+  /* Dashboard links become tappable icon tiles, not description cards */
+  .dash-links { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .dash-link { padding: 16px 10px; text-align: center; }
+  .dash-link .dl-num { display: block; font-size: 17px; margin-bottom: 4px; }
+  .dash-link .dl-name { margin: 0; font-size: 12px; }
+  .dash-link .dl-desc { display: none; }
+
+  /* Search/refine toolbar (Governance reviews): politician-grade tool, off by default on mobile */
+  .filter-bar:has(#searchInput) { display: none !important; }
+
+  /* View-toggle button rows: pick the richer default and drop the switcher */
+  .card-controls { display: none !important; }
+
+  /* Footer: keep the essentials, drop the long source-list trailer */
+  .page-footer { font-size: 9px; }
+  .page-footer span:last-child { display: none; }
+
+  /* Methodology accordion stays collapsed and out of the way */
+  .method-details summary { padding: 10px 12px; font-size: 10px; }
+}
+
+@media (max-width: 480px) {
+  .lens-note { -webkit-line-clamp: 1; }
+  .dash-links { grid-template-columns: 1fr; }
+  .dash-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; }
+  .dash-link .dl-num { margin-bottom: 0; }
+}
+
 </style>
 </head>
 <body>

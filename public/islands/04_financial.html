@@ -969,6 +969,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   .chip-legend { grid-template-columns: auto 1fr; }
   .card-grid-6 { display: flex !important; grid-template-columns: none !important; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
   .card-grid-6 > * { flex: 0 0 46%; scroll-snap-align: start; }
+  .mobile-hide { display: none !important; }
 }
 @media (max-width: 480px) {
   .geo-grid { grid-template-columns: 1fr; }
@@ -1024,27 +1025,19 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 
   <div class="section-label" style="margin-top:26px;">04 · Financial — budgets, savings, and where the money actually flows</div>
   <div class="lens-note">
-    <div data-lens="public"><span class="lens-tag">Public lens</span>Health budgets on islands are approved, overspent, and then quietly topped up — by reserve draws (Jersey), late allocations (Shetland), repayable loans called "brokerage" (Orkney) or by simply exceeding the funding formula (Isle of Man, £32m). None of this is fraud; all of it is <strong>money arriving outside the front door of the budget process</strong>, which makes it hard for you to see what your health system truly costs.</div>
+    <div data-lens="public"><span class="lens-tag">Public lens</span>Health budgets on islands are approved, overspent, and then quietly topped up — by reserve draws (Jersey), late allocations (Shetland), repayable loans called "brokerage" (Orkney) or by simply exceeding the funding formula (Isle of Man, £32m).</div>
     <div data-lens="politician"><span class="lens-tag">Politician lens</span>Three questions travel across every island here: <em>(1) What is the mechanism to return to budget/formula, and by when? (2) How much of the savings target is recurring — and how much delivered recurring last year? (3) What arrives as late/supplementary funding, and would the year have balanced without it?</em> The cards below carry the numbers to plug in.</div>
     <div data-lens="management"><span class="lens-tag">Management lens</span>The pattern to beat: non-recurring savings papering over recurring gaps (Shetland delivered £0.59m recurring vs £1.87m target). The practice to borrow: NHS Shetland's Helyer MRI suite — capital investment that repatriates activity and cuts patient-travel spend (842 attendances in year one), the same logic as IoM's tertiary strategy.</div>
   </div>
 
   <div class="compare-banner" style="margin-top:10px;"><b>Direct numerical comparison without reading caveats is misleading.</b> Each jurisdiction defines, measures and reports on its own basis — hover or tap any figure for its basis and source before drawing conclusions.</div>
 
-  <div class="filter-bar" style="margin-top:14px;">
-    <span class="filter-label">View</span>
-    <button class="filter-pill on" id="finTab-flows" onclick="setFinTab('flows')">Sources &amp; Uses</button>
-    <button class="filter-pill" id="finTab-bva" onclick="setFinTab('bva')">Budget vs Actual</button>
-    <button class="filter-pill" id="finTab-sav" onclick="setFinTab('sav')">Savings</button>
-    <button class="filter-pill" id="finTab-cap" onclick="setFinTab('cap')">Per capita</button>
-  </div>
-
-  <div id="fin-flows">
-  <div class="section-label">Sources &amp; Uses — where each island's health pound comes from, and where it goes</div>
+  <div class="section-label" style="margin-top:14px;">Sources &amp; Uses — where each island's health pound comes from, and where it goes</div>
   <div class="lens-note">
     <div data-lens="public"><span class="lens-tag">Public lens</span>Follow the ribbons left to right: money in (budget, top-ups, own income) → the pot → money out. The <strong>orange-edged flows are the story</strong> — late top-ups, repayable loans, off-island spending. Where the right-hand side is empty, that's because nothing is published — not because nothing is spent.</div>
     <div data-lens="politician"><span class="lens-tag">Politician lens</span>Watch the middle of each diagram: every island's pot is bigger than its original budget, and the difference arrives by a different door — Tynwald supplementary vote (IoM), Scottish Government late allocations (Shetland), repayable brokerage (Orkney), reserve draws (Jersey). Each door has a different level of scrutiny attached. That's the question: <em>which door, and who approved it?</em></div>
     <div data-lens="management"><span class="lens-tag">Management lens</span>The width of your "extra money" ribbon is your structural deficit made visible. Shetland's £12.8m late-allocation ribbon is 15% of its entire budget; Audit Scotland calls the reliance unsustainable. The discipline benchmark is the recurring-savings share, not the headline savings number.</div>
+  </div>
   <div class="compare-banner" id="sankeyNote"></div>
 
   <div class="jur-chips" id="jurChips" style="margin-top:4px;"></div>
@@ -1059,40 +1052,35 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 
   <div class="opp-stack" id="skAnnotations" style="margin-top:10px;"></div>
 
-  <div class="section-label">All five pots, side by side — original budget vs what actually arrived</div>
+  <div class="section-label-inline" style="margin-top:28px;display:block;">All five pots, side by side — original budget vs what actually arrived</div>
   <div class="panel" id="potCompare"></div>
 
-  <div class="section-label">The flags — nine findings that frame every budget debate</div>
-  <div class="opp-stack" id="flagStack"></div>
-  </div>
+  <div class="section-label-inline mobile-hide" style="margin-top:28px;display:block;">The flags — nine findings that frame every budget debate</div>
+  <div class="opp-stack mobile-hide" id="flagStack"></div>
 
-  <div id="fin-bva" style="display:none;">
-  <div class="section-label">Isle of Man — Manx Care budget vs expenditure, 2021/22–2025/26</div>
+  <div class="section-label" style="margin-top:14px;">Budget vs Actual — approved budget against what was actually spent</div>
+  <div class="section-label-inline" style="display:block;margin-bottom:8px;">Isle of Man — Manx Care budget vs expenditure, 2021/22–2025/26</div>
   <div class="chart-box"><canvas id="iomChart" height="120"></canvas>
     <div style="font-size:10px;color:var(--muted);margin-top:6px;" id="iomNote"></div>
   </div>
 
-  <div class="section-label">Crown Dependencies — approved budget vs outturn, latest year</div>
+  <div class="section-label-inline" style="margin-top:20px;display:block;margin-bottom:8px;">Crown Dependencies — approved budget vs outturn, latest year</div>
   <div class="chart-box"><canvas id="cdChart" height="120"></canvas>
     <div style="font-size:10px;color:var(--muted);margin-top:6px;" id="cdNote"></div>
   </div>
-  </div>
 
-  <div id="fin-sav" style="display:none;">
-  <div class="section-label">Scottish island boards — savings target vs delivered, 2024/25</div>
+  <div class="section-label" style="margin-top:14px;">Savings — targets, delivery, and how much of it actually recurs</div>
+  <div class="section-label-inline" style="display:block;margin-bottom:8px;">Scottish island boards — savings target vs delivered, 2024/25</div>
   <div class="chart-box"><canvas id="savChart" height="120"></canvas>
     <div style="font-size:10px;color:var(--muted);margin-top:6px;">Recurring savings are the only kind that close a structural gap. Shetland: £4.482m target (£1.872m recurring) → £3.883m delivered, <b style="color:var(--red)">only £0.593m recurring</b>; shortfall covered by additional SG funding. Orkney: £4.0m target → £4.07m delivered, £2.88m (71%) recurring. Western Isles: annual audit report not yet collected — <span class="gap-chip">gap</span>. Sources: Audit Scotland AAR 2024/25 (Shetland paras 47-48; Orkney savings section).</div>
   </div>
 
-  <div class="section-label">Isle of Man — five-year savings (CIP) delivery</div>
+  <div class="section-label-inline" style="margin-top:20px;display:block;margin-bottom:8px;">Isle of Man — five-year savings (CIP) delivery</div>
   <div class="panel" style="font-size:12px;line-height:1.7;color:var(--muted2);">Manx Care reports <b style="color:var(--text)">≈£42m of cash-out savings over 2021/22–2025/26</b>. DHSC assessments grade mandated CIP targets as met or exceeded each year — but the cash-out level required to return to the baseline allocation fell short, and reliance on <b>non-recurrent</b> savings means the same gap must be re-closed every year, plus new targets on top. The yearly CIP split is published only as a chart (Fig 4) — extraction is a collection target. <span class="src-inline">Manx Care, Five Years In Review (Jun 2026) p29 · DHSC Assessments of Manx Care 2021-25</span></div>
-  </div>
 
-  <div id="fin-cap" style="display:none;">
-  <div class="section-label">Spend per head — derived, read the basis under every card</div>
+  <div class="section-label" style="margin-top:14px;">Per capita — spend per head, derived, read the basis under every card</div>
   <div class="compare-banner"><b>Derived figures:</b> outturn ÷ population (census / NRS estimate). Bases differ across islands (net vs gross, depreciation treatment, year windows) — differences of ±10% may be definitional, not real. No island publishes a primary / secondary / tertiary split of health spend; the closest is IoM's £26.3m tertiary provider line (see dashboard 07) — a collection target for all six.</div>
   <div class="stat-strip" id="capStrip" style="margin-top:10px;"></div>
-  </div>
 
   
   <div class="chip-legend">
@@ -10027,16 +10015,7 @@ function renderFlags() {
 
 
 
-drawCharts(); renderFlags(); renderPerCapita(); 
-
-
-function setFinTab(t) {
-  ['flows','bva','sav','cap'].forEach(function(v) {
-    document.getElementById('fin-' + v).style.display = v === t ? '' : 'none';
-    document.getElementById('finTab-' + v).classList.toggle('on', v === t);
-  });
-  if (t === 'bva' || t === 'sav') drawCharts();
-}
+drawCharts(); renderFlags(); renderPerCapita();
 
 function renderPerCapita() {
   var cd = OBS.finance.crownDeps;
