@@ -662,7 +662,7 @@ body.light .actions-toggle-bar:hover { background: color-mix(in srgb, var(--acce
   padding: 4px 9px; border-radius: 6px; transition: all .15s; white-space: nowrap;
 }
 .obs-nav a:hover { color: var(--accent-ink); background: var(--accent-soft); }
-.obs-nav a.here { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.obs-nav a.here { color: var(--accent-ink); font-weight: 700; }
 .top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .theme-btn {
   background: none; border: 1px solid var(--border2); border-radius: 6px;
@@ -969,6 +969,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   .chip-legend { grid-template-columns: auto 1fr; }
   .card-grid-6 { display: flex !important; grid-template-columns: none !important; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
   .card-grid-6 > * { flex: 0 0 46%; scroll-snap-align: start; }
+  .mobile-hide { display: none !important; }
 }
 @media (max-width: 480px) {
   .geo-grid { grid-template-columns: 1fr; }
@@ -1007,80 +1008,6 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   a { color: #111827 !important; text-decoration: none; }
   .page-footer { margin-top: 20px; }
 }
-
-/* ══════════════════════════════════════════════════════════════════════
-   MOBILE SIMPLIFIED MODE — public view only, text cut drastically,
-   graphics and numbers brought forward. Scoped to ≤780px; desktop and
-   tablet layouts above that width are completely untouched.
-   ══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 780px) {
-
-  /* Public view only on mobile — lock the lens, hide the switch */
-  body[data-lens] [data-lens] { display: none !important; }
-  body[data-lens] [data-lens~="public"] { display: block !important; }
-  .lens-switch { display: none !important; }
-  .opp-actions, .wn-out { display: none !important; }
-
-  /* Trim the header chrome */
-  .brand-sub { display: none; }
-  .topbar-inner { gap: 8px; }
-  .obs-nav {
-    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-  }
-
-  /* Onboarding whisper: one short line, not a three-step lecture */
-  .whisper > b { display: none; }
-  .whisper .w-step:nth-of-type(1) { display: none; }
-  .whisper::before {
-    content: "Tap a tile to explore an island · tap any number for its source";
-    font-size: 11px; color: var(--muted2); flex: 1 1 100%;
-  }
-
-  /* Lens framing text: the point is the number, not the paragraph */
-  .lens-note {
-    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-    overflow: hidden; font-size: 11px; padding: 10px 12px;
-  }
-
-  /* Section labels: headline only — no long subtitle trailing off the edge */
-  .section-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
-
-  /* Comparability caveat: methodology chrome, not a mobile-first read */
-  .compare-banner { display: none; }
-
-  /* Chip legend: keep the coloured chips as a visual key, drop the sentences */
-  .chip-legend { grid-template-columns: repeat(2, auto); gap: 6px 12px; padding: 9px 11px; }
-  .chip-legend .cl-def { display: none; }
-
-  /* Dashboard links become tappable icon tiles, not description cards */
-  .dash-links { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .dash-link { padding: 16px 10px; text-align: center; }
-  .dash-link .dl-num { display: block; font-size: 17px; margin-bottom: 4px; }
-  .dash-link .dl-name { margin: 0; font-size: 12px; }
-  .dash-link .dl-desc { display: none; }
-
-  /* Search/refine toolbar (Governance reviews): politician-grade tool, off by default on mobile */
-  .filter-bar:has(#searchInput) { display: none !important; }
-
-  /* View-toggle button rows: pick the richer default and drop the switcher */
-  .card-controls { display: none !important; }
-
-  /* Footer: keep the essentials, drop the long source-list trailer */
-  .page-footer { font-size: 9px; }
-  .page-footer span:last-child { display: none; }
-
-  /* Methodology accordion stays collapsed and out of the way */
-  .method-details summary { padding: 10px 12px; font-size: 10px; }
-}
-
-@media (max-width: 480px) {
-  .lens-note { -webkit-line-clamp: 1; }
-  .dash-links { grid-template-columns: 1fr; }
-  .dash-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; }
-  .dash-link .dl-num { margin-bottom: 0; }
-}
-
 </style>
 </head>
 <body>
@@ -1098,7 +1025,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 
   <div class="section-label" style="margin-top:26px;">02 · Public health — avoidable mortality, 2001–2024</div>
   <div class="lens-note">
-    <div data-lens="public"><span class="lens-tag">Public lens</span><strong>Avoidable mortality</strong> counts deaths of people under 75 from preventable or treatable causes — ones that public health measures (screening, smoking, alcohol policy) or timely treatment can reduce. It is the single best "is my health system working?" number that all nine jurisdictions publish. Lower is better. Press <strong>▶ Loop</strong> to tour each island's story.</div>
+    <div data-lens="public"><span class="lens-tag">Public lens</span><strong>Avoidable mortality</strong> counts deaths of people under 75 from causes that prevention (screening, smoking, alcohol policy) or timely treatment should have stopped. It is the single best "is my health system working?" number that all nine jurisdictions publish. Lower is better. Press <strong>▶ Loop</strong> to tour each island's story.</div>
     <div data-lens="politician"><span class="lens-tag">Politician lens</span>The chart shows two decades of comparable outcomes. Where your jurisdiction sits above a peer, the question writes itself: <em>what does the peer do that we don't?</em> The panel under the chart generates specific wording. Note the basis caveat before quoting numbers across islands.</div>
     <div data-lens="management"><span class="lens-tag">Management lens</span>Preventable vs treatable decomposition (below) tells you where to act: high <em>preventable</em> points at population health programmes; high <em>treatable</em> at access, diagnosis and pathway speed — including off-island pathway friction. Shetland is the Scottish-boards benchmark; Jersey the overall one.</div>
   </div>
@@ -1124,7 +1051,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 
   <div class="section-label">Preventable vs treatable — where the avoidable deaths come from</div>
   <div class="panel">
-    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6;"><b style="color:var(--text)">Preventable</b> = mainly reducible through public health action (smoking, alcohol, obesity, injuries, screening-preventable cancers). <b style="color:var(--text)">Treatable</b> = mainly reducible through timely, effective healthcare once someone is in the system. Periods differ — see labels.</div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6;"><b style="color:var(--text)">Preventable</b> = public-health failure space (smoking, alcohol, obesity, injuries, screening-preventable cancers). <b style="color:var(--text)">Treatable</b> = healthcare failure space (conditions timely, effective care should not let become fatal). Periods differ — see labels.</div>
     <div id="splitBars"></div>
   </div>
 
@@ -1152,20 +1079,13 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   </div>
 
   
-  <div class="chip-legend">
-    <span class="cl-title">How to read the chips — the observatory's honesty, worn openly</span>
-    <span class="chip derived">derived</span><span class="cl-def">calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers</span>
-    <span class="chip toextract">to extract</span><span class="cl-def">published somewhere (e.g. held @ PHS) but not yet in the library — each maps to a roadmap item</span>
-    <span class="chip notpub">not published</span><span class="cl-def">no comparable public figure exists anywhere — the gap is the finding</span>
-    <span class="chip improving">✓ improving</span><span class="cl-def">a favourable, sourced trend — celebrated with the same energy gaps are flagged</span>
-  </div>
-
   <details class="method-details">
     <summary>Methodology &amp; data governance notes</summary>
     <div class="method-body">
       <b>Sources.</b> Every displayed figure carries a source string (document + date) reachable by hover, tap or inline chip. The consolidated data layer (observatory_data.js) is generated by script from extraction CSVs in the observatory library; nothing is hand-typed into pages. Primary sources: government/board annual reports and accounts, Audit Scotland/KPMG annual audits, HIS inspection reports, C&amp;AG/JAO reports, DHSC Assessments of Manx Care, Tynwald Hansard and written answers, ONS/NRS/PHS statistics, CAA punctuality statistics, and FOI responses held in the library.<br/><br/>
       <b>Comparability.</b> Jurisdictions differ in definitions, targets, reporting windows and population bases. Basis lines are mandatory on comparison rows; 3-year rolling averages (small populations) are marked and never silently mixed with single-year rates; derived figures (per-capita, per-1,000, inversions) are labelled <i>derived</i>; DERIVED Sankey nodes state their derivation.<br/><br/>
       <b>Gaps.</b> Missing data is displayed, not hidden: red chips = no comparable public figure exists; blue chips = published somewhere we have not yet extracted (each maps to a roadmap item). Gaps are findings.<br/><br/>
+      <b>Chip legend.</b> <span class="chip derived">derived</span> calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers. <span class="chip toextract">to extract</span> published somewhere but not yet in the library. <span class="chip notpub">not published</span> no comparable public figure exists anywhere — the gap is the finding. <span class="chip improving">✓ improving</span> a favourable, sourced trend.<br/><br/>
       <b>Views.</b> The Public view uses plain language and does not draft formal requests; Politician and Management views expose question/FOI wording and benchmark framing. The view switch changes emphasis, never the underlying numbers.<br/><br/>
       <b>Corrections.</b> Errors: <a href="mailto:observatory@coalfinch.com" style="color:var(--accent-ink)">observatory@coalfinch.com</a>. Build log and change history: see the Roadmap page.
     </div>
@@ -10218,6 +10138,15 @@ function renderHnaVisibility() {
 function obsOnJur() { renderHnaVisibility(); }
 renderChart(); renderLatest(); renderSplit(); renderHna(); renderDep(); renderHnaVisibility();
 
+/* plain-language, hover-only explanation of each scorecard row — same convention as the KPI dials */
+var PHSCORE_TIP = {
+  'Life expectancy at birth': 'How many years, on average, a baby born today would live if death rates stayed as they are now. Shown separately for men (m) and women (f) because the gap between them is itself a health signal.',
+  'Healthy life expectancy at birth': 'Like life expectancy, but counts only the years likely to be lived in good health — i.e. before a limiting long-term illness or disability sets in.',
+  'Suicide mortality': 'Deaths by suicide per 100,000 people, adjusted so islands with older or younger populations can be compared fairly. Small islands can see this rate swing a lot from year to year on very few deaths.',
+  'Infant mortality': 'Deaths of babies before their first birthday, per 1,000 live births — a long-standing marker of maternal and newborn care quality.',
+  'Childhood immunisation (MMR2 by age 5)': 'The share of five-year-olds who have had both doses of the measles, mumps and rubella (MMR) vaccine. The World Health Organization target for herd protection is 95%.',
+  'Cancer screening coverage (breast · bowel · cervical)': 'The share of the eligible population taking part in the national breast, bowel and cervical screening programmes — each measured slightly differently, so read the basis line before comparing.',
+};
 function renderPhScore() {
   var P = OBS.popHealth; if (!P) return;
   var order = ['iom','jsy','gsy','ork','shl','wis','eng'];
@@ -10225,17 +10154,19 @@ function renderPhScore() {
     return '<th style="text-align:left;color:' + JUR[id].color + ';width:12%;">' + JUR[id].short + '</th>';
   }).join('') + '</tr>';
   P.rows.forEach(function(row) {
-    html += '<tr><td style="font-size:11px;font-weight:700;">' + esc(row.metric) + '<div style="font-size:9px;font-weight:400;color:var(--muted);">' + esc(row.unit) + '</div></td>' +
+    var tip = PHSCORE_TIP[row.metric] || '';
+    html += '<tr><td style="font-size:11px;font-weight:700;cursor:help;" title="' + esc(tip) + '">' + esc(row.metric) + '<div style="font-size:9px;font-weight:400;color:var(--muted);">' + esc(row.unit) + '</div></td>' +
       order.map(function(id) {
         var c = row.cells[id];
         if (!c) return '<td style="color:var(--muted)">·</td>';
+        var vLines = String(c.d).split(' · ').map(esc).join('<br>');
         if (c.gap) {
-          return '<td title="' + esc(c.note || '') + '"><span class="chip ' + (c.red ? 'notpub' : 'toextract') + '" style="font-size:8px;padding:1px 6px;">' + esc(c.d) + '</span><div style="font-size:9px;color:var(--muted);margin-top:2px;">' + esc(c.note || '') + '</div></td>';
+          return '<td title="' + esc(c.note || '') + '"><span class="chip ' + (c.red ? 'notpub' : 'toextract') + '" style="font-size:8px;padding:1px 6px;">' + esc(c.d) + '</span></td>';
         }
-        return '<td title="' + esc(c.src || '') + '"><span style="font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + esc(c.d) + '</span>' + obsSpark(c.series, c.seriesLabels) + '<div style="font-size:9px;color:var(--muted);margin-top:2px;">' + esc((c.basis ? c.basis + ' · ' : '') + (c.src || '')) + '</div></td>';
+        return '<td title="' + esc((c.basis ? c.basis + ' · ' : '') + (c.src || '')) + '"><span style="font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;line-height:1.5;">' + vLines + '</span>' + obsSpark(c.series, c.seriesLabels) + '</td>';
       }).join('') + '</tr>';
   });
-  html += '<tr><td colspan="8" style="font-size:10px;color:var(--muted);border-bottom:none;">' + esc(P.note) + '</td></tr>';
+  html += '<tr><td colspan="8" style="font-size:10px;color:var(--muted);border-bottom:none;">' + esc(P.note) + ' Hover a measure name for what it means, or any figure for its basis and source.</td></tr>';
   document.getElementById('phScore').innerHTML = html;
 }
 

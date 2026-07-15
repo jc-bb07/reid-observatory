@@ -219,3 +219,62 @@ All remaining popHealth blues for the Scottish island boards are now real values
 gen_data7 re-patched + re-run (ext-7 only, it is the last extension), all 8 pages rebuilt again, v05 102/102 · v06 47/47 · theme 13/13 · compact 10/10, smoke 02 clean. fetch_manifest rows flipped manual_needed→fetched. Note for gap audit: 02 popHealth ork/shl/wis rows are now FULLY green-ink (no blue chips left in those columns except IoM/Jsy/Gsy gaps).
 ### Bright spot candidates for a future pass (NOT added — data-layer-only session)
 Shetland: best bowel-screening uptake in Scotland; all three islands above Scottish average on bowel AND cervical. Candidate for hub Bright Spots strip next design session.
+
+---
+
+## Session 11 — 15 Jul 2026 · 04 Financial bug fix + tab-clutter cleanup
+
+**Bug reported by James**: "the financial dashboard isn't working." Reproduced live (observatory.coalfinch.com/islands/04_financial.html): clicking any VIEW pill other than "Sources & Uses" blanked the entire page below the pill row.
+
+**Root cause**: `build_04.py`'s CONTENT had an unclosed `<div class="lens-note">` inside the Sources & Uses tab panel. The stray `</div>` after the flags section closed `.lens-note` instead of `#fin-flows`, which left `#fin-flows` itself never closed — so `#fin-bva`, `#fin-sav`, `#fin-cap` and the page footer all ended up nested *inside* `#fin-flows` rather than as siblings. `setFinTab()` correctly un-hid the target panel, but hiding `#fin-flows` (now their ancestor) when switching away from it hid everything nested inside it too — including the panel just revealed. Confirmed via computed styles in a live tab (`parentDisplay: "none"`).
+
+**Fix — also addresses James's design feedback** ("lots of unnecessary control and text… the tabs could be the only control here, and the VIEW should be tabs. This page should literally be sources & uses. Where did budget vs actual go, savings and per capita?"):
+- Removed the `.filter-bar` VIEW pill row and `setFinTab()`/`fin-*` show/hide JS entirely — it was both the bug's mechanism and the redundant control.
+- Sources & Uses / Budget vs Actual / Savings / Per capita are now flat, always-visible `.section-label` sections in one scroll, so the *existing* auto sticky sub-nav (`common.py`, built from `.section-label` text, ≥4 sections) becomes the page's only navigational control — same effect as the old pills, without the fragile display:none mechanic. Confirmed via shortTitle(): tabs now read FINANCIAL / SOURCES & USES / BUDGET VS ACTUAL / SAVINGS / PER CAPITA.
+- "All five pots, side by side" and "The flags" downgraded from `.section-label` to `.section-label-inline` (same visual weight, no top margin) so they stay as in-page sub-headings under Sources & Uses rather than adding two more top-nav tabs — this is what was cluttering the tab bar before (it showed ALL FIVE POTS / THE FLAGS as if they were peer views).
+- Removed the inaccurate line from the public-lens paragraph: *"None of this is fraud; all of it is money arriving outside the front door of the budget process, which makes it hard for you to see what your health system truly costs."* (James: not true — flagged for removal.) Rest of the public-lens paragraph (reserve draws / late allocations / brokerage / funding-formula overrun) is unchanged and still sourced.
+- **The flags (9 finding cards) now hidden on mobile** (James: "content like 'The Flags' shouldn't exist on mobile"): new `.mobile-hide { display:none !important; }` utility added to `common.py`'s existing 720px breakpoint block, applied to the flags heading + `#flagStack`. Content remains in the DOM (desktop/tablet see it); doesn't affect the `04 flags present` verify_v05 check (jsdom doesn't apply media queries).
+- Since panels are no longer display:none at load, the old "charts redraw on tab switch (hidden-canvas sizing)" workaround (`if (t==='bva'||t==='sav') drawCharts();`) is gone — `drawCharts()` runs once, unconditionally, on load, which is more robust (removes a whole class of Chart.js-sizing-inside-display:none bugs).
+
+**Not done this session** (flagged, not attempted): a fuller "reliant on graphics, not text" mobile pass — condensing the lens-note prose blocks and Budget vs Actual / Savings / Per capita copy into more chart-first mobile layouts. James's note mentioned this; scoping it needs a design call (how much of the sourced caveat text can compress without breaking house rule 5/6) rather than a quick fix, so it's logged as a follow-up rather than guessed at.
+
+**Verification**: `node --check` on all 4 extracted inline script blocks of the rebuilt 04_financial.html — clean. `smoke.js` on 04 — NO RUNTIME ERRORS, jurChips/flagStack/capStrip all POPULATED. `verify_v05.js` — 04-specific checks (clean, sankey present, flags present ×9, pots present ×5, no audit table) all pass (101/102 overall; the one unrelated failure, "06 clean", is a pre-existing jsdom `window.matchMedia` harness gap on a page untouched this session, not a regression). `verify_v06.js` similarly shows pre-existing failures confined to page 02 (untouched this session) for the same harness reason.
+
+**Files changed**: `common.py` (+`.mobile-hide` utility in the 720px breakpoint), `build_04.py` (structural rewrite of CONTENT — see above; PAGE_JS: removed `setFinTab`).
+
+**Deploy note**: only `04_financial.html` changed → redeploy that one file to `public/islands/04_financial.html` in the site repo (jc-bb07/reid-observatory). James is shipping this one manually (dev → GitHub → Vercel) rather than having it pushed directly this session.
+
+---
+
+## Session 12 — 15 Jul 2026 · declutter pass (02 scorecard, 04 header/bars/cards, 06 dial tooltips)
+
+**Requested by James** (reviewing screenshots of 02/04/06): reliably line-break multi-value cells (e.g. `m 79.4 · f 84.4`) onto separate lines; lean harder on hover + the Methodology & data governance footer instead of always-visible small print; add plain-language hover explanations on row/metric titles; remove redundant header furniture on 04; put the % variance on budget-vs-actual bars at the bottom of the bar, larger, white; give Crown Deps and the Scottish-board savings chart the same % convention; put total expenditure + per-capita at the top of the per-capita cards with the rest pushed to hover.
+
+**`common.py`**:
+- `LIB` was hardcoded to a now-dead session sandbox path (`/sessions/focused-keen-archimedes/mnt/data-library`) — every prior session's builders only ran because someone patched this by hand or ran from `~/ob`. Replaced with `os.environ.get('OBS_LIB') or <three parents of this file>`, so `common.py` resolves `data-library/` relative to its own location (or via `OBS_LIB` override) and the build works from a fresh session/checkout without hand-patching.
+- `CHIP_LEGEND` (the standalone "How to read the chips" box, sitting just above the Methodology footer on every page) folded into `METHODOLOGY_FOOTER` as a "Chip legend" paragraph; `CHIP_LEGEND` itself is now `""`. One fewer always-visible box per page, no information lost — it was already low-traffic footer content.
+- `.obs-nav a.here` (current-page highlight in the top nav) de-pilled: dropped the tinted background, kept bold + accent-ink text. Was duplicating the big on-page section title on every page.
+
+**`build_02.py`** (Population health scorecard):
+- `renderPhScore()`: cell values are now split on ` · ` and joined with `<br>` before rendering, so any multi-value cell (`m 79.4 · f 84.4`, `bowel 70.0 · cervical 63.5`, etc.) reliably wraps onto separate lines regardless of column width — not just when the browser happens to wrap.
+- Removed the always-visible basis/source caption under every cell (`<div style="font-size:9px...">`); that text now lives entirely in the `title` attribute (hover on desktop, tap-to-reveal via the existing `#srcSheet` house-rule-5 mechanism on touch). Table is visibly lighter; nothing is lost, it's one hover away.
+- Added `PHSCORE_TIP`, a small lookup of plain-language explanations for each of the six scorecard rows (life expectancy, healthy life expectancy, suicide mortality, infant mortality, immunisation, screening), wired as a `title` on the row/metric name cell — same hover/tap convention as everything else on the page.
+
+**`build_04.py`** (Financial):
+- Section header shortened from "04 · Financial — budgets, savings, and where the money actually flows" to just "Budgets, savings, and where the money actually flows" (the "04 · Financial" part duplicated both the top-nav label and the browser tab title).
+- Removed the second "How to read the ribbons" `compare-banner` box that sat directly under the Sources & Uses lens-note — it repeated the proportional-split/DERIVED convention that's already stated in the one-line legend right above the Sankey (`hover any node or ribbon for its source · orange edge = the story · DERIVED = calculated, not reported`), which now also carries the fuller explanation as a hover tooltip. Kept the lens-note itself (the public/politician/management tabbed box) — that's the house-rule-3 mechanism, not redundant copy.
+- New `pctBarPlugin(id, datasetIndex, pcts)` Chart.js plugin: draws the % variance in bold 13px white text near the *bottom* of the bar (was 10px red text floating just *above* the bar, IoM chart only). Applied consistently to all three budget/outturn bar charts on the page: IoM Budget vs Actual (overrun %), Crown Dependencies (variance % per island), and the Scottish-board Savings chart (% of target delivered) — same convention everywhere the page compares a plan against an outturn.
+- `renderPerCapita()` cards rebuilt: headline is now **total expenditure (£Xm)** stacked above **spend per head (£X, derived)** — previously only per-head was shown as the headline. Basis, budget-per-head, population and sources moved out of the always-visible `.mk-l`/`.mk-s` lines into a single `title` tooltip per card, so the card itself only shows jurisdiction + the two topline numbers.
+
+**`build_07.py`** (Secondary care / "The dials"):
+- The default compact KPI matrix (`renderMatrix()`) already had a per-jurisdiction hover with basis+source on every cell, and the card view already showed a plain-language explanation per metric (`explainFor()` / `OBS.kpi[].explain`) — but the compact grid's row/metric-name cell had no such explanation. Added `title="' + esc(explainFor(row.metric) || '') + '"` to that cell, reusing the existing `explain` text already written for the card view, so hovering a KPI row title in the default grid view now gives the same layman's one-liner.
+
+**Open item — "pill" on 04**: James also flagged a "pill title" as redundant alongside the two boxes. I confirmed and removed the two boxes and shortened the section title; for the pill I asked James directly and he confirmed **both** the top-nav current-page highlight *and* the on-page section heading — both addressed above (nav highlight de-pilled site-wide in `common.py`; heading shortened on 04 specifically, other pages' headings untouched pending any further request).
+
+**Verification**: `python3 -c "import ast; ast.parse(...)"` clean on all three edited builders; ran all three builds against a scratch mirror of the data-library (session sandbox had a stale/lagging view of files just edited via the file tools — builds were run against a verified-fresh copy, then the output HTML copied back and byte-count-verified against the source of truth); `node --check` clean on all 4 extracted `<script>` blocks per rebuilt page (12 total); grepped rebuilt output for every marker above (`PHSCORE_TIP`, `pctBarPlugin` ×4, `explainFor(row.metric)`, chip-legend box absent, `sankeyNote` absent, shortened header present) — all present exactly once/as expected.
+
+**Files changed**: `common.py` (LIB portability fix, CHIP_LEGEND fold-in, nav-pill destyle), `build_02.py`, `build_04.py`, `build_07.py`. Regenerated: `02_public-health.html`, `04_financial.html`, `06_secondary-care.html`.
+
+**Not done this session**: did not touch 01/03/05/08 — none were flagged, and the shortened-header treatment on 04 was scoped to the page James reviewed rather than applied site-wide.
+
+**Deploy note**: three files changed → redeploy `02_public-health.html`, `04_financial.html`, `06_secondary-care.html` to `public/islands/` in the site repo.

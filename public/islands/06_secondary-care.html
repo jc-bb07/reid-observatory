@@ -662,7 +662,7 @@ body.light .actions-toggle-bar:hover { background: color-mix(in srgb, var(--acce
   padding: 4px 9px; border-radius: 6px; transition: all .15s; white-space: nowrap;
 }
 .obs-nav a:hover { color: var(--accent-ink); background: var(--accent-soft); }
-.obs-nav a.here { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.obs-nav a.here { color: var(--accent-ink); font-weight: 700; }
 .top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .theme-btn {
   background: none; border: 1px solid var(--border2); border-radius: 6px;
@@ -969,6 +969,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   .chip-legend { grid-template-columns: auto 1fr; }
   .card-grid-6 { display: flex !important; grid-template-columns: none !important; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
   .card-grid-6 > * { flex: 0 0 46%; scroll-snap-align: start; }
+  .mobile-hide { display: none !important; }
 }
 @media (max-width: 480px) {
   .geo-grid { grid-template-columns: 1fr; }
@@ -1007,80 +1008,6 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   a { color: #111827 !important; text-decoration: none; }
   .page-footer { margin-top: 20px; }
 }
-
-/* ══════════════════════════════════════════════════════════════════════
-   MOBILE SIMPLIFIED MODE — public view only, text cut drastically,
-   graphics and numbers brought forward. Scoped to ≤780px; desktop and
-   tablet layouts above that width are completely untouched.
-   ══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 780px) {
-
-  /* Public view only on mobile — lock the lens, hide the switch */
-  body[data-lens] [data-lens] { display: none !important; }
-  body[data-lens] [data-lens~="public"] { display: block !important; }
-  .lens-switch { display: none !important; }
-  .opp-actions, .wn-out { display: none !important; }
-
-  /* Trim the header chrome */
-  .brand-sub { display: none; }
-  .topbar-inner { gap: 8px; }
-  .obs-nav {
-    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-  }
-
-  /* Onboarding whisper: one short line, not a three-step lecture */
-  .whisper > b { display: none; }
-  .whisper .w-step:nth-of-type(1) { display: none; }
-  .whisper::before {
-    content: "Tap a tile to explore an island · tap any number for its source";
-    font-size: 11px; color: var(--muted2); flex: 1 1 100%;
-  }
-
-  /* Lens framing text: the point is the number, not the paragraph */
-  .lens-note {
-    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-    overflow: hidden; font-size: 11px; padding: 10px 12px;
-  }
-
-  /* Section labels: headline only — no long subtitle trailing off the edge */
-  .section-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
-
-  /* Comparability caveat: methodology chrome, not a mobile-first read */
-  .compare-banner { display: none; }
-
-  /* Chip legend: keep the coloured chips as a visual key, drop the sentences */
-  .chip-legend { grid-template-columns: repeat(2, auto); gap: 6px 12px; padding: 9px 11px; }
-  .chip-legend .cl-def { display: none; }
-
-  /* Dashboard links become tappable icon tiles, not description cards */
-  .dash-links { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .dash-link { padding: 16px 10px; text-align: center; }
-  .dash-link .dl-num { display: block; font-size: 17px; margin-bottom: 4px; }
-  .dash-link .dl-name { margin: 0; font-size: 12px; }
-  .dash-link .dl-desc { display: none; }
-
-  /* Search/refine toolbar (Governance reviews): politician-grade tool, off by default on mobile */
-  .filter-bar:has(#searchInput) { display: none !important; }
-
-  /* View-toggle button rows: pick the richer default and drop the switcher */
-  .card-controls { display: none !important; }
-
-  /* Footer: keep the essentials, drop the long source-list trailer */
-  .page-footer { font-size: 9px; }
-  .page-footer span:last-child { display: none; }
-
-  /* Methodology accordion stays collapsed and out of the way */
-  .method-details summary { padding: 10px 12px; font-size: 10px; }
-}
-
-@media (max-width: 480px) {
-  .lens-note { -webkit-line-clamp: 1; }
-  .dash-links { grid-template-columns: 1fr; }
-  .dash-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; }
-  .dash-link .dl-num { margin-bottom: 0; }
-}
-
 </style>
 </head>
 <body>
@@ -1155,20 +1082,13 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   <div class="opp-stack" id="qStack" style="margin-top:8px;"></div>
 
   
-  <div class="chip-legend">
-    <span class="cl-title">How to read the chips — the observatory's honesty, worn openly</span>
-    <span class="chip derived">derived</span><span class="cl-def">calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers</span>
-    <span class="chip toextract">to extract</span><span class="cl-def">published somewhere (e.g. held @ PHS) but not yet in the library — each maps to a roadmap item</span>
-    <span class="chip notpub">not published</span><span class="cl-def">no comparable public figure exists anywhere — the gap is the finding</span>
-    <span class="chip improving">✓ improving</span><span class="cl-def">a favourable, sourced trend — celebrated with the same energy gaps are flagged</span>
-  </div>
-
   <details class="method-details">
     <summary>Methodology &amp; data governance notes</summary>
     <div class="method-body">
       <b>Sources.</b> Every displayed figure carries a source string (document + date) reachable by hover, tap or inline chip. The consolidated data layer (observatory_data.js) is generated by script from extraction CSVs in the observatory library; nothing is hand-typed into pages. Primary sources: government/board annual reports and accounts, Audit Scotland/KPMG annual audits, HIS inspection reports, C&amp;AG/JAO reports, DHSC Assessments of Manx Care, Tynwald Hansard and written answers, ONS/NRS/PHS statistics, CAA punctuality statistics, and FOI responses held in the library.<br/><br/>
       <b>Comparability.</b> Jurisdictions differ in definitions, targets, reporting windows and population bases. Basis lines are mandatory on comparison rows; 3-year rolling averages (small populations) are marked and never silently mixed with single-year rates; derived figures (per-capita, per-1,000, inversions) are labelled <i>derived</i>; DERIVED Sankey nodes state their derivation.<br/><br/>
       <b>Gaps.</b> Missing data is displayed, not hidden: red chips = no comparable public figure exists; blue chips = published somewhere we have not yet extracted (each maps to a roadmap item). Gaps are findings.<br/><br/>
+      <b>Chip legend.</b> <span class="chip derived">derived</span> calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers. <span class="chip toextract">to extract</span> published somewhere but not yet in the library. <span class="chip notpub">not published</span> no comparable public figure exists anywhere — the gap is the finding. <span class="chip improving">✓ improving</span> a favourable, sourced trend.<br/><br/>
       <b>Views.</b> The Public view uses plain language and does not draft formal requests; Politician and Management views expose question/FOI wording and benchmark framing. The view switch changes emphasis, never the underlying numbers.<br/><br/>
       <b>Corrections.</b> Errors: <a href="mailto:observatory@coalfinch.com" style="color:var(--accent-ink)">observatory@coalfinch.com</a>. Build log and change history: see the Roadmap page.
     </div>
@@ -10022,7 +9942,8 @@ function renderMatrix() {
   M.sections.forEach(function(sec) {
     html += '<tr><td colspan="' + (M.cols.length + 1) + '" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-ink);padding-top:12px;border-bottom:1px solid var(--border2);">' + esc(sec.name) + '</td></tr>';
     sec.rows.forEach(function(row) {
-      html += '<tr><td style="position:sticky;left:0;background:var(--surface);z-index:1;font-size:11px;font-weight:600;min-width:190px;">' + esc(row.metric) +
+      var tip = explainFor(row.metric) || '';
+      html += '<tr><td style="position:sticky;left:0;background:var(--surface);z-index:1;font-size:11px;font-weight:600;min-width:190px;cursor:help;" title="' + esc(tip) + '">' + esc(row.metric) +
         '<div style="font-size:9px;font-weight:400;color:var(--muted);">' + esc(row.unit) + '</div></td>' +
         M.cols.map(function(id) { return cellHtml(row.cells[id], id); }).join('') + '</tr>';
     });
@@ -10221,8 +10142,8 @@ function obsOnLens() {}
 var _wfcChart = null, _wfcView = 'stack';
 /* v0.8: contract groups are neither jurisdictions nor states — teal ramp, with dash/point second cues in line views */
 var WFC_HINTS = { stack:'Stacked bottom-up with care delivery at the base: nurses, doctors, learning disability, social care, admin, directors. Hover any band for that month.',
-  index:'Every group indexed to Apr 2021 = 100 \u2014 who grew fastest. Doctors &amp; dentists +58%, admin/management/social work +39%, clinical staff +20%; NJC is the only group to end below its start. Directors (flat, ~9 WTE) omitted.',
-  share:'Share of total workforce. The mix barely moves \u2014 nurses &amp; clinical staff stay ~48\u201349% throughout: Manx Care grew in proportion rather than rebalancing.' };
+  index:'Every group indexed to Apr 2021 = 100 — who grew fastest. Doctors &amp; dentists +58%, admin/management/social work +39%, clinical staff +20%; NJC is the only group to end below its start. Directors (flat, ~9 WTE) omitted.',
+  share:'Share of total workforce. The mix barely moves — nurses &amp; clinical staff stay ~48–49% throughout: Manx Care grew in proportion rather than rebalancing.' };
 function setWfcView(v) { _wfcView = v; drawWfcChart(); }
 function drawWfcChart() {
   var W = OBS.mcWorkforce; if (!W) return;
@@ -10277,15 +10198,13 @@ function renderWorkforce() {
       '<div class="mk-l" style="font-size:11px;color:var(--text);">' + esc(r.d) + '</div><div class="mk-s">' + esc(r.src) + '</div></div>';
   }).join('');
   document.getElementById('dtocPanel').innerHTML =
-    '<b style="color:' + JUR.gsy.color + '">Delayed transfers \u2014 the Guernsey trend:</b> ' + esc(OBS.dtocTrend.gsy.latest) +
-    ' <b>91 days/month (2018) \u2192 338 (2024)</b> \u2014 3.7\u00d7 growth while the front door is priced. <span class="src-inline">' + esc(OBS.dtocTrend.gsy.src) + '</span><br/>' +
+    '<b style="color:' + JUR.gsy.color + '">Delayed transfers — the Guernsey trend:</b> ' + esc(OBS.dtocTrend.gsy.latest) +
+    ' <b>91 days/month (2018) → 338 (2024)</b> — 3.7× growth while the front door is priced. <span class="src-inline">' + esc(OBS.dtocTrend.gsy.src) + '</span><br/>' +
     '<b style="color:' + JUR.iom.color + '">IoM equivalent:</b> ' + esc(OBS.dtocTrend.iom.latest) + ' <span class="src-inline">' + esc(OBS.dtocTrend.iom.src) + '</span><br/><br/>' +
     '<b>Agency staffing:</b> ' + esc(OBS.agencyNote);
 }
 function obsOnTheme() { drawWfcChart(); }
 renderWorkforce(); renderActivity(); renderDomainTabs(); renderCardTable(); renderMatrix(); renderWaits(); renderJurChips('jurChips'); renderQuestions(); drawWfcChart();
-/* Mobile: default to the friendlier Card view instead of the dense matrix table, since the toggle button is hidden on mobile */
-if (window.matchMedia('(max-width:780px)').matches && typeof toggleKpiView === 'function' && compactView) { toggleKpiView(); }
 
 </script>
 </body>

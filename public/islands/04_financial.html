@@ -662,7 +662,7 @@ body.light .actions-toggle-bar:hover { background: color-mix(in srgb, var(--acce
   padding: 4px 9px; border-radius: 6px; transition: all .15s; white-space: nowrap;
 }
 .obs-nav a:hover { color: var(--accent-ink); background: var(--accent-soft); }
-.obs-nav a.here { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.obs-nav a.here { color: var(--accent-ink); font-weight: 700; }
 .top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .theme-btn {
   background: none; border: 1px solid var(--border2); border-radius: 6px;
@@ -1023,7 +1023,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 </div></div>
 <div class="shell">
 
-  <div class="section-label" style="margin-top:26px;">04 · Financial — budgets, savings, and where the money actually flows</div>
+  <div class="section-label-inline" style="margin-top:26px;display:block;font-size:13px;">Budgets, savings, and where the money actually flows</div>
   <div class="lens-note">
     <div data-lens="public"><span class="lens-tag">Public lens</span>Health budgets on islands are approved, overspent, and then quietly topped up — by reserve draws (Jersey), late allocations (Shetland), repayable loans called "brokerage" (Orkney) or by simply exceeding the funding formula (Isle of Man, £32m).</div>
     <div data-lens="politician"><span class="lens-tag">Politician lens</span>Three questions travel across every island here: <em>(1) What is the mechanism to return to budget/formula, and by when? (2) How much of the savings target is recurring — and how much delivered recurring last year? (3) What arrives as late/supplementary funding, and would the year have balanced without it?</em> The cards below carry the numbers to plug in.</div>
@@ -1038,14 +1038,13 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
     <div data-lens="politician"><span class="lens-tag">Politician lens</span>Watch the middle of each diagram: every island's pot is bigger than its original budget, and the difference arrives by a different door — Tynwald supplementary vote (IoM), Scottish Government late allocations (Shetland), repayable brokerage (Orkney), reserve draws (Jersey). Each door has a different level of scrutiny attached. That's the question: <em>which door, and who approved it?</em></div>
     <div data-lens="management"><span class="lens-tag">Management lens</span>The width of your "extra money" ribbon is your structural deficit made visible. Shetland's £12.8m late-allocation ribbon is 15% of its entire budget; Audit Scotland calls the reliance unsustainable. The discipline benchmark is the recurring-savings share, not the headline savings number.</div>
   </div>
-  <div class="compare-banner" id="sankeyNote"></div>
 
   <div class="jur-chips" id="jurChips" style="margin-top:4px;"></div>
 
   <div class="chart-box" style="margin-top:10px;padding:16px 18px 10px;">
     <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;">
       <div style="font-size:14px;font-weight:800;" id="skTitle"></div>
-      <div style="font-size:10px;color:var(--muted);">hover any node or ribbon for its source · <span style="color:var(--orange);font-weight:700;">orange edge = the story</span> · DERIVED = calculated, not reported</div>
+      <div style="font-size:10px;color:var(--muted);" title="Ribbon width = proportional split of the pooled pot, not an earmark. Only the node totals are reported figures.">hover any node or ribbon for its source · <span style="color:var(--orange);font-weight:700;">orange edge = the story</span> · DERIVED = calculated, not reported</div>
     </div>
     <div id="sankeyWrap" style="overflow-x:auto;"><svg id="sankeySvg" width="920" height="470" style="display:block;margin:8px auto 0;max-width:100%;"></svg></div>
   </div>
@@ -1083,20 +1082,13 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   <div class="stat-strip" id="capStrip" style="margin-top:10px;"></div>
 
   
-  <div class="chip-legend">
-    <span class="cl-title">How to read the chips — the observatory's honesty, worn openly</span>
-    <span class="chip derived">derived</span><span class="cl-def">calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers</span>
-    <span class="chip toextract">to extract</span><span class="cl-def">published somewhere (e.g. held @ PHS) but not yet in the library — each maps to a roadmap item</span>
-    <span class="chip notpub">not published</span><span class="cl-def">no comparable public figure exists anywhere — the gap is the finding</span>
-    <span class="chip improving">✓ improving</span><span class="cl-def">a favourable, sourced trend — celebrated with the same energy gaps are flagged</span>
-  </div>
-
   <details class="method-details">
     <summary>Methodology &amp; data governance notes</summary>
     <div class="method-body">
       <b>Sources.</b> Every displayed figure carries a source string (document + date) reachable by hover, tap or inline chip. The consolidated data layer (observatory_data.js) is generated by script from extraction CSVs in the observatory library; nothing is hand-typed into pages. Primary sources: government/board annual reports and accounts, Audit Scotland/KPMG annual audits, HIS inspection reports, C&amp;AG/JAO reports, DHSC Assessments of Manx Care, Tynwald Hansard and written answers, ONS/NRS/PHS statistics, CAA punctuality statistics, and FOI responses held in the library.<br/><br/>
       <b>Comparability.</b> Jurisdictions differ in definitions, targets, reporting windows and population bases. Basis lines are mandatory on comparison rows; 3-year rolling averages (small populations) are marked and never silently mixed with single-year rates; derived figures (per-capita, per-1,000, inversions) are labelled <i>derived</i>; DERIVED Sankey nodes state their derivation.<br/><br/>
       <b>Gaps.</b> Missing data is displayed, not hidden: red chips = no comparable public figure exists; blue chips = published somewhere we have not yet extracted (each maps to a roadmap item). Gaps are findings.<br/><br/>
+      <b>Chip legend.</b> <span class="chip derived">derived</span> calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers. <span class="chip toextract">to extract</span> published somewhere but not yet in the library. <span class="chip notpub">not published</span> no comparable public figure exists anywhere — the gap is the finding. <span class="chip improving">✓ improving</span> a favourable, sourced trend.<br/><br/>
       <b>Views.</b> The Public view uses plain language and does not draft formal requests; Politician and Management views expose question/FOI wording and benchmark framing. The view switch changes emphasis, never the underlying numbers.<br/><br/>
       <b>Corrections.</b> Errors: <a href="mailto:observatory@coalfinch.com" style="color:var(--accent-ink)">observatory@coalfinch.com</a>. Build log and change history: see the Roadmap page.
     </div>
@@ -9933,23 +9925,46 @@ obsPaintFocus();
 function axisColors() { return obsAxis(); }
 var charts = [];
 
+/* % label convention, used consistently on every budget/outturn bar chart on this page:
+   bold white text, near the bottom of the "actual/delivered" bar. */
+function pctBarPlugin(pluginId, datasetIndex, pcts) {
+  return { id: pluginId, afterDatasetsDraw: function(chart) {
+    var ctx = chart.ctx, meta = chart.getDatasetMeta(datasetIndex);
+    meta.data.forEach(function(bar, i) {
+      var pct = pcts[i];
+      if (pct == null || !isFinite(pct)) return;
+      var label = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+      ctx.save();
+      ctx.font = '800 13px Inter, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = 3;
+      ctx.fillText(label, bar.x, bar.base - 8);
+      ctx.restore();
+    });
+  } };
+}
+
 function drawCharts() {
   charts.forEach(function(c) { c.destroy(); }); charts = [];
   var c = axisColors();
   var cd = OBS.finance.crownDeps;
+  var cdBudget = [cd.budget.iom/1000, cd.budget.jsy/1000, cd.budget.gsy/1000];
+  var cdActual = [cd.actual.iom/1000, cd.actual.jsy/1000, cd.actual.gsy/1000];
+  var cdPct = cdBudget.map(function(b, i) { return b ? (cdActual[i] - b) / b * 100 : null; });
   charts.push(new Chart(document.getElementById('cdChart').getContext('2d'), {
-    type: 'bar',
+    type: 'bar', plugins: [pctBarPlugin('cdPct', 1, cdPct)],
     data: {
       labels: ['Isle of Man (2024-25)', 'Jersey (2024)', 'Guernsey (2024)'],
       datasets: [
-        { label: 'Approved budget', data: [cd.budget.iom/1000, cd.budget.jsy/1000, cd.budget.gsy/1000], backgroundColor: obsNeutral(), borderRadius: 4 },
-        { label: 'Outturn / actual', data: [cd.actual.iom/1000, cd.actual.jsy/1000, cd.actual.gsy/1000],
+        { label: 'Approved budget', data: cdBudget, backgroundColor: obsNeutral(), borderRadius: 4 },
+        { label: 'Outturn / actual (variance % on bar)', data: cdActual,
           backgroundColor: [JUR.iom.color, JUR.jsy.color, JUR.gsy.color], borderRadius: 4 }
       ]
     },
     options: { responsive: true, aspectRatio: obsAR(2.4),
       plugins: { legend: { labels: { color: c.tick, font: { size: 10 }, boxWidth: 12 } },
-        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': £' + ctx.parsed.y.toFixed(1) + 'm'; },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label.split(' (')[0] + ': £' + ctx.parsed.y.toFixed(1) + 'm'; },
           afterBody: function() { return 'src: ' + cd.actual.src; } } } },
       scales: { x: { ticks: { color: c.tick, font: { size: 10 } }, grid: { display: false } },
         y: { ticks: { color: c.tick, font: { size: 10 }, callback: function(v) { return '£' + v + 'm'; } }, grid: { color: c.grid } } }
@@ -9957,19 +9972,23 @@ function drawCharts() {
   }));
   document.getElementById('cdNote').innerHTML = 'IoM outturn £362.4m vs £347m budget (+4.4%); Jersey net revenue expenditure £335.9m vs £286.2m original allocation (+17.4%); Guernsey £242.0m vs £234.8m (+3.1%). <b>Caveat:</b> Jersey figure includes depreciation — comparability unconfirmed (flagged in source). Sources: ' + esc(cd.actual.src) + ' · ' + esc((cd.actual.notes || '').slice(0, 160)) + '…';
 
+  var savTarget = [4.482, 4.0];
+  var savRecurring = [0.593, 2.88];
+  var savNonRecurring = [3.29, 1.19];
+  var savPct = savTarget.map(function(t, i) { return t ? (savRecurring[i] + savNonRecurring[i]) / t * 100 : null; });
   charts.push(new Chart(document.getElementById('savChart').getContext('2d'), {
-    type: 'bar',
+    type: 'bar', plugins: [pctBarPlugin('savPct', 1, savPct)],
     data: {
       labels: ['NHS Shetland', 'NHS Orkney'],
       datasets: [
-        { label: 'Target', data: [4.482, 4.0], backgroundColor: obsNeutral(), borderRadius: 4 },
-        { label: 'Delivered — recurring', data: [0.593, 2.88], backgroundColor: cssv('--green') || '#34d399', borderRadius: 4, stack: 'd' },
-        { label: 'Delivered — non-recurring', data: [3.29, 1.19], backgroundColor: (cssv('--amber') || '#fbbf24') + 'b3', borderRadius: 4, stack: 'd' }
+        { label: 'Target', data: savTarget, backgroundColor: obsNeutral(), borderRadius: 4 },
+        { label: 'Delivered — recurring (% of target on bar)', data: savRecurring, backgroundColor: cssv('--green') || '#34d399', borderRadius: 4, stack: 'd' },
+        { label: 'Delivered — non-recurring', data: savNonRecurring, backgroundColor: (cssv('--amber') || '#fbbf24') + 'b3', borderRadius: 4, stack: 'd' }
       ]
     },
     options: { responsive: true, aspectRatio: obsAR(2.4),
       plugins: { legend: { labels: { color: c.tick, font: { size: 10 }, boxWidth: 12 } },
-        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': £' + ctx.parsed.y + 'm'; } } } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label.split(' (')[0] + ': £' + ctx.parsed.y + 'm'; } } } },
       scales: { x: { stacked: false, ticks: { color: c.tick, font: { size: 10 } }, grid: { display: false } },
         y: { stacked: false, ticks: { color: c.tick, font: { size: 10 }, callback: function(v) { return '£' + v + 'm'; } }, grid: { color: c.grid } } }
     }
@@ -9977,19 +9996,12 @@ function drawCharts() {
 
   var mf = OBS.mcFinance5yr;
   if (mf && document.getElementById('iomChart')) {
-    var overrunPlugin = { id: 'overrun', afterDatasetsDraw: function(chart) {
-      var x2 = chart.ctx, meta = chart.getDatasetMeta(1);
-      meta.data.forEach(function(bar, i) {
-        var pct = -mf.variance[i] / mf.budget[i] * 100;
-        x2.save(); x2.font = '700 10px Inter, sans-serif'; x2.fillStyle = cssv('--red') || '#ef4444'; x2.textAlign = 'center';
-        x2.fillText('+' + pct.toFixed(1) + '%', bar.x, bar.y - 4); x2.restore();
-      });
-    } };
+    var iomPct = mf.budget.map(function(b, i) { return -mf.variance[i] / b * 100; });
     charts.push(new Chart(document.getElementById('iomChart').getContext('2d'), {
-      type: 'bar', plugins: [overrunPlugin],
+      type: 'bar', plugins: [pctBarPlugin('overrun', 1, iomPct)],
       data: { labels: mf.years, datasets: [
         { label: 'Budget', data: mf.budget.map(function(v) { return v / 1000; }), backgroundColor: obsNeutral(), borderRadius: 4 },
-        { label: 'Expenditure (overrun % above bar)', data: mf.expenditure.map(function(v) { return v / 1000; }), backgroundColor: JUR.iom.color, borderRadius: 4 }
+        { label: 'Expenditure (overrun % on bar)', data: mf.expenditure.map(function(v) { return v / 1000; }), backgroundColor: JUR.iom.color, borderRadius: 4 }
       ] },
       options: { responsive: true, aspectRatio: obsAR(2.4),
         plugins: { legend: { labels: { color: c.tick, font: { size: 10 }, boxWidth: 12 } },
@@ -10031,20 +10043,23 @@ function renderPerCapita() {
     var j = JUR[r.id], p = j.population;
     var out = r.out != null ? Math.round(r.out * 1000 / p.v) : null;
     var bud = r.bud != null ? Math.round(r.bud * 1000 / p.v) : null;
-    return '<div class="mini-kpi" style="--kc:' + j.color + (out == null ? ';border-style:dashed;opacity:0.8' : '') + '">' +
+    var totalM = r.out != null ? (r.out / 1000) : null;
+    var tip = (r.out != null
+        ? 'Total expenditure £' + totalM.toFixed(1) + 'm · spend per head £' + out.toLocaleString() + ' (DERIVED) · budget £' + bud.toLocaleString() + '/head · pop ' + fmtN(p.v) + ' (' + p.src + ') · basis: ' + r.basis + ' · '
+        : 'basis: ' + r.basis + ' · ') + r.src;
+    return '<div class="mini-kpi" style="--kc:' + j.color + (out == null ? ';border-style:dashed;opacity:0.8' : '') + '" title="' + esc(tip) + '">' +
       '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;margin-bottom:4px;">' + j.short + '</div>' +
       (out != null
-        ? '<div class="mk-v" style="font-size:20px;">£' + out.toLocaleString() + '<span style="font-size:10px;color:var(--muted);font-weight:600;"> /head</span></div>' +
-          '<div class="mk-l">spend per head (DERIVED) · budget £' + bud.toLocaleString() + '/head · pop ' + fmtN(p.v) + '</div>'
+        ? '<div class="mk-v" style="font-size:19px;line-height:1.25;">£' + totalM.toFixed(1) + 'm<span style="font-size:10px;color:var(--muted);font-weight:600;"> total</span></div>' +
+          '<div class="mk-v" style="font-size:15px;line-height:1.25;margin-top:1px;">£' + out.toLocaleString() + '<span style="font-size:10px;color:var(--muted);font-weight:600;"> /head (derived)</span></div>'
         : '<div class="mk-v" style="font-size:12px;color:var(--muted);">—</div><div class="mk-l">' + esc(r.basis) + '</div>') +
-      '<div class="mk-s">' + esc((out != null ? r.basis + ' · ' : '') + r.src + ' · pop: ' + p.src) + '</div></div>';
+      '</div>';
   }).join('');
 }
 
 /* ===== Money flows (merged from 10) ===== */
 
 /* ---------- 10 Money flows: custom SVG sankey ---------- */
-document.getElementById('sankeyNote').innerHTML = '<b>How to read the ribbons:</b> ' + esc(OBS.sankey.note);
 
 var SK_ORDER = ['iom','shl','ork','jsy','gsy'];
 var skCurrent = null;
