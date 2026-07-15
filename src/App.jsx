@@ -9,18 +9,18 @@ import ABOUT from "./about.json";
 
 // ── Colour themes ─────────────────────────────────────────────────────────────
 const THEMES = {
-  dark: {
-    bg:"#0f172a", surface:"#1e293b", surface2:"#162032", border:"#1e293b", border2:"#334155",
-    text:"#e2e8f0", muted:"#94a3b8", muted2:"#cbd5e1",
+  dark: { /* v0.8: matches the observatory night ramp (teal-tinted, no true blacks) */
+    bg:"#0c1620", surface:"#12222a", surface2:"#0e1b23", border:"#18262f", border2:"#2b4049",
+    text:"#e2ecea", muted:"#7e9a94", muted2:"#a9c1bb",
     blue:"#60a5fa", blueDim:"#1d4ed8", green:"#34d399", amber:"#fbbf24",
     purple:"#a78bfa", red:"#f87171", gold:"#C9A24A",
     iom:"#3b82f6", gsy:"#10b981", jsy:"#f59e0b", uk:"#94a3b8",
   },
   health: {
     bg:"#f0f9f8", surface:"#ffffff", surface2:"#e6f4f1", border:"#cce8e4", border2:"#99d5cc",
-    text:"#0f172a", muted:"#3d6b65", muted2:"#1e4a44",
-    blue:"#2f7d6c", blueDim:"#e6f4f1", green:"#059669", amber:"#d97706",
-    purple:"#7c3aed", red:"#dc2626", gold:"#92600a",
+    text:"#0f172a", muted:"#33625b", muted2:"#1e4a44",
+    blue:"#2f7d6c", blueDim:"#e6f4f1", green:"#047857", amber:"#b45309",
+    purple:"#6d28d9", red:"#b91c1c", gold:"#92600a",
     iom:"#1d4ed8", gsy:"#059669", jsy:"#b45309", uk:"#475569",
   },
   light: {
@@ -68,13 +68,13 @@ const TAB_GROUPS = [
       { id: "healthHome",       label: "Overview"         },
       { id: "div-islands",      label: "Six-Island Comparisons", divider: true },
       { id: "islandsHub",       label: "Islands Observatory" },
-      { id: "islandsClinical",  label: "Clinical & Waiting"  },
-      { id: "islandsPrimary",   label: "Primary Care & Dental" },
       { id: "islandsPH",        label: "Public Health"       },
-      { id: "islandsMoney",     label: "Money Flows"         },
-      { id: "islandsReviews",   label: "Reviews & Actions"   },
-      { id: "islandsPremium",   label: "The Island Premium"  },
-      { id: "islandsTiers",     label: "Care Tiers"          },
+      { id: "islandsGov",       label: "Governance"          },
+      { id: "islandsFin",       label: "Financial"           },
+      { id: "islandsPrimary",   label: "Primary Care"        },
+      { id: "islandsSecondary", label: "Secondary Care"      },
+      { id: "islandsTertiary",  label: "Tertiary & Remoteness" },
+      { id: "islandsRoadmap",   label: "Changelog & Roadmap" },
       { id: "div-iom",          label: "Isle of Man Deep Dives", divider: true },
       { id: "manxBenchmark",    label: "Healthcare Explorer" },
       { id: "mcBudgetFlows",    label: "Budget — Money In, Money Out" },
@@ -1054,11 +1054,10 @@ function HealthHomeTab({ C, onNavigate }) {
       {card(
         "Islands Observatory — six island health systems, compared",
         `Isle of Man, Jersey, Guernsey, NHS Orkney, NHS Shetland and NHS Western Isles,
-        with England, Wales and Scotland as baselines. Avoidable mortality trends,
-        clinical & waiting-time KPIs (one card per jurisdiction, per metric),
-        primary care & dentistry costs, review-recommendation tracking, and Sankey
-        money-flow diagrams. Three views — public, politician, management — switchable
-        on every page. Every figure carries its source; every gap is shown, not hidden.`,
+        with England, Wales and Scotland as baselines. Public health, governance,
+        financial flows, and primary / secondary / tertiary care — one card per
+        jurisdiction per metric, IoM first, three switchable views, every figure sourced,
+        every gap shown. Ends with a changelog and an improvement roadmap.`,
         "#5ea99a",
         () => onNavigate("islandsHub")
       )}
@@ -1522,8 +1521,8 @@ function AppContent() {
     "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","econmix","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget",
-    "mcReviews","mcWhenWho","yourHealth","nobles-flow","nobles-v15",
-    "islandsHub","islandsClinical","islandsPrimary","islandsPH","islandsMoney","islandsReviews","islandsPremium","islandsTiers","mcBudgetFlows",
+    "mcWhenWho","yourHealth","nobles-flow","nobles-v15",
+    "islandsHub","islandsPH","islandsGov","islandsFin","islandsPrimary","islandsSecondary","islandsTertiary","islandsRoadmap","mcBudgetFlows",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
@@ -1652,31 +1651,28 @@ function AppContent() {
     islandsPH: (
       <AutoIframe src="/islands/02_public-health.html" title="Islands — Public Health" theme={themeName} />
     ),
-    islandsReviews: (
-      <AutoIframe src="/islands/03_reviews-actions.html" title="Islands — Reviews & Actions" theme={themeName} />
+    islandsGov: (
+      <AutoIframe src="/islands/03_governance.html" title="Islands — Governance" theme={themeName} />
     ),
-    islandsPremium: (
-      <AutoIframe src="/islands/05_island-premium.html" title="Islands — The Island Premium" theme={themeName} />
-    ),
-    islandsClinical: (
-      <AutoIframe src="/islands/07_clinical-operational.html" title="Islands — Clinical & Operational" theme={themeName} />
+    islandsFin: (
+      <AutoIframe src="/islands/04_financial.html" title="Islands — Financial" theme={themeName} />
     ),
     islandsPrimary: (
-      <AutoIframe src="/islands/08_primary-care.html" title="Islands — Primary Care & Dentistry" theme={themeName} />
+      <AutoIframe src="/islands/05_primary-care.html" title="Islands — Primary Care" theme={themeName} />
     ),
-    islandsTiers: (
-      <AutoIframe src="/islands/09_care-pathway.html" title="Islands — Care Tiers" theme={themeName} />
+    islandsSecondary: (
+      <AutoIframe src="/islands/06_secondary-care.html" title="Islands — Secondary Care" theme={themeName} />
     ),
-    islandsMoney: (
-      <AutoIframe src="/islands/10_money-flows.html" title="Islands — Money Flows" theme={themeName} />
+    islandsTertiary: (
+      <AutoIframe src="/islands/07_tertiary-remoteness.html" title="Islands — Tertiary & Remoteness" theme={themeName} />
+    ),
+    islandsRoadmap: (
+      <AutoIframe src="/islands/08_roadmap.html" title="Islands — Changelog & Roadmap" theme={themeName} />
     ),
     mcBudgetFlows: (
       <AutoIframe src="/manxcare-budget-sankey.html" title="Manx Care Budget — Money In, Money Out" theme={themeName} />
     ),
 
-    mcReviews: (
-      <AutoIframe src="/manxcare-reviews-tracker.html" title="Manx Care Reviews Tracker" theme={themeName} />
-    ),
     mcCancer: (
       <AutoIframe src="/cancer-care.html" title="Cancer Care" theme={themeName} />
     ),
@@ -1856,9 +1852,4 @@ function AppContent() {
 }
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
-}
+ 

@@ -11,20 +11,21 @@
 <style>
 /* observatory.css — inlined for self-contained operation */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
-  --border:#1e293b;--border2:#334155;
-  --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+:root{ /* observatory v0.8 night ramp — synced with common.py tokens (Session 9) */
+  --teal-50:#12211e;--teal-100:#1b322d;--teal-200:#274942;--teal-300:#376c60;--teal-400:#459281;--teal-500:#56b39f;--teal-600:#6ec4b1;--teal-700:#91d4c6;--teal-800:#bfe3dc;
+  --bg:#0c1620;--surface:#12222a;--surface2:#0e1b23;
+  --border:#18262f;--border2:#2b4049;
+  --text:#e2ecea;--muted:#7e9a94;--muted2:#a9c1bb;
   --blue:#60a5fa;--blue-dim:#1d4ed8;
   --green:#34d399;--amber:#fbbf24;--red:#f87171;
   --purple:#a78bfa;--orange:#fb923c;
-  --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
+  --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#7e9a94;
   --shs:#f472b6;--ork:#fb923c;--wis:#22d3ee;
   /* extra aliases */
   --eng:#a78bfa;
   /* Health & Care sub-brand */
   --hc-serif:'Fraunces',Georgia,serif;
-  --hc-accent:#5ea99a;--hc-accent-dim:#16302b;--hc-accent-soft:rgba(94,169,154,.12);--wal:#94a3b8;--gue:var(--gsy);--jer:var(--jsy);
+  --hc-accent:#4fb39c;--hc-accent-dim:#1b322d;--hc-accent-soft:rgba(79,179,156,.12);--wal:#7e9a94;--gue:var(--gsy);--jer:var(--jsy);
 }
 html{scroll-behavior:smooth}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -170,17 +171,22 @@ p{font-size:13px;color:var(--muted2);line-height:1.7;max-width:640px}
 body.light {
   --bg:#f0f9f8; --surface:#ffffff; --surface2:#e6f4f1;
   --border:#cce8e4; --border2:#99d5cc;
-  --text:#0f172a; --muted:#3d6b65; --muted2:#1e4a44;
+  --text:#0f172a; --muted:#33625b; --muted2:#1e4a44;
   --blue:#2f7d6c; --blue-dim:rgba(47,125,108,.08);
   --iom:#1d4ed8; --gsy:#059669; --jsy:#b45309; --uk:#475569;
   --shs:#db2777; --ork:#ea580c; --wis:#0891b2;
   --eng:#7c3aed; --wal:#64748b; --gue:#059669; --jer:#b45309;
-  --green:#059669; --amber:#d97706; --red:#dc2626;
+  --green:#047857; --amber:#b45309; --red:#b91c1c;
   --hc-accent:#2f7d6c;--hc-accent-dim:#d9efe9;--hc-accent-soft:rgba(47,125,108,.08);
 }
+
+/* v0.8 micro-polish (Session 9): print + reduced motion */
+@media print{ body{background:#fff;color:#0f172a} .tabs,.controls,button{display:none !important} .panel,.card{break-inside:avoid;border-color:#d1d5db} }
+@media (prefers-reduced-motion: reduce){ *{transition:none !important;animation:none !important} }
 </style>
 </head>
 <body class="light">
+<script>try{var t=localStorage.getItem('observatory-theme');if(t&&t!=='light'&&t!=='health')document.body.classList.remove('light');}catch(e){}</script>
 <div class="shell">
 
 <h1>Manx Care Healthcare Explorer</h1>
@@ -617,10 +623,10 @@ body.light {
       <h3>IoM Manx Care — Outpatient Waiting List by Specialty (May 2026 snapshot, patients waiting)</h3>
       <div class="flag-note" style="margin-bottom:8px"><strong>⚠ Snapshot data, May 2026:</strong> From Manx Care Waiting Times Report (published May 2026). Excluded from this report: Endocrinology, Diabetic Medicine, Clinical Oncology (monitored on separate system). Bar colour = median wait band. RTT Rules not yet applicable.</div>
       <div style="font-size:10px;color:var(--muted2);margin-bottom:10px;display:flex;gap:16px;flex-wrap:wrap">
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#34d399;display:inline-block"></span>&lt;13 weeks</span>
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#fbbf24;display:inline-block"></span>13–26 weeks</span>
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#fb923c;display:inline-block"></span>26–52 weeks</span>
-        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:#f87171;display:inline-block"></span>&gt;52 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>&lt;13 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--amber);display:inline-block"></span>13–26 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--orange);display:inline-block"></span>26–52 weeks</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block"></span>&gt;52 weeks</span>
       </div>
       <div id="specialtyBars" style="padding:4px 0"></div>
     </div>
@@ -2264,7 +2270,7 @@ function buildSpecialtyBars() {
   if (spBuilt) return; spBuilt = true;
   const container = document.getElementById('specialtyBars');
   const maxN = SPECIALTIES[0].n;
-  const wkColor = wk => wk < 13 ? '#34d399' : wk < 26 ? '#fbbf24' : wk < 52 ? '#fb923c' : '#f87171';
+  const wkColor = wk => wk < 13 ? (cv('--green')||'#34d399') : wk < 26 ? (cv('--amber')||'#fbbf24') : wk < 52 ? (cv('--orange')||'#fb923c') : (cv('--red')||'#f87171');
   SPECIALTIES.forEach(s => {
     const pct = Math.round((s.n / maxN) * 100);
     const col = wkColor(s.wk);

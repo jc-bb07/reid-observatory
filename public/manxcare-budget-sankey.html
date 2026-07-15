@@ -41,17 +41,22 @@
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a0f1e;--surface:#0d1526;--surface2:#101b32;--border:#1e2d4d;--border2:#25365a;--gold:#C9A24A;--text:#e2e8f0;--muted:#94a3b8;--muted2:#64748b;
-  --gov:#3b82f6;--own:#10b981;--staff:#C9A24A;--other:#a855f7;--offisland:#fb923c;--ptransport:#38bdf8;--supp:#fb7185;--flag:#f87171;--good:#34d399;--iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
-  --blue:#60a5fa;--blue-dim:rgba(59,130,246,.15);}
+:root{ /* observatory v0.8 night ramp — synced with common.py tokens (Session 9) */
+  --teal-50:#12211e;--teal-100:#1b322d;--teal-200:#274942;--teal-300:#376c60;--teal-400:#459281;--teal-500:#56b39f;--teal-600:#6ec4b1;--teal-700:#91d4c6;--teal-800:#bfe3dc;
+  --bg:#0c1620;--surface:#12222a;--surface2:#0e1b23;--border:#18262f;--border2:#2b4049;--text:#e2ecea;--muted:#7e9a94;--muted2:#a9c1bb;
+  --gold:#4fb39c;--on-accent:#0c1620; /* page accent = observatory teal (was gold — freed the hue for the staff-costs category) */
+  --gov:#3b82f6;--own:#10b981;--staff:#C9A24A;--other:#a78bfa;--offisland:#fb923c;--ptransport:#38bdf8;--supp:#fb7185;--flag:#f87171;--good:#34d399;--iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#7e9a94;
+  --blue:#60a5fa;--blue-dim:rgba(79,179,156,.15);}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
 body.light{
-  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;--border:#e2e8f0;--border2:#cbd5e1;
-  --text:#0f172a;--muted:#64748b;--muted2:#475569;
-  --gov:#2563eb;--own:#059669;--staff:#b45309;--other:#7c3aed;--offisland:#c2410c;--ptransport:#0891b2;--supp:#e11d48;--flag:#dc2626;--good:#059669;--iom:#2563eb;--gsy:#059669;--jsy:#b45309;--uk:#64748b;
-  --blue:#2563eb;--blue-dim:rgba(37,99,235,.08);
+  --teal-50:#f2faf8;--teal-100:#dbf0eb;--teal-200:#b9dfd7;--teal-300:#8ac7b9;--teal-400:#54ab98;--teal-500:#409683;--teal-600:#2f7d6c;--teal-700:#256557;--teal-800:#19463c;
+  --bg:#f0f9f8;--surface:#ffffff;--surface2:#e6f4f1;--border:#cce8e4;--border2:#99d5cc;
+  --text:#0f172a;--muted:#33625b;--muted2:#1e4a44;
+  --gold:#2f7d6c;--on-accent:#ffffff;
+  --gov:#2563eb;--own:#059669;--staff:#b45309;--other:#6d28d9;--offisland:#c2410c;--ptransport:#0891b2;--supp:#e11d48;--flag:#b91c1c;--good:#047857;--iom:#1d4ed8;--gsy:#059669;--jsy:#b45309;--uk:#33625b;
+  --blue:#2563eb;--blue-dim:rgba(47,125,108,.10);
 }
-html:has(body.light){background:#f8fafc}
+html:has(body.light){background:#f0f9f8}
 
 /* ── Header ── */
 .hdr{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
@@ -64,7 +69,7 @@ html:has(body.light){background:#f8fafc}
 
 /* ── Controls row ── */
 .controls{display:flex;align-items:center;gap:10px;padding:5px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:nowrap}
-.play-btn{background:var(--gold);color:#0a0f1e;border:none;border-radius:5px;padding:0 12px;height:28px;font-size:11px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;letter-spacing:.03em;white-space:nowrap}
+.play-btn{background:var(--gold);color:var(--on-accent);border:none;border-radius:5px;padding:0 12px;height:28px;font-size:11px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;letter-spacing:.03em;white-space:nowrap}
 .play-btn:hover{opacity:.85}
 .yr-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px}
 input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px}
@@ -181,9 +186,21 @@ path.link:hover{filter:brightness(1.3) saturate(1.15)}
   .gov-inner{columns:1}
 }
 body{box-sizing:border-box}
+
+/* v0.8 micro-polish (Session 9): print + reduced motion */
+@media print{
+  html,body{overflow:visible;height:auto;background:#fff}
+  body{color:#0f172a}
+  .controls,.play-btn,#ts-popup{display:none !important}
+  .hdr,.stats,.gov-notes{border-color:#d1d5db}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important}
+}
 </style>
 </head>
 <body>
+<script>try{var t=localStorage.getItem('observatory-theme');if(t==='light'||t==='health')document.body.classList.add('light');}catch(e){}</script>
 
 <div class="hdr">
   <div class="hdr-left">
@@ -928,12 +945,12 @@ function showTsPopup(nodeId, svgRect){
       animation:false, responsive:false,
       plugins:{legend:{display:false}, tooltip:{
         callbacks:{label:ctx=>fmt(ctx.raw)},
-        backgroundColor:isLight?'#ffffff':'#1e293b', titleColor:isLight?'#64748b':'#e2e8f0', bodyColor:isLight?'#0f172a':'#94a3b8',
-        borderColor:'#1e2d4d', borderWidth:1
+        backgroundColor:isLight?'#ffffff':'#12222a', titleColor:isLight?'#33625b':'#e2ecea', bodyColor:isLight?'#0f172a':'#7e9a94',
+        borderColor:isLight?'#cce8e4':'#2b4049', borderWidth:1
       }},
       scales:{
-        x:{ticks:{color:isLight?'#475569':'#cbd5e1', font:{size:8}, maxRotation:0}, grid:{color:isLight?'#e2e8f0':'#1e293b'}},
-        y:{ticks:{color:isLight?'#475569':'#cbd5e1', font:{size:8}, callback:v=>'£'+v+'m'}, grid:{color:isLight?'#e2e8f0':'#1e293b'}}
+        x:{ticks:{color:isLight?'#1e4a44':'#a9c1bb', font:{size:8}, maxRotation:0}, grid:{color:isLight?'rgba(15,23,42,0.07)':'rgba(226,236,234,0.06)'}},
+        y:{ticks:{color:isLight?'#1e4a44':'#a9c1bb', font:{size:8}, callback:v=>'£'+v+'m'}, grid:{color:isLight?'rgba(15,23,42,0.07)':'rgba(226,236,234,0.06)'}}
       }
     }
   });
