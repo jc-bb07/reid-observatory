@@ -662,7 +662,7 @@ body.light .actions-toggle-bar:hover { background: color-mix(in srgb, var(--acce
   padding: 4px 9px; border-radius: 6px; transition: all .15s; white-space: nowrap;
 }
 .obs-nav a:hover { color: var(--accent-ink); background: var(--accent-soft); }
-.obs-nav a.here { color: var(--accent-ink); font-weight: 700; }
+.obs-nav a.here { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .theme-btn {
   background: none; border: 1px solid var(--border2); border-radius: 6px;
@@ -969,7 +969,6 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   .chip-legend { grid-template-columns: auto 1fr; }
   .card-grid-6 { display: flex !important; grid-template-columns: none !important; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
   .card-grid-6 > * { flex: 0 0 46%; scroll-snap-align: start; }
-  .mobile-hide { display: none !important; }
 }
 @media (max-width: 480px) {
   .geo-grid { grid-template-columns: 1fr; }
@@ -1008,6 +1007,80 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   a { color: #111827 !important; text-decoration: none; }
   .page-footer { margin-top: 20px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOBILE SIMPLIFIED MODE — public view only, text cut drastically,
+   graphics and numbers brought forward. Scoped to ≤780px; desktop and
+   tablet layouts above that width are completely untouched.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 780px) {
+
+  /* Public view only on mobile — lock the lens, hide the switch */
+  body[data-lens] [data-lens] { display: none !important; }
+  body[data-lens] [data-lens~="public"] { display: block !important; }
+  .lens-switch { display: none !important; }
+  .opp-actions, .wn-out { display: none !important; }
+
+  /* Trim the header chrome */
+  .brand-sub { display: none; }
+  .topbar-inner { gap: 8px; }
+  .obs-nav {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+  }
+
+  /* Onboarding whisper: one short line, not a three-step lecture */
+  .whisper > b { display: none; }
+  .whisper .w-step:nth-of-type(1) { display: none; }
+  .whisper::before {
+    content: "Tap a tile to explore an island · tap any number for its source";
+    font-size: 11px; color: var(--muted2); flex: 1 1 100%;
+  }
+
+  /* Lens framing text: the point is the number, not the paragraph */
+  .lens-note {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    overflow: hidden; font-size: 11px; padding: 10px 12px;
+  }
+
+  /* Section labels: headline only — no long subtitle trailing off the edge */
+  .section-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
+
+  /* Comparability caveat: methodology chrome, not a mobile-first read */
+  .compare-banner { display: none; }
+
+  /* Chip legend: keep the coloured chips as a visual key, drop the sentences */
+  .chip-legend { grid-template-columns: repeat(2, auto); gap: 6px 12px; padding: 9px 11px; }
+  .chip-legend .cl-def { display: none; }
+
+  /* Dashboard links become tappable icon tiles, not description cards */
+  .dash-links { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .dash-link { padding: 16px 10px; text-align: center; }
+  .dash-link .dl-num { display: block; font-size: 17px; margin-bottom: 4px; }
+  .dash-link .dl-name { margin: 0; font-size: 12px; }
+  .dash-link .dl-desc { display: none; }
+
+  /* Search/refine toolbar (Governance reviews): politician-grade tool, off by default on mobile */
+  .filter-bar:has(#searchInput) { display: none !important; }
+
+  /* View-toggle button rows: pick the richer default and drop the switcher */
+  .card-controls { display: none !important; }
+
+  /* Footer: keep the essentials, drop the long source-list trailer */
+  .page-footer { font-size: 9px; }
+  .page-footer span:last-child { display: none; }
+
+  /* Methodology accordion stays collapsed and out of the way */
+  .method-details summary { padding: 10px 12px; font-size: 10px; }
+}
+
+@media (max-width: 480px) {
+  .lens-note { -webkit-line-clamp: 1; }
+  .dash-links { grid-template-columns: 1fr; }
+  .dash-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; }
+  .dash-link .dl-num { margin-bottom: 0; }
+}
+
 </style>
 </head>
 <body>
@@ -1086,6 +1159,14 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   <div class="opp-stack" id="pcAsks"></div>
 
   
+  <div class="chip-legend">
+    <span class="cl-title">How to read the chips — the observatory's honesty, worn openly</span>
+    <span class="chip derived">derived</span><span class="cl-def">calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers</span>
+    <span class="chip toextract">to extract</span><span class="cl-def">published somewhere (e.g. held @ PHS) but not yet in the library — each maps to a roadmap item</span>
+    <span class="chip notpub">not published</span><span class="cl-def">no comparable public figure exists anywhere — the gap is the finding</span>
+    <span class="chip improving">✓ improving</span><span class="cl-def">a favourable, sourced trend — celebrated with the same energy gaps are flagged</span>
+  </div>
+
   <details class="method-details">
     <summary>Methodology &amp; data governance notes</summary>
     <div class="method-body">
@@ -9557,9 +9638,9 @@ Object.assign(OBS, {
 /* ==== EXTENSION 5: MC Gov Review stub -> tracked (gen_data5.py) ==== */
 (function() {
   var r = ALL_REVIEWS.find(function(x) { return x.id === 'mcgov'; });
-  if (r) Object.assign(r, {"shortName": "MIAA Governance (Manx Care)", "date": "Jul 2025", "dateSort": 2025.55, "stub": false, "published": true, "what": "Commission Jul 2025 on Manx Care's own Board: 10 strategic actions covering mandate clarity, DHSC strategy co-production and financial reporting. ~51 tactical actions in Appendix O; per-action statuses not published.", "author": "MIAA (for the Manx Care Board)", "commissioner": "Manx Care", "color": "#a78bfa", "url": "https://www.manxradio.com/news/isle-of-man-news/governance-review-calls-for-greater-accountability-in-manx-care-operations/", "urlLabel": "Media summary (Manx Radio, 14 Aug 2025)", "url2": "https://www.gov.im/about-the-government/statutory-boards/manx-care/board-meetings-2025/", "url2Label": "Manx Care Board papers 2025 (gov.im)"});
+  if (r) Object.assign(r, {"shortName": "MIAA Governance (Manx Care)", "date": "Jul 2025", "dateSort": 2025.55, "stub": false, "published": true, "what": "MIAA Governance Review commissioned by Manx Care about its own Board: 10 strategic actions - mandate clarity (\"is it commissioning intentions or aspiration?\"), 3/5/10-year strategy co-production with DHSC, deficit-driver financial reporting, SoRD, BAF reset. ~51 tactical actions sit in Appendix O; an implementation tracker exists (Appendix P) but per-action statuses are not published. One of TWO separate 2025 MIAA governance reviews - the DHSC-commissioned system review of the arm’s-length arrangement is tracked separately (GD 105/2025, Nov 2025).", "author": "MIAA (for the Manx Care Board)", "commissioner": "Manx Care", "color": "#a78bfa", "url": "https://www.manxradio.com/news/isle-of-man-news/governance-review-calls-for-greater-accountability-in-manx-care-operations/", "urlLabel": "Media summary (Manx Radio, 14 Aug 2025)", "url2": "https://www.gov.im/about-the-government/statutory-boards/manx-care/board-meetings-2025/", "url2Label": "Manx Care Board papers 2025 (gov.im)"});
   var m = ALL_REVIEWS.find(function(x) { return x.id === 'miaa'; });
-  if (m) Object.assign(m, {"shortName": "MIAA Governance (DHSC)", "what": "Commission Jun 2025 on DHSC/Manx Care arrangement: arm's-length model, blurred accountability and misaligned funding. \"Strengthened Partnership\" approach selected by Tynwald, Feb 2026."});
+  if (m) Object.assign(m, {"shortName": "MIAA Governance (DHSC)", "what": "MIAA Governance Review commissioned by DHSC (Jun 2025) on the overall Manx Care/DHSC arrangement: arm’s-length model \"has not operated as intended\" - blurred accountability, misaligned funding. Four strategic options; Option 3 (Strengthened Partnership) chosen by Tynwald, Feb 2026. One of TWO separate 2025 MIAA governance reviews - the Board-level review commissioned by Manx Care itself is tracked separately (draft final Jul 2025)."});
   var acts = [{"ref": "MCG-0", "reviewId": "mcgov", "jur": "iom", "text": "Continue to work with stakeholders including the DHSC and wider to support implementation of the key actions arising from this review including the future strategic direction of Manx Care", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action (report ref N/A). Appendix P contains a Strategic & Tactical Action Plan Implementation Tracker - statuses not published per action in the draft final report.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-1", "reviewId": "mcgov", "jur": "iom", "text": "Continued discussions and building of effective relationships with the DHSC including a clearly defined engagement process for Manx Care regarding the mandate planning process subsequent development (including costs of delivery) and approval", "status": "identified", "owner": "Manx Care / DHSC", "due": null, "notes": "Strategic action ref 1. Review found unclear what the mandate represents; disconnect between mandate and financial settlement.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-2", "reviewId": "mcgov", "jur": "iom", "text": "Identification of clear measurables for mandate delivery (plus strategic priorities) together with timescales ensuring they are realistic and achievable", "status": "identified", "owner": "Manx Care", "due": null, "notes": "Strategic action ref 2.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-5", "reviewId": "mcgov", "jur": "iom", "text": "Development of 3 / 5 / 10 year strategic plans co-produced with the DHSC supported by enabling strategies (financial digital workforce) with public involvement considered", "status": "identified", "owner": "Manx Care / DHSC", "due": null, "notes": "Strategic action ref 5. Annual mandate focus has crowded out longer-term vision.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-6", "reviewId": "mcgov", "jur": "iom", "text": "Enhancement of financial reporting to the Manx Care Board: baseline position expenditure to date assumptions made plus an overarching narrative covering variances actions needed and forecast position", "status": "identified", "owner": "Manx Care Finance", "due": null, "notes": "Strategic action ref 6 - aid understanding of the drivers of the deficit.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-25", "reviewId": "mcgov", "jur": "iom", "text": "Development of a Manx Care Scheme of Reservation & Delegation (SoRD) aligned to financial regulations; consideration of a wider government SoRD to aid clarity and agility of decision making", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 25.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-29", "reviewId": "mcgov", "jur": "iom", "text": "Constructive discussions on the status quo of shared services provision in terms of holding to account and escalation; clarification of Executive Director remit regarding reporting to committees", "status": "identified", "owner": "Manx Care / Cabinet Office", "due": null, "notes": "Strategic action ref 29. Report separately notes HR Shared Service failures escalated to committee.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-33", "reviewId": "mcgov", "jur": "iom", "text": "Development of a succession plan regularly revised to address changing requirements", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 33 (Unitary Board).", "source": "miaa-governance-review-2025.pdf p10"}, {"ref": "MCG-41", "reviewId": "mcgov", "jur": "iom", "text": "Focus and ownership by the Board of the Board Assurance Framework using it as a tool to direct Board discussion and assurance", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 41 (Operating Effectiveness).", "source": "miaa-governance-review-2025.pdf p10"}, {"ref": "MCG-49", "reviewId": "mcgov", "jur": "iom", "text": "Reset of the current BAF via workshop: refresh understanding review/agree 25-26 strategic objectives refresh risk definition identify and score strategic risks controls assurances and action plans", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 49.", "source": "miaa-governance-review-2025.pdf p10"}];
   acts.forEach(function(a) { ALL_ACTIONS.push(a); });
 })();
@@ -9767,6 +9848,13 @@ function opportunitiesFor(jid) {
           Array.from(new Set(unknown.map(function(a) { var r = ALL_REVIEWS.find(function(x) { return x.id === a.reviewId; }); return r ? (r.shortName + ' (' + r.date + ')') : a.reviewId; }))).map(function(s) { return '• ' + s; }).join('\n') +
           '\n\nIf a recommendations tracking system exists (e.g. as recommended by audit), please provide its latest extract.' } ] });
   }
+  if (rejected.length) {
+    opps.push({ kind:'challenge', color:'var(--red)',
+      title: rejected.length + ' recommendation' + (rejected.length > 1 ? 's' : '') + ' rejected',
+      detail: rejected.map(function(a) { return a.ref + ': ' + (a.text || '').slice(0, 110); }).join(' · '),
+      whatNext: [ { type:'pq', label:'Challenge wording',
+        text:'To ask the member responsible for health: on what grounds was the recommendation "' + (rejected[0].text || '') + '" rejected; what alternative mitigations are in place; and will the decision be reviewed?' } ] });
+  }
   (OBS.gaps.reviewIngredients || []).forEach(function(g) {
     var st = g.status[jid];
     if (st && st.indexOf('published') !== 0 && st !== 'published') {
@@ -9938,11 +10026,12 @@ function renderFeeLadder() {
   var max = 65;
   document.getElementById('feeLadder').innerHTML = fees.map(function(f) {
     var j = JUR[f.j];
-    return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--border);cursor:help;" title="' + esc(f.note) + ' ' + esc(f.src) + '">' +
+    return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--border);" title="' + esc(f.note) + '">' +
       '<div style="min-width:210px;font-size:11px;font-weight:700;color:' + j.color + '">' + esc(f.label) + '</div>' +
       '<div style="flex:1;height:14px;background:var(--surface2);border-radius:3px;overflow:hidden;">' +
       '<div style="height:100%;width:' + Math.max(f.fee / max * 100, 1.5) + '%;background:' + (f.fee === 0 ? 'var(--green)' : f.fee < 30 ? 'var(--amber)' : 'var(--red)') + ';"></div></div>' +
-      '<div style="min-width:150px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;">' + esc(f.d) + '</div></div>';
+      '<div style="min-width:150px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;">' + esc(f.d) + '</div></div>' +
+      '<div style="padding:0 0 4px 220px;font-size:9px;color:var(--muted);line-height:1.4;">' + esc(f.note) + ' <span class="src-inline">' + esc(f.src) + '</span></div>';
   }).join('') +
   '<div style="font-size:10px;color:var(--muted);padding-top:8px;">Green = free · amber = subsidised/capped · red = market fee. Practices set their own prices in Jersey and Guernsey; current prices vary.</div>';
 }
@@ -9993,7 +10082,7 @@ function drawFundingChart() {
       scales: { x: { type: 'linear', min: 2011, max: 2025, ticks: { stepSize: OBS_NARROW ? 4 : 2, color: ax.tick, font: { size: 10 }, callback: function(v) { return v; } }, grid: { color: grid } },
         y: { min: 0, ticks: { color: ax.tick, font: { size: 10 }, callback: function(v) { return '£' + v; } }, grid: { color: grid } } }
   }}));
-  document.getElementById('fundingNote').innerHTML = '<b>Units differ deliberately:</b> England pays per registered patient per YEAR; Jersey subsidises per APPOINTMENT — plotted together only to show direction of travel, not level. ' + esc(OBS.gpFunding.warnings.metric) + (OBS.gpEnglandAnchor ? ' <b>Anchor for the “IoM £120 looks low” comparison:</b> England’s average TOTAL NHS payment per registered patient was £' + OBS.gpEnglandAnchor.avgTotalPerPatient.toFixed(2) + ' in ' + OBS.gpEnglandAnchor.year + ' (all categories, nominal) vs a global sum alone of ~£105–108/weighted patient — whether IoM’s £120 flat capitation is “loads lower” depends entirely on what it covers, which is unpublished (FOI target). ' + esc(OBS.gpEnglandAnchor.src) + '.' : '') + ' <span class="src-inline">' + esc(OBS.gpFunding.src) + '</span>';
+  document.getElementById('fundingNote').innerHTML = '<b>Units differ deliberately:</b> England pays per registered patient per YEAR; Jersey subsidises per APPOINTMENT — plotted together only to show direction of travel, not level. ' + esc(OBS.gpFunding.warnings.metric) + (OBS.gpEnglandAnchor ? ' <b>Anchor for the \u201cIoM \u00a3120 looks low\u201d comparison:</b> England\u2019s average TOTAL NHS payment per registered patient was \u00a3' + OBS.gpEnglandAnchor.avgTotalPerPatient.toFixed(2) + ' in ' + OBS.gpEnglandAnchor.year + ' (all categories, nominal) vs a global sum alone of ~\u00a3105\u2013108/weighted patient \u2014 whether IoM\u2019s \u00a3120 flat capitation is \u201cloads lower\u201d depends entirely on what it covers, which is unpublished (FOI target). ' + esc(OBS.gpEnglandAnchor.src) + '.' : '') + ' <span class="src-inline">' + esc(OBS.gpFunding.src) + '</span>';
 }
 
 /* ----- GP supply chart (unchanged series) + coverage ----- */
@@ -10030,9 +10119,7 @@ function renderGpComparators() {
   document.getElementById('gpComparators').innerHTML = [{ id:'iom', d:'2,689 / FTE GP', basis:'2024 · 33.2 FTE · 89,262 registered', src: OBS.gpSeries.src }]
     .concat(OBS.gpSeries.comparators).map(function(c) {
       var j = JUR[c.id];
-      return '<div class="mini-kpi" style="--kc:' + j.color + '" title="' + esc(c.basis) + ' · ' + esc(c.src) + '">' +
-        '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;margin-bottom:4px;">' + j.short + '</div>' +
-        '<div class="mk-v" style="font-size:17px">' + esc(c.d) + '</div></div>';
+      return '<div class="mini-kpi" style="--kc:' + j.color + '"><div class="mk-v" style="font-size:17px">' + esc(c.d) + '</div><div class="mk-l">' + j.name + ' · ' + esc(c.basis) + '</div><div class="mk-s">' + esc(c.src) + '</div></div>';
     }).join('');
 }
 function renderCoverage() {
@@ -10061,9 +10148,9 @@ function renderGpPerf() {
   ];
   document.getElementById('gpPerf').innerHTML = items.map(function(k) {
     var j = JUR[k.j];
-    return '<div class="mini-kpi" style="--kc:' + j.color + (k.gap ? ';border-style:dashed;opacity:0.8' : '') + '" title="' + esc(k.s) + '">' +
+    return '<div class="mini-kpi" style="--kc:' + j.color + (k.gap ? ';border-style:dashed;opacity:0.8' : '') + '">' +
       '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">' + j.short + '</div>' +
-      '<div class="mk-v" style="font-size:19px;">' + esc(k.d) + '</div><div class="mk-l">' + esc(k.l) + '</div></div>';
+      '<div class="mk-v" style="font-size:19px;">' + esc(k.d) + '</div><div class="mk-l">' + esc(k.l) + '</div><div class="mk-s">' + esc(k.s) + '</div></div>';
   }).join('');
 }
 
@@ -10083,7 +10170,7 @@ function renderDental() {
     { v:'96.3% / 62.0%', l:'Scotland: registered with NHS dentist / participated within 2 years (Dec 2025) — registration ≠ access', s:'PHS dental monitoring Q4 2025', c:JUR.ork.color },
     { v:'82%', l:'England: UDA delivery vs pre-pandemic contracted levels 2024-25 · "universal dental care has likely gone for good" (Nuffield Trust 2024)', s:'NHS England · benchmark explorer', c:JUR.eng.color },
   ].map(function(k) {
-    return '<div class="mini-kpi" style="--kc:' + k.c + '" title="' + esc(k.s) + '"><div class="mk-v" style="font-size:17px">' + k.v + '</div><div class="mk-l">' + esc(k.l) + (k.imp ? ' ' + k.imp : '') + '</div></div>';
+    return '<div class="mini-kpi" style="--kc:' + k.c + '"><div class="mk-v" style="font-size:17px">' + k.v + '</div><div class="mk-l">' + esc(k.l) + (k.imp ? ' ' + k.imp : '') + '</div><div class="mk-s">' + esc(k.s) + '</div></div>';
   }).join('');
 
   function rowsFor(list) {
@@ -10098,9 +10185,9 @@ function renderDental() {
     '<tr><th>Jurisdiction</th><th>Dentists / population</th><th>Basis</th><th>Source</th></tr>' + rowsFor(OBS.dentalDetail.perPop);
   document.getElementById('dentalAdults').innerHTML = OBS.dentalDetail.adults24mo.map(function(r) {
     var j = JUR[r.jur];
-    return '<div class="mini-kpi" style="--kc:' + j.color + (r.gap ? ';border-style:dashed;opacity:0.8' : '') + '" title="' + esc(r.basis) + ' · ' + esc(r.src) + '">' +
+    return '<div class="mini-kpi" style="--kc:' + j.color + (r.gap ? ';border-style:dashed;opacity:0.8' : '') + '">' +
       '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;margin-bottom:4px;">' + j.short + '</div>' +
-      '<div class="mk-v" style="font-size:19px;">' + esc(r.d) + '</div></div>';
+      '<div class="mk-v" style="font-size:19px;">' + esc(r.d) + '</div><div class="mk-l">' + esc(r.basis) + '</div><div class="mk-s">' + esc(r.src) + '</div></div>';
   }).join('');
   document.getElementById('dentalKids').innerHTML =
     '<tr><th>Measure</th><th>IoM</th><th>England</th><th>Others</th></tr>' +

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Primary · Islands Observatory</title>
+<title>Secondary · Islands Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
@@ -1015,7 +1015,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 
 <div class="topbar"><div class="topbar-inner">
   <a class="brand" href="01_index.html">ISLANDS <span class="isl">OBSERVATORY</span><span class="brand-sub">healthcare</span></a>
-  <nav class="obs-nav"><a href="01_index.html">Hub</a><a href="02_public-health.html">Public health</a><a href="03_governance.html">Governance</a><a href="04_financial.html">Financial</a><a href="05_primary-care.html" class="here">Primary</a><a href="06_secondary-care.html">Secondary</a><a href="07_tertiary-remoteness.html">Tertiary</a><a href="08_roadmap.html">Roadmap</a></nav>
+  <nav class="obs-nav"><a href="01_index.html">Hub</a><a href="02_public-health.html">Public health</a><a href="03_governance.html">Governance</a><a href="04_financial.html">Financial</a><a href="05_primary-care.html">Primary</a><a href="06_secondary-care.html" class="here">Secondary</a><a href="07_tertiary-remoteness.html">Tertiary</a><a href="08_roadmap.html">Roadmap</a></nav>
   <div class="top-right">
     <div class="lens-switch" id="lensSwitch"></div>
     <button class="theme-btn" onclick="obsToggleTheme()" title="Toggle light/dark">◐</button>
@@ -1023,67 +1023,63 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 </div></div>
 <div class="shell">
 
-  <div class="section-label" style="margin-top:26px;">05 · Primary care — GPs, dentists and the price of the front door</div>
+  <div class="section-label" style="margin-top:26px;">06 · Secondary care — clinical &amp; operational performance, six islands</div>
   <div class="lens-note">
-    <div data-lens="public"><span class="lens-tag">Public lens</span>The biggest healthcare difference between these islands is <strong>what it costs to see a GP</strong> — free on the Isle of Man and the Scottish islands, ~£14–25 in Jersey after its growing subsidy, ~£60 in Guernsey after its £12 grant. And behind the price sits supply: one IoM GP now covers 2,689 patients, up 39% since 2012.</div>
-    <div data-lens="politician"><span class="lens-tag">Politician lens</span>Primary-care charging is live politics in all three Crown Dependencies; GP supply is the quieter crisis. The funding-model table shows five different answers to the same question — who pays the GP? — each with a different failure mode (queue, fee, or workforce flight).</div>
-    <div data-lens="management"><span class="lens-tag">Management lens</span>England pays ~£107.57 per weighted patient (global sum, 2024) plus QOF and enhanced services (~£164 total, real terms); IoM's only published rate is £120 flat (2020). Jersey has tripled its per-appointment subsidy since 2012. Whatever the model, the binding constraint is GP FTE.</div>
+    <div data-lens="public"><span class="lens-tag">Public lens</span>These are the dials every health system watches: how long you wait in A&amp;E, for a first appointment, for a cancer diagnosis, for a scan. Each card explains what the number means and shows every island that publishes it — <strong>and names the ones that don't</strong>.</div>
+    <div data-lens="politician"><span class="lens-tag">Politician lens</span>Two questions per card: <em>why is our number worse than the comparable island's</em>, and <em>if we don't publish this number, why not?</em> Missed-target rows are your agenda; the "not published" chips are your information requests. Note each row's basis before quoting across islands.</div>
+    <div data-lens="management"><span class="lens-tag">Management lens</span>Guernsey's MSG contract KPI set is the most complete single published dashboard of the six — 40 indicators with targets. IoM's Annex C is the most honest about misses. If you run a board: publishing a KPI set like these costs little and pre-empts every FOI on this page.</div>
   </div>
+  <div class="compare-banner" id="kpiNote"></div>
+
   <div class="compare-banner" style="margin-top:10px;"><b>Direct numerical comparison without reading caveats is misleading.</b> Each jurisdiction defines, measures and reports on its own basis — hover or tap any figure for its basis and source before drawing conclusions.</div>
 
-  <div class="filter-bar" style="margin-top:14px;">
-    <span class="filter-label">Section</span>
-    <button class="filter-pill on" id="pcTabGp" onclick="setPcTab('gp')">GPs</button>
-    <button class="filter-pill" id="pcTabDental" onclick="setPcTab('dental')">Dentists</button>
-  </div>
+  <div class="lens-note" style="border-left-color:var(--gsy);">Cross-island comparison lives here; <b>Isle of Man monthly depth</b> (IPR modality tables, trend charts) lives in the <a href="/manx-care-benchmark.html" target="_blank" rel="noopener" style="color:var(--accent-ink);font-weight:700;text-decoration:none;">Healthcare Explorer →</a></div>
 
-  <!-- ═══════════ GP TAB ═══════════ -->
-  <div id="pcGp">
-    <div class="section-label">Access &amp; cost — what a standard appointment costs the patient</div>
-    <div class="panel" id="feeLadder"></div>
+  <div class="section-label">Activity — how much work these systems do</div>
+  <div id="activityStrip"></div>
 
-    <div class="section-label">Funding models — who pays the GP, five different answers</div>
-    <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="fundingTable"></table></div>
-    <div class="chart-box" style="margin-top:10px;">
-      <canvas id="fundingChart" height="120"></canvas>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px;" id="fundingNote"></div>
+  <div class="section-controls">
+    <div class="section-label-inline">The dials — one row per KPI, one card per jurisdiction</div>
+    <div class="card-controls">
+      <button class="expand-btn" id="viewToggle" onclick="toggleKpiView()">Card view</button>
     </div>
+  </div>
+  <div class="filter-bar" id="domainTabs" style="margin-bottom:12px;display:none;"></div>
+  <div id="kpiCardTable" style="display:none;"></div>
+  <div class="panel" id="matrixPanel" style="padding:6px 10px;">
+    <table class="obs-table kpi-matrix" id="kpiMatrix"></table>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin:6px 2px 0;" id="matrixNote"></div>
 
-    <div class="section-label">Supply — patients per GP and surgery coverage</div>
-    <div class="chart-box"><canvas id="gpChart" height="120"></canvas>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px;" id="gpChartNote"></div>
+
+  <div class="section-label">Workforce &amp; flow — the operational undercurrents</div>
+  <div class="stat-strip" id="wfStrip"></div>
+  <div class="panel" style="margin-top:10px;font-size:12px;line-height:1.7;color:var(--muted2);" id="dtocPanel"></div>
+
+  <div class="panel" style="margin-top:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:var(--text);">Isle of Man — Manx Care workforce composition, Apr 2021 → Feb 2026 <span class="gap-chip derived" style="font-size:8px;vertical-align:2px;">DERIVED</span></div>
+      <div class="card-controls">
+        <button class="expand-btn" id="wfcBtn-stack" onclick="setWfcView('stack')">Composition</button>
+        <button class="expand-btn" id="wfcBtn-index" onclick="setWfcView('index')">Growth (Apr 21 = 100)</button>
+        <button class="expand-btn" id="wfcBtn-share" onclick="setWfcView('share')">Share</button>
+      </div>
     </div>
-    <div class="stat-strip" id="gpComparators" style="margin-top:10px;"></div>
-    <div class="section-label">Surgery coverage — one surgery per how many square miles?</div>
-    <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="coverageTable"></table></div>
-
-    <div class="section-label">Experience &amp; performance — satisfaction, referrals, waits</div>
-    <div class="stat-strip" id="gpPerf"></div>
-
-    <div class="section-label">Urgent care pricing — the emergency front door</div>
-    <div class="panel" style="font-size:12px;line-height:1.7;color:var(--muted2);" id="edCharges"></div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;line-height:1.6;" id="wfcIntro"></div>
+    <canvas id="wfCompChart"></canvas>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6;" id="wfcCaveat"></div>
   </div>
 
-  <!-- ═══════════ DENTAL TAB ═══════════ -->
-  <div id="pcDental" style="display:none;">
-    <div class="section-label">Waiting lists — crisis, then a turnaround worth watching</div>
-    <div class="stat-strip" id="dentalStrip"></div>
-
-    <div class="section-label">Provision — dentists per population</div>
-    <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="dentalProvTable"></table></div>
-
-    <div class="section-label">Adult access — seen by an NHS dentist within 24 months</div>
-    <div class="stat-strip" id="dentalAdults"></div>
-
-    <div class="section-label">Children — school programmes, access and decay</div>
-    <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="dentalKids"></table></div>
-
-    <div class="section-label">Model summary</div>
-    <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="dentalTable"></table></div>
+  <div class="section-label">Isle of Man — waiting list by specialty (the only island publishing this depth) · snapshot 1 May 2026</div>
+  <div class="panel">
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:10px;line-height:1.6;">Median wait in weeks for a <b style="color:var(--text)">first consultant-led outpatient appointment</b>, by specialty. Bars = median weeks; counts = patients waiting. Worth borrowing: no other island publishes specialty-level waits — Manx Care does, monthly.</div>
+    <div id="waitsBars"></div>
+    <div style="margin-top:10px;"><button class="expand-btn" id="waitsToggle" onclick="toggleWaits()">Show all specialties</button></div>
   </div>
 
-  <div class="section-label">Close the gaps — what has never been answered publicly</div>
-  <div class="opp-stack" id="pcAsks"></div>
+  <div class="section-label">What the numbers point to — analysis &amp; open questions</div>
+  <div class="jur-chips" id="jurChips" style="margin-top:0;"></div>
+  <div class="opp-stack" id="qStack" style="margin-top:8px;"></div>
 
   
   <details class="method-details">
@@ -1092,14 +1088,15 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
       <b>Sources.</b> Every displayed figure carries a source string (document + date) reachable by hover, tap or inline chip. The consolidated data layer (observatory_data.js) is generated by script from extraction CSVs in the observatory library; nothing is hand-typed into pages. Primary sources: government/board annual reports and accounts, Audit Scotland/KPMG annual audits, HIS inspection reports, C&amp;AG/JAO reports, DHSC Assessments of Manx Care, Tynwald Hansard and written answers, ONS/NRS/PHS statistics, CAA punctuality statistics, and FOI responses held in the library.<br/><br/>
       <b>Comparability.</b> Jurisdictions differ in definitions, targets, reporting windows and population bases. Basis lines are mandatory on comparison rows; 3-year rolling averages (small populations) are marked and never silently mixed with single-year rates; derived figures (per-capita, per-1,000, inversions) are labelled <i>derived</i>; DERIVED Sankey nodes state their derivation.<br/><br/>
       <b>Gaps.</b> Missing data is displayed, not hidden: red chips = no comparable public figure exists; blue chips = published somewhere we have not yet extracted (each maps to a roadmap item). Gaps are findings.<br/><br/>
+      <b>Chip legend.</b> <span class="chip derived">derived</span> calculated by us from published figures (per-capita, per-1,000, digitised series) — labelled, never silently mixed with reported numbers. <span class="chip toextract">to extract</span> published somewhere but not yet in the library. <span class="chip notpub">not published</span> no comparable public figure exists anywhere — the gap is the finding. <span class="chip improving">✓ improving</span> a favourable, sourced trend.<br/><br/>
       <b>Views.</b> The Public view uses plain language and does not draft formal requests; Politician and Management views expose question/FOI wording and benchmark framing. The view switch changes emphasis, never the underlying numbers.<br/><br/>
       <b>Corrections.</b> Errors: <a href="mailto:observatory@coalfinch.com" style="color:var(--accent-ink)">observatory@coalfinch.com</a>. Build log and change history: see the Roadmap page.
     </div>
   </details>
 
   <div class="page-footer">
-    <span>Islands Observatory · 05 Primary care · built 14 Jul 2026</span>
-    <span>gp-funding-comparison dataset (BMA · King's Fund · States records) · gov.je · gov.gg · IoM in Numbers 2025 · NHS board sites · DHSC Assessment 2024-25 · PHS · NDEP</span>
+    <span>Islands Observatory · 07 Clinical &amp; operational · built 14 Jul 2026</span>
+    <span>DHSC Assessment of Manx Care 2024-25 Annex C · Guernsey MSG Contract KPIs 2024 · States of Jersey ARAs · NHS England Performance Report 2024-25 · NHS Wales StatsWales summary · HIS inspections</span>
   </div>
 
 </div>
@@ -9557,9 +9554,9 @@ Object.assign(OBS, {
 /* ==== EXTENSION 5: MC Gov Review stub -> tracked (gen_data5.py) ==== */
 (function() {
   var r = ALL_REVIEWS.find(function(x) { return x.id === 'mcgov'; });
-  if (r) Object.assign(r, {"shortName": "MIAA Governance (Manx Care)", "date": "Jul 2025", "dateSort": 2025.55, "stub": false, "published": true, "what": "Commission Jul 2025 on Manx Care's own Board: 10 strategic actions covering mandate clarity, DHSC strategy co-production and financial reporting. ~51 tactical actions in Appendix O; per-action statuses not published.", "author": "MIAA (for the Manx Care Board)", "commissioner": "Manx Care", "color": "#a78bfa", "url": "https://www.manxradio.com/news/isle-of-man-news/governance-review-calls-for-greater-accountability-in-manx-care-operations/", "urlLabel": "Media summary (Manx Radio, 14 Aug 2025)", "url2": "https://www.gov.im/about-the-government/statutory-boards/manx-care/board-meetings-2025/", "url2Label": "Manx Care Board papers 2025 (gov.im)"});
+  if (r) Object.assign(r, {"shortName": "MIAA Governance (Manx Care)", "date": "Jul 2025", "dateSort": 2025.55, "stub": false, "published": true, "what": "MIAA Governance Review commissioned by Manx Care about its own Board: 10 strategic actions - mandate clarity (\"is it commissioning intentions or aspiration?\"), 3/5/10-year strategy co-production with DHSC, deficit-driver financial reporting, SoRD, BAF reset. ~51 tactical actions sit in Appendix O; an implementation tracker exists (Appendix P) but per-action statuses are not published. One of TWO separate 2025 MIAA governance reviews - the DHSC-commissioned system review of the arm’s-length arrangement is tracked separately (GD 105/2025, Nov 2025).", "author": "MIAA (for the Manx Care Board)", "commissioner": "Manx Care", "color": "#a78bfa", "url": "https://www.manxradio.com/news/isle-of-man-news/governance-review-calls-for-greater-accountability-in-manx-care-operations/", "urlLabel": "Media summary (Manx Radio, 14 Aug 2025)", "url2": "https://www.gov.im/about-the-government/statutory-boards/manx-care/board-meetings-2025/", "url2Label": "Manx Care Board papers 2025 (gov.im)"});
   var m = ALL_REVIEWS.find(function(x) { return x.id === 'miaa'; });
-  if (m) Object.assign(m, {"shortName": "MIAA Governance (DHSC)", "what": "Commission Jun 2025 on DHSC/Manx Care arrangement: arm's-length model, blurred accountability and misaligned funding. \"Strengthened Partnership\" approach selected by Tynwald, Feb 2026."});
+  if (m) Object.assign(m, {"shortName": "MIAA Governance (DHSC)", "what": "MIAA Governance Review commissioned by DHSC (Jun 2025) on the overall Manx Care/DHSC arrangement: arm’s-length model \"has not operated as intended\" - blurred accountability, misaligned funding. Four strategic options; Option 3 (Strengthened Partnership) chosen by Tynwald, Feb 2026. One of TWO separate 2025 MIAA governance reviews - the Board-level review commissioned by Manx Care itself is tracked separately (draft final Jul 2025)."});
   var acts = [{"ref": "MCG-0", "reviewId": "mcgov", "jur": "iom", "text": "Continue to work with stakeholders including the DHSC and wider to support implementation of the key actions arising from this review including the future strategic direction of Manx Care", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action (report ref N/A). Appendix P contains a Strategic & Tactical Action Plan Implementation Tracker - statuses not published per action in the draft final report.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-1", "reviewId": "mcgov", "jur": "iom", "text": "Continued discussions and building of effective relationships with the DHSC including a clearly defined engagement process for Manx Care regarding the mandate planning process subsequent development (including costs of delivery) and approval", "status": "identified", "owner": "Manx Care / DHSC", "due": null, "notes": "Strategic action ref 1. Review found unclear what the mandate represents; disconnect between mandate and financial settlement.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-2", "reviewId": "mcgov", "jur": "iom", "text": "Identification of clear measurables for mandate delivery (plus strategic priorities) together with timescales ensuring they are realistic and achievable", "status": "identified", "owner": "Manx Care", "due": null, "notes": "Strategic action ref 2.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-5", "reviewId": "mcgov", "jur": "iom", "text": "Development of 3 / 5 / 10 year strategic plans co-produced with the DHSC supported by enabling strategies (financial digital workforce) with public involvement considered", "status": "identified", "owner": "Manx Care / DHSC", "due": null, "notes": "Strategic action ref 5. Annual mandate focus has crowded out longer-term vision.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-6", "reviewId": "mcgov", "jur": "iom", "text": "Enhancement of financial reporting to the Manx Care Board: baseline position expenditure to date assumptions made plus an overarching narrative covering variances actions needed and forecast position", "status": "identified", "owner": "Manx Care Finance", "due": null, "notes": "Strategic action ref 6 - aid understanding of the drivers of the deficit.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-25", "reviewId": "mcgov", "jur": "iom", "text": "Development of a Manx Care Scheme of Reservation & Delegation (SoRD) aligned to financial regulations; consideration of a wider government SoRD to aid clarity and agility of decision making", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 25.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-29", "reviewId": "mcgov", "jur": "iom", "text": "Constructive discussions on the status quo of shared services provision in terms of holding to account and escalation; clarification of Executive Director remit regarding reporting to committees", "status": "identified", "owner": "Manx Care / Cabinet Office", "due": null, "notes": "Strategic action ref 29. Report separately notes HR Shared Service failures escalated to committee.", "source": "miaa-governance-review-2025.pdf p9"}, {"ref": "MCG-33", "reviewId": "mcgov", "jur": "iom", "text": "Development of a succession plan regularly revised to address changing requirements", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 33 (Unitary Board).", "source": "miaa-governance-review-2025.pdf p10"}, {"ref": "MCG-41", "reviewId": "mcgov", "jur": "iom", "text": "Focus and ownership by the Board of the Board Assurance Framework using it as a tool to direct Board discussion and assurance", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 41 (Operating Effectiveness).", "source": "miaa-governance-review-2025.pdf p10"}, {"ref": "MCG-49", "reviewId": "mcgov", "jur": "iom", "text": "Reset of the current BAF via workshop: refresh understanding review/agree 25-26 strategic objectives refresh risk definition identify and score strategic risks controls assurances and action plans", "status": "identified", "owner": "Manx Care Board", "due": null, "notes": "Strategic action ref 49.", "source": "miaa-governance-review-2025.pdf p10"}];
   acts.forEach(function(a) { ALL_ACTIONS.push(a); });
 })();
@@ -9767,6 +9764,13 @@ function opportunitiesFor(jid) {
           Array.from(new Set(unknown.map(function(a) { var r = ALL_REVIEWS.find(function(x) { return x.id === a.reviewId; }); return r ? (r.shortName + ' (' + r.date + ')') : a.reviewId; }))).map(function(s) { return '• ' + s; }).join('\n') +
           '\n\nIf a recommendations tracking system exists (e.g. as recommended by audit), please provide its latest extract.' } ] });
   }
+  if (rejected.length) {
+    opps.push({ kind:'challenge', color:'var(--red)',
+      title: rejected.length + ' recommendation' + (rejected.length > 1 ? 's' : '') + ' rejected',
+      detail: rejected.map(function(a) { return a.ref + ': ' + (a.text || '').slice(0, 110); }).join(' · '),
+      whatNext: [ { type:'pq', label:'Challenge wording',
+        text:'To ask the member responsible for health: on what grounds was the recommendation "' + (rejected[0].text || '') + '" rejected; what alternative mitigations are in place; and will the decision be reviewed?' } ] });
+  }
   (OBS.gaps.reviewIngredients || []).forEach(function(g) {
     var st = g.status[jid];
     if (st && st.indexOf('published') !== 0 && st !== 'published') {
@@ -9917,242 +9921,290 @@ obsPaintFocus();
 </script>
 <script>
 
-/* ---------- 05 Primary care: GP / Dental sub-tabs ---------- */
-function setPcTab(t) {
-  document.getElementById('pcGp').style.display = t === 'gp' ? '' : 'none';
-  document.getElementById('pcDental').style.display = t === 'dental' ? '' : 'none';
-  document.getElementById('pcTabGp').classList.toggle('on', t === 'gp');
-  document.getElementById('pcTabDental').classList.toggle('on', t === 'dental');
+/* ---------- 07 Clinical & operational ---------- */
+function cellHtml(cell, jid) {
+  if (!cell) return '<td class="mx-cell" style="color:var(--muted)">·</td>';
+  var col = cell.ok === true ? 'var(--green)' : cell.ok === false ? 'var(--red)' : cell.gap ? 'var(--muted)' : 'var(--text)';
+  var mark = cell.ok === true ? ' ✓' : cell.ok === false ? ' ✗' : '';
+  var gapAll = cell.d + ' ' + (cell.basis || '') + ' ' + (cell.src || '');
+  var isExtractable = cell.gap && /PHS|collection target|not yet extracted|not extracted|not in extracted set|not in MSG KPI set|board papers/i.test(gapAll);
+  var gapLabel = isExtractable ? (/PHS/i.test(gapAll) ? 'held @ PHS' : 'to extract') : /not published/i.test(cell.d) ? 'not published' : cell.d;
+  var gapCls = isExtractable ? 'toextract' : 'notpub';
+  var body = cell.gap ? '<span class="gap-chip ' + gapCls + '" style="font-size:8px;">' + esc(gapLabel.length > 22 ? gapLabel.slice(0,22) : gapLabel) + '</span>'
+    : '<span style="color:' + col + ';font-weight:700;font-family:\'JetBrains Mono\',monospace;font-size:11px;">' + esc(cell.d) + mark + '</span>';
+  return '<td class="mx-cell ' + (jid === obsJur() ? 'mx-focus' : '') + '" title="' + esc((cell.basis ? cell.basis + ' — ' : '') + cell.src) + '" style="cursor:help;">' + body + '</td>';
 }
-
-/* ----- fee ladder (updated with Jul-2026-current dataset figures) ----- */
-function renderFeeLadder() {
-  var fees = [
-    { j:'iom', label:'Isle of Man', fee:0, d:'£0 — free at point of use', note:'NHS-style; practices contracted to Manx Care. Queue instead of price: 8.2 days average wait.', src:'gov.im · DHSC Assessment 2024-25' },
-    { j:'ork', label:'Orkney / Shetland / Western Isles', fee:0, d:'£0 — NHS Scotland', note:'Standard GMS, free at point of use.', src:'NHS Scotland' },
-    { j:'jsy', label:'Jersey — Health Access Scheme', fee:12, d:'£12 fixed', note:'Income support / Pension Plus members.', src:'gov.je Health Access Scheme' },
-    { j:'jsy', label:'Jersey — standard adult', fee:20, d:'~£14–25 (est.)', note:'Subsidy per appointment now £50.28 (2024, up from £40 in 2023 and £20 in 2012) against standard fees that were £54.50–£64 — patient price varies by practice. Children free (2023).', src:'gp-funding dataset · Bailiwick Express' },
-    { j:'gsy', label:'Guernsey — child flat fee', fee:25, d:'£25 child', note:'Capped child fee since Aug 2020; child health subsidy funded from family allowance redistribution.', src:'gp-funding dataset' },
-    { j:'gsy', label:'Guernsey — standard adult', fee:59.5, d:'~£59.50 (avg £71.50 − £12 grant)', note:'Average private consultation £71.50 (Jan 2025); States grant £12 (£6 nurse). 2018 survey: 48% cost-deterred. HSC: no universal reduction planned.', src:'gp-funding dataset · Bailiwick Express Apr 2025' },
-  ];
-  var max = 65;
-  document.getElementById('feeLadder').innerHTML = fees.map(function(f) {
-    var j = JUR[f.j];
-    return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--border);cursor:help;" title="' + esc(f.note) + ' ' + esc(f.src) + '">' +
-      '<div style="min-width:210px;font-size:11px;font-weight:700;color:' + j.color + '">' + esc(f.label) + '</div>' +
-      '<div style="flex:1;height:14px;background:var(--surface2);border-radius:3px;overflow:hidden;">' +
-      '<div style="height:100%;width:' + Math.max(f.fee / max * 100, 1.5) + '%;background:' + (f.fee === 0 ? 'var(--green)' : f.fee < 30 ? 'var(--amber)' : 'var(--red)') + ';"></div></div>' +
-      '<div style="min-width:150px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;">' + esc(f.d) + '</div></div>';
-  }).join('') +
-  '<div style="font-size:10px;color:var(--muted);padding-top:8px;">Green = free · amber = subsidised/capped · red = market fee. Practices set their own prices in Jersey and Guernsey; current prices vary.</div>';
+function renderMatrix() {
+  var M = OBS.kpiMatrix;
+  var html = '<tr><th style="position:sticky;left:0;background:var(--surface);z-index:2;">Metric</th>' + M.cols.map(function(id) {
+    return '<th class="' + (id === obsJur() ? 'mx-focus' : '') + '" style="text-align:center;color:' + JUR[id].color + ';min-width:96px;">' + JUR[id].short + '</th>';
+  }).join('') + '</tr>';
+  M.sections.forEach(function(sec) {
+    html += '<tr><td colspan="' + (M.cols.length + 1) + '" style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-ink);padding-top:12px;border-bottom:1px solid var(--border2);">' + esc(sec.name) + '</td></tr>';
+    sec.rows.forEach(function(row) {
+      var tip = explainFor(row.metric) || '';
+      html += '<tr><td style="position:sticky;left:0;background:var(--surface);z-index:1;font-size:11px;font-weight:600;min-width:190px;cursor:help;" title="' + esc(tip) + '">' + esc(row.metric) +
+        '<div style="font-size:9px;font-weight:400;color:var(--muted);">' + esc(row.unit) + '</div></td>' +
+        M.cols.map(function(id) { return cellHtml(row.cells[id], id); }).join('') + '</tr>';
+    });
+  });
+  document.getElementById('kpiMatrix').innerHTML = html;
+  document.getElementById('matrixNote').innerHTML = '<span class="gap-chip toextract" style="font-size:8px;">held @ PHS</span> = published at board level by Public Health Scotland, not yet extracted (collection target) · <span class="gap-chip toextract" style="font-size:8px;">to extract</span> = exists in a source we hold or know of, extraction pending · <span class="gap-chip notpub" style="font-size:8px;">not published</span> = no comparable public figure exists — the transparency finding. ' + esc(M.note);
 }
-
-/* ----- funding models ----- */
-function renderFunding() {
-  var rows = [
-    { j:'iom', model:'NHS-style flat capitation', rate:'£120 / patient / yr (2020)', detail:'Only published IoM per-patient rate despite extensive search — flat, "regardless of appointments". Registered-list system, 14 surgeries.', src:'gp-funding dataset (Tynwald/BMA search)' },
-    { j:'jsy', model:'Private fee-for-service + per-appointment subsidy', rate:'£50.28 subsidy / appt (2024)', detail:'Subsidy trebled since 2012 (£20 → £40 Jun 2023 → £50.28 May 2024) via the Health Insurance Fund. No registered list — per-patient rates are not a meaningful concept.', src:'gp-funding dataset' },
-    { j:'gsy', model:'Private fee-for-service + small grant', rate:'£12 grant / appt (2025)', detail:'Grant was "around half the fee" historically; now ~17% of the £71.50 average consultation. £6 for nurse appointments. No central list.', src:'gp-funding dataset' },
-    { j:'ork', model:'NHS Scotland GMS (Scottish Workload Formula)', rate:'not extracted', detail:'Capitation-based GMS; island boards also run board-managed (2C) practices with salaried GPs — a different cost structure again.', src:'roadmap item' },
-    { j:'eng', model:'NHS capitation (Carr-Hill) + QOF + enhanced services', rate:'£107.57 global sum / weighted patient (2024)', detail:'Global sum up from £75.77 (2015). Average TOTAL NHS payment ≈£164/weighted patient (2023, real terms) — a 10.3% real-terms decline from 2018.', src:'gp-funding dataset (BMA / King\'s Fund)' },
-  ];
-  document.getElementById('fundingTable').innerHTML =
-    '<tr><th>Jurisdiction</th><th>Model</th><th>Headline rate</th><th>Detail</th><th>Source</th></tr>' +
-    rows.map(function(r) {
-      var j = JUR[r.j];
-      return '<tr><td><b style="color:' + j.color + '">' + j.name + '</b></td>' +
-        '<td style="font-size:11px;">' + esc(r.model) + '</td>' +
-        '<td class="num" style="font-size:11px;">' + (r.rate === 'not extracted' ? '<span class="gap-chip">to extract</span>' : esc(r.rate)) + '</td>' +
-        '<td style="font-size:11px;">' + esc(r.detail) + '</td><td class="src-inline">' + esc(r.src) + '</td></tr>';
-    }).join('') +
-    '<tr><td colspan="5" style="font-size:10px;color:var(--muted);border-bottom:none;">' + esc(OBS.gpFunding.warnings.structural) + '</td></tr>';
+/* ----- benchmark-style card table: domain tabs -> metric rows -> jurisdiction cards ----- */
+var activeDomain = 0, compactView = true;
+var EXPLAIN = {};
+OBS.kpi.forEach(function(d) { EXPLAIN[d.name.split(' — ')[0].toLowerCase().slice(0, 12)] = d.explain; });
+function explainFor(metricName) {
+  var m = metricName.toLowerCase();
+  var hit = OBS.kpi.find(function(d) { return d.name.toLowerCase().indexOf(m.slice(0, 10)) >= 0 || m.indexOf(d.name.toLowerCase().slice(0, 10)) >= 0; });
+  return hit ? hit.explain : null;
 }
-var charts = [];
-function drawFundingChart() {
-  var ax = obsAxis();
-  var grid = ax.grid;
-  var gs = OBS.gpFunding.rows.filter(function(r) { return r.metric === 'global_sum_per_weighted_patient'; });
-  var jsub = OBS.gpFunding.rows.filter(function(r) { return r.metric === 'subsidy_per_appointment' && r.jur === 'jsy'; });
-  var iom = OBS.gpFunding.rows.filter(function(r) { return r.metric === 'flat_capitation_rate_per_patient'; });
-  charts.push(new Chart(document.getElementById('fundingChart').getContext('2d'), {
-    type: 'line',
-    data: { datasets: [
-      { label: 'England global sum £/weighted patient/yr', data: gs.map(function(r) { return { x: r.year, y: r.v }; }),
-        borderColor: JUR.eng.color, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, tension: 0.25 },
-      { label: 'Jersey subsidy £/appointment', data: jsub.map(function(r) { return { x: r.year, y: r.v }; }),
-        borderColor: JUR.jsy.color, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, tension: 0, stepped: true },
-      { label: 'IoM flat capitation £/patient/yr (single point)', data: iom.map(function(r) { return { x: r.year, y: r.v }; }),
-        borderColor: JUR.iom.color, backgroundColor: JUR.iom.color, borderWidth: 0, pointRadius: 6, pointStyle: 'rectRot', showLine: false }
-    ] },
-    options: { responsive: true, aspectRatio: obsAR(2.4),
-      plugins: { legend: { labels: { color: ax.tick, font: { size: 10 }, boxWidth: 12 } },
-        tooltip: { callbacks: { afterLabel: function(ctx) {
-          var all = [].concat(gs, jsub, iom); var r = all.find(function(x) { return x.year === ctx.parsed.x && Math.abs(x.v - ctx.parsed.y) < 0.01; });
-          return r ? (r.src + (r.notes ? ' — ' + r.notes : '')) : '';
-        } } } },
-      scales: { x: { type: 'linear', min: 2011, max: 2025, ticks: { stepSize: OBS_NARROW ? 4 : 2, color: ax.tick, font: { size: 10 }, callback: function(v) { return v; } }, grid: { color: grid } },
-        y: { min: 0, ticks: { color: ax.tick, font: { size: 10 }, callback: function(v) { return '£' + v; } }, grid: { color: grid } } }
-  }}));
-  document.getElementById('fundingNote').innerHTML = '<b>Units differ deliberately:</b> England pays per registered patient per YEAR; Jersey subsidises per APPOINTMENT — plotted together only to show direction of travel, not level. ' + esc(OBS.gpFunding.warnings.metric) + (OBS.gpEnglandAnchor ? ' <b>Anchor for the “IoM £120 looks low” comparison:</b> England’s average TOTAL NHS payment per registered patient was £' + OBS.gpEnglandAnchor.avgTotalPerPatient.toFixed(2) + ' in ' + OBS.gpEnglandAnchor.year + ' (all categories, nominal) vs a global sum alone of ~£105–108/weighted patient — whether IoM’s £120 flat capitation is “loads lower” depends entirely on what it covers, which is unpublished (FOI target). ' + esc(OBS.gpEnglandAnchor.src) + '.' : '') + ' <span class="src-inline">' + esc(OBS.gpFunding.src) + '</span>';
-}
-
-/* ----- GP supply chart (unchanged series) + coverage ----- */
-var _gpChart = null;
-function drawGpChart() {
-  var s = OBS.gpSeries.iom;
-  var ax = obsAxis();
-  var grid = ax.grid;
-  /* second IoM series: teal ramp accent + dash + open points — never a state colour (v0.8 palette rule) */
-  var fteCol = cssv('--teal-500') || '#409683';
-  if (_gpChart) _gpChart.destroy();
-  _gpChart = new Chart(document.getElementById('gpChart').getContext('2d'), {
-    type: 'line',
-    data: { labels: s.map(function(d) { return d.y; }),
-      datasets: [
-        { label: 'Patients per FTE GP (IoM)', yAxisID: 'y', data: s.map(function(d) { return d.perGp; }),
-          borderColor: JUR.iom.color, backgroundColor: JUR.iom.color + '18', borderWidth: 2.5, pointRadius: 3, tension: 0.25, fill: true },
-        { label: 'FTE GPs (IoM)', yAxisID: 'y2', data: s.map(function(d) { return d.fte; }),
-          borderColor: fteCol, backgroundColor: 'transparent', borderWidth: 2, borderDash: [5, 4], pointRadius: 2, pointStyle: 'rect', tension: 0.25 }
-      ] },
-    options: { responsive: true, aspectRatio: obsAR(2.4),
-      plugins: { legend: { labels: { color: ax.tick, font: { size: 10 }, boxWidth: 12 } },
-        tooltip: { callbacks: { afterBody: function(items) {
-          var d = s[items[0].dataIndex];
-          return ['Registered: ' + fmtN(d.patients), 'Over-65s: ' + fmtN(d.over65), d.notes || ''].filter(Boolean);
-        } } } },
-      scales: { x: { ticks: { color: ax.tick, font: { size: 10 }, maxTicksLimit: obsTicks(13) }, grid: { color: grid } },
-        y: { position: 'left', ticks: { color: JUR.iom.color, font: { size: 10 } }, grid: { color: grid }, title: { display: true, text: 'patients per FTE GP', color: JUR.iom.color, font: { size: 10 } } },
-        y2: { position: 'right', min: 25, max: 50, ticks: { color: fteCol, font: { size: 10 } }, grid: { display: false }, title: { display: true, text: 'FTE GPs (dashed)', color: fteCol, font: { size: 10 } } } }
-  }});
-  document.getElementById('gpChartNote').innerHTML = '<b>A supply story:</b> patients +2.5% (2012–24), FTE GPs −26% → 2,689 per GP (was 1,936). Over-65s on lists +28%. Only island publishing this series. <span class="src-inline">' + esc(OBS.gpSeries.src) + '</span>';
-}
-function renderGpComparators() {
-  document.getElementById('gpComparators').innerHTML = [{ id:'iom', d:'2,689 / FTE GP', basis:'2024 · 33.2 FTE · 89,262 registered', src: OBS.gpSeries.src }]
-    .concat(OBS.gpSeries.comparators).map(function(c) {
-      var j = JUR[c.id];
-      return '<div class="mini-kpi" style="--kc:' + j.color + '" title="' + esc(c.basis) + ' · ' + esc(c.src) + '">' +
-        '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;margin-bottom:4px;">' + j.short + '</div>' +
-        '<div class="mk-v" style="font-size:17px">' + esc(c.d) + '</div></div>';
+function renderDomainTabs() {
+  document.getElementById('domainTabs').innerHTML = '<span class="filter-label">Domain</span>' +
+    OBS.kpiMatrix.sections.map(function(sec, i) {
+      return '<button class="filter-pill' + (i === activeDomain ? ' on' : '') + '" onclick="setDomain(' + i + ')">' + esc(sec.name) + '</button>';
     }).join('');
 }
-function renderCoverage() {
-  var order = ['iom','jsy','gsy','ork','shl','wis'];
-  document.getElementById('coverageTable').innerHTML =
-    '<tr><th>Jurisdiction</th><th>Surgery sites</th><th>Land area</th><th>One surgery per</th><th>Note</th></tr>' +
-    order.map(function(id) {
-      var j = JUR[id], n = OBS.gpSurgeries[id], la = OBS.landAreas[id];
-      var per = n ? (la.sqmi / n) : null;
-      return '<tr><td><b style="color:' + j.color + '">' + j.name + '</b></td>' +
-        '<td class="num">' + (n ? n + ' sites' : '<span class="gap-chip">not extracted</span>') + '</td>' +
-        '<td class="num">' + la.sqmi + ' sq mi <span class="src-inline">' + esc(la.src) + '</span></td>' +
-        '<td class="num" style="font-weight:700;color:' + (per && per > 50 ? 'var(--amber)' : 'var(--text)') + '">' + (per ? per.toFixed(0) + ' sq mi' : '—') + '</td>' +
-        '<td style="font-size:10px;color:var(--muted);">' + (id === 'wis' ? 'Ness to Barra — density masks 100+ mile chain' : id === 'gsy' ? 'densest coverage of the six' : id === 'ork' ? 'branch surgeries on ten outer isles' : '') + '</td></tr>';
-    }).join('') +
-    '<tr><td colspan="5" style="font-size:10px;color:var(--muted);border-bottom:none;">Sites include small branch surgeries (derived: land area ÷ sites; areas approximate). Geographic coverage, not workforce — GP WTE per 1,000 remains the roadmap ask.</td></tr>';
+function setDomain(i) { activeDomain = i; renderDomainTabs(); renderCardTable(); }
+function toggleKpiView() {
+  compactView = !compactView;
+  document.getElementById('kpiCardTable').style.display = compactView ? 'none' : '';
+  document.getElementById('domainTabs').style.display = compactView ? 'none' : '';
+  document.getElementById('matrixPanel').style.display = compactView ? '' : 'none';
+  document.getElementById('viewToggle').textContent = compactView ? 'Card view' : 'Compact grid view';
 }
-function renderGpPerf() {
-  var items = [
-    { j:'iom', d:'8.2 days', l:'average wait for next routine GP appointment (2024-25)', s:'DHSC Assessment 2024-25' },
-    { j:'iom', d:'47.2%', l:'urgent GP referrals seen ≤6 weeks — target ≥85%, worsened from 53.4%', s:'DHSC Assessment 2024-25' },
-    { j:'eng', d:'75.4%', l:'good overall GP experience (+1.5pp) · 69.6% good contact experience · <50% see preferred GP consistently — first time below half', s:'GP Patient Survey 2025' },
-    { j:'jsy', d:'—', l:'no published GP wait or satisfaction data (fee-based access)', s:'gap register', gap:true },
-    { j:'gsy', d:'—', l:'access described as easy/short-notice (qualitative); no survey', s:'benchmark explorer', gap:true },
-    { j:'wis', d:'—', l:'board-level GP access stats not published; HNA survey: travel worry deters care-seeking', s:'WIHB HNA 2025', gap:true },
-  ];
-  document.getElementById('gpPerf').innerHTML = items.map(function(k) {
-    var j = JUR[k.j];
-    return '<div class="mini-kpi" style="--kc:' + j.color + (k.gap ? ';border-style:dashed;opacity:0.8' : '') + '" title="' + esc(k.s) + '">' +
+function jurCard(id, cell) {
+  var j = JUR[id];
+  if (!cell) return '';
+  if (cell.gap) {
+    return '<div class="mini-kpi" style="--kc:' + j.color + ';border-style:dashed;opacity:0.75;">' +
       '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">' + j.short + '</div>' +
-      '<div class="mk-v" style="font-size:19px;">' + esc(k.d) + '</div><div class="mk-l">' + esc(k.l) + '</div></div>';
-  }).join('');
-}
-
-/* ----- ED charges (unchanged) ----- */
-function renderEdCharges() {
-  document.getElementById('edCharges').innerHTML =
-    '<b style="color:' + JUR.gsy.color + '">Guernsey</b>: Category 1/2 ED charges with a <b style="color:var(--text)">£250 maximum</b> (from 1 Oct 2024); children £25 flat; GP-referred attendances still charged. <span class="src-inline">gov.gg/EDCHARGES</span><br/>' +
-    '<b style="color:' + JUR.jsy.color + '">Jersey</b>: ED currently <b>free</b>; £77 non-urgent charge proposed in Budget 2026 — contested. <span class="src-inline">gov.je · ITV/JEP Sep–Nov 2025</span><br/>' +
-    '<b style="color:' + JUR.iom.color + '">Isle of Man</b> &amp; <b style="color:' + JUR.ork.color + '">Scottish boards</b>: free at point of use.' +
-    '<div style="margin-top:8px;" data-lens="politician"><span class="lens-tag">Ask</span>Guernsey: what did ED charging do to attendance and late presentation since Oct 2024? Jersey: what stops £77 becoming the barrier Guernsey documented in 2018 (48% deterred)?</div>';
-}
-
-/* ----- Dental tab ----- */
-function renderDental() {
-  document.getElementById('dentalStrip').innerHTML = [
-    { v:'6,463 → ~1,500', l:'IoM NHS dental waiting list, May → Nov 2025 (−77%) after new GDS contract (+£700k/yr UDA; 5 of 7 providers; Ramsey +900 capacity). Avg wait had been 551 days (adults) / 518 (children)', s:'DHSC Assessment · manx-care-benchmark.html', c:JUR.iom.color, imp:'<span class="chip improving" title="The clearest measurable primary-care intervention in this corpus">✓ improving</span>' },
-    { v:'96.3% / 62.0%', l:'Scotland: registered with NHS dentist / participated within 2 years (Dec 2025) — registration ≠ access', s:'PHS dental monitoring Q4 2025', c:JUR.ork.color },
-    { v:'82%', l:'England: UDA delivery vs pre-pandemic contracted levels 2024-25 · "universal dental care has likely gone for good" (Nuffield Trust 2024)', s:'NHS England · benchmark explorer', c:JUR.eng.color },
-  ].map(function(k) {
-    return '<div class="mini-kpi" style="--kc:' + k.c + '" title="' + esc(k.s) + '"><div class="mk-v" style="font-size:17px">' + k.v + '</div><div class="mk-l">' + esc(k.l) + (k.imp ? ' ' + k.imp : '') + '</div></div>';
-  }).join('');
-
-  function rowsFor(list) {
-    return list.map(function(r) {
-      var j = JUR[r.jur];
-      return '<tr><td><b style="color:' + j.color + '">' + j.name + '</b></td>' +
-        '<td class="num" style="font-size:11px;">' + (r.gap ? '<span class="gap-chip">' + esc(r.d) + '</span>' : '<b>' + esc(r.d) + '</b>') + '</td>' +
-        '<td style="font-size:11px;">' + esc(r.basis) + '</td><td class="src-inline">' + esc(r.src) + '</td></tr>';
-    }).join('');
+      '<div class="mk-v" style="font-size:13px;color:var(--muted);">' + esc(cell.d) + '</div>' +
+      (cell.basis ? '<div class="mk-l">' + esc(cell.basis) + '</div>' : '') +
+      '<div class="mk-s">' + esc(cell.src) + '</div></div>';
   }
-  document.getElementById('dentalProvTable').innerHTML =
-    '<tr><th>Jurisdiction</th><th>Dentists / population</th><th>Basis</th><th>Source</th></tr>' + rowsFor(OBS.dentalDetail.perPop);
-  document.getElementById('dentalAdults').innerHTML = OBS.dentalDetail.adults24mo.map(function(r) {
-    var j = JUR[r.jur];
-    return '<div class="mini-kpi" style="--kc:' + j.color + (r.gap ? ';border-style:dashed;opacity:0.8' : '') + '" title="' + esc(r.basis) + ' · ' + esc(r.src) + '">' +
-      '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;margin-bottom:4px;">' + j.short + '</div>' +
-      '<div class="mk-v" style="font-size:19px;">' + esc(r.d) + '</div></div>';
-  }).join('');
-  document.getElementById('dentalKids').innerHTML =
-    '<tr><th>Measure</th><th>IoM</th><th>England</th><th>Others</th></tr>' +
-    '<tr><td style="font-size:11px;font-weight:700;">5-year-olds with tooth decay experience</td>' +
-    '<td class="num"><b>26.6%</b> <span class="src-inline">2024/25 PH report · d/m/f teeth</span></td>' +
-    '<td class="num">22.4% dentinal · 26.9% incl. enamel <span class="src-inline">NDEP 2023-24 — IoM figure closest to broader measure</span></td>' +
-    '<td style="font-size:10px;"><span class="gap-chip">not published</span> Jsy/Gsy/boards</td></tr>' +
-    '<tr><td style="font-size:11px;font-weight:700;">Children seen by NHS dentist ≤12 months</td>' +
-    '<td class="num"><span class="gap-chip">not published</span> <span class="src-inline">~780 children waiting at one practice</span></td>' +
-    '<td class="num">57% <span class="src-inline">Jun 2025</span></td>' +
-    '<td style="font-size:10px;">Guernsey: free child check-ups since 2022</td></tr>' +
-    '<tr><td style="font-size:11px;font-weight:700;">School prevention programmes</td>' +
-    '<td class="num" style="font-size:11px;">Smile of Mann — supervised toothbrushing + fluoride varnish, expanded to primary schools</td>' +
-    '<td class="num" style="font-size:11px;">supervised toothbrushing schemes (targeted)</td>' +
-    '<td style="font-size:10px;">Childsmile (Scotland-wide) applies to the island boards — not yet extracted</td></tr>' +
-    '<tr><td colspan="4" style="font-size:10px;color:var(--muted);border-bottom:none;">Sources: IoM public health report 2024/25, NDEP 2023-24 and NHS England dental statistics via manx-care-benchmark.html; Bailiwick Express (Guernsey).</td></tr>';
-  document.getElementById('dentalTable').innerHTML =
-    '<tr><th>Jurisdiction</th><th>Model</th><th>What we know</th><th>Source</th></tr>' +
-    [
-      { j:'iom', m:'NHS + private mix', k:'New 2025/26 GDS contract turned the queue — the clearest measurable primary-care intervention in this corpus.', s:'DHSC Assessment · benchmark explorer' },
-      { j:'jsy', m:'Private + targeted schemes', k:'Dental Fitness Scheme (partial subsidy); no headcount or waiting-list data published.', s:'benchmark explorer' },
-      { j:'gsy', m:'Fully private', k:'Free child check-ups (2022); no adult access data.', s:'Bailiwick Express 2022' },
-      { j:'ork', m:'NHS GDS + salaried', k:'Board-level registration/participation = PHS data request (roadmap).', s:'PHS' },
-      { j:'shl', m:'NHS GDS + salaried', k:'Same gap.', s:'PHS' },
-      { j:'wis', m:'NHS — board-run clinics', k:'Salaried clinics operated directly by the board.', s:'NHS WI website' },
-    ].map(function(r) {
-      var j = JUR[r.j];
-      return '<tr><td><b style="color:' + j.color + '">' + j.name + '</b></td><td style="font-size:11px;">' + esc(r.m) + '</td><td style="font-size:11px;">' + esc(r.k) + '</td><td class="src-inline">' + esc(r.s) + '</td></tr>';
-    }).join('');
+  var mark = cell.ok === true ? '<span style="color:var(--green);font-weight:700;">✓ target met</span>'
+           : cell.ok === false ? '<span style="color:var(--red);font-weight:700;">✗ target not met</span>'
+           : '<span style="color:var(--muted);">context measure</span>';
+  return '<div class="mini-kpi" style="--kc:' + j.color + '">' +
+    '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">' + j.short + '</div>' +
+    '<div class="mk-v" style="font-size:19px;color:' + (cell.ok === false ? 'var(--red)' : cell.ok === true ? 'var(--green)' : 'var(--kc)') + ';">' + esc(cell.d) + '</div>' +
+    '<div class="mk-l">' + mark + (cell.basis ? ' · ' + esc(cell.basis) : '') + '</div>' +
+    '<div class="mk-s">' + esc(cell.src) + '</div></div>';
 }
+function renderCardTable() {
+  var sec = OBS.kpiMatrix.sections[activeDomain];
+  var html = '';
+  sec.rows.forEach(function(row) {
+    var expl = explainFor(row.metric);
+    html += '<div style="margin-bottom:18px;">' +
+      '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px;">' +
+      '<div style="font-size:13px;font-weight:800;">' + esc(row.metric) + '</div>' +
+      '<span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">' + esc(row.unit) + '</span></div>' +
+      (expl ? '<div style="font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:8px;max-width:820px;">' + esc(expl) + '</div>' : '<div style="margin-bottom:8px;"></div>') +
+      '<div class="card-grid-6" style="display:grid;grid-template-columns:repeat(' + OBS.kpiMatrix.cols.length + ',minmax(150px,1fr));gap:10px;overflow-x:auto;">' +
+      OBS.kpiMatrix.cols.map(function(id) { return jurCard(id, row.cells[id]); }).join('') +
+      '</div></div>';
+  });
+  document.getElementById('kpiCardTable').innerHTML = html;
+}
+document.getElementById('kpiNote').innerHTML = '<b>Read the basis line on every row.</b> ' + esc(OBS.kpiNote);
 
-/* ----- asks (kept) ----- */
-function renderAsks() {
-  var asks = [
-    { t:'PHS: island-board dental registration & participation + Childsmile coverage', d:'Scotland-level only since Nov 2023 reform; board splits existed in Jan 2023 publication.', w:'DATA REQUEST — Public Health Scotland (phs.dental-info@phs.scot)\n\nPlease provide NHS dental registration, 2-year participation, and Childsmile coverage for NHS Orkney, NHS Shetland and NHS Western Isles (adults/children separately), quarterly from 2023, on the Jan-2023 publication basis.' },
-    { t:'IoM: per-patient GP funding rate history', d:'Only one published figure (£120, 2020) exists despite the series mattering more than any other supply metric.', w:'FREEDOM OF INFORMATION REQUEST — Manx Care / DHSC\n\nPlease provide the per-patient (capitation) rates paid to GP practices for each year since 2015, together with any weighting formula applied, and the total primary care medical services budget by year.' },
-    { t:'Jersey: GP practice list + current fee schedule + HAS uptake', d:'Patient price after the £50.28 subsidy varies by practice and is not centrally published.', w:'INFORMATION REQUEST — Government of Jersey\n\nPlease provide: (1) contracted GP practices; (2) current advertised standard consultation fee at each; (3) HAS membership, consultations and cost by year since launch; (4) subsidy expenditure by year since 2012.' },
-    { t:'Guernsey: ED-charging impact evaluation', d:'£250-cap charging since Oct 2024; 48% cost-deterrence documented in 2018.', w:'RULE 14 QUESTION — Committee for Health & Social Care\n\nSince 1 October 2024: (1) ED attendances by triage category vs prior year; (2) invoices to debt recovery; (3) assessment of deterred/late presentation — will it be published?' },
-    { t:'All boards: GP WTE per 1,000 patients', d:'Site counts are geography, not workforce.', w:'DATA REQUEST — respective boards / PHS GP workforce survey\n\nGP WTE (partners/salaried/locum) and registered list size by practice, latest year, to derive WTE per 1,000 registered patients.' },
+function renderActivity() {
+  var order = ['iom','jsy','gsy','ork','shl','wis'];
+  var ROWS = [
+    { name:'ED attendances', unit:'per 1,000 population / yr (derived)', cells:{
+      iom:{ head:null, raw:'13,143 emergency calls', basis:'2024-25 — ED attendance count not in extracted set; ambulance calls shown', src:'DHSC Assessment 2024-25 Annex C', gap:true },
+      jsy:{ head:(43872/104540*1000), raw:'43,872 attendances (2025)', basis:'pop 104,540 (2023 est.)', src:'States of Jersey ARA 2025' },
+      gsy:{ head:(24153/64781*1000), raw:'24,153 attendances (2024)', basis:'pop 64,781 (Dec 2023)', src:'Guernsey MSG Contract KPIs 2024' },
+      ork:{ head:null, raw:'held @ PHS', basis:'board-level ED activity published nationally — collection target', src:'PHS', gap:true },
+      shl:{ head:null, raw:'held @ PHS', basis:'', src:'PHS', gap:true },
+      wis:{ head:null, raw:'held @ PHS', basis:'26% of ED attendances end in admission (Scotland 26.1%)', src:'PHS · WIHB HNA 2025', gap:true },
+    }},
+    { name:'Inpatient admissions', unit:'per 1,000 population / yr (derived)', cells:{
+      iom:{ head:null, raw:'not in extracted set', basis:'', src:'gap register', gap:true },
+      jsy:{ head:(33968/104540*1000), raw:'33,968 admissions (2025, excl. private)', basis:'pop 104,540', src:'States of Jersey ARA 2025' },
+      gsy:{ head:(16083/64781*1000), raw:'16,083 admissions (2024; 2023: 15,772)', basis:'pop 64,781', src:'Guernsey MSG Contract KPIs 2024' },
+      ork:{ head:null, raw:'held @ PHS', basis:'', src:'PHS', gap:true },
+      shl:{ head:null, raw:'held @ PHS', basis:'', src:'PHS', gap:true },
+      wis:{ head:183, raw:'unscheduled: 183 per 1,000 (age/sex std) — Scotland 110', basis:'2023/24 · 54% of all admissions unscheduled', src:'WIHB HNA Mar 2025' },
+    }},
   ];
-  document.getElementById('pcAsks').innerHTML = asks.map(function(a, i) {
-    return '<div class="opp-card" style="--oc:var(--blue)"><div class="opp-kind" style="color:var(--blue)">Request ' + (i + 1) + '</div>' +
-      '<div class="opp-title">' + esc(a.t) + '</div><div class="opp-detail">' + esc(a.d) + '</div>' +
-      '<div class="opp-actions"><button class="wn-btn" onclick="toggleWN(\'pc' + i + '\')">Draft</button></div>' +
-      '<div class="wn-out" id="wn-pc' + i + '"><button class="copy-btn" onclick="copyWN(this,\'pc' + i + '\')">Copy</button><span id="wntext-pc' + i + '">' + esc(a.w) + '</span></div>' +
-      '<div class="public-swap" data-lens="public"><b>What you can do:</b> nobody publishes this yet — a good question for a candidate or representative. Switch to the <b>Politician</b> view (top right) for the formal request wording.</div></div>';
+  var html = '';
+  ROWS.forEach(function(row) {
+    html += '<div style="margin-bottom:14px;"><div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px;">' +
+      '<div style="font-size:13px;font-weight:800;">' + esc(row.name) + '</div>' +
+      '<span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">' + esc(row.unit) + '</span></div>' +
+      '<div class="card-grid-6" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;">' +
+      order.map(function(id) {
+        var c = row.cells[id], j = JUR[id];
+        if (!c) return '<div></div>';
+        var headline = c.head != null ? Math.round(c.head) : null;
+        return '<div class="mini-kpi" style="--kc:' + j.color + (c.gap ? ';border-style:dashed;opacity:0.8' : '') + '">' +
+          '<div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">' + j.short + '</div>' +
+          (headline != null
+            ? '<div class="mk-v" style="font-size:20px;">' + headline + '<span style="font-size:10px;color:var(--muted);font-weight:600;"> /1k</span></div>'
+            : '<div class="mk-v" style="font-size:12px;color:var(--muted);">—</div>') +
+          '<div class="mk-l">' + esc(c.raw) + (c.basis ? ' · ' + esc(c.basis) : '') + '</div>' +
+          '<div class="mk-s">' + esc(c.src) + '</div></div>';
+      }).join('') + '</div></div>';
+  });
+  html += '<div style="font-size:10px;color:var(--muted);">Headline rates are derived (count ÷ population, labelled); the raw published statistic sits beneath each. Dashed cards = not published or not yet extracted.</div>';
+  document.getElementById('activityStrip').innerHTML = html;
+}
+
+function renderKpiCards() {
+  document.getElementById('kpiCards').innerHTML = OBS.kpi.map(function(d) {
+    var nums = d.rows.filter(function(r) { return r.v != null; }).map(function(r) { return r.v; });
+    var max = nums.length ? Math.max.apply(null, nums) : 0;
+    var rows = d.rows.map(function(r) {
+      var j = JUR[r.id];
+      var bar = '';
+      if (r.v != null && max > 0) {
+        var pct = r.v / max * 100;
+        bar = '<div style="flex:1;min-width:90px;height:12px;background:var(--surface2);border-radius:3px;overflow:hidden;">' +
+          '<div style="height:100%;width:' + pct + '%;background:' + j.color + ';"></div></div>';
+      } else {
+        bar = '<div style="flex:1;min-width:90px;"></div>';
+      }
+      return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--border);">' +
+        '<div style="min-width:118px;font-size:11px;font-weight:700;color:' + j.color + '">' + j.name + '</div>' +
+        bar +
+        '<div style="min-width:150px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:600;color:' + (r.gap ? 'var(--muted)' : 'var(--text)') + '">' +
+        (r.gap ? '<span class="gap-chip">' + esc(r.d) + '</span>' : esc(r.d)) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:10px;padding:0 0 2px 128px;font-size:9px;color:var(--muted);line-height:1.4;"><span>' + esc(r.basis || '') + '</span><span class="src-inline" style="margin-left:auto;text-align:right">' + esc(r.src) + '</span></div>';
+    }).join('');
+    var dir = d.betterIs === 'higher' ? '↑ higher is better' : d.betterIs === 'lower' ? '↓ lower is better' : 'context measure';
+    return '<div class="opp-card" style="--oc:var(--blue)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;">' +
+      '<div class="opp-title" style="font-size:14px;">' + esc(d.name) + '</div>' +
+      '<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)">' + esc(d.unit) + ' · ' + dir + '</span></div>' +
+      '<div class="opp-detail" style="margin-bottom:6px;">' + esc(d.explain) + '</div>' + rows + '</div>';
   }).join('');
 }
 
+/* IoM specialty waits */
+var waitsExpanded = false;
+function renderWaits() {
+  var rows = OBS.iomWaits.filter(function(w) { return w.stage.indexOf('First Outpatient') >= 0 && w.medianWeeks != null; })
+    .sort(function(a, b) { return b.medianWeeks - a.medianWeeks; });
+  var shown = waitsExpanded ? rows : rows.slice(0, 15);
+  var max = rows[0] ? rows[0].medianWeeks : 1;
+  document.getElementById('waitsBars').innerHTML = shown.map(function(w) {
+    var col = w.medianWeeks >= 52 ? 'var(--red)' : w.medianWeeks >= 26 ? 'var(--amber)' : 'var(--green)';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:3px 0;" title="' + esc(w.src) + '">' +
+      '<div style="min-width:170px;font-size:11px;color:var(--muted2);">' + esc(w.specialty) + '</div>' +
+      '<div style="flex:1;height:11px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + (w.medianWeeks / max * 100) + '%;background:' + col + ';"></div></div>' +
+      '<div class="num" style="min-width:60px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:' + col + ';font-weight:700">' + w.medianWeeks + ' wks</div>' +
+      '<div class="num" style="min-width:70px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted)">' + fmtN(w.waiting) + ' pts</div></div>';
+  }).join('') +
+  '<div style="font-size:10px;color:var(--muted);padding-top:8px;">Colour: <span style="color:var(--green)">&lt;26 wks</span> · <span style="color:var(--amber)">26–51 wks</span> · <span style="color:var(--red)">≥52 wks</span>. Hover a row for the source table. Total patients waiting for first OP appointment: 17,829 (31 Mar 2025 count; snapshot table 1 May 2026).</div>';
+  document.getElementById('waitsToggle').textContent = waitsExpanded ? 'Show top 15' : 'Show all specialties (' + rows.length + ')';
+}
+function toggleWaits() { waitsExpanded = !waitsExpanded; renderWaits(); }
 
-function obsOnTheme() { charts.forEach(function(c) { c.destroy(); }); charts = []; drawFundingChart(); drawGpChart(); }
-renderFeeLadder(); renderFunding(); drawFundingChart(); drawGpChart(); renderGpComparators(); renderCoverage(); renderGpPerf(); renderEdCharges(); renderDental(); renderAsks();
+/* auto questions from KPI misses + gaps for focus jur */
+function renderQuestions() {
+  var jid = obsJur(), j = JUR[jid];
+  var qs = [];
+  OBS.kpi.forEach(function(d) {
+    var mine = d.rows.find(function(r) { return r.id === jid; });
+    if (!mine) {
+      qs.push({ kind:'coverage', color:'var(--purple)', title: d.name + ' — no ' + j.name + ' row held',
+        detail:'The observatory holds no ' + j.name + ' value for this dial. Either it is unpublished (ask why) or uncollected (a library target).',
+        wn:'QUESTION — ' + j.name + '\n\nDoes ' + j.name + ' measure and publish "' + d.name + '" (' + d.unit + ')? If measured but unpublished, will it be included in routine public reporting? Comparators: ' + d.rows.filter(function(r){return !r.gap;}).map(function(r){return JUR[r.id].name + ' ' + r.d;}).join('; ') + '.' });
+      return;
+    }
+    if (mine.gap) {
+      qs.push({ kind:'transparency', color:'var(--amber)', title: d.name + ' — not published',
+        detail:(mine.basis || 'No published value.') + ' Source: ' + mine.src,
+        wn:'QUESTION — ' + j.name + '\n\nEvery comparable jurisdiction publishes "' + d.name + '". Will the health service publish this metric, and if not, on what grounds? (' + d.rows.filter(function(r){return !r.gap;}).map(function(r){return JUR[r.id].short + ': ' + r.d;}).join(' · ') + ')' });
+    } else if (/target|standard/i.test(mine.basis) && d.betterIs !== 'context') {
+      qs.push({ kind:'performance', color:'var(--red)', title: d.name + ': ' + mine.d,
+        detail:'Basis: ' + mine.basis + '. ' + d.explain,
+        wn:'QUESTION — ' + j.name + '\n\nOn "' + d.name + '" the reported position is ' + mine.d + ' (' + mine.basis + '; source ' + mine.src + '). What is the recovery trajectory and date for meeting the stated standard, and what specifically is the binding constraint (workforce, estate, off-island capacity)?' });
+    }
+  });
+  document.getElementById('qStack').innerHTML = qs.slice(0, 6).map(function(q, i) {
+    return '<div class="opp-card" style="--oc:' + q.color + '"><div class="opp-kind">' + q.kind + '</div>' +
+      '<div class="opp-title">' + esc(q.title) + '</div><div class="opp-detail">' + esc(q.detail) + '</div>' +
+      '<div class="opp-actions"><button class="wn-btn" onclick="toggleWN(\'q' + i + '\')">Draft question</button></div>' + '<div class="public-swap" data-lens="public"><b>What you can do:</b> this is a fair performance question — your representative can table it. Switch to the <b>Politician</b> view (top right) for the formal request wording.</div>' +
+      '<div class="wn-out" id="wn-q' + i + '"><button class="copy-btn" onclick="copyWN(this,\'q' + i + '\')">Copy</button><span id="wntext-q' + i + '">' + esc(q.wn) + '</span></div></div>';
+  }).join('') || '<div class="panel" style="font-size:12px;color:var(--muted)">No misses or gaps derived for this jurisdiction.</div>';
+}
+
+function obsOnJur() { renderJurChips('jurChips'); renderQuestions(); renderMatrix(); }
+function obsOnLens() {}
+
+/* ----- Manx Care workforce composition (DERIVED) ----- */
+var _wfcChart = null, _wfcView = 'stack';
+/* v0.8: contract groups are neither jurisdictions nor states — teal ramp, with dash/point second cues in line views */
+var WFC_HINTS = { stack:'Stacked bottom-up with care delivery at the base: nurses, doctors, learning disability, social care, admin, directors. Hover any band for that month.',
+  index:'Every group indexed to Apr 2021 = 100 — who grew fastest. Doctors &amp; dentists +58%, admin/management/social work +39%, clinical staff +20%; NJC is the only group to end below its start. Directors (flat, ~9 WTE) omitted.',
+  share:'Share of total workforce. The mix barely moves — nurses &amp; clinical staff stay ~48–49% throughout: Manx Care grew in proportion rather than rebalancing.' };
+function setWfcView(v) { _wfcView = v; drawWfcChart(); }
+function drawWfcChart() {
+  var W = OBS.mcWorkforce; if (!W) return;
+  var ax = obsAxis();
+  var grid = ax.grid;
+  var stacked = _wfcView !== 'index';
+  var ramp = obsRamp(W.groups.length);
+  var totals = W.labels.map(function(_, i) { return W.groups.reduce(function(a, g) { return a + g.vals[i]; }, 0); });
+  var ds = [];
+  W.groups.forEach(function(g, gi) {
+    if (_wfcView === 'index' && g.id === 'jesp') return;
+    var data = g.vals;
+    if (_wfcView === 'index') data = g.vals.map(function(v) { return +(v / g.vals[0] * 100).toFixed(1); });
+    if (_wfcView === 'share') data = g.vals.map(function(v, i) { return +(v / totals[i] * 100).toFixed(2); });
+    ds.push({ label: g.label + ' (' + g.code + ')', data: data, borderColor: ramp[gi],
+      backgroundColor: ramp[gi] + (stacked ? 'cc' : '18'), fill: stacked,
+      borderWidth: stacked ? 1 : 2,
+      borderDash: stacked ? [] : OBS_DASHES[gi % OBS_DASHES.length],
+      pointStyle: OBS_POINTS[gi % OBS_POINTS.length],
+      pointRadius: 0, pointHoverRadius: 4, tension: 0.3 });
+  });
+  if (_wfcChart) _wfcChart.destroy();
+  _wfcChart = new Chart(document.getElementById('wfCompChart').getContext('2d'), {
+    type: 'line',
+    data: { labels: W.labels, datasets: ds },
+    options: { responsive: true, aspectRatio: obsAR(2.4),
+      interaction: _wfcView === 'share' ? { mode: 'nearest', axis: 'xy', intersect: false } : { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: ax.tick, font: { size: 10 }, boxWidth: 12, usePointStyle: !stacked } },
+        tooltip: { callbacks: { label: function(c) {
+          var v = c.parsed.y;
+          if (_wfcView === 'share') return c.dataset.label + ': ' + v.toFixed(1) + '% of workforce';
+          if (_wfcView === 'index') return c.dataset.label + ': ' + Math.round(v) + ' (Apr 21 = 100)';
+          return c.dataset.label + ': ' + Math.round(v) + ' WTE (derived)';
+        } } } },
+      scales: { x: { ticks: { color: ax.tick, font: { size: 10 }, maxTicksLimit: obsTicks(12), maxRotation: 0 }, grid: { color: grid } },
+        y: { stacked: stacked, min: _wfcView === 'index' ? 90 : 0, max: _wfcView === 'share' ? 100 : undefined,
+          ticks: { color: ax.tick, font: { size: 10 }, callback: function(v) { return _wfcView === 'share' ? v + '%' : v; } }, grid: { color: grid },
+          title: { display: true, text: _wfcView === 'stack' ? 'whole-time equivalents (WTE)' : _wfcView === 'index' ? 'index, Apr 2021 = 100' : '% of total WTE', color: ax.tick, font: { size: 10 } } } }
+    } });
+  document.getElementById('wfcIntro').innerHTML = WFC_HINTS[_wfcView] +
+    ' Published anchor: <b style="color:var(--text)">' + fmtN(W.headcountFeb26) + ' staff / ' + fmtN(W.totalFeb26) + ' WTE at Feb 2026</b>.';
+  document.getElementById('wfcCaveat').innerHTML = '<b>Derived series:</b> ' + esc(W.caveat) + ' ' + esc(W.defs) + ' <span class="src-inline">' + esc(W.src) + '</span>';
+  ['stack','index','share'].forEach(function(v) {
+    var b = document.getElementById('wfcBtn-' + v); if (b) b.style.opacity = (v === _wfcView) ? '1' : '0.55';
+  });
+}
+function renderWorkforce() {
+  var order = ['iom','gsy','jsy','eng'];
+  document.getElementById('wfStrip').innerHTML = OBS.workforceSnapshot.map(function(r) {
+    var j = JUR[r.jur];
+    return '<div class="mini-kpi" style="--kc:' + j.color + '"><div style="font-size:10px;font-weight:800;color:' + j.color + ';text-transform:uppercase;margin-bottom:4px;">' + j.short + '</div>' +
+      '<div class="mk-l" style="font-size:11px;color:var(--text);">' + esc(r.d) + '</div><div class="mk-s">' + esc(r.src) + '</div></div>';
+  }).join('');
+  document.getElementById('dtocPanel').innerHTML =
+    '<b style="color:' + JUR.gsy.color + '">Delayed transfers — the Guernsey trend:</b> ' + esc(OBS.dtocTrend.gsy.latest) +
+    ' <b>91 days/month (2018) → 338 (2024)</b> — 3.7× growth while the front door is priced. <span class="src-inline">' + esc(OBS.dtocTrend.gsy.src) + '</span><br/>' +
+    '<b style="color:' + JUR.iom.color + '">IoM equivalent:</b> ' + esc(OBS.dtocTrend.iom.latest) + ' <span class="src-inline">' + esc(OBS.dtocTrend.iom.src) + '</span><br/><br/>' +
+    '<b>Agency staffing:</b> ' + esc(OBS.agencyNote);
+}
+function obsOnTheme() { drawWfcChart(); }
+renderWorkforce(); renderActivity(); renderDomainTabs(); renderCardTable(); renderMatrix(); renderWaits(); renderJurChips('jurChips'); renderQuestions(); drawWfcChart();
 
 </script>
 </body>
