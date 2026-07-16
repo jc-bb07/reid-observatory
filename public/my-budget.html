@@ -283,20 +283,8 @@ input[type=checkbox]{width:12px;height:12px;accent-color:var(--blue);cursor:poin
         <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="acc-body">
-        <div class="field">
-          <label>Gross income — first adult (before tax &amp; NI)</label>
-          <div class="field-row"><span class="pound">£</span>
-            <input type="number" id="gross" value="765" min="0"/>
-            <select id="freq"><option value="52">/ week</option><option value="12">/ month</option><option value="1">/ year</option></select>
-          </div>
-        </div>
-        <div class="field" id="gross2-field" style="display:none">
-          <label>Gross income — second adult</label>
-          <div class="field-row"><span class="pound">£</span>
-            <input type="number" id="gross2" value="0" min="0"/>
-            <select id="freq2"><option value="52">/ week</option><option value="12">/ month</option><option value="1">/ year</option></select>
-          </div>
-        </div>
+        <div id="adult-incomes"></div>
+        <div class="hint" style="margin:.2rem 0 .6rem">Leave an adult's income at £0 if they aren't earning — retired, unable to work, a full-time carer, or a student. Pensions and benefits go in the field below.</div>
         <div class="field">
           <label>Benefits / Child Benefit / other income</label>
           <div class="field-row"><span class="pound">£</span>
@@ -479,7 +467,7 @@ input[type=checkbox]{width:12px;height:12px;accent-color:var(--blue);cursor:poin
 const COLS={iom:'#3b82f6',tax:'#818cf8',ni:'#6366f1',house:'#f87171',
   utils:'#fb923c',food:'#34d399',trans:'#60a5fa',child:'#f59e0b',
   person:'#a78bfa',leisure:'#22d3ee',disp:'#4ade80',deficit:'#f43f5e',
-  custom:['#e879f9','#fb7185','#a3e635','#38bdf8','#fcd34d']};
+  custom:['#e879f9','#fb7185','#a3e635','#38bdf8','#fcd34d','#c084fc','#fb923c','#4ade80','#22d3ee','#f472b6']};
 
 // ── TAX 2024/25 ───────────────────────────────────────────────────────────────
 function calcTax(yr){
@@ -493,12 +481,30 @@ function calcTax(yr){
 
 // ── MIS BASKETS (£/week) ──────────────────────────────────────────────────────
 // Keyed by adults_children. Children contribute to food/personal/leisure.
+function bedroomsFor(adults,children){
+  // Preserves the original small-household figures exactly, then extends
+  // sensibly for household shapes the MIS basket never covered (3+ adults,
+  // 3+ children): a bedroom per pair of adults, a bedroom per pair of children.
+  const a=Math.max(1,adults||1), c=Math.max(0,children||0);
+  if(a===1&&c===0) return 1;
+  if(a===1&&c===1) return 1;
+  if(a===2&&c<=2) return 2;
+  if(a<=2&&c<=2) return 3;
+  const adultBeds=Math.ceil(a/2), childBeds=Math.ceil(c/2);
+  return Math.min(6, Math.max(3, adultBeds+childBeds));
+}
+
 function getMIS(adults, children, childAges){
-  // Base per adult
-  const baseFood=adults===1?92:148;
-  const baseTrans=adults===1?55:80;
-  const basePerson=adults===1?28:45;
-  const baseLeisure=adults===1?35:55;
+  const a=Math.max(1,adults||1);
+  // Base per adult — first adult sets the baseline; each additional adult adds
+  // a smaller marginal amount, a rough economies-of-scale assumption for shared
+  // households (the published MIS basket only covers 1 and 2 adults, so 3+ is
+  // a linear extrapolation from the same per-adult increments — adjust below
+  // if your real costs differ).
+  const baseFood=92+Math.max(0,a-1)*56;
+  const baseTrans=55+Math.max(0,a-1)*25;
+  const basePerson=28+Math.max(0,a-1)*17;
+  const baseLeisure=35+Math.max(0,a-1)*20;
   // Per child additions (rough MIS scaling)
   let childFood=0,childPerson=0,childLeisure=0,childCare=0;
   (childAges||[]).forEach(age=>{
@@ -510,11 +516,11 @@ function getMIS(adults, children, childAges){
     else if(age==='19plus'){childFood+=50;childPerson+=18;childLeisure+=15;}
   });
   // Utilities scale by household size
-  const hSize=adults+(children||0);
-  const utils=hSize<=1?47:hSize<=2?58:hSize<=3?72:87;
+  const hSize=a+(children||0);
+  const utils=hSize<=1?47:hSize<=2?58:hSize<=3?72:87+Math.max(0,hSize-4)*10;
   // Housing defaults
-  const bedrooms=adults===1&&children===0?1:adults===1&&children<=1?1:adults===2&&children<=1?2:adults===2&&children<=2?2:3;
-  const rentDefault=bedrooms===1?750:bedrooms===2?1150:1450; // monthly
+  const bedrooms=bedroomsFor(a,children||0);
+  const rentDefault=bedrooms<=2?(bedrooms===1?750:1150):1450+(bedrooms-3)*300; // monthly
   return{
     food:Math.round(baseFood+childFood),
     trans:Math.round(baseTrans),
@@ -540,6 +546,36 @@ function h2r(hex,a){
 
 // ── HOUSEHOLD STATE ───────────────────────────────────────────────────────────
 let nAdults=1, nChildren=0, childAgeArr=[];
+let adultIncomes=[{gross:765,freq:52}];
+
+function renderAdultIncomes(){
+  const el=$('adult-incomes'); el.innerHTML='';
+  while(adultIncomes.length<nAdults) adultIncomes.push({gross:0,freq:52});
+  adultIncomes=adultIncomes.slice(0,nAdults);
+  adultIncomes.forEach((a,i)=>{
+    const row=document.createElement('div');
+    row.className='field';
+    row.innerHTML=`<label>Gross income — adult ${i+1}${i===0?' (before tax & NI)':''}</label>
+      <div class="field-row"><span class="pound">£</span>
+        <input type="number" min="0" value="${a.gross}" data-ai="${i}" data-f="gross"/>
+        <select data-ai="${i}" data-f="freq">
+          <option value="52"${a.freq==52?' selected':''}>/ week</option>
+          <option value="12"${a.freq==12?' selected':''}>/ month</option>
+          <option value="1"${a.freq==1?' selected':''}>/ year</option>
+        </select>
+      </div>`;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('input,select').forEach(inp=>{
+    const handler=e=>{
+      const i=parseInt(e.target.dataset.ai), f=e.target.dataset.f;
+      adultIncomes[i][f]=f==='gross'?(parseFloat(e.target.value)||0):(parseInt(e.target.value)||52);
+      update();
+    };
+    inp.addEventListener('input',handler);
+    inp.addEventListener('change',handler);
+  });
+}
 
 function renderChildAges(){
   const el=$('child-ages'); el.innerHTML='';
@@ -578,8 +614,6 @@ function applyMIS(){
   $('telecoms').value=Math.round(mis.utils*0.28*12);
   // Housing (monthly)
   $('housing').value=mis.housing;
-  // Show/hide second earner
-  $('gross2-field').style.display=nAdults>=2?'':'none';
   // Show/hide childcare
   $('childcare-field').style.display=nChildren>0?'':'none';
   // Household summary
@@ -599,11 +633,11 @@ document.querySelectorAll('.step-btn').forEach(btn=>{
     const id=btn.dataset.target;
     const delta=parseInt(btn.dataset.delta);
     const el=$(id);
-    const min=0,max=id==='n-adults'?3:6;
+    const min=id==='n-adults'?1:0,max=6;
     const val=Math.max(min,Math.min(max,(parseInt(el.value)||0)+delta));
     el.value=val;
     $(id+'-val').textContent=val;
-    if(id==='n-adults') nAdults=val;
+    if(id==='n-adults'){nAdults=val;renderAdultIncomes();}
     else{nChildren=val;renderChildAges();}
     applyMIS();update();
   };
@@ -640,7 +674,7 @@ function renderCustomLines(){
     customLines.splice(parseInt(e.target.dataset.rm),1);renderCustomLines();update();
   }));
 }
-$('add-custom-btn').onclick=()=>{if(customLines.length<5){customLines.push({label:'',amount:0});renderCustomLines();update();}};
+$('add-custom-btn').onclick=()=>{if(customLines.length<12){customLines.push({label:'',amount:0});renderCustomLines();update();}};
 
 // ── ACCORDION ─────────────────────────────────────────────────────────────────
 const ORDER=['household','income','housing','utilities','essentials','other'];
@@ -678,12 +712,13 @@ document.querySelectorAll('.done-btn').forEach(btn=>{
 
 // ── COMPUTE ───────────────────────────────────────────────────────────────────
 function compute(){
-  const g1yr=toWk(fv('gross'),fs('freq'))*52;
-  const g2yr=toWk(fv('gross2'),fs('freq2'))*52;
+  let taxWk=0,niWk=0,grossWk=0;
+  adultIncomes.forEach(ad=>{
+    const yr=toWk(ad.gross,ad.freq)*52;
+    const t=calcTax(yr);
+    taxWk+=t.it/52;niWk+=t.ni/52;grossWk+=yr/52;
+  });
   const benefitWk=toWk(fv('benefits'),fs('freqb'));
-  const t1=calcTax(g1yr),t2=calcTax(g2yr);
-  const taxWk=(t1.it+t2.it)/52,niWk=(t1.ni+t2.ni)/52;
-  const grossWk=(g1yr+g2yr)/52;
   const useOvr=$('override-chk').checked;
   const netWk=useOvr?(fv('net-override')+benefitWk):(grossWk-taxWk-niWk+benefitWk);
 
@@ -833,7 +868,7 @@ function drawSankey(d){
     {v:d.personWk,c:COLS.person,lb:'Personal & clothing',lbs:'Personal'},
     {v:d.leisureWk,c:COLS.leisure,lb:'Leisure & social',lbs:'Leisure'}
   );
-  customLines.forEach((cl,i)=>{if(cl.amount>0)cats.push({v:cl.amount,c:COLS.custom[i%5],lb:cl.label||'Other',lbs:cl.label||'Other'});});
+  customLines.forEach((cl,i)=>{if(cl.amount>0)cats.push({v:cl.amount,c:COLS.custom[i%COLS.custom.length],lb:cl.label||'Other',lbs:cl.label||'Other'});});
 
   let nc2=ntY,cc=ntY;
   cats.forEach(ct=>{
@@ -891,7 +926,7 @@ function drawSankey(d){
     {c:COLS.food,lb:'Food & household'},{c:COLS.trans,lb:'Transport'}];
   if(d.childWk>0)li.push({c:COLS.child,lb:'Childcare'});
   li.push({c:COLS.person,lb:'Personal & clothing'},{c:COLS.leisure,lb:'Leisure & social'});
-  customLines.forEach((cl,i)=>{if(cl.amount>0)li.push({c:COLS.custom[i%5],lb:cl.label||'Other'});});
+  customLines.forEach((cl,i)=>{if(cl.amount>0)li.push({c:COLS.custom[i%COLS.custom.length],lb:cl.label||'Other'});});
   li.push({c:d.dispWk<0?COLS.deficit:COLS.disp,lb:d.dispWk<0?'Shortfall':'Disposable income'});
   $('legend').innerHTML=li.map(l=>`<div class="leg-item"><span class="leg-sw" style="background:${l.c}"></span>${l.lb}</div>`).join('');
 }
@@ -957,7 +992,7 @@ function update(){
 }
 
 // ── URL ENCODE / DECODE ───────────────────────────────────────────────────────
-const SFS=['gross','freq','gross2','freq2','benefits','freqb','housing','freqh',
+const SFS=['benefits','freqb','housing','freqh',
   'rates','freqr','tenure','electricity','freqe','gas','freqg','telecoms','freqt',
   'food','freqfood','transport','freqtr','childcare','freqcc','personal','freqp','leisure','freql'];
 
@@ -965,7 +1000,7 @@ function encodeState(){
   const s={};
   SFS.forEach(id=>{const el=$(id);if(el)s[id]=el.value;});
   s.ovr=$('override-chk').checked;s.netovr=$('net-override').value;
-  s.custom=customLines;s.nAdults=nAdults;s.nChildren=nChildren;s.childAges=childAgeArr;
+  s.custom=customLines;s.nAdults=nAdults;s.nChildren=nChildren;s.childAges=childAgeArr;s.adultIncomes=adultIncomes;
   return btoa(encodeURIComponent(JSON.stringify(s)));
 }
 function decodeState(enc){
@@ -975,12 +1010,13 @@ function decodeState(enc){
     if(s.nAdults){nAdults=s.nAdults;$('n-adults').value=nAdults;$('n-adults-val').textContent=nAdults;}
     if(s.nChildren!==undefined){nChildren=s.nChildren;$('n-children').value=nChildren;$('n-children-val').textContent=nChildren;}
     if(s.childAges)childAgeArr=s.childAges;
+    if(s.adultIncomes)adultIncomes=s.adultIncomes;
+    renderAdultIncomes();
     renderChildAges();
     if(s.ovr){$('override-chk').checked=true;$('override-field').style.display='';}
     if(s.netovr)$('net-override').value=s.netovr;
     if(s.custom){customLines=s.custom;renderCustomLines();}
     $('tenure').dispatchEvent(new Event('change'));
-    $('gross2-field').style.display=nAdults>=2?'':'none';
     $('childcare-field').style.display=nChildren>0?'':'none';
     document.querySelectorAll('.acc').forEach(a=>{a.classList.remove('locked','active');a.classList.add('done');});
     unlockedUpto=ORDER.length-1;
@@ -1031,6 +1067,7 @@ if(params.get('d'))decodeState(params.get('d'));
 $('tenure').dispatchEvent(new Event('change'));
 // Use requestAnimationFrame to ensure canvas has laid out before first draw
 requestAnimationFrame(()=>{
+  if(!params.get('d'))renderAdultIncomes();
   applyMIS();
   update();
   setTimeout(reportHeight,300);
