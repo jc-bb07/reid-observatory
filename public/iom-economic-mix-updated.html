@@ -1,0 +1,685 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Economic Mix by Sector — Isle of Man · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f172a;--sf:#1e293b;--sf2:#162032;--b2:#334155;--tx:#e2e8f0;--mu:#64748b;--mu2:#475569;
+      --blue:#60a5fa;--bdim:#1d4ed8;--red:#f87171;--amb:#fbbf24;--iom:#3b82f6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:12px 16px 12px}
+h1{font-size:16px;font-weight:800;letter-spacing:-0.01em}
+.ey{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:6px}
+.tabs{display:flex;gap:1px;border-bottom:1px solid var(--b2);margin:6px 0 8px}
+.tab{padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--mu);
+     border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab:hover{color:var(--tx)}.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-lock{color:var(--red)!important}.tab-lock.active{border-bottom-color:var(--red)!important}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:7px;align-items:center;min-height:26px;margin-bottom:8px}
+.cg{display:flex;align-items:center;gap:5px}
+.cl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);white-space:nowrap}
+select{background:var(--sf);border:1px solid var(--b2);color:var(--tx);padding:3px 7px;border-radius:5px;font-size:11px;font-family:inherit;cursor:pointer}
+select:focus{outline:none;border-color:var(--blue)}
+.pill{display:flex;background:var(--sf2);border:1px solid var(--b2);border-radius:6px;overflow:hidden}
+.pb{padding:3px 10px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--mu);transition:all .15s;white-space:nowrap}
+.pb.active{background:var(--bdim);color:#fff}
+/* chart: fixed height, works in iframe */
+.cw{position:relative;background:var(--sf2);border:1px solid var(--b2);border-radius:8px;padding:10px 10px 6px;height:420px}
+canvas{width:100%!important;height:100%!important}
+.lock-overlay{position:absolute;inset:0;background:rgba(15,23,42,0.96);border-radius:7px;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:10}
+.lock-icon{font-size:34px;opacity:.6}
+.lock-title{font-size:12px;font-weight:600;color:var(--mu2);text-align:center;max-width:260px;line-height:1.6}
+.lock-form{display:flex;gap:6px}
+.lock-input{background:var(--sf);border:1px solid var(--b2);color:var(--tx);padding:6px 10px;
+             border-radius:5px;font-size:12px;font-family:'JetBrains Mono',monospace;width:160px}
+.lock-input:focus{outline:none;border-color:var(--red)}
+.lock-btn{padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer}
+.lock-btn:hover{opacity:.85}
+.lock-err{font-size:10px;color:var(--red);min-height:13px;text-align:center}
+.lock-sub{font-size:9px;color:var(--mu);text-align:center;max-width:240px;line-height:1.5}
+.ctx-panel{background:var(--sf2);border:1px solid #f8717133;border-radius:6px;padding:7px 10px;margin-top:6px;display:none}
+.ctx-panel.show{display:block}
+.ctx-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:5px}
+.ctx-events{display:flex;flex-direction:column;gap:3px}
+.ctx-ev{display:flex;gap:8px;font-size:10px;line-height:1.4}
+.ctx-yr{font-family:'JetBrains Mono',monospace;color:var(--amb);flex-shrink:0;min-width:52px}
+.ctx-txt{color:var(--mu2)}
+.pbar{display:flex;align-items:center;gap:7px;padding-top:6px;border-top:1px solid var(--b2);margin-top:5px}
+.bplay{padding:5px 16px;font-size:11px;font-weight:700;border:none;border-radius:6px;cursor:pointer;background:var(--iom);color:#fff;min-width:74px;letter-spacing:.02em}
+.bplay:hover{background:var(--blue)}
+.scrub{flex:1;accent-color:var(--blue);cursor:pointer}
+.ybadge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--blue);min-width:54px;text-align:right}
+.spd{display:flex;gap:3px}
+.sb{padding:2px 5px;font-size:9px;font-weight:700;border:1px solid var(--b2);background:none;color:var(--mu);border-radius:4px;cursor:pointer}
+.sb.active{background:var(--sf);color:var(--tx)}
+.legrow{display:flex;align-items:center;gap:7px;margin-top:7px}
+.legtitle{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mu);white-space:nowrap}
+.legscroll{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none;padding-bottom:1px}
+.legscroll::-webkit-scrollbar{display:none}
+.li{display:flex;align-items:center;gap:3px;cursor:pointer;padding:2px 5px;border-radius:4px;border:1px solid transparent;flex-shrink:0;transition:border-color .12s,opacity .12s}
+.li:hover{border-color:var(--b2)}.li.off{opacity:.3}
+.sw{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.ln{font-size:10px;color:var(--mu2);white-space:nowrap}
+.lacts{display:flex;gap:7px;flex-shrink:0}
+.lnk{font-size:9px;color:var(--blue);cursor:pointer;background:none;border:none;text-decoration:underline;white-space:nowrap}
+.note{font-size:10px;color:var(--mu);line-height:1.5;padding:5px 9px;background:var(--sf2);border-left:2px solid var(--b2);border-radius:0 4px 4px 0;margin-top:7px}
+/* Observatory max-width */
+body { max-width: 960px; margin-left: auto; margin-right: auto; }
+body.light{--bg:#f8fafc;--sf:#ffffff;--sf2:#f1f5f9;--b2:#cbd5e1;--tx:#0f172a;--mu:#64748b;--mu2:#334155;--blue:#2563eb;--bdim:#2563eb;--red:#dc2626;--amb:#d97706;--iom:#2563eb}
+body.light .lock-overlay{background:rgba(248,250,252,0.96)}
+body.light select{background:var(--sf);color:var(--tx)}
+</style>
+</head>
+<body>
+<h1>Economic Mix by Sector — Isle of Man</h1>
+<div class="tabs">
+  <button class="tab active" data-tab="abs">Absolute</button>
+  <button class="tab" data-tab="rel">Relative</button>
+  <button class="tab" data-tab="mix">Mix</button>
+  <button class="tab" data-tab="compete">Competing Out</button>
+  <button class="tab tab-lock" data-tab="comp">GVA/Worker &#128274;</button>
+</div>
+<div class="ctrl-row" id="main-ctrl">
+  <div class="cg" id="yr-ctrl"><span class="cl">From</span><select id="yr-from"></select><span class="cl">to</span><select id="yr-to"></select></div>
+  <div class="cg" id="view-ctrl"><span class="cl">View</span>
+    <div class="pill"><button class="pb active" data-view="groups">Groups</button><button class="pb" data-view="sectors">Sectors</button></div>
+  </div>
+  <div class="cg" id="real-ctrl">
+    <div class="pill"><button class="pb" data-real="nom">Nominal</button><button class="pb active" data-real="real">Real (2024/25)</button></div>
+  </div>
+</div>
+<div class="ctrl-row" id="comp-ctrl" style="display:none">
+  <div class="cg"><span class="cl">Industry</span><select id="comp-sel"></select></div>
+  <div class="cg">
+    <span class="cl">Jurisdictions</span>
+    <button class="pb active jbtn" data-juris="IoM" style="background:#1d4ed8;color:#fff;border:1px solid #334155;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer">IoM</button>
+    <button class="pb active jbtn" data-juris="Jersey" style="background:#92400e;color:#fbbf24;border:1px solid #334155;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer">Jersey</button>
+    <button class="pb active jbtn" data-juris="Guernsey" style="background:#065f46;color:#34d399;border:1px solid #334155;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer">Guernsey</button>
+    <button class="pb active jbtn" data-juris="UK" style="background:#334155;color:#94a3b8;border:1px solid #334155;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer">UK</button>
+  </div>
+  <div class="cg">
+    <div class="pill"><button class="pb" data-preal="nom">Nominal</button><button class="pb active" data-preal="real">IoM Real (2024/25)</button></div>
+  </div>
+</div>
+<div class="ctrl-row" id="compete-ctrl" style="display:none">
+  <div class="cg"><span class="cl">Island</span>
+    <div class="pill">
+      <button class="pb active" data-cisland="IoM">IoM</button>
+      <button class="pb" data-cisland="Jersey">Jersey</button>
+      <button class="pb" data-cisland="Guernsey">Guernsey</button>
+    </div>
+  </div>
+  <div class="cg"><span class="cl" style="color:var(--mu);font-size:9px">&#9660; Public Sector &nbsp;&#9660; Financial &amp; Business Services &nbsp;&#9660; Local Economy &nbsp;&#183;&#183;&#183; UK Finance reference</span></div>
+</div>
+
+<div class="cw">
+  <canvas id="mc"></canvas>
+  <div class="lock-overlay" id="lock-overlay" style="display:none">
+    <div class="lock-icon">&#128274;</div>
+    <div class="lock-title">GVA per worker comparisons with regulatory integrity context.<br>Restricted access.</div>
+    <div class="lock-form">
+      <input type="password" class="lock-input" id="lock-input" placeholder="Password" autocomplete="off">
+      <button class="lock-btn" id="lock-btn">Unlock</button>
+    </div>
+    <div class="lock-err" id="lock-err"></div>
+    <div class="lock-sub">Contact the Observatory administrator for access.</div>
+  </div>
+</div>
+<div class="pbar" id="pbar" style="display:none">
+    <button class="bplay" id="pbtn">&#9654; Play</button>
+    <input type="range" class="scrub" id="scrub" min="0" value="0">
+    <span class="ybadge" id="ybdg">2023/24</span>
+    <div class="spd">
+      <button class="sb" data-spd="0">&middot;</button>
+      <button class="sb active" data-spd="1">&middot;&middot;</button>
+      <button class="sb" data-spd="2">&middot;&middot;&middot;</button>
+    </div>
+</div>
+<div class="legrow" id="legrow">
+  <span class="legtitle" id="ltitle">Groups</span>
+  <div class="legscroll" id="leg"></div>
+  <div class="lacts"><button class="lnk" id="show-all">All</button><button class="lnk" id="hide-all">None</button></div>
+</div>
+<div class="note" id="note"></div>
+<script>
+const DATA={"1997/98":{"Agriculture, Forestry & Fishing":{"v":10726,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":14003,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":44587,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":320414,"g":"Finance","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":67167,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":13814,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":29808,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":124015,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":40850,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":47835,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":7810,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":63198,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":15062,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":13464,"g":"Distribution","m":"pre-ESA10"}},"1998/99":{"Agriculture, Forestry & Fishing":{"v":11853,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":14541,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":54993,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":396792,"g":"Finance","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":66284,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":16454,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":38535,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":137575,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":45725,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":53294,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":8157,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":64297,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":19868,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":17222,"g":"Distribution","m":"pre-ESA10"}},"1999/00":{"Agriculture, Forestry & Fishing":{"v":16172,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":26375,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":71846,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":448150,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":23935,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":67176,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":11858,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":41409,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":167443,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":49967,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":62247,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":11611,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":68896,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":20081,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":18414,"g":"Distribution","m":"pre-ESA10"}},"2000/01":{"Agriculture, Forestry & Fishing":{"v":15824,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":27875,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":89600,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":505382,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":34303,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":63347,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":13317,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":41654,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":186056,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":53566,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":64404,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":14241,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":72256,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":17799,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":19048,"g":"Distribution","m":"pre-ESA10"}},"2001/02":{"Agriculture, Forestry & Fishing":{"v":17656,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":25360,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":115650,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":494715,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":42662,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":76094,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":21863,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":46296,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":202903,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":57205,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":76164,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":10257,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":92495,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":27114,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":20110,"g":"Distribution","m":"pre-ESA10"}},"2002/03":{"Agriculture, Forestry & Fishing":{"v":17808,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":25592,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":134631,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":539996,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":47990,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":75950,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":22933,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":53747,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":227101,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":63202,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":83042,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":10938,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":79780,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":23842,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":20681,"g":"Distribution","m":"pre-ESA10"}},"2003/04":{"Agriculture, Forestry & Fishing":{"v":18891,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":31379,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":145736,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":551090,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":55270,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":88672,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":25380,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":60449,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":247960,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":70173,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":96410,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":13366,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":86420,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":33498,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":22011,"g":"Distribution","m":"pre-ESA10"}},"2004/05":{"Agriculture, Forestry & Fishing":{"v":19013,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":29835,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":139928,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":599806,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":53850,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":118625,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":20323,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":63282,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":305775,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":75085,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":102012,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":21124,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":96509,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":35582,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":28489,"g":"Distribution","m":"pre-ESA10"}},"2005/06":{"Agriculture, Forestry & Fishing":{"v":19177,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":35269,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":134124,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":670688,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":54924,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":111956,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":23632,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":71695,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":347521,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":84982,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":111543,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":17295,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":110389,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":32169,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":24010,"g":"Distribution","m":"pre-ESA10"}},"2006/07":{"Agriculture, Forestry & Fishing":{"v":18514,"g":"Agriculture","m":"pre-ESA10"},"Catering & Entertainment":{"v":30020,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Construction":{"v":135297,"g":"Construction","m":"pre-ESA10"},"Finance [pre-ESA10 combined]":{"v":721428,"g":"Finance","m":"pre-ESA10"},"ICT":{"v":67994,"g":"eGaming & ICT","m":"pre-ESA10"},"Manufacturing: Engineering & General":{"v":121714,"g":"Manufacturing","m":"pre-ESA10"},"Manufacturing: Food & Drink":{"v":24410,"g":"Manufacturing","m":"pre-ESA10"},"Miscellaneous Services":{"v":77444,"g":"Miscellaneous","m":"pre-ESA10"},"Professional Services [pre-ESA10 combined]":{"v":411106,"g":"Professional Services","m":"pre-ESA10"},"Public Administration":{"v":89823,"g":"Public Administration","m":"pre-ESA10"},"Retail Distribution":{"v":114970,"g":"Distribution","m":"pre-ESA10"},"Tourist Accommodation":{"v":19745,"g":"Tourism & Hospitality","m":"pre-ESA10"},"Transport & Communications":{"v":115686,"g":"Utilities & Transport","m":"pre-ESA10"},"Utilities":{"v":33043,"g":"Utilities & Transport","m":"pre-ESA10"},"Wholesale Distribution":{"v":24119,"g":"Distribution","m":"pre-ESA10"}},"2007/08":{"Agriculture, Forestry & Fishing":{"v":24301,"g":"Agriculture","m":"ESA10"},"Banking":{"v":407653,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":50115,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":165413,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":111346,"g":"Professional Services","m":"ESA10"},"Education":{"v":83069,"g":"Education & Health","m":"ESA10"},"ICT":{"v":188809,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":373067,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":85114,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":44104,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":26501,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":84673,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":147062,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":25089,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":97953,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":289969,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":73938,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":117521,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":172076,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":19874,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":155554,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":47632,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":30015,"g":"Distribution","m":"ESA10"}},"2008/09":{"Agriculture, Forestry & Fishing":{"v":24965,"g":"Agriculture","m":"ESA10"},"Banking":{"v":518332,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":32200,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":182084,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":135765,"g":"Professional Services","m":"ESA10"},"Education":{"v":90162,"g":"Education & Health","m":"ESA10"},"ICT":{"v":164364,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":441901,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":87975,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":44191,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":29493,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":79704,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":173507,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":16120,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":107595,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":302860,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":98592,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":136683,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":166310,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":18305,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":226756,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":42660,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":30470,"g":"Distribution","m":"ESA10"},"eGaming":{"v":165897,"g":"eGaming & ICT","m":"ESA10"}},"2009/10":{"Agriculture, Forestry & Fishing":{"v":25879,"g":"Agriculture","m":"ESA10"},"Banking":{"v":385287,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":32192,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":188769,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":149075,"g":"Professional Services","m":"ESA10"},"Education":{"v":93983,"g":"Education & Health","m":"ESA10"},"ICT":{"v":128581,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":434761,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":91054,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":42255,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":31650,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":85740,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":180368,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":17455,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":114240,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":314606,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":98495,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":144121,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":165558,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":20019,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":244024,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":39342,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":33202,"g":"Distribution","m":"ESA10"},"eGaming":{"v":307767,"g":"eGaming & ICT","m":"ESA10"}},"2010/11":{"Agriculture, Forestry & Fishing":{"v":26381,"g":"Agriculture","m":"ESA10"},"Banking":{"v":382426,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":30710,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":172497,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":164403,"g":"Professional Services","m":"ESA10"},"Education":{"v":87397,"g":"Education & Health","m":"ESA10"},"ICT":{"v":152572,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":509254,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":89007,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":42177,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":30553,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":83051,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":178635,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":13370,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":111299,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":327191,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":112344,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":143406,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":185643,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":20283,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":237310,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":58698,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":35713,"g":"Distribution","m":"ESA10"},"eGaming":{"v":274418,"g":"eGaming & ICT","m":"ESA10"}},"2011/12":{"Agriculture, Forestry & Fishing":{"v":25920,"g":"Agriculture","m":"ESA10"},"Banking":{"v":374196,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":34798,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":171983,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":164398,"g":"Professional Services","m":"ESA10"},"Education":{"v":85518,"g":"Education & Health","m":"ESA10"},"ICT":{"v":162992,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":558116,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":90843,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":49501,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":33116,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":81421,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":176206,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":17133,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":127089,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":371855,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":142568,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":145891,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":158011,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":20123,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":249556,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":62604,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":34287,"g":"Distribution","m":"ESA10"},"eGaming":{"v":338575,"g":"eGaming & ICT","m":"ESA10"}},"2012/13":{"Agriculture, Forestry & Fishing":{"v":27218,"g":"Agriculture","m":"ESA10"},"Banking":{"v":329803,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":27494,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":150725,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":128624,"g":"Professional Services","m":"ESA10"},"Education":{"v":85496,"g":"Education & Health","m":"ESA10"},"ICT":{"v":215678,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":582266,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":89057,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":48327,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":33341,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":70407,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":190251,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":18118,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":138526,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":407772,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":127504,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":135136,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":162633,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":20359,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":255772,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":70197,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":31544,"g":"Distribution","m":"ESA10"},"eGaming":{"v":521753,"g":"eGaming & ICT","m":"ESA10"}},"2013/14":{"Agriculture, Forestry & Fishing":{"v":26718,"g":"Agriculture","m":"ESA10"},"Banking":{"v":317810,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":27616,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":178907,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":135246,"g":"Professional Services","m":"ESA10"},"Education":{"v":94158,"g":"Education & Health","m":"ESA10"},"ICT":{"v":345884,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":602404,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":86791,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":46910,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":33285,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":63049,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":203616,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":10802,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":106344,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":415523,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":128384,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":138846,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":129259,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":9632,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":228561,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":70640,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":31042,"g":"Distribution","m":"ESA10"},"eGaming":{"v":690391,"g":"eGaming & ICT","m":"ESA10"}},"2014/15":{"Agriculture, Forestry & Fishing":{"v":20898,"g":"Agriculture","m":"ESA10"},"Banking":{"v":336205,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":32246,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":177260,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":142141,"g":"Professional Services","m":"ESA10"},"Education":{"v":94525,"g":"Education & Health","m":"ESA10"},"ICT":{"v":376708,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":642476,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":94980,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":39821,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":33929,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":50612,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":198128,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":4878,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":121870,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":404198,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":120817,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":149455,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":122455,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":17281,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":170204,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":80338,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":33992,"g":"Distribution","m":"ESA10"},"eGaming":{"v":838520,"g":"eGaming & ICT","m":"ESA10"}},"2015/16":{"Agriculture, Forestry & Fishing":{"v":21903,"g":"Agriculture","m":"ESA10"},"Banking":{"v":373960,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":31610,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":190198,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":130681,"g":"Professional Services","m":"ESA10"},"Education":{"v":93076,"g":"Education & Health","m":"ESA10"},"ICT":{"v":401675,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":745168,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":93902,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":42191,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":31355,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":50728,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":197500,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":3290,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":111395,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":381313,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":106521,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":150883,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":119420,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":14174,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":119841,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":85999,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":33020,"g":"Distribution","m":"ESA10"},"eGaming":{"v":733226,"g":"eGaming & ICT","m":"ESA10"}},"2016/17":{"Agriculture, Forestry & Fishing":{"v":29922,"g":"Agriculture","m":"ESA10"},"Banking":{"v":356099,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":33499,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":196290,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":137651,"g":"Professional Services","m":"ESA10"},"Education":{"v":98363,"g":"Education & Health","m":"ESA10"},"ICT":{"v":467936,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":761113,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":88217,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":45075,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":30820,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":46319,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":217254,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":2686,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":135959,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":510046,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":130471,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":176019,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":123601,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":19193,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":97370,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":79747,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":38692,"g":"Distribution","m":"ESA10"},"eGaming":{"v":863224,"g":"eGaming & ICT","m":"ESA10"}},"2017/18":{"Agriculture, Forestry & Fishing":{"v":21720,"g":"Agriculture","m":"ESA10"},"Banking":{"v":301284,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":36588,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":218989,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":155689,"g":"Professional Services","m":"ESA10"},"Education":{"v":98075,"g":"Education & Health","m":"ESA10"},"ICT":{"v":457470,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":883570,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":89331,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":40058,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":28557,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":44228,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":229260,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":3371,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":166292,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":400247,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":245809,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":175734,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":126176,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":15818,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":137801,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":67842,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":28980,"g":"Distribution","m":"ESA10"},"eGaming":{"v":1059838,"g":"eGaming & ICT","m":"ESA10"}},"2018/19":{"Agriculture, Forestry & Fishing":{"v":23075,"g":"Agriculture","m":"ESA10"},"Banking":{"v":349321,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":36112,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":246606,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":158788,"g":"Professional Services","m":"ESA10"},"Education":{"v":100558,"g":"Education & Health","m":"ESA10"},"ICT":{"v":359564,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":1003362,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":89915,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":39996,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":29704,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":51578,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":231479,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":3666,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":216971,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":490779,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":265586,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":185688,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":118985,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":21312,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":175726,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":78879,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":25618,"g":"Distribution","m":"ESA10"},"eGaming":{"v":920869,"g":"eGaming & ICT","m":"ESA10"}},"2019/20":{"Agriculture, Forestry & Fishing":{"v":18148,"g":"Agriculture","m":"ESA10"},"Banking":{"v":366084,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":36073,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":223480,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":143976,"g":"Professional Services","m":"ESA10"},"Education":{"v":103596,"g":"Education & Health","m":"ESA10"},"ICT":{"v":463445,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":1029269,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":88011,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":37277,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":30901,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":54625,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":251918,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":4127,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":151186,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":471278,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":304570,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":193148,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":120917,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":30127,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":163836,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":84750,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":41762,"g":"Distribution","m":"ESA10"},"eGaming":{"v":908667,"g":"eGaming & ICT","m":"ESA10"}},"2020/21":{"Agriculture, Forestry & Fishing":{"v":19428,"g":"Agriculture","m":"ESA10"},"Banking":{"v":242131,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":37044,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":233195,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":153277,"g":"Professional Services","m":"ESA10"},"Education":{"v":113224,"g":"Education & Health","m":"ESA10"},"ICT":{"v":328623,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":1075589,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":85251,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":33898,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":24926,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":68498,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":265928,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":7262,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":155125,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":448625,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":343224,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":215046,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":125030,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":11673,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":146774,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":95429,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":30861,"g":"Distribution","m":"ESA10"},"eGaming":{"v":539545,"g":"eGaming & ICT","m":"ESA10"}},"2021/22":{"Agriculture, Forestry & Fishing":{"v":19476,"g":"Agriculture","m":"ESA10"},"Banking":{"v":301950,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":50328,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":327997,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":179703,"g":"Professional Services","m":"ESA10"},"Education":{"v":116489,"g":"Education & Health","m":"ESA10"},"ICT":{"v":247865,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":971613,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":94636,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":29293,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":33261,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":55828,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":281832,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":8797,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":140943,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":449239,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":490676,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":216089,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":136700,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":19010,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":205900,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":88268,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":41645,"g":"Distribution","m":"ESA10"},"eGaming":{"v":839297,"g":"eGaming & ICT","m":"ESA10"}},"2022/23":{"Agriculture, Forestry & Fishing":{"v":22456,"g":"Agriculture","m":"ESA10"},"Banking":{"v":421779,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":47891,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":273541,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":192010,"g":"Professional Services","m":"ESA10"},"Education":{"v":124279,"g":"Education & Health","m":"ESA10"},"ICT":{"v":389212,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":945100,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":98003,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":31291,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":30876,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":49699,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":295026,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":2091,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":157373,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":462507,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":554080,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":220185,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":142453,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":27721,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":258561,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":30701,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":39723,"g":"Distribution","m":"ESA10"},"eGaming":{"v":757233,"g":"eGaming & ICT","m":"ESA10"}},"2023/24":{"Agriculture, Forestry & Fishing":{"v":22711,"g":"Agriculture","m":"ESA10"},"Banking":{"v":484333,"g":"Finance","m":"ESA10"},"Catering & Entertainment":{"v":54296,"g":"Tourism & Hospitality","m":"ESA10"},"Construction":{"v":249561,"g":"Construction","m":"ESA10"},"Corporate Service Providers":{"v":172005,"g":"Professional Services","m":"ESA10"},"Education":{"v":137631,"g":"Education & Health","m":"ESA10"},"ICT":{"v":246627,"g":"eGaming & ICT","m":"ESA10"},"Insurance":{"v":956826,"g":"Finance","m":"ESA10"},"Legal & Accountancy Services":{"v":106688,"g":"Professional Services","m":"ESA10"},"Manufacturing: Engineering":{"v":27029,"g":"Manufacturing","m":"ESA10"},"Manufacturing: Food & Drink":{"v":36385,"g":"Manufacturing","m":"ESA10"},"Manufacturing: General":{"v":59799,"g":"Manufacturing","m":"ESA10"},"Medical & Health Services":{"v":345662,"g":"Education & Health","m":"ESA10"},"Mining & Quarrying":{"v":4577,"g":"Manufacturing","m":"ESA10"},"Miscellaneous Services":{"v":160343,"g":"Miscellaneous","m":"ESA10"},"Other Finance & Business Services":{"v":575604,"g":"Finance","m":"ESA10"},"Other Professional Services":{"v":500856,"g":"Professional Services","m":"ESA10"},"Public Administration":{"v":232692,"g":"Public Administration","m":"ESA10"},"Retail Distribution":{"v":138803,"g":"Distribution","m":"ESA10"},"Tourist Accommodation":{"v":28098,"g":"Tourism & Hospitality","m":"ESA10"},"Transport & Communications":{"v":193848,"g":"Utilities & Transport","m":"ESA10"},"Utilities":{"v":77531,"g":"Utilities & Transport","m":"ESA10"},"Wholesale Distribution":{"v":37361,"g":"Distribution","m":"ESA10"},"eGaming":{"v":800883,"g":"eGaming & ICT","m":"ESA10"}}};
+const DEFLATORS={"1997/98":1.989682,"1998/99":1.968683,"1999/00":1.955782,"2000/01":1.932981,"2001/02":1.913156,"2002/03":1.891333,"2003/04":1.860675,"2004/05":1.819831,"2005/06":1.77018,"2006/07":1.715243,"2007/08":1.647088,"2008/09":1.559312,"2009/10":1.526756,"2010/11":1.456617,"2011/12":1.383383,"2012/13":1.360315,"2013/14":1.340324,"2014/15":1.330547,"2015/16":1.343318,"2016/17":1.333936,"2017/18":1.284234,"2018/19":1.252817,"2019/20":1.227988,"2020/21":1.232931,"2021/22":1.17894,"2022/23":1.081041,"2023/24":1.023646,"2024/25":1.0,"2025/26":0.973436};
+const SECTOR_META={"Agriculture, Forestry & Fishing":{"g":"Agriculture","c":"#6ee7b7"},"Manufacturing: Engineering":{"g":"Manufacturing","c":"#fcd34d"},"Manufacturing: Food & Drink":{"g":"Manufacturing","c":"#f59e0b"},"Manufacturing: General":{"g":"Manufacturing","c":"#b45309"},"Manufacturing: Engineering & General":{"g":"Manufacturing","c":"#fcd34d"},"Mining & Quarrying":{"g":"Manufacturing","c":"#78350f"},"Construction":{"g":"Construction","c":"#fb923c"},"Utilities":{"g":"Utilities & Transport","c":"#818cf8"},"Transport & Communications":{"g":"Utilities & Transport","c":"#4f46e5"},"Wholesale Distribution":{"g":"Distribution","c":"#38bdf8"},"Retail Distribution":{"g":"Distribution","c":"#0284c7"},"Tourist Accommodation":{"g":"Tourism & Hospitality","c":"#f472b6"},"Catering & Entertainment":{"g":"Tourism & Hospitality","c":"#db2777"},"Miscellaneous Services":{"g":"Miscellaneous","c":"#94a3b8"},"Education":{"g":"Education & Health","c":"#fbbf24"},"Medical & Health Services":{"g":"Education & Health","c":"#d97706"},"Public Administration":{"g":"Public Administration","c":"#64748b"},"Legal & Accountancy Services":{"g":"Professional Services","c":"#34d399"},"Corporate Service Providers":{"g":"Professional Services","c":"#10b981"},"Other Professional Services":{"g":"Professional Services","c":"#6ee7b7"},"Professional Services [pre-ESA10 combined]":{"g":"Professional Services","c":"#34d399"},"Banking":{"g":"Finance","c":"#60a5fa"},"Insurance":{"g":"Finance","c":"#3b82f6"},"Other Finance & Business Services":{"g":"Finance","c":"#1d4ed8"},"Finance [pre-ESA10 combined]":{"g":"Finance","c":"#3b82f6"},"eGaming":{"g":"eGaming & ICT","c":"#a78bfa"},"ICT":{"g":"eGaming & ICT","c":"#7c3aed"}};
+const GROUP_META={"Agriculture":{"c":"#6ee7b7","order":0},"Manufacturing":{"c":"#fcd34d","order":1},"Construction":{"c":"#fb923c","order":2},"Utilities & Transport":{"c":"#818cf8","order":3},"Distribution":{"c":"#38bdf8","order":4},"Tourism & Hospitality":{"c":"#f472b6","order":5},"Miscellaneous":{"c":"#94a3b8","order":6},"Education & Health":{"c":"#fbbf24","order":7},"Public Administration":{"c":"#64748b","order":8},"Professional Services":{"c":"#34d399","order":9},"Finance":{"c":"#3b82f6","order":10},"eGaming & ICT":{"c":"#a78bfa","order":11}};
+const ALL_YEARS=["1997/98","1998/99","1999/00","2000/01","2001/02","2002/03","2003/04","2004/05","2005/06","2006/07","2007/08","2008/09","2009/10","2010/11","2011/12","2012/13","2013/14","2014/15","2015/16","2016/17","2017/18","2018/19","2019/20","2020/21","2021/22","2022/23","2023/24"];
+const IOM_PROD={"Finance & eGaming":{"1997/98":46803,"1998/99":53261,"1999/00":58615,"2000/01":62341,"2001/02":59689,"2002/03":64685,"2003/04":66074,"2004/05":70559,"2005/06":77597,"2006/07":83981,"2007/08":133847,"2008/09":169146,"2009/10":166614,"2010/11":174368,"2011/12":192714,"2012/13":223083,"2013/14":261408,"2014/15":291104,"2015/16":300255,"2016/17":338221,"2017/18":351150,"2018/19":350095,"2019/20":359421,"2020/21":289539,"2021/22":307335,"2022/23":325476,"2023/24":335150},"Construction":{"1997/98":14318,"1998/99":18692,"1999/00":25937,"2000/01":34488,"2001/02":44515,"2002/03":48586,"2003/04":49520,"2004/05":44921,"2005/06":40792,"2006/07":40124,"2007/08":49128,"2008/09":54143,"2009/10":56198,"2010/11":51430,"2011/12":51109,"2012/13":44449,"2013/14":52358,"2014/15":51484,"2015/16":54828,"2016/17":55091,"2017/18":58789,"2018/19":63444,"2019/20":55194,"2020/21":55378,"2021/22":76421,"2022/23":63733,"2023/24":58146},"Agriculture":{"1997/98":13080,"1998/99":16018,"1999/00":24429,"2000/01":27189,"2001/02":31928,"2002/03":31079,"2003/04":31910,"2004/05":31067,"2005/06":30343,"2006/07":27925,"2007/08":34518,"2008/09":33465,"2009/10":32841,"2010/11":31823,"2011/12":30423,"2012/13":31834,"2013/14":31140,"2014/15":24272,"2015/16":25351,"2016/17":35369,"2017/18":26981,"2018/19":30163,"2019/20":25032,"2020/21":28404,"2021/22":29331,"2022/23":33819,"2023/24":34203},"Distribution":{"1997/98":15734,"1998/99":17489,"1999/00":19352,"2000/01":19389,"2001/02":21930,"2002/03":23440,"2003/04":26546,"2004/05":29020,"2005/06":29910,"2006/07":30603,"2007/08":44553,"2008/09":43468,"2009/10":43993,"2010/11":49092,"2011/12":43487,"2012/13":45614,"2013/14":39165,"2014/15":39819,"2015/16":40499,"2016/17":43780,"2017/18":41298,"2018/19":37993,"2019/20":42189,"2020/21":39911,"2021/22":45369,"2022/23":46343,"2023/24":44814},"Tourism & Hospitality":{"1997/98":9906,"1998/99":9497,"1999/00":14735,"2000/01":15232,"2001/02":12725,"2002/03":13636,"2003/04":17485,"2004/05":20893,"2005/06":22667,"2006/07":21506,"2007/08":28873,"2008/09":19931,"2009/10":19754,"2010/11":18523,"2011/12":19414,"2012/13":16662,"2013/14":12778,"2014/15":16743,"2015/16":15256,"2016/17":17664,"2017/18":18040,"2018/19":20313,"2019/20":24081,"2020/21":18239,"2021/22":26344,"2022/23":28728,"2023/24":31305},"Public Administration":{"1997/98":16783,"1998/99":17412,"1999/00":17731,"2000/01":17802,"2001/02":18549,"2002/03":20770,"2003/04":23375,"2004/05":25367,"2005/06":29113,"2006/07":30825,"2007/08":39892,"2008/09":45898,"2009/10":47881,"2010/11":47142,"2011/12":47755,"2012/13":44321,"2013/14":45643,"2014/15":49228,"2015/16":49796,"2016/17":57844,"2017/18":57149,"2018/19":59745,"2019/20":61512,"2020/21":67795,"2021/22":67782,"2022/23":69067,"2023/24":72990},"Prof & Ed & Health":{"1997/98":19239,"1998/99":20570,"1999/00":24155,"2000/01":25935,"2001/02":27523,"2002/03":30180,"2003/04":32295,"2004/05":39047,"2005/06":43527,"2006/07":50467,"2007/08":60181,"2008/09":69039,"2009/10":70782,"2010/11":71542,"2011/12":73543,"2012/13":68452,"2013/14":70656,"2014/15":70137,"2015/16":66284,"2016/17":71129,"2017/18":86286,"2018/19":88928,"2019/20":93391,"2020/21":100230,"2021/22":121130,"2022/23":131549,"2023/24":131491},"Utilities & Transport":{"1997/98":23278,"1998/99":24047,"1999/00":24451,"2000/01":23843,"2001/02":30645,"2002/03":25802,"2003/04":29043,"2004/05":31139,"2005/06":32734,"2006/07":34097,"2007/08":47663,"2008/09":64701,"2009/10":69726,"2010/11":74655,"2011/12":80309,"2012/13":85087,"2013/14":79259,"2014/15":67368,"2015/16":56194,"2016/17":48725,"2017/18":56573,"2018/19":70023,"2019/20":68368,"2020/21":66612,"2021/22":80904,"2022/23":79555,"2023/24":74637}};
+const UK_PROD={"Finance & eGaming":{"1997/98":42000,"1998/99":46667,"1999/00":51333,"2000/01":56000,"2001/02":61400,"2002/03":66800,"2003/04":72200,"2004/05":77600,"2005/06":83000,"2006/07":94000,"2007/08":105000,"2008/09":88000,"2009/10":93000,"2010/11":98000,"2011/12":102000,"2012/13":106000,"2013/14":110000,"2014/15":115000,"2015/16":120000,"2016/17":123750,"2017/18":127500,"2018/19":131250,"2019/20":135000,"2020/21":140000,"2021/22":149000,"2022/23":158000,"2023/24":165000},"Construction":{"1997/98":22000,"1998/99":23333,"1999/00":24667,"2000/01":26000,"2001/02":27200,"2002/03":28400,"2003/04":29600,"2004/05":30800,"2005/06":32000,"2006/07":33200,"2007/08":34400,"2008/09":35600,"2009/10":36800,"2010/11":38000,"2011/12":39200,"2012/13":40400,"2013/14":41600,"2014/15":42800,"2015/16":44000,"2016/17":45000,"2017/18":46000,"2018/19":47000,"2019/20":48000,"2020/21":50333,"2021/22":52667,"2022/23":55000,"2023/24":58000},"Agriculture":{"1997/98":11000,"1998/99":11333,"1999/00":11667,"2000/01":12000,"2001/02":12800,"2002/03":13600,"2003/04":14400,"2004/05":15200,"2005/06":16000,"2006/07":16800,"2007/08":17600,"2008/09":18400,"2009/10":19200,"2010/11":20000,"2011/12":21000,"2012/13":22000,"2013/14":23000,"2014/15":24000,"2015/16":25000,"2016/17":26500,"2017/18":28000,"2018/19":29500,"2019/20":31000,"2020/21":34667,"2021/22":38333,"2022/23":42000,"2023/24":43000},"Distribution":{"1997/98":24000,"1998/99":25333,"1999/00":26667,"2000/01":28000,"2001/02":28800,"2002/03":29600,"2003/04":30400,"2004/05":31200,"2005/06":32000,"2006/07":32800,"2007/08":33600,"2008/09":34400,"2009/10":35200,"2010/11":36000,"2011/12":36800,"2012/13":37600,"2013/14":38400,"2014/15":39200,"2015/16":40000,"2016/17":41000,"2017/18":42000,"2018/19":43000,"2019/20":44000,"2020/21":46000,"2021/22":48000,"2022/23":50000,"2023/24":52000},"Tourism & Hospitality":{"1997/98":12000,"1998/99":12333,"1999/00":12667,"2000/01":13000,"2001/02":13200,"2002/03":13400,"2003/04":13600,"2004/05":13800,"2005/06":14000,"2006/07":14400,"2007/08":14800,"2008/09":15200,"2009/10":15600,"2010/11":16000,"2011/12":16400,"2012/13":16800,"2013/14":17200,"2014/15":17600,"2015/16":18000,"2016/17":19000,"2017/18":20000,"2018/19":21000,"2019/20":22000,"2020/21":14000,"2021/22":18500,"2022/23":23000,"2023/24":25000},"Public Administration":{"1997/98":27870,"1998/99":28130,"1999/00":28865,"2000/01":29966,"2001/02":31578,"2002/03":32241,"2003/04":33777,"2004/05":35474,"2005/06":38141,"2006/07":39602,"2007/08":40628,"2008/09":43060,"2009/10":45016,"2010/11":46967,"2011/12":49760,"2012/13":51985,"2013/14":52314,"2014/15":52984,"2015/16":55507,"2016/17":58752,"2017/18":61015,"2018/19":62151,"2019/20":63893,"2020/21":63856,"2021/22":65323,"2022/23":68948,"2023/24":73901},"Prof & Ed & Health":{"1997/98":20058,"1998/99":21289,"1999/00":21972,"2000/01":22910,"2001/02":24822,"2002/03":26033,"2003/04":27294,"2004/05":28631,"2005/06":29549,"2006/07":30742,"2007/08":32069,"2008/09":32669,"2009/10":32710,"2010/11":33424,"2011/12":34074,"2012/13":34653,"2013/14":34686,"2014/15":35041,"2015/16":35740,"2016/17":36362,"2017/18":37913,"2018/19":39109,"2019/20":40341,"2020/21":41170,"2021/22":44492,"2022/23":47762,"2023/24":50039},"Utilities & Transport":{"1997/98":32000,"1998/99":34000,"1999/00":36000,"2000/01":38000,"2001/02":40000,"2002/03":42000,"2003/04":44000,"2004/05":46000,"2005/06":48000,"2006/07":50000,"2007/08":52000,"2008/09":54000,"2009/10":56000,"2010/11":58000,"2011/12":59400,"2012/13":60800,"2013/14":62200,"2014/15":63600,"2015/16":65000,"2016/17":67500,"2017/18":70000,"2018/19":72500,"2019/20":75000,"2020/21":79333,"2021/22":83667,"2022/23":88000,"2023/24":90000}};
+const PROD_UK={"Finance & eGaming":"Finance & Insurance (SIC K)","Construction":"Construction (SIC F)","Agriculture":"Agriculture (SIC A)","Distribution":"Wholesale & Retail (SIC G)","Tourism & Hospitality":"Accommodation & Food (SIC I)","Public Administration":"Public Admin (SIC O)","Prof & Ed & Health":"Professional, Education & Health (SIC M+P+Q)","Utilities & Transport":"Utilities & Transport (SIC D-H)"};
+const CENSUS_YRS=[1996,2001,2006,2011,2016,2021];
+const PWD_HASH="c1f335bd26f38663ef418e00e905a47035eb20ba4250555e8225aa8ffd286f6e";
+const COMP_EVENTS=[{"yr":"2008/09","label":"eGaming first split from ICT in National Income data"},{"yr":"2013/14","label":"eGaming ~800 workers (BBC/govt estimate)"},{"yr":"2017/18","label":"King Gaming licensed by GSC (Jun 2017)"},{"yr":"2022/23","label":"King Gaming raided (Apr 2024); OFAC sanctions: Prince Group"},{"yr":"2023/24","label":"UN report; Bloomberg investigation; FBI raids Onchan properties"}];
+const NOTE_COMP="GVA per worker by industry. Nominal mode: IoM, Guernsey, UK in current prices; Jersey excluded (published in constant 2022\u00a3 only). Real mode: IoM deflated to 2024/25 via IoM CPI; Jersey constant 2022\u00a3 (Statistics Jersey); Guernsey deflated to Q1 2026 via GG RPI (States of Guernsey); UK Finance SIC K synthesised from ONS DJG5 index (Finance output per job, 2023=100) anchored at \u00a3149k/job (\u00a3170.2bn GVA \u00f7 1,140k workforce jobs, 2023) \u2014 approximate 2023 real prices. UK Public Administration (SIC O) and Professional/Education/Health (SIC M+P+Q) computed directly from ONS GDP(O) low-level aggregates (current price and chained volume GVA by SIC section, June 2026 edition) divided by ONS JOBS02 workforce jobs by industry (June 2026 edition); real terms are the chained-volume GVA \u00f7 jobs ratio, denominated in the dataset\u2019s 2023 reference-year prices. Prof/Ed/Health is a combined bucket on both sides of the comparison \u2014 IoM National Income data does not report Professional Services separately from Education &amp; Health, so the UK comparator is built to the same combined scope rather than Professional Services alone. Price bases are not harmonised across jurisdictions \u2014 absolute levels are indicative only; use for trend comparison.";
+const NOTE_COMPETE="IoM 'Public Sector' = Public Administration + Education &amp; Health. Prior to 2007/08, Education &amp; Health was not reported separately in IoM National Accounts — the pre-2007 band shows Public Administration only, understating the public sector share and making it not directly comparable with Jersey/Guernsey (which include Education &amp; Health throughout). Jersey: dashed line shows 1998–2020 under old SIC classification (Finance includes legal &amp; accounting; Public = administration only, excluding Education &amp; Health). From 2021: SIC2007 (Finance = SIC K; Public = O+P+Q). Source: Statistics Jersey National Accounts. Guernsey: 2009–2023; 2009–2018 back-calculated from 2019 revision (dashed).";
+const NOTE_STD="<strong>Local businesses — shops, trades, everyday services — made up 55% of everything the Island produced in 1997/98.</strong> By 2023/24 that’s down to 33%, having bottomed out even lower, at 26%, in 2016/17. The natural assumption is that finance did this — and it’s part of the story: financial and digital services grew from 39% of the economy to a peak of 63% in 2016/17, before easing back to 54% today. But finance’s retreat since 2016 hasn’t given the local economy its ground back — the public sector has absorbed more of it, more than doubling its own share from 5% to 13% over the same 27 years. The ‘local economy’ band on the Mix tab has never really recovered from either of its rivals; it just occasionally loses ground to one instead of the other. Next time someone says the Island is ‘de-risking’ its finance dependency, check which band is actually growing before you agree.<br><br>GVA at current prices. Source: Statistics IoM, National Income Reports 1997/98–2023/24. ESA10 break 2007/08: Finance, Professional Services and Manufacturing were single aggregates pre-break. Real terms (2024/25): IoM CPI available from 2008/09 (base: Jan 2008 = 100). Pre-2008/09 deflators use UK CPI linked at 2008/09 boundary — indicative only.";
+const JE_PROD={"Finance & eGaming":{"1998":252000,"1999":264000,"2000":284000,"2001":260000,"2002":240000,"2003":227000,"2004":228000,"2005":222000,"2006":239000,"2007":239000,"2008":210000,"2009":188000,"2010":172000,"2011":173000,"2012":165000,"2013":163000,"2014":176000,"2015":170000,"2016":164000,"2017":159000,"2018":161000,"2019":169000,"2020":151000,"2021":161000,"2022":190000,"2023":255000,"2024":238000},"Construction":{"1998":57000,"1999":62000,"2000":65000,"2001":64000,"2002":65000,"2003":63000,"2004":62000,"2005":64000,"2006":64000,"2007":68000,"2008":67000,"2009":66000,"2010":67000,"2011":65000,"2012":63000,"2013":64000,"2014":66000,"2015":68000,"2016":69000,"2017":72000,"2018":69000,"2019":67000,"2020":56000,"2021":72000,"2022":71000},"Agriculture":{"1998":43000,"1999":43000,"2000":43000,"2001":40000,"2002":42000,"2003":41000,"2004":39000,"2005":39000,"2006":41000,"2007":41000,"2008":44000,"2009":45000,"2010":39000,"2011":35000,"2012":34000,"2013":36000,"2014":30000,"2015":35000,"2016":41000,"2017":42000,"2018":42000,"2019":44000,"2020":35000,"2021":41000,"2022":37000},"Distribution":{"1998":54000,"1999":55000,"2000":56000,"2001":55000,"2002":54000,"2003":54000,"2004":53000,"2005":53000,"2006":54000,"2007":56000,"2008":52000,"2009":52000,"2010":51000,"2011":51000,"2012":49000,"2013":52000,"2014":51000,"2015":52000,"2016":52000,"2017":51000,"2018":52000,"2019":53000,"2020":52000,"2021":51000,"2022":48000},"Tourism & Hospitality":{"1998":36000,"1999":37000,"2000":37000,"2001":37000,"2002":37000,"2003":38000,"2004":38000,"2005":37000,"2006":37000,"2007":37000,"2008":37000,"2009":35000,"2010":36000,"2011":36000,"2012":36000,"2013":36000,"2014":37000,"2015":38000,"2016":40000,"2017":39000,"2018":41000,"2019":44000,"2020":29000,"2021":43000,"2022":46000},"Public Administration":{"1998":56000,"1999":58000,"2000":60000,"2001":61000,"2002":60000,"2003":59000,"2004":60000,"2005":61000,"2006":62000,"2007":62000,"2008":64000,"2009":63000,"2010":63000,"2011":63000,"2012":62000,"2013":62000,"2014":63000,"2015":65000,"2016":66000,"2017":67000,"2018":67000,"2019":68000,"2020":69000,"2021":68000,"2022":67000},"Manufacturing":{"1998":47000,"1999":47000,"2000":47000,"2001":47000,"2002":45000,"2003":45000,"2004":46000,"2005":46000,"2006":47000,"2007":46000,"2008":47000,"2009":48000,"2010":49000,"2011":49000,"2012":48000,"2013":45000,"2014":49000,"2015":48000,"2016":48000,"2017":47000,"2018":50000,"2019":51000,"2020":52000,"2021":57000,"2022":52000},"Utilities & Transport":{"1998":69000,"1999":70000,"2000":68000,"2001":71000,"2002":70000,"2003":69000,"2004":70000,"2005":73000,"2006":74000,"2007":74000,"2008":70000,"2009":70000,"2010":69000,"2011":69000,"2012":67000,"2013":71000,"2014":71000,"2015":73000,"2016":70000,"2017":71000,"2018":72000,"2019":72000,"2020":60000,"2021":73000,"2022":73000},"Prof & Ed & Health":{"1998":61000,"1999":62000,"2000":62000,"2001":63000,"2002":63000,"2003":64000,"2004":66000,"2005":74000,"2006":66000,"2007":65000,"2008":63000,"2009":59000,"2010":59000,"2011":57000,"2012":55000,"2013":54000,"2014":53000,"2015":54000,"2016":53000,"2017":52000,"2018":51000,"2019":52000,"2020":46000,"2021":51000,"2022":49000}};
+const GG_PROD={"Finance & eGaming":{"2020":169318,"2021":178803,"2022":219262,"2023":225177},"Construction":{"2020":35688,"2021":46372,"2022":52688,"2023":52832},"Agriculture":{"2020":26542,"2021":34111,"2022":39732,"2023":43507},"Distribution":{"2020":64447,"2021":64643,"2022":67686,"2023":74638},"Tourism & Hospitality":{"2020":23120,"2021":30008,"2022":41288,"2023":43840},"Public Administration":{"2020":51198,"2021":53667,"2022":57070,"2023":60891},"Manufacturing":{"2020":34430,"2021":47150,"2022":50131,"2023":55933},"Utilities & Transport":{"2020":14147,"2021":46191,"2022":70882,"2023":80183}};
+const ISLANDS_DATA={"IoM":{"offshore":3064,"public":716,"local":1870,"total":5650,"pop":84500,"year":"2023/24","offshore_pc":36260,"public_pc":8473,"local_pc":22130,"total_pc":66864},"Jersey":{"offshore":2638,"public":890,"local":3331,"total":6859,"pop":107800,"year":"2023","offshore_pc":24471,"public_pc":8256,"local_pc":30900,"total_pc":63627},"Guernsey":{"offshore":1304,"public":485,"local":1699,"total":3488,"pop":64091,"year":"2023","offshore_pc":20346,"public_pc":7567,"local_pc":26509,"total_pc":54423},"UK":{"offshore":180000,"public":475000,"local":1715000,"total":2370000,"pop":67600000,"year":"2023","offshore_pc":2663,"public_pc":7027,"local_pc":25370,"total_pc":35059}};
+// UK Finance SIC K GVA/job: synthesised from ONS DJG5 (2023=100) × anchor £149.3k (£170.2bn GVA ÷ 1,140k jobs, 2023)
+const UK_PROD_REAL={"Finance & eGaming":{"1997/98":115000,"1998/99":111000,"1999/00":113500,"2000/01":116300,"2001/02":112500,"2002/03":117800,"2003/04":121600,"2004/05":134500,"2005/06":146800,"2006/07":147900,"2007/08":179300,"2008/09":169200,"2009/10":168700,"2010/11":168300,"2011/12":159400,"2012/13":157800,"2013/14":153600,"2014/15":153700,"2015/16":147800,"2016/17":162600,"2017/18":171400,"2018/19":163600,"2019/20":158700,"2020/21":155700,"2021/22":159200,"2022/23":160900,"2023/24":147100,"2024/25":142300},"Public Administration":{"1997/98":62118,"1998/99":62741,"1999/00":61368,"2000/01":60165,"2001/02":62077,"2002/03":60695,"2003/04":58863,"2004/05":59523,"2005/06":60963,"2006/07":62066,"2007/08":62099,"2008/09":62256,"2009/10":63548,"2010/11":63110,"2011/12":66879,"2012/13":68150,"2013/14":67830,"2014/15":68206,"2015/16":69366,"2016/17":71886,"2017/18":73548,"2018/19":73522,"2019/20":74402,"2020/21":68943,"2021/22":69916,"2022/23":71685,"2023/24":73901},"Prof & Ed & Health":{"1997/98":55489,"1998/99":56760,"1999/00":55993,"2000/01":55864,"2001/02":57608,"2002/03":56196,"2003/04":55957,"2004/05":55897,"2005/06":54838,"2006/07":54033,"2007/08":54048,"2008/09":52496,"2009/10":49491,"2010/11":49705,"2011/12":49795,"2012/13":50240,"2013/14":49364,"2014/15":48535,"2015/16":48765,"2016/17":48721,"2017/18":50435,"2018/19":50767,"2019/20":49928,"2020/21":41860,"2021/22":47943,"2022/23":50111,"2023/24":50039}};
+// Guernsey RPI reflation factors (Q1 2026 = 1.000) — from States of Guernsey Statistics, Supplementary Inflation Data Q1 2026
+const GG_RPI_RF={2020:1.3275,2021:1.2925,2022:1.2050,2023:1.1250};
+const COMPETING_DATA={"islands":{"IoM":{"series":{"1997":{"fin":39.42,"pub":5.03,"loc":55.55},"1998":{"fin":41.96,"pub":4.84,"loc":53.2},"1999":{"fin":42.7,"pub":4.52,"loc":52.78},"2000":{"fin":44.28,"pub":4.4,"loc":51.32},"2001":{"fin":40.51,"pub":4.31,"loc":55.18},"2002":{"fin":41.2,"pub":4.43,"loc":54.37},"2003":{"fin":39.2,"pub":4.54,"loc":56.26},"2004":{"fin":38.24,"pub":4.39,"loc":57.36},"2005":{"fin":39.24,"pub":4.6,"loc":56.17},"2006":{"fin":39.37,"pub":4.48,"loc":56.15},"2007":{"fin":44.65,"pub":12.32,"loc":43.03},"2008":{"fin":48.04,"pub":12.07,"loc":39.89},"2009":{"fin":46.64,"pub":12.42,"loc":40.94},"2010":{"fin":47.45,"pub":11.8,"loc":40.75},"2011":{"fin":49.11,"pub":11.09,"loc":39.8},"2012":{"fin":53.19,"pub":10.62,"loc":36.19},"2013":{"fin":57.55,"pub":10.59,"loc":31.86},"2014":{"fin":60.37,"pub":10.27,"loc":29.36},"2015":{"fin":61.82,"pub":10.36,"loc":27.83},"2016":{"fin":63.14,"pub":10.49,"loc":26.37},"2017":{"fin":61.64,"pub":10.0,"loc":28.36},"2018":{"fin":59.8,"pub":9.91,"loc":30.29},"2019":{"fin":60.87,"pub":10.31,"loc":28.82},"2020":{"fin":54.89,"pub":12.38,"loc":32.73},"2021":{"fin":52.55,"pub":11.49,"loc":35.96},"2022":{"fin":53.39,"pub":11.47,"loc":35.14},"2023":{"fin":54.23,"pub":12.67,"loc":33.09}},"note":"Financial = Finance + eGaming & ICT (IoM NI classification)","label":"1997/98–2023/24","backcalc_before":null},"Jersey":{"series":{"1998":{"fin":50.79,"pub":6.46,"loc":42.75},"1999":{"fin":52.57,"pub":6.57,"loc":40.87},"2000":{"fin":55.18,"pub":6.49,"loc":38.33},"2001":{"fin":53.43,"pub":6.89,"loc":39.68},"2002":{"fin":51.8,"pub":7.15,"loc":41.05},"2003":{"fin":49.99,"pub":7.54,"loc":42.46},"2004":{"fin":49.42,"pub":7.78,"loc":42.81},"2005":{"fin":47.89,"pub":7.8,"loc":44.31},"2006":{"fin":50.81,"pub":7.66,"loc":41.52},"2007":{"fin":50.75,"pub":7.61,"loc":41.64},"2008":{"fin":47.73,"pub":8.04,"loc":44.23},"2009":{"fin":44.95,"pub":8.48,"loc":46.57},"2010":{"fin":41.75,"pub":8.96,"loc":49.29},"2011":{"fin":42.09,"pub":8.89,"loc":49.03},"2012":{"fin":41.12,"pub":9.08,"loc":49.8},"2013":{"fin":39.98,"pub":9.29,"loc":50.74},"2014":{"fin":41.68,"pub":9.23,"loc":49.1},"2015":{"fin":40.54,"pub":9.13,"loc":50.33},"2016":{"fin":39.61,"pub":8.74,"loc":51.65},"2017":{"fin":38.58,"pub":8.72,"loc":52.7},"2018":{"fin":38.83,"pub":8.6,"loc":52.57},"2019":{"fin":39.62,"pub":8.55,"loc":51.83},"2020":{"fin":38.85,"pub":10.21,"loc":50.95},"2021":{"fin":31.15,"pub":13.63,"loc":55.22},"2022":{"fin":35.97,"pub":12.52,"loc":51.51},"2023":{"fin":40.55,"pub":12.71,"loc":46.74},"2024":{"fin":38.46,"pub":13.8,"loc":47.74}},"note":"1998–2020: old SIC classification — Finance includes legal & accounting; Public = administration only (Education & Health not separately identified). 2021–2024: SIC2007 — Finance = SIC K only; Public = O+P+Q. Classification break at 2021 (dashed = pre-break).","label":"1998–2024","backcalc_before":2021},"Guernsey":{"series":{"2009":{"fin":40.79,"pub":12.02,"loc":47.19},"2010":{"fin":39.18,"pub":12.28,"loc":48.54},"2011":{"fin":35.94,"pub":11.63,"loc":52.44},"2012":{"fin":38.92,"pub":12.14,"loc":48.94},"2013":{"fin":35.97,"pub":11.88,"loc":52.15},"2014":{"fin":33.65,"pub":11.92,"loc":54.43},"2015":{"fin":37.42,"pub":13.04,"loc":49.54},"2016":{"fin":37.92,"pub":12.85,"loc":49.23},"2017":{"fin":39.64,"pub":12.51,"loc":47.85},"2018":{"fin":38.91,"pub":12.8,"loc":48.28},"2019":{"fin":38.12,"pub":12.68,"loc":49.2},"2020":{"fin":36.25,"pub":13.28,"loc":50.47},"2021":{"fin":34.65,"pub":13.31,"loc":52.04},"2022":{"fin":37.78,"pub":12.53,"loc":49.69},"2023":{"fin":37.38,"pub":13.31,"loc":49.31}},"note":"Financial = Finance & Insurance only. 2009–2018 back-calculated from 2019 methodology revision.","label":"2009–2023","backcalc_before":2019}},"uk_fin":{"1997":5.5,"1998":5.6,"1999":5.8,"2000":6.0,"2001":5.9,"2002":5.8,"2003":5.9,"2004":6.1,"2005":6.4,"2006":6.8,"2007":7.1,"2008":6.2,"2009":6.0,"2010":6.3,"2011":6.2,"2012":6.1,"2013":6.2,"2014":6.3,"2015":6.5,"2016":6.5,"2017":6.6,"2018":6.8,"2019":6.7,"2020":6.1,"2021":6.6,"2022":7.2,"2023":7.5,"2024":7.0}};
+
+const CAL_YEARS=[1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
+
+
+const SPEEDS=[700,330,120];
+const GO=Object.keys(GROUP_META).sort((a,b)=>GROUP_META[a].order-GROUP_META[b].order);
+const PGS=Object.keys(IOM_PROD);
+const ANNS=[
+  {year:'1999/00',label:'ICT first reported',pos:'top'},
+  {year:'2007/08',label:'ESA10 break',pos:'top',type:'break'},
+  {year:'2008/09',label:'eGaming split \u00b7 GFC',pos:'bot'},
+  {year:'2020/21',label:'COVID-19',pos:'top'},
+];
+const COMP_ANNS=[
+  {year:'2017/18',label:'King Gaming licensed',pos:'top',type:'warn'},
+  {year:'2022/23',label:'Raids \u00b7 OFAC Prince Group',pos:'bot',type:'warn'},
+  {year:'2023/24',label:'UN \u00b7 Bloomberg \u00b7 FBI Onchan',pos:'top',type:'warn'},
+];
+
+let tab='abs',view='groups',realM='real',compR='real';
+let hidden=new Set(),compGrp=PGS[0];
+let pf=0,play=false,ptimer=null,spdi=1;
+let unlocked=false;
+let activeJuris=new Set(['IoM','Jersey','Guernsey','UK']);
+
+const yrF=document.getElementById('yr-from');
+const yrT=document.getElementById('yr-to');
+ALL_YEARS.forEach(y=>{yrF.add(new Option(y,y));yrT.add(new Option(y,y));});
+yrF.value='2007/08'; yrT.value=ALL_YEARS[ALL_YEARS.length-1];
+const scrub=document.getElementById('scrub');scrub.max=ALL_YEARS.length-1;
+
+const csel=document.getElementById('comp-sel');
+PGS.forEach(g=>csel.add(new Option(g,g)));
+csel.value=compGrp;
+
+async function sha256(str){
+  if(!crypto?.subtle) throw new Error('no-subtle');
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+document.getElementById('lock-btn').onclick=async()=>{
+  const v=document.getElementById('lock-input').value;
+  if(!v)return;
+  try{
+    const h=await sha256(v);
+    if(h===PWD_HASH){
+      unlocked=true;
+      document.getElementById('lock-overlay').style.display='none';
+      document.getElementById('lock-err').textContent='';
+      render();
+    }else{
+      document.getElementById('lock-err').textContent='Incorrect.';
+      document.getElementById('lock-input').value='';
+      document.getElementById('lock-input').focus();
+    }
+  }catch(e){
+    if(e.message==='no-subtle'){
+      document.getElementById('lock-err').textContent='Requires HTTPS or localhost.';
+    }else{
+      document.getElementById('lock-err').textContent='Error — try reloading.';
+    }
+  }
+};
+document.querySelectorAll('.jbtn').forEach(b=>b.addEventListener('click',()=>{
+  const j=b.dataset.juris;
+  if(activeJuris.has(j)){
+    if(activeJuris.size>1){activeJuris.delete(j);b.style.opacity='0.35';}
+  }else{
+    activeJuris.add(j);b.style.opacity='1';
+  }
+  render();
+}));
+document.getElementById('lock-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter')document.getElementById('lock-btn').click();
+});
+
+function vYrs(){
+  if(tab==='mix')return ALL_YEARS;
+  const fi=ALL_YEARS.indexOf(yrF.value),ti=ALL_YEARS.indexOf(yrT.value);
+  return ALL_YEARS.slice(fi,ti+1);
+}
+function gTot(yr){
+  const o={};
+  for(const[s,info]of Object.entries(DATA[yr]||{})){if(!o[info.g])o[info.g]=0;o[info.g]+=info.v;}
+  return o;
+}
+function toR(v,yr,mode){if(mode==='nom')return v;const d=DEFLATORS[yr];return d?Math.round(v*d):null;}
+function gItems(){return GO.map(g=>({key:g,label:g,c:GROUP_META[g].c}));}
+function sItems(){
+  const ss=new Set();ALL_YEARS.forEach(yr=>Object.keys(DATA[yr]||{}).forEach(s=>ss.add(s)));
+  return [...ss].sort((a,b)=>{
+    const oa=GROUP_META[SECTOR_META[a]?.g]?.order??99,ob=GROUP_META[SECTOR_META[b]?.g]?.order??99;
+    return oa!==ob?oa-ob:a.localeCompare(b);
+  }).map(s=>({key:s,label:s,c:SECTOR_META[s]?.c||'#888'}));
+}
+function its(){return view==='groups'?gItems():sItems();}
+function getV(yr,key,isG){
+  if(hidden.has(key))return 0;
+  if(isG)return gTot(yr)[key]||0;
+  return DATA[yr]?.[key]?.v||0;
+}
+function lineDS(yrs){
+  const isG=view==='groups';
+  return its().filter(({key})=>!hidden.has(key)&&(isG||!hidden.has(SECTOR_META[key]?.g)))
+    .map(({key,label,c})=>{
+      const data=yrs.map(yr=>{const r=getV(yr,key,isG);const v=toR(r,yr,realM);return v!==null?Math.round(v/1000):null;});
+      return {label,data,borderColor:c,backgroundColor:c+'22',borderWidth:2,pointRadius:2,pointHoverRadius:4,fill:false,tension:0.35,spanGaps:false};
+    });
+}
+function relDS(yrs){
+  const isG=view==='groups';
+  return its().filter(({key})=>!hidden.has(key)&&(isG||!hidden.has(SECTOR_META[key]?.g)))
+    .map(({key,label,c})=>{
+      const data=yrs.map(yr=>{const r=getV(yr,key,isG);const tot=Object.values(DATA[yr]||{}).reduce((a,b)=>a+b.v,0);return tot?parseFloat((r/tot*100).toFixed(2)):0;});
+      return {label,data,backgroundColor:c+'cc',borderColor:c,borderWidth:0.5};
+    });
+}
+function mixDS(){
+  const isG=view==='groups';
+  return its().filter(({key})=>!hidden.has(key)&&(isG||!hidden.has(SECTOR_META[key]?.g)))
+    .map(({key,label,c})=>{
+      const data=ALL_YEARS.map(yr=>{const r=getV(yr,key,isG);const tot=Object.values(DATA[yr]||{}).reduce((a,b)=>a+b.v,0);return tot?parseFloat((r/tot*100).toFixed(2)):0;});
+      return {label,data,borderColor:c,backgroundColor:c+'cc',borderWidth:1,fill:true,tension:0.35,pointRadius:0,stack:'mix',type:'line'};
+    });
+}
+function compDS(){
+  // Multi-jurisdiction comparison on calendar year axis
+  const JURIS_CFG={
+    'IoM':     {c:'#3b82f6',d:[],      w:2.5,r:3},
+    'Jersey':  {c:'#f59e0b',d:[8,4],   w:2,  r:2},
+    'Guernsey':{c:'#10b981',d:[4,3],   w:2,  r:2},
+    'UK':      {c:'#94a3b8',d:[2,3],   w:1.5,r:2},
+  };
+  const result=[];
+  Object.entries(JURIS_CFG).forEach(([j,cfg])=>{
+    if(!activeJuris.has(j)) return;
+    // Nominal: IoM/Guernsey/UK (current prices); Jersey excluded — only published in const. 2022£
+    // Real: IoM/Jersey/Guernsey (deflated by GG RPI to Q1 2026) / UK Finance only (DJG5 synthesis ~2023£)
+    if(compR==='nom'&&j==='Jersey') return;
+    if(compR==='real'&&j==='UK'&&!UK_PROD_REAL[compGrp]) return;
+    const data=CAL_YEARS.map(yr=>{
+      if(j==='IoM'){
+        const fy=yr+'/'+(String(yr+1).slice(2));
+        const v=IOM_PROD[compGrp]?.[fy];
+        return v?(compR==='real'?toR(v,fy,compR):v):null;
+      }else if(j==='Jersey'){
+        return JE_PROD[compGrp]?.[yr]??null;
+      }else if(j==='Guernsey'){
+        const v=GG_PROD[compGrp]?.[yr]??null;
+        if(v===null) return null;
+        return compR==='real'?(GG_RPI_RF[yr]!=null?Math.round(v*GG_RPI_RF[yr]):null):v;
+      }else{
+        const fy=yr+'/'+(String(yr+1).slice(2));
+        return compR==='real'?(UK_PROD_REAL[compGrp]?.[fy]??null):(UK_PROD[compGrp]?.[fy]??null);
+      }
+    });
+    const hasData=data.some(v=>v!==null);
+    if(!hasData) return;
+    const lbl=j==='Jersey'?'Jersey (const. 2022\u00a3)':
+              j==='Guernsey'?'Guernsey (Q1 2026\u00a3, GG RPI)':
+              j==='UK'?'UK \u2014 '+PROD_UK[compGrp]+(compR==='real'?' (\u223c2023\u00a3, ONS GDP(O)+JOBS02)':''):
+              j==='IoM'?'IoM \u2014 '+compGrp:
+              'Guernsey \u2014 Finance (nominal)';
+    result.push({
+      label:lbl, data,
+      borderColor:cfg.c, backgroundColor:cfg.c+'22',
+      borderWidth:cfg.w, borderDash:cfg.d,
+      pointRadius:cfg.r, pointHoverRadius:5,
+      fill:false, tension:0.35, spanGaps:false
+    });
+  });
+  return result;
+}
+
+const revP={
+  id:'rev',
+  beforeDatasetsDraw(ch){
+    if(tab!=='mix')return;
+    const{ctx,chartArea:ca,scales:sc}=ch;if(!sc.x||!ca)return;
+    const px=sc.x.getPixelForValue(pf);
+    ctx.save();ctx.beginPath();ctx.rect(ca.left,ca.top-2,px-ca.left+1,ca.height+4);ctx.clip();
+  },
+  afterDatasetsDraw(ch){
+    if(tab!=='mix')return;
+    const{ctx,chartArea:ca,scales:sc}=ch;if(!sc.x||!ca)return;
+    ctx.restore();
+    const px=sc.x.getPixelForValue(pf);
+    ctx.fillStyle='rgba(15,23,42,0.72)';ctx.fillRect(px,ca.top,ca.right-px,ca.height);
+    ctx.strokeStyle='#e2e8f055';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 10px Inter,sans-serif';
+    const r=pf>ALL_YEARS.length-3;ctx.textAlign=r?'right':'left';
+    ctx.fillText(ALL_YEARS[pf],px+(r?-5:5),ca.top+11);
+  },
+  afterDraw(ch){
+    const{ctx,chartArea:ca,scales:sc}=ch;if(!sc.x||!ca)return;
+    ctx.save();
+    const isComp=tab==='comp';
+    const anns=isComp?COMP_ANNS:ANNS;
+    anns.forEach(ann=>{
+      const idx=ch.data.labels.indexOf(ann.year);if(idx===-1)return;
+      const x=sc.x.getPixelForValue(idx);
+      const isWarn=ann.type==='warn',isBrk=ann.type==='break';
+      ctx.globalAlpha=(tab!=='mix'||idx<=pf)?1:0.2;
+      ctx.strokeStyle=isWarn?'#f8717188':isBrk?'#f8717166':'#94a3b833';
+      ctx.lineWidth=isWarn||isBrk?2:1;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(x,ca.top);ctx.lineTo(x,ca.bottom);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=isWarn?'#f87171':isBrk?'#f87171':'#64748b';
+      ctx.font='bold 9px Inter,sans-serif';ctx.textAlign='center';
+      const lx=Math.max(ca.left+32,Math.min(ca.right-32,x));
+      ctx.fillText(ann.label,lx,ann.pos==='top'?ca.top+9:ca.bottom-4);
+      ctx.globalAlpha=1;
+    });
+    if(isComp){
+      CENSUS_YRS.forEach(cy=>{
+        const fy=ALL_YEARS.find(y=>y.startsWith(String(cy)));if(!fy)return;
+        const idx=ch.data.labels.indexOf(fy);if(idx===-1)return;
+        const x=sc.x.getPixelForValue(idx);
+        ctx.strokeStyle='#fbbf2433';ctx.lineWidth=1;ctx.setLineDash([2,4]);
+        ctx.beginPath();ctx.moveTo(x,ca.top);ctx.lineTo(x,ca.bottom);ctx.stroke();
+        ctx.setLineDash([]);
+      });
+    }
+    ctx.restore();
+  }
+};
+Chart.register(revP);
+
+const mc=document.getElementById('mc').getContext('2d');
+let chart=null;
+
+function buildChart(){
+  const yrs=vYrs();
+  let ds,type='bar',stacked=false,yMax,yTitle,yfmt;
+  if(tab==='abs'){
+    type='line';ds=lineDS(yrs);
+    yTitle=realM==='real'?'GVA \u00a3m (2024/25)':'GVA \u00a3m (current)';
+    yfmt=v=>v===null?'':'\u00a3'+v.toLocaleString()+'m';
+  }else if(tab==='rel'){
+    ds=relDS(yrs);stacked=true;yMax=100;yTitle='Share of GVA %';yfmt=v=>v+'%';
+  }else if(tab==='mix'){
+    ds=mixDS();type='line';stacked=true;yMax=100;yTitle='Share of GVA %';yfmt=v=>v+'%';
+  }else{
+    type='line';ds=compDS();
+    yTitle=compR==='real'?'GVA per worker \u2014 real terms (IoM: 2024/25\u00a3; Jersey: const.2022\u00a3; GG: Q1 2026\u00a3; UK: \u223c2023\u00a3)':'GVA per worker \u00a3 (current prices \u2014 IoM, Guernsey, UK)';
+    yfmt=v=>v===null?'':'\u00a3'+v.toLocaleString();
+  }
+  const cfg={
+    type,data:{labels:tab==='mix'?ALL_YEARS:tab==='comp'?CAL_YEARS:yrs,datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      animation:{duration:tab==='mix'?0:220},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:tab==='comp',labels:{color:'#e2e8f0',font:{size:10},boxWidth:20}},
+        tooltip:{
+          backgroundColor:'#1e293b',borderColor:'#334155',borderWidth:1,
+          titleColor:'#e2e8f0',bodyColor:'#94a3b8',footerColor:'#f87171',
+          callbacks:{
+            label(c){const v=c.raw;if(v===null||v===undefined)return c.dataset.label+': n/a';return c.dataset.label+': '+yfmt(v);},
+            footer(items){
+              if(tab==='comp')return['\u26a0 Employment: census interpolation','UK: ONS approx (current prices)'];
+              const yr=items[0]?.label,m=DATA[yr]?Object.values(DATA[yr])[0]?.m:'';
+              return m==='pre-ESA10'?['\u26a0 Pre-ESA10: sectors aggregated']:[];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{stacked,ticks:{color:'#64748b',font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:14},grid:{color:'#1e293b00'}},
+        y:{stacked,min:0,max:yMax,
+           title:{display:true,text:yTitle,color:'#64748b',font:{size:9}},
+           ticks:{color:'#64748b',font:{size:9},callback:v=>yfmt(v)},
+           grid:{color:'#334155'}}
+      }
+    }
+  };
+  if(chart)chart.destroy();
+  chart=new Chart(mc,cfg);
+}
+
+function renderLeg(){
+  const el=document.getElementById('leg');el.innerHTML='';
+  const isComp=tab==='comp';
+  document.getElementById('legrow').style.display=(isComp||tab==='compete')?'none':'flex';
+  if(isComp)return;
+  document.getElementById('ltitle').textContent=view==='groups'?'Groups':'Sectors';
+  its().forEach(({key,label,c})=>{
+    const d=document.createElement('div');
+    d.className='li'+(hidden.has(key)?' off':'');
+    d.innerHTML=`<span class="sw" style="background:${c}"></span><span class="ln">${label}</span>`;
+    d.onclick=()=>{hidden.has(key)?hidden.delete(key):hidden.add(key);render();};
+    el.appendChild(d);
+  });
+}
+
+function renderCtx(){}
+
+function updateNote(){
+  const noteEl=document.getElementById('note');
+  if(tab==='comp'){
+    noteEl.style.display=unlocked?'':'none';
+    if(unlocked) noteEl.innerHTML=NOTE_COMP;
+    return;
+  }
+  noteEl.style.display='';
+  noteEl.innerHTML=tab==='compete'?NOTE_COMPETE:NOTE_STD;
+}
+
+function notifyH(){
+  const h=document.documentElement.scrollHeight;
+  window.parent.postMessage({type:'resize',height:h},'*');
+}
+
+// ── Competing Out chart ───────────────────────────────────────────────────
+let cIsland='IoM';
+document.querySelectorAll('[data-cisland]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-cisland]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); cIsland=b.dataset.cisland; render();
+}));
+
+function buildCompeteChart(){
+  const idata=COMPETING_DATA.islands[cIsland];
+  const ukFin=COMPETING_DATA.uk_fin;
+  const yrs=Object.keys(idata.series).map(Number).sort((a,b)=>a-b);
+  const allYrs=Object.keys(ukFin).map(Number).sort((a,b)=>a-b).filter(y=>y>=yrs[0]&&y<=yrs[yrs.length-1]);
+  const labels=allYrs;
+
+  // Cumulative values for manual stacked area — Public Sector at base
+  const pubPct  = labels.map(y=>idata.series[y]?.pub??null);
+  const finCum  = labels.map(y=>idata.series[y]?(idata.series[y].pub+idata.series[y].fin):null);
+  const totLine = labels.map(y=>idata.series[y]?100:null);
+  const ukLine  = labels.map(y=>ukFin[y]??null);
+
+  const backcalc = idata.backcalc_before;
+  const FIN_CLR='#a78bfa', PUB_CLR='#64748b', LOC_CLR='#34d399';
+  const finLabel=cIsland==='IoM'?'Finance & Digital Services':'Financial & Business Services';
+
+  const datasets=[
+    {
+      label:'Public Sector', data:pubPct,
+      fill:'origin', backgroundColor:PUB_CLR+'88', borderColor:PUB_CLR,
+      borderWidth:1, pointRadius:0, tension:0.35, spanGaps:false,
+      segment:{borderDash:ctx=>backcalc&&labels[ctx.p0DataIndex]<backcalc?[4,3]:[]},
+    },
+    {
+      label:finLabel, data:finCum,
+      fill:'-1', backgroundColor:FIN_CLR+'99', borderColor:FIN_CLR,
+      borderWidth:1.5, pointRadius:0, tension:0.35, spanGaps:false,
+      segment:{borderDash:ctx=>backcalc&&labels[ctx.p0DataIndex]<backcalc?[4,3]:[]},
+    },
+    {
+      label:'Local Economy', data:totLine,
+      fill:'-1', backgroundColor:LOC_CLR+'77', borderColor:LOC_CLR,
+      borderWidth:1, pointRadius:0, tension:0.35, spanGaps:false,
+      segment:{borderDash:ctx=>backcalc&&labels[ctx.p0DataIndex]<backcalc?[4,3]:[]},
+    },
+    {
+      label:'UK Finance & Insurance (SIC K)', data:ukLine,
+      fill:false, borderColor:'#ffffff', borderWidth:2,
+      borderDash:[6,3], pointRadius:0, tension:0.2, spanGaps:true, order:-1,
+    },
+  ];
+
+  const cfg={
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{duration:250},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:true,position:'bottom',
+          labels:{color:'#e2e8f0',font:{size:10},boxWidth:14,padding:14,
+            filter:item=>item.text!=='__hidden__'}},
+        tooltip:{
+          backgroundColor:'#1e293b',borderColor:'#334155',borderWidth:1,
+          titleColor:'#e2e8f0',bodyColor:'#94a3b8',footerColor:'#64748b',
+          callbacks:{
+            label(c){
+              const i=c.datasetIndex,y=c.parsed.y;
+              if(y===null||y===undefined) return null;
+              const yr=labels[c.dataIndex];
+              const s=idata.series[yr];
+              if(!s) return null;
+              if(i===0) return `Public Sector: ${s.pub.toFixed(1)}%`;
+              if(i===1) return `${finLabel}: ${s.fin.toFixed(1)}%`;
+              if(i===2) return `Local Economy: ${s.loc.toFixed(1)}%`;
+              return `UK Finance: ${y.toFixed(1)}%`;
+            },
+            footer(items){
+              const yr=labels[items[0]?.dataIndex];
+              const msgs=[];
+              if(backcalc&&yr<backcalc) msgs.push('\u26a0 Back-calculated from '+backcalc+' revision');
+              if(cIsland==='IoM'&&yr>=2007) msgs.push('Post-ESA10 methodology');
+              if(cIsland==='Jersey') msgs.push('Dashed = pre-2021 old SIC classification');
+              return msgs;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#64748b',font:{size:9},maxTicksLimit:14,autoSkip:true},grid:{color:'#1e293b00'}},
+        y:{min:0,max:100,
+           title:{display:true,text:'Share of total GVA (%)',color:'#64748b',font:{size:9}},
+           ticks:{color:'#64748b',font:{size:9},callback:v=>v+'%'},
+           grid:{color:'#334155'}}
+      }
+    }
+  };
+  if(chart) chart.destroy();
+  chart=new Chart(mc,cfg);
+}
+
+function render(){
+  const isComp=tab==='comp';
+  if(tab==='compete'){buildCompeteChart();renderLeg();updateNote();return;}
+  const lo=document.getElementById('lock-overlay');
+  if(isComp&&!unlocked){
+    lo.style.display='flex';
+    if(chart){chart.destroy();chart=null;}
+  }else{
+    lo.style.display='none';
+    buildChart();
+  }
+  renderLeg();renderCtx();updateNote();
+  setTimeout(notifyH,100);
+}
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');tab=t.dataset.tab;
+  const isMix=tab==='mix',isComp=tab==='comp';
+  document.getElementById('main-ctrl').style.display=(isComp||tab==='compete')?'none':'';
+  document.getElementById('compete-ctrl').style.display=tab==='compete'?'flex':'none';
+  document.getElementById('comp-ctrl').style.display=isComp?'flex':'none';
+  document.getElementById('yr-ctrl').style.display=(isMix||isComp)?'none':'';
+  document.getElementById('view-ctrl').style.display=isComp?'none':'';
+  document.getElementById('real-ctrl').style.display=tab==='abs'?'':'none';
+  document.getElementById('pbar').style.display=isMix?'flex':'none';
+  if(!isMix)stopPl();
+  render();
+}));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-view]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');view=b.dataset.view;hidden.clear();render();
+}));
+document.querySelectorAll('[data-real]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-real]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');realM=b.dataset.real;render();
+}));
+document.querySelectorAll('[data-preal]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-preal]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');compR=b.dataset.preal;updateJurisBtns();render();
+}));
+function updateJurisBtns(){
+  document.querySelectorAll('.jbtn').forEach(b=>{
+    const j=b.dataset.juris;
+    const avail=compR==='nom'?j!=='Jersey':
+      (j==='IoM'||j==='Jersey'||j==='Guernsey'||(j==='UK'&&compGrp==='Finance & eGaming'));
+    b.style.opacity=avail?'1':'0.3';
+    b.title=avail?'':(compR==='nom'?'Jersey only available in real (const. 2022\u00a3) terms':
+      j==='UK'?'UK only available for Finance & eGaming in real mode (ONS DJG5 SIC K)':
+      'Deflator not available');
+  });
+}
+updateJurisBtns();
+csel.onchange=()=>{compGrp=csel.value;updateJurisBtns();render();};
+[yrF,yrT].forEach(s=>s.addEventListener('change',()=>{
+  if(ALL_YEARS.indexOf(yrF.value)>ALL_YEARS.indexOf(yrT.value))yrT.value=yrF.value;
+  render();
+}));
+document.getElementById('show-all').onclick=()=>{hidden.clear();render();};
+document.getElementById('hide-all').onclick=()=>{its().forEach(({key})=>hidden.add(key));render();};
+
+const pbtn=document.getElementById('pbtn'),ybdg=document.getElementById('ybdg');
+function setF(i){
+  pf=Math.max(0,Math.min(i,ALL_YEARS.length-1));
+  scrub.value=pf;ybdg.textContent=ALL_YEARS[pf];
+  if(tab==='mix'&&chart)chart.update('none');
+}
+function stopPl(){clearInterval(ptimer);ptimer=null;play=false;pbtn.innerHTML='&#9654; Play';}
+pbtn.onclick=()=>{
+  if(play){stopPl();return;}
+  if(pf>=ALL_YEARS.length-1)setF(0);
+  play=true;pbtn.innerHTML='&#9646;&#9646; Pause';
+  ptimer=setInterval(()=>{if(pf>=ALL_YEARS.length-1){stopPl();return;}setF(pf+1);},SPEEDS[spdi]);
+};
+scrub.addEventListener('input',()=>{stopPl();setF(parseInt(scrub.value));});
+document.querySelectorAll('[data-spd]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-spd]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');const was=play;stopPl();spdi=parseInt(b.dataset.spd);
+  if(was){play=true;pbtn.innerHTML='&#9646;&#9646; Pause';
+    ptimer=setInterval(()=>{if(pf>=ALL_YEARS.length-1){stopPl();return;}setF(pf+1);},SPEEDS[spdi]);
+  }
+}));
+
+render();
+new ResizeObserver(notifyH).observe(document.body);
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
+</script>
+</body>
+</html>

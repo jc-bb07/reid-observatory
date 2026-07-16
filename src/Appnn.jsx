@@ -36,7 +36,8 @@ const TAB_GROUPS = [
   { id: "econ-group",      label: "Economy & Society",  color: "#34d399", homeTab: "econHome",
     tabs: [
       { id: "econHome",      label: "Overview"             },
-      { id: "econperf",      label: "Economy Explorer"     },
+      { id: "econperf",      label: "Economic Performance" },
+      { id: "econmix",       label: "Economic Mix"         },
       { id: "demog",         label: "Demographics Explorer" },
       { id: "iomPopChange",  label: "Population Change"    },
       { id: "inflation",     label: "Inflation"            },
@@ -915,13 +916,12 @@ function EconHomeTab({ C, onNavigate }) {
 
       <div onClick={() => onNavigate("econperf")} style={{ cursor: "pointer" }}>
         {card(
-          "Economy Explorer",
+          "Economic Performance",
           `GDP and GVA per head, real growth rates, and output relative to the UK across the
-          Isle of Man, Jersey, and Guernsey, plus which industries actually drive that output —
-          sector-by-sector contribution to GDP, GVA per worker, and how the balance between
-          finance, the public sector and the local economy has shifted since 1997/98.
+          Isle of Man, Jersey, and Guernsey — 2000 to present. Nominal and real (constant
+          prices) series, with cross-jurisdictional ratio and cumulative indexed growth.
           Sources: IoM National Income reports, Statistics Jersey, States of Guernsey Statistics,
-          ONS ABML/EBAQ/ABMI/GDP(O)/JOBS02.`,
+          ONS ABML/EBAQ/ABMI.`,
           C.green
         )}
       </div>
@@ -932,6 +932,17 @@ function EconHomeTab({ C, onNavigate }) {
           `Population aging across all three Crown Dependencies, 1821–2040. Census data plus
           cohort-shift projections. Dependency ratios, population pyramids, age structure,
           and what the trajectory looks like under different migration scenarios.`,
+          C.green
+        )}
+      </div>
+
+      <div onClick={() => onNavigate("econmix")} style={{ cursor: "pointer" }}>
+        {card(
+          "Productivity by Sector",
+          `National income and employment by sector — contribution to GDP versus share of
+          the workforce, revealing which sectors drive economic output relative to their
+          size. Covers financial services, eGaming, ICT, health, education and the public
+          sector. Data from IoM National Income reports and the Digest employment series.`,
           C.green
         )}
       </div>
@@ -1526,7 +1537,7 @@ function AppContent() {
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","inflation",
+    "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","econmix","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget","housingApprenticeshipsBrief",
     "mcWhenWho","yourHealth","nobles-flow","nobles-v15",
@@ -1625,8 +1636,11 @@ function AppContent() {
     suicide: (
       <AutoIframe src="/suicide-rates.html" title="Suicide Mortality Rates" theme={themeName} />
     ),
+    econmix: (
+      <AutoIframe src="/iom-economic-mix.html" title="Productivity by Sector" theme={themeName} />
+    ),
     econperf: (
-      <AutoIframe src="/economy-explorer.html" title="Economy Explorer" theme={themeName} />
+      <AutoIframe src="/economic-performance.html" title="Economic Performance" theme={themeName} />
     ),
     overview: (
       <AutoIframe src="/overview.html" title="Economic Overview" theme={themeName} />
