@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repositioning Offshore, Fifteen Years On</title>
+<meta property="og:title" content="Repositioning Offshore, Fifteen Years On">
+<meta property="og:description" content="A 2011 idea, tested against 15 years of real data. Read the paper, try the model.">
+<meta property="og:image" content="summary-card.png">
+<meta name="theme-color" content="#0f172a">
+<style>
+  :root{
+    --bg:#0f172a; --surface:#111c34; --surface2:#16223f; --border:#1e293b; --border2:#334155;
+    --text:#f8fafc; --muted:#94a3b8; --muted2:#64748b;
+    --blue:#60a5fa; --green:#34d399; --amber:#fbbf24; --purple:#a78bfa; --orange:#fb923c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:40px 20px 60px;
+    background:
+      radial-gradient(1000px 560px at 10% -10%, rgba(96,165,250,.16), transparent 60%),
+      radial-gradient(760px 520px at 100% 12%, rgba(167,139,250,.12), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--amber);background:#3a2f0f;border:1px solid #5b4a15;border-radius:6px;padding:5px 11px;margin-bottom:18px;
+    box-shadow:0 0 0 1px rgba(251,191,36,.08), 0 4px 14px -6px rgba(251,191,36,.35)}
+  h1{font-size:38px;font-weight:800;margin:0 0 14px;line-height:1.15;letter-spacing:-.015em}
+  @media (max-width:600px){h1{font-size:28px}}
+  .lede{color:var(--muted);font-size:16px;line-height:1.6;max-width:680px;margin:0 0 34px}
+
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:44px}
+  .stat{flex:1;min-width:220px;background:linear-gradient(160deg,var(--surface),var(--surface2));border:1px solid var(--border);
+    border-top:3px solid var(--accent);border-radius:14px;padding:18px 20px;box-shadow:0 12px 28px -20px rgba(0,0,0,.8)}
+  .stat.c1{--accent:#60a5fa} .stat.c2{--accent:#fb923c} .stat.c3{--accent:#a78bfa}
+  .stat .v{font-size:26px;font-weight:800;color:var(--accent);text-shadow:0 0 22px color-mix(in srgb, var(--accent) 40%, transparent)}
+  .stat .k{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:16px;
+    padding:24px 22px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;gap:10px;
+    box-shadow:0 14px 32px -22px rgba(0,0,0,.85);transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
+  .card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 18px 40px -20px color-mix(in srgb, var(--accent) 45%, transparent)}
+  .card .icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;
+    background:linear-gradient(155deg, color-mix(in srgb, var(--accent) 28%, transparent), color-mix(in srgb, var(--accent) 8%, transparent));
+    box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent)}
+  .card.c1{--accent:#60a5fa} .card.c2{--accent:#34d399} .card.c3{--accent:#a78bfa}
+  .card .title{font-size:16.5px;font-weight:800}
+  .card .desc{font-size:13px;color:var(--muted);line-height:1.55;flex:1}
+  .card .cta{font-size:12.5px;font-weight:700;color:var(--accent)}
+
+  footer{margin-top:46px;font-size:12px;color:var(--muted2);line-height:1.7;border-top:1px solid var(--border);padding-top:18px;max-width:680px}
+  footer a{color:#93c5fd}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">A 2011 idea &middot; tested against 15 years of real data</span>
+  <h1>Repositioning Offshore, Fifteen Years On</h1>
+  <p class="lede">A discussion paper that placed 2nd at the UK System Dynamics Awards, recomputed against real Isle of Man data through 2024, and rebuilt as a live model. Vindicated on mechanism, not on magnitude &mdash; and more relevant now that Pillar Two has actually arrived.</p>
+
+  <div class="stats">
+    <div class="stat c1"><div class="v">27.3%</div><div class="k">eGaming's peak share of GDP, 2016/17 &mdash; up from 6.6% in 2007/08, back to 17.9% by 2023/24</div></div>
+    <div class="stat c2"><div class="v">167% &rarr; 217%</div><div class="k">IoM national income per head as % of the UK's, 2007/08&ndash;2012/13, official figures</div></div>
+    <div class="stat c3"><div class="v">+18&ndash;52%</div><div class="k">Finance-sector rent premium over the UK with banking excluded, the corrected 2026 recompute</div></div>
+  </div>
+
+  <div class="cards">
+    <a class="card c1" href="Repositioning-Offshore-2026.docx">
+      <div class="icon">📄</div>
+      <div class="title">Read the paper</div>
+      <div class="desc">The full 2026 communication paper &mdash; what the 2011 model got right and wrong, and the policy options now that Pillar Two is live.</div>
+      <div class="cta">Download the Word doc &rarr;</div>
+    </a>
+    <a class="card c2" href="plain-language-model.html">
+      <div class="icon">📱</div>
+      <div class="title">Try the plain-language model</div>
+      <div class="desc">Four sliders, no jargon. Built for a phone. See how tax, saving, building and immigration policy trade off against each other.</div>
+      <div class="cta">Open on your phone &rarr;</div>
+    </a>
+    <a class="card c3" href="sd-model-v5.html">
+      <div class="icon">🛠️</div>
+      <div class="title">Explore the technical model</div>
+      <div class="desc">Every lever exposed, full causal loop diagram, sourced GVA/worker and GDP-per-capita charts, for anyone who wants to check the mechanics.</div>
+      <div class="cta">Open the full model &rarr;</div>
+    </a>
+  </div>
+
+  <footer>
+    All figures are sourced from the Isle of Man's own National Income Reports (2007/08&ndash;2023/24)
+    and ONS data, with every approximation and data gap disclosed in place rather than smoothed over &mdash;
+    see the paper and the technical model's footnotes for sourcing and caveats. This is a first-pass,
+    openly-flagged model, not a forecast.
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Where does the Island's money actually go?</title>
+<meta property="og:title" content="Where does the Island's money actually go?">
+<meta property="og:description" content="A 2011 idea, tested against 15 years of real data. Move the sliders, see the trade-offs.">
+<meta name="theme-color" content="#0f172a">
+<style>
+  :root{
+    --bg:#0f172a; --surface:#111c34; --surface2:#16223f; --border:#1e293b; --border2:#334155;
+    --text:#f8fafc; --muted:#94a3b8; --muted2:#64748b;
+    --blue:#60a5fa; --blue2:#93c5fd; --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --orange:#fb923c;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:18px 14px 60px;
+    background:
+      radial-gradient(680px 420px at 15% -8%, rgba(96,165,250,.16), transparent 60%),
+      radial-gradient(560px 380px at 100% 18%, rgba(167,139,250,.12), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:480px;margin:0 auto}
+  h1{font-size:22px;font-weight:800;margin:2px 0 6px;line-height:1.3;letter-spacing:-.01em}
+  .lede{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 14px}
+  .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--amber);background:#3a2f0f;border:1px solid #5b4a15;border-radius:5px;padding:4px 9px;margin-bottom:12px;
+    box-shadow:0 0 0 1px rgba(251,191,36,.08), 0 4px 14px -6px rgba(251,191,36,.35)}
+
+  .scenario{display:flex;gap:8px;margin-bottom:18px}
+  .scenario button{flex:1;padding:14px 10px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);
+    color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;text-align:center;line-height:1.35;
+    transition:transform .15s ease,box-shadow .25s ease,border-color .25s ease,background .25s ease}
+  .scenario button .emoji{font-size:19px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;
+    width:38px;height:38px;border-radius:50%;background:var(--surface2)}
+  .scenario button.active{border-color:var(--blue);color:var(--text);
+    background:linear-gradient(160deg,#16264a,#101c38);
+    box-shadow:0 6px 20px -8px rgba(96,165,250,.5), inset 0 0 0 1px rgba(96,165,250,.15)}
+  .scenario button.active .emoji{background:linear-gradient(145deg,#60a5fa,#3987e5);box-shadow:0 0 16px -2px rgba(96,165,250,.7)}
+  .scenario button:active{transform:scale(.97)}
+
+  section{margin-bottom:22px}
+  .sectiontitle{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin:0 0 10px}
+
+  /* ---- flow diagram ---- */
+  .flow{display:flex;flex-direction:column;align-items:stretch}
+  .station{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1.5px solid var(--border);
+    border-top:3px solid var(--accent, var(--border2));border-radius:14px;padding:14px 16px 15px;position:relative;
+    box-shadow:0 10px 26px -18px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.03);
+    transition:box-shadow .3s ease, transform .3s ease}
+  .station.c-intl{--accent:#60a5fa} .station.c-public{--accent:#fbbf24}
+  .station.c-cost{--accent:#a78bfa} .station.c-local{--accent:#34d399}
+  .station .badgewrap{display:flex;align-items:center;gap:12px}
+  .station .emoji{font-size:22px;line-height:1;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(155deg, color-mix(in srgb, var(--accent) 28%, transparent), color-mix(in srgb, var(--accent) 8%, transparent));
+    box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 6px 16px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+    flex-shrink:0}
+  .station .name{font-size:15px;font-weight:800}
+  .station .desc{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .station .figure{margin-top:10px;font-size:21px;font-weight:800;color:var(--accent, var(--text));
+    text-shadow:0 0 22px color-mix(in srgb, var(--accent) 40%, transparent)}
+  .station .figure .unit{font-size:12px;color:var(--muted);font-weight:600;margin-left:3px;text-shadow:none}
+  .connwrap{display:flex;justify-content:center;height:28px;align-items:center;position:relative}
+  .connline{width:3px;height:100%;border-radius:2px;background:var(--border2);position:relative;overflow:visible;transition:background .5s}
+  .connhead{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--border2);
+    margin-top:-1px;transition:border-top-color .5s}
+  .connlabel{position:absolute;left:calc(50% + 12px);top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted2);
+    white-space:nowrap;font-weight:600}
+  .conndot{position:absolute;left:50%;top:0;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;opacity:0;
+    background:radial-gradient(circle,#fff 0%,rgba(52,211,153,1) 45%,rgba(52,211,153,0) 75%)}
+  .conn-flowing .connline{background:linear-gradient(to bottom,transparent 0%,rgba(52,211,153,.9) 50%,transparent 100%);
+    background-size:100% 300%;animation:flowdown .8s linear infinite}
+  .conn-flowing .connhead{border-top-color:rgba(52,211,153,.7)}
+  .conn-flowing .conndot{opacity:1;animation:dotdown 1.1s ease-in-out infinite}
+  .conn-squeezed .connline{background:rgba(248,113,113,.65);animation:blink .8s ease-in-out infinite}
+  .conn-squeezed .connhead{border-top-color:rgba(248,113,113,.65)}
+  .conn-squeezed .conndot{opacity:1;background:radial-gradient(circle,#fff 0%,rgba(248,113,113,1) 45%,rgba(248,113,113,0) 75%);animation:dotdown 1.1s ease-in-out infinite}
+  .conn-idle .connline{background:var(--border2)}
+  .conn-idle .connhead{border-top-color:var(--border2)}
+  @keyframes flowdown{from{background-position:0 -100%}to{background-position:0 200%}}
+  @keyframes dotdown{0%{top:-2%;opacity:0}12%{opacity:1}88%{opacity:1}100%{top:98%;opacity:0}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ---- levers ---- */
+  .lever{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;
+    box-shadow:0 8px 20px -16px rgba(0,0,0,.7)}
+  .lever .q{font-size:14.5px;font-weight:700;margin-bottom:2px}
+  .lever .a{font-size:13px;color:var(--blue2);font-weight:700;margin-bottom:10px}
+  .lever input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:99px;
+    background:linear-gradient(90deg,#60a5fa var(--pct,30%),var(--surface2) var(--pct,30%));cursor:pointer;margin:10px 0}
+  .lever input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff, #93c5fd 40%, #60a5fa 75%);
+    box-shadow:0 0 0 5px rgba(96,165,250,.18), 0 4px 12px -2px rgba(96,165,250,.6);
+    border:2px solid #dbeafe; margin-top:0; cursor:pointer}
+  .lever input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;border:2px solid #dbeafe;
+    background:radial-gradient(circle at 35% 30%,#fff, #93c5fd 40%, #60a5fa 75%);
+    box-shadow:0 0 0 5px rgba(96,165,250,.18), 0 4px 12px -2px rgba(96,165,250,.6);cursor:pointer}
+  .lever input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:var(--surface2)}
+  .lever .ends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted2);margin-top:4px}
+
+  /* ---- results ---- */
+  .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .statcard{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:14px;padding:13px 14px;
+    box-shadow:0 10px 24px -18px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.03)}
+  .statcard .k{font-size:11px;color:var(--muted);font-weight:600;line-height:1.4}
+  .statcard .v{font-size:23px;font-weight:800;margin-top:5px;letter-spacing:-.01em}
+  .statcard .v.up{color:var(--red);text-shadow:0 0 20px rgba(248,113,113,.35)}
+  .statcard .v.down{color:var(--green);text-shadow:0 0 20px rgba(52,211,153,.35)}
+  .statcard .trend{margin-top:8px}
+  .sparkline{width:100%;height:36px;display:block;overflow:visible}
+  .donothing-hint{font-size:11px;color:var(--muted2);margin:-6px 0 10px;line-height:1.5}
+  .donothing-hint strong{color:var(--muted)}
+  .statfoot{margin-top:6px}
+  .donothing{margin-top:2px;display:flex;justify-content:flex-end;align-items:baseline;gap:5px;cursor:help}
+  .donothing .dn-label{font-size:8.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+  .donothing .dn-value{font-size:14px;font-weight:800;color:var(--muted2);letter-spacing:-.01em;white-space:nowrap}
+
+  .beakerrow{display:flex;gap:16px;align-items:center;
+    background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-top:10px;
+    box-shadow:0 10px 24px -18px rgba(0,0,0,.75)}
+  .beaker{position:relative;width:42px;height:70px;border:2px solid var(--border2);border-top:none;border-radius:0 0 9px 9px;flex-shrink:0;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.02),var(--surface2));
+    box-shadow:inset 0 0 10px rgba(0,0,0,.4), 0 6px 14px -8px rgba(0,0,0,.6)}
+  .beaker .fill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height .5s cubic-bezier(.22,1,.36,1),background .4s ease}
+  .beaker .fill::after{content:'';position:absolute;top:-3px;left:0;right:0;height:6px;border-radius:50%;
+    background:rgba(255,255,255,.35);filter:blur(1px)}
+  .beaker .shine{position:absolute;top:0;left:5px;width:9px;height:100%;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.04));
+    border-radius:4px;pointer-events:none}
+  .beaker .mark{position:absolute;left:0;right:0;border-top:1px dashed rgba(148,163,184,.55);opacity:.8;z-index:2}
+  .beakertext .k{font-size:11px;color:var(--muted);font-weight:600}
+  .beakertext .v{font-size:20px;font-weight:800;margin-top:3px}
+  .beakertext .note{font-size:11px;color:var(--muted2);margin-top:5px;line-height:1.5}
+
+  .narrative{background:linear-gradient(165deg,var(--surface2),#121d38);border:1px solid var(--border);border-radius:14px;padding:15px 16px;
+    font-size:13.5px;line-height:1.65;color:#e5edf7;box-shadow:0 10px 24px -18px rgba(0,0,0,.75)}
+  .narrative p{margin:0 0 10px} .narrative p:last-child{margin-bottom:0}
+
+  footer{margin-top:26px;font-size:11.5px;color:var(--muted2);line-height:1.7;border-top:1px solid var(--border);padding-top:16px}
+  footer a{color:var(--blue2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">A 2011 idea &middot; tested against 15 years of real data</span>
+  <h1>Where does the Island's money actually go?</h1>
+  <p class="lede">In 2011, a discussion paper argued the Island's tax system creates a hidden pressure that pushes up local prices and squeezes ordinary residents &mdash; unless some of the value flowing through the international-money sector is used deliberately. Move the sliders below to see how that plays out.</p>
+
+  <div class="scenario" id="scenarioRow">
+    <button id="btn2011" class="active" onclick="setAnchor('2011')"><span class="emoji">🕰️</span>If we'd acted in 2007</button>
+    <button id="btnNow" onclick="setAnchor('now')"><span class="emoji">📍</span>Starting from today</button>
+  </div>
+
+  <section>
+    <div class="sectiontitle">How the money flows</div>
+    <div class="flow" id="flowDiagram"></div>
+  </section>
+
+  <section>
+    <div class="sectiontitle">Try the policy levers</div>
+    <div class="lever">
+      <div class="q">🌐 How hard do we tax the international-money sector?</div>
+      <div class="a" id="a-tax">Lightly taxed (15%)</div>
+      <input type="range" id="tax" min="0" max="50" value="15" oninput="recompute()">
+      <div class="ends"><span>Don't tax it</span><span>Tax it hard</span></div>
+    </div>
+    <div class="lever">
+      <div class="q">💰 What do we do with that tax money?</div>
+      <div class="a" id="a-save">Balanced &mdash; some spent, some saved</div>
+      <input type="range" id="save" min="0" max="100" value="40" oninput="recompute()">
+      <div class="ends"><span>Spend it all now</span><span>Save it all</span></div>
+    </div>
+    <div class="lever">
+      <div class="q">🏠 How much do we build to keep housing affordable?</div>
+      <div class="a" id="a-housing">Some building (20%)</div>
+      <input type="range" id="housing" min="0" max="100" value="20" oninput="recompute()">
+      <div class="ends"><span>Build very little</span><span>Build a lot</span></div>
+    </div>
+    <div class="lever">
+      <div class="q">🛂 How open is the door to new workers?</div>
+      <div class="a" id="a-open">Fairly open (80%)</div>
+      <input type="range" id="open" min="0" max="100" value="80" oninput="recompute()">
+      <div class="ends"><span>Mostly closed</span><span>Wide open</span></div>
+    </div>
+    <p style="font-size:11px;color:var(--muted2);margin:2px 4px 0">Two more levers (tax on ordinary business, and how fast public spending grows) are fixed at sensible defaults here to keep this simple — they're exposed in the full technical model.</p>
+  </section>
+
+  <section>
+    <div class="sectiontitle">What happens by <span id="endyearLabel">2033</span></div>
+    <p class="donothing-hint">Grey figures show <strong>doing nothing</strong> &mdash; today's real settings, left unchanged &mdash; for comparison.</p>
+    <div class="statgrid">
+      <div class="statcard">
+        <div class="k">Housing &amp; living costs, vs. the UK</div>
+        <div class="v" id="s-price">+0%</div>
+        <div class="statfoot">
+          <svg class="sparkline" id="spark-price"></svg>
+          <div class="donothing" title="If nothing changes from today's real settings"><div class="dn-label">do nothing</div><div class="dn-value" id="dn-price">+0%</div></div>
+        </div>
+      </div>
+      <div class="statcard">
+        <div class="k">Everyday local jobs</div>
+        <div class="v" id="s-jobs">0</div>
+        <div class="statfoot">
+          <svg class="sparkline" id="spark-jobs"></svg>
+          <div class="donothing" title="If nothing changes from today's real settings"><div class="dn-label">do nothing</div><div class="dn-value" id="dn-jobs">0</div></div>
+        </div>
+      </div>
+      <div class="statcard">
+        <div class="k">International-money jobs</div>
+        <div class="v" id="s-targeted">0</div>
+        <div class="statfoot">
+          <svg class="sparkline" id="spark-targeted"></svg>
+          <div class="donothing" title="If nothing changes from today's real settings"><div class="dn-label">do nothing</div><div class="dn-value" id="dn-targeted">0</div></div>
+        </div>
+      </div>
+      <div class="statcard">
+        <div class="k">Public spending</div>
+        <div class="v" id="s-gov">&pound;0m</div>
+        <div class="statfoot">
+          <svg class="sparkline" id="spark-gov"></svg>
+          <div class="donothing" title="If nothing changes from today's real settings"><div class="dn-label">do nothing</div><div class="dn-value" id="dn-gov">&pound;0m</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="beakerrow">
+      <div class="beaker"><div class="fill" id="beakerFill"></div><div class="mark" id="beakerMark"></div><div class="shine"></div></div>
+      <div class="beakertext">
+        <div class="k">The rainy-day fund</div>
+        <div class="v" id="rv-level">&pound;0m</div>
+        <div class="note" id="rv-note">Money saved, not spent or sent away.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sectiontitle">In plain English</div>
+    <div class="narrative" id="narrative"></div>
+  </section>
+
+  <footer>
+    This is a simplified public version of a full interactive economic model &mdash; the same
+    equations, fewer dials. It is not a forecast: it is a first-pass, openly-flagged
+    approximation, most useful for seeing the shape of trade-offs rather than exact numbers.
+    Checked against real published wages, house prices and government spending, 2016&ndash;2025:
+    wages track closely, house prices and spending are off by less than a percentage point a
+    year &mdash; see the full technical model for the real-data overlay and the numbers behind it.
+    Read the full communication paper or explore the technical model (with every lever exposed)
+    for the underlying data, sources and caveats.
+  </footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// SIMULATION ENGINE — identical to sd-model-v5.html, unmodified, so the plain
+// -language and technical versions always agree. See that file for full inline
+// documentation of every constant and assumption.
+// ═══════════════════════════════════════════════════════════════════════════
+const HORIZON = 26;
+
+const ANCHORS = {
+  '2011': {
+    startYear: 2007, label: '2007 → 2033',
+    init: { pop:80946, lt:4200, lm:10600, w:100, ukw:100, hp:100, gov:480, surplus:0, reserves:0, ukGDPcap0:20904 },
+    intlPressureShape: (i) => i<10 ? 0.02+0.015*i : (i<18 ? 0.17-0.005*(i-10) : Math.max(0.03,0.13-0.012*(i-18))),
+  },
+  'now': {
+    startYear: 2024, label: '2024 → 2050',
+    // regenerated 2026-07-17 to match sd-model-v5.html — see that file for the full note
+    init: { pop:85515, lt:4814, lm:2083, w:200.9, ukw:152.2, hp:194.6, gov:1293, surplus:0, reserves:280, ukGDPcap0:28694 },
+    intlPressureShape: (i) => Math.max(0.02, 0.05 - 0.002*i),
+  }
+};
+let currentAnchor = '2011';
+
+function simulate(p, anchorKey){
+  const a = ANCHORS[anchorKey];
+  const t=[],LT=[],LM=[],LI=[],POP=[],W=[],HP=[],GOV=[],SURPLUS=[],UKW=[];
+  const OET=[],OEM=[],OEI=[],UKOET=[],GDP=[],UKGDPCAP=[],GDPCAPPCT=[],RESERVES=[],UKP=[],RELPRICE=[],DRAWN=[];
+  let {pop,lt,lm,w,ukw,hp,gov,surplus,reserves} = a.init;
+  let ukp = hp;
+  let cumulativeDrawn = 0;
+
+  const inactiveFrac=0.49, tauT=2.5, DT0=a.init.lt;
+  const ukWageGrowthRef=2.5, ukPriceGrowthRef=2.2;
+  const kM_growth=1.6, kM_decay=0.55;
+  const kW1=0.9, kW2=0.30, kW3=0.5;
+  const kHP=1.3, kSupplyMax=4.0;
+  const rentPerTargetedWorker=16000, profitPerUntargetedWorker=9000;
+  const OE_T0=130000, OE_M0=75000, OE_I0=48000;
+  const reserveThreshold=0.08;
+
+  for(let i=0;i<HORIZON;i++){
+    const intlPressure = a.intlPressureShape(i);
+
+    t.push(a.startYear+i);
+    LT.push(Math.round(lt)); LM.push(Math.round(lm));
+    const laborForce = pop*(1-inactiveFrac);
+    const li = Math.max(0, laborForce-lt-lm);
+    LI.push(Math.round(li)); POP.push(Math.round(pop));
+    W.push(Math.round(w*10)/10); HP.push(Math.round(hp*10)/10);
+    GOV.push(Math.round(gov)); SURPLUS.push(Math.round(surplus)); UKW.push(Math.round(ukw*10)/10);
+
+    const ukOE_T = OE_T0*(w/100);
+    const OE_T = ukOE_T*(1+intlPressure);
+    const OE_M = OE_M0*(ukw/100);
+    const OE_I = OE_I0*(w/100);
+    const gdp = (lt*OE_T + lm*OE_M + li*OE_I)/1e6;
+    const ukGDPcapNow = a.init.ukGDPcap0*(ukw/a.init.ukw);
+    OET.push(Math.round(OE_T)); OEM.push(Math.round(OE_M)); OEI.push(Math.round(OE_I)); UKOET.push(Math.round(ukOE_T));
+    GDP.push(Math.round(gdp)); UKGDPCAP.push(Math.round(ukGDPcapNow));
+    GDPCAPPCT.push(Math.round((gdp*1e6/pop)/ukGDPcapNow*1000)/10);
+    RESERVES.push(Math.round(reserves));
+    UKP.push(Math.round(ukp*10)/10);
+    RELPRICE.push(Math.round(hp/ukp*1000)/10);
+    DRAWN.push(Math.round(cumulativeDrawn));
+
+    const DT = DT0*(1+intlPressure)*Math.max(0.2, 1-(p.goldilocks/100)*1.3);
+    const dLT = (DT-lt)/tauT;
+    lt = Math.max(500, lt+dLT);
+
+    ukw = ukw*(1+ukWageGrowthRef/100);
+    const effectiveCeiling = ukw*(1-(p.flatcit/100)*0.6);
+    const pressure = Math.max(0, w-effectiveCeiling);
+    const lmGrowthPct = kM_growth*(1-p.flatcit/30) - kM_decay*pressure;
+    lm = Math.max(300, lm*(1+lmGrowthPct/100));
+
+    const targetedGrowthRate = dLT/Math.max(1,lt)*100;
+    const netMigrationLastStep = i>0 ? (pop-POP[i-1]) : 0;
+    let wageGrowth = ukWageGrowthRef + kW1*Math.max(0,targetedGrowthRate) + kW2*Math.max(0,p.govgrowth-ukWageGrowthRef) - kW3*(netMigrationLastStep/1000);
+    wageGrowth = Math.max(-2, Math.min(14, wageGrowth));
+    w = w*(1+wageGrowth/100);
+
+    const housingRelease = p.housing/100;
+    const excessWageGrowth = wageGrowth-ukWageGrowthRef;
+    let hpGrowth = ukPriceGrowthRef + kHP*Math.max(0,excessWageGrowth) - kSupplyMax*housingRelease;
+    hpGrowth = Math.max(-4, Math.min(18, hpGrowth));
+    hp = hp*(1+hpGrowth/100);
+    ukp = ukp*(1+ukPriceGrowthRef/100);
+
+    const attractiveness = (wageGrowth-ukWageGrowthRef)*0.6 - (hpGrowth-ukPriceGrowthRef)*0.5;
+    const quotaFactor = 1-(p.quota/100)*0.85;
+    let netMigrationRate = (0.35+attractiveness*0.18)*quotaFactor;
+    netMigrationRate = Math.max(-1.5, Math.min(2.5, netMigrationRate));
+    pop = Math.max(60000, pop*(1+netMigrationRate/100));
+
+    const goldilocksRevenue = (p.goldilocks/100)*rentPerTargetedWorker*lt/1e6;
+    const flatCITRevenue = (p.flatcit/100)*profitPerUntargetedWorker*(lm+li)/1e6;
+    const surplusInflow = goldilocksRevenue+flatCITRevenue;
+    let recycleShare = p.recycle/100, bankedShare = p.banked/100;
+    if(recycleShare+bankedShare>1){ const scale=1/(recycleShare+bankedShare); recycleShare*=scale; bankedShare*=scale; }
+    const exportedShare = Math.max(0, 1-recycleShare-bankedShare);
+    surplus += surplusInflow*exportedShare;
+    reserves += surplusInflow*bankedShare;
+    gov = gov*(1+p.govgrowth/100) + surplusInflow*recycleShare*0.5;
+
+    const reservesRatio = gdp>0 ? reserves/gdp : 0;
+    if(reservesRatio > reserveThreshold){
+      const excess = reservesRatio-reserveThreshold;
+      const drawdown = Math.min(reserves, excess*gdp*0.15);
+      reserves -= drawdown;
+      gov += drawdown;
+      cumulativeDrawn += drawdown;
+    }
+  }
+  return {t,LT,LM,LI,POP,W,HP,GOV,SURPLUS,UKW,OET,OEM,OEI,UKOET,GDP,UKGDPCAP,GDPCAPPCT,RESERVES,UKP,RELPRICE,DRAWN};
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLAIN-LANGUAGE UI — maps 4 simple sliders onto the full lever set (flat CIT
+// and government-spending-growth are fixed at sensible defaults, not exposed,
+// so a first-time visitor has four dials, not ten).
+// ═══════════════════════════════════════════════════════════════════════════
+function currentLevers(){
+  const taxV = +document.getElementById('tax').value;
+  const saveV = +document.getElementById('save').value;
+  const housingV = +document.getElementById('housing').value;
+  const openV = +document.getElementById('open').value;
+  return {
+    goldilocks: taxV,
+    flatcit: 5,          // fixed, sensible default — not exposed in the plain-language view
+    govgrowth: 3,         // fixed, sensible default — not exposed in the plain-language view
+    recycle: 100-saveV,
+    banked: saveV,
+    quota: 100-openV,
+    housing: housingV,
+  };
+}
+
+// "Do nothing" comparison: today's real settings (matches the technical model's As-is preset,
+// mapped into this simplified 4-slider space), left unchanged, run on whichever anchor is
+// currently selected — a fixed reference point so users can see what their chosen levers are
+// doing relative to just carrying on as things are.
+function doNothingLevers(){
+  const tax=0, save=20, housing=10, open=85; // -> goldilocks:0, recycle:80, banked:20, quota:15
+  return { goldilocks:tax, flatcit:5, govgrowth:3, recycle:100-save, banked:save, quota:100-open, housing };
+}
+
+function taxLabel(v){
+  if(v===0) return "Not taxed at all (0%)";
+  if(v<=15) return `Lightly taxed (${v}%)`;
+  if(v<=30) return `Moderately taxed (${v}%)`;
+  return `Heavily taxed (${v}%)`;
+}
+function saveLabel(v){
+  if(v<=15) return "Nearly all spent right away";
+  if(v<=40) return "Mostly spent, a little saved";
+  if(v<=60) return "Balanced — some spent, some saved";
+  if(v<=85) return "Mostly saved for later";
+  return "Almost all saved for later";
+}
+function housingLabel(v){
+  if(v<=10) return `Very little building (${v}%)`;
+  if(v<=40) return `Some building (${v}%)`;
+  if(v<=70) return `Solid building programme (${v}%)`;
+  return `Major building push (${v}%)`;
+}
+function openLabel(v){
+  if(v<=15) return "Mostly closed to new workers";
+  if(v<=50) return "Cautiously open";
+  if(v<=80) return "Fairly open";
+  return "Wide open to new workers";
+}
+
+// Smooth path through the values using Catmull-Rom -> cubic Bezier conversion,
+// plus a filled area (gradient, fading to transparent) beneath the line.
+function smoothPath(vals, w, h){
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = (max-min)||1;
+  const pts = vals.map((v,i)=>({x:(i/(vals.length-1))*w, y:h-((v-min)/range)*h}));
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0 = pts[i-1]||pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2]||p2;
+    const c1x = p1.x + (p2.x-p0.x)/6, c1y = p1.y + (p2.y-p0.y)/6;
+    const c2x = p2.x - (p3.x-p1.x)/6, c2y = p2.y - (p3.y-p1.y)/6;
+    d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  return {d, last: pts[pts.length-1]};
+}
+let sparkUid = 0;
+function drawSpark(id, vals, color){
+  const el = document.getElementById(id);
+  const w = el.clientWidth||120, h = 30, pad = 3;
+  el.setAttribute('viewBox', `0 0 ${w} ${h+pad*2}`);
+  const {d, last} = smoothPath(vals, w, h);
+  const gid = 'sg'+(sparkUid++);
+  const areaD = `${d} L${last.x.toFixed(1)},${h} L0,${h} Z`;
+  el.innerHTML = `
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <g transform="translate(0,${pad})">
+      <path d="${areaD}" fill="url(#${gid})" stroke="none"/>
+      <path d="${d}" fill="none" stroke="${color}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3.4" fill="${color}"/>
+      <circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="6.5" fill="${color}" opacity="0.25"/>
+    </g>`;
+}
+
+// Gentle count-up animation for the big numbers, so lever changes feel alive
+// rather than snapping. formatFn receives the interpolated number each frame.
+const _animState = new WeakMap();
+function animateNumber(el, from, to, formatFn, duration){
+  duration = duration||450;
+  if(_animState.has(el)) cancelAnimationFrame(_animState.get(el));
+  if(Math.abs(to-from) < 0.5 || !isFinite(from)){ el.innerHTML = formatFn(to); return; }
+  const t0 = performance.now();
+  function tick(now){
+    const p = Math.min(1, (now-t0)/duration);
+    const eased = 1-Math.pow(1-p, 3);
+    el.innerHTML = formatFn(from + (to-from)*eased);
+    if(p<1) _animState.set(el, requestAnimationFrame(tick));
+  }
+  _animState.set(el, requestAnimationFrame(tick));
+}
+
+function setConn(id, state, label){
+  const el = document.getElementById(id);
+  el.className = 'connwrap conn-'+state;
+  el.querySelector('.connlabel') && (el.querySelector('.connlabel').textContent = label);
+}
+
+function buildFlowDiagram(){
+  const el = document.getElementById('flowDiagram');
+  el.innerHTML = `
+    <div class="station c-intl" id="st-intl">
+      <div class="badgewrap"><div class="emoji">🌐</div><div><div class="name">International Money</div></div></div>
+      <div class="desc">eGaming, investment funds and insurance business drawn here mainly by the tax system.</div>
+      <div class="figure" id="fig-intl">0<span class="unit">jobs</span></div>
+    </div>
+    <div class="connwrap" id="conn-1"><div class="connline"></div><div class="conndot"></div><div class="connhead"></div><div class="connlabel"></div></div>
+    <div class="station c-public" id="st-public">
+      <div class="badgewrap"><div class="emoji">🏛️</div><div><div class="name">Public Spending &amp; Rainy-Day Fund</div></div></div>
+      <div class="desc">Tax collected from the international-money sector, spent now or saved for later.</div>
+      <div class="figure" id="fig-public">£0<span class="unit">m/yr</span></div>
+    </div>
+    <div class="connwrap" id="conn-2"><div class="connline"></div><div class="conndot"></div><div class="connhead"></div><div class="connlabel"></div></div>
+    <div class="station c-cost" id="st-cost">
+      <div class="badgewrap"><div class="emoji">🏠</div><div><div class="name">Cost of Living &amp; Housing</div></div></div>
+      <div class="desc">Wages and demand from the international-money sector push local prices up; building more homes pushes back.</div>
+      <div class="figure" id="fig-cost">0%<span class="unit">vs UK</span></div>
+    </div>
+    <div class="connwrap" id="conn-3"><div class="connline"></div><div class="conndot"></div><div class="connhead"></div><div class="connlabel"></div></div>
+    <div class="station c-local" id="st-local">
+      <div class="badgewrap"><div class="emoji">🏪</div><div><div class="name">Local Businesses &amp; Everyday Jobs</div></div></div>
+      <div class="desc">Everyone else — the Island's non-finance, non-tech economy that has to live with whatever the levers above produce.</div>
+      <div class="figure" id="fig-local">0<span class="unit">jobs</span></div>
+    </div>
+  `;
+}
+
+const _rawVals = {};
+function updateStat(el, key, newVal, formatFn, extraClassFn){
+  const from = key in _rawVals ? _rawVals[key] : newVal;
+  _rawVals[key] = newVal;
+  animateNumber(el, from, newVal, formatFn);
+  if(extraClassFn) el.className = extraClassFn(newVal);
+}
+
+function updateSlideFill(id){
+  const el = document.getElementById(id);
+  const pct = (el.value-el.min)/(el.max-el.min)*100;
+  el.style.setProperty('--pct', pct+'%');
+}
+['tax','save','housing','open'].forEach(updateSlideFill);
+
+function recompute(){
+  ['tax','save','housing','open'].forEach(updateSlideFill);
+  const p = currentLevers();
+  document.getElementById('a-tax').textContent = taxLabel(p.goldilocks);
+  document.getElementById('a-save').textContent = saveLabel(+document.getElementById('save').value);
+  document.getElementById('a-housing').textContent = housingLabel(p.housing);
+  document.getElementById('a-open').textContent = openLabel(+document.getElementById('open').value);
+
+  const r = simulate(p, currentAnchor);
+  const n = r.t.length-1;
+  document.getElementById('endyearLabel').textContent = r.t[n];
+
+  // --- flow diagram state ---
+  updateStat(document.getElementById('fig-intl'), 'fig-intl', r.LT[n], v=>Math.round(v).toLocaleString()+'<span class="unit">jobs</span>');
+  updateStat(document.getElementById('fig-public'), 'fig-public', r.GOV[n], v=>'£'+Math.round(v).toLocaleString()+'<span class="unit">m/yr</span>');
+  const relDiff = r.RELPRICE[n]-100;
+  updateStat(document.getElementById('fig-cost'), 'fig-cost', relDiff, v=>(v>=0?'+':'')+v.toFixed(0)+'%<span class="unit">vs UK</span>');
+  updateStat(document.getElementById('fig-local'), 'fig-local', r.LI[n], v=>Math.round(v).toLocaleString()+'<span class="unit">jobs</span>');
+
+  setConn('conn-1', p.goldilocks>2 ? 'flowing':'idle', p.goldilocks>2?'tax flowing':'barely taxed');
+  setConn('conn-2', p.recycle>10 ? 'flowing':'idle', p.recycle>10?'funding spending':'mostly saved/exported');
+  setConn('conn-3', relDiff>15 ? 'squeezed' : (relDiff< -5 ? 'flowing':'idle'), relDiff>15?'squeeze on locals':(relDiff<-5?'costs easing':'steady'));
+
+  // --- stat cards ---
+  updateStat(document.getElementById('s-price'), 's-price', relDiff, v=>(v>=0?'+':'')+v.toFixed(0)+'%',
+    v=>'v '+(v>5?'up':(v<-5?'down':'')));
+  updateStat(document.getElementById('s-jobs'), 's-jobs', r.LI[n], v=>Math.round(v).toLocaleString());
+  updateStat(document.getElementById('s-targeted'), 's-targeted', r.LT[n], v=>Math.round(v).toLocaleString());
+  updateStat(document.getElementById('s-gov'), 's-gov', r.GOV[n], v=>'£'+Math.round(v).toLocaleString()+'m');
+
+  drawSpark('spark-price', r.RELPRICE, '#a78bfa');
+  drawSpark('spark-jobs', r.LI, '#34d399');
+  drawSpark('spark-targeted', r.LT, '#f87171');
+  drawSpark('spark-gov', r.GOV, '#60a5fa');
+
+  // --- "do nothing" comparison figures ---
+  const rDN = simulate(doNothingLevers(), currentAnchor);
+  const nDN = rDN.t.length-1;
+  const relDiffDN = rDN.RELPRICE[nDN]-100;
+  updateStat(document.getElementById('dn-price'), 'dn-price', relDiffDN, v=>(v>=0?'+':'')+v.toFixed(0)+'%');
+  updateStat(document.getElementById('dn-jobs'), 'dn-jobs', rDN.LI[nDN], v=>Math.round(v).toLocaleString());
+  updateStat(document.getElementById('dn-targeted'), 'dn-targeted', rDN.LT[nDN], v=>Math.round(v).toLocaleString());
+  updateStat(document.getElementById('dn-gov'), 'dn-gov', rDN.GOV[nDN], v=>'£'+Math.round(v).toLocaleString()+'m');
+
+  // --- reserves beaker ---
+  const gdpN = r.GDP[n]||1;
+  const reservesRatioN = r.RESERVES[n]/gdpN;
+  const beakerFillPct = Math.min(100, Math.max(0, reservesRatioN/0.20*100));
+  const overThreshold = reservesRatioN>0.08;
+  document.getElementById('beakerFill').style.height = beakerFillPct+'%';
+  document.getElementById('beakerFill').style.background = overThreshold ? 'linear-gradient(180deg,#fca5a5,#f87171)' : 'linear-gradient(180deg,#93c5fd,#60a5fa)';
+  document.getElementById('beakerMark').style.bottom = (0.08/0.20*100)+'%';
+  document.getElementById('rv-level').textContent = '£'+r.RESERVES[n].toLocaleString()+'m';
+  document.getElementById('rv-note').textContent = overThreshold
+    ? `It's grown big enough that £${r.DRAWN[n].toLocaleString()}m has already been pulled back into spending — a real, modelled version of "burning a hole in the pocket."`
+    : `Below the point where it starts creating pressure to spend it.`;
+
+  // --- narrative ---
+  const jobsDelta = Math.round((r.LI[n]-r.LI[0])/r.LI[0]*100);
+  const targetedDelta = Math.round((r.LT[n]-r.LT[0])/r.LT[0]*100);
+  const mobileDelta = Math.round((r.LM[n]-r.LM[0])/r.LM[0]*100);
+  let paras = [];
+
+  if(relDiff>20) paras.push(`<p>💸 <strong>Housing gets a lot more expensive than the UK.</strong> Under these settings, local living costs pull ${relDiff.toFixed(0)}% ahead of the UK by ${r.t[n]} &mdash; the exact squeeze the original 2011 paper warned about, falling hardest on people who don't work in the international-money sector.</p>`);
+  else if(relDiff>5) paras.push(`<p>🏠 <strong>Housing costs drift ahead of the UK</strong> &mdash; up ${relDiff.toFixed(0)}% by ${r.t[n]}. Manageable, but worth watching.</p>`);
+  else if(relDiff<-5) paras.push(`<p>📉 <strong>Living costs actually fall behind the UK</strong> under these settings &mdash; good for affordability, though worth checking that's healthy restraint and not a struggling local economy.</p>`);
+  else paras.push(`<p>⚖️ <strong>Housing costs track the UK fairly closely</strong> &mdash; no dramatic divergence either way by ${r.t[n]}.</p>`);
+
+  if(targetedDelta< -20) paras.push(`<p>🌐 Taxing the international-money sector this hard visibly shrinks it &mdash; ${Math.abs(targetedDelta)}% fewer jobs there by ${r.t[n]}. That's the trade-off: more captured per job, but a smaller sector.</p>`);
+  else if(targetedDelta>20) paras.push(`<p>🌐 The international-money sector keeps growing under these settings (+${targetedDelta}% jobs) &mdash; more activity, but also more of the wage and price pressure that comes with it.</p>`);
+
+  if(jobsDelta<0) paras.push(`<p>🏪 Everyday local jobs actually shrink under these settings (${jobsDelta}%) &mdash; population and labour-force effects are outpacing the room this scenario leaves for the local economy.</p>`);
+
+  if(overThreshold) paras.push(`<p>💰 The rainy-day fund grows large enough to trigger real spending pressure &mdash; a modelled version of the original paper's own warning that banked money doesn't stay banked forever.</p>`);
+
+  paras.push(`<p style="color:var(--muted2);font-size:12.5px">This is a simplified model, not a forecast &mdash; useful for seeing the shape of the trade-offs, not for predicting exact numbers.</p>`);
+
+  document.getElementById('narrative').innerHTML = paras.join('');
+}
+
+function setAnchor(key){
+  currentAnchor = key;
+  document.getElementById('btn2011').classList.toggle('active', key==='2011');
+  document.getElementById('btnNow').classList.toggle('active', key==='now');
+  recompute();
+}
+
+buildFlowDiagram();
+recompute();
+window.addEventListener('resize', recompute);
+</script>
+</body>
+</html>

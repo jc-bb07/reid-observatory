@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Repositioning Offshore — 3-Sector SD Model (v5)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f172a; --surface:#111c34; --surface2:#16223f; --border:#1e293b; --border2:#334155;
+    --text:#f8fafc; --muted:#94a3b8; --muted2:#64748b;
+    --blue:#60a5fa; --blue2:#93c5fd; --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --orange:#fb923c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:24px 20px 60px;
+    background:
+      radial-gradient(900px 500px at 10% -10%, rgba(96,165,250,.14), transparent 60%),
+      radial-gradient(700px 460px at 100% 10%, rgba(167,139,250,.10), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+  h1{font-size:21px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 8px;line-height:1.6}
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--amber);background:#3a2f0f;border:1px solid #5b4a15;border-radius:5px;padding:3px 8px;margin-bottom:14px;
+    box-shadow:0 0 0 1px rgba(251,191,36,.08), 0 4px 14px -6px rgba(251,191,36,.35)}
+  .validate-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(160deg,var(--surface),var(--surface2));
+    border:1px solid var(--border);border-radius:10px;padding:9px 14px;margin-bottom:16px}
+  .validate-row label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap}
+  .validate-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--blue);cursor:pointer}
+  .validate-row .note{font-size:10.5px;color:var(--muted2);line-height:1.5}
+  .validate-summary{display:none;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .validate-summary.show{display:grid}
+  @media (max-width:700px){.validate-summary{grid-template-columns:1fr}}
+  .vstat{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-top:3px solid var(--accent);
+    border-radius:10px;padding:10px 13px;box-shadow:0 8px 20px -16px rgba(0,0,0,.8)}
+  .vstat.v1{--accent:#fbbf24} .vstat.v2{--accent:#a78bfa} .vstat.v3{--accent:#34d399}
+  .vstat .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .vstat .v{font-size:14px;font-weight:800;margin-top:4px}
+  .vstat .v .real{color:var(--muted);font-weight:600;font-size:12px}
+  .anchor-tabs{display:flex;gap:8px;margin-bottom:16px}
+  .anchor-tabs button{flex:1;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);
+    color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;text-align:left;transition:box-shadow .25s ease,border-color .25s ease,background .25s ease}
+  .anchor-tabs button .t{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-bottom:2px}
+  .anchor-tabs button.active{border-color:var(--blue);color:var(--text);background:linear-gradient(160deg,#16264a,#101c38);
+    box-shadow:0 6px 20px -10px rgba(96,165,250,.5), inset 0 0 0 1px rgba(96,165,250,.15)}
+  .layout{display:grid;grid-template-columns:290px 1fr;gap:18px;margin-top:6px}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+  .panel{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:12px;padding:16px 18px;
+    box-shadow:0 12px 30px -22px rgba(0,0,0,.8)}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 14px}
+  .lever{margin-bottom:16px}
+  .lever label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:5px}
+  .lever .val{color:var(--blue2);font-weight:700}
+  .lever input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+    background:linear-gradient(90deg,#60a5fa var(--pct,30%),var(--surface2) var(--pct,30%));cursor:pointer;margin:8px 0 2px}
+  .lever input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff, #93c5fd 40%, #60a5fa 75%);
+    box-shadow:0 0 0 4px rgba(96,165,250,.16), 0 3px 8px -1px rgba(96,165,250,.6);border:1.5px solid #dbeafe;cursor:pointer}
+  .lever input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;border:1.5px solid #dbeafe;
+    background:radial-gradient(circle at 35% 30%,#fff, #93c5fd 40%, #60a5fa 75%);
+    box-shadow:0 0 0 4px rgba(96,165,250,.16), 0 3px 8px -1px rgba(96,165,250,.6);cursor:pointer}
+  .lever input[type=range]::-moz-range-track{height:6px;border-radius:99px;background:var(--surface2)}
+  .lever .desc{font-size:10.5px;color:var(--muted2);margin-top:3px;line-height:1.5}
+  .presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .presets button{flex:1;min-width:70px;font-size:10.5px;padding:7px 6px;border-radius:7px;border:1px solid var(--border);
+    background:var(--surface2);color:var(--text);cursor:pointer;transition:border-color .2s ease,box-shadow .2s ease}
+  .presets button:hover{border-color:var(--blue);box-shadow:0 0 0 1px rgba(96,165,250,.25)}
+  .right-col{display:flex;flex-direction:column;gap:16px}
+  .cldcard{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+    box-shadow:0 12px 30px -22px rgba(0,0,0,.8)}
+  .cldcard h3{font-size:12.5px;margin:0 0 2px}
+  .cldcard .note{font-size:10.5px;color:var(--muted2);margin:0 0 8px}
+  #cldCanvas{width:100%;height:300px;display:block}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:700px){.charts{grid-template-columns:1fr}}
+  .chartcard{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+    box-shadow:0 12px 30px -22px rgba(0,0,0,.8)}
+  .chartcard h3{font-size:12px;margin:0 0 3px}
+  .chartcard .note{font-size:10px;color:var(--muted2);margin:0 0 8px}
+  canvas.linechart{max-height:210px}
+  .statrow{display:flex;gap:10px;flex-wrap:wrap}
+  .stat{flex:1;min-width:125px;background:linear-gradient(165deg,var(--surface2),#111d38);border:1px solid var(--border);border-radius:9px;padding:9px 11px;
+    box-shadow:0 8px 20px -16px rgba(0,0,0,.8)}
+  .stat .k{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .stat .v{font-size:17px;font-weight:800;margin-top:2px}
+  .stat .v.up{color:var(--red);text-shadow:0 0 16px rgba(248,113,113,.35)} .stat .v.down{color:var(--green);text-shadow:0 0 16px rgba(52,211,153,.35)}
+  .footnote{margin-top:18px;font-size:11.5px;color:var(--muted2);line-height:1.7}
+  .loopleg{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:10.5px;color:var(--muted)}
+  .loopleg span{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .reservecard{background:linear-gradient(165deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;gap:16px;align-items:center;
+    box-shadow:0 12px 30px -22px rgba(0,0,0,.8)}
+  .reservecard h3{font-size:12.5px;margin:0 0 2px}
+  .reservecard .note{font-size:10.5px;color:var(--muted2);margin:0 0 0}
+  .beaker{position:relative;width:46px;height:78px;border:2px solid var(--border2);border-top:none;border-radius:0 0 8px 8px;flex-shrink:0;overflow:hidden;
+    background:linear-gradient(180deg,rgba(255,255,255,.02),var(--surface2));
+    box-shadow:inset 0 0 10px rgba(0,0,0,.4), 0 6px 14px -8px rgba(0,0,0,.6)}
+  .beaker::before{content:'';position:absolute;top:0;left:-3px;right:-3px;height:2px;background:var(--border2)}
+  .beaker .fill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height .5s cubic-bezier(.22,1,.36,1),background .4s ease}
+  .beaker .fill::after{content:'';position:absolute;top:-3px;left:0;right:0;height:6px;border-radius:50%;background:rgba(255,255,255,.35);filter:blur(1px)}
+  .beaker .shine{position:absolute;top:0;left:6px;width:9px;height:100%;background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.04));border-radius:4px;pointer-events:none}
+  .beaker .mark{position:absolute;left:0;right:0;border-top:1px dashed rgba(148,163,184,.55);opacity:.8;z-index:2}
+  .reservebody{flex:1}
+  .reservebody .figs{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+  .reservebody .fig .k{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .reservebody .fig .v{font-size:15px;font-weight:800;margin-top:2px}
+  .reservebody .pressure{font-size:10.5px;margin-top:8px;padding:6px 9px;border-radius:7px;display:none}
+  .reservebody .pressure.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">v5 — 2026-07-17: recalibrated against the banking-exclusion recompute, validated against real 2016–2025 data, "now" anchor regenerated from the current engine</span>
+  <h1>Repositioning Offshore — 3-Sector System Dynamics Model</h1>
+  <p class="sub">Targeted (eGaming/ICT + fund/insurance intermediation) · Untargeted Mobile (banking + tradable private sector) ·
+  Untargeted Immobile (local services, housing). Pick a starting point, then move the levers.</p>
+
+  <div class="anchor-tabs">
+    <button id="tab2011" class="active" onclick="setAnchor('2011')">
+      <span class="t">Counterfactual</span>2011 position — what if the paper's proposal had been adopted then?
+    </button>
+    <button id="tabNow" onclick="setAnchor('now')">
+      <span class="t">Forward-looking</span>Current state (2024) — what happens from here?
+    </button>
+  </div>
+
+  <div class="validate-row" id="validateRow">
+    <label><input type="checkbox" id="showValidation" onchange="recompute()"> Show real data 2007–2024 (validation)</label>
+    <span class="note">Overlays actual published wages, house prices and government spending as fixed dots — the modeled line moves as you adjust levers, the real dots don't. Most meaningful under the <strong>As-is</strong> preset. Only two real anchors exist for wages/house prices (2016, 2024/25) — no 2007 baseline exists in any source document.</span>
+  </div>
+
+  <div class="validate-summary" id="validateSummary"></div>
+
+  <div class="layout">
+    <div class="panel">
+      <h2>Policy levers</h2>
+      <div class="presets" id="presetRow"></div>
+
+      <div class="lever">
+        <label>Goldilocks tax rate <span class="val" id="v-goldilocks">15%</span></label>
+        <input type="range" id="goldilocks" min="0" max="50" value="15" oninput="recompute()">
+        <div class="desc">Variable tax on Targeted-sector rent. Higher = dampens Targeted demand growth.</div>
+      </div>
+      <div class="lever">
+        <label>Flat CIT (Untargeted) <span class="val" id="v-flatcit">0%</span></label>
+        <input type="range" id="flatcit" min="0" max="20" value="0" oninput="recompute()">
+        <div class="desc">Broad-based rate on Mobile + Immobile profits, currently 0%.</div>
+      </div>
+      <div class="lever">
+        <label>Government spending growth <span class="val" id="v-gov">4%/yr</span></label>
+        <input type="range" id="govgrowth" min="-2" max="8" value="4" oninput="recompute()">
+        <div class="desc">Feeds demand straight into the Immobile sector / wage floor.</div>
+      </div>
+      <div class="lever">
+        <label>Surplus recycled domestically <span class="val" id="v-recycle">30%</span></label>
+        <input type="range" id="recycle" min="0" max="100" value="30" oninput="recompute()">
+        <div class="desc">Into government spending, vs. exported as aid (paper's own recommendation was near 0%).</div>
+      </div>
+      <div class="lever">
+        <label>Surplus banked to Reserves <span class="val" id="v-banked">20%</span></label>
+        <input type="range" id="banked" min="0" max="100" value="20" oninput="recompute()">
+        <div class="desc">Held back rather than spent or exported. Large reserves create their own political pressure to spend (see Reserves card).</div>
+      </div>
+      <div class="lever">
+        <label>Immigration quota tightness <span class="val" id="v-quota">20%</span></label>
+        <input type="range" id="quota" min="0" max="90" value="20" oninput="recompute()">
+        <div class="desc">Work-permit restriction independent of market attractiveness.</div>
+      </div>
+      <div class="lever">
+        <label>Housing/planning release <span class="val" id="v-housing">20%</span></label>
+        <input type="range" id="housing" min="0" max="100" value="20" oninput="recompute()">
+        <div class="desc">Supply-side response acting directly on the house-price stock.</div>
+      </div>
+    </div>
+
+    <div class="right-col">
+      <div class="cldcard">
+        <h3>Causal loop diagram — live</h3>
+        <p class="note">Dot brightness/speed reflects loop activity under the current levers. Dashed = policy-contingent.</p>
+        <canvas id="cldCanvas"></canvas>
+        <div class="loopleg">
+          <span><i class="dot" style="background:#f87171"></i>R1 Wage-Inflation Spiral</span>
+          <span><i class="dot" style="background:#34d399"></i>B1 Migration Equilibrium</span>
+          <span><i class="dot" style="background:#fb923c"></i>R2 Surplus Recycling (policy)</span>
+          <span><i class="dot" style="background:#a78bfa"></i>Crowding-out (open chain, not a loop)</span>
+        </div>
+      </div>
+
+      <div class="reservecard">
+        <div class="beaker"><div class="fill" id="beakerFill"></div><div class="mark" id="beakerMark"></div><div class="shine"></div></div>
+        <div class="reservebody">
+          <h3>Reserves</h3>
+          <p class="note">Banked surplus, not spent or exported. Dashed line = 8% of GDP pressure threshold.</p>
+          <div class="figs">
+            <div class="fig"><div class="k">Reserves</div><div class="v" id="rv-level">£0m</div></div>
+            <div class="fig"><div class="k">Reserves / GDP</div><div class="v" id="rv-ratio">0%</div></div>
+            <div class="fig"><div class="k">Drawn down to date</div><div class="v" id="rv-drawn">£0m</div></div>
+          </div>
+          <div class="pressure" id="rv-pressure"></div>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="chartcard"><h3>Sector employment</h3><p class="note">Targeted / Mobile / Immobile, people</p><canvas class="linechart" id="chartEmp"></canvas></div>
+        <div class="chartcard"><h3>Wages vs. house prices vs. UK reference</h3><p class="note">Index, start = 100</p><canvas class="linechart" id="chartPrice"></canvas></div>
+        <div class="chartcard"><h3>Population</h3><p class="note">Resident population, thousands</p><canvas class="linechart" id="chartPop"></canvas></div>
+        <div class="chartcard"><h3>Government spending &amp; exported surplus</h3><p class="note">£m/yr, cumulative surplus</p><canvas class="linechart" id="chartFiscal"></canvas></div>
+        <div class="chartcard"><h3>GVA per worker by sector</h3><p class="note">£/worker/yr, illustrative — the 2026-07-17 recompute found IoM's employment statistics don't count eGaming/ICT workers by industry at all, so this chart's Targeted-sector level can't be tied to a measured headcount. The <em>corrected, part-measured</em> rent premium (Insurance + fund administration only, banking excluded) is +18% to +52% at the 2011/2016/2021 census points — see the communication paper for the full caveat.</p><canvas class="linechart" id="chartGVA"></canvas></div>
+        <div class="chartcard"><h3>GDP per capita, IoM as % of UK</h3><p class="note">100% = parity. 2011-anchor start is now calibrated against the Island's own official published figure (167% in 2007/08, rising to 217% by 2012/13) — see footnote. No official figure exists past 2012/13; the "now" anchor's ratio is an internally-consistent extrapolation, not an official one.</p><canvas class="linechart" id="chartGDPRatio"></canvas></div>
+        <div class="chartcard"><h3>Relative price level, IoM vs UK</h3><p class="note">House-price index ÷ UK reference index, rebased to 100 at the anchor point. The paper's core "departure of Manx prices" thesis, made explicit.</p><canvas class="linechart" id="chartRelPrice"></canvas></div>
+      </div>
+      <div class="statrow" id="stats"></div>
+    </div>
+  </div>
+
+  <p class="footnote" id="footnote"></p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ═══════════════════════════════════════════════════════════════════════════
+const HORIZON = 26; // years simulated forward from whichever anchor
+
+const ANCHORS = {
+  '2011': {
+    startYear: 2007, label: '2007 → 2033 (counterfactual from the paper\'s launch point)',
+    // ukGDPcap0: UK GDP/capita reference at anchor start (ONS, £), used to derive the
+    // IoM-as-%-of-UK ratio chart. reserves0: starting Reserves stock, £m (0 — 2007 is before
+    // the big banked-surplus buildup years).
+    // ukGDPcap0 corrected 2026-07-17: use UK GVA/head at basic prices (ONS ABML, £20,904 for
+    // 2007/08, per the IoM's own official "National Income per head" Table 4) rather than UK
+    // GDP at market prices (ONS IHXT) — this model's "gdp" is a GVA-style aggregate, so ABML is
+    // the matching basis. With this fix the 2007/08 IoM/UK ratio comes out closer to the
+    // official published 167%, versus ~128% on the old (wrong-basis) comparator.
+    init: { pop:80946, lt:4200, lm:10600, w:100, ukw:100, hp:100, gov:480, surplus:0, reserves:0, ukGDPcap0:20904 },
+    intlPressureShape: (i) => i<10 ? 0.02+0.015*i : (i<18 ? 0.17-0.005*(i-10) : Math.max(0.03,0.13-0.012*(i-18))),
+  },
+  'now': {
+    startYear: 2024, label: '2024 → 2050 (forward from where we actually are)',
+    // REGENERATED 2026-07-17: previously these values were hardcoded once, early in
+    // development, from an as-is run under an OLDER version of this same engine, then never
+    // refreshed after the Mobile-sector wage-ceiling mechanic was fixed (v1→v2). A validation
+    // pass (see claude/repositioning-offshore-2026-model-validation-2007-2024.md) compared the
+    // stale values against what the CURRENT engine's as-is preset actually produces at year 17
+    // (2024) and found lt/gov/ukw already matched (untouched by that fix), but pop was -0.9%
+    // off, w was -15.9% off, hp was -14.1% off, and lm was 3.59x too high. Fixed here by
+    // re-running the current engine's as-is preset {goldilocks:0,flatcit:0,govgrowth:6,
+    // recycle:80,banked:20,quota:15,housing:10} from the '2011' anchor through to year 17 and
+    // taking that literal output as the new init — removing the internal inconsistency between
+    // this anchor and the model's own equations. This is a self-consistency fix, not a
+    // real-world recalibration: the same validation pass found the model's wage/house-price/
+    // gov-spending mechanics track real IoM data reasonably well but not perfectly (wages
+    // ~spot-on, house prices ~0.8pp/yr soft, gov spending ~0.8pp/yr hot vs real CAGRs) — those
+    // gaps are a separate, not-yet-actioned recalibration (kHP, default govgrowth), independent
+    // of this fix.
+    // reserves:280 is NOT model output — the as-is preset has zero tax rates so it structurally
+    // produces £0 reserves; 280 remains a standalone real-world estimate of actual banked
+    // reserves, kept as-is (not touched by this regeneration).
+    // ukGDPcap0 corrected 2026-07-17: the official IoM/UK "National Income per head" series
+    // (Table 4) was only ever published through 2012/13 (last value £21,869 UK GVA/head,
+    // ABML basis) — no official continuation exists, and an earlier session's "139%->198%->172%"
+    // figure could not be reconciled against the official series and is NOT used here. This
+    // value is instead the 2012/13 official figure grown forward at the same 2.5%/yr UK
+    // reference-wage rate already used elsewhere in this model (internally consistent
+    // extrapolation, not an official ONS/IoM number) — flagged in the footnote as such.
+    init: { pop:85515, lt:4814, lm:2083, w:200.9, ukw:152.2, hp:194.6, gov:1293, surplus:0, reserves:280, ukGDPcap0:28694 },
+    // Pillar Two is now locked in — international tax pressure sits on the post-2025 plateau,
+    // not a rising counterfactual
+    intlPressureShape: (i) => Math.max(0.02, 0.05 - 0.002*i),
+  }
+};
+
+let currentAnchor = '2011';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VALIDATION DATA — real Isle of Man figures, for the "show real data" overlay.
+// Source: claude/repositioning-offshore-2026-model-validation-2007-2024.md and
+// claude/repositioning-offshore-2026-model-validation-data.md (project docs, 2026-07-17).
+// Wage and house-price indices are rebased against FIXED reference constants (the As-is
+// preset's own modeled 2016 index values, captured once and hardcoded below) rather than
+// computed live from the current slider state — so the real-data dots stay put regardless of
+// which levers or preset are selected; only the modeled line moves around them. Government
+// spending needs no rebasing since the model's GOV series is already £m, directly comparable.
+// Honest gap: no 2007/08 real anchor exists for wages or house prices anywhere in the project's
+// source documents (earliest reliable point is 2016) — do not treat the absence of earlier dots
+// as a data-entry omission.
+const REAL_DATA = {
+  wage: {
+    // As-is preset's own modeled wage index at 2016 (year 9 of the '2011' anchor run) — fixed
+    // reference point for rebasing, captured 2026-07-17, not recomputed at runtime.
+    refModelIndex2016: 149.1, refRealValue2016: 685,
+    points: [ {year:2016, value:685}, {year:2024, value:929} ], // avg weekly earnings £, June survey
+    label: 'Real wages (rebased to 2016)', color: '#fde68a',
+  },
+  housePrice: {
+    refModelIndex2016: 148, refRealValue2016: 271192,
+    points: [ {year:2016, value:271192}, {year:2025, value:384179} ], // avg house price £, 12mo rolling to Dec-16 / Mar-25
+    label: 'Real house prices (rebased to 2016)', color: '#ddd6fe',
+  },
+  govSpendPinkBook: {
+    // Pink Book total_exp, £m, pre-reserves-transfers — the continuous, most reliable series.
+    // FY labelled by its March year-end (e.g. FY2017-18 → 2018) to match the model's annual steps.
+    points: [
+      {year:2018, value:1030.07}, {year:2019, value:1028.25}, {year:2020, value:1089.97},
+      {year:2021, value:1221.07}, {year:2022, value:1174.45}, {year:2023, value:1230.43},
+      {year:2024, value:1356.79}, {year:2025, value:1465.09},
+    ],
+    label: 'Real gov spending (Pink Book)', color: '#bbf7d0',
+  },
+  govSpendAltBasis: {
+    // "Gross Expenditure" (Annual Financial Statements basis) — does NOT reconcile in level with
+    // the Pink Book series above (~8% gap on their nearest overlapping year); shown separately,
+    // never spliced, to disclose rather than smooth over the discrepancy.
+    points: [ {year:2016, value:937}, {year:2023, value:1334} ],
+    label: 'Real gov spending (alt basis, doesn’t reconcile — see note)', color: '#fca5a5',
+  },
+};
+
+function realSeriesToChartData(years, points){
+  const map = new Map(points.map(p=>[p.year, p.value]));
+  return years.map(y => map.has(y) ? map.get(y) : null);
+}
+
+function simulate(p, anchorKey){
+  const a = ANCHORS[anchorKey];
+  const t=[],LT=[],LM=[],LI=[],POP=[],W=[],HP=[],GOV=[],SURPLUS=[],UKW=[];
+  const OET=[],OEM=[],OEI=[],UKOET=[],GDP=[],UKGDPCAP=[],GDPCAPPCT=[],RESERVES=[],UKP=[],RELPRICE=[],DRAWN=[];
+  let {pop,lt,lm,w,ukw,hp,gov,surplus,reserves} = a.init;
+  let cumulativeDrawn = 0;
+  let ukp = hp; // UK reference price/cost-of-living index — same starting base as hp so the
+                // relative-price chart reads as "parity at the anchor point", diverging from there
+
+  const inactiveFrac=0.49, tauT=2.5, DT0=a.init.lt;
+  const ukWageGrowthRef=2.5, ukPriceGrowthRef=2.2;
+  const kM_growth=1.6, kM_decay=0.55;
+  const kW1=0.9, kW2=0.30, kW3=0.5;
+  const kHP=1.3, kSupplyMax=4.0;
+  const rentPerTargetedWorker=16000, profitPerUntargetedWorker=9000;
+  // GVA/worker, £, 2007-baseline — draft calibration: gives IoM GDP≈£2,612m / GDP-per-capita
+  // ≈£32,270 for 2007 vs real ≈£2,842m / £35,110 (both ~8% low, same order of magnitude).
+  // Flagged as a first-pass placeholder pending the banking-exclusion re-run of the rent calc.
+  const OE_T0=130000, OE_M0=75000, OE_I0=48000;
+  const reserveThreshold=0.08; // reserves/GDP ratio above which banked surplus creates spend-pressure
+
+  for(let i=0;i<HORIZON;i++){
+    const intlPressure = a.intlPressureShape(i);
+
+    t.push(a.startYear+i);
+    LT.push(Math.round(lt)); LM.push(Math.round(lm));
+    const laborForce = pop*(1-inactiveFrac);
+    const li = Math.max(0, laborForce-lt-lm);
+    LI.push(Math.round(li)); POP.push(Math.round(pop));
+    W.push(Math.round(w*10)/10); HP.push(Math.round(hp*10)/10);
+    GOV.push(Math.round(gov)); SURPLUS.push(Math.round(surplus)); UKW.push(Math.round(ukw*10)/10);
+
+    // GVA/worker by sector. Targeted carries the jurisdictional-rent premium (intlPressure —
+    // the same gap that drives Targeted demand IS the rent, per the paper's O/E formula);
+    // Mobile tracks the UK reference (it competes on UK terms, no rent); Immobile tracks the
+    // local wage/price level (non-tradable, output is largely rent-like).
+    const ukOE_T = OE_T0*(w/100);
+    const OE_T = ukOE_T*(1+intlPressure);
+    const OE_M = OE_M0*(ukw/100);
+    const OE_I = OE_I0*(w/100);
+    const gdp = (lt*OE_T + lm*OE_M + li*OE_I)/1e6; // £m
+    const ukGDPcapNow = a.init.ukGDPcap0*(ukw/a.init.ukw);
+    OET.push(Math.round(OE_T)); OEM.push(Math.round(OE_M)); OEI.push(Math.round(OE_I)); UKOET.push(Math.round(ukOE_T));
+    GDP.push(Math.round(gdp)); UKGDPCAP.push(Math.round(ukGDPcapNow));
+    GDPCAPPCT.push(Math.round((gdp*1e6/pop)/ukGDPcapNow*1000)/10);
+    RESERVES.push(Math.round(reserves));
+    UKP.push(Math.round(ukp*10)/10);
+    RELPRICE.push(Math.round(hp/ukp*1000)/10);
+    DRAWN.push(Math.round(cumulativeDrawn));
+
+    const DT = DT0*(1+intlPressure)*Math.max(0.2, 1-(p.goldilocks/100)*1.3);
+    const dLT = (DT-lt)/tauT;
+    lt = Math.max(500, lt+dLT);
+
+    ukw = ukw*(1+ukWageGrowthRef/100);
+    const effectiveCeiling = ukw*(1-(p.flatcit/100)*0.6);
+    const pressure = Math.max(0, w-effectiveCeiling);
+    const lmGrowthPct = kM_growth*(1-p.flatcit/30) - kM_decay*pressure;
+    lm = Math.max(300, lm*(1+lmGrowthPct/100));
+
+    const targetedGrowthRate = dLT/Math.max(1,lt)*100;
+    const netMigrationLastStep = i>0 ? (pop-POP[i-1]) : 0;
+    let wageGrowth = ukWageGrowthRef + kW1*Math.max(0,targetedGrowthRate) + kW2*Math.max(0,p.govgrowth-ukWageGrowthRef) - kW3*(netMigrationLastStep/1000);
+    wageGrowth = Math.max(-2, Math.min(14, wageGrowth));
+    w = w*(1+wageGrowth/100);
+
+    const housingRelease = p.housing/100;
+    const excessWageGrowth = wageGrowth-ukWageGrowthRef;
+    let hpGrowth = ukPriceGrowthRef + kHP*Math.max(0,excessWageGrowth) - kSupplyMax*housingRelease;
+    hpGrowth = Math.max(-4, Math.min(18, hpGrowth));
+    hp = hp*(1+hpGrowth/100);
+    ukp = ukp*(1+ukPriceGrowthRef/100);
+
+    const attractiveness = (wageGrowth-ukWageGrowthRef)*0.6 - (hpGrowth-ukPriceGrowthRef)*0.5;
+    const quotaFactor = 1-(p.quota/100)*0.85;
+    let netMigrationRate = (0.35+attractiveness*0.18)*quotaFactor;
+    netMigrationRate = Math.max(-1.5, Math.min(2.5, netMigrationRate));
+    pop = Math.max(60000, pop*(1+netMigrationRate/100));
+
+    // NOTE: fixed a unit bug carried over from v1/v2 here — rentPerTargetedWorker*lt is already
+    // in £, so /1e6 alone converts to £m; the old code then multiplied by a spurious extra 1000,
+    // inflating Goldilocks/flat-CIT revenue (and everything downstream: gov spending, exported
+    // surplus, and now Reserves) by 1000x. Caught while wiring in the Reserves stock, since it
+    // was producing implausible £100bn+ reserve figures.
+    const goldilocksRevenue = (p.goldilocks/100)*rentPerTargetedWorker*lt/1e6;
+    const flatCITRevenue = (p.flatcit/100)*profitPerUntargetedWorker*(lm+li)/1e6;
+    const surplusInflow = goldilocksRevenue+flatCITRevenue;
+    // Three-way surplus split: recycled into gov spending / banked into Reserves / exported.
+    let recycleShare = p.recycle/100, bankedShare = p.banked/100;
+    if(recycleShare+bankedShare>1){ const scale=1/(recycleShare+bankedShare); recycleShare*=scale; bankedShare*=scale; }
+    const exportedShare = Math.max(0, 1-recycleShare-bankedShare);
+    surplus += surplusInflow*exportedShare;
+    reserves += surplusInflow*bankedShare;
+    gov = gov*(1+p.govgrowth/100) + surplusInflow*recycleShare*0.5;
+
+    // Reserve-pressure mechanic: the paper's warning that banked surpluses create irresistible
+    // democratic pressure to spend them, once reserves get large relative to GDP. Above the
+    // threshold, a slice of the excess gets drawn down into government spending each year —
+    // extending the R2 Jurisdictional-Surplus-Recycling loop rather than a new separate loop.
+    const reservesRatio = gdp>0 ? reserves/gdp : 0;
+    if(reservesRatio > reserveThreshold){
+      const excess = reservesRatio-reserveThreshold;
+      const drawdown = Math.min(reserves, excess*gdp*0.15);
+      reserves -= drawdown;
+      gov += drawdown;
+      cumulativeDrawn += drawdown;
+    }
+  }
+  return {t,LT,LM,LI,POP,W,HP,GOV,SURPLUS,UKW,OET,OEM,OEI,UKOET,GDP,UKGDPCAP,GDPCAPPCT,RESERVES,UKP,RELPRICE,DRAWN};
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CANVAS CLD — ported pattern from nobleshospitalsimv15.html (CLD_NODES/CLD_ARCS/
+// electrons/tickCLDElectrons/drawUnifiedCLD), adapted to this model's real closed
+// loops. Loop honesty check done 2026-07-16: only R1, B1, R2 are genuine closed
+// cycles in the equations above; the Targeted->MCoL->Mobile "crowding-out" link
+// is an important open CHAIN, not a loop (Mobile employment doesn't feed back into
+// anything else in this v2 model) — shown undotted/no electron, not mislabeled as B2.
+// ═══════════════════════════════════════════════════════════════════════════
+const T = { bg:'#0f172a', surface:'#111c34', surface2:'#16223f', border2:'#334155', text:'#f8fafc',
+  muted:'#94a3b8', muted2:'#64748b', blue:'#60a5fa', green:'#34d399', amber:'#fbbf24', red:'#f87171',
+  purple:'#a78bfa', orange:'#fb923c' };
+
+const CLD_NODES = {
+  INTL: { label:'International\nTax Pressure', fx:0.12, fy:0.08 },
+  TGT:  { label:'Targeted\nSector',            fx:0.42, fy:0.08 },
+  GOLD: { label:'Goldilocks\nTax Rate',        fx:0.74, fy:0.08 },
+  SURP: { label:'Jurisdictional\nSurplus',     fx:0.92, fy:0.32 },
+  MCOL: { label:'Marginal Cost\nof Labour',    fx:0.46, fy:0.44 },
+  MOB:  { label:'Untargeted\nMobile',          fx:0.86, fy:0.60 },
+  GOV:  { label:'Government\nSpending',        fx:0.46, fy:0.85 },
+  ATTR: { label:'IoM Relative\nAttractiveness',fx:0.12, fy:0.66 },
+  MIG:  { label:'Net Migration /\nPopulation', fx:0.12, fy:0.40 },
+  IMM:  { label:'Untargeted Immobile\nPrice (housing)', fx:0.78, fy:0.20 },
+};
+
+const CLD_ARCS = [
+  // R1 — red — Wage-Inflation Spiral (reinforcing, closed 4-cycle)
+  { from:'MCOL', to:'IMM',  loop:'R1', sign:'+', perp:-0.20 },
+  { from:'IMM',  to:'ATTR', loop:'R1', sign:'−', perp:-0.30 },
+  { from:'ATTR', to:'MIG',  loop:'R1', sign:'+', perp:-0.20 },
+  { from:'MIG',  to:'MCOL', loop:'R1', sign:'−', perp:-0.15 },
+  // B1 — green — Migration Equilibrium (balancing, closed 3-cycle, shares MIG->MCOL edge
+  // geometry with R1 but drawn with its own perp offset)
+  { from:'MCOL', to:'ATTR', loop:'B1', sign:'+', perp:0.28 },
+  { from:'ATTR', to:'MIG',  loop:'B1', sign:'+', perp:0.05 },
+  { from:'MIG',  to:'MCOL', loop:'B1', sign:'−', perp:0.15 },
+  // R2 — orange — Jurisdictional Surplus Recycling (policy-contingent reinforcing, dashed)
+  { from:'TGT',  to:'SURP', loop:'R2', sign:'+', perp:0.15, dashed:true },
+  { from:'SURP', to:'GOV',  loop:'R2', sign:'+', perp:0.15, dashed:true },
+  { from:'GOV',  to:'MCOL', loop:'R2', sign:'+', perp:-0.15, dashed:true },
+  { from:'MCOL', to:'TGT',  loop:'R2', sign:'+', perp:0.20, dashed:true },
+  // open chains — not loops, no electron
+  { from:'INTL', to:'TGT',  loop:'CHAIN', sign:'+', perp:0.15 },
+  { from:'GOLD', to:'TGT',  loop:'CHAIN', sign:'−', perp:-0.15 },
+  { from:'MCOL', to:'MOB',  loop:'CHAIN', sign:'−', perp:-0.15 },
+];
+
+const loopColor = { R1:T.red, B1:T.green, R2:T.orange, CHAIN:T.purple };
+const cldElectrons = { R1:{pos:0,arcCount:4}, B1:{pos:0,arcCount:3}, R2:{pos:0,arcCount:4} };
+const ELECTRON_SPEED = 0.8;
+let cldRunning = true, lastCldTs = 0;
+
+function hexToRgba(hex,a){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; }
+
+function loopActivity(){
+  const goldilocks = +document.getElementById('goldilocks').value;
+  const recycle = +document.getElementById('recycle').value;
+  const govgrowth = +document.getElementById('govgrowth').value;
+  return {
+    R1: true, // always structurally present
+    B1: true,
+    R2: recycle > 5 && govgrowth > 0, // only "active" (bright) when meaningfully recycling surplus into spending
+  };
+}
+
+function tickCLDElectrons(dtMs){
+  if(!cldRunning) return;
+  const dtSec = dtMs/1000;
+  const act = loopActivity();
+  ['R1','B1','R2'].forEach(k=>{
+    if(!act[k]) return;
+    cldElectrons[k].pos = (cldElectrons[k].pos + ELECTRON_SPEED*dtSec) % cldElectrons[k].arcCount;
+  });
+}
+
+function initCldCanvas(){
+  const dpr = window.devicePixelRatio||1;
+  const el = document.getElementById('cldCanvas');
+  const w = el.parentElement.offsetWidth || 400, h = 300;
+  el.style.width=w+'px'; el.style.height=h+'px';
+  el.width=w*dpr; el.height=h*dpr;
+  el.getContext('2d').scale(dpr,dpr);
+}
+
+function drawCld(){
+  const el = document.getElementById('cldCanvas');
+  const ctx = el.getContext('2d');
+  const w = el.offsetWidth, h = el.offsetHeight||300;
+  if(!w||w<50) return;
+  ctx.clearRect(0,0,w,h);
+
+  const act = loopActivity();
+  function isActive(loop){ return loop==='CHAIN' ? true : act[loop]; }
+
+  const nodePos = {};
+  Object.entries(CLD_NODES).forEach(([id,n])=>{ nodePos[id]={x:n.fx*w,y:n.fy*h,label:n.label}; });
+  const NR=34, NH=17;
+  const arcGeom=[];
+  const loopArcIndices = { R1:[], B1:[], R2:[] };
+  CLD_ARCS.forEach((a,i)=>{ if(loopArcIndices[a.loop]) loopArcIndices[a.loop].push(i); });
+
+  CLD_ARCS.forEach((arc)=>{
+    const a=nodePos[arc.from], b=nodePos[arc.to];
+    if(!a||!b){ arcGeom.push(null); return; }
+    const active = isActive(arc.loop);
+    const col = loopColor[arc.loop]||T.muted;
+    const alpha = active ? 1 : 0.18;
+    const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const nx=dx/dist, ny=dy/dist;
+    const sx=a.x+nx*NR, sy=a.y+ny*NH, ex=b.x-nx*NR, ey=b.y-ny*NH;
+    const perp=arc.perp*dist;
+    const mx=(sx+ex)/2+(-ny)*perp, my=(sy+ey)/2+(nx)*perp;
+    arcGeom.push({sx,sy,ex,ey,mx,my});
+
+    ctx.strokeStyle = hexToRgba(col, alpha*0.75);
+    ctx.lineWidth = active ? 1.5 : 0.8;
+    if(arc.dashed) ctx.setLineDash([5,4]); else ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.quadraticCurveTo(mx,my,ex,ey); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const angle = Math.atan2(ey-my, ex-mx);
+    ctx.fillStyle = hexToRgba(col, alpha*0.85);
+    ctx.beginPath(); ctx.moveTo(ex,ey);
+    ctx.lineTo(ex-8*Math.cos(angle-0.38), ey-8*Math.sin(angle-0.38));
+    ctx.lineTo(ex-8*Math.cos(angle+0.38), ey-8*Math.sin(angle+0.38));
+    ctx.closePath(); ctx.fill();
+
+    const st=0.8;
+    const signX=(1-st)*(1-st)*sx+2*(1-st)*st*mx+st*st*ex;
+    const signY=(1-st)*(1-st)*sy+2*(1-st)*st*my+st*st*ey;
+    ctx.fillStyle = hexToRgba(col, alpha*0.9);
+    ctx.font = '700 11px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(arc.sign, signX, signY);
+    ctx.textBaseline='alphabetic';
+  });
+
+  ['R1','B1','R2'].forEach(loopKey=>{
+    if(!act[loopKey]) return;
+    const e = cldElectrons[loopKey];
+    const idxList = loopArcIndices[loopKey];
+    const n = idxList.length;
+    const loopPos = e.pos % n;
+    const segI = Math.floor(loopPos)%n, segT = loopPos-Math.floor(loopPos);
+    const geom = arcGeom[idxList[segI]];
+    if(!geom) return;
+    const {sx,sy,mx,my,ex,ey} = geom;
+    const px=(1-segT)*(1-segT)*sx+2*(1-segT)*segT*mx+segT*segT*ex;
+    const py=(1-segT)*(1-segT)*sy+2*(1-segT)*segT*my+segT*segT*ey;
+    const col = loopColor[loopKey];
+    const grd = ctx.createRadialGradient(px,py,0,px,py,13);
+    grd.addColorStop(0,'rgba(255,255,255,0.95)'); grd.addColorStop(0.18,hexToRgba(col,0.95));
+    grd.addColorStop(0.55,hexToRgba(col,0.35)); grd.addColorStop(1,hexToRgba(col,0));
+    ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(px,py,13,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=T.text; ctx.beginPath(); ctx.arc(px,py,2.6,0,Math.PI*2); ctx.fill();
+  });
+
+  Object.entries(nodePos).forEach(([id,np])=>{
+    const isHub = id==='MCOL';
+    const touching = CLD_ARCS.filter(a=>(a.from===id||a.to===id));
+    const activeTouch = touching.filter(a=> a.loop==='CHAIN' || act[a.loop]);
+    let borderCol=T.border2, glowCol=null;
+    if(activeTouch.some(a=>a.loop==='R1')){ borderCol=T.red; glowCol=T.red; }
+    else if(activeTouch.some(a=>a.loop==='B1')){ borderCol=T.green; glowCol=T.green; }
+    else if(activeTouch.some(a=>a.loop==='R2')){ borderCol=T.orange; glowCol=T.orange; }
+    else if(activeTouch.some(a=>a.loop==='CHAIN')){ borderCol=T.purple; glowCol=T.purple; }
+    if(isHub){ borderCol=T.blue; glowCol=T.blue; }
+
+    const rx = isHub?NR+4:NR, ry = isHub?NH+4:NH;
+    const fillGrd = ctx.createRadialGradient(np.x,np.y-ry*0.4,1, np.x,np.y,rx*1.3);
+    fillGrd.addColorStop(0, glowCol?hexToRgba(glowCol,0.28):'rgba(148,163,184,.10)');
+    fillGrd.addColorStop(1, glowCol?hexToRgba(glowCol,0.05):hexToRgba('#16223f',0.6));
+
+    ctx.save();
+    if(glowCol){ ctx.shadowColor = hexToRgba(glowCol,0.55); ctx.shadowBlur = isHub?16:10; }
+    ctx.beginPath(); ctx.ellipse(np.x,np.y, rx, ry, 0,0,Math.PI*2);
+    ctx.fillStyle=fillGrd; ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle=borderCol; ctx.lineWidth=isHub?2:1.2;
+    ctx.beginPath(); ctx.ellipse(np.x,np.y, rx, ry, 0,0,Math.PI*2); ctx.stroke();
+
+    ctx.fillStyle = isHub? T.blue : T.text;
+    ctx.font = `${isHub?'700':'500'} 9px Inter, sans-serif`; ctx.textAlign='center';
+    np.label.split('\n').forEach((line,li,arr)=>{
+      ctx.fillText(line, np.x, np.y + (li-(arr.length-1)/2)*11 + 3);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CHARTS + UI WIRING
+// ═══════════════════════════════════════════════════════════════════════════
+let charts={};
+function hexToRgb(hex){ const h=hex.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function fadeGradient(context, hex){
+  const {ctx, chartArea} = context.chart;
+  if(!chartArea) return null;
+  const [r,g,b] = hexToRgb(hex);
+  const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  grad.addColorStop(0, `rgba(${r},${g},${b},0.32)`);
+  grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  return grad;
+}
+function mkChart(id,labels,datasets){
+  const ctx=document.getElementById(id).getContext('2d');
+  if(charts[id]) charts[id].destroy();
+  // Give every solid (non-dashed) series a soft gradient fill and rounder, glowier styling —
+  // dashed reference/parity lines stay flat and unfilled so they read as backdrop, not data.
+  const styled = datasets.map(ds => {
+    const isRef = !!ds.borderDash;
+    return Object.assign({
+      borderWidth: isRef ? 1.5 : 2.5,
+      fill: isRef ? false : 'origin',
+      backgroundColor: isRef ? 'transparent' : (context) => fadeGradient(context, ds.borderColor),
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: ds.borderColor,
+      pointHoverBorderColor: '#0f172a',
+      pointHoverBorderWidth: 2,
+    }, ds);
+  });
+  charts[id]=new Chart(ctx,{type:'line',data:{labels,datasets:styled},options:{
+    responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{labels:{color:'#94a3b8',font:{size:10},boxWidth:11,usePointStyle:true,pointStyle:'circle'}},
+      tooltip:{
+        backgroundColor:'#16223f', borderColor:'#334155', borderWidth:1, cornerRadius:8, padding:10,
+        titleColor:'#f8fafc', bodyColor:'#e2e8f0', titleFont:{size:11,weight:'700'}, bodyFont:{size:11},
+        boxPadding:4, usePointStyle:true,
+      },
+    },
+    scales:{x:{ticks:{color:'#64748b',maxTicksLimit:7,font:{size:9.5}},grid:{color:'rgba(30,41,59,.6)'}},
+            y:{ticks:{color:'#64748b',font:{size:9.5}},grid:{color:'rgba(30,41,59,.6)'}}}
+  }});
+}
+
+function updateValidationSummary(r, showValidation){
+  const panel = document.getElementById('validateSummary');
+  if(!showValidation){ panel.className='validate-summary'; panel.innerHTML=''; return; }
+  const cagr = (a,b,yrs) => yrs>0 ? (Math.pow(b/a,1/yrs)-1)*100 : null;
+  const iw16=r.t.indexOf(2016), iw24=r.t.indexOf(2024);
+  const ih16=r.t.indexOf(2016), ih25=r.t.indexOf(2025);
+  const ig18=r.t.indexOf(2018), ig25=r.t.indexOf(2025);
+  const modelWageCagr = (iw16>=0&&iw24>=0) ? cagr(r.W[iw16], r.W[iw24], iw24-iw16) : null;
+  const modelHpCagr = (ih16>=0&&ih25>=0) ? cagr(r.HP[ih16], r.HP[ih25], ih25-ih16) : null;
+  const modelGovCagr = (ig18>=0&&ig25>=0) ? cagr(r.GOV[ig18], r.GOV[ig25], ig25-ig18) : null;
+  // Real-world CAGRs, fixed — from claude/repositioning-offshore-2026-model-validation-2007-2024.md
+  const realWageCagr = 3.88, realHpCagr = 4.31, realGovCagr = 5.16;
+  const fmt = v => v==null ? '—' : v.toFixed(2)+'%/yr';
+  panel.className = 'validate-summary show';
+  panel.innerHTML = `
+    <div class="vstat v1"><div class="k">Wages, 2016→2024</div><div class="v">${fmt(modelWageCagr)} <span class="real">modeled vs ${realWageCagr}%/yr real</span></div></div>
+    <div class="vstat v2"><div class="k">House prices, 2016→2025</div><div class="v">${fmt(modelHpCagr)} <span class="real">modeled vs ${realHpCagr}%/yr real</span></div></div>
+    <div class="vstat v3"><div class="k">Gov spending, 2018→2025</div><div class="v">${fmt(modelGovCagr)} <span class="real">modeled vs ${realGovCagr}%/yr real</span></div></div>
+  `;
+}
+
+function currentLevers(){
+  return {
+    goldilocks:+document.getElementById('goldilocks').value,
+    flatcit:+document.getElementById('flatcit').value,
+    govgrowth:+document.getElementById('govgrowth').value,
+    recycle:+document.getElementById('recycle').value,
+    banked:+document.getElementById('banked').value,
+    quota:+document.getElementById('quota').value,
+    housing:+document.getElementById('housing').value,
+  };
+}
+
+const SLIDER_IDS = ['goldilocks','flatcit','govgrowth','recycle','banked','quota','housing'];
+function updateSlideFills(){
+  SLIDER_IDS.forEach(id=>{
+    const el = document.getElementById(id);
+    const pct = (el.value-el.min)/(el.max-el.min)*100;
+    el.style.setProperty('--pct', pct+'%');
+  });
+}
+
+function recompute(){
+  updateSlideFills();
+  const p = currentLevers();
+  document.getElementById('v-goldilocks').textContent=p.goldilocks+'%';
+  document.getElementById('v-flatcit').textContent=p.flatcit+'%';
+  document.getElementById('v-gov').textContent=p.govgrowth+'%/yr';
+  document.getElementById('v-recycle').textContent=p.recycle+'%';
+  document.getElementById('v-banked').textContent=p.banked+'%';
+  document.getElementById('v-quota').textContent=p.quota+'%';
+  document.getElementById('v-housing').textContent=p.housing+'%';
+
+  const r = simulate(p, currentAnchor);
+  const showValidation = document.getElementById('showValidation').checked && currentAnchor==='2011';
+
+  mkChart('chartEmp', r.t, [
+    {label:'Targeted', data:r.LT, borderColor:'#f87171', tension:.25, pointRadius:0},
+    {label:'Mobile', data:r.LM, borderColor:'#60a5fa', tension:.25, pointRadius:0},
+    {label:'Immobile', data:r.LI, borderColor:'#34d399', tension:.25, pointRadius:0},
+  ]);
+  const priceDatasets = [
+    {label:'IoM wage index', data:r.W, borderColor:'#fbbf24', tension:.25, pointRadius:0},
+    {label:'House price index', data:r.HP, borderColor:'#a78bfa', tension:.25, pointRadius:0},
+    {label:'UK reference', data:r.UKW, borderColor:'#64748b', borderDash:[4,3], tension:.25, pointRadius:0},
+  ];
+  if(showValidation){
+    const wageFactor = REAL_DATA.wage.refModelIndex2016/REAL_DATA.wage.refRealValue2016;
+    const hpFactor = REAL_DATA.housePrice.refModelIndex2016/REAL_DATA.housePrice.refRealValue2016;
+    const realWagePts = REAL_DATA.wage.points.map(pt=>({year:pt.year, value:pt.value*wageFactor}));
+    const realHpPts = REAL_DATA.housePrice.points.map(pt=>({year:pt.year, value:pt.value*hpFactor}));
+    priceDatasets.push(
+      {label:REAL_DATA.wage.label, data:realSeriesToChartData(r.t, realWagePts), borderColor:REAL_DATA.wage.color, backgroundColor:REAL_DATA.wage.color, showLine:false, fill:false, pointRadius:6, pointStyle:'rectRot', pointBorderColor:'#0f172a', pointBorderWidth:1.5},
+      {label:REAL_DATA.housePrice.label, data:realSeriesToChartData(r.t, realHpPts), borderColor:REAL_DATA.housePrice.color, backgroundColor:REAL_DATA.housePrice.color, showLine:false, fill:false, pointRadius:6, pointStyle:'rectRot', pointBorderColor:'#0f172a', pointBorderWidth:1.5},
+    );
+  }
+  mkChart('chartPrice', r.t, priceDatasets);
+  mkChart('chartPop', r.t, [{label:'Population (000s)', data:r.POP.map(v=>Math.round(v/100)/10), borderColor:'#93c5fd', tension:.25, pointRadius:0}]);
+  const fiscalDatasets = [
+    {label:'Government spending', data:r.GOV, borderColor:'#34d399', tension:.25, pointRadius:0},
+    {label:'Cumulative exported surplus', data:r.SURPLUS, borderColor:'#f87171', tension:.25, pointRadius:0},
+  ];
+  if(showValidation){
+    fiscalDatasets.push(
+      {label:REAL_DATA.govSpendPinkBook.label, data:realSeriesToChartData(r.t, REAL_DATA.govSpendPinkBook.points), borderColor:REAL_DATA.govSpendPinkBook.color, backgroundColor:REAL_DATA.govSpendPinkBook.color, showLine:true, borderWidth:1.5, borderDash:[2,2], fill:false, pointRadius:4, pointStyle:'circle', spanGaps:false},
+      {label:REAL_DATA.govSpendAltBasis.label, data:realSeriesToChartData(r.t, REAL_DATA.govSpendAltBasis.points), borderColor:REAL_DATA.govSpendAltBasis.color, backgroundColor:REAL_DATA.govSpendAltBasis.color, showLine:false, fill:false, pointRadius:6, pointStyle:'triangle', pointBorderColor:'#0f172a', pointBorderWidth:1.5},
+    );
+  }
+  mkChart('chartFiscal', r.t, fiscalDatasets);
+  updateValidationSummary(r, showValidation);
+  mkChart('chartGVA', r.t, [
+    {label:'Targeted', data:r.OET, borderColor:'#f87171', tension:.25, pointRadius:0},
+    {label:'Targeted, UK comparator (no rent)', data:r.UKOET, borderColor:'#f87171', borderDash:[4,3], tension:.25, pointRadius:0},
+    {label:'Mobile', data:r.OEM, borderColor:'#60a5fa', tension:.25, pointRadius:0},
+    {label:'Immobile', data:r.OEI, borderColor:'#34d399', tension:.25, pointRadius:0},
+  ]);
+  mkChart('chartGDPRatio', r.t, [
+    {label:'IoM GDP/capita as % of UK', data:r.GDPCAPPCT, borderColor:'#93c5fd', tension:.25, pointRadius:0},
+    {label:'Parity (100%)', data:r.t.map(()=>100), borderColor:'#64748b', borderDash:[4,3], tension:0, pointRadius:0},
+  ]);
+  mkChart('chartRelPrice', r.t, [
+    {label:'IoM relative price level', data:r.RELPRICE, borderColor:'#a78bfa', tension:.25, pointRadius:0},
+    {label:'Parity (100)', data:r.t.map(()=>100), borderColor:'#64748b', borderDash:[4,3], tension:0, pointRadius:0},
+  ]);
+
+  const n=r.t.length-1;
+  const gdpN = r.GDP[n]||1;
+  const reservesRatioN = r.RESERVES[n]/gdpN;
+  const reservesRatioPct = Math.round(reservesRatioN*1000)/10;
+  const beakerFillPct = Math.min(100, Math.max(0, reservesRatioN/0.20*100)); // beaker scaled 0-20% of GDP
+  const beakerMarkPct = 0.08/0.20*100; // threshold mark at 8%
+  const overThreshold = reservesRatioN>0.08;
+  document.getElementById('beakerFill').style.height = beakerFillPct+'%';
+  document.getElementById('beakerFill').style.background = overThreshold ? 'linear-gradient(180deg,#fca5a5,#f87171)' : 'linear-gradient(180deg,#93c5fd,#60a5fa)';
+  document.getElementById('beakerMark').style.bottom = beakerMarkPct+'%';
+  document.getElementById('rv-level').textContent = '£'+r.RESERVES[n].toLocaleString()+'m';
+  document.getElementById('rv-ratio').textContent = reservesRatioPct+'%';
+  document.getElementById('rv-drawn').textContent = '£'+r.DRAWN[n].toLocaleString()+'m';
+  const pressureEl = document.getElementById('rv-pressure');
+  if(overThreshold){
+    pressureEl.className='pressure show';
+    pressureEl.style.background='#3a1414'; pressureEl.style.border='1px solid #7f1d1d'; pressureEl.style.color='#fca5a5';
+    pressureEl.textContent = `Reserves exceed the ${(0.08*100).toFixed(0)}% pressure threshold — the model is now drawing them down into government spending, per the paper's own warning about banked surpluses.`;
+  } else {
+    pressureEl.className='pressure show';
+    pressureEl.style.background='#0f2a1c'; pressureEl.style.border='1px solid #16523a'; pressureEl.style.color='#6ee7b7';
+    pressureEl.textContent = `Below the 8% pressure threshold — reserves are accumulating without triggering extra spend-down.`;
+  }
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="k">${r.t[n]} population</div><div class="v">${r.POP[n].toLocaleString()}</div></div>
+    <div class="stat"><div class="k">${r.t[n]} house price idx</div><div class="v ${r.HP[n]>r.UKW[n]?'up':'down'}">${r.HP[n]}</div></div>
+    <div class="stat"><div class="k">${r.t[n]} Targeted jobs</div><div class="v">${r.LT[n].toLocaleString()}</div></div>
+    <div class="stat"><div class="k">${r.t[n]} Mobile jobs</div><div class="v ${r.LM[n]<r.LM[0]?'up':'down'}">${r.LM[n].toLocaleString()}</div></div>
+    <div class="stat"><div class="k">Cumulative exported surplus</div><div class="v">£${r.SURPLUS[n].toLocaleString()}m</div></div>
+  `;
+  document.getElementById('footnote').innerHTML = `
+    <strong>${ANCHORS[currentAnchor].label}.</strong>
+    Simplifications flagged for review: Immobile employment is a residual (labour force minus
+    Targeted minus Mobile), wage and house-price stocks share national indices rather than
+    sector-specific series. The "current state" anchor's 2024 starting point was regenerated
+    2026-07-17 by re-running this same engine's As-is preset fresh from 2007 through to year 17 —
+    it previously carried stale values hardcoded before a since-fixed Mobile-sector mechanic, most
+    visibly overstating 2024 Mobile employment by 3.6x; that inconsistency is now resolved (see
+    the model-validation project doc). Separately, a validation pass checked the model's own
+    2007–2024 mechanics against real published Isle of Man data: wages track closely (model
+    3.80%/yr vs real 3.88%/yr, 2016–2024), house prices run a touch soft (3.48%/yr vs 4.31%/yr)
+    and government spending's As-is default runs a touch hot (6.00%/yr vs 5.16%/yr) — both real,
+    moderate gaps, not yet corrected in the mechanics themselves. Tick "Show real data" above to
+    see this overlaid directly on the charts.
+    Loop honesty check: only R1, B1 and R2 in the diagram above are genuine closed cycles in
+    these equations; the Targeted→cost-of-labour→Mobile crowding-out link is an important
+    open chain, not a loop — Mobile employment doesn't feed back into anything else yet.
+    GVA/worker and the Targeted-sector level are a first-pass calibration (2007 GDP checked
+    against real figures to within ~8%) — as of the 2026-07-17 recompute, this isn't a gap we can
+    close by trying harder: the Island's own employment statistics have no eGaming/ICT industry
+    category at all, so no source exists to calibrate that part of Targeted-sector GVA/worker
+    against. Where a partial, banking-excluded figure IS measurable (insurance + fund
+    administration only), the premium over the UK comparator is +18% to +52% across the
+    2011/2016/2021 census points — higher than the original all-in "finance-narrow" estimate,
+    since banking was diluting rather than driving the average. The GDP-per-capita-vs-UK ratio's
+    2011-anchor start is now calibrated to the Island's own official published figure (167% in
+    2007/08, rising to 217% by 2012/13, in the government's own "National Income per head"
+    table) rather than a mismatched-basis proxy; no official continuation exists past 2012/13,
+    so the "now" anchor's ratio is an internally-consistent extrapolation forward from the last
+    official value, not itself an official number.
+    The relative price level is rebased to 100 at the anchor point rather than tied to the
+    actual historical IoM/UK CPI ratio, so it shows divergence <em>from here</em> under the
+    chosen policy levers, not the historical level.
+  `;
+}
+
+const PRESETS = {
+  asis:    {label:'As-is', goldilocks:0,  flatcit:0,  govgrowth:6, recycle:80, banked:20, quota:15, housing:10},
+  paper:   {label:"Paper's proposal", goldilocks:20, flatcit:10, govgrowth:2, recycle:5,  banked:75, quota:20, housing:40},
+  extreme: {label:'Max squeeze', goldilocks:45, flatcit:18, govgrowth:0, recycle:0,  banked:80, quota:70, housing:80},
+};
+function setPreset(name){
+  const p = PRESETS[name];
+  document.getElementById('goldilocks').value=p.goldilocks;
+  document.getElementById('flatcit').value=p.flatcit;
+  document.getElementById('govgrowth').value=p.govgrowth;
+  document.getElementById('recycle').value=p.recycle;
+  document.getElementById('banked').value=p.banked;
+  document.getElementById('quota').value=p.quota;
+  document.getElementById('housing').value=p.housing;
+  recompute();
+}
+function buildPresetRow(){
+  const row = document.getElementById('presetRow');
+  row.innerHTML='';
+  Object.entries(PRESETS).forEach(([key,p])=>{
+    const b=document.createElement('button');
+    b.textContent=p.label;
+    b.onclick=()=>setPreset(key);
+    row.appendChild(b);
+  });
+}
+
+function setAnchor(key){
+  currentAnchor = key;
+  document.getElementById('tab2011').classList.toggle('active', key==='2011');
+  document.getElementById('tabNow').classList.toggle('active', key==='now');
+  const validateRow = document.getElementById('validateRow');
+  const validateCheckbox = document.getElementById('showValidation');
+  validateCheckbox.disabled = (key!=='2011');
+  validateRow.style.opacity = (key!=='2011') ? 0.45 : 1;
+  recompute();
+}
+
+function frame(ts){
+  const dt = ts-(lastCldTs||ts); lastCldTs=ts;
+  tickCLDElectrons(dt);
+  drawCld();
+  requestAnimationFrame(frame);
+}
+
+buildPresetRow();
+initCldCanvas();
+recompute();
+requestAnimationFrame(frame);
+window.addEventListener('resize', initCldCanvas);
+</script>
+</body>
+</html>

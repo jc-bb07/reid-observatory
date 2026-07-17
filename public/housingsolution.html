@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fixing the Housing Crisis · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border2:#334155;
+  --text:#e2e8f0;--muted:#94a3b8;--muted2:#cbd5e1;
+  --blue:#60a5fa;--green:#34d399;--amber:#fbbf24;--red:#f87171;
+  --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body.light{
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--muted2:#334155;--blue:#2563eb;--iom:#2563eb;
+  --gsy:#059669;--jsy:#d97706;--uk:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5}
+#app{max-width:980px;margin:0 auto;padding:24px 20px 70px}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2.2rem 0 .7rem}
+.section-label:first-of-type{margin-top:1.4rem}
+
+/* THEME TOGGLE */
+.theme-btn{position:fixed;top:14px;right:16px;z-index:20;background:var(--surface);border:1px solid var(--border2);
+  color:var(--muted2);font-size:11px;font-weight:600;padding:6px 11px;border-radius:20px;cursor:pointer;font-family:var(--font)}
+
+/* HERO */
+.hero{margin-bottom:1.2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border2)}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:.5rem}
+h1{font-size:26px;font-weight:900;line-height:1.2;letter-spacing:-0.02em;color:var(--text);margin-bottom:.7rem}
+h1 em{font-style:normal;color:var(--red)}
+.lede{font-size:14px;color:var(--muted2);line-height:1.7}
+.narrative{background:var(--surface2);border:1px solid var(--border2);border-top:2px solid var(--blue);border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;font-size:13px;color:var(--muted2);line-height:1.7}
+
+/* COMPARATOR TABLE (reused pattern) */
+.cmp-table{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;margin-bottom:1.25rem}
+.cmp-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cmp-head,.cmp-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;min-width:640px}
+.cmp-head{padding:.7rem .9rem .5rem;border-bottom:1px solid var(--border2)}
+.ch-stub{}
+.ch-jur{font-size:12px}
+.ch-name{display:block;font-weight:700;color:var(--text)}
+.ch-jur.iom .ch-name{color:var(--iom)}.ch-jur.jsy .ch-name{color:var(--jsy)}
+.ch-jur.gsy .ch-name{color:var(--gsy)}.ch-jur.uk .ch-name{color:var(--uk)}
+.ch-sub{display:block;font-size:9px;color:var(--muted);margin-top:1px}
+.cmp-row{padding:.6rem .9rem;border-bottom:1px solid var(--border2);align-items:center}
+.cmp-row.gap-row{border-bottom:2px solid var(--border2)}
+.cmp-row:last-of-type{border-bottom:none}
+.cr-label{font-size:11.5px;color:var(--muted2);font-weight:600;padding-right:.5rem}
+.cr-cell{display:flex;flex-direction:column}
+.cv{font-family:var(--mono);font-weight:700;font-size:13px}
+.cv.amb{color:var(--amber)}.cv.red{color:var(--red)}.cv.green{color:var(--green)}.cv.dim{color:var(--muted)}
+.cs{font-size:9px;color:var(--muted);margin-top:1px}
+.cmp-note{font-size:10.5px;color:var(--muted);padding:.75rem .9rem;line-height:1.6}
+
+/* RATIO CARDS */
+.ratio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-bottom:1.25rem}
+.ratio-card{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.9rem;position:relative}
+.rc-spark-pop{position:absolute;left:6px;right:6px;bottom:100%;margin-bottom:8px;background:var(--surface);
+  border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:9px;color:var(--muted);
+  opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;text-align:center}
+.rc-spark-pop svg{color:var(--blue)}
+.ratio-card:hover .rc-spark-pop{opacity:1}
+.rc-jur{font-size:11px;font-weight:700;margin-bottom:.3rem}
+.rc-ratio{font-family:var(--mono);font-size:22px;font-weight:800;margin-bottom:.2rem}
+.rc-ratio.critical{color:var(--red)}.rc-ratio.warning{color:var(--amber)}.rc-ratio.ok{color:var(--green)}
+.rc-label{font-size:10px;color:var(--muted);margin-bottom:.5rem}
+.rc-bar{height:5px;border-radius:3px;background:var(--border2);overflow:hidden;margin-bottom:.5rem}
+.rc-bar-fill{height:100%;border-radius:3px}
+.rc-note{font-size:10px;color:var(--muted2);line-height:1.5}
+
+/* CHART PANEL */
+.chart-panel{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:1.25rem}
+.panel-header{padding:.85rem 1rem .6rem}
+.panel-title{font-size:13px;font-weight:700;color:var(--text)}
+.panel-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.chart-wrap{padding:0 1rem;height:260px}
+.legend{display:flex;gap:14px;padding:.5rem 1rem 1rem;font-size:10px;color:var(--muted2)}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-sw{width:9px;height:9px;border-radius:2px}
+
+/* JURISDICTION ACTION CARDS */
+.jur-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin-bottom:1.25rem}
+.jur-card{background:var(--surface2);border:1px solid var(--border2);border-top:3px solid var(--muted);border-radius:8px;padding:1rem}
+.jur-card.iom{border-top-color:var(--iom)}.jur-card.jsy{border-top-color:var(--jsy)}
+.jur-card.gsy{border-top-color:var(--gsy)}.jur-card.uk{border-top-color:var(--uk)}
+.jur-title{font-size:13px;font-weight:800;margin-bottom:.5rem}
+.jur-card.iom .jur-title{color:var(--iom)}.jur-card.jsy .jur-title{color:var(--jsy)}
+.jur-card.gsy .jur-title{color:var(--gsy)}.jur-card.uk .jur-title{color:var(--uk)}
+.jur-card ul{padding-left:1.1rem;margin-bottom:.6rem}
+.jur-card li{font-size:11.5px;color:var(--muted2);margin-bottom:.4rem;line-height:1.5}
+.jur-src{font-size:9px;color:var(--muted)}
+
+/* PILLARS */
+.pillar{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;margin-bottom:1rem;overflow:hidden}
+.pillar-head{display:flex;align-items:center;gap:.7rem;padding:.9rem 1.1rem;border-bottom:1px solid var(--border2)}
+.pillar-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:800;font-size:12px;flex:none;color:#fff}
+.pillar-num.p1{background:var(--blue)}.pillar-num.p2{background:var(--green)}.pillar-num.p3{background:var(--amber)}.pillar-num.p4{background:#a78bfa}
+.pillar-title{font-size:14px;font-weight:800;color:var(--text)}
+.pillar-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.lever{padding:.85rem 1.1rem;border-bottom:1px solid var(--border2)}
+.lever:last-child{border-bottom:none}
+.lever-title{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.lever-body{font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:.4rem}
+.lever-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.tag{font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:10px}
+.tag.evidence{background:rgba(96,165,250,.15);color:var(--blue)}
+.tag.risk{background:rgba(248,113,113,.15);color:var(--red)}
+
+/* DRIVERS LIST */
+.drivers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.7rem;margin-bottom:1.25rem}
+.driver{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.9rem}
+.driver-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:.35rem}
+.driver-body{font-size:11.5px;color:var(--muted2);line-height:1.6}
+
+.gov-toggle{width:100%;text-align:left;background:none;border:1px solid var(--border2);border-radius:8px;
+  padding:.6rem .9rem;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+.gov-box{display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem 1.1rem;margin-top:.5rem;font-size:11px;color:var(--muted2);line-height:1.7}
+.gov-box.visible{display:block}
+.gov-box h4{font-size:11px;color:var(--text);margin:.6rem 0 .2rem}
+.gov-box h4:first-child{margin-top:0}
+.gov-box a{color:var(--blue)}
+.gov-box .src{color:var(--muted);font-size:10px;margin-top:.5rem}
+footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border2);font-size:10.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<button class="theme-btn" id="theme-btn">Light mode</button>
+<div id="app">
+
+  <div class="narrative" style="border-top-color:var(--red);border-top-width:3px"><strong>Read this before anything else on this page.</strong> Nothing here should be read or adopted in isolation from the Island's wider economic, development and social policy. Every lever below needs to be pressure-tested against real scenarios — demographic, fiscal, market — before it becomes policy. It should not be settled by whoever has the loudest opinion, or by whoever stands to gain most personally from the outcome.</div>
+
+  <div class="hero">
+    <div class="kicker">Skills, young people &amp; the Island's future · policy brief</div>
+    <h1>Keeping young people on the Island — and skilled — is how we secure its <em>future</em></h1>
+    <p class="lede">The Isle of Man already has one of the highest dependency ratios in the developed world, and it's on course to get worse: 23% of residents are 65+. We've been accepting our young people moving away for years — this brief argues that we shouldn't just accept that, and that we should build an environment that encourages them to settle.</p>
+  </div>
+
+  <div class="narrative" style="border-top-color:var(--green)">Every plot released, every home built and every apprenticeship funded should be judged against one test: does it help settle young people and young families here. Why people leave, or don't come back, is a mix of two things — housing costs and lack of opportunity. This page covers the housing half, including the training-pipeline levers built into housing delivery itself (Pillar 1's tradesperson self-build/apprenticeship scheme). The opportunity half — training more teachers, clinicians and other professionals the Island is short of, and building a stronger private-sector job market — is a separate, equally-weighted argument for a future brief.</div>
+
+  <div class="section-label">How bad is it — 2024/25 snapshot</div>
+
+  <div class="cmp-table">
+    <div class="cmp-table-scroll">
+      <div class="cmp-head">
+        <div class="ch-stub"></div>
+        <div class="ch-jur iom"><span class="ch-name">Isle of Man</span><span class="ch-sub">2024</span></div>
+        <div class="ch-jur jsy"><span class="ch-name">Jersey</span><span class="ch-sub">2024</span></div>
+        <div class="ch-jur gsy"><span class="ch-name">Guernsey</span><span class="ch-sub">2024</span></div>
+        <div class="ch-jur uk"><span class="ch-name">United Kingdom</span><span class="ch-sub">2024</span></div>
+      </div>
+      <div class="cmp-row">
+        <div class="cr-label">Average house price</div>
+        <div class="cr-cell"><span class="cv iom">£343k</span><span class="cs">HMR 2024 · 2025 final: £358k (+4.5%)</span></div>
+        <div class="cr-cell"><span class="cv jsy">£651k</span><span class="cs">Mix-adj. HPI · Statistics Jersey 2024</span></div>
+        <div class="cr-cell"><span class="cv gsy">£591k</span><span class="cs">Mix-adj. avg · States of Guernsey Q4 2024</span></div>
+        <div class="cr-cell"><span class="cv uk">£292k</span><span class="cs">ONS HPI avg · England 2024</span></div>
+      </div>
+      <div class="cmp-row gap-row">
+        <div class="cr-label">Price ÷ median annual wage</div>
+        <div class="cr-cell"><span class="cv red">8.6×</span><span class="cs">2025 final (official): 9.09× — see chart</span></div>
+        <div class="cr-cell"><span class="cv red">14.8×</span><span class="cs">Highest of the four</span></div>
+        <div class="cr-cell"><span class="cv red">~13.8×</span><span class="cs">Estimated</span></div>
+        <div class="cr-cell"><span class="cv amb">8.2×</span><span class="cs">England average</span></div>
+      </div>
+      <div class="cmp-row">
+        <div class="cr-label">Real earnings — 10yr change</div>
+        <div class="cr-cell"><span class="cv dim">~+2%</span><span class="cs">2014→2024</span></div>
+        <div class="cr-cell"><span class="cv red">+1.3%</span><span class="cs">2014→2024</span></div>
+        <div class="cr-cell"><span class="cv red">−0.7%</span><span class="cs">Year to Jun 2024</span></div>
+        <div class="cr-cell"><span class="cv green">+7%</span><span class="cs">2014→2024</span></div>
+      </div>
+      <div class="cmp-row">
+        <div class="cr-label">Below living wage</div>
+        <div class="cr-cell"><span class="cv red">27.4%</span><span class="cs">2025, up from 20.1% (2024, official) — see trend chart</span></div>
+        <div class="cr-cell"><span class="cv dim">n/a</span><span class="cs">Not published comparably</span></div>
+        <div class="cr-cell"><span class="cv dim">n/a</span><span class="cs">Not published comparably</span></div>
+        <div class="cr-cell"><span class="cv amb">~14%</span><span class="cs">UK 2023</span></div>
+      </div>
+      <div class="cmp-note">Price-to-earnings uses median annual wage (weekly × 52.18). International standard: ratios above 4× are unaffordable; above 8× severely unaffordable (Demographia). All four jurisdictions sit in the severe category. Living wage definitions differ by jurisdiction and aren't directly comparable.</div>
+    </div>
+  </div>
+
+  <div class="ratio-grid">
+    <div class="ratio-card"><div class="rc-spark-pop" id="rc-iom-spark"></div><div class="rc-jur" style="color:var(--iom)">Isle of Man</div><div class="rc-ratio critical">9.09×</div><div class="rc-label">Median house price ÷ median earnings</div><div class="rc-bar"><div class="rc-bar-fill" style="width:61%;background:var(--red)"></div></div><div class="rc-note">Confirmed for full-year 2025 — Housing Market Review 2025 (Statistics IoM). For 18–25 year-olds specifically, the ratio is 10.05× on one income, or 5.1× on two.</div></div>
+    <div class="ratio-card"><div class="rc-spark-pop" data-spark-label="Single 2024 snapshot — no published multi-year series"></div><div class="rc-jur" style="color:var(--jsy)">Jersey</div><div class="rc-ratio critical">14.8×</div><div class="rc-label">Price ÷ median wage</div><div class="rc-bar"><div class="rc-bar-fill" style="width:100%;background:var(--red)"></div></div><div class="rc-note">Among the highest ratios globally.</div></div>
+    <div class="ratio-card"><div class="rc-spark-pop" data-spark-label="Single 2024 snapshot — no published multi-year series"></div><div class="rc-jur" style="color:var(--gsy)">Guernsey</div><div class="rc-ratio critical">~13.8×</div><div class="rc-label">Price ÷ median wage</div><div class="rc-bar"><div class="rc-bar-fill" style="width:93%;background:var(--red)"></div></div><div class="rc-note">Severely unaffordable.</div></div>
+    <div class="ratio-card"><div class="rc-spark-pop" data-spark-label="Single 2024 snapshot — England average"></div><div class="rc-jur" style="color:var(--uk)">United Kingdom</div><div class="rc-ratio warning">8.2×</div><div class="rc-label">Price ÷ median wage</div><div class="rc-bar"><div class="rc-bar-fill" style="width:55%;background:var(--amber)"></div></div><div class="rc-note">Severe — but wages track GDP more closely.</div></div>
+    <div class="ratio-card" style="border-color:rgba(148,163,184,.3);background:rgba(148,163,184,.05)"><div class="rc-spark-pop" data-spark-label="Fixed international standard, not a time series"></div><div class="rc-jur">Benchmark</div><div class="rc-ratio ok">≤4×</div><div class="rc-label">Demographia standard</div><div class="rc-bar"><div class="rc-bar-fill" style="width:27%;background:var(--green)"></div></div><div class="rc-note">All four jurisdictions are roughly double this or worse.</div></div>
+  </div>
+
+  <div class="section-label">The gap over time — Isle of Man, official series 1989–2025</div>
+  <div class="narrative">The ratio bottomed out in the mid-1990s around 5×, climbed through the 2000s, spiked to just over 10× around 2008 and again in 2021, and sits at 9.09× (median house price to median earnings) for full-year 2025 — confirmed, official figures from the Island's own Housing Market Review 2025 (Statistics IoM, published June 2026), not a provisional estimate. This is the single chart worth watching: as long as it sits well above the 4× international affordability threshold and isn't trending down, every other policy lever is fighting the tide.</div>
+  <div class="chart-panel">
+    <div class="panel-header"><div class="panel-title">House-price-to-earnings ratio — Isle of Man, 1989–2025</div><div class="panel-sub">Official series · Housing Market Review 2025, Statistics IoM</div></div>
+    <div class="chart-wrap"><canvas id="afford-chart"></canvas></div>
+    <div class="legend" id="afford-legend"></div>
+  </div>
+  <div class="narrative" style="font-size:11.5px">Note: a genuine like-for-like multi-year ratio series for Jersey, Guernsey and the UK on the same basis isn't available from public sources — only single-year 2024/25 snapshots are. The comparator table and ratio cards above remain the fair cross-jurisdiction comparison; this chart is IoM-only, over time, but is now the Island's own official long-run series rather than a reconstruction.</div>
+
+  <div class="section-label">The affordability squeeze on young people specifically — 2011–2025</div>
+  <div class="narrative">The Housing Market Review 2025 tracks affordability specifically for 18–25 year-olds: lowest-quartile house price against median salary for that age group. On a single income it's <strong style="color:var(--red);font-size:16px">10.05×</strong> in 2025 — an improvement from 11.4× in 2022, but still <strong style="color:var(--red);font-size:16px">nearly double</strong> the "severely unaffordable" threshold. On two incomes combined, the same ratio falls to 5.1×, a useful fact for how any young-family-targeted scheme (Pillar 2) should be designed: joint applications close most of the gap on their own, so schemes built around single applicants may be solving the wrong problem.</div>
+  <div class="chart-panel">
+    <div class="panel-header"><div class="panel-title">18–25 year-olds: lowest-quartile house price ÷ median salary (single income)</div><div class="panel-sub">Official series · Housing Market Review 2025, Statistics IoM</div></div>
+    <div class="chart-wrap"><canvas id="youth-chart"></canvas></div>
+  </div>
+
+  <div class="section-label">Wages in full — 1999–2025, and who's being left behind</div>
+  <div class="narrative">Median full-time pay fell in nominal terms in 2025 — £765 to £755 — breaking nine straight years of rises (2016–2024); the last comparable dip was 2009–2010. The average tells a steadier story — up from £384/week in 1999 to £920 in 2025 — but averages get pulled up by high earners, which is exactly why median is the number that matters for someone actually trying to buy a home. The share of employees earning below the Island's living wage has climbed from 5.6% (2017) to 27.4% (2025), though a meaningful part of the most recent jump (20.1% → 27.4% in a single year) is the Living Wage Foundation's own recalibration of the benchmark, not purely deteriorating pay. Figures for 1999–2008 are from the 2009 Digest of Economic and Social Statistics; 2007–2025 from the Island's own Earnings Survey Reports (the two overlap exactly in 2007–2008, confirming continuity); Statistics IoM cautions that a 2012 methodology change means earnings before and after that point aren't perfectly comparable.</div>
+  <div class="chart-panel">
+    <div class="panel-header"><div class="panel-title">Median and average gross weekly pay, full-time employees — Isle of Man</div><div class="panel-sub">Nominal £ · 1999–2025 · Digest of Economic &amp; Social Statistics 2009 (1999–2008) and Isle of Man Earnings Survey Reports (2007–2025)</div></div>
+    <div class="chart-wrap"><canvas id="wage-chart"></canvas></div>
+    <div class="legend" id="wage-legend"></div>
+  </div>
+  <div class="chart-panel">
+    <div class="panel-header"><div class="panel-title">Share of employees earning below the IoM Living Wage</div><div class="panel-sub">Official series, gaps are years not measured · Isle of Man Earnings Survey Report 2025, Table 12</div></div>
+    <div class="chart-wrap" style="height:220px"><canvas id="lw-chart"></canvas></div>
+  </div>
+
+  <div class="section-label">Gender pay gap, and public vs private sector</div>
+  <div class="narrative">The gender pay gap (average weekly basic pay) has narrowed from the low-20%s in 2015–2017 to 9.7% in 2025, with the clearest break around 2021, coinciding with the Equality Act 2017 taking effect — though the Island's own statisticians caution the margins of error are wide enough that year-to-year moves shouldn't be over-read. On median hourly pay specifically, the 2025 gap is effectively zero (-0.6%, fractionally in women's favour). Public sector pay sits well above private: £828/week median in the public sector versus £720/week in the private sector (2025) — a ~15% gap that matters for who can absorb the housing-cost pressure documented above.</div>
+  <div class="ratio-grid">
+    <div class="ratio-card"><div class="rc-jur">Gender pay gap — average weekly</div><div class="rc-ratio warning">9.7%</div><div class="rc-label">2025, favouring men</div><div class="rc-bar"><div class="rc-bar-fill" style="width:28%;background:var(--amber)"></div></div><div class="rc-note">Down from the low-20%s in 2015–17.</div></div>
+    <div class="ratio-card"><div class="rc-jur">Gender pay gap — median hourly</div><div class="rc-ratio ok">−0.6%</div><div class="rc-label">2025</div><div class="rc-bar"><div class="rc-bar-fill" style="width:2%;background:var(--green)"></div></div><div class="rc-note">Effectively zero — fractionally favours women.</div></div>
+    <div class="ratio-card"><div class="rc-jur">Public sector median pay</div><div class="rc-ratio warning">£828/wk</div><div class="rc-label">2025</div><div class="rc-bar"><div class="rc-bar-fill" style="width:100%;background:var(--amber)"></div></div><div class="rc-note">Includes medical and education staff.</div></div>
+    <div class="ratio-card"><div class="rc-jur">Private sector median pay</div><div class="rc-ratio warning">£720/wk</div><div class="rc-label">2025</div><div class="rc-bar"><div class="rc-bar-fill" style="width:87%;background:var(--amber)"></div></div><div class="rc-note">~15% below the public-sector median.</div></div>
+  </div>
+
+  <div class="section-label">What's driving it</div>
+  <div class="drivers">
+    <div class="driver"><div class="driver-title">Supply hasn't kept pace</div><div class="driver-body">Net affordable-home delivery has run at roughly 34 homes a year (134 net, 2021–2025) against a population and household count that has kept growing — nowhere near enough to move the ratio.</div></div>
+    <div class="driver"><div class="driver-title">Delivery leans on private developers, not direct build</div><div class="driver-body">Of the 134 net affordable homes since 2021, 105 came through Section 13 agreements with private developers and only 29 were built directly for social rent — supply is largely a by-product of market-rate development, not a planned programme.</div></div>
+    <div class="driver"><div class="driver-title">Wages have barely moved in real terms — and 2025 saw the first nominal fall since 2007</div><div class="driver-body">Real (inflation-adjusted) mean earnings rose only ~2% in a decade, and median full-time pay fell in cash terms in 2025 (£765→£755) for the first time in the 19-year series. The share of employees earning below the Island's own living wage has climbed from 5.6% (2017) to 27.4% (2025) — see charts above.</div></div>
+    <div class="driver"><div class="driver-title">Population growth is real but modest — this is a supply story, not a demand explosion</div><div class="driver-body">The Island reached a record 84,975 residents in Q1 2025 — but that's only 454 more than the 2021 Census, roughly 150 people a year. Growth is entirely migration-driven (2024 saw 575 births against 925 deaths, a natural decrease of 351) and concentrated in working-age arrivals, heavily into Douglas. Housing completions, by contrast, have halved since the mid-2000s (395/yr to ~195/yr) and hit just 150 in 2024. Modest, steady population growth colliding with a collapsing supply pipeline is the more accurate story than "demand has exploded."</div></div>
+  </div>
+
+  <div class="section-label">The demographic cost — young people and young families leaving</div>
+  <div class="narrative">The Island already has one of the highest dependency ratios in the developed world — 59.7 dependents per 100 working-age residents in 2024, higher than the UK, US or Germany — and 23% of residents are 65+, one of the highest shares anywhere outside Japan and Italy. Under a net-nil migration scenario that ratio is projected to reach 87.7 by 2075. A dedicated academic study on Isle of Man youth out-migration ("Displacement of Youth from the Isle of Man: The Role of House Price Inflation," ResearchGate) found that employment, not housing, was usually the reason people had already left — but housing affordability was "very significant" for those who wanted to stay and were weighing whether they still could. That's the group housing policy can actually still reach. The clearest leading indicator is in the schools: total pupils fell from 11,569 (2020/21) to 11,079 (2025/26), a 9.7% drop in primary enrolment alone, and today's Reception intake (698) is nearly a third smaller than today's Year 11 cohort (995) — secondary schools will feel the same contraction within 3–5 years.</div>
+
+  <div class="chart-panel">
+    <div class="panel-header"><div class="panel-title">The shrinking pipeline — Reception vs Year 11, 2025/26</div><div class="panel-sub">Statistics IoM / Department of Education, Sport &amp; Culture</div></div>
+    <div class="chart-wrap" style="height:220px"><canvas id="school-chart"></canvas></div>
+  </div>
+
+  <div class="jur-grid">
+    <div class="jur-card iom">
+      <div class="jur-title">Isle of Man</div>
+      <ul>
+        <li>Between 2021 and 2023, the population grew by only 461 despite 3,705 people migrating in over the same period — the gap is people leaving, not people failing to arrive.</li>
+        <li>Median age 45.7–46.3; 23% of residents are 65+.</li>
+        <li>School rolls down 4.2% in six years, concentrated in primary — a leading indicator of fewer young families, not just fewer young singles.</li>
+      </ul>
+      <div class="jur-src">Sources: ResearchGate, "Displacement of Youth from the Isle of Man"; Statistics IoM population &amp; census reporting; smartisland.im schools data.</div>
+    </div>
+    <div class="jur-card jsy">
+      <div class="jur-title">Jersey — the "brain drain"</div>
+      <ul>
+        <li>Under-40 population fell 5%; the 20-24 age group is the single largest outflow cohort, with 2,690 long-term islanders that age leaving between 2017 and 2023.</li>
+        <li>Rents up 87% since 2008; the Fiscal Policy Panel found an average-income household can't affordably service a mortgage on a property of any size, including a two-bed flat.</li>
+        <li>Jersey's own Housing Minister has warned of "terminal decline" if the young workforce isn't retained.</li>
+      </ul>
+      <div class="jur-src">Sources: Nine by Five Media ("Jersey's brain drain"); Jersey Evening Post, Aug 2025.</div>
+    </div>
+    <div class="jur-card gsy">
+      <div class="jur-title">Guernsey — more than half want to leave</div>
+      <ul>
+        <li>Less than half of 16–27 year olds plan to stay in Guernsey; average house price over £604k and rent over £2,000/month (end of 2024).</li>
+        <li>Only 1 in 10 could see themselves staying for life — but most who do leave say they'd like to return: 30% within a decade, 36% later. The barrier looks like it's return-affordability as much as the original decision to leave.</li>
+      </ul>
+      <div class="jur-src">Source: ITV News Channel, Jun 2025 ("Unaffordable housing driving young people's exodus from Guernsey").</div>
+    </div>
+  </div>
+
+  <div class="section-label">What each jurisdiction is actually trying</div>
+  <div class="jur-grid">
+    <div class="jur-card iom">
+      <div class="jur-title">Isle of Man</div>
+      <ul>
+        <li>New arms-length Housing Agency (2025) tasked with identifying sites for affordable homes.</li>
+        <li>First Home Fixed/Choice schemes loosened in 2022 — minimum equity loan cut from 20% to 5%; price/property-type restrictions removed.</li>
+        <li>Fixed Term Tenancy Policy Phase III and a review of the 2019 Public Sector Housing Allocations Policy, both targeted for 2025.</li>
+        <li>Leaseholder right-to-manage/acquire-freehold legislation targeted Q2 2025.</li>
+      </ul>
+      <div class="jur-src">Sources: gov.im housing strategy; Tynwald Housing &amp; Communities Board update, GD 0125/2024.</div>
+    </div>
+    <div class="jur-card jsy">
+      <div class="jur-title">Jersey</div>
+      <ul>
+        <li>First Step Assisted Home Ownership scheme: up to 40% contribution toward an open-market purchase, run with Andium Homes — 56 completions across four funding rounds in its first year (2024).</li>
+        <li>Scheme paused in 2025 pending evaluation and further funding — a live cautionary tale on committing to a scheme without a standing funding line.</li>
+        <li>Affordable Housing Gateway: a banded waiting-list system (first-time buyers sit in Band 5) giving transparent, rules-based access to purchase and rental schemes.</li>
+      </ul>
+      <div class="jur-src">Sources: States Assembly R.65/2025; gov.je; Jersey Evening Post, Sep 2025.</div>
+    </div>
+    <div class="jur-card gsy">
+      <div class="jur-title">Guernsey</div>
+      <ul>
+        <li>Guernsey Housing Plan: stated vision that all residents have access to good-quality, affordable, secure, energy-efficient housing.</li>
+        <li>Reviewing the Partial Ownership scheme — equity share levels and rent-setting structure.</li>
+        <li>Actively promoting smaller homes and alternative housing models for older residents to free up family-sized stock.</li>
+      </ul>
+      <div class="jur-src">Sources: States of Guernsey, Guernsey Housing Plan &amp; Affordable Housing pages.</div>
+    </div>
+    <div class="jur-card uk">
+      <div class="jur-title">United Kingdom</div>
+      <ul>
+        <li>Mandatory local housing targets restored and strengthened via an overhauled National Planning Policy Framework — councils without an up-to-date plan risk losing control of decisions at appeal.</li>
+        <li>Headline target: 1.5 million new homes across the Parliament (~300k/year in England).</li>
+        <li>£39bn Affordable Homes Programme (2026/27–2035/36) plus a £2bn top-up — a decade-long, ring-fenced funding commitment.</li>
+        <li>Some local plans require up to 50% affordable housing on qualifying sites.</li>
+      </ul>
+      <div class="jur-src">Sources: GOV.UK, Decade of Renewal progress update Jan 2026; Hansard, Nov–Dec 2025.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Market power — landlords and developers</div>
+  <div class="narrative">In a market this undersupplied, power accrues to whoever already holds housing stock, whether or not there's formal concentration among owners. Two structural gaps matter more here than headcounts of landlords or builders: the Island still can't see who owns its rental stock, and affordable delivery depends almost entirely on a small number of private developers choosing to build.</div>
+  <div class="drivers">
+    <div class="driver">
+      <div class="driver-title">Landlords: concentration is real and already visible, not just a data gap</div>
+      <div class="driver-body">20% of IoM households now rent privately (~7,300 households, 2021 Census), up from 14% in 2001 — highest in Douglas at 25.8%. This isn't hypothetically concentrated: one letting agency alone advertises over 300 managed properties on its own books — on the order of 4% of the entire private rental sector held by a single operator, without needing to go through the open market or estate agents. The Landlord Registration (Private Housing) Act got Royal Assent in December 2021, but mandatory registration still hasn't commenced; a voluntary scheme runs in the meantime. So the honest framing is: government can already see some concentration anecdotally, it just can't yet see all of it, or enforce standards against it — registration would convert an observable problem into a measurable, regulatable one.</div>
+    </div>
+    <div class="driver">
+      <div class="driver-title">Developers: build-out pace is the real lever, not just permissions granted</div>
+      <div class="driver-body">IoM completions have halved since the mid-2000s (395/yr to ~195/yr); 2024 was the second-worst year on record at just 150 homes, against an Objective Assessment of Housing Need calling for 9,909 more by 2041. 105 of the 134 net affordable homes added since 2021 came via Section 13 deals with private developers, only 29 direct-build — government's own affordable pipeline depends on developer cooperation it can't fully compel.</div>
+    </div>
+    <div class="driver">
+      <div class="driver-title">This isn't just an IoM problem — it's structural to small housing markets</div>
+      <div class="driver-body">The UK's CMA concluded in its Feb 2024 housebuilding study that land banking wasn't the primary driver of undersupply — the unpredictable planning system and the speculative-development model were — but suspected information-sharing between builders that could affect build-out rate and prices was serious enough to trigger a new Competition Act investigation into 8 major housebuilders. Guernsey shows the same pattern locally: the States land-banked several zoned sites for a decade without building, and reporting describes a shift from a small-build/self-build culture toward large-developer dominance, with land now trading mainly in multi-million-pound packages rather than individual plots.</div>
+    </div>
+  </div>
+
+  <div class="section-label">A structure for the solution — four pillars</div>
+  <div class="narrative">No single lever fixes an 8–15× price-to-wage ratio. The four pillars below are meant to move together: build more homes, help people reach the ones that exist, fund it in a way that doesn't run out after one round, and give government the visibility and leverage it currently lacks over the landlords and developers who hold the stock.</div>
+
+  <div class="pillar">
+    <div class="pillar-head"><div class="pillar-num p1">1</div><div><div class="pillar-title">Supply — build more, faster, and more directly</div><div class="pillar-sub">Fixes the numerator: more homes at prices people can actually reach</div></div></div>
+    <div class="lever">
+      <div class="lever-title">Give the Housing Agency a delivery target and multi-year funding, not just a site-search remit</div>
+      <div class="lever-body">134 net affordable homes over four years (≈34/year) cannot move an 8.6× ratio. A published annual delivery target, funded on a rolling multi-year basis, converts a search exercise into a construction programme.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK's 10-yr AHP funding line</span><span class="tag risk">Needs capital + land pipeline</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Close the viability loophole in Section 13 agreements — keep the 25% share, don't raise it</div>
+      <div class="lever-body">105 of 134 recent affordable homes came from developer agreements, only 29 from direct social-rent build. Raising the mandatory percentage was considered and set aside: with only ~150-195 completions a year, taxing a thin private pipeline harder risks deterring the supply it's meant to capture, for a modest yield. The better fix is a "late-stage review" clawback: developers who plead unviability publish their appraisal, and if out-turn margins beat it, the difference funds commuted payments. Same complaint addressed, without a rate rise that falls on developers and land values for little return.</div>
+      <div class="lever-tags"><span class="tag evidence">Open-book viability review, ~£70k/yr FTE cost</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Publish a public/brownfield land audit with statutory build-out timelines</div>
+      <div class="lever-body">Pair the Housing Agency's site search with a public register of designated land and a legal deadline for building on it, so land banking can't stall delivery.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK 5-year land supply tests</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Favour smaller units and mixed-tenure schemes</div>
+      <div class="lever-body">Follow Guernsey's shift toward smaller homes and alternative models for older residents — this both suits single/couple households (the bulk of the affordability squeeze) and frees family-sized stock through downsizing.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: Guernsey Housing Plan</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Release land to a tradesperson-led self-build scheme — and build it around apprenticeships</div>
+      <div class="lever-body">Genuinely promising, and stronger combined than either idea alone. UK community land trusts (170+ nationally) hold land collectively so cost savings pass straight to occupants rather than a developer's margin; LILAC in Leeds runs as a Mutual Home Ownership Society with shared equity; Ashley Vale in Bristol turned a former scaffolding yard into a self-built estate. Those schemes had to train unskilled members via NVQs to do the physical work — a group of Manx tradespeople starts from the skills those projects had to build from scratch. But Construction Isle of Man has separately warned of a looming skilled-worker crisis, driven by falling apprenticeship uptake since DESC changed the scheme in April 2024 — the same qualified tradespeople this idea depends on are an ageing, shrinking pool. Fold the two problems into one vehicle: make every plot conditional on the self-build group taking on a fixed number of apprentices through UCM's existing construction pathways (plumbing, carpentry, electrical, bricklaying, roofing — normally 2–3 years, day-release), using the UK's own fast-track model (its new Homebuilding Skills Hubs compress apprenticeships to 12–18 months specifically to meet a housebuilding push) so trainees qualify roughly in step with the build. Newcastle's Greenwood Project is a working precedent: Home Group required any contractor on the scheme to provide apprenticeship placements as a condition of taking part. The same condition could reasonably extend to Section 13 developer agreements and the Housing Agency's own direct-build programme, not just the self-build scheme — turning every unit of publicly-supported housing delivery into a training placement as well, which is what actually protects Pillar 1's delivery targets from running into a workforce ceiling a few years out.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK Community Land Trusts, LILAC Leeds, Ashley Vale Bristol, Greenwood Project (Home Group, Newcastle), UK Homebuilding Skills Hubs</span><span class="tag risk">Needs a bespoke finance product for the self-build plots, and VTA/apprenticeship funding sized to the placements this would create</span></div>
+    </div>
+  </div>
+
+  <div class="pillar">
+    <div class="pillar-head"><div class="pillar-num p2">2</div><div><div class="pillar-title">Access — help people reach the homes that exist</div><div class="pillar-sub">Fixes the denominator side: who can actually buy or rent what's built</div></div></div>
+    <div class="lever">
+      <div class="lever-title">Make young-family retention an explicit, named priority in allocation — not just a side-effect of affordability</div>
+      <div class="lever-body">The Island's own displacement study found housing wasn't usually why young people had already left, but was "very significant" for those weighing whether to stay — precisely the group still reachable by policy. With a dependency ratio already worse than the UK, US or Germany and heading toward 87.7 per 100 working-age residents by 2075 under flat migration, retaining young families isn't just a fairness argument, it's a fiscal one: every young family that leaves both shrinks the future tax base and adds to the burden on those who remain. Give young families (not just first-time buyers generically) explicit weighting in the banded allocation system below, sized against the school-roll data as a live retention indicator government actually tracks.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: Jersey and Guernsey both now frame this explicitly as a retention crisis, not just an affordability one</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Fund first-time-buyer equity schemes on a standing, multi-year basis</div>
+      <div class="lever-body">Jersey's First Step scheme delivered 56 completions in its first funding rounds, then paused in 2025 for lack of continued funding. The IoM's own First Home schemes were loosened in 2022; the lesson from Jersey is to attach a permanent funding line rather than a one-off pot, so buyers can plan around a scheme that won't disappear mid-cycle.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent + cautionary tale: Jersey First Step</span><span class="tag risk">Can inflate prices if supply doesn't rise in parallel</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Complete and strengthen the Fixed Term Tenancy Policy (Phase III)</div>
+      <div class="lever-body">Minimum-term protections and limits on in-tenancy rent reviews for private renters, who currently have the least protection and the least ability to plan around housing costs.</div>
+      <div class="lever-tags"><span class="tag evidence">Already scheduled for 2025</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Adopt a transparent, banded allocation system</div>
+      <div class="lever-body">Complete the overdue review of the 2019 Public Sector Housing Allocations Policy using a Jersey-style banded gateway, so applicants can see clearly where they sit and why — reducing both real and perceived unfairness in access to affordable stock.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: Jersey Affordable Housing Gateway</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Pair housing measures with living-wage alignment</div>
+      <div class="lever-body">27.4% of the workforce now earns below the Island's own living wage. No housing scheme closes an 8–9× ratio for someone under that line — public-sector contracting and procurement conditions are a lever government controls directly.</div>
+      <div class="lever-tags"><span class="tag risk">Wage policy sits outside Housing portfolio — needs cross-department buy-in</span></div>
+    </div>
+  </div>
+
+  <div class="pillar">
+    <div class="pillar-head"><div class="pillar-num p3">3</div><div><div class="pillar-title">Funding — pay for it, and lean against speculative demand</div><div class="pillar-sub">Makes pillars 1 and 2 sustainable instead of one-off</div></div></div>
+    <div class="lever">
+      <div class="lever-title">A transaction levy on non-resident, second-home and buy-to-let purchases, hypothecated to housing delivery</div>
+      <div class="lever-body">Jersey and Guernsey face the same external-capital pressure the IoM does — all three Crown Dependencies show materially worse ratios than the UK average. Ring-fencing a levy on non-owner-occupier purchases directly to the Housing Agency's delivery fund ties the people adding to demand pressure to the cost of relieving it.</div>
+      <div class="lever-tags"><span class="tag risk">Needs careful design to avoid discouraging economically active in-migration</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">A ring-fenced, multi-year Manx housing fund</div>
+      <div class="lever-body">The UK has committed £39bn over ten years (2026/27–2035/36) plus a £2bn top-up specifically so its delivery bodies can plan past a single budget cycle. A population-scaled equivalent would let the IoM's Housing Agency commit to build-out programmes rather than re-bidding for funding annually.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK Affordable Homes Programme</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Review transaction costs at both ends of the ladder</div>
+      <div class="lever-body">Lower rates/duty-equivalent friction for first-time buyers and downsizers, so older residents in family-sized homes aren't financially penalised for moving into the smaller stock pillar 1 proposes building.</div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Make the affordability ratio a standing, published metric</div>
+      <div class="lever-body">Commit to publishing the price-to-median-wage ratio annually (the chart on this page) as a standard measure of progress, in the same way the UK reintroduced a mandatory housing-need methodology so targets can't quietly slip.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK NPPF standard method</span></div>
+    </div>
+  </div>
+
+  <div class="pillar">
+    <div class="pillar-head"><div class="pillar-num p4">4</div><div><div class="pillar-title">Market power — see what you're regulating</div><div class="pillar-sub">Gives government visibility and leverage it currently lacks over landlords and developers</div></div></div>
+    <div class="lever">
+      <div class="lever-title">Commence mandatory landlord registration and publish aggregate ownership data annually</div>
+      <div class="lever-body">The regulations to activate the 2021 Act have sat un-commenced for years. Bringing them into force — and publishing anonymised concentration/portfolio-size statistics from the register — turns visible cases like a single agency's 300+ unit portfolio from an anecdote into a measured, monitored share of the market.</div>
+      <div class="lever-tags"><span class="tag evidence">Legislation already passed — Royal Assent Dec 2021</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Introduce UK-equivalent minimum quality standards for the private rented sector — fast track the cheap parts, phase the rest</div>
+      <div class="lever-body">The UK's own Renters' Rights Act 2025 is instructive on pacing, not a reason to go slow: it extended Awaab's Law to private rentals immediately (landlords must investigate hazards like damp/mould within 14 days and start repairs within 7 if there's a significant health risk), abolishes Section 21 evictions from May 2026, but doesn't require the full modernised Decent Homes Standard in the private sector until 2035 — roughly a decade, reflecting England's ~4.6 million private rental homes and the inspection capacity needed to check them. The IoM's private rented sector is a few thousand homes, not millions. A realistic Manx version: adopt hazard-response timeframes immediately (cheap, high-impact, no new inspection regime needed), then require full quality certification — tied to the newly mandatory register, so non-compliant landlords simply can't re-register — on a 30–36 month glide path. That's faster than the UK chose for itself, but plausible given the Island's much smaller stock, provided registration starts now rather than adding more delay on top of the four years the 2021 Act has already sat dormant.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK Renters' Rights Act 2025 (Awaab's Law immediate; Decent Homes Standard by 2035)</span><span class="tag risk">Faster than the UK's own timeline — risk of exit by smaller landlords if inspection capacity isn't ready</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Publish an annual completions-vs-permissions gap, not just permissions granted</div>
+      <div class="lever-body">Guernsey's zoned-but-unbuilt sites and the UK CMA's finding of suspected build-out information-sharing both show that "permission granted" and "homes delivered" are different numbers controlled by different incentives. Making the gap between them a published, standing metric makes slow build-out politically visible.</div>
+      <div class="lever-tags"><span class="tag evidence">Precedent: UK CMA housebuilding study, Feb 2024</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Build independent public delivery capacity, not just developer agreements</div>
+      <div class="lever-body">When 105 of 134 recent affordable homes depend on private developers choosing to build, government's negotiating position is weak by construction. Direct-build capacity (pillar 1) is also a market-power fix: it gives the state a delivery channel that doesn't depend on developer cooperation.</div>
+      <div class="lever-tags"><span class="tag risk">Requires capital and in-house delivery capability, not just policy</span></div>
+    </div>
+    <div class="lever">
+      <div class="lever-title">Examine whether competition/fair-trading powers have a role in the local land and housebuilding market</div>
+      <div class="lever-body">The UK's CMA moved from a market study straight into a formal antitrust investigation of 8 housebuilders over suspected information-sharing. Establishing whether the IoM's own competition framework could or should look at the same question locally is a genuine open question, given how small and concentrated the Island's building supply chain is — the government's own annual Residential Land Availability Study already tracks completions against permitted sites and is the natural data source to start from, rather than commissioning something new.</div>
+      <div class="lever-tags"><span class="tag risk">Needs legal scoping — jurisdictional reach untested</span></div>
+    </div>
+  </div>
+
+  <button class="gov-toggle" id="gov-btn">Data sources &amp; methodology notes ▾</button>
+  <div class="gov-box" id="gov-box">
+    <h4>House prices &amp; earnings (comparator table, ratio cards, chart) — updated from official 2025 report</h4>
+    <p>IoM 2025 figures (weighted average property price £358,320, +4.5%; average house price £393,735; median house price £358,000; official affordability ratios 8.21× average/9.09× median; 18–25 ratio 10.05× single / 5.1× joint) and the full 1989–2025 ratio and 2011–2025 youth-ratio series: Isle of Man Housing Market Review 2025, Statistics Isle of Man Cabinet Office, published June 2026 (data extract as at 1 January 2026, provisional for 12 months per the report's own methodology note). This supersedes the earlier 2024-vintage figure (£342,575/8.6×) and the Q2 2025 provisional estimate (~9.7×) previously used on this page. Jersey: Statistics Jersey mix-adjusted HPI 2024. Guernsey: States of Guernsey Q4 2024 mix-adjusted average. UK: ONS House Price Index, England, 2024 — these three have not been refreshed to 2025 and remain the most recent comparable data available for this page. IoM median wage (comparator table): Annual Earnings Survey, June reference, full-time adult-rate employees, weekly × 52.18. Living wage share: IoM Living Wage Report 2024/25 and 2025/26; UK Real Living Wage 2023.</p>
+    <p>Also from the Housing Market Review 2025, not yet built into the page's levers: house transactions fell to 917 in 2025 from 1,184 in 2024 (a sharper drop than the usual year-to-year revision pattern); the 2021 Census put the vacancy rate at 13% (5,695 of 42,915 residential properties), down from 15% in 2016 — worth a future look as a possible "bring empty homes back into use" lever alongside new-build supply.</p>
+    <h4>Current policy actions (jurisdiction cards)</h4>
+    <p>Isle of Man: gov.im Affordable Housing Reform / Housing Strategy pages; Tynwald Housing &amp; Communities Board update to the Poverty and Social Care Policy Review (GD 0125/2024).</p>
+    <p>Jersey: States Assembly report R.65/2025 (First Step Assisted Home Ownership Scheme Policy); gov.je Renting &amp; Buying pages; Jersey Evening Post, 4 Sep 2025 ("first-time buyers scheme paused").</p>
+    <p>Guernsey: States of Guernsey, Guernsey Housing Plan and Affordable Housing pages (gov.gg).</p>
+    <p>United Kingdom: GOV.UK, "Delivering a decade of renewal for social and affordable housing" — January 2026 progress update; UK Parliament Hansard/Written Statements on planning reform, Nov–Dec 2025.</p>
+    <p class="src">This page was built from the affordability.html comparator data already collected, cross-checked against current published sources for each jurisdiction's policy response, in July 2026. Figures for "current policy actions" reflect the latest publicly reported status at time of writing and should be re-checked before formal use, as several (e.g. Jersey's First Step pause) are actively under review.</p>
+    <h4>Market power (drivers + pillar 4)</h4>
+    <p>Private rental share and Douglas concentration: 2021 Isle of Man Census. Landlord Registration (Private Housing) Act 2021 commencement status: gov.im Registration of Private Sector Landlords page. Housing completions and Objective Assessment of Housing Need (9,909 dwellings by 2041, 1,000/yr migration scenario): gov.im, "First assessment of Island housing needs published today," 20 May 2024; reporting on 2024 completions via Community.IM, Oct 2025. UK housebuilding market structure: CMA Housebuilding Market Study, final report, 26 February 2024 (gov.uk/cma-cases/housebuilding-market-study). Guernsey land-banking and developer-concentration reporting: Guernsey Press opinion piece, 28 Nov 2025 — presented here as reported commentary, not an official States of Guernsey statistic, and should be corroborated before formal citation. A local letting agency's advertised portfolio size (300+ managed properties): company's own marketing material — a single, visible example, not a verified market-share statistic; a commenced landlord register is what would turn this into a real concentration figure.</p>
+    <h4>Population (revised driver)</h4>
+    <p>Q1 2025 population (84,975), 2021–Q1 2025 net change (+454), migration flows (8,065 in / 5,838 out), and 2024 births/deaths (575/925): Isle of Man Population Report 2025 and Isle of Man in Numbers 2025, Statistics Isle of Man Cabinet Office, as reported by Manx Radio and iomtoday.co.im, Dec 2025. Figures are described by Statistics IoM as experimental and subject to revision.</p>
+    <h4>Wages in full, living-wage gap, gender pay gap, public/private split — corrected to primary source</h4>
+    <p>All figures on this page for median weekly pay (2007–2025), the below-living-wage series (Table 12: 2017, 2019–2025), the gender pay gap (average weekly 9.7%, median weekly 4.6%, average hourly 5.6%, median hourly -0.6%, all 2025), and public/private sector pay (£828/wk vs £720/wk median, 2025) are taken directly from the Isle of Man Earnings Survey Report 2025 (Statistics Isle of Man Cabinet Office, June 2026) and, for years before 2025, from that year's own Earnings Survey Report (2007–2024 individually). Median and average weekly pay for 1999–2008 are taken from the Isle of Man Digest of Economic and Social Statistics 2009 (Statistics IoM predecessor series, Tables 4.4 and 4.5) — the two sources overlap exactly for 2007–2008, confirming continuity — and Statistics IoM notes a 2012 methodology change means figures either side of it aren't perfectly comparable. This corrects two figures used in an earlier version of this page: the 2024 below-living-wage share is 20.1% (officially, not 21.1% as previously shown, which came from a secondary source), and the 2025 figure is confirmed at 27.4% rather than an unverified "27%". Note the Earnings Survey 2025 report itself cautions that a meaningful part of the 2024→2025 jump in the living-wage share reflects the Living Wage Foundation's recalibration of the benchmark itself, not purely a change in pay. Living wage rate itself: £12.01 (2023/24) → £13.05 (2024/25) → £13.74 (2025/26), per gov.im/Manx Radio reporting.</p>
+    <h4>Private rented sector quality regulation precedent</h4>
+    <p>Renters' Rights Act 2025 implementation roadmap (Awaab's Law extension, Section 21 abolition from 1 May 2026, Decent Homes Standard for private rented sector by 2035): GOV.UK implementation roadmap; House of Commons Library briefing CBP-10669.</p>
+    <h4>Self-build / community land trust precedent, and apprenticeship tie-in</h4>
+    <p>Community Land Trust Network; LILAC Mutual Home Ownership Society, Leeds; Ashley Vale self-build, Bristol — via mycommunity.org.uk and self-build.co.uk overviews. IoM construction skills shortage and falling apprenticeship uptake since the DESC scheme changes of April 2024: Construction Isle of Man, reported via iomtoday.co.im. IoM construction apprenticeship structure (trades covered, UCM day-release, 2–3 year duration, VTA support): constructioniom.im and desc.gov.im apprenticeship pages. UK fast-track apprenticeship precedent (Homebuilding Skills Hubs, 12–18 months vs standard 24–30, £600m/60,000-worker training investment): GOV.UK news releases. Greenwood Project / Wellbeck Road, Newcastle (Home Group, apprenticeship placements required of contractors): The Construction Index.</p>
+    <h4>Demographic cost — young people and young families</h4>
+    <p>IoM youth displacement study: "Displacement of Youth from the Isle of Man: The Role of House Price Inflation" (ResearchGate). 2021–2023 population/migration reconciliation (461 net vs 3,705 inward): Manx Radio reporting on Statistics IoM data. Median age and dependency ratio (59.3–59.7 per 100 working-age, 2075 projection of 87.7, 23% aged 65+): World Bank age-dependency indicator; Our World in Data population profile. School rolls (11,569 in 2020/21 to 11,079 in 2025/26; Reception 698 vs Year 11 995): smartisland.im schools data, Manx Technology Group. Jersey "brain drain" (under-40 population -5%, 2,690 aged 20-24 leaving 2017-2023, rents +87% since 2008, "terminal decline" warning): Nine by Five Media; Jersey Evening Post, 12 Aug 2025. Guernsey youth retention (less than half of 16-27s plan to stay, house price/rent levels, return-intention percentages): ITV News Channel, 6 Jun 2025.</p>
+  </div>
+
+  <footer>Working draft — Crown Dependencies Observatory · Housing affordability &amp; policy structure · compiled July 2026. Four-pillar framework and specific levers are proposals for discussion, not adopted government policy.
+  <div style="margin-top:.6rem">&copy; 2026 Coalfinch. Analysis, commentary and the four-pillar framework on this page are licensed for reuse with attribution to coalfinch.com. Underlying government statistics remain under the Open Government Licence and are cited to their original source above.</div>
+</footer>
+</div>
+
+<script>
+const COLS={house:'#f87171',iom:'#3b82f6'};
+function isLight(){return document.body.classList.contains('light');}
+// Official series, Housing Market Review 2025 (Statistics IoM), Appendix Four
+const AVG_RATIO={1989:7.24,1990:6.60,1991:6.05,1992:5.46,1993:5.20,1994:5.23,1995:5.10,1996:5.08,1997:5.24,1998:5.44,1999:5.99,
+  2000:7.00,2001:7.25,2002:7.70,2003:8.13,2004:8.62,2005:9.17,2006:8.52,2007:9.41,2008:9.72,2009:9.30,
+  2010:9.21,2011:8.96,2012:8.24,2013:7.97,2014:7.89,2015:7.54,2016:7.54,2017:7.14,2018:7.40,2019:7.37,
+  2020:7.62,2021:9.02,2022:8.57,2023:8.03,2024:7.88,2025:8.21};
+const MED_RATIO={1989:7.02,1990:6.07,1991:5.55,1992:5.26,1993:4.70,1994:5.04,1995:4.90,1996:4.68,1997:4.87,1998:5.11,1999:5.67,
+  2000:5.44,2001:5.97,2002:6.40,2003:7.32,2004:8.94,2005:9.45,2006:9.00,2007:9.68,2008:10.38,2009:9.69,
+  2010:9.75,2011:9.66,2012:9.00,2013:9.12,2014:8.72,2015:8.93,2016:8.78,2017:8.59,2018:8.37,2019:8.57,
+  2020:8.89,2021:10.04,2022:9.97,2023:9.04,2024:8.83,2025:9.09};
+const YOUTH_RATIO={2011:12.83,2012:11.72,2013:11.61,2014:11.36,2015:10.99,2016:9.90,2017:9.65,2018:9.17,
+  2019:9.68,2020:9.81,2021:10.84,2022:11.35,2023:10.76,2024:10.14,2025:10.05};
+
+let affordChart=null;
+function buildAffordChart(){
+  const ctx=document.getElementById('afford-chart').getContext('2d');
+  const yrs=Object.keys(MED_RATIO).map(Number);
+  const avgData=yrs.map(y=>AVG_RATIO[y]);
+  const medData=yrs.map(y=>MED_RATIO[y]);
+
+  const light=isLight();
+  const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)';
+  const tickCol=light?'#64748b':'#94a3b8';
+
+  if(affordChart)affordChart.destroy();
+  affordChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:yrs,
+      datasets:[
+        {label:'Median house price ÷ median earnings',data:medData,borderColor:COLS.house,backgroundColor:'transparent',
+          pointRadius:0,tension:.25,borderWidth:2},
+        {label:'Average house price ÷ average salary',data:avgData,borderColor:COLS.iom,backgroundColor:'transparent',
+          pointRadius:0,tension:.25,borderWidth:2},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:light?'#fff':'#1e293b',
+        titleColor:light?'#0f172a':'#e2e8f0',
+        bodyColor:light?'#64748b':'#94a3b8',
+        borderColor:light?'#cbd5e1':'#334155',borderWidth:1,
+        callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}×`}
+      }},
+      scales:{
+        x:{grid:{color:grid},ticks:{color:tickCol,font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:10}},
+        y:{grid:{color:grid},ticks:{color:tickCol,font:{size:10},callback:v=>v+'×'},
+          title:{display:true,text:'Ratio (×)',color:tickCol,font:{size:10}}}
+      }
+    }
+  });
+
+  document.getElementById('afford-legend').innerHTML=[
+    {c:COLS.house,lb:'Median house price ÷ median earnings'},
+    {c:COLS.iom,lb:'Average house price ÷ average salary'},
+  ].map(l=>`<div class="leg-item"><span class="leg-sw" style="background:${l.c}"></span>${l.lb}</div>`).join('');
+}
+buildAffordChart();
+
+let youthChart=null;
+function buildYouthChart(){
+  const el=document.getElementById('youth-chart');
+  if(!el)return;
+  const ctx=el.getContext('2d');
+  const light=isLight();
+  const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)';
+  const tickCol=light?'#64748b':'#94a3b8';
+  const yrs=Object.keys(YOUTH_RATIO).map(Number);
+  if(youthChart)youthChart.destroy();
+  youthChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:yrs,datasets:[{
+      label:'18–25 affordability ratio',data:yrs.map(y=>YOUTH_RATIO[y]),
+      borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,.12)',fill:true,
+      pointRadius:3,pointBackgroundColor:'#a78bfa',tension:.3,borderWidth:2
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e2e8f0',
+        bodyColor:light?'#64748b':'#94a3b8',borderColor:light?'#cbd5e1':'#334155',borderWidth:1,
+        callbacks:{label:ctx=>`${ctx.parsed.y}× median 18-25 salary`}
+      }},
+      scales:{
+        x:{grid:{display:false},ticks:{color:tickCol,font:{size:10}}},
+        y:{grid:{color:grid},ticks:{color:tickCol,font:{size:10},callback:v=>v+'×'},beginAtZero:true}
+      }
+    }
+  });
+}
+buildYouthChart();
+
+let lwChart=null;
+function buildLwChart(){
+  const el=document.getElementById('lw-chart');
+  if(!el)return;
+  const ctx=el.getContext('2d');
+  const light=isLight();
+  const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)';
+  const tickCol=light?'#64748b':'#94a3b8';
+  if(lwChart)lwChart.destroy();
+  // Official Table 12 series, Isle of Man Earnings Survey Report 2025. 2016 and 2018
+  // are genuinely not published by Statistics IoM (blank in the source table).
+  const lwLabels=['2017','2019','2020','2021','2022','2023','2024','2025'];
+  const lwData=[5.6,9.4,10.7,10.1,16.9,15.6,20.12,27.4];
+  lwChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:lwLabels,datasets:[{
+      label:'% of employees below IoM Living Wage',
+      data:lwData,
+      backgroundColor:lwData.map(v=>v>=25?'#dc2626':v>=15?'#f87171':'#fbbf24'),
+      borderRadius:4,maxBarThickness:56
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e2e8f0',
+        bodyColor:light?'#64748b':'#94a3b8',borderColor:light?'#cbd5e1':'#334155',borderWidth:1,
+        callbacks:{label:ctx=>`${ctx.parsed.y}% below living wage`}
+      }},
+      scales:{
+        x:{grid:{display:false},ticks:{color:tickCol,font:{size:10}}},
+        y:{grid:{color:grid},ticks:{color:tickCol,font:{size:10},callback:v=>v+'%'},beginAtZero:true,max:35}
+      }
+    }
+  });
+}
+buildLwChart();
+
+let wageChart=null;
+function buildWageChart(){
+  const el=document.getElementById('wage-chart');
+  if(!el)return;
+  const ctx=el.getContext('2d');
+  const light=isLight();
+  const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)';
+  const tickCol=light?'#64748b':'#94a3b8';
+  // Median gross weekly pay of full-time employees, £ nominal. 1999-2008: Isle of Man
+  // Digest of Economic and Social Statistics 2009 (Table 4.5, "All"). 2007-2025: each
+  // year's own Isle of Man Earnings Survey Report. The two sources overlap exactly in
+  // 2007-2008, confirming continuity.
+  const WAGE={1999:334.33,2000:335.75,2001:360.68,2002:375.81,2003:394.31,2004:419.50,
+    2005:418.27,2006:457.42,2007:480.69,2008:472.27,2009:496.25,2010:493.06,2011:497.81,
+    2012:512.00,2013:504.11,2014:546,2015:536,2016:537,2017:558,2018:573,2019:593,2020:611,
+    2021:613,2022:673,2023:732,2024:765,2025:755};
+  // Average (mean) gross weekly pay, Males and Females, All occupations, £ nominal.
+  // 1999-2008: Digest of Economic and Social Statistics 2009 (Table 4.4, "All").
+  // 2007-2025: each year's own Earnings Survey Report (Table 1/Table 2, or the
+  // "Comparison of Median and Average Weekly Earnings" table in earlier years).
+  const AVG_WAGE={1999:383.54,2000:393.00,2001:419.10,2002:441.34,2003:473.28,2004:484.73,
+    2005:489.26,2006:536.33,2007:551,2008:569,2009:572,2010:591,2011:601,2012:612,2013:620,
+    2014:624,2015:672,2016:685,2017:760,2018:724,2019:759,2020:788,2021:762,2022:868,
+    2023:902,2024:929,2025:920};
+  const yrs=Object.keys(WAGE).map(Number);
+  if(wageChart)wageChart.destroy();
+  wageChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:yrs,datasets:[
+      {label:'Median weekly pay (£, nominal)',data:yrs.map(y=>WAGE[y]),
+      borderColor:COLS.iom,backgroundColor:'rgba(59,130,246,.1)',fill:true,
+      pointRadius:yrs.map(y=>y===2025?5:0),pointBackgroundColor:'#dc2626',
+      tension:.25,borderWidth:2},
+      {label:'Average weekly pay (£, nominal)',data:yrs.map(y=>AVG_WAGE[y]),
+      borderColor:'#a78bfa',backgroundColor:'transparent',fill:false,
+      pointRadius:0,tension:.25,borderWidth:2,borderDash:[4,3]}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e2e8f0',
+        bodyColor:light?'#64748b':'#94a3b8',borderColor:light?'#cbd5e1':'#334155',borderWidth:1,
+        callbacks:{label:ctx=>`${ctx.dataset.label}: £${ctx.parsed.y}/week`}
+      }},
+      scales:{
+        x:{grid:{display:false},ticks:{color:tickCol,font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:10}},
+        y:{grid:{color:grid},ticks:{color:tickCol,font:{size:10},callback:v=>'£'+v},
+          title:{display:true,text:'£ per week (nominal)',color:tickCol,font:{size:10}}}
+      }
+    }
+  });
+  document.getElementById('wage-legend').innerHTML=[
+    {c:COLS.iom,lb:'Median weekly pay'},
+    {c:'#a78bfa',lb:'Average weekly pay'},
+  ].map(l=>`<div class="leg-item"><span class="leg-sw" style="background:${l.c}"></span>${l.lb}</div>`).join('');
+}
+buildWageChart();
+
+// --- Hover micrographs on ratio-cards ---------------------------------------
+function sparkSVG(vals,w,h){
+  const min=Math.min(...vals),max=Math.max(...vals),range=(max-min)||1;
+  const step=w/(vals.length-1);
+  const pts=vals.map((v,i)=>`${(i*step).toFixed(1)},${(h-((v-min)/range)*h).toFixed(1)}`).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+}
+function renderSparklines(){
+  const iomEl=document.getElementById('rc-iom-spark');
+  if(iomEl)iomEl.innerHTML=sparkSVG(Object.values(MED_RATIO),120,26)+'<div style="margin-top:3px">Median ratio, 1989–2025</div>';
+  document.querySelectorAll('.rc-spark-pop[data-spark-label]:not([id])').forEach(el=>{
+    el.innerHTML=`<div>${el.getAttribute('data-spark-label')}</div>`;
+  });
+}
+renderSparklines();
+
+let schoolChart=null;
+function buildSchoolChart(){
+  const el=document.getElementById('school-chart');
+  if(!el)return;
+  const ctx=el.getContext('2d');
+  const light=isLight();
+  const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)';
+  const tickCol=light?'#64748b':'#94a3b8';
+  if(schoolChart)schoolChart.destroy();
+  schoolChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:['Reception intake','Year 11 cohort'],datasets:[{
+      label:'Pupils',
+      data:[698,995],
+      backgroundColor:['#f87171','#3b82f6'],
+      borderRadius:4,maxBarThickness:90
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e2e8f0',
+        bodyColor:light?'#64748b':'#94a3b8',borderColor:light?'#cbd5e1':'#334155',borderWidth:1,
+        callbacks:{label:ctx=>`${ctx.parsed.y} pupils`}
+      }},
+      scales:{
+        x:{grid:{display:false},ticks:{color:tickCol,font:{size:10}}},
+        y:{grid:{color:grid},ticks:{color:tickCol,font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+}
+buildSchoolChart();
+
+const tbtn=document.getElementById('theme-btn');
+tbtn.onclick=()=>{
+  document.body.classList.toggle('light');
+  tbtn.textContent=document.body.classList.contains('light')?'Dark mode':'Light mode';
+  buildAffordChart();
+  buildYouthChart();
+  buildWageChart();
+  buildLwChart();
+  buildSchoolChart();
+};
+
+const gbtn=document.getElementById('gov-btn');
+const gbox=document.getElementById('gov-box');
+gbtn.onclick=()=>gbox.classList.toggle('visible');
+
+// --- Embedding support (Crown Dependencies Observatory shell) ---------------
+// Hide the in-page theme toggle when this page is loaded inside the
+// Observatory's iframe wrapper — the shell already has its own toggle.
+if(window.self!==window.top){ tbtn.style.display='none'; }
+
+function sendHeightToParent(){
+  try{ parent.postMessage({type:'resize', height: document.documentElement.scrollHeight}, '*'); }catch(e){}
+}
+window.addEventListener('load', ()=>setTimeout(sendHeightToParent, 60));
+window.addEventListener('resize', sendHeightToParent);
+if(window.ResizeObserver){ new ResizeObserver(sendHeightToParent).observe(document.body); }
+else{ setInterval(sendHeightToParent, 800); }
+
+// Follow the shell's theme toggle instead of only the in-page button.
+window.addEventListener('message', (e)=>{
+  if(!e.data || e.data.type!=='setTheme') return;
+  const wantLight = e.data.theme==='light';
+  if(wantLight!==isLight()){
+    document.body.classList.toggle('light');
+    tbtn.textContent = isLight() ? 'Dark mode' : 'Light mode';
+    buildAffordChart(); buildYouthChart(); buildWageChart(); buildLwChart(); buildSchoolChart();
+  }
+  sendHeightToParent();
+});
+</script>
+</body>
+</html>
