@@ -144,7 +144,9 @@ input[type="range"]::-moz-range-thumb {
 
 .scene { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 44px; align-items: start; }
 .g-col {
-  position: sticky; top: var(--hh, 104px); height: calc(100vh - var(--hh, 104px));
+  position: sticky; top: var(--hh, 104px);
+  height: calc(100vh - var(--hh, 104px));
+  height: calc(100dvh - var(--hh, 104px));
   display: flex; flex-direction: column; justify-content: center; min-width: 0;
 }
 .steps { padding: 4vh 0 10vh; }
@@ -248,19 +250,61 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 .page-footer a { color: var(--muted2); text-decoration: none; }
 .page-footer a:hover { color: var(--text); }
 
-/* ── Mobile portrait: sticky graphics become inline ──────────────────────── */
+/* ── Mobile (≤760px, both orientations): shared adjustments ───────────────── */
 @media (max-width: 760px) {
   .wrap { padding: 0 16px; }
-  .scene { display: flex; flex-direction: column-reverse; }
-  .g-col { position: static; height: auto; margin-bottom: 8px; }
-  .step { min-height: 0; margin: 34px 0; }
   .step-inner { font-size: 14px; }
-  .act-head { padding-top: 9vh; }
-  .act { padding-top: 4vh; }
-  .act .act-head { position: static; border-bottom: none; background: none; padding: 10px 0 6px; }
   .hero { min-height: 0; padding-top: 48px; }
   .sim-grid, .sim-charts { grid-template-columns: 1fr; }
   .sim-readouts, .mini-stats { grid-template-columns: 1fr 1fr; }
+  /* touch-friendly sliders (Act 6 stacks and scrolls normally — never pinned) */
+  input[type="range"] { height: 5px; }
+  input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
+  input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; }
+}
+
+/* ── Mobile portrait: first-class pinned layout ─────────────────────────────
+   Compact one-line act title pinned at top; graphic pinned directly beneath;
+   the pinned stack is capped at ~55% of the viewport (dvh with vh fallback,
+   so address-bar collapse doesn't break the hold); step text scrolls in the
+   space underneath and drives the graphic exactly as on desktop. */
+@media (max-width: 760px) and (orientation: portrait) {
+  .act { padding-top: 6vh; }
+  .act .act-head {
+    position: sticky; top: 0; z-index: 7;
+    background: var(--bg); padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .act .act-head .eyebrow, .act .act-head .lede { display: none; }
+  .act .act-head h2 {
+    font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .scene { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .g-col {
+    grid-row: 1;
+    position: sticky; top: var(--hh, 36px); z-index: 5;
+    background: var(--bg);
+    height: auto;
+    max-height: calc(55vh - var(--hh, 36px));
+    max-height: calc(55dvh - var(--hh, 36px));
+    overflow: hidden;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+  }
+  .steps { grid-row: 2; padding: 2vh 0 8vh; }
+  .step { min-height: 46vh; min-height: 46dvh; margin: 0; display: flex; align-items: center; }
+  .step:last-child { min-height: 40vh; min-height: 40dvh; }
+  /* compact chart chrome at this size */
+  .g-col .fig-panel { padding: 8px 10px 6px; border-radius: 8px; }
+  .g-col .fig-title { font-size: 11px; margin-bottom: 0; }
+  .g-col .fig-sub, .g-col .fig-src { display: none; }
+  .g-col .legend { gap: 8px; font-size: 10px; margin-bottom: 4px; }
+  .g-col .mini-stats { display: none; }
+  /* data-table toggles are relocated below the steps by script; hide any
+     stragglers so the pinned stack stays compact */
+  .g-col details.tbl { display: none; }
+  /* relocated tables auto-place into rows below the steps */
+  .scene > details.tbl { margin-bottom: 6px; }
 }
 
 /* ── Small landscape (phone rotated): desktop pinned layout, scaled down ──── */
@@ -276,23 +320,6 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
   .step { min-height: 92vh; }
   .step-inner { font-size: 13px; }
 }
-
-/* ── Rotate prompt (portrait phones): prominent, non-blocking, dismissible ── */
-#rotate-tip {
-  position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 40;
-  display: none; align-items: flex-start; gap: 10px;
-  background: var(--surface); border: 1px solid var(--border2);
-  border-left: 3px solid var(--blue); border-radius: 10px;
-  padding: 12px 14px; font-size: 13px; color: var(--muted2); line-height: 1.6;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.45);
-}
-#rotate-tip.show { display: flex; }
-#rotate-tip strong { color: var(--text); }
-#rotate-tip button {
-  margin-left: auto; flex-shrink: 0; background: none; border: none;
-  color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 2px 4px;
-}
-#rotate-tip button:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -617,11 +644,6 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 </footer>
 
 </div><!-- /wrap -->
-
-<div id="rotate-tip" role="status">
-  <span><strong>This story is best read widescreen</strong> — rotate your phone.</span>
-  <button type="button" aria-label="Dismiss">&times;</button>
-</div>
 
 <div id="tip" role="status" aria-hidden="true"></div>
 
@@ -1226,9 +1248,20 @@ function setActive(step) {
   const h = HANDLERS[act];
   if (h) h(idx);
 }
+/* Portrait phones pin title + graphic at the top, so the reading zone is the
+   region BELOW the pinned stack. The sync line is the midpoint of that zone;
+   on desktop (graphic beside the text) it is the full-viewport midline. */
+const MQ_PORTRAIT = window.matchMedia('(max-width: 760px) and (orientation: portrait)');
+function syncLineFor(sc) {
+  if (!MQ_PORTRAIT.matches) return window.innerHeight / 2;
+  const g = sc.el.querySelector('.g-col');
+  let gb = g ? g.getBoundingClientRect().bottom : 0;
+  gb = Math.min(Math.max(gb, 0), window.innerHeight);
+  return (gb + window.innerHeight) / 2;
+}
 function syncSteps() {
-  const mid = window.innerHeight / 2;
   SCENES.forEach(sc => {
+    const mid = syncLineFor(sc);
     const r = sc.el.getBoundingClientRect();
     const act = sc.steps[0].dataset.act;
     if (r.top <= mid && r.bottom >= mid) {
@@ -1269,32 +1302,29 @@ function measureHeads() {
     if (h) a.style.setProperty('--hh', Math.ceil(h.getBoundingClientRect().height) + 'px');
   });
 }
-measureHeads();
-window.addEventListener('resize', measureHeads);
-setTimeout(measureHeads, 500);
 
-/* rotate prompt: portrait phones only; shown once per visit (in-memory flag,
-   no localStorage); dismissible; never blocks reading */
-(function () {
-  const tip = document.getElementById('rotate-tip');
-  let done = false;   // set on dismiss, or once the prompt has had its showing
-  function evalTip() {
-    const portrait = window.matchMedia('(orientation: portrait)').matches;
-    const narrow = window.innerWidth <= 760;
-    if (portrait && narrow && !done) {
-      tip.classList.add('show');
-    } else {
-      if (tip.classList.contains('show')) done = true;  // counted as shown once
-      tip.classList.remove('show');
-    }
-  }
-  tip.querySelector('button').addEventListener('click', () => {
-    done = true; tip.classList.remove('show');
+/* On portrait phones the pinned stack must stay compact, so each figure's
+   data-table toggle moves out of the pinned graphic to below the steps
+   (and back into its figure on desktop/landscape). */
+function relocateTables() {
+  const portrait = MQ_PORTRAIT.matches;
+  SCENES.forEach(sc => {
+    sc.el.querySelectorAll('details.tbl').forEach(t => {
+      if (!t.__home) t.__home = t.parentElement;
+      if (portrait) {
+        if (t.parentElement !== sc.el) sc.el.appendChild(t);
+      } else if (t.parentElement !== t.__home) {
+        t.__home.appendChild(t);
+      }
+    });
   });
-  window.addEventListener('resize', evalTip);
-  window.addEventListener('orientationchange', evalTip);
-  evalTip();
-}());
+}
+
+function layoutRefresh() { measureHeads(); relocateTables(); queueSync(); }
+layoutRefresh();
+window.addEventListener('resize', layoutRefresh);
+if (MQ_PORTRAIT.addEventListener) MQ_PORTRAIT.addEventListener('change', layoutRefresh);
+setTimeout(layoutRefresh, 500);
 
 /* hero draw-in on load */
 setTimeout(() => heroChart.revealTo(DATA.idx.years.length - 1, RM ? 0 : 2200), 350);
