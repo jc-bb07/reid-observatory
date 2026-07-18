@@ -129,8 +129,24 @@ input[type="range"]::-moz-range-thumb {
 .act-head h2 { font-size: clamp(24px, 3.2vw, 34px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
 .act-head .lede { margin-top: 12px; font-size: 15px; color: var(--muted2); line-height: 1.7; }
 
+/* Within an act, the title pins to the top of the screen; the graphic pins
+   below it (offset by the measured header height --hh); the text scrolls past. */
+.act { padding-top: 12vh; }
+.act .act-head {
+  position: sticky; top: 0; z-index: 6;
+  background: var(--bg);            /* solid: scrolling text never shows through */
+  padding: 12px 0 10px; max-width: none;
+  border-bottom: 1px solid var(--border2);
+}
+.act .act-head .eyebrow { margin-bottom: 4px; }
+.act .act-head h2 { font-size: clamp(19px, 2.4vw, 25px); }
+.act .act-head .lede { margin-top: 4px; font-size: 13px; max-width: 660px; }
+
 .scene { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 44px; align-items: start; }
-.g-col { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.g-col {
+  position: sticky; top: var(--hh, 104px); height: calc(100vh - var(--hh, 104px));
+  display: flex; flex-direction: column; justify-content: center; min-width: 0;
+}
 .steps { padding: 4vh 0 10vh; }
 .step { min-height: 78vh; display: flex; align-items: center; }
 .step:last-child { min-height: 60vh; }
@@ -232,7 +248,7 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 .page-footer a { color: var(--muted2); text-decoration: none; }
 .page-footer a:hover { color: var(--text); }
 
-/* ── Mobile: sticky graphics become inline ───────────────────────────────── */
+/* ── Mobile portrait: sticky graphics become inline ──────────────────────── */
 @media (max-width: 760px) {
   .wrap { padding: 0 16px; }
   .scene { display: flex; flex-direction: column-reverse; }
@@ -240,10 +256,43 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
   .step { min-height: 0; margin: 34px 0; }
   .step-inner { font-size: 14px; }
   .act-head { padding-top: 9vh; }
+  .act { padding-top: 4vh; }
+  .act .act-head { position: static; border-bottom: none; background: none; padding: 10px 0 6px; }
   .hero { min-height: 0; padding-top: 48px; }
   .sim-grid, .sim-charts { grid-template-columns: 1fr; }
   .sim-readouts, .mini-stats { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Small landscape (phone rotated): desktop pinned layout, scaled down ──── */
+@media (min-width: 761px) and (max-height: 520px) {
+  .act .act-head { padding: 7px 0 6px; }
+  .act .act-head h2 { font-size: 16px; }
+  .act .act-head .lede, .act .act-head .eyebrow { display: none; }
+  .scene { gap: 22px; }
+  .fig-panel { padding: 8px 10px 6px; }
+  .fig-sub, .fig-src { display: none; }
+  .g-col details.tbl { display: none; }
+  .mini-stats { display: none; }
+  .step { min-height: 92vh; }
+  .step-inner { font-size: 13px; }
+}
+
+/* ── Rotate prompt (portrait phones): prominent, non-blocking, dismissible ── */
+#rotate-tip {
+  position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 40;
+  display: none; align-items: flex-start; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue); border-radius: 10px;
+  padding: 12px 14px; font-size: 13px; color: var(--muted2); line-height: 1.6;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.45);
+}
+#rotate-tip.show { display: flex; }
+#rotate-tip strong { color: var(--text); }
+#rotate-tip button {
+  margin-left: auto; flex-shrink: 0; background: none; border: none;
+  color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 2px 4px;
+}
+#rotate-tip button:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -268,12 +317,13 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 </header>
 
 <!-- ═══════════════════════════ ACT 1 ═══════════════════════════ -->
-<div class="act-head">
+<section class="act" id="act1">
+<header class="act-head">
   <div class="eyebrow">Act 1</div>
   <h2>The pie that wouldn't grow</h2>
   <p class="lede">Two economies. The same weather. Very different voyages.</p>
-</div>
-<section class="scene" id="act1">
+</header>
+<div class="scene">
   <div class="steps">
     <div class="step" data-act="a1" data-idx="0"><div class="step-inner">
       <strong>1998.</strong> Both economies are set to 100. Real output, with inflation stripped out. One line for the United Kingdom. One for the Isle of Man.
@@ -302,15 +352,17 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     <div class="fig-src">Source: Isle of Man national income accounts; ONS. Real GVA, 1998 = 100.</div>
     <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a1-tbl"></div></details>
   </figure></div>
+</div>
 </section>
 
 <!-- ═══════════════════════════ ACT 2 ═══════════════════════════ -->
-<div class="act-head">
+<section class="act" id="act2">
+<header class="act-head">
   <div class="eyebrow">Act 2</div>
   <h2>The churn</h2>
   <p class="lede">Inside the flat line of Act 1, everything was moving.</p>
-</div>
-<section class="scene" id="act2">
+</header>
+<div class="scene">
   <div class="steps">
     <div class="step" data-act="a2" data-idx="0"><div class="step-inner">
       <strong>1997.</strong> Finance is two-fifths of the economy — banking, insurance, funds. Everything else shares the rest.
@@ -336,15 +388,17 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     <div class="fig-src">Source: Isle of Man national income accounts, sector shares of nominal GVA.</div>
     <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a2-tbl"></div></details>
   </figure></div>
+</div>
 </section>
 
 <!-- ═══════════════════════════ ACT 3 ═══════════════════════════ -->
-<div class="act-head">
+<section class="act" id="act3">
+<header class="act-head">
   <div class="eyebrow">Act 3</div>
   <h2>A fixed pool of people</h2>
   <p class="lede">New sectors need workers. The Island stopped producing them.</p>
-</div>
-<section class="scene" id="act3">
+</header>
+<div class="scene">
   <div class="steps">
     <div class="step" data-act="a3" data-idx="0"><div class="step-inner">
       <strong>1951:</strong> 54,024 people. The Island then grew for sixty years — through the tourist trade, then the finance boom, then everything after. <strong>84,497</strong> by 2011.
@@ -356,12 +410,16 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       Deaths have exceeded births every year since <strong>2017</strong>. In 2024 natural change was −351 and net migration +651. Every extra worker must now be imported, housed, and kept.
     </div></div>
     <div class="step" data-act="a3" data-idx="3"><div class="step-inner">
-      So where did each new flavour find its workers? <strong>In the old ones.</strong> Between the 2001 and 2021 censuses: retail lost 1,314 jobs. Manufacturing lost 1,135. Farming and fishing lost 1,027. Hospitality lost 814. Finance itself lost 1,507.
+      So where did each new flavour find its workers? Not by retraining the old ones. <strong>The Island swaps people with the UK.</strong> Each new sector imports its specialists: older, experienced, mid-career. Meanwhile, between the 2001 and 2021 censuses: retail lost 1,314 jobs. Manufacturing lost 1,135. Farming and fishing lost 1,027. Hospitality lost 814. Finance itself lost 1,507.
     </div></div>
     <div class="step" data-act="a3" data-idx="4"><div class="step-inner">
-      One employer grew: <strong>government</strong>. Health, education and administration added 2,643 jobs. And the biggest flavour barely hires — e-gaming was about a fifth of the economy on <strong>1,086 jobs</strong>, three per cent of the workforce.
+      The workers those sectors no longer needed — disproportionately younger, local people — left. A flat population is not stillness. It is churn at equilibrium: specialists in, school-leavers out.
+      <p class="keyline" style="margin-top:12px">On a full island, every migrant in is a migrant out.</p>
+    </div></div>
+    <div class="step" data-act="a3" data-idx="5"><div class="step-inner">
+      One employer grew: <strong>government</strong>. Health, education and administration added 2,643 jobs. And the biggest flavour barely hires. By the 2021 census — past the sector's peak share, which touched 30 per cent in 2017 — e-gaming was about a fifth of the economy on <strong>1,086 jobs</strong>, three per cent of the workforce.
       <details class="aside"><summary>For the technically minded</summary>
-      Employment is from the census of population (residents in work, self-classified by industry), so it is a different lens from the GVA accounts. Total employment: 32,293 in 2001, 31,719 in 2021 — a twenty-year round trip to slightly below where it began. E-gaming employment counts licence-holder staff; its £801m of GVA (2023) includes offshore margins.</details>
+      Employment is from the census of population (residents in work, self-classified by industry), so it is a different lens from the GVA accounts. Total employment: 32,293 in 2001, 31,719 in 2021 — a twenty-year round trip. Note that a census measures stocks, not flows: it shows where jobs stood, not the gross traffic in between, so the two-way churn cannot be read from it directly. The churn mechanism — specialists in, displaced younger workers out — is the reading of the 2010/11 systems-dynamics work, consistent with these stocks. One honest limitation: the simulator in Act 6 carries net migration only; it cannot represent the two-way flow. E-gaming employment counts licence-holder staff; its £801m of GVA (2023) includes offshore margins.</details>
     </div></div>
   </div>
   <div class="g-col">
@@ -382,15 +440,17 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a3-tblB"></div></details>
     </figure>
   </div>
+</div>
 </section>
 
 <!-- ═══════════════════════════ ACT 4 ═══════════════════════════ -->
-<div class="act-head">
+<section class="act" id="act4">
+<header class="act-head">
   <div class="eyebrow">Act 4</div>
   <h2>The engine in the basement</h2>
   <p class="lede">If the economy didn't grow, what paid for the government that did?</p>
-</div>
-<section class="scene" id="act4">
+</header>
+<div class="scene">
   <div class="steps">
     <div class="step" data-act="a4" data-idx="0"><div class="step-inner">
       The Island does not keep its own VAT takings directly. Under a revenue-sharing agreement with the UK it draws a share of a common pool. In 1998 that share brought in <strong>£156m</strong>. By 2007: <strong>£430m</strong>. It nearly trebled in nine years — while the economy, in real terms, went nowhere.
@@ -418,15 +478,17 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     <div class="fig-src">Source: Isle of Man Treasury accounts, Customs &amp; Excise receipts.</div>
     <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a4-tbl"></div></details>
   </figure></div>
+</div>
 </section>
 
 <!-- ═══════════════════════════ ACT 5 ═══════════════════════════ -->
-<div class="act-head">
+<section class="act" id="act5">
+<header class="act-head">
   <div class="eyebrow">Act 5</div>
   <h2>Three claimants, one island</h2>
   <p class="lede">Put the three stories on one axis and the shape of the problem appears.</p>
-</div>
-<section class="scene" id="act5">
+</header>
+<div class="scene">
   <div class="steps">
     <div class="step" data-act="a5" data-idx="0"><div class="step-inner">
       Take 2005 as 100. <strong>People:</strong> plus seven per cent in twenty years. <strong>Output:</strong> plus twelve. Two nearly flat lines.
@@ -454,6 +516,7 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     <div class="fig-src">Source: Isle of Man house price statistics (median transaction price); national income accounts; census reports. All indexed, 2005 = 100.</div>
     <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a5-tbl"></div></details>
   </figure></div>
+</div>
 </section>
 
 <!-- ═══════════════════════════ ACT 6 · SIMULATOR ═══════════════════════════ -->
@@ -487,6 +550,11 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
         <input type="range" id="sl-mig" min="0" max="200" value="100" step="10" aria-describedby="hint-mig"/>
         <div class="slider-hint" id="hint-mig">How freely workers move in response to jobs. 100% matches calibrated history; 0% closes the door.</div>
       </div>
+      <div class="slider-block">
+        <div class="slider-head"><label for="sl-world">World growth</label><output id="out-world">1.4%/yr</output></div>
+        <input type="range" id="sl-world" min="0" max="3" value="1.4" step="0.1" aria-describedby="hint-world"/>
+        <div class="slider-hint" id="hint-world">The model's demand input is UK growth — the observed path through history. This sets its future from 2025. 1.4%/yr is the baseline assumption.</div>
+      </div>
       <button class="pill" id="sim-reset" type="button">Reset to baseline</button>
       <div class="sim-caveat">A model, not a forecast. It is the story above made mechanical. Use it to compare policies, not to predict 2040. Controls apply from 2025; history to 2024 is fixed.</div>
     </div>
@@ -511,10 +579,17 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
           <div id="sim-hp"></div>
           <div class="fig-src">Observed: Isle of Man house price statistics to 2025.</div>
         </div>
+        <div class="fig-panel" style="grid-column:1 / -1">
+          <div class="fig-title">Sectors under your run</div>
+          <div class="fig-sub">Real GVA by sector, £ million, 2022 prices, 1998–2040</div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--blue)"></i>Finance</span><span class="leg-item"><i class="leg-sw" style="background:var(--purple)"></i>E-gaming</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>Existing economy</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Public sector</span></div>
+          <div id="sim-sec"></div>
+          <div class="fig-src">Model output; sector definitions as in Act 2. Public sector is GVA of government services.</div>
+        </div>
       </div>
       <details class="tbl" style="margin-top:12px"><summary>Data table — your run v baseline</summary><div class="tbl-scroll" id="sim-tbl"></div></details>
       <details class="aside"><summary>For the technically minded</summary>
-      The simulator is a line-for-line JavaScript port of the calibrated pass-2 systems-dynamics model (annual deterministic loop, 1998–2040): sectors for finance, e-gaming and the existing economy; migration responding to vacancy pressure; a relative-cost index that crowds out the existing sector; house prices driven by the people-to-dwellings ratio; and the customs formula in its three historical regimes. Port parity against the Python original is exact to floating-point rounding (see source comment). Beyond 2026, external inputs are held steady: UK growth 1.4%/yr, inflation 2%, interest rates 3.5%.</details>
+      The simulator is a line-for-line JavaScript port of the calibrated pass-2 systems-dynamics model (annual deterministic loop, 1998–2040): sectors for finance, e-gaming and the existing economy; migration responding to vacancy pressure; a relative-cost index that crowds out the existing sector; house prices driven by the people-to-dwellings ratio; and the customs formula in its three historical regimes. Port parity against the Python original is exact to floating-point rounding (see source comment). Beyond 2026, external inputs are held steady: UK growth 1.4%/yr, inflation 2%, interest rates 3.5%. The world-growth lever replaces the UK real-growth input from 2025 onward (history keeps the observed path) and also scales the e-gaming global demand ceiling by 15 per cent per percentage point of growth above or below the 1.4% baseline; at its default the lever reproduces the baseline path exactly.</details>
     </div>
   </div>
 </section>
@@ -542,6 +617,11 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 </footer>
 
 </div><!-- /wrap -->
+
+<div id="rotate-tip" role="status">
+  <span><strong>This story is best read widescreen</strong> — rotate your phone.</span>
+  <button type="button" aria-label="Dismiss">&times;</button>
+</div>
 
 <div id="tip" role="status" aria-hidden="true"></div>
 
@@ -1107,7 +1187,9 @@ const HANDLERS = {
       a3pop.revealTo(stops[i]);
       a3pop.showAnns([[], ['peak', 'flat'], ['peak', 'flat', 'nat']][i]);
     } else {
-      a3db.revealRows(i === 3 ? 5 : 10);
+      // 3: the declines (imported specialists displace); 4: churn (same rows,
+      // the reader dwells on the asymmetry); 5: the full picture incl. public
+      a3db.revealRows(i <= 4 ? 5 : 10);
     }
   },
   a4(i) {
@@ -1179,6 +1261,40 @@ function queueSync() {
 window.addEventListener('scroll', queueSync, {passive: true});
 window.addEventListener('resize', queueSync);
 syncSteps();
+
+/* measure each act's pinned header so the graphic pins directly below it */
+function measureHeads() {
+  document.querySelectorAll('.act').forEach(a => {
+    const h = a.querySelector('.act-head');
+    if (h) a.style.setProperty('--hh', Math.ceil(h.getBoundingClientRect().height) + 'px');
+  });
+}
+measureHeads();
+window.addEventListener('resize', measureHeads);
+setTimeout(measureHeads, 500);
+
+/* rotate prompt: portrait phones only; shown once per visit (in-memory flag,
+   no localStorage); dismissible; never blocks reading */
+(function () {
+  const tip = document.getElementById('rotate-tip');
+  let done = false;   // set on dismiss, or once the prompt has had its showing
+  function evalTip() {
+    const portrait = window.matchMedia('(orientation: portrait)').matches;
+    const narrow = window.innerWidth <= 760;
+    if (portrait && narrow && !done) {
+      tip.classList.add('show');
+    } else {
+      if (tip.classList.contains('show')) done = true;  // counted as shown once
+      tip.classList.remove('show');
+    }
+  }
+  tip.querySelector('button').addEventListener('click', () => {
+    done = true; tip.classList.remove('show');
+  });
+  window.addEventListener('resize', evalTip);
+  window.addEventListener('orientationchange', evalTip);
+  evalTip();
+}());
 
 /* hero draw-in on load */
 setTimeout(() => heroChart.revealTo(DATA.idx.years.length - 1, RM ? 0 : 2200), 350);
@@ -1281,6 +1397,11 @@ const MODEL = (function () {
     const pr = opts.promo || PROMO_EG;
     const hc = opts.hireCap || new Array(N).fill(f.hire_cap);
     const mm = opts.migMult || new Array(N).fill(1);
+    // World-growth lever: %/yr replacing the UK real-growth input from 2025.
+    // null = the baseline path (so the default run is bit-identical to the
+    // pre-lever model). It also scales the e-gaming global demand ceiling by
+    // 15% per percentage point of growth above or below the 1.4% baseline.
+    const wg = (opts.worldG == null) ? null : opts.worldG;
 
     let Pp = f.P0, H = f.H0, Lg = f.Lg0;
     let Fc = f.F_OUT0, EG = p.EG0, X = f.XEG0 - p.EG0;
@@ -1291,7 +1412,8 @@ const MODEL = (function () {
     const out = {gva_index:new Array(N), gva_real:new Array(N), customs:new Array(N),
       population:new Array(N), house_price:new Array(N), public_emp:new Array(N),
       employment:new Array(N), reserves:new Array(N), fin_index:new Array(N),
-      eg_share:new Array(N), W:new Array(N)};
+      eg_share:new Array(N), W:new Array(N), F:new Array(N), EG:new Array(N),
+      X:new Array(N), pub:new Array(N)};
     const nom_hist = [];
 
     for (let i = 0; i < N; i++) {
@@ -1341,6 +1463,8 @@ const MODEL = (function () {
       out.house_price[i] = HP; out.public_emp[i] = Lg; out.employment[i] = LD;
       out.reserves[i] = R; out.fin_index[i] = 100 * F_out / f.F_OUT0;
       out.eg_share[i] = 100 * nom_eg / nom_gva; out.W[i] = W;
+      out.F[i] = F_out; out.EG[i] = EG_out; out.X[i] = X_out;
+      out.pub[i] = f.gov_prod * Lg;
 
       const M = clip(mm[i] * (p.m0 + p.m1 * v) - p.m2 * (W - 1), -2500, 2500);
       Pp = Math.max(Pp + M + NAT_CHANGE[i], 1000);
@@ -1351,10 +1475,13 @@ const MODEL = (function () {
       HP = hp_new;
       W = clip(W * (1 + p.w1 * v + p.w2 * Math.max(0, gr_real) - p.conv * (W - 1)), 0.6, 2.5);
       Fc = Math.max(Fc * (1 + p.g_f0 + p.b_uk * G_UKF[i] - p.s_f * (W - 1)), 1);
-      const dEG = pr[i] * p.g_eg * EG * Math.max(0, 1 - EG / p.EG_max)
+      const lever = (wg != null && y >= 2025);
+      const guk = lever ? wg / 100 : G_UK[i];
+      const egmax = lever ? p.EG_max * (1 + 0.15 * (wg - 1.4)) : p.EG_max;
+      const dEG = pr[i] * p.g_eg * EG * Math.max(0, 1 - EG / egmax)
         - p.decay_eg * EG - p.cpen_eg * (W - 1) * EG;
       EG = Math.max(EG + dEG, 1);
-      X = Math.max(X * (1 + G_UK[i] - p.s_exposure * (W - 1)), 1);
+      X = Math.max(X * (1 + guk - p.s_exposure * (W - 1)), 1);
       promo_s = promo_s + (pr[i] - promo_s) / p.tau_pr;
       const gap = p.alpha * rev + draw - S;
       const dS = gap > 0 ? gap / f.tau_S : Math.max(gap / 8, -p.r_down * S);
@@ -1377,13 +1504,15 @@ const MODEL = (function () {
     promo: document.getElementById('sl-promo'),
     hire: document.getElementById('sl-hire'),
     house: document.getElementById('sl-house'),
-    mig: document.getElementById('sl-mig')
+    mig: document.getElementById('sl-mig'),
+    world: document.getElementById('sl-world')
   };
   const outs = {
     promo: document.getElementById('out-promo'),
     hire: document.getElementById('out-hire'),
     house: document.getElementById('out-house'),
-    mig: document.getElementById('out-mig')
+    mig: document.getElementById('out-mig'),
+    world: document.getElementById('out-world')
   };
 
   const obsGva = YEARS.map(y => { const i = DATA.idx.years.indexOf(y); return i < 0 ? null : DATA.idx.iom[i]; });
@@ -1412,24 +1541,44 @@ const MODEL = (function () {
     ]
   });
 
+  const secChart = LineChart(document.getElementById('sim-sec'), {
+    w: 720, h: 300, aria: 'Sector real GVA under your run, 1998 to 2040: finance, e-gaming, existing economy and public sector',
+    years: YEARS, yDom: [0, 3000], yTicks: [0, 1000, 2000, 3000],
+    xTicks: [1998, 2005, 2012, 2019, 2026, 2033, 2040],
+    yLabel: '£m (2022 prices)', yFmt: v => fmtN(v),
+    pad: {r:128, l:48}, startRevealed: true,
+    series: [
+      {id:'F', name:'Finance', color:'var(--blue)', values:baseline.F.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'X', name:'Existing', color:'var(--uk)', values:baseline.X.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'EG', name:'E-gaming', color:'var(--purple)', values:baseline.EG.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'pub', name:'Public', color:'var(--green)', values:baseline.pub.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'}
+    ]
+  });
+
   const i40 = MODEL.YI[2040];
   function run() {
     const promo = +sl.promo.value / 100, hire = +sl.hire.value / 100,
-          house = +sl.house.value / 100, mig = +sl.mig.value / 100;
+          house = +sl.house.value / 100, mig = +sl.mig.value / 100,
+          world = +sl.world.value;
     outs.promo.textContent = sl.promo.value + '%';
     outs.hire.textContent = sl.hire.value + '%';
     outs.house.textContent = sl.house.value + '%';
     outs.mig.textContent = sl.mig.value + '%';
+    outs.world.textContent = world.toFixed(1) + '%/yr';
 
     const pr = MODEL.PROMO_EG.slice(), cm = new Array(N).fill(1),
           hc = new Array(N).fill(0.05), mm = new Array(N).fill(1);
     for (let i = 0; i < N; i++) if (YEARS[i] >= MODEL.LEVER_FROM) {
       pr[i] = promo; cm[i] = house; hc[i] = 0.05 * (1 - hire); mm[i] = mig;
     }
-    const s = MODEL.sim({promo:pr, cm:cm, hireCap:hc, migMult:mm});
+    // world lever at its 1.4% default = the baseline path (bit-identical run)
+    const s = MODEL.sim({promo:pr, cm:cm, hireCap:hc, migMult:mm,
+                         worldG: world === 1.4 ? null : world});
 
     gvaChart.setValues('you', s.gva_index);
     hpChart.setValues('you', s.house_price.map(v => v / 1000));
+    secChart.setValues('F', s.F); secChart.setValues('X', s.X);
+    secChart.setValues('EG', s.EG); secChart.setValues('pub', s.pub);
 
     document.getElementById('ro-gva').textContent = s.gva_index[i40].toFixed(0);
     document.getElementById('ro-gva-sub').textContent = 'baseline ' + baseline.gva_index[i40].toFixed(0) + ' · 1998 = 100';
@@ -1438,12 +1587,13 @@ const MODEL = (function () {
     document.getElementById('ro-hp').textContent = '£' + fmtN(s.house_price[i40] / 1000) + 'k';
     document.getElementById('ro-hp-sub').textContent = 'baseline £' + fmtN(baseline.house_price[i40] / 1000) + 'k';
 
-    fillTable('sim-tbl', ['Year', 'Output (yours)', 'Output (base)', 'Population (yours)', 'Population (base)', 'House £k (yours)', 'House £k (base)'],
+    fillTable('sim-tbl', ['Year', 'Output (yours)', 'Output (base)', 'Population (yours)', 'Population (base)', 'House £k (yours)', 'House £k (base)', 'Finance £m', 'E-gaming £m', 'Existing £m', 'Public £m'],
       [2025, 2030, 2035, 2040].map(y => {
         const i = MODEL.YI[y];
         return [y, s.gva_index[i].toFixed(1), baseline.gva_index[i].toFixed(1),
           fmtN(s.population[i]), fmtN(baseline.population[i]),
-          fmtN(s.house_price[i] / 1000), fmtN(baseline.house_price[i] / 1000)];
+          fmtN(s.house_price[i] / 1000), fmtN(baseline.house_price[i] / 1000),
+          fmtN(s.F[i]), fmtN(s.EG[i]), fmtN(s.X[i]), fmtN(s.pub[i])];
       }));
   }
 
@@ -1452,6 +1602,7 @@ const MODEL = (function () {
   Object.keys(sl).forEach(k => sl[k].addEventListener('input', queueRun));
   document.getElementById('sim-reset').addEventListener('click', () => {
     sl.promo.value = 25; sl.hire.value = 0; sl.house.value = 100; sl.mig.value = 100;
+    sl.world.value = 1.4;
     run();
   });
   run();

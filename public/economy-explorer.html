@@ -995,7 +995,7 @@ body.light .bplay { color:#ffffff; }
 
   <div class="section" style="margin-bottom:28px">
     <h1>Economy Explorer — Crown Dependencies</h1>
-    <p style="margin-bottom:14px;max-width:none">How much the Isle of Man, Jersey and Guernsey actually produce, who produces it, and how that mix has shifted since the 1990s — set against the UK as a reference economy. Three parts: <strong>Growth &amp; Output</strong> (how much is produced, and how that compares to the UK), <strong>Sector Mix</strong> (which industries produce it), and <strong>Structure</strong> (why the mix keeps churning while the total barely moves).</p>
+    <p style="margin-bottom:14px;max-width:none">How much the Isle of Man, Jersey and Guernsey actually produce, who produces it, and how that mix has shifted since the 1990s — set against the UK as a reference economy. Three parts: <strong>Growth &amp; Output</strong> (all three islands against the UK), <strong>Sector Mix</strong> (which industries produce it &mdash; Isle of Man focus, with cross-island comparisons in the last two tabs), and <strong>Structure</strong> (why the Isle of Man's mix keeps churning while its total barely moves).</p>
 
     <div class="audience-bar">
       <span class="aud-label">View</span>
@@ -1017,7 +1017,7 @@ body.light .bplay { color:#ffffff; }
       </div>
     </div>
     <div class="sn-group" data-mode="mix">
-      <button class="sn-super" id="mode-btn-mix" onclick="setMode('mix')">Sector Mix by Industry</button>
+      <button class="sn-super" id="mode-btn-mix" onclick="setMode('mix')">Sector Mix by Industry (Isle of Man)</button>
       <div class="sn-subrow">
         <button class="sn-sub" data-mode="mix" data-sub="abs" onclick="snSub('mix','abs')">Absolute</button>
         <button class="sn-sub" data-mode="mix" data-sub="rel" onclick="snSub('mix','rel')">Relative</button>
@@ -1027,7 +1027,7 @@ body.light .bplay { color:#ffffff; }
       </div>
     </div>
     <div class="sn-group" data-mode="structure">
-      <button class="sn-super" id="mode-btn-structure" onclick="setMode('structure')">Structure — the Why</button>
+      <button class="sn-super" id="mode-btn-structure" onclick="setMode('structure')">Structure — the Why (Isle of Man)</button>
       <div class="sn-subrow">
         <button class="sn-sub" data-mode="structure" data-sub="sectors" onclick="snSub('structure','sectors')">Three sectors</button>
         <button class="sn-sub" data-mode="structure" data-sub="revenue" onclick="snSub('structure','revenue')">Revenue engine</button>
@@ -1048,8 +1048,9 @@ body.light .bplay { color:#ffffff; }
   <!-- ── TAB 1: PER CAPITA ── -->
   <div id="tab-pcap" class="tab-pane">
     <div class="narrative narrative-plain">
-      The chart shows how much output each island economy produces per person, measured in today's
-      money — stripping out inflation so you can compare across years on a fair footing.
+      The chart shows how much output each island economy produces per person — in cash (nominal)
+      &pound; as published. Switch the Prices toggle to constant prices to strip out inflation and
+      compare across years on a fair footing.
       All three Crown Dependencies produce substantially more per person than the UK.
       In 2023, the <span class="hl-iom">Isle of Man</span>, <span class="hl-jsy">Jersey</span>,
       and <span class="hl-gsy">Guernsey</span> each generated roughly
@@ -1145,8 +1146,8 @@ body.light .bplay { color:#ffffff; }
     <div class="stat-row" id="pcap-stats"></div>
     <div class="controls">
       <span class="ctrl-label">Prices</span>
-      <button class="toggle-btn" data-pcap-mode="nominal">Nominal (current £)</button>
-      <button class="toggle-btn active" data-pcap-mode="real">Constant prices</button>
+      <button class="toggle-btn active" data-pcap-mode="nominal">Nominal (current £)</button>
+      <button class="toggle-btn" data-pcap-mode="real">Constant prices</button>
       <div class="ctrl-divider"></div>
       <span class="ctrl-label">Series</span>
     </div>
@@ -1273,44 +1274,41 @@ body.light .bplay { color:#ffffff; }
   <!-- ── TAB 4: INDEXED ── -->
   <div id="tab-index" class="tab-pane" style="display:none">
     <div class="narrative narrative-plain">
-      Strip away the currency signs and ask a plainer question: whoever was richest in 2009, who has actually grown the most since? Rebase every line to the same starting point — 100 — and the answer isn't the jurisdiction you'd expect from the "Output per head" tab.
-      All series are set to 100 at the selected year,
-      showing cumulative divergence in growth trajectories since that point.
-      The default base of <strong>2009</strong> captures the post-GFC floor. By 2023, all four sit
-      above it &mdash; but by very different margins: <span class="hl-gsy">Guernsey</span> barely
-      (index &asymp;102), <span class="hl-jsy">Jersey</span> next (&asymp;107), the
-      <span class="hl-uk">UK</span> a little further (&asymp;114), and the
-      <span class="hl-iom">Isle of Man</span> furthest ahead (&asymp;118). None of the four is below
-      its 2009 level on this measure &mdash; the real story, as the next two sections show, is in how
-      each got there, not whether they got there.
+      <strong>Did the growth ever compound?</strong> The Isle of Man spent two decades posting
+      growth rates the UK could only envy; this tab asks whether they added up to a UK-beating
+      trajectory. The first chart answers directly: it divides the
+      <span class="hl-iom">Isle of Man</span>'s cumulative real growth by the
+      <span class="hl-uk">UK</span>'s, so the line rises only when the Island is growing faster
+      than the UK, runs flat when the two merely keep pace, and falls when the Island loses ground.
+      Changing the base year doesn't change the shape &mdash; it only moves which year reads 100.
       <br><br>
-      There's a subtler pattern hiding in this indexed view: the size of the underlying income gap
-      and the shape of recent growth are two different stories. Indexed to 2009, Isle of Man output
-      per head raced to roughly <strong>135% of its 2009 level by 2017</strong>, while the
-      <span class="hl-uk">UK</span> crept up to about <strong>112%</strong> over the same years &mdash;
-      genuine divergence. But since then the <span class="hl-iom">Isle of Man</span> index has drifted
-      back down, and by 2023 the two indexed trajectories sit close together again &mdash; roughly
-      <strong>118 vs 114</strong>. The absolute income gap hasn't closed (see the Output per head tab,
-      where the same two years are &pound;71k vs &pound;38k); what's converged since 2017 is the recent
-      <em>pace</em> of growth, not the level.
+      What it shows (base 2009): a real climb through the 2010s &mdash; by the
+      <strong>2018 peak the Island's cumulative growth ran about 19% ahead</strong> of the UK's pace.
+      Ignore the 2020 spike (that's the UK's deeper COVID dip, not Manx strength). Then the unwind:
+      after two contraction years (2022/23, 2023/24), the Island sits roughly
+      <strong>4% ahead</strong> of where simply matching the UK since 2009 would have left it.
+      Nearly all the relative gains of the 2010s have been handed back &mdash; this is what
+      &ldquo;growth that doesn't compound&rdquo; looks like drawn as a single line.
       <br><br>
-      <span class="hl-jsy">Jersey</span>'s version of this is a different shape, not a different kind
-      of economy &mdash; Jersey is itself a banking and funds centre, just as exposed to global financial
-      cycles as the Isle of Man. It spent 2009&ndash;2020 mostly <em>below</em> its 2009 level &mdash; a
-      real, decade-long stagnation coinciding with a prolonged post-GFC squeeze in its finance sector (see
-      the Real growth tab) &mdash; before a sharp recovery from 2021, a period that lines up with rising
-      interest rates lifting banking margins and continued growth in Jersey's funds industry (this chart
-      can't attribute the recovery precisely), pushing it back above its 2009 level in 2022 and on to
-      roughly 107 by 2023. Where the <span class="hl-iom">Isle of Man</span>'s index shows a finance-driven
-      overshoot partly unwinding, Jersey's shows a finance-driven downturn taking over a decade to recover
-      from &mdash; same underlying industry, different phase of the cycle, not one economy being
-      &lsquo;healthier&rsquo; than the other.
-      Use the base year selector to reframe the comparison — try 2019 to isolate the
-      COVID and post-COVID period, or 2014 to show the divergence since Jersey's recovery.
+      The second chart shows the four jurisdictions separately, each rebased to 100 at the selected
+      base year. From 2009: <span class="hl-gsy">Guernsey</span> reaches &asymp;102 by 2023,
+      <span class="hl-jsy">Jersey</span> &asymp;107, the <span class="hl-uk">UK</span> &asymp;114,
+      the <span class="hl-iom">Isle of Man</span> &asymp;118 &mdash; everyone above the post-GFC
+      floor, by very different routes. Jersey's route is worth pausing on: itself a banking and
+      funds centre, it spent 2009&ndash;2020 mostly <em>below</em> its 2009 level (see the Real
+      growth tab) before a sharp recovery from 2021 that lines up with rising interest rates and
+      funds-industry growth &mdash; same underlying industry as the Isle of Man, different phase of
+      the cycle, not a &lsquo;healthier&rsquo; economy. And note the absolute income gap never
+      closed either way: the same two years on the Output per head tab are &pound;71k vs
+      &pound;38k. Use the base-year selector to reframe &mdash; 2019 isolates COVID and after;
+      2014 shows the divergence since Jersey's trough.
       <div class="caveat">
         Guernsey real series available from 2009 only. IoM built from chain-linked annual
         growth rates (Table 3, IoM NI reports). Different deflator methodologies mean
-        cumulative levels are directionally comparable but not precisely equivalent.
+        cumulative levels are directionally comparable but not precisely equivalent. Series basis
+        mixes whole-economy (IoM, Jersey) and per-head (Guernsey, UK) measures; the IoM population
+        has been roughly flat, so its line reads similarly either way, but treat fine differences
+        as indicative.
       </div>
     </div>
     <div class="narrative narrative-technical" style="display:none">
@@ -1330,6 +1328,15 @@ body.light .bplay { color:#ffffff; }
       before 2009 require backward extrapolation using growth rates, introducing additional
       uncertainty. UK — ONS ABML÷ABMI implicit GVA deflator applied to nominal per-head series,
       rebased to base year = 100; covers 1955–2025.
+      <br><br>
+      <strong>Ratio chart construction.</strong> ratio<sub>t</sub> = IoM index<sub>t</sub> &divide;
+      UK index<sub>t</sub> &times; 100. Because both indices share the base-year anchor, changing
+      the base year rescales the ratio by a constant &mdash; the shape is base-year invariant,
+      which removes base-year choice as a degree of freedom in the headline comparison. Note the
+      numerator is whole-economy IoM real GDP while the denominator is UK real GVA per head; UK
+      population grew ~11% over 2009&ndash;2023 while IoM population was roughly flat, so this is
+      closer to a per-capita pace comparison than a total-output one. The 2020 observation is an
+      artifact of the UK's larger COVID contraction and should not be read as IoM outperformance.
       <br><br>
       <strong>Base year choice.</strong> The default base year of 2009 corresponds to the
       post-GFC output trough — a natural common anchor from which diverging recovery trajectories
@@ -1351,10 +1358,20 @@ body.light .bplay { color:#ffffff; }
       <span class="ctrl-label" style="margin-left:8px">Series</span>
     </div>
     <div class="series-toggles" id="index-toggles"></div>
-    <div class="chart-wrap">
-      <canvas id="index-chart" class="chart-canvas"></canvas>
+    <div class="st-fig">
+      <h3>Isle of Man relative to the UK — cumulative real growth</h3>
+      <div class="figcap">IoM index &divide; UK index &times; 100. Rising = outgrowing the UK; flat = keeping pace; falling = losing ground. The 2020 spike is the UK's deeper COVID dip.</div>
+      <div class="chart-wrap" style="height:260px">
+        <canvas id="index-ratio-chart" class="chart-canvas"></canvas>
+      </div>
     </div>
-    
+    <div class="st-fig">
+      <h3>All four jurisdictions — real output rebased to the base year</h3>
+      <div class="figcap">Each series set to 100 at the selected base year; divergence shows cumulative growth trajectories, not levels.</div>
+      <div class="chart-wrap">
+        <canvas id="index-chart" class="chart-canvas"></canvas>
+      </div>
+    </div>
   </div>
 </div>
 <div id="mode-mix" style="display:none">
@@ -1517,8 +1534,8 @@ body.light .bplay { color:#ffffff; }
     <text x="470" y="258" text-anchor="middle" style="font-size:11px;fill:var(--muted)">internal crowding-out →</text>
     <text x="470" y="273" text-anchor="middle" style="font-size:11px;fill:var(--muted)">tax-base erosion (slow ∥)</text>
   </svg></div>
-    <span class="st-xref" onclick="setMode('mix')">Evidence → Sector Mix: Competing Out</span>
-    <span class="st-xref" onclick="setMode('growth')">Evidence → Growth: Cumulative growth vs UK</span>
+    <span class="st-xref" onclick="snSub('mix','compete')">Evidence → Sector Mix: Competing Out</span>
+    <span class="st-xref" onclick="snSub('growth','index')">Evidence → Growth: Cumulative growth vs UK</span>
   </div>
 
   <div id="st-pane-revenue" class="tab-pane" style="display:none">
@@ -1613,7 +1630,7 @@ body.light .bplay { color:#ffffff; }
       <div class="st-fig"><h3>Median transaction price, 2000–2025</h3><div class="figcap">Land registry completions; crude median, no mix adjustment.</div><div class="chart-wrap" style="height:240px"><canvas id="st-price-chart" class="chart-canvas"></canvas></div></div>
     </div>
     <div class="st-fig"><h3>Where the workforce went — census employment change, 2001 → 2021</h3><div class="figcap">Within a total that fell by 574. Health, education &amp; public administration combined by the source.</div><div class="chart-wrap" style="height:320px"><canvas id="st-emp-chart" class="chart-canvas"></canvas></div></div>
-    <span class="st-xref" onclick="setMode('mix')">Evidence → Sector Mix: GVA/Worker</span>
+    <span class="st-xref" onclick="snSub('mix','comp')">Evidence → Sector Mix: GVA/Worker</span>
   </div>
 
   <div class="st-prov">The structural analysis in this view was first set out in a 2010 systems-dynamics study of the Manx economy and a discussion paper delivered to the Isle of Man Treasury in 2011. This page updates it with published data to 2026: IoM National Income accounts, census &amp; population reports, land registry transactions, Treasury Pink/Blue Books, ONS national accounts, HMRC–IoM annual accounts and gov.im FERSA statements.</div>
@@ -1747,7 +1764,7 @@ function buildToggles(containerId, seriesList, stateKey, onToggle) {
 }
 
 // ── TAB 1: PER CAPITA ────────────────────────────────────────────────────────
-let pcapMode = 'real';
+let pcapMode = 'nominal';
 let pcapChart = null;
 
 function buildPcapStats(mode) {
@@ -2017,6 +2034,7 @@ function buildRatioChart() {
 
 // ── TAB 4: INDEXED ───────────────────────────────────────────────────────────
 let indexChart = null;
+let indexRatioChart = null;
 
 function iomIndexFromGrowth(baseYear) {
   const entries = Object.entries(D.IOM_REAL_GDP_GROWTH)
@@ -2118,6 +2136,28 @@ function buildIndexChart(baseYear) {
   };
   opts.animation = false;
   indexChart = new Chart(ctx, { type:'line', data:{ datasets }, options: opts });
+
+  // ── Headline ratio chart: IoM index ÷ UK index × 100 ──
+  const ukByYear = {};
+  ukPts.forEach(p => { ukByYear[p.x] = p.y; });
+  const ratioPts = iomPts
+    .filter(p => ukByYear[p.x] != null && p.x >= 2000)
+    .map(p => ({ x: p.x, y: +(p.y / ukByYear[p.x] * 100).toFixed(1) }));
+  const rctxEl = document.getElementById('index-ratio-chart');
+  if (rctxEl) {
+    if (indexRatioChart) indexRatioChart.destroy();
+    const ropts = baseChartOpts(fmtIdx);
+    ropts.scales.x.min = 2000;
+    ropts.scales.y.title = { display:true, text:`IoM ÷ UK (${baseYear} = 100)`, color:'#475569', font:{size:10} };
+    ropts.scales.y.grid = { ...gridOpts,
+      color: c2 => c2.tick.value === 100 ? 'rgba(148,163,184,0.6)' : 'rgba(51,65,85,0.5)'
+    };
+    ropts.plugins.legend = { display:false };
+    ropts.animation = false;
+    indexRatioChart = new Chart(rctxEl.getContext('2d'), { type:'line',
+      data:{ datasets:[ makeDataset(`IoM ÷ UK cumulative real growth (${baseYear}=100)`, ratioPts, C.iom, {width:2.5}) ] },
+      options: ropts });
+  }
 }
 
 // ── TAB SWITCHING ─────────────────────────────────────────────────────────────
@@ -2253,7 +2293,7 @@ buildToggles('pcap-toggles',  pcapSeries,   'pcap',   buildPcapChart);
 buildToggles('growth-toggles', growthSeries, 'growth', buildGrowthChart);
 buildToggles('index-toggles',  indexSeries,  'index',  () => buildIndexChart(+document.getElementById('base-year-select').value));
 
-buildPcapStats('real');
+buildPcapStats(pcapMode);
 buildPcapChart();
 buildGrowthChart();
 buildRatioStats();
@@ -2334,9 +2374,9 @@ function hookComp(grp){
   return HOOK_COMP_GENERIC.replace('{{GRP}}', grp);
 }
 const DETAIL_COMP="GVA per worker by industry. Nominal mode: IoM, Guernsey, UK in current prices; Jersey excluded (published in constant 2022\u00a3 only). Real mode: IoM deflated to 2024/25 via IoM CPI; Jersey constant 2022\u00a3 (Statistics Jersey); Guernsey deflated to Q1 2026 via GG RPI (States of Guernsey); UK Finance SIC K synthesised from ONS DJG5 index (Finance output per job, 2023=100) anchored at \u00a3149k/job (\u00a3170.2bn GVA \u00f7 1,140k workforce jobs, 2023) \u2014 approximate 2023 real prices. UK Public Administration (SIC O) and Professional/Education/Health (SIC M+P+Q) computed directly from ONS GDP(O) low-level aggregates (current price and chained volume GVA by SIC section, June 2026 edition) divided by ONS JOBS02 workforce jobs by industry (June 2026 edition); real terms are the chained-volume GVA \u00f7 jobs ratio, denominated in the dataset\u2019s 2023 reference-year prices. Prof/Ed/Health is a combined bucket on both sides of the comparison \u2014 IoM National Income data does not report Professional Services separately from Education &amp; Health, so the UK comparator is built to the same combined scope rather than Professional Services alone. Price bases are not harmonised across jurisdictions \u2014 absolute levels are indicative only; use for trend comparison.";
-const HOOK_COMPETE="<strong>Watch the top band, not the bottom one.</strong> It's tempting to read this chart as “finance vs everyone else” — but on the Isle of Man that top band is Finance <em>and</em> digital services (eGaming, ICT) combined, and pinning a King-Gaming-shaped scandal on ‘Finance’ alone misses where the actual problem sits. The real contest here is between the public sector and the local economy for whatever share that combined band leaves behind. When it falls, that space doesn't automatically go back to shops and trades; more often than not, over the long run, it's gone to government.";
+const HOOK_COMPETE="<em>Not just the Isle of Man: this tab works per island &mdash; switch between IoM, Jersey and Guernsey above.</em><br><br><strong>Watch the top band, not the bottom one.</strong> It's tempting to read this chart as “finance vs everyone else” — but on the Isle of Man that top band is Finance <em>and</em> digital services (eGaming, ICT) combined, and pinning a King-Gaming-shaped scandal on ‘Finance’ alone misses where the actual problem sits. The real contest here is between the public sector and the local economy for whatever share that combined band leaves behind. When it falls, that space doesn't automatically go back to shops and trades; more often than not, over the long run, it's gone to government.";
 const DETAIL_COMPETE="IoM 'Public Sector' = Public Administration + Education &amp; Health. Prior to 2007/08, Education &amp; Health was not reported separately in IoM National Accounts — the pre-2007 band shows Public Administration only, understating the public sector share and making it not directly comparable with Jersey/Guernsey (which include Education &amp; Health throughout). Jersey: dashed line shows 1998–2020 under old SIC classification (Finance includes legal &amp; accounting; Public = administration only, excluding Education &amp; Health). From 2021: SIC2007 (Finance = SIC K; Public = O+P+Q). Source: Statistics Jersey National Accounts. Guernsey: 2009–2023; 2009–2018 back-calculated from 2019 revision (dashed).";
-const HOOK_STD="<strong>Local businesses — shops, trades, everyday services — made up 55% of everything the Island produced in 1997/98.</strong> By 2023/24 that’s down to 33%, having bottomed out even lower, at 26%, in 2016/17. The natural assumption is that finance did this — and it’s part of the story: financial and digital services grew from 39% of the economy to a peak of 63% in 2016/17, before easing back to 54% today. But that retreat since 2016 hasn’t given the local economy its ground back — the public sector has absorbed more of it, more than doubling its own share from 5% to 13% over the same 27 years. The ‘local economy’ band on the Mix tab has never really recovered from either of its rivals; it just occasionally loses ground to one instead of the other. Next time someone says the Island is ‘de-risking’ its finance &amp; digital-services dependency, check which band is actually growing before you agree. <strong>Press play.</strong>";
+const HOOK_STD="<strong>Isle of Man only. Local businesses — shops, trades, everyday services — made up 55% of everything the Isle of Man produced in 1997/98.</strong> By 2023/24 that’s down to 33%, having bottomed out even lower, at 26%, in 2016/17. The natural assumption is that finance did this — and it’s part of the story: financial and digital services grew from 39% of the economy to a peak of 63% in 2016/17, before easing back to 54% today. But that retreat since 2016 hasn’t given the local economy its ground back — the public sector has absorbed more of it, more than doubling its own share from 5% to 13% over the same 27 years. The ‘local economy’ band on the Mix tab has never really recovered from either of its rivals; it just occasionally loses ground to one instead of the other. Next time someone says the Island is ‘de-risking’ its finance &amp; digital-services dependency, check which band is actually growing before you agree. <strong>Press play.</strong>";
 const DETAIL_STD="GVA at current prices. Source: Statistics IoM, National Income Reports 1997/98–2023/24. ESA10 break 2007/08: Finance, Professional Services and Manufacturing were single aggregates pre-break. Real terms (2024/25): IoM CPI available from 2008/09 (base: Jan 2008 = 100). Pre-2008/09 deflators use UK CPI linked at 2008/09 boundary — indicative only.";
 const JE_PROD={"Finance & eGaming":{"1998":252000,"1999":264000,"2000":284000,"2001":260000,"2002":240000,"2003":227000,"2004":228000,"2005":222000,"2006":239000,"2007":239000,"2008":210000,"2009":188000,"2010":172000,"2011":173000,"2012":165000,"2013":163000,"2014":176000,"2015":170000,"2016":164000,"2017":159000,"2018":161000,"2019":169000,"2020":151000,"2021":161000,"2022":190000,"2023":255000,"2024":238000},"Construction":{"1998":57000,"1999":62000,"2000":65000,"2001":64000,"2002":65000,"2003":63000,"2004":62000,"2005":64000,"2006":64000,"2007":68000,"2008":67000,"2009":66000,"2010":67000,"2011":65000,"2012":63000,"2013":64000,"2014":66000,"2015":68000,"2016":69000,"2017":72000,"2018":69000,"2019":67000,"2020":56000,"2021":72000,"2022":71000},"Agriculture":{"1998":43000,"1999":43000,"2000":43000,"2001":40000,"2002":42000,"2003":41000,"2004":39000,"2005":39000,"2006":41000,"2007":41000,"2008":44000,"2009":45000,"2010":39000,"2011":35000,"2012":34000,"2013":36000,"2014":30000,"2015":35000,"2016":41000,"2017":42000,"2018":42000,"2019":44000,"2020":35000,"2021":41000,"2022":37000},"Distribution":{"1998":54000,"1999":55000,"2000":56000,"2001":55000,"2002":54000,"2003":54000,"2004":53000,"2005":53000,"2006":54000,"2007":56000,"2008":52000,"2009":52000,"2010":51000,"2011":51000,"2012":49000,"2013":52000,"2014":51000,"2015":52000,"2016":52000,"2017":51000,"2018":52000,"2019":53000,"2020":52000,"2021":51000,"2022":48000},"Tourism & Hospitality":{"1998":36000,"1999":37000,"2000":37000,"2001":37000,"2002":37000,"2003":38000,"2004":38000,"2005":37000,"2006":37000,"2007":37000,"2008":37000,"2009":35000,"2010":36000,"2011":36000,"2012":36000,"2013":36000,"2014":37000,"2015":38000,"2016":40000,"2017":39000,"2018":41000,"2019":44000,"2020":29000,"2021":43000,"2022":46000},"Public Administration":{"1998":56000,"1999":58000,"2000":60000,"2001":61000,"2002":60000,"2003":59000,"2004":60000,"2005":61000,"2006":62000,"2007":62000,"2008":64000,"2009":63000,"2010":63000,"2011":63000,"2012":62000,"2013":62000,"2014":63000,"2015":65000,"2016":66000,"2017":67000,"2018":67000,"2019":68000,"2020":69000,"2021":68000,"2022":67000},"Manufacturing":{"1998":47000,"1999":47000,"2000":47000,"2001":47000,"2002":45000,"2003":45000,"2004":46000,"2005":46000,"2006":47000,"2007":46000,"2008":47000,"2009":48000,"2010":49000,"2011":49000,"2012":48000,"2013":45000,"2014":49000,"2015":48000,"2016":48000,"2017":47000,"2018":50000,"2019":51000,"2020":52000,"2021":57000,"2022":52000},"Utilities & Transport":{"1998":69000,"1999":70000,"2000":68000,"2001":71000,"2002":70000,"2003":69000,"2004":70000,"2005":73000,"2006":74000,"2007":74000,"2008":70000,"2009":70000,"2010":69000,"2011":69000,"2012":67000,"2013":71000,"2014":71000,"2015":73000,"2016":70000,"2017":71000,"2018":72000,"2019":72000,"2020":60000,"2021":73000,"2022":73000},"Prof & Ed & Health":{"1998":61000,"1999":62000,"2000":62000,"2001":63000,"2002":63000,"2003":64000,"2004":66000,"2005":74000,"2006":66000,"2007":65000,"2008":63000,"2009":59000,"2010":59000,"2011":57000,"2012":55000,"2013":54000,"2014":53000,"2015":54000,"2016":53000,"2017":52000,"2018":51000,"2019":52000,"2020":46000,"2021":51000,"2022":49000}};
 const GG_PROD={"Finance & eGaming":{"2020":169318,"2021":178803,"2022":219262,"2023":225177},"Construction":{"2020":35688,"2021":46372,"2022":52688,"2023":52832},"Agriculture":{"2020":26542,"2021":34111,"2022":39732,"2023":43507},"Distribution":{"2020":64447,"2021":64643,"2022":67686,"2023":74638},"Tourism & Hospitality":{"2020":23120,"2021":30008,"2022":41288,"2023":43840},"Public Administration":{"2020":51198,"2021":53667,"2022":57070,"2023":60891},"Manufacturing":{"2020":34430,"2021":47150,"2022":50131,"2023":55933},"Utilities & Transport":{"2020":14147,"2021":46191,"2022":70882,"2023":80183}};
@@ -2651,7 +2691,7 @@ function updateNote(){
     if(narEl) narEl.style.display=unlocked?'':'none';
     if(unlocked){
       noteEl.innerHTML=DETAIL_COMP;
-      if(narEl) narEl.innerHTML=hookComp(compGrp);
+      if(narEl) narEl.innerHTML="<em>Not just the Isle of Man: GVA per worker compared across IoM, Jersey, Guernsey and the UK.</em><br><br>"+hookComp(compGrp);
     }
     return;
   }
