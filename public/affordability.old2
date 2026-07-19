@@ -6,7 +6,28 @@
 <title>Affordability · Crown Dependencies Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
 <style>
 :root{
   --bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border2:#334155;
@@ -142,13 +163,13 @@ body.light {
     <h1>Housing Affordability — Isle of Man</h1>
 
     <div class="narrative narrative-plain">
-      <p>The median wage on the Isle of Man is <strong style="color:var(--iom)">£755 a week</strong> — marginally above the UK. On paper, that sounds adequate. In practice, buying a home on that income requires a mortgage of more than <strong style="color:var(--red)">nine times annual earnings (9.09×)</strong>. That is above the UK's already-stretched <strong style="color:var(--amber)">8.2×</strong>, and more than double the generally accepted affordability threshold of <strong style="color:var(--green)">4×</strong>.</p>
+      <p>The median wage on the Isle of Man is <strong style="color:var(--iom)">£765 a week</strong> — marginally above the UK. On paper, that sounds adequate. In practice, buying a home on that income requires a mortgage of more than <strong style="color:var(--red)">eight and a half times annual earnings</strong>. That is above the UK's already-stretched <strong style="color:var(--amber)">8.2×</strong>, and more than double the generally accepted affordability threshold of <strong style="color:var(--green)">4×</strong>.</p>
       <p>This page shows what housing actually costs relative to what people earn, what that leaves for everything else, and how the island compares with Jersey, Guernsey, and the UK. None of it makes comfortable reading.</p>
     </div>
 
     <div class="narrative narrative-technical" style="display:none">
       <p><strong>Price-to-income ratios.</strong> House prices divided by annual earnings (weekly × 52.18). Two ratios shown: price ÷ mean annual wage and price ÷ median annual wage. The median ratio is the more policy-relevant figure — it captures the position of the typical worker, not the average distorted by high earners. Ratios above 4× are generally considered unaffordable by international housing standards (Demographia). Ratios above 8× are classified as "severely unaffordable".</p>
-      <p><strong>Below living wage.</strong> Isle of Man Earnings Survey Report 2025 (Statistics IoM, Table 12, MIS methodology). 27.4% of IoM employees earn below the Living Wage in 2025, up from a confirmed 20.1% in 2024 — though a meaningful part of that jump reflects the Living Wage Foundation's own recalibration of the benchmark, not purely falling pay. The Living Wage is itself a minimum adequacy standard — falling below it means earnings are insufficient for a basic basket of goods and services.</p>
+      <p><strong>Below living wage.</strong> IoM Living Wage Report 2024/25 (Statistics IoM, MIS methodology). 21.1% of IoM employees earn below the Living Wage. The Living Wage is itself a minimum adequacy standard — falling below it means earnings are insufficient for a basic basket of goods and services.</p>
       <p><strong>Disposable income profiles.</strong> Modelled using IoM 2024/25 tax rates (PA £14,500; 10% on next £6,500; 20% above; NI 11%/1%). Expenditure from MIS basket (IoM Living Wage Report 2024/25) with actual market-rate housing costs. The MIS basket is a minimum adequacy standard — it understates what many households actually spend.</p>
     </div>
 
@@ -175,21 +196,21 @@ body.light {
       </div>
       <div class="cmp-row">
         <div class="cr-label">Average house price</div>
-        <div class="cr-cell"><span class="cv iom">£343k</span><span class="cs">HMR 2024 · 2025 final: £358k (+4.5%)</span></div>
+        <div class="cr-cell"><span class="cv iom">£343k</span><span class="cs">Housing Market Review 2024 · Statistics IoM</span></div>
         <div class="cr-cell"><span class="cv jsy">£651k</span><span class="cs">Mix-adj. HPI · Statistics Jersey 2024</span></div>
         <div class="cr-cell"><span class="cv gsy">£591k</span><span class="cs">Mix-adj. avg · States of Guernsey Q4 2024</span></div>
         <div class="cr-cell"><span class="cv uk">£292k</span><span class="cs">ONS HPI avg · England 2024</span></div>
       </div>
       <div class="cmp-row">
         <div class="cr-label">Price ÷ mean annual wage</div>
-        <div class="cr-cell"><span class="cv amb">7.1×</span><span class="cs">£343k ÷ £48,390 · 2025 final: 8.21×</span></div>
+        <div class="cr-cell"><span class="cv amb">7.1×</span><span class="cs">£343k ÷ £48,390</span></div>
         <div class="cr-cell"><span class="cv red">12.6×</span><span class="cs">£651k ÷ £51,578</span></div>
         <div class="cr-cell"><span class="cv red">~11.0×</span><span class="cs">£591k ÷ ~£53,840 est.</span></div>
         <div class="cr-cell"><span class="cv amb">6.6×</span><span class="cs">£292k ÷ £44,278</span></div>
       </div>
       <div class="cmp-row gap-row">
         <div class="cr-label">Price ÷ median annual wage</div>
-        <div class="cr-cell"><span class="cv red">8.6×</span><span class="cs">£343k ÷ £39,858 · 2025 final (official): 9.09× — see chart</span></div>
+        <div class="cr-cell"><span class="cv red">8.6×</span><span class="cs">£343k ÷ £39,858</span></div>
         <div class="cr-cell"><span class="cv red">14.8×</span><span class="cs">£651k ÷ £44,018 est.</span></div>
         <div class="cr-cell"><span class="cv red">~13.8×</span><span class="cs">£591k ÷ £42,672</span></div>
         <div class="cr-cell"><span class="cv amb">8.2×</span><span class="cs">£292k ÷ £36,929</span></div>
@@ -203,14 +224,14 @@ body.light {
       </div>
       <div class="cmp-row">
         <div class="cr-label">Below living wage</div>
-        <div class="cr-cell"><span class="cv red">27.4%</span><span class="cs">2025, up from 20.1% (2024, official)</span></div>
+        <div class="cr-cell"><span class="cv red">21.1%</span><span class="cs">IoM Living Wage Report 2024/25</span></div>
         <div class="cr-cell"><span class="cv dim">n/a</span><span class="cs">Not published on comparable basis</span></div>
         <div class="cr-cell"><span class="cv dim">n/a</span><span class="cs">Not published on comparable basis</span></div>
         <div class="cr-cell"><span class="cv amb">~14%</span><span class="cs">Real Living Wage · UK 2023</span></div>
       </div>
       <div class="cmp-note">
         Price-to-earnings: mean row uses mean annual wage (weekly × 52.18); median row uses median annual wage. International affordability standard: ratios above 4× considered unaffordable; above 8× severely unaffordable (Demographia International Housing Affordability).
-        Note: full-year 2025 figures are now confirmed, not provisional — average house price £393,735, median £358,000, mean ratio 8.21×, median ratio 9.09× (Isle of Man Housing Market Review 2025, Statistics IoM, published June 2026), superseding the earlier Q2 2025 estimate (~9.7×).
+        Note: by Q2 2025 IoM average house price had risen to £386,566 (IoM Quarterly Economic Report to Council of Ministers) — the median ratio now approaches 9.7×.
         Living wage definitions differ by jurisdiction and are not directly comparable.
       </div>
     </div>
@@ -222,10 +243,10 @@ body.light {
   <div class="ratio-grid">
     <div class="ratio-card">
       <div class="rc-jur" style="color:var(--iom)">Isle of Man</div>
-      <div class="rc-ratio critical">9.09×</div>
+      <div class="rc-ratio critical">8.6×</div>
       <div class="rc-label">House price ÷ median annual wage</div>
-      <div class="rc-bar"><div class="rc-bar-fill" style="width:91%;background:var(--red)"></div></div>
-      <div class="rc-note">Severely unaffordable. Confirmed for full-year 2025 — Housing Market Review 2025 (Statistics IoM).</div>
+      <div class="rc-bar"><div class="rc-bar-fill" style="width:86%;background:var(--red)"></div></div>
+      <div class="rc-note">Severely unaffordable. By Q2 2025: ~9.7×.</div>
     </div>
     <div class="ratio-card">
       <div class="rc-jur" style="color:var(--jsy)">Jersey</div>
@@ -261,10 +282,10 @@ body.light {
   <div class="section-label">IoM house prices vs median wage — over time</div>
 
   <div class="narrative narrative-plain">
-    House prices on the Isle of Man are up around 57% in cash terms since 2009 (£228k to £358k). Wages have risen too, but inflation has eaten most of that gain — in real terms, pay has barely moved. What hasn't moved is the price-to-earnings ratio itself: 9.69× in 2009, still 9.09× today. That ratio is the more direct measure of the housing squeeze than either series on its own — and it shows a generation for whom ownership is increasingly out of reach regardless of how carefully they save.
+    House prices on the Isle of Man have roughly doubled since 2009. Median wages, adjusted for inflation, have barely moved. The result is a widening gap between what houses cost and what a typical earner can borrow — and a generation for whom ownership is increasingly out of reach regardless of how carefully they save.
   </div>
   <div class="narrative narrative-technical" style="display:none">
-    <strong>Data.</strong> IoM house prices: Land Registry annual averages (Housing Market Review 2025, confirmed full-year figure for 2025; prior years from Housing Market Review 2023). IoM median wage: Annual Earnings Survey, June (2025 figure from Earnings Survey Report 2025). Both indexed 2009=100 for comparability. Both series are nominal — this chart shows cash-terms movement, not the affordability ratio itself (see the price-to-median-earnings ratio above, which is the more directly comparable measure of the affordability squeeze).
+    <strong>Data.</strong> IoM house prices: Land Registry annual averages (Housing Market Review 2023; Q2 2025 figure from IoM Quarterly Economic Report). IoM median wage: Annual Earnings Survey, June. Both indexed 2009=100 for comparability. The divergence represents a real decline in housing affordability — house prices have outpaced wages by roughly 50 percentage points since 2009.
   </div>
 
   <div class="chart-panel">
@@ -282,10 +303,10 @@ body.light {
   </button>
   <div class="gov-box" id="afford-gov">
     <h4>House prices</h4>
-    <p>IoM average house price: Statistics IoM Housing Market Review 2024 (annual average £342,575 in 2024) and Housing Market Review 2025 (confirmed, not provisional: average house price £393,735; weighted average property price £358,320, +4.5%; median house price £358,000 — this chart and the comparator table use the weighted average/£358k figure for continuity with the 2024 and earlier series). This supersedes the earlier Q2 2025 provisional estimate (£386,566, IoM Quarterly Economic Report to the Council of Ministers). Series: 2009–2025 annual averages.</p>
+    <p>IoM average house price: Statistics IoM Housing Market Review 2024 (annual average £342,575 in 2024). Land Registry transaction data. Q2 2025 figure (£386,566) from IoM Quarterly Economic Report to the Council of Ministers, cited in Livingstone survey data. Series: 2009–2025 annual averages where available.</p>
     <h4>Median wage</h4>
-    <p>IoM Annual Earnings Survey, June reference, full-time employees on adult rates, including the confirmed 2025 figure (£755/week) from the Earnings Survey Report 2025. Median weekly earnings × 52.18 = annual equivalent. Nominal figures, not inflation-adjusted in this chart — both series are nominal, so the year-on-year comparison between them is valid, but neither line alone measures affordability; the price-to-median-earnings ratio above is the more direct measure.</p>
-    <p class="src">Sources: Statistics IoM Housing Market Review 2024 and 2025 (published June 2026); IoM Annual Earnings Survey Reports 2009–2025.</p>
+    <p>IoM Annual Earnings Survey, June reference, full-time employees on adult rates. Median weekly earnings × 52.18 = annual equivalent. Nominal figures, not inflation-adjusted in this chart (both series nominal, so the comparison is valid).</p>
+    <p class="src">Sources: Statistics IoM Housing Market Review 2024; IoM Annual Earnings Survey 2009–2024; IoM Quarterly Economic Report Q2 2025.</p>
   </div>
 
   <!-- DISPOSABLE INCOME PROFILES -->
@@ -505,9 +526,9 @@ function drawStatic(profile){
 
 // ── AFFORDABILITY CHART ───────────────────────────────────────────────────────
 const IOM_HP={2009:228,2010:236,2011:245,2012:248,2013:249,2014:262,
-  2015:280,2016:275,2017:278,2018:283,2019:278,2020:289,2021:331,2022:342,2023:329,2024:343,2025:358};
+  2015:280,2016:275,2017:278,2018:283,2019:278,2020:289,2021:331,2022:342,2023:329,2024:343};
 const IOM_MED_WK={2009:390,2010:400,2011:415,2012:425,2013:435,2014:448,
-  2015:464,2016:483,2017:503,2018:540,2019:567,2020:567,2021:620,2022:680,2023:740,2024:765,2025:755};
+  2015:464,2016:483,2017:503,2018:540,2019:567,2020:567,2021:620,2022:680,2023:740,2024:765};
 
 let affordChart=null;
 function buildAffordChart(){

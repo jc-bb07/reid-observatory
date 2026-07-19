@@ -36,7 +36,6 @@ const TAB_GROUPS = [
   { id: "econ-group",      label: "Economy & Society",  color: "#34d399", homeTab: "econHome",
     tabs: [
       { id: "econHome",      label: "Overview"             },
-      { id: "islandStory",   label: "IOM Economy Story"    },
       { id: "econperf",      label: "Economy Explorer"     },
       { id: "demog",         label: "Demographics Explorer" },
       { id: "iomPopChange",  label: "Population Change"    },
@@ -1241,30 +1240,19 @@ function Centred({ children }) {
 }
 
 // ── Auto-sizing iframe ────────────────────────────────────────────────────────
-// autoResize=false is for pages that manage their own internal scroll (e.g.
-// CSS position:sticky / scrollytelling pages that read window.scrollY inside
-// the iframe). Those pages need a real scrolling viewport, not a "grow to fit
-// all content" one — growing the iframe changes its own internal vh-based
-// layout, which re-reports an even bigger height, compounding every cycle.
-// With ~50 x 78vh step sections that showed up as a real bug: reported height
-// went 17,530px -> 348,800px -> 6.9M px -> 33.5M px (Chromium's size cap)
-// inside about 50ms of load, which is what "flashes then disappears" was.
-function AutoIframe({ src, title, theme, autoResize = true, height: fixedHeight = "calc(100vh - 120px)" }) {
-  const MAX_AUTO_HEIGHT = 20000; // defensive cap even for well-behaved pages
+function AutoIframe({ src, title, theme }) {
   const [height, setHeight] = useState("calc(100vh - 120px)");
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!autoResize) return;
     const handler = (e) => {
       if (e.data && e.data.type === "resize") {
-        const h = Math.min(Number(e.data.height) || 0, MAX_AUTO_HEIGHT);
-        setHeight(h + "px");
+        setHeight(e.data.height + "px");
       }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, [autoResize]);
+  }, []);
 
   // Send theme to iframe on load and whenever it changes
   const sendTheme = () => {
@@ -1279,14 +1267,14 @@ function AutoIframe({ src, title, theme, autoResize = true, height: fixedHeight 
       ref={ref}
       src={src}
       title={title}
-      scrolling={autoResize ? "no" : "auto"}
+      scrolling="no"
       onLoad={sendTheme}
       style={{
         width: "100%",
-        height: autoResize ? height : fixedHeight,
+        height,
         border: "none",
         display: "block",
-        overflow: autoResize ? "hidden" : "auto",
+        overflow: "hidden",
         background: bg,
       }}
     />
@@ -1538,7 +1526,6 @@ function AppContent() {
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "islandStory",
     "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
     "overview","wages","affordability","mybudget","housingApprenticeshipsBrief",
@@ -1602,9 +1589,6 @@ function AppContent() {
     home:           <LandingTab C={C} onNavigate={setTab} isNarrow={isNarrow} />,
     about:          <AboutTab C={C} />,
     econHome:       <EconHomeTab C={C} onNavigate={setTab} />,
-    islandStory: (
-      <AutoIframe src="/island-that-didnt-grow.html" title="The Island That Didn't Grow" theme={themeName} autoResize={false} />
-    ),
 
     healthHome:     <HealthHomeTab C={C} onNavigate={setTab} />,
     govHome:        <GovHomeTab C={C} onNavigate={setTab} />,

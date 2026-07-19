@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Island That Didn't Grow · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script>
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    if (document.body) document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<style>
+/* observatory.css tokens — inlined for self-contained operation.
+   Do not introduce new hex values; alias existing tokens instead. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f172a;
+  --surface:  #1e293b;
+  --surface2: #162032;
+  --border:   #1e293b;
+  --border2:  #334155;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --blue:     #60a5fa;
+  --blue-dim: #1d4ed8;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;   /* risk / error states only */
+  --purple:   #a78bfa;
+  --orange:   #fb923c;
+  --iom: #3b82f6;
+  --gsy: #10b981;
+  --jsy: #f59e0b;
+  --uk:  #94a3b8;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+  --purple: #7c3aed; --orange: #ea580c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+.eyebrow {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 3px;
+  background: var(--border2); border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--blue); cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--blue); cursor: pointer; border: none;
+}
+
+.pill {
+  background: none; border: 1px solid var(--border2); border-radius: 20px;
+  color: var(--muted2); cursor: pointer; font-family: inherit; font-size: 11px;
+  font-weight: 500; letter-spacing: 0.03em; padding: 4px 12px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s; white-space: nowrap;
+}
+.pill:hover { border-color: var(--muted); color: var(--text); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; font-size: 11px; color: var(--muted2); }
+.leg-item { display: flex; align-items: center; gap: 5px; }
+.leg-sw { width: 12px; height: 3px; border-radius: 1px; display: inline-block; flex-shrink: 0; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ── Page layout ─────────────────────────────────────────────────────────── */
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+.hero { min-height: 96vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 0 30px; }
+.hero h1 {
+  font-size: clamp(34px, 5.5vw, 54px); font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.08; color: var(--text); margin-bottom: 18px; max-width: 720px;
+}
+.hero .standfirst { font-size: clamp(15px, 1.8vw, 18px); color: var(--muted2); line-height: 1.7; max-width: 640px; margin-bottom: 34px; }
+.hero .standfirst strong { color: var(--text); font-weight: 600; }
+.hero figure { max-width: 860px; }
+.scroll-cue { margin-top: 26px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.scroll-cue::after { content: '↓'; margin-left: 8px; }
+
+.act-head { padding: 15vh 0 6vh; max-width: 660px; }
+.act-head .eyebrow { color: var(--blue); }
+.act-head h2 { font-size: clamp(24px, 3.2vw, 34px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
+.act-head .lede { margin-top: 12px; font-size: 15px; color: var(--muted2); line-height: 1.7; }
+
+/* Within an act, the title pins to the top of the screen; the graphic pins
+   below it (offset by the measured header height --hh); the text scrolls past. */
+.act { padding-top: 12vh; }
+.act .act-head {
+  position: sticky; top: 0; z-index: 6;
+  background: var(--bg);            /* solid: scrolling text never shows through */
+  padding: 12px 0 10px; max-width: none;
+  border-bottom: 1px solid var(--border2);
+}
+.act .act-head .eyebrow { margin-bottom: 4px; }
+.act .act-head h2 { font-size: clamp(19px, 2.4vw, 25px); }
+.act .act-head .lede { margin-top: 4px; font-size: 13px; max-width: 660px; }
+
+.scene { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 44px; align-items: start; }
+.g-col {
+  position: sticky; top: var(--hh, 104px);
+  height: calc(100vh - var(--hh, 104px));
+  height: calc(100dvh - var(--hh, 104px));
+  display: flex; flex-direction: column; justify-content: center; min-width: 0;
+}
+.steps { padding: 4vh 0 10vh; }
+.step { min-height: 78vh; display: flex; align-items: center; }
+.step:last-child { min-height: 60vh; }
+.step-inner {
+  border-left: 3px solid var(--border2); padding: 6px 0 6px 20px;
+  font-size: 15px; line-height: 1.8; color: var(--muted); transition: color 0.3s, border-color 0.3s;
+}
+.step.on .step-inner { border-left-color: var(--blue); color: var(--muted2); }
+.step-inner strong { color: var(--text); font-weight: 600; }
+.step.on .keyline { color: var(--text); font-weight: 600; }
+
+figure { min-width: 0; }
+.fig-panel { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 16px 16px 10px; }
+.fig-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.fig-sub { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.fig-src { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+svg { display: block; width: 100%; height: auto; font-family: inherit; }
+svg text { font-family: inherit; }
+
+.fig-alt { display: none; }
+.fig-alt.on { display: block; }
+
+/* asides + tables */
+details.aside, details.tbl {
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
+  padding: 10px 14px; margin-top: 14px; font-size: 12px; color: var(--muted2); line-height: 1.7;
+}
+details summary { cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+details[open] summary { margin-bottom: 8px; }
+details.tbl table { border-collapse: collapse; width: 100%; font-size: 11px; font-variant-numeric: tabular-nums; }
+details.tbl th, details.tbl td { text-align: right; padding: 3px 8px; border-bottom: 1px solid var(--border2); color: var(--muted2); white-space: nowrap; }
+details.tbl th { color: var(--muted); font-weight: 600; }
+details.tbl th:first-child, details.tbl td:first-child { text-align: left; }
+details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
+
+/* tooltip */
+#tip {
+  position: fixed; z-index: 50; pointer-events: none; display: none;
+  background: var(--surface); border: 1px solid var(--border2); border-radius: 7px;
+  padding: 8px 11px; font-size: 11px; color: var(--muted2); line-height: 1.6;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.45); min-width: 120px;
+}
+#tip .tip-yr { font-weight: 700; color: var(--text); margin-bottom: 3px; }
+#tip .tip-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+#tip .tip-row i { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+#tip .tip-row b { margin-left: auto; color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; padding-left: 10px; }
+
+/* loop diagram */
+.loop-flow { stroke-dasharray: 5 7; }
+.spin .loop-flow { animation: loopflow 1.6s linear infinite; }
+.spin-fast .loop-flow { animation: loopflow 0.7s linear infinite; }
+@keyframes loopflow { to { stroke-dashoffset: -48; } }
+.loop-cut { opacity: 0; transition: opacity 0.5s; }
+.loop-cut.on { opacity: 1; }
+
+/* dumbbell rows */
+.db-row { opacity: 0; transform: translateX(-8px); transition: opacity 0.5s, transform 0.5s; }
+.db-row.on { opacity: 1; transform: none; }
+
+/* annotations */
+.ann { opacity: 0; transition: opacity 0.6s; }
+.ann.on { opacity: 1; }
+
+/* ── Simulator ───────────────────────────────────────────────────────────── */
+.sim { padding: 8vh 0 6vh; }
+.sim-grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-top: 22px; align-items: start; }
+.sim-controls { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 18px; }
+.slider-block { margin-bottom: 20px; }
+.slider-block:last-of-type { margin-bottom: 12px; }
+.slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+.slider-head label { font-size: 12px; font-weight: 600; color: var(--text); }
+.slider-head output { font-size: 12px; font-weight: 600; color: var(--blue); font-variant-numeric: tabular-nums; }
+.slider-hint { font-size: 10px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+.sim-readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-top: 3px solid var(--border2); border-radius: 8px; padding: 13px 15px;
+}
+.card.c-iom { border-top-color: var(--iom); }
+.card.c-amber { border-top-color: var(--amber); }
+.card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted2); margin-bottom: 5px; }
+.card-value { font-size: 21px; font-weight: 600; line-height: 1; color: var(--text); }
+.card-sub { font-size: 11px; color: var(--muted2); margin-top: 4px; }
+.sim-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sim-caveat { margin-top: 12px; font-size: 11px; color: var(--muted); font-style: italic; line-height: 1.6; }
+.mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.mini-stats .card { padding: 9px 12px; }
+.mini-stats .card-value { font-size: 16px; }
+
+/* ── Coda ────────────────────────────────────────────────────────────────── */
+.coda { padding: 12vh 0 8vh; max-width: 640px; }
+.coda p { font-size: 14px; color: var(--muted2); line-height: 1.9; margin-bottom: 16px; }
+.coda a { color: var(--blue); text-decoration: none; }
+.coda a:hover { text-decoration: underline; }
+.page-footer {
+  margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border2);
+  font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.page-footer a { color: var(--muted2); text-decoration: none; }
+.page-footer a:hover { color: var(--text); }
+
+/* ── Mobile (≤760px, both orientations): shared adjustments ───────────────── */
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .step-inner { font-size: 14px; }
+  .hero { min-height: 0; padding-top: 48px; }
+  .sim-grid, .sim-charts { grid-template-columns: 1fr; }
+  .sim-readouts, .mini-stats { grid-template-columns: 1fr 1fr; }
+  /* touch-friendly sliders (Act 6 stacks and scrolls normally — never pinned) */
+  input[type="range"] { height: 5px; }
+  input[type="range"]::-webkit-slider-thumb { width: 22px; height: 22px; }
+  input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; }
+}
+
+/* ── Mobile portrait: first-class pinned layout ─────────────────────────────
+   Compact one-line act title pinned at top; graphic pinned directly beneath;
+   the pinned stack is capped at ~55% of the viewport (dvh with vh fallback,
+   so address-bar collapse doesn't break the hold); step text scrolls in the
+   space underneath and drives the graphic exactly as on desktop. */
+@media (max-width: 760px) and (orientation: portrait) {
+  .act { padding-top: 6vh; }
+  .act .act-head {
+    position: sticky; top: 0; z-index: 7;
+    background: var(--bg); padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .act .act-head .eyebrow, .act .act-head .lede { display: none; }
+  .act .act-head h2 {
+    font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .scene { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .g-col {
+    grid-row: 1;
+    position: sticky; top: var(--hh, 36px); z-index: 5;
+    background: var(--bg);
+    height: auto;
+    max-height: calc(55vh - var(--hh, 36px));
+    max-height: calc(55dvh - var(--hh, 36px));
+    overflow: hidden;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+  }
+  .steps { grid-row: 2; padding: 2vh 0 8vh; }
+  .step { min-height: 46vh; min-height: 46dvh; margin: 0; display: flex; align-items: center; }
+  .step:last-child { min-height: 40vh; min-height: 40dvh; }
+  /* compact chart chrome at this size */
+  .g-col .fig-panel { padding: 8px 10px 6px; border-radius: 8px; }
+  .g-col .fig-title { font-size: 11px; margin-bottom: 0; }
+  .g-col .fig-sub, .g-col .fig-src { display: none; }
+  .g-col .legend { gap: 8px; font-size: 10px; margin-bottom: 4px; }
+  .g-col .mini-stats { display: none; }
+  /* data-table toggles are relocated below the steps by script; hide any
+     stragglers so the pinned stack stays compact */
+  .g-col details.tbl { display: none; }
+  /* relocated tables auto-place into rows below the steps */
+  .scene > details.tbl { margin-bottom: 6px; }
+}
+
+/* ── Small landscape (phone rotated): desktop pinned layout, scaled down ──── */
+@media (min-width: 761px) and (max-height: 520px) {
+  .act .act-head { padding: 7px 0 6px; }
+  .act .act-head h2 { font-size: 16px; }
+  .act .act-head .lede, .act .act-head .eyebrow { display: none; }
+  .scene { gap: 22px; }
+  .fig-panel { padding: 8px 10px 6px; }
+  .fig-sub, .fig-src { display: none; }
+  .g-col details.tbl { display: none; }
+  .mini-stats { display: none; }
+  .step { min-height: 92vh; }
+  .step-inner { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<header class="hero">
+  <div class="eyebrow">Crown Dependencies Observatory · A data story</div>
+  <h1>The Island That Didn't Grow</h1>
+  <p class="standfirst">Between 1998 and 2022 the United Kingdom grew by half.
+  The Isle of Man — richer, nimbler, self-governing — grew by <strong>ten per cent</strong>.
+  This is the story of why.</p>
+  <figure class="fig-panel">
+    <div class="fig-title">Real output since 1998</div>
+    <div class="fig-sub">Gross value added, adjusted for prices. 1998 = 100.</div>
+    <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Isle of Man</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>United Kingdom</span></div>
+    <div id="hero-chart"></div>
+    <div class="fig-src">Source: Isle of Man national income accounts; ONS UK national accounts. Chained volume measures, 2022 basis.</div>
+  </figure>
+  <div class="scroll-cue">Scroll</div>
+</header>
+
+<!-- ═══════════════════════════ ACT 1 ═══════════════════════════ -->
+<section class="act" id="act1">
+<header class="act-head">
+  <div class="eyebrow">Act 1</div>
+  <h2>The pie that wouldn't grow</h2>
+  <p class="lede">Two economies. The same weather. Very different voyages.</p>
+</header>
+<div class="scene">
+  <div class="steps">
+    <div class="step" data-act="a1" data-idx="0"><div class="step-inner">
+      <strong>1998.</strong> Both economies are set to 100. Real output, with inflation stripped out. One line for the United Kingdom. One for the Isle of Man.
+    </div></div>
+    <div class="step" data-act="a1" data-idx="1"><div class="step-inner">
+      The dotcom years were kind to both. By 2000 the Island stood at <strong>109</strong>, a point ahead of the UK. It would never be ahead again.
+    </div></div>
+    <div class="step" data-act="a1" data-idx="2"><div class="step-inner">
+      <strong>2008.</strong> The banking crisis hit both. The UK fell six points and climbed back within four years. The Island fell and kept falling. By 2012 it was at <strong>92</strong> — below where it had started in 1998.
+    </div></div>
+    <div class="step" data-act="a1" data-idx="3"><div class="step-inner">
+      <strong>2020.</strong> COVID cut roughly a tenth from each. Both bounced back within two years. The shocks were shared, year for year. The recoveries were not.
+    </div></div>
+    <div class="step" data-act="a1" data-idx="4"><div class="step-inner">
+      By 2022 the UK stood at <strong>154</strong>. The Island stood at <strong>110</strong>.
+      <p class="keyline" style="margin-top:12px">The same storms hit both ships. Only one made headway.</p>
+      <div class="aside" style="margin-top:14px"><strong>Do you feel twice as rich as the UK?</strong> On paper you are: output per head runs at roughly &pound;71,000 here against &pound;38,000 there. But about three-fifths of the Island&rsquo;s output is company profit &mdash; banks, insurers, gaming operators &mdash; and most of it belongs to shareholders and clients who don&rsquo;t live here. It is booked here. It is not earned here. What residents take home is a different number, and this page is about that one.</div>
+      <details class="aside"><summary>For the technically minded</summary>
+      Both series are real gross value added: chained volume measures on a 2022 basis, UK from the ONS national accounts, Isle of Man from the Treasury's national income accounts. Indexing both to 1998 = 100 removes size and price level; only cumulative real growth remains. The Island's series is more volatile because one large sector can move the whole index. Base-year check: the gap is not an artefact of starting at 1998 — from every base year 1998&ndash;2012 the Island trails the UK to 2022 (by up to 44 points; from the 2000 peak, +1.3% in 22 years). The only flattering windows start in the 2012&ndash;13 trough, and rest entirely on the single 2022 observation (a one-year finance rebound, deflator-sensitive); measured 2013&ndash;2021 the UK leads again. Window-free: compound growth 0.4%/yr v 1.8%/yr.</details>
+    </div></div>
+  </div>
+  <div class="g-col"><figure class="fig-panel">
+    <div class="fig-title">Real output, Isle of Man v United Kingdom</div>
+    <div class="fig-sub">Real GVA index, 1998 = 100</div>
+    <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Isle of Man</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>United Kingdom</span></div>
+    <div id="a1-chart"></div>
+    <div class="fig-src">Source: Isle of Man national income accounts; ONS. Real GVA, 1998 = 100.</div>
+    <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a1-tbl"></div></details>
+  </figure></div>
+</div>
+</section>
+
+<!-- ═══════════════════════════ ACT 2 ═══════════════════════════ -->
+<section class="act" id="act2">
+<header class="act-head">
+  <div class="eyebrow">Act 2</div>
+  <h2>The churn</h2>
+  <p class="lede">Inside the flat line of Act 1, everything was moving.</p>
+</header>
+<div class="scene">
+  <div class="steps">
+    <div class="step" data-act="a2" data-idx="0"><div class="step-inner">
+      <strong>1997.</strong> Finance is two-fifths of the economy — banking, insurance, funds. Everything else shares the rest.
+    </div></div>
+    <div class="step" data-act="a2" data-idx="1"><div class="step-inner">
+      Then come the flavours, each with its own promotion push. Film from 1995. <strong>E-gaming</strong> licensed from 2001; the big operators land from 2005. Space and digital follow. Watch the purple band.
+    </div></div>
+    <div class="step" data-act="a2" data-idx="2"><div class="step-inner">
+      By 2016 e-gaming is <strong>28 per cent</strong> of the economy, from nothing in 1998. Meanwhile everything that is not finance, e-gaming or government has shrunk from 56 per cent of the economy to 26.
+    </div></div>
+    <div class="step" data-act="a2" data-idx="3"><div class="step-inner">
+      Each new sector claimed a bigger slice. But hold Act 1 in mind: the total barely moved.
+      <p class="keyline" style="margin-top:12px">The slices changed hands. The pie did not grow.</p>
+      <details class="aside"><summary>For the technically minded</summary>
+      Shares are of nominal GVA, so e-gaming's slice includes offshore operating margins booked to the Island; its share overstates its footprint in jobs and local spending. The step in the government band at 2007 is a reclassification in the accounts, not a hiring spree. Act 1, by contrast, measures real, price-adjusted output.</details>
+    </div></div>
+  </div>
+  <div class="g-col"><figure class="fig-panel">
+    <div class="fig-title">Who holds the slices</div>
+    <div class="fig-sub">Share of nominal GVA, per cent, 1997–2023</div>
+    <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--blue)"></i>Finance</span><span class="leg-item"><i class="leg-sw" style="background:var(--purple)"></i>E-gaming</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Government</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>Everything else</span></div>
+    <div id="a2-chart"></div>
+    <div class="fig-src">Source: Isle of Man national income accounts, sector shares of nominal GVA.</div>
+    <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a2-tbl"></div></details>
+  </figure></div>
+</div>
+</section>
+
+<!-- ═══════════════════════════ ACT 3 ═══════════════════════════ -->
+<section class="act" id="act3">
+<header class="act-head">
+  <div class="eyebrow">Act 3</div>
+  <h2>A fixed pool of people</h2>
+  <p class="lede">New sectors need workers. The Island stopped producing them.</p>
+</header>
+<div class="scene">
+  <div class="steps">
+    <div class="step" data-act="a3" data-idx="0"><div class="step-inner">
+      <strong>1951:</strong> 54,024 people. The Island then grew for sixty years — through the tourist trade, then the finance boom, then everything after. <strong>84,497</strong> by 2011.
+    </div></div>
+    <div class="step" data-act="a3" data-idx="1"><div class="step-inner">
+      Then it stopped. 2011: 84,497. 2024: 84,756. Thirteen years, <strong>259 more people</strong>.
+    </div></div>
+    <div class="step" data-act="a3" data-idx="2"><div class="step-inner">
+      Deaths have exceeded births every year since <strong>2017</strong>. In 2024 natural change was −351 and net migration +651. Every extra worker must now be imported, housed, and kept.
+    </div></div>
+    <div class="step" data-act="a3" data-idx="3"><div class="step-inner">
+      So where did each new flavour find its workers? Not by retraining the old ones. <strong>The Island swaps people with the UK.</strong> Each new sector imports its specialists: older, experienced, mid-career. Meanwhile, between the 2001 and 2021 censuses: retail lost 1,314 jobs. Manufacturing lost 1,135. Farming and fishing lost 1,027. Hospitality lost 814. Finance itself lost 1,507.
+    </div></div>
+    <div class="step" data-act="a3" data-idx="4"><div class="step-inner">
+      The workers those sectors no longer needed — disproportionately younger, local people — left. A flat population is not stillness. It is churn at equilibrium: specialists in, school-leavers out.
+      <p class="keyline" style="margin-top:12px">On a full island, every migrant in is a migrant out.</p>
+    </div></div>
+    <div class="step" data-act="a3" data-idx="5"><div class="step-inner">
+      One employer grew: <strong>government</strong>. Health, education and administration added 2,643 jobs. And the biggest flavour barely hires. By the 2021 census — past the sector's peak share, which touched 30 per cent in 2017 — e-gaming was about a fifth of the economy on <strong>1,086 jobs</strong>, three per cent of the workforce.
+      <details class="aside"><summary>For the technically minded</summary>
+      Employment is from the census of population (residents in work, self-classified by industry), so it is a different lens from the GVA accounts. Total employment: 32,293 in 2001, 31,719 in 2021 — a twenty-year round trip. Note that a census measures stocks, not flows: it shows where jobs stood, not the gross traffic in between, so the two-way churn cannot be read from it directly. The churn mechanism — specialists in, displaced younger workers out — is the reading of the 2010/11 systems-dynamics work, consistent with these stocks. One honest limitation: the simulator in Act 6 carries net migration only; it cannot represent the two-way flow. E-gaming employment counts licence-holder staff; its £801m of GVA (2023) includes offshore margins.</details>
+    </div></div>
+  </div>
+  <div class="g-col">
+    <figure class="fig-panel fig-alt on" id="a3-figA">
+      <div class="fig-title">Population of the Isle of Man</div>
+      <div class="fig-sub">Residents, 1951–2024</div>
+      <div class="legend"><span class="leg-item"><i class="leg-dot" style="background:var(--iom)"></i>Census</span><span class="leg-item"><i class="leg-dot" style="border:2px solid var(--iom);background:transparent"></i>Annual estimate</span></div>
+      <div id="a3-pop"></div>
+      <div class="fig-src">Source: Isle of Man census reports 1951–2021; annual population estimates (experimental) 2022–24.</div>
+      <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a3-tblA"></div></details>
+    </figure>
+    <figure class="fig-panel fig-alt" id="a3-figB">
+      <div class="fig-title">Where the jobs went, 2001 → 2021</div>
+      <div class="fig-sub">Employment by sector, census counts</div>
+      <div class="legend"><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>2001 census</span><span class="leg-item"><i class="leg-dot" style="background:var(--iom)"></i>2021 census</span></div>
+      <div id="a3-db"></div>
+      <div class="fig-src">Source: Isle of Man census of population, 2001 and 2021. Residents in employment by industry.</div>
+      <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a3-tblB"></div></details>
+    </figure>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════ ACT 4 ═══════════════════════════ -->
+<section class="act" id="act4">
+<header class="act-head">
+  <div class="eyebrow">Act 4</div>
+  <h2>The engine in the basement</h2>
+  <p class="lede">If the economy didn't grow, what paid for the government that did?</p>
+</header>
+<div class="scene">
+  <div class="steps">
+    <div class="step" data-act="a4" data-idx="0"><div class="step-inner">
+      The Island does not keep its own VAT takings directly. Under a revenue-sharing agreement with the UK it draws a share of a common pool. In 1998 that share brought in <strong>£156m</strong>. By 2007: <strong>£430m</strong>. It nearly trebled in nine years — while the economy, in real terms, went nowhere.
+    </div></div>
+    <div class="step" data-act="a4" data-idx="1"><div class="step-inner">
+      This one stream rose from <strong>52 per cent to 72 per cent</strong> of Treasury receipts. Spending followed it up. So did public hiring. The loop on the right span faster each year: spend, get measured, claim the share, receive, spend again.
+    </div></div>
+    <div class="step" data-act="a4" data-idx="2"><div class="step-inner">
+      <strong>2009 and 2011:</strong> the UK rebased the formula, twice. Receipts fell from £438m in 2006 to <strong>£296m</strong> in 2012. The engine had been paying for the government. Now the government had to shrink — and, mostly, didn't.
+    </div></div>
+    <div class="step" data-act="a4" data-idx="3"><div class="step-inner">
+      <strong>2016:</strong> a new arrangement, FERSA, ties the share to the Island's own measured expenditure, averaged over five years. A further true-up follows in <strong>2025</strong>. Each revision moves the pool closer to what islanders actually spend.
+    </div></div>
+    <div class="step" data-act="a4" data-idx="4"><div class="step-inner">
+      <p class="keyline">For a decade, the public sector's growth was paid for by a formula, not by the economy.</p>
+      <details class="aside"><summary>For the technically minded</summary>
+      Under the 1979 Customs and Excise Agreement, shared duties are pooled and divided by formula. Before 2009 the Island's share keyed off an arrangement that outgrew its measured economy; the 2009 and 2011 revisions and the 2016 Final Expenditure Revenue Sharing Arrangement progressively re-anchored it to actual island final expenditure, with a five-year averaging lag. Receipts here are nominal Customs &amp; Excise revenue, Treasury accounts.</details>
+    </div></div>
+  </div>
+  <div class="g-col"><figure class="fig-panel">
+    <div class="fig-title">Customs &amp; Excise receipts</div>
+    <div class="fig-sub">£ million per year, nominal, 1998–2023</div>
+    <div id="a4-chart"></div>
+    <div id="a4-loop" style="margin-top:6px"></div>
+    <div class="fig-src">Source: Isle of Man Treasury accounts, Customs &amp; Excise receipts.</div>
+    <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a4-tbl"></div></details>
+  </figure></div>
+</div>
+</section>
+
+<!-- ═══════════════════════════ ACT 5 ═══════════════════════════ -->
+<section class="act" id="act5">
+<header class="act-head">
+  <div class="eyebrow">Act 5</div>
+  <h2>Three claimants, one island</h2>
+  <p class="lede">Put the three stories on one axis and the shape of the problem appears.</p>
+</header>
+<div class="scene">
+  <div class="steps">
+    <div class="step" data-act="a5" data-idx="0"><div class="step-inner">
+      Take 2011 as 100 — the earliest year the official house-price record runs on a consistent basis. <strong>People:</strong> essentially flat. <strong>Output:</strong> plus fifteen. Two nearly flat lines.
+    </div></div>
+    <div class="step" data-act="a5" data-idx="1"><div class="step-inner">
+      Now add houses. A median house cost 5.1× median earnings in 1998; by 2025 it cost 9.1× (HMR 2025, Appendix Four). On price alone: the official median house sold for £250,000 in 2011 and <strong>£353,000</strong> in 2025 — plus 41 per cent, on a population that barely moved.
+    </div></div>
+    <div class="step" data-act="a5" data-idx="2"><div class="step-inner">
+      Three claimants bid for one fixed pool of workers and homes: the <strong>public sector</strong>, the <strong>existing economy</strong>, and <strong>this year's flavour</strong>. A new sector does not conjure new people. It outbids an old employer for staff, and outbids a neighbour for a house.
+      <p class="keyline" style="margin-top:12px">Our competition isn't with the globe. It's internal.</p>
+      <details class="aside"><summary>For the technically minded</summary>
+      House prices are the official annual median house price (houses only — flats and land excluded), the average of the four quarterly Appendix One figures published in the Isle of Man Housing Market Reports; the series is only available on a consistent basis from 2011, so 2011 is used as the common base year here (not 2005). Population between censuses is interpolated linearly. Output is the real GVA index of Act 1, rebased to 2011 (latest year 2022). In a supply-constrained labour and housing market, sector promotion largely reallocates inputs and capitalises into prices — the mechanism the simulator below makes explicit. An earlier version of this page used a median of all land-registry transactions (flats and land included), which runs ~12% below the houses-only median with a matching trend; a reader's cross-check prompted the switch to the official series.</details>
+    </div></div>
+  </div>
+  <div class="g-col"><figure class="fig-panel">
+    <div class="fig-title">People, output, house prices</div>
+    <div class="fig-sub">Indexed, 2011 = 100</div>
+    <div class="mini-stats">
+      <div class="card"><div class="card-label">Population</div><div class="card-value">+0.3%</div><div class="card-sub">2011–2024</div></div>
+      <div class="card c-iom"><div class="card-label">Real output</div><div class="card-value">+15%</div><div class="card-sub">2011–2022</div></div>
+      <div class="card c-amber"><div class="card-label">Median house</div><div class="card-value">+41%</div><div class="card-sub">2011–2025</div></div>
+    </div>
+    <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--amber)"></i>Median house price (houses)</span><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Real output</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Population</span></div>
+    <div id="a5-chart"></div>
+    <div class="fig-src">Sources: Isle of Man Housing Market Reports, Appendix One: median house price (houses), annual average of quarters; national income accounts; census reports. All indexed, 2011 = 100.</div>
+    <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a5-tbl"></div></details>
+  </figure></div>
+</div>
+</section>
+
+<!-- ═══════════════════════════ ACT 6 · SIMULATOR ═══════════════════════════ -->
+<section class="sim" id="act6">
+  <div class="act-head" style="padding-bottom:0">
+    <div class="eyebrow">Act 6</div>
+    <h2>Run the Island</h2>
+    <p class="lede">This page rests on a small calibrated model: three private sectors, a public sector,
+    houses, people, and the VAT formula. It reproduces the history you have just scrolled through.
+    From 2025, the controls are yours. Runs extend to 2040.</p>
+  </div>
+  <div class="sim-grid">
+    <div class="sim-controls">
+      <div class="slider-block">
+        <div class="slider-head"><label for="sl-promo">Promotion intensity</label><output id="out-promo">25%</output></div>
+        <input type="range" id="sl-promo" min="0" max="100" value="25" step="5" aria-describedby="hint-promo"/>
+        <div class="slider-hint" id="hint-promo">How hard the Island courts the next sector. 25% is roughly today's tax-capped level; 100% is the 2005–15 push.</div>
+      </div>
+      <div class="slider-block">
+        <div class="slider-head"><label for="sl-hire">Public-sector hiring restraint</label><output id="out-hire">0%</output></div>
+        <input type="range" id="sl-hire" min="0" max="100" value="0" step="5" aria-describedby="hint-hire"/>
+        <div class="slider-hint" id="hint-hire">0% hires as revenue allows, as history did. 100% freezes headcount.</div>
+      </div>
+      <div class="slider-block">
+        <div class="slider-head"><label for="sl-house">Housing completions</label><output id="out-house">100%</output></div>
+        <input type="range" id="sl-house" min="50" max="300" value="100" step="10" aria-describedby="hint-house"/>
+        <div class="slider-hint" id="hint-house">New homes per year, relative to the recent rate of roughly 300.</div>
+      </div>
+      <div class="slider-block">
+        <div class="slider-head"><label for="sl-mig">Migration openness</label><output id="out-mig">100%</output></div>
+        <input type="range" id="sl-mig" min="0" max="200" value="100" step="10" aria-describedby="hint-mig"/>
+        <div class="slider-hint" id="hint-mig">How freely workers move in response to jobs. 100% matches calibrated history; 0% closes the door.</div>
+      </div>
+      <div class="slider-block">
+        <div class="slider-head"><label for="sl-world">World growth</label><output id="out-world">1.4%/yr</output></div>
+        <input type="range" id="sl-world" min="0" max="3" value="1.4" step="0.1" aria-describedby="hint-world"/>
+        <div class="slider-hint" id="hint-world">The model's demand input is UK growth — the observed path through history. This sets its future from 2025. 1.4%/yr is the baseline assumption.</div>
+      </div>
+      <button class="pill" id="sim-reset" type="button">Reset to baseline</button>
+      <div class="sim-caveat">A model, not a forecast. It is the story above made mechanical. Use it to compare policies, not to predict 2040. Controls apply from 2025; history to 2024 is fixed.</div>
+    </div>
+    <div>
+      <div class="sim-readouts">
+        <div class="card c-iom"><div class="card-label">Real output 2040</div><div class="card-value" id="ro-gva">–</div><div class="card-sub" id="ro-gva-sub">index, 1998 = 100</div></div>
+        <div class="card"><div class="card-label">Population 2040</div><div class="card-value" id="ro-pop">–</div><div class="card-sub" id="ro-pop-sub">residents</div></div>
+        <div class="card c-amber"><div class="card-label">Median house 2040</div><div class="card-value" id="ro-hp">–</div><div class="card-sub" id="ro-hp-sub">nominal</div></div>
+      </div>
+      <div class="sim-charts">
+        <div class="fig-panel">
+          <div class="fig-title">Real output</div>
+          <div class="fig-sub">Real GVA index, 1998 = 100</div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Your run</span><span class="leg-item"><i class="leg-sw" style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Baseline model</span><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>History (observed)</span></div>
+          <div id="sim-gva"></div>
+          <div class="fig-src">Observed: Isle of Man national income accounts to 2022.</div>
+        </div>
+        <div class="fig-panel">
+          <div class="fig-title">House prices</div>
+          <div class="fig-sub">Median house price (houses only), £ thousand, nominal — simulated output rescaled ×1.13 to this basis</div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--amber)"></i>Your run</span><span class="leg-item"><i class="leg-sw" style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Baseline model</span><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>History (observed)</span></div>
+          <div id="sim-hp"></div>
+          <div class="fig-src">Observed: Isle of Man Housing Market Reports, Appendix One: median house price (houses), annual average of quarters, 2011–2025.</div>
+        </div>
+        <div class="fig-panel" style="grid-column:1 / -1">
+          <div class="fig-title">Sectors under your run</div>
+          <div class="fig-sub">Real GVA by sector, £ million, 2022 prices, 1998–2040</div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--blue)"></i>Finance</span><span class="leg-item"><i class="leg-sw" style="background:var(--purple)"></i>E-gaming</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>Existing economy</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Public sector</span></div>
+          <div id="sim-sec"></div>
+          <div class="fig-src">Model output; sector definitions as in Act 2. Public sector is GVA of government services.</div>
+        </div>
+      </div>
+      <details class="tbl" style="margin-top:12px"><summary>Data table — your run v baseline</summary><div class="tbl-scroll" id="sim-tbl"></div></details>
+      <details class="aside"><summary>For the technically minded</summary>
+      The simulator is a line-for-line JavaScript port of the calibrated pass-2 systems-dynamics model (annual deterministic loop, 1998–2040): sectors for finance, e-gaming and the existing economy; migration responding to vacancy pressure; a relative-cost index that crowds out the existing sector; house prices driven by the people-to-dwellings ratio; and the customs formula in its three historical regimes. Port parity against the Python original is exact to floating-point rounding (see source comment). Beyond 2026, external inputs are held steady: UK growth 1.4%/yr, inflation 2%, interest rates 3.5%. The world-growth lever replaces the UK real-growth input from 2025 onward (history keeps the observed path) and also scales the e-gaming global demand ceiling by 15 per cent per percentage point of growth above or below the 1.4% baseline; at its default the lever reproduces the baseline path exactly. The model's house-price equations were calibrated against the older all-transactions series and have not been re-fitted; simulated house prices shown here are rescaled ×1.13 — the mean official/old ratio over 2011–2025 — to display on the official houses-only basis. This is a display-only correction: the model's internal equations, growth rates and every other output are untouched, and a full recalibration to the houses-only series is scheduled.</details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ CODA ═══════════════════════════ -->
+<footer class="coda">
+  <p>The analysis behind this page was first set out in a 2010 systems-dynamics study and a
+  2011 discussion paper delivered to the Isle of Man Treasury. Every number is from official
+  published sources.</p>
+  <p><a href="economy-explorer.html">Explore the data yourself in the Economy Explorer →</a></p>
+  <details class="aside"><summary>Data sources</summary>
+    <ul style="padding-left:18px">
+      <li>Isle of Man Government, national income accounts — GVA in real terms, constant 2022 values, and nominal sector shares</li>
+      <li>Office for National Statistics — UK GVA, chained volume measures</li>
+      <li>Isle of Man census reports, 1951–2021; annual population estimates (experimental), 2022–24</li>
+      <li>Isle of Man census of population — employment by industry, 2001 and 2021</li>
+      <li>Isle of Man Treasury — Customs &amp; Excise receipts, annual accounts</li>
+      <li>Isle of Man Housing Market Reports, Appendix One: median house price (houses), annual average of quarters; Appendix Four: median house price to median earnings ratio</li>
+    </ul>
+  </details>
+  <div class="page-footer">
+    <span>Crown Dependencies Observatory · observatory.coalfinch.com</span>
+    <a href="mailto:james.cochrane@coalfinch.com">Contact</a>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+
+<div id="tip" role="status" aria-hidden="true"></div>
+
+<script>
+'use strict';
+/* ════════════════════════════ DATA ════════════════════════════ */
+const DATA = {
+  idx: {years:[1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022],
+    iom:[100,104.4,108.7,105.4,102.3,98.7,97.5,98.7,103.1,108.7,105.8,100.3,96.1,95.5,92.3,92.3,96.7,98.4,99.1,100.2,101.7,104.3,94.3,103.2,110.1],
+    uk:[100,102.9,107.7,110.3,112,115.6,117.9,121.6,124.4,128.1,128.2,122.4,125.5,126.5,128.7,130.9,135,137.7,140.9,145.2,147.4,149.4,135,146.8,153.7]},
+  shares: {years:[1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023],
+    finance:[39.4,42,40.5,41.5,37.3,37.8,35.6,35.1,36.3,36,38,38.1,33.7,35.1,35.5,34.1,32.4,32.1,35.2,34.7,31.5,35.3,35.1,36.8,32.2,32.8,35.7],
+    egaming:[0,0,2.2,2.8,3.2,3.4,3.6,3.2,3,3.4,6.7,10,13,12.3,13.6,19.1,25.1,28.2,26.6,28.4,30.1,24.5,25.8,18.1,20.3,20.6,18.5],
+    public:[5,4.8,4.5,4.4,4.3,4.4,4.5,4.4,4.6,4.5,12.3,12.1,12.4,11.8,11.1,10.6,10.6,10.3,10.4,10.5,10,9.9,10.3,12.4,11.5,11.5,12.7],
+    other:[55.6,53.2,52.8,51.3,55.2,54.4,56.3,57.4,56.2,56.2,43,39.9,40.9,40.7,39.8,36.2,31.9,29.4,27.8,26.4,28.4,30.3,28.8,32.7,36,35.1,33.1]},
+  pop: {years:[1951,1961,1966,1971,1976,1981,1986,1991,1996,2001,2006,2011,2016,2021,2022,2023,2024],
+    values:[54024,47166,49312,53228,60496,64679,64282,69788,71714,76315,80058,84497,83314,84069,84172,84485,84756],
+    est:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1]},
+  db: [
+    {s:'Retail', a:5001, b:3687},
+    {s:'Manufacturing', a:1798, b:663},
+    {s:'Farming & fishing', a:1476, b:449},
+    {s:'Hospitality', a:2455, b:1641},
+    {s:'Finance', a:7300, b:5793},
+    {s:'Transport', a:1228, b:1028},
+    {s:'Construction', a:2932, b:2876},
+    {s:'IT (excl. e-gaming)', a:891, b:893},
+    {s:'Business services', a:1299, b:1905},
+    {s:'Public sector', a:5771, b:8414}
+  ],
+  customs: {years:[1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023],
+    values:[155.9,183.3,221.9,299.9,251.6,306.2,325.8,369.2,438.5,429.9,408.5,372.9,350,366.4,296,312,319.7,355,348.5,358.7,369.7,444.5,328.4,390.2,443.1,441.7]},
+  /* Official houses-only median, annual average of quarterly Appendix One
+     "Median House Price" from the Isle of Man Housing Market Reports
+     (latest edition wins where reports overlap/revise). Starts 2011 — the
+     first calendar year with all four quarters on this basis; see
+     /root/work/analysis/NOTES.md for the full per-quarter source log. */
+  hp: {years:[2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+    values:[250000,244300,239500,242375,249362.5,247987.5,249181.25,252937.5,260112.5,272556.25,299487.5,340868.75,349875,349493.75,353231.25]},
+  /* HMR 2025, Appendix Four: Median House Price to Median Earnings ratio */
+  hp_ratio: {years:[1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+    values:[7.02,6.07,5.55,5.26,4.7,5.04,4.9,4.68,4.87,5.11,5.67,5.44,5.97,6.4,7.32,8.94,9.45,9.0,9.68,10.38,9.69,9.75,9.66,9.0,9.12,8.72,8.93,8.78,8.59,8.37,8.57,8.89,10.04,9.97,9.04,8.83,9.09]},
+  /* Superseded: a crude median of ALL land-registry completions (£20k–£5m
+     filter, flats and land included), previously displayed as house_price.
+     Kept only so the technical aside below can state the measured offset. */
+  hp_old_alltx: {years:[2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+    values:[84500,150000,168475,174975,175000,192665,217500,225000,205000,222500,227000,219975,210000,220000,215000,220000,225000,230000,230000,245000,269950,299950,300000,292870,310000]}
+};
+
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NS = 'http://www.w3.org/2000/svg';
+function E(tag, attrs, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function fmtN(v) { return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function tween(from, to, dur, fn) {
+  if (RM || dur <= 0 || from === to) { fn(to); return null; }
+  const t0 = performance.now();
+  function frame(t) {
+    const u = Math.min(1, (t - t0) / dur);
+    fn(from + (to - from) * (0.5 - 0.5 * Math.cos(Math.PI * u)));
+    if (u < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* shared tooltip */
+const TIP = document.getElementById('tip');
+function tipShow(html, cx, cy) {
+  TIP.innerHTML = html; TIP.style.display = 'block';
+  const r = TIP.getBoundingClientRect();
+  let x = cx + 14, y = cy - r.height - 10;
+  if (x + r.width > window.innerWidth - 8) x = cx - r.width - 14;
+  if (y < 8) y = cy + 16;
+  TIP.style.left = x + 'px'; TIP.style.top = y + 'px';
+}
+function tipHide() { TIP.style.display = 'none'; }
+
+let CLIP_ID = 0;
+
+/* ═══════════════════ LineChart (hand-rolled SVG) ═══════════════════ */
+function LineChart(el, cfg) {
+  const W = cfg.w || 720, H = cfg.h || 400;
+  const pad = Object.assign({l:42, r:120, t:28, b:30}, cfg.pad || {});
+  const years = cfg.years, n = years.length;
+  const svg = E('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':cfg.aria || ''}, el);
+  const x = i => pad.l + (i / (n - 1)) * (W - pad.l - pad.r);
+  let yDom = cfg.yDom.slice();
+  const y = v => H - pad.b - (v - yDom[0]) / (yDom[1] - yDom[0]) * (H - pad.t - pad.b);
+
+  const gGrid = E('g', {}, svg);
+  const clipId = 'clip' + (++CLIP_ID);
+  const defs = E('defs', {}, svg);
+  const clipRect = E('rect', {x:0, y:0, width:0, height:H}, E('clipPath', {id:clipId}, defs));
+  const gSeries = E('g', {'clip-path':`url(#${clipId})`}, svg);
+  const gDots = E('g', {'clip-path':`url(#${clipId})`}, svg);
+  const gLabels = E('g', {}, svg);
+  const gAnn = E('g', {}, svg);
+  const cross = E('line', {y1:pad.t, y2:H - pad.b, stroke:'var(--muted)', 'stroke-width':1, opacity:0}, svg);
+
+  function drawAxes() {
+    gGrid.innerHTML = '';
+    (cfg.yTicks || []).forEach(v => {
+      E('line', {x1:pad.l, x2:W - pad.r + 40, y1:y(v), y2:y(v), stroke:'var(--border2)', 'stroke-width':1, opacity:0.55}, gGrid);
+      E('text', {x:pad.l - 7, y:y(v) + 3.5, 'text-anchor':'end', 'font-size':10, fill:'var(--muted)'}, gGrid)
+        .textContent = cfg.yFmt ? cfg.yFmt(v) : v;
+    });
+    (cfg.xTicks || []).forEach(yr => {
+      const i = years.indexOf(yr); if (i < 0) return;
+      E('text', {x:x(i), y:H - pad.b + 16, 'text-anchor':'middle', 'font-size':10, fill:'var(--muted)'}, gGrid).textContent = yr;
+      E('line', {x1:x(i), x2:x(i), y1:H - pad.b, y2:H - pad.b + 4, stroke:'var(--border2)', 'stroke-width':1}, gGrid);
+    });
+    E('line', {x1:pad.l, x2:W - pad.r + 40, y1:H - pad.b, y2:H - pad.b, stroke:'var(--border2)', 'stroke-width':1}, gGrid);
+    if (cfg.yLabel) E('text', {x:pad.l - 34, y:12, 'font-size':10, fill:'var(--muted)'}, gGrid).textContent = cfg.yLabel;
+  }
+
+  function pathFor(vals) {
+    let d = '', pen = false;
+    for (let i = 0; i < n; i++) {
+      const v = vals[i];
+      if (v == null) { pen = false; continue; }
+      d += (pen ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1);
+      pen = true;
+    }
+    return d;
+  }
+
+  const S = {};
+  function drawSeries() {
+    gSeries.innerHTML = ''; gDots.innerHTML = ''; gLabels.innerHTML = '';
+    cfg.series.forEach(sr => {
+      const o = S[sr.id] = {cfg: sr};
+      if (sr.area) {
+        let dA = pathFor(sr.values);
+        if (dA) {
+          const firstI = sr.values.findIndex(v => v != null);
+          let lastI = n - 1; while (sr.values[lastI] == null) lastI--;
+          dA += `L${x(lastI).toFixed(1)} ${y(yDom[0]).toFixed(1)}L${x(firstI).toFixed(1)} ${y(yDom[0]).toFixed(1)}Z`;
+          E('path', {d:dA, style:`fill:${sr.color}`, opacity:0.1, stroke:'none'}, gSeries);
+        }
+      }
+      if (!sr.dotsOnly) {
+        o.path = E('path', {d:pathFor(sr.values), fill:'none', style:`stroke:${sr.color}`,
+          'stroke-width':sr.width || 2, 'stroke-linejoin':'round', 'stroke-linecap':'round'}, gSeries);
+        if (sr.dash) o.path.setAttribute('stroke-dasharray', sr.dash);
+      }
+      if (sr.dots || sr.dotsOnly) {
+        sr.values.forEach((v, i) => {
+          if (v == null) return;
+          const hollow = sr.hollow && sr.hollow[i];
+          E('circle', {cx:x(i), cy:y(v), r:4,
+            style: hollow ? `fill:var(--surface);stroke:${sr.color}` : `fill:${sr.color};stroke:var(--surface)`,
+            'stroke-width':2}, gDots);
+        });
+      }
+      if (sr.label !== false) {
+        o.lab = E('g', {opacity:0}, gLabels);
+        o.dot = E('circle', {r:4.5, style:`fill:${sr.color};stroke:var(--surface)`, 'stroke-width':2}, o.lab);
+        o.txt = E('text', {'font-size':11, 'font-weight':600, fill:'var(--text)', x:9, y:4}, o.lab);
+      }
+    });
+  }
+
+  let curIdx = -1;
+  function labelAt(idx) {
+    const placed = [];
+    cfg.series.forEach(sr => {
+      const o = S[sr.id];
+      if (!o.lab) return;
+      let i = Math.min(idx, n - 1);
+      while (i >= 0 && sr.values[i] == null) i--;
+      if (i < 0) { o.lab.setAttribute('opacity', 0); return; }
+      let ly = y(sr.values[i]);
+      placed.forEach(py => { if (Math.abs(py - ly) < 15) ly = py + (ly >= py ? 15 : -15); });
+      placed.push(ly);
+      o.lab.setAttribute('opacity', 1);
+      o.lab.setAttribute('transform', `translate(${x(i)},${ly})`);
+      const nm = (sr.endName != null) ? sr.endName : sr.name;
+      o.txt.textContent = (nm ? nm + ' ' : '') + (sr.endFmt ? sr.endFmt(sr.values[i]) : '');
+    });
+  }
+
+  function revealTo(idx, dur) {
+    idx = Math.max(0, Math.min(idx, n - 1));
+    const from = curIdx < 0 ? 0 : x(curIdx) + 6;
+    const to = x(idx) + 6;
+    curIdx = idx;
+    tween(from, to, dur == null ? 900 : dur, w => clipRect.setAttribute('width', w));
+    labelAt(idx);
+  }
+
+  /* annotations: {id, year, v, text, dy} */
+  const anns = {};
+  (cfg.anns || []).forEach(a => {
+    const i = years.indexOf(a.year);
+    const g = E('g', {class:'ann'}, gAnn);
+    const px = x(i), py = y(a.v);
+    const dy = a.dy || -30;
+    E('line', {x1:px, x2:px, y1:py + (dy < 0 ? -8 : 8), y2:py + dy + (dy < 0 ? 10 : -4), stroke:'var(--amber)', 'stroke-width':1, opacity:0.7}, g);
+    E('circle', {cx:px, cy:py, r:3.5, style:'fill:var(--amber);stroke:var(--surface)', 'stroke-width':2}, g);
+    const t = E('text', {x:px + (a.dx || 0), y:py + dy, 'text-anchor':a.anchor || 'middle', 'font-size':10.5, fill:'var(--muted2)'}, g);
+    a.text.split('\n').forEach((ln, k) => {
+      E('tspan', {x:px + (a.dx || 0), dy:k === 0 ? 0 : 12}, t).textContent = ln;
+    });
+    anns[a.id] = g;
+  });
+  function showAnns(ids) {
+    for (const id in anns) anns[id].classList.toggle('on', ids.includes(id));
+  }
+
+  /* tooltip + crosshair */
+  const hit = E('rect', {x:pad.l - 6, y:0, width:W - pad.l - pad.r + 52, height:H, fill:'transparent'}, svg);
+  hit.addEventListener('pointermove', ev => {
+    const r = svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) / r.width * W;
+    let i = Math.round((sx - pad.l) / (W - pad.l - pad.r) * (n - 1));
+    i = Math.max(0, Math.min(n - 1, curIdx >= 0 ? Math.min(i, curIdx) : i));
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i));
+    cross.setAttribute('opacity', 0.6);
+    let html = `<div class="tip-yr">${years[i]}</div>`;
+    cfg.series.forEach(sr => {
+      const v = sr.values[i];
+      if (v == null) return;
+      html += `<div class="tip-row"><i style="background:${sr.color}"></i>${sr.name}<b>${(sr.fmt || cfg.yFmt || (q=>q))(v)}</b></div>`;
+    });
+    tipShow(html, ev.clientX, ev.clientY);
+  });
+  hit.addEventListener('pointerleave', () => { cross.setAttribute('opacity', 0); tipHide(); });
+
+  drawAxes(); drawSeries();
+  if (cfg.startRevealed) revealTo(n - 1, 0);
+
+  return {
+    revealTo, showAnns, svg,
+    setYDom(dom, ticks) { yDom = dom.slice(); cfg.yTicks = ticks; drawAxes(); drawSeries(); if (curIdx >= 0) { clipRect.setAttribute('width', x(curIdx) + 6); labelAt(curIdx); } },
+    setValues(id, vals, animate) {
+      const sr = cfg.series.find(s => s.id === id);
+      sr.values = vals;
+      drawSeries();
+      if (curIdx >= 0) { clipRect.setAttribute('width', x(curIdx) + 6); labelAt(curIdx); }
+      const o = S[id];
+      if (animate && !RM && o && o.path) {
+        const L = o.path.getTotalLength();
+        if (L > 0) {
+          o.path.setAttribute('stroke-dasharray', L + ' ' + L);
+          tween(L, 0, 1100, off => o.path.setAttribute('stroke-dashoffset', off));
+        }
+      }
+    }
+  };
+}
+
+/* ═══════════════════ Stacked share chart (Act 2) ═══════════════════ */
+function StackChart(el) {
+  const d = DATA.shares, years = d.years, n = years.length;
+  const W = 720, H = 420, pad = {l:40, r:128, t:18, b:30};
+  const bands = [
+    {id:'finance', name:'Finance', lab:'Finance', color:'var(--blue)', vals:d.finance},
+    {id:'egaming', name:'E-gaming', lab:'E-gaming', color:'var(--purple)', vals:d.egaming},
+    {id:'public', name:'Government', lab:'Government', color:'var(--green)', vals:d.public},
+    {id:'other', name:'Everything else', lab:'Other', color:'var(--uk)', vals:d.other}
+  ];
+  const svg = E('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Stacked shares of nominal GVA by sector, 1997 to 2023'}, el);
+  const x = i => pad.l + (i / (n - 1)) * (W - pad.l - pad.r);
+  const y = v => H - pad.b - v / 100 * (H - pad.t - pad.b);
+
+  [0, 25, 50, 75, 100].forEach(v => {
+    E('line', {x1:pad.l, x2:W - pad.r, y1:y(v), y2:y(v), stroke:'var(--border2)', 'stroke-width':1, opacity:0.55}, svg);
+    E('text', {x:pad.l - 7, y:y(v) + 3.5, 'text-anchor':'end', 'font-size':10, fill:'var(--muted)'}, svg).textContent = v + '%';
+  });
+  [1997, 2002, 2007, 2012, 2017, 2023].forEach(yr => {
+    const i = years.indexOf(yr);
+    E('text', {x:x(i), y:H - pad.b + 16, 'text-anchor':'middle', 'font-size':10, fill:'var(--muted)'}, svg).textContent = yr;
+  });
+
+  const clipId = 'clip' + (++CLIP_ID);
+  const clipRect = E('rect', {x:0, y:0, width:0, height:H}, E('clipPath', {id:clipId}, E('defs', {}, svg)));
+  const g = E('g', {'clip-path':`url(#${clipId})`}, svg);
+
+  // cumulative stack bottom-up: finance, egaming, public, other
+  const cum = [new Array(n).fill(0)];
+  bands.forEach((b, k) => cum.push(years.map((_, i) => cum[k][i] + b.vals[i])));
+  const bandEls = bands.map((b, k) => {
+    let dTop = '', dBot = '';
+    for (let i = 0; i < n; i++) dTop += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(cum[k + 1][i]).toFixed(1);
+    for (let i = n - 1; i >= 0; i--) dBot += 'L' + x(i).toFixed(1) + ' ' + y(cum[k][i]).toFixed(1);
+    const fill = E('path', {d:dTop + dBot + 'Z', style:`fill:${b.color}`, opacity:0.4, stroke:'none'}, g);
+    // 2px surface gap between stacked fills
+    const edge = E('path', {d:dTop, fill:'none', stroke:'var(--surface)', 'stroke-width':2}, g);
+    return {fill, edge, b};
+  });
+
+  // year badge + right-edge direct labels
+  const badge = E('text', {x:pad.l + 6, y:pad.t + 14, 'font-size':15, 'font-weight':700, fill:'var(--muted)'}, svg);
+  const labs = bands.map((b, k) => {
+    const i = n - 1;
+    const my = (y(cum[k][i]) + y(cum[k + 1][i])) / 2;
+    const gl = E('g', {opacity:0, class:'ann'}, svg);
+    E('circle', {cx:W - pad.r + 8, cy:my - 3.5, r:4, style:`fill:${b.color}`}, gl);
+    E('text', {x:W - pad.r + 16, y:my, 'font-size':11, fill:'var(--text)', 'font-weight':600}, gl)
+      .textContent = `${b.lab} ${b.vals[i].toFixed(0)}%`;
+    return gl;
+  });
+
+  let curIdx = -1;
+  function revealTo(idx, hi) {
+    idx = Math.min(idx, n - 1);
+    const from = curIdx < 0 ? 0 : x(curIdx) + 4;
+    curIdx = idx;
+    tween(from, x(idx) + 4, 1100, w => {
+      clipRect.setAttribute('width', w);
+      const i = Math.round(Math.max(0, Math.min(n - 1, (w - 4 - pad.l) / (W - pad.l - pad.r) * (n - 1))));
+      badge.textContent = years[i];
+    });
+    bandEls.forEach(be => be.fill.setAttribute('opacity', !hi ? 0.4 : (be.b.id === hi ? 0.62 : 0.14)));
+    labs.forEach(l => l.classList.toggle('on', idx >= n - 1));
+  }
+
+  const hit = E('rect', {x:pad.l, y:0, width:W - pad.l - pad.r, height:H, fill:'transparent'}, svg);
+  hit.addEventListener('pointermove', ev => {
+    const r = svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) / r.width * W;
+    let i = Math.round((sx - pad.l) / (W - pad.l - pad.r) * (n - 1));
+    i = Math.max(0, Math.min(n - 1, curIdx >= 0 ? Math.min(i, curIdx) : i));
+    let html = `<div class="tip-yr">${years[i]}</div>`;
+    bands.slice().reverse().forEach(b => {
+      html += `<div class="tip-row"><i style="background:${b.color}"></i>${b.name}<b>${b.vals[i].toFixed(1)}%</b></div>`;
+    });
+    tipShow(html, ev.clientX, ev.clientY);
+  });
+  hit.addEventListener('pointerleave', tipHide);
+
+  return {revealTo};
+}
+
+/* ═══════════════════ Dumbbell (Act 3) ═══════════════════ */
+function Dumbbell(el) {
+  const rows = DATA.db;
+  const W = 720, rowH = 36, top = 30, H = top + rows.length * rowH + 34;
+  const pad = {l:150, r:76};
+  const svg = E('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Employment by sector, 2001 versus 2021 census'}, el);
+  const x = v => pad.l + v / 9000 * (W - pad.l - pad.r);
+  [0, 2000, 4000, 6000, 8000].forEach(v => {
+    E('line', {x1:x(v), x2:x(v), y1:top - 8, y2:H - 26, stroke:'var(--border2)', 'stroke-width':1, opacity:0.45}, svg);
+    E('text', {x:x(v), y:H - 12, 'text-anchor':'middle', 'font-size':10, fill:'var(--muted)'}, svg).textContent = fmtN(v);
+  });
+  E('text', {x:W - pad.r + 40, y:H - 12, 'text-anchor':'end', 'font-size':10, fill:'var(--muted)'}, svg).textContent = 'jobs';
+  const rowEls = rows.map((r, i) => {
+    const cy = top + i * rowH + rowH / 2;
+    const g = E('g', {class:'db-row'}, svg);
+    E('text', {x:pad.l - 10, y:cy + 4, 'text-anchor':'end', 'font-size':11.5, fill: r.s === 'Public sector' ? 'var(--text)' : 'var(--muted2)', 'font-weight': r.s === 'Public sector' ? 700 : 400}, g).textContent = r.s;
+    E('line', {x1:x(r.a), x2:x(r.b), y1:cy, y2:cy, stroke:'var(--border2)', 'stroke-width':2}, g);
+    E('circle', {cx:x(r.a), cy:cy, r:5, style:'fill:var(--uk);stroke:var(--surface)', 'stroke-width':2}, g);
+    E('circle', {cx:x(r.b), cy:cy, r:5, style:'fill:var(--iom);stroke:var(--surface)', 'stroke-width':2}, g);
+    const dv = r.b - r.a;
+    E('text', {x:Math.max(x(r.a), x(r.b)) + 12, y:cy + 4, 'font-size':11, fill:'var(--muted2)', 'font-variant-numeric':'tabular-nums'}, g)
+      .textContent = (dv >= 0 ? '+' : '−') + fmtN(Math.abs(dv));
+    // hover
+    const hitR = E('rect', {x:0, y:cy - rowH / 2, width:W, height:rowH, fill:'transparent'}, g);
+    hitR.addEventListener('pointermove', ev => {
+      tipShow(`<div class="tip-yr">${r.s}</div>
+        <div class="tip-row"><i style="background:var(--uk)"></i>2001<b>${fmtN(r.a)}</b></div>
+        <div class="tip-row"><i style="background:var(--iom)"></i>2021<b>${fmtN(r.b)}</b></div>
+        <div class="tip-row">Change<b>${(dv >= 0 ? '+' : '−') + fmtN(Math.abs(dv))}</b></div>`, ev.clientX, ev.clientY);
+    });
+    hitR.addEventListener('pointerleave', tipHide);
+    return g;
+  });
+  function revealRows(count) {
+    rowEls.forEach((g, i) => {
+      const on = i < count;
+      if (on && !g.classList.contains('on')) g.style.transitionDelay = RM ? '0s' : (Math.max(0, i - (count === rows.length ? 5 : 0)) * 0.1) + 's';
+      g.classList.toggle('on', on);
+    });
+  }
+  return {revealRows};
+}
+
+/* ═══════════════════ Loop diagram (Act 4) ═══════════════════ */
+function LoopDiagram(el) {
+  const W = 720, H = 224;
+  const svg = E('svg', {viewBox:`0 0 ${W} ${H}`, id:'loop-svg', role:'img', 'aria-label':'The revenue loop: island spend, measured expenditure, VAT share, Treasury revenue'}, el);
+  const nodes = [
+    {x:360, y:34,  t:'Island spend'},
+    {x:610, y:112, t:'Measured\nexpenditure'},
+    {x:360, y:190, t:'VAT share\n(the formula)'},
+    {x:110, y:112, t:'Treasury\nrevenue'}
+  ];
+  const defs = E('defs', {}, svg);
+  const mk = E('marker', {id:'arrow', viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse'}, defs);
+  E('path', {d:'M0 0L10 5L0 10z', style:'fill:var(--blue)'}, mk);
+  const edges = [[0,1],[1,2],[2,3],[3,0]];
+  const ctr = {x:360, y:112};
+  const gE = E('g', {}, svg);
+  const edgePaths = edges.map(([a, b]) => {
+    const A = nodes[a], B = nodes[b];
+    // control point pushed outward from the loop centre so edges bow outward
+    const mx = ctr.x + ((A.x + B.x) / 2 - ctr.x) * 1.55;
+    const my = ctr.y + ((A.y + B.y) / 2 - ctr.y) * 1.55;
+    const d = `M${A.x + (mx - A.x) * 0.3} ${A.y + (my - A.y) * 0.3} Q${mx} ${my} ${B.x + (mx - B.x) * 0.3} ${B.y + (my - B.y) * 0.3}`;
+    return E('path', {d, fill:'none', style:'stroke:var(--blue)', 'stroke-width':2, class:'loop-flow', 'marker-end':'url(#arrow)', opacity:0.85}, gE);
+  });
+  nodes.forEach(nd => {
+    const g = E('g', {}, svg);
+    const lines = nd.t.split('\n');
+    const bw = 118, bh = lines.length > 1 ? 40 : 28;
+    E('rect', {x:nd.x - bw / 2, y:nd.y - bh / 2, width:bw, height:bh, rx:7,
+      style:'fill:var(--surface2);stroke:var(--border2)', 'stroke-width':1}, g);
+    const t = E('text', {x:nd.x, y:nd.y - (lines.length - 1) * 6 + 4, 'text-anchor':'middle', 'font-size':11, 'font-weight':600, fill:'var(--text)'}, g);
+    lines.forEach((ln, k) => E('tspan', {x:nd.x, dy:k === 0 ? 0 : 12}, t).textContent = ln);
+  });
+  // red cut mark on the expenditure -> VAT-share edge (2009/11 rebasing)
+  const cut = E('g', {class:'loop-cut'}, svg);
+  const cx = 530, cy = 165;
+  E('line', {x1:cx - 9, y1:cy - 9, x2:cx + 9, y2:cy + 9, style:'stroke:var(--red)', 'stroke-width':3, 'stroke-linecap':'round'}, cut);
+  E('line', {x1:cx - 9, y1:cy + 9, x2:cx + 9, y2:cy - 9, style:'stroke:var(--red)', 'stroke-width':3, 'stroke-linecap':'round'}, cut);
+  E('text', {x:cx + 16, y:cy + 4, 'font-size':10.5, style:'fill:var(--red)', 'font-weight':600}, cut).textContent = '2009 & 2011: the share is cut';
+  const caption = E('text', {x:14, y:16, 'font-size':10.5, fill:'var(--muted)'}, svg);
+  caption.textContent = 'The loop: spend → get measured → claim the share → receive → spend again';
+  return {
+    setMode(mode) { // 'off' | 'spin' | 'fast' | 'cut'
+      svg.classList.toggle('spin', mode === 'spin');
+      svg.classList.toggle('spin-fast', mode === 'fast');
+      cut.classList.toggle('on', mode === 'cut');
+      edgePaths.forEach(p => p.setAttribute('opacity', mode === 'cut' ? 0.4 : 0.85));
+    }
+  };
+}
+
+/* ═══════════════════ Data tables ═══════════════════ */
+function fillTable(el, headers, rows) {
+  const node = document.getElementById(el);
+  if (!node) return;
+  let h = '<table><thead><tr>' + headers.map(x => `<th>${x}</th>`).join('') + '</tr></thead><tbody>';
+  rows.forEach(r => { h += '<tr>' + r.map(c => `<td>${c}</td>`).join('') + '</tr>'; });
+  node.innerHTML = h + '</tbody></table>';
+}
+
+/* ═══════════════════ Build charts ═══════════════════ */
+const iomUKcfg = anns => ({
+  years: DATA.idx.years,
+  yDom: [85, 160], yTicks: [90, 100, 110, 120, 130, 140, 150, 160],
+  xTicks: [1998, 2002, 2006, 2010, 2014, 2018, 2022],
+  yLabel: 'Index',
+  yFmt: v => v.toFixed(0),
+  series: [
+    {id:'uk', name:'UK', color:'var(--uk)', values:DATA.idx.uk, endFmt:v => v.toFixed(0), fmt:v => v.toFixed(1)},
+    {id:'iom', name:'Isle of Man', color:'var(--iom)', values:DATA.idx.iom, width:2.5, endFmt:v => v.toFixed(0), fmt:v => v.toFixed(1)}
+  ],
+  anns: anns || []
+});
+
+const heroChart = LineChart(document.getElementById('hero-chart'), Object.assign(iomUKcfg(), {h:340, aria:'Real GVA index: UK rises to 154 by 2022, Isle of Man reaches only 110'}));
+
+const a1 = LineChart(document.getElementById('a1-chart'), Object.assign(iomUKcfg([
+  {id:'dotcom', year:2000, v:108.7, text:'2000: the Island a point ahead', dy:-26, anchor:'start', dx:-16},
+  {id:'gfc', year:2012, v:92.3, text:'2012: below the 1998 start line', dy:34, anchor:'middle', dx:20},
+  {id:'covid', year:2020, v:94.3, text:'2020: COVID hits both', dy:34, anchor:'end', dx:6},
+  {id:'end', year:2022, v:153.7, text:'The gap: 44 points', dy:-16, anchor:'end', dx:-8}
+]), {h:430, aria:'Annotated real GVA index, Isle of Man versus UK'}));
+
+const a2 = StackChart(document.getElementById('a2-chart'));
+
+const a3pop = LineChart(document.getElementById('a3-pop'), {
+  h: 400, aria: 'Population of the Isle of Man 1951 to 2024: growth to 2011, then a plateau',
+  years: DATA.pop.years,
+  yDom: [40000, 90000], yTicks: [40000, 50000, 60000, 70000, 80000, 90000],
+  xTicks: [1951, 1971, 1991, 2011, 2024],
+  yLabel: 'Residents',
+  yFmt: v => fmtN(v),
+  pad: {r:100},
+  series: [{id:'pop', name:'Population', color:'var(--iom)', values:DATA.pop.values, width:2.5,
+    dots:true, hollow:DATA.pop.est, label:false, fmt:v => fmtN(v)}],
+  anns: [
+    {id:'peak', year:2011, v:84497, text:'2011: 84,497', dy:-24, anchor:'end', dx:-6},
+    {id:'flat', year:2021, v:84069, text:'2024: 84,756\n+259 in 13 years', dy:40, anchor:'start', dx:14},
+    {id:'nat', year:2016, v:83314, text:'Deaths exceed births\nevery year since 2017', dy:92, anchor:'end', dx:-14}
+  ]
+});
+
+const a3db = Dumbbell(document.getElementById('a3-db'));
+
+const a4 = LineChart(document.getElementById('a4-chart'), {
+  h: 300, aria: 'Customs and Excise receipts 1998 to 2023 in nominal pounds million',
+  years: DATA.customs.years,
+  yDom: [0, 500], yTicks: [0, 100, 200, 300, 400, 500],
+  xTicks: [1998, 2003, 2008, 2013, 2018, 2023],
+  yLabel: '£m / year',
+  yFmt: v => '£' + v,
+  pad: {r:104},
+  series: [{id:'ce', name:'C&E receipts', color:'var(--blue)', values:DATA.customs.values, width:2.5, area:true,
+    endFmt:v => '£' + Math.round(v) + 'm', fmt:v => '£' + v.toFixed(0) + 'm'}],
+  anns: [
+    {id:'boom', year:2006, v:438.5, text:'2006: £438m — nearly\ntreble the 1998 take', dy:-38, anchor:'end', dx:6},
+    {id:'share', year:2003, v:306.2, text:'≈72% of Treasury\nreceipts at the peak', dy:-64, anchor:'end', dx:-20},
+    {id:'rebase', year:2012, v:296.0, text:'2009 & 2011 rebasings:\ndown £142m from the peak', dy:44, anchor:'middle', dx:30},
+    {id:'fersa', year:2016, v:348.5, text:'2016: FERSA —\na five-year trailing base', dy:-52, anchor:'middle', dx:14},
+    {id:'trueup', year:2023, v:441.7, text:'2025 true-up →', dy:-16, anchor:'end', dx:6}
+  ]
+});
+
+const a4loop = LoopDiagram(document.getElementById('a4-loop'));
+
+/* Act 5 composite: indexed to 2011 = 100 (the earliest year the official
+   houses-only median house price series covers on a consistent, all-four-
+   quarters basis — the quarterly record does not reach back to 2005). */
+const A5 = (() => {
+  const years = []; for (let y = 2011; y <= 2025; y++) years.push(y);
+  const hp0 = DATA.hp.values[DATA.hp.years.indexOf(2011)];
+  const hp = years.map(y => { const i = DATA.hp.years.indexOf(y); return i < 0 ? null : DATA.hp.values[i] / hp0 * 100; });
+  const gva0 = DATA.idx.iom[DATA.idx.years.indexOf(2011)];
+  const gva = years.map(y => { const i = DATA.idx.years.indexOf(y); return i < 0 ? null : DATA.idx.iom[i] / gva0 * 100; });
+  // population: linear interpolation between census/estimate points
+  const py = DATA.pop.years, pv = DATA.pop.values;
+  const interp = y => {
+    if (y <= py[0]) return pv[0];
+    for (let k = 1; k < py.length; k++) if (y <= py[k]) return pv[k - 1] + (pv[k] - pv[k - 1]) * (y - py[k - 1]) / (py[k] - py[k - 1]);
+    return pv[pv.length - 1];
+  };
+  const base = interp(2011);
+  const pop = years.map(y => y <= 2024 ? interp(y) / base * 100 : null);
+  return {years, hp, gva, pop};
+})();
+
+const a5 = LineChart(document.getElementById('a5-chart'), {
+  h: 360, aria: 'House prices rise 41 per cent from 2011 while population and output stay nearly flat',
+  years: A5.years,
+  yDom: [85, 150], yTicks: [90, 105, 120, 135, 150],
+  xTicks: [2011, 2015, 2019, 2022, 2025],
+  yLabel: 'Index, 2011 = 100',
+  yFmt: v => v.toFixed(0),
+  pad: {r:150},
+  series: [
+    {id:'pop', name:'Population', color:'var(--green)', values:A5.pop, endFmt:v => (v - 100 >= 0 ? '+' : '') + (v - 100).toFixed(1) + '%', fmt:v => v.toFixed(1)},
+    {id:'gva', name:'Real output', color:'var(--iom)', values:A5.gva, endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)},
+    {id:'hp', name:'House price', color:'var(--amber)', values:A5.hp, width:2.5, endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)}
+  ]
+});
+
+/* tables */
+fillTable('a1-tbl', ['Year', 'Isle of Man', 'UK'],
+  DATA.idx.years.map((y, i) => [y, DATA.idx.iom[i].toFixed(1), DATA.idx.uk[i].toFixed(1)]));
+fillTable('a2-tbl', ['Year', 'Finance %', 'E-gaming %', 'Government %', 'Everything else %'],
+  DATA.shares.years.map((y, i) => [y, DATA.shares.finance[i].toFixed(1), DATA.shares.egaming[i].toFixed(1), DATA.shares.public[i].toFixed(1), DATA.shares.other[i].toFixed(1)]));
+fillTable('a3-tblA', ['Year', 'Population', 'Basis'],
+  DATA.pop.years.map((y, i) => [y, fmtN(DATA.pop.values[i]), DATA.pop.est[i] ? 'estimate' : 'census']));
+fillTable('a3-tblB', ['Sector', '2001', '2021', 'Change'],
+  DATA.db.map(r => [r.s, fmtN(r.a), fmtN(r.b), (r.b - r.a >= 0 ? '+' : '−') + fmtN(Math.abs(r.b - r.a))]));
+fillTable('a4-tbl', ['Year', 'Receipts £m'],
+  DATA.customs.years.map((y, i) => [y, DATA.customs.values[i].toFixed(1)]));
+fillTable('a5-tbl', ['Year', 'House price', 'Real output', 'Population'],
+  A5.years.map((y, i) => [y,
+    A5.hp[i] == null ? '–' : A5.hp[i].toFixed(1),
+    A5.gva[i] == null ? '–' : A5.gva[i].toFixed(1),
+    A5.pop[i] == null ? '–' : A5.pop[i].toFixed(1)]));
+
+/* ═══════════════════ Scroll direction (IntersectionObserver) ═══════════════════ */
+const HANDLERS = {
+  a1(i) {
+    const stops = [0, 3, 15, 23, 24];  // 1998, 2001, 2013, 2021, 2022
+    a1.revealTo(stops[i]);
+    const anns = [[], ['dotcom'], ['dotcom', 'gfc'], ['gfc', 'covid'], ['covid', 'end']];
+    a1.showAnns(anns[i]);
+  },
+  a2(i) {
+    const n = DATA.shares.years.length;
+    const stops = [2, 12, 19, n - 1];  // 1999, 2009, 2016, 2023
+    const hi = ['finance', 'egaming', 'other', null];
+    a2.revealTo(stops[i], hi[i]);
+  },
+  a3(i) {
+    const A = document.getElementById('a3-figA'), B = document.getElementById('a3-figB');
+    const showB = i >= 3;
+    A.classList.toggle('on', !showB); B.classList.toggle('on', showB);
+    if (!showB) {
+      const stops = [11, 16, 16];  // 2011, 2024, 2024
+      a3pop.revealTo(stops[i]);
+      a3pop.showAnns([[], ['peak', 'flat'], ['peak', 'flat', 'nat']][i]);
+    } else {
+      // 3: the declines (imported specialists displace); 4: churn (same rows,
+      // the reader dwells on the asymmetry); 5: the full picture incl. public
+      a3db.revealRows(i <= 4 ? 5 : 10);
+    }
+  },
+  a4(i) {
+    const stops = [9, 11, 17, 25, 25];  // 2007, 2009, 2015, 2023, 2023
+    a4.revealTo(stops[i]);
+    a4.showAnns([['boom'], ['boom', 'share'], ['rebase'], ['fersa', 'trueup'], ['rebase', 'fersa', 'trueup']][i]);
+    a4loop.setMode(['spin', 'fast', 'cut', 'cut', 'cut'][i]);
+  },
+  a5(i) {
+    a5.revealTo(A5.years.length - 1, 800);
+    if (i === 0) a5.setValues('hp', A5.years.map(() => null));
+    else a5.setValues('hp', A5.hp, i === 1);
+  }
+};
+
+/* Activation invariant: the step whose TEXT the reader is currently reading —
+   the step under the viewport's vertical midline — drives the graphic state.
+   (The previous IntersectionObserver band fired when a step's box EDGE entered
+   the centre band; steps are tall flex boxes with centred text, so the box top
+   arrived one step before the text did and the graphic ran ahead. We therefore
+   compute the midline step explicitly on scroll.) */
+const SCENES = Array.prototype.slice.call(document.querySelectorAll('.scene')).map(sc => ({
+  el: sc,
+  steps: Array.prototype.slice.call(sc.querySelectorAll('.step'))
+}));
+const activeByAct = {};
+function setActive(step) {
+  const act = step.dataset.act, idx = +step.dataset.idx;
+  if (activeByAct[act] === idx) return;   // guard: short steps must not double-fire
+  activeByAct[act] = idx;
+  SCENES.forEach(sc => sc.steps.forEach(s => {
+    if (s.dataset.act === act) s.classList.toggle('on', s === step);
+  }));
+  const h = HANDLERS[act];
+  if (h) h(idx);
+}
+/* Portrait phones pin title + graphic at the top, so the reading zone is the
+   region BELOW the pinned stack. The sync line is the midpoint of that zone;
+   on desktop (graphic beside the text) it is the full-viewport midline. */
+const MQ_PORTRAIT = window.matchMedia('(max-width: 760px) and (orientation: portrait)');
+function syncLineFor(sc) {
+  if (!MQ_PORTRAIT.matches) return window.innerHeight / 2;
+  const g = sc.el.querySelector('.g-col');
+  let gb = g ? g.getBoundingClientRect().bottom : 0;
+  gb = Math.min(Math.max(gb, 0), window.innerHeight);
+  return (gb + window.innerHeight) / 2;
+}
+function syncSteps() {
+  SCENES.forEach(sc => {
+    const mid = syncLineFor(sc);
+    const r = sc.el.getBoundingClientRect();
+    const act = sc.steps[0].dataset.act;
+    if (r.top <= mid && r.bottom >= mid) {
+      // primary: the step whose box contains the midline (handles steps taller
+      // than any trigger band); fallback: nearest box centre (gaps at the top/
+      // bottom of a scene resolve to the first/last step, so the first step is
+      // active when the graphic pins and the last step's state holds until the
+      // next act takes over).
+      let best = null, bd = Infinity;
+      for (let i = 0; i < sc.steps.length; i++) {
+        const b = sc.steps[i].getBoundingClientRect();
+        if (b.top <= mid && b.bottom > mid) { best = sc.steps[i]; break; }
+        const d = Math.abs((b.top + b.bottom) / 2 - mid);
+        if (d < bd) { bd = d; best = sc.steps[i]; }
+      }
+      if (best) setActive(best);
+    } else if (activeByAct[act] === undefined && r.top > 0 && r.top < window.innerHeight) {
+      // act scrolling into view for the first time: show its opening state so
+      // the pinned graphic never sits empty before step 1 reaches the midline.
+      setActive(sc.steps[0]);
+    }
+  });
+}
+let syncPending = false;
+function queueSync() {
+  if (syncPending) return;
+  syncPending = true;
+  requestAnimationFrame(() => { syncPending = false; syncSteps(); });
+}
+window.addEventListener('scroll', queueSync, {passive: true});
+window.addEventListener('resize', queueSync);
+syncSteps();
+
+/* measure each act's pinned header so the graphic pins directly below it */
+function measureHeads() {
+  document.querySelectorAll('.act').forEach(a => {
+    const h = a.querySelector('.act-head');
+    if (h) a.style.setProperty('--hh', Math.ceil(h.getBoundingClientRect().height) + 'px');
+  });
+}
+
+/* On portrait phones the pinned stack must stay compact, so each figure's
+   data-table toggle moves out of the pinned graphic to below the steps
+   (and back into its figure on desktop/landscape). */
+function relocateTables() {
+  const portrait = MQ_PORTRAIT.matches;
+  SCENES.forEach(sc => {
+    sc.el.querySelectorAll('details.tbl').forEach(t => {
+      if (!t.__home) t.__home = t.parentElement;
+      if (portrait) {
+        if (t.parentElement !== sc.el) sc.el.appendChild(t);
+      } else if (t.parentElement !== t.__home) {
+        t.__home.appendChild(t);
+      }
+    });
+  });
+}
+
+function layoutRefresh() { measureHeads(); relocateTables(); queueSync(); }
+layoutRefresh();
+window.addEventListener('resize', layoutRefresh);
+if (MQ_PORTRAIT.addEventListener) MQ_PORTRAIT.addEventListener('change', layoutRefresh);
+setTimeout(layoutRefresh, 500);
+
+/* hero draw-in on load */
+setTimeout(() => heroChart.revealTo(DATA.idx.years.length - 1, RM ? 0 : 2200), 350);
+</script>
+<!-- ═══════════════════ ACT 6 — the model ═══════════════════
+     PARITY: JS port verified against model_p2.py (params_p2.json, pass 2) on
+     2026-07-18, default levers, years 2010 and 2022, tolerance 1%:
+       gva_index    2010: py 96.0832   js 96.0832   diff 3.4e-8%  PASS | 2022: py 105.5406  js 105.5406  diff 6.4e-8%  PASS
+       customs      2010: py 312.6410  js 312.6410  diff 1.1e-8%  PASS | 2022: py 432.2783  js 432.2783  diff 5.1e-8%  PASS
+       population   2010: py 82647.484 js 82647.484 diff 4.6e-10% PASS | 2022: py 84639.398 js 84639.398 diff 4.5e-10% PASS
+       house_price  2010: py 218759.98 js 218759.98 diff 1.0e-10% PASS | 2022: py 249910.66 js 249910.66 diff 1.5e-10% PASS
+       public_emp   2010: py 7712.560  js 7712.560  diff 6.0e-9%  PASS | 2022: py 8287.620  js 8287.620  diff 2.5e-9%  PASS
+       employment   2010: py 31213.876 js 31213.876 diff 8.7e-10% PASS | 2022: py 32864.807 js 32864.807 diff 1.0e-9%  PASS
+       reserves     2010: py 2432.127  js 2432.127  diff 6.6e-9%  PASS | 2022: py 2139.664  js 2139.664  diff 2.2e-8%  PASS
+       fin_index    2010: py 84.981    js 84.981    diff 6.7e-8%  PASS | 2022: py 82.388    js 82.388    diff 3.5e-7%  PASS
+       eg_share     2010: py 14.505    js 14.505    diff 1.2e-6%  PASS | 2022: py 21.080    js 21.080    diff 2.0e-6%  PASS
+     All 9 series PASS at both check years (differences are float rounding only). -->
+<script>
+'use strict';
+/* JS port of model_p2.py sim() — deterministic annual loop, 1998-2040.
+   Faithful to the Python original: same order of operations, same clips. */
+const MODEL = (function () {
+  const START = 1998, END = 2040;
+  const YEARS = []; for (let y = START; y <= END; y++) YEARS.push(y);
+  const N = YEARS.length;
+  const YI = {}; YEARS.forEach((y, i) => YI[y] = i);
+
+  const CPI_INFL = {1998:0,1999:1.3,2000:0.8,2001:1.2,2002:1.3,2003:1.4,2004:1.3,
+    2005:2.1,2006:2.3,2007:2.3,2008:3.6,2009:2.2,2010:3.3,2011:4.5,2012:2.8,
+    2013:2.6,2014:1.5,2015:0,2016:0.7,2017:2.7,2018:2.5,2019:1.8,2020:0.9,
+    2021:2.6,2022:9.1,2023:7.3,2024:2.5,2025:3.2,2026:2.2};
+  const RATE_T = {1998:7.2,1999:5.5,2000:6,2001:5.1,2002:4,2003:3.7,2004:4.4,
+    2005:4.6,2006:4.6,2007:5.5,2008:4.7,2009:0.6,2010:0.5,2011:0.5,2012:0.5,
+    2013:0.5,2014:0.5,2015:0.5,2016:0.4,2017:0.3,2018:0.6,2019:0.75,2020:0.2,
+    2021:0.1,2022:1.5,2023:4.7,2024:5,2025:4.3,2026:4};
+  const RATE_REF = 3.0;
+  const UK_IDX = DATA.idx.uk, UKF_IDX = [100,98.7,104.3,102.6,107.2,110.7,114.1,
+    130,126.6,158.9,159.2,149.2,146.8,138.9,140.5,133.5,132.6,126.3,135.8,
+    145.8,142.4,138.2,134.8,140.1,138];
+  const G_UK_EXT = {2023:0.004,2024:0.009,2025:0.012,2026:0.014};
+
+  const CPI = YEARS.map(y => (y in CPI_INFL) ? CPI_INFL[y] : 2.0);
+  const RATE = YEARS.map(y => (y in RATE_T) ? RATE_T[y] : 3.5);
+  const P_UK = new Array(N); P_UK[0] = 1;
+  for (let i = 1; i < N; i++) P_UK[i] = P_UK[i - 1] * (1 + CPI[i] / 100);
+  const G_UK = new Array(N).fill(0), G_UKF = new Array(N).fill(0);
+  for (let i = 1; i < N; i++) {
+    const y = YEARS[i];
+    if (y <= 2022) { G_UK[i] = UK_IDX[i] / UK_IDX[i - 1] - 1; G_UKF[i] = UKF_IDX[i] / UKF_IDX[i - 1] - 1; }
+    else if (y in G_UK_EXT) { G_UK[i] = G_UK_EXT[y]; G_UKF[i] = 0.01; }
+    else { G_UK[i] = 0.014; G_UKF[i] = 0.01; }
+  }
+  G_UK[YI[2020]] = 0.015; G_UK[YI[2021]] = 0.015;
+
+  const PROMO_EG = YEARS.map(y => {
+    let p;
+    if (y <= 2003) p = 0.1;
+    else if (y <= 2007) p = 0.1 + 0.9 * (y - 2003) / 4;
+    else if (y <= 2015) p = 1;
+    else if (y <= 2020) p = 1 - 0.6 * (y - 2015) / 5;
+    else p = 0.4;
+    if (y >= 2025) p = Math.min(p, 0.25);
+    return p;
+  });
+  const COVID_OUT = YEARS.map(y => y === 2020 ? 0.08 : 0);
+  const COVID_CUSTOMS = YEARS.map(y => y === 2020 ? 0.88 : 1);
+  const NAT_CHANGE = YEARS.map(y => {
+    if (y <= 2024) return -350 * (y - 1998) / 26;
+    if (y <= 2026) return -350 - 10 * (y - 2024) / 2;
+    return -360;
+  });
+
+  const F = {P0:74000, H0:35000, Lg0:5500, F_OUT0:2710.1, XEG0:1776.6,
+    gov_prod:344.9 / 5500, rent_pd:504.7 / 35000, rent_drift:0.0135,
+    R0:1000, demolitions:60, tau_S:1.5, cut_2010:90, cut_2012:75,
+    vat_share_cap_year:2006, erosion_2007:0.045, ratchet_Lg:0,
+    hire_cap:0.05, phi_w:0.5, draw_start:2012};
+
+  const P = {a_lf:0.38000000000000006, lx:10.963124025932318,
+    prod_x:5.2724207578170916e-24, m0:499.99999999999994, m1:4877.514836516492,
+    m2:737.743460421039, w1:0.05000000000000003, w2:0.33765511436350576,
+    conv:0.08901629244673792, s_exposure:0.273145367225396,
+    g_f0:0.019999999999999997, b_uk:0.16506931005234227, s_f:0.39999999999999997,
+    mrg:0.017461786077090098, lf:2.597229652418765, EG0:89.11207278240285,
+    g_eg:0.17422553684409847, EG_max:1299.9999999999998, decay_eg:0.005000000000000001,
+    cpen_eg:0.0844713695180236, le_eg:1.9991824343021474, kappa:3.9999999999999996,
+    tau_pr:1.5000000000000002, hp0:119999.99999999999, eta_d:5.969746912540876,
+    tau_hp:1.002987406366612, c0:150.00000000000003, c1:2721.96837250294,
+    s1_0:0.03155553834947158, k_vat:0.09390572776390489, s3:0.05145914599460007,
+    tw:0.006067766043968623, alpha:0.8659839214964783, r_down:0.018345022488698265,
+    beta_lg:1.0000000000000002, tau_lg:3.9999999999999996, r_int:0.027228517494755595,
+    d_rate:0.07999999999999999, R_floor:400.00000000000006};
+
+  const clip = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+  function sim(opts) {
+    opts = opts || {};
+    const p = P, f = F;
+    const cm = opts.cm || new Array(N).fill(1);
+    const pr = opts.promo || PROMO_EG;
+    const hc = opts.hireCap || new Array(N).fill(f.hire_cap);
+    const mm = opts.migMult || new Array(N).fill(1);
+    // World-growth lever: %/yr replacing the UK real-growth input from 2025.
+    // null = the baseline path (so the default run is bit-identical to the
+    // pre-lever model). It also scales the e-gaming global demand ceiling by
+    // 15% per percentage point of growth above or below the 1.4% baseline.
+    const wg = (opts.worldG == null) ? null : opts.worldG;
+
+    let Pp = f.P0, H = f.H0, Lg = f.Lg0;
+    let Fc = f.F_OUT0, EG = p.EG0, X = f.XEG0 - p.EG0;
+    let R = f.R0, W = 1, HP = p.hp0;
+    const ratio0 = f.P0 / f.H0;
+    let promo_s = pr[0], S = null, S_real0 = null, sigma = p.s1_0;
+    let hp_gr = [0, 0];
+    const out = {gva_index:new Array(N), gva_real:new Array(N), customs:new Array(N),
+      population:new Array(N), house_price:new Array(N), public_emp:new Array(N),
+      employment:new Array(N), reserves:new Array(N), fin_index:new Array(N),
+      eg_share:new Array(N), W:new Array(N), F:new Array(N), EG:new Array(N),
+      X:new Array(N), pub:new Array(N)};
+    const nom_hist = [];
+
+    for (let i = 0; i < N; i++) {
+      const y = YEARS[i];
+      const mf = 1 - p.mrg * Math.max(0, RATE_REF - RATE[i]);
+      const F_out = Fc * mf * (1 - COVID_OUT[i]);
+      const EG_out = EG * (1 - COVID_OUT[i]);
+      const X_out = X * (1 - COVID_OUT[i]);
+      const gva = X_out + F_out + EG_out + f.gov_prod * Lg
+        + f.rent_pd * H * Math.pow(1 + f.rent_drift, y - 1998);
+      const jobs_X = p.lx * X / Math.pow(1 + p.prod_x, y - 1998);
+      const LD = Lg + jobs_X + p.lf * Fc + p.le_eg * EG;
+      const LS = p.a_lf * Pp;
+      const v = clip((LD - LS) / LS, -0.25, 0.25);
+
+      const base_nom = gva * P_UK[i] * W;
+      const nom_eg = EG_out * P_UK[i] * W * (1 + p.kappa * promo_s);
+      const nom_gva = base_nom + (nom_eg - EG_out * P_UK[i] * W);
+      nom_hist.push(base_nom);
+
+      let customs;
+      if (y <= 2009) {
+        customs = sigma * base_nom;
+        if (y < f.vat_share_cap_year) sigma *= (1 + p.k_vat);
+        else if (y >= 2007) sigma *= (1 - f.erosion_2007);
+      } else if (y <= 2015) {
+        customs = sigma * base_nom - (f.cut_2010 + (y >= 2012 ? f.cut_2012 : 0));
+      } else {
+        const lo = Math.max(0, i - 5);
+        let sum = 0; for (let j = lo; j < i; j++) sum += nom_hist[j];
+        customs = p.s3 * (sum / (i - lo));
+      }
+      customs *= COVID_CUSTOMS[i];
+
+      const inc_tax = p.tw * LD * W * P_UK[i];
+      const res_income = p.r_int * R;
+      const rev = customs + inc_tax + res_income;
+      if (S === null) { S = p.alpha * rev; S_real0 = S / P_UK[i]; }
+      const S_real = S / (P_UK[i] * Math.pow(W, f.phi_w));
+      const Lg_target = f.Lg0 * Math.pow(Math.max(S_real / S_real0, 0.05), p.beta_lg);
+      const draw = (y >= f.draw_start) ? p.d_rate * Math.max(R - p.R_floor, 0) : 0;
+
+      const HP_star = p.hp0 * Math.pow((Pp / H) / ratio0, p.eta_d) * W * P_UK[i];
+      const comp = cm[i] * Math.max(0, p.c0 + p.c1 * Math.max(0, hp_gr[0]));
+
+      out.gva_real[i] = gva; out.customs[i] = customs; out.population[i] = Pp;
+      out.house_price[i] = HP; out.public_emp[i] = Lg; out.employment[i] = LD;
+      out.reserves[i] = R; out.fin_index[i] = 100 * F_out / f.F_OUT0;
+      out.eg_share[i] = 100 * nom_eg / nom_gva; out.W[i] = W;
+      out.F[i] = F_out; out.EG[i] = EG_out; out.X[i] = X_out;
+      out.pub[i] = f.gov_prod * Lg;
+
+      const M = clip(mm[i] * (p.m0 + p.m1 * v) - p.m2 * (W - 1), -2500, 2500);
+      Pp = Math.max(Pp + M + NAT_CHANGE[i], 1000);
+      H = H + comp - f.demolitions;
+      const hp_new = HP + (HP_star - HP) / p.tau_hp;
+      const gr_real = clip(hp_new / HP - 1 - CPI[i] / 100, -0.25, 0.30);
+      hp_gr = [hp_gr[1], gr_real];
+      HP = hp_new;
+      W = clip(W * (1 + p.w1 * v + p.w2 * Math.max(0, gr_real) - p.conv * (W - 1)), 0.6, 2.5);
+      Fc = Math.max(Fc * (1 + p.g_f0 + p.b_uk * G_UKF[i] - p.s_f * (W - 1)), 1);
+      const lever = (wg != null && y >= 2025);
+      const guk = lever ? wg / 100 : G_UK[i];
+      const egmax = lever ? p.EG_max * (1 + 0.15 * (wg - 1.4)) : p.EG_max;
+      const dEG = pr[i] * p.g_eg * EG * Math.max(0, 1 - EG / egmax)
+        - p.decay_eg * EG - p.cpen_eg * (W - 1) * EG;
+      EG = Math.max(EG + dEG, 1);
+      X = Math.max(X * (1 + guk - p.s_exposure * (W - 1)), 1);
+      promo_s = promo_s + (pr[i] - promo_s) / p.tau_pr;
+      const gap = p.alpha * rev + draw - S;
+      const dS = gap > 0 ? gap / f.tau_S : Math.max(gap / 8, -p.r_down * S);
+      S = S + dS;
+      R = Math.max(R + rev - (S - dS), 0);
+      Lg = Lg + clip((Lg_target - Lg) / p.tau_lg, -f.ratchet_Lg * Lg, hc[i] * Lg);
+    }
+    for (let i = 0; i < N; i++) out.gva_index[i] = out.gva_real[i] / out.gva_real[0] * 100;
+    return out;
+  }
+
+  return {YEARS, YI, N, sim, PROMO_EG, LEVER_FROM: 2025};
+}());
+
+/* ═══════════════════ Simulator UI ═══════════════════ */
+(function () {
+  const N = MODEL.N, YEARS = MODEL.YEARS;
+  const baseline = MODEL.sim();
+  const sl = {
+    promo: document.getElementById('sl-promo'),
+    hire: document.getElementById('sl-hire'),
+    house: document.getElementById('sl-house'),
+    mig: document.getElementById('sl-mig'),
+    world: document.getElementById('sl-world')
+  };
+  const outs = {
+    promo: document.getElementById('out-promo'),
+    hire: document.getElementById('out-hire'),
+    house: document.getElementById('out-house'),
+    mig: document.getElementById('out-mig'),
+    world: document.getElementById('out-world')
+  };
+
+  /* The model's house-price equations were calibrated against the old
+     all-transactions series and have not been re-fitted to the official
+     houses-only median now used for the observed dots (see NOTES.md).
+     HP_SCALE is the mean official/old ratio over the 2011-2025 overlap
+     (display-only; the model's internal equations are untouched). */
+  const HP_SCALE = 1.1291;
+  const obsGva = YEARS.map(y => { const i = DATA.idx.years.indexOf(y); return i < 0 ? null : DATA.idx.iom[i]; });
+  const obsHp = YEARS.map(y => { const i = DATA.hp.years.indexOf(y); return i < 0 ? null : DATA.hp.values[i] / 1000; });
+
+  const gvaChart = LineChart(document.getElementById('sim-gva'), {
+    w: 460, h: 300, aria: 'Simulated real GVA index 1998 to 2040, your run versus baseline and history',
+    years: YEARS, yDom: [80, 165], yTicks: [80, 100, 120, 140, 160],
+    xTicks: [1998, 2012, 2026, 2040], yLabel: 'Index', yFmt: v => v.toFixed(0),
+    pad: {r:52, l:36}, startRevealed: true,
+    series: [
+      {id:'obs', name:'History', color:'var(--uk)', values:obsGva, dotsOnly:true, label:false, fmt:v => v.toFixed(1)},
+      {id:'base', name:'Baseline', color:'var(--muted)', values:baseline.gva_index.slice(), dash:'5 5', label:false, fmt:v => v.toFixed(1)},
+      {id:'you', name:'Your run', endName:'', color:'var(--iom)', values:baseline.gva_index.slice(), width:2.5, endFmt:v => v.toFixed(0), fmt:v => v.toFixed(1)}
+    ]
+  });
+  const hpChart = LineChart(document.getElementById('sim-hp'), {
+    w: 460, h: 300, aria: 'Simulated median house price 1998 to 2040, your run versus baseline and history',
+    years: YEARS, yDom: [0, 650], yTicks: [0, 150, 300, 450, 600],
+    xTicks: [1998, 2012, 2026, 2040], yLabel: '£ thousand', yFmt: v => '£' + v + 'k',
+    pad: {r:62, l:44}, startRevealed: true,
+    series: [
+      {id:'obs', name:'History', color:'var(--uk)', values:obsHp, dotsOnly:true, label:false, fmt:v => '£' + Math.round(v) + 'k'},
+      {id:'base', name:'Baseline', color:'var(--muted)', values:baseline.house_price.map(v => v * HP_SCALE / 1000), dash:'5 5', label:false, fmt:v => '£' + Math.round(v) + 'k'},
+      {id:'you', name:'Your run', endName:'', color:'var(--amber)', values:baseline.house_price.map(v => v * HP_SCALE / 1000), width:2.5, endFmt:v => '£' + Math.round(v) + 'k', fmt:v => '£' + Math.round(v) + 'k'}
+    ]
+  });
+
+  const secChart = LineChart(document.getElementById('sim-sec'), {
+    w: 720, h: 300, aria: 'Sector real GVA under your run, 1998 to 2040: finance, e-gaming, existing economy and public sector',
+    years: YEARS, yDom: [0, 3000], yTicks: [0, 1000, 2000, 3000],
+    xTicks: [1998, 2005, 2012, 2019, 2026, 2033, 2040],
+    yLabel: '£m (2022 prices)', yFmt: v => fmtN(v),
+    pad: {r:128, l:48}, startRevealed: true,
+    series: [
+      {id:'F', name:'Finance', color:'var(--blue)', values:baseline.F.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'X', name:'Existing', color:'var(--uk)', values:baseline.X.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'EG', name:'E-gaming', color:'var(--purple)', values:baseline.EG.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'pub', name:'Public', color:'var(--green)', values:baseline.pub.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'}
+    ]
+  });
+
+  const i40 = MODEL.YI[2040];
+  function run() {
+    const promo = +sl.promo.value / 100, hire = +sl.hire.value / 100,
+          house = +sl.house.value / 100, mig = +sl.mig.value / 100,
+          world = +sl.world.value;
+    outs.promo.textContent = sl.promo.value + '%';
+    outs.hire.textContent = sl.hire.value + '%';
+    outs.house.textContent = sl.house.value + '%';
+    outs.mig.textContent = sl.mig.value + '%';
+    outs.world.textContent = world.toFixed(1) + '%/yr';
+
+    const pr = MODEL.PROMO_EG.slice(), cm = new Array(N).fill(1),
+          hc = new Array(N).fill(0.05), mm = new Array(N).fill(1);
+    for (let i = 0; i < N; i++) if (YEARS[i] >= MODEL.LEVER_FROM) {
+      pr[i] = promo; cm[i] = house; hc[i] = 0.05 * (1 - hire); mm[i] = mig;
+    }
+    // world lever at its 1.4% default = the baseline path (bit-identical run)
+    const s = MODEL.sim({promo:pr, cm:cm, hireCap:hc, migMult:mm,
+                         worldG: world === 1.4 ? null : world});
+
+    gvaChart.setValues('you', s.gva_index);
+    hpChart.setValues('you', s.house_price.map(v => v * HP_SCALE / 1000));
+    secChart.setValues('F', s.F); secChart.setValues('X', s.X);
+    secChart.setValues('EG', s.EG); secChart.setValues('pub', s.pub);
+
+    document.getElementById('ro-gva').textContent = s.gva_index[i40].toFixed(0);
+    document.getElementById('ro-gva-sub').textContent = 'baseline ' + baseline.gva_index[i40].toFixed(0) + ' · 1998 = 100';
+    document.getElementById('ro-pop').textContent = fmtN(s.population[i40]);
+    document.getElementById('ro-pop-sub').textContent = 'baseline ' + fmtN(baseline.population[i40]);
+    document.getElementById('ro-hp').textContent = '£' + fmtN(s.house_price[i40] * HP_SCALE / 1000) + 'k';
+    document.getElementById('ro-hp-sub').textContent = 'baseline £' + fmtN(baseline.house_price[i40] * HP_SCALE / 1000) + 'k';
+
+    fillTable('sim-tbl', ['Year', 'Output (yours)', 'Output (base)', 'Population (yours)', 'Population (base)', 'House £k (yours)', 'House £k (base)', 'Finance £m', 'E-gaming £m', 'Existing £m', 'Public £m'],
+      [2025, 2030, 2035, 2040].map(y => {
+        const i = MODEL.YI[y];
+        return [y, s.gva_index[i].toFixed(1), baseline.gva_index[i].toFixed(1),
+          fmtN(s.population[i]), fmtN(baseline.population[i]),
+          fmtN(s.house_price[i] * HP_SCALE / 1000), fmtN(baseline.house_price[i] * HP_SCALE / 1000),
+          fmtN(s.F[i]), fmtN(s.EG[i]), fmtN(s.X[i]), fmtN(s.pub[i])];
+      }));
+  }
+
+  let raf = null;
+  function queueRun() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; run(); }); }
+  Object.keys(sl).forEach(k => sl[k].addEventListener('input', queueRun));
+  document.getElementById('sim-reset').addEventListener('click', () => {
+    sl.promo.value = 25; sl.hire.value = 0; sl.house.value = 100; sl.mig.value = 100;
+    sl.world.value = 1.4;
+    run();
+  });
+  run();
+}());
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
+
+/* ── RESIZE REPORTING (parent iframe height sync) ── */
+function notifyHeight() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+notifyHeight();
+setTimeout(notifyHeight, 400);
+setTimeout(notifyHeight, 1200);
+window.addEventListener('resize', notifyHeight);
+new ResizeObserver(notifyHeight).observe(document.body);
+</script>
+</body>
+</html>

@@ -238,8 +238,8 @@ footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border2);font
   <div class="drivers">
     <div class="driver"><div class="driver-title">Supply hasn't kept pace</div><div class="driver-body">Net affordable-home delivery has run at roughly 34 homes a year (134 net, 2021–2025) against a population and household count that has kept growing — nowhere near enough to move the ratio.</div></div>
     <div class="driver"><div class="driver-title">Delivery leans on private developers, not direct build</div><div class="driver-body">Of the 134 net affordable homes since 2021, 105 came through Section 13 agreements with private developers and only 29 were built directly for social rent — supply is largely a by-product of market-rate development, not a planned programme.</div></div>
-    <div class="driver"><div class="driver-title">Wages have barely moved in real terms — and 2025 saw the first nominal fall since 2007</div><div class="driver-body">Real (inflation-adjusted) mean earnings rose only ~2% in a decade, and median full-time pay fell in cash terms in 2025 (£765→£755) for the first time in the 19-year series. The share of employees earning below the Island's own living wage has climbed from 5.6% (2017) to 27.4% (2025) — see charts above.</div></div>
-    <div class="driver"><div class="driver-title">Population growth is real but modest — this is a supply story, not a demand explosion</div><div class="driver-body">The Island reached a record 84,975 residents in Q1 2025 — but that's only 454 more than the 2021 Census, roughly 150 people a year. Growth is entirely migration-driven (2024 saw 575 births against 925 deaths, a natural decrease of 351) and concentrated in working-age arrivals, heavily into Douglas. Housing completions, by contrast, have halved since the mid-2000s (395/yr to ~195/yr) and hit just 150 in 2024. Modest, steady population growth colliding with a collapsing supply pipeline is the more accurate story than "demand has exploded."</div></div>
+    <div class="driver"><div class="driver-title">Wages have barely moved in real terms — and 2025 broke nine straight years of nominal rises</div><div class="driver-body">Real (inflation-adjusted) mean earnings rose only ~2% in a decade, and median full-time pay fell in cash terms in 2025 (£765→£755), breaking nine straight years of rises (2016–2024) — the last comparable dip was 2009–2010. The share of employees earning below the Island's own living wage has climbed from 5.6% (2017) to 27.4% (2025) — see charts above.</div></div>
+    <div class="driver"><div class="driver-title">Population growth is real but modest — this is a supply story, not a demand explosion</div><div class="driver-body">The Island reached a record 84,975 residents in Q1 2025 — but that's only 454 more than the 2021 Census, roughly 150 people a year. Growth is entirely migration-driven (2024 saw 574 births against 925 deaths, a natural decrease of 351) and concentrated in working-age arrivals, heavily into Douglas. Housing completions, by contrast, have halved since the mid-2000s (395/yr to ~195/yr) and hit just 150 in 2024. Modest, steady population growth colliding with a collapsing supply pipeline is the more accurate story than "demand has exploded."</div></div>
   </div>
 
   <div class="section-label">The demographic cost — young people and young families leaving</div>
@@ -749,8 +749,10 @@ if(window.ResizeObserver){ new ResizeObserver(sendHeightToParent).observe(docume
 else{ setInterval(sendHeightToParent, 800); }
 
 // Follow the shell's theme toggle instead of only the in-page button.
+// Handles both message shapes the App shell sends: {type:'setTheme',theme}
+// on tab-switch/load, and {type:'theme',theme} from the manual toggle click.
 window.addEventListener('message', (e)=>{
-  if(!e.data || e.data.type!=='setTheme') return;
+  if(!e.data || !e.data.theme) return;
   const wantLight = e.data.theme==='light';
   if(wantLight!==isLight()){
     document.body.classList.toggle('light');
