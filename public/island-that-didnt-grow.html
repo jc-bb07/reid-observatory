@@ -121,8 +121,18 @@ input[type="range"]::-moz-range-thumb {
 .hero .standfirst { font-size: clamp(15px, 1.8vw, 18px); color: var(--muted2); line-height: 1.7; max-width: 640px; margin-bottom: 34px; }
 .hero .standfirst strong { color: var(--text); font-weight: 600; }
 .hero figure { max-width: 860px; }
-.scroll-cue { margin-top: 26px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.scroll-cue::after { content: '↓'; margin-left: 8px; }
+/* fixed at the bottom of the viewport so it's on screen the moment the page
+   loads (the in-flow version sat below the hero chart, under the fold);
+   fades out on first scroll */
+.scroll-cue { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  z-index: 60; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); background: var(--surface); border: 1px solid var(--border2);
+  padding: 8px 16px; border-radius: 999px; pointer-events: none;
+  opacity: 1; transition: opacity 0.45s; }
+.scroll-cue::after { content: '↓'; margin-left: 8px; display: inline-block; animation: cue-bob 1.6s ease-in-out infinite; }
+.scroll-cue.off { opacity: 0; }
+@keyframes cue-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .scroll-cue::after { animation: none; } }
 
 .act-head { padding: 15vh 0 6vh; max-width: 660px; }
 .act-head .eyebrow { color: var(--blue); }
@@ -173,8 +183,14 @@ figure { min-width: 0; }
 svg { display: block; width: 100%; height: auto; font-family: inherit; }
 svg text { font-family: inherit; }
 
-.fig-alt { display: none; }
-.fig-alt.on { display: block; }
+/* stacked figure pair: both occupy the same grid cell and crossfade both
+   ways, so the swap scrolls in AND out like every other transition */
+.fig-stack { display: grid; width: 100%; }
+.fig-stack > .fig-alt { grid-area: 1 / 1; display: block; opacity: 0; visibility: hidden;
+  transform: translateY(8px); transition: opacity 0.4s, transform 0.4s, visibility 0s 0.4s; }
+.fig-stack > .fig-alt.on { opacity: 1; visibility: visible; transform: none;
+  transition: opacity 0.4s, transform 0.4s, visibility 0s; }
+@media (prefers-reduced-motion: reduce) { .fig-stack > .fig-alt { transition: none; } }
 
 /* asides + tables */
 details.aside, details.tbl {
@@ -210,8 +226,8 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 .loop-cut.on { opacity: 1; }
 
 /* dumbbell rows */
-.db-row { opacity: 0; transform: translateX(-8px); transition: opacity 0.5s, transform 0.5s; }
-.db-row.on { opacity: 1; transform: none; }
+/* dumbbell rows animate via per-element attributes (timeline sequence in
+   Dumbbell()); no class-based reveal needed */
 
 /* annotations */
 .ann { opacity: 0; transition: opacity 0.6s; }
@@ -335,9 +351,11 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 <header class="hero">
   <div class="eyebrow">Crown Dependencies Observatory · A data story</div>
   <h1>The Island That Didn't Grow</h1>
-  <p class="standfirst">Between 1998 and 2022 the United Kingdom grew by half.
-  The Isle of Man — richer, nimbler, self-governing — grew by <strong>ten per cent</strong>.
-  This is the story of why.</p>
+  <p class="standfirst">Between 1998 and 2022 the United Kingdom grew by
+  <strong style="color:var(--text)">half</strong>.
+  The Isle of Man grew by
+  <strong style="color:var(--iom)">only ten per&nbsp;cent</strong>.
+  This is a <strong style="color:var(--text)">scroll</strong>-story of why.</p>
   <figure class="fig-panel">
     <div class="fig-title">Real output since 1998</div>
     <div class="fig-sub">Gross value added, adjusted for prices. 1998 = 100.</div>
@@ -372,7 +390,7 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     <div class="step" data-act="a1" data-idx="4"><div class="step-inner">
       By 2022 the UK stood at <strong>154</strong>. The Island stood at <strong>110</strong>.
       <p class="keyline" style="margin-top:12px">The same storms hit both ships. Only one made headway.</p>
-      <div class="aside" style="margin-top:14px"><strong>Do you feel twice as rich as the UK?</strong> On paper, nearly: nominal output per head runs at roughly &pound;69,000 here (GDP, 2023/24 national income accounts) against about &pound;39,000 in the UK. But about three-fifths of the Island&rsquo;s output is company profit &mdash; banks, insurers, gaming operators &mdash; and most of it belongs to shareholders and clients who don&rsquo;t live here. It is booked here. It is not earned here. What residents take home is a different number, and this page is about that one.</div>
+      <div class="aside" style="margin-top:14px"><strong style="color:var(--iom)">Do the Manx feel twice as rich as the UK?</strong> On paper, nearly: nominal output per head runs at roughly &pound;69,000 here (GDP, 2023/24 national income accounts) against about &pound;39,000 in the UK. But output per head measures what is booked on the Island, not what islanders take home: the same accounts put company income at 59.5 per cent of the economy, and personal income at about a third. This page is about the take-home number.</div>
       <details class="aside"><summary>For the technically minded</summary>
       Both series are real gross value added: chained volume measures on a 2022 basis, UK from the ONS national accounts, Isle of Man from the Treasury's national income accounts. Indexing both to 1998 = 100 removes size and price level; only cumulative real growth remains. The Island's series is more volatile because one large sector can move the whole index. Base-year check: the gap is not an artefact of starting at 1998 — from every base year 1998&ndash;2012 the Island trails the UK to 2022 (by up to 44 points; from the 2000 peak, +1.3% in 22 years). Base years from 2013 onward do flatter the Island, but every one of those comparisons rests entirely on the single 2022 observation (a one-year finance rebound, deflator-sensitive); measured 2013&ndash;2021 the UK leads again. Window-free: compound growth 0.4%/yr v 1.8%/yr.</details>
     </div></div>
@@ -408,9 +426,9 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     </div></div>
     <div class="step" data-act="a2" data-idx="3"><div class="step-inner">
       Each new sector claimed a bigger slice. But hold Act 1 in mind: the total barely moved.
-      <p class="keyline" style="margin-top:12px">The slices changed hands. The pie did not grow.</p>
+      <p class="keyline" style="margin-top:12px"><strong style="color:var(--iom)">The pie did not grow. The slice changed hands.</strong></p>
       <details class="aside"><summary>For the technically minded</summary>
-      Shares are of nominal GVA by fiscal year, and the bands are sums of the accounts' published sectors: the purple band is e-gaming <em>plus</em> the wider ICT sector (e-gaming alone peaked at 21 per cent in 2017/18); the green band is public administration <em>plus</em> education and health. The step in the green band at 2007 is a data boundary, not a hiring spree: the pre-2007/08 accounts do not separate education and health, so before then the band shows public administration only — which is roughly flat at 3½–5 per cent of the economy across the whole period. E-gaming's slice includes offshore operating margins booked to the Island; its share overstates its footprint in jobs and local spending. Act 1, by contrast, measures real, price-adjusted output.</details>
+      Shares are of nominal GVA by fiscal year, and the bands are sums of the accounts' published sectors: the purple band is e-gaming <em>plus</em> the wider ICT sector (e-gaming alone peaked at 21 per cent in 2017/18); the green band is public administration <em>plus</em> education and health. The step in the green band at 2007 is a data boundary, not a hiring spree: the pre-2007/08 accounts do not separate education and health, so before then the band shows public administration only — which is roughly flat at 3½–5 per cent of the economy across the whole period. E-gaming's slice includes operating margins booked to the Island on business with customers largely elsewhere; its share overstates its footprint in jobs and local spending. Act 1, by contrast, measures real, price-adjusted output.</details>
     </div></div>
   </div>
   <div class="g-col"><figure class="fig-panel">
@@ -437,25 +455,24 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       <strong>1951:</strong> 54,024 people. The Island then grew for sixty years — through the tourist trade, then the finance boom, then everything after. <strong>84,497</strong> by 2011.
     </div></div>
     <div class="step" data-act="a3" data-idx="1"><div class="step-inner">
-      Then it stopped. 2011: 84,497. 2024: 84,756. Thirteen years, <strong>259 more people</strong>.
+      Then it stopped.<br><strong>2011: 84,497.</strong><br><strong>2024: 84,756.</strong><br>Thirteen years, 259 more people.<br><strong style="color:var(--iom)">Flatlined.</strong>
     </div></div>
     <div class="step" data-act="a3" data-idx="2"><div class="step-inner">
-      Deaths have exceeded births every year since <strong>2017</strong>. In 2024 natural change was −351 and net migration +651. Every extra worker must now be imported, housed, and kept.
+      <strong style="color:var(--iom)">Deaths have exceeded births every year since 2017.</strong> In 2024 natural change was −351 and net migration +651. Every extra worker must now be imported, housed, and kept.
     </div></div>
     <div class="step" data-act="a3" data-idx="3"><div class="step-inner">
-      So where did each new flavour find its workers? Not by retraining the old ones. <strong>The Island swaps people with the UK.</strong> Each new sector imports its specialists: older, experienced, mid-career. Meanwhile, between the 2011 and 2021 censuses — the flat-population years — transport lost 1,190 jobs. Banking lost 1,076. Insurance lost 605. Wholesale distribution lost 489. Manufacturing lost 236. Agriculture and fishing lost 186.
+      So where did each new flavour find its workers? Not by retraining the old ones. <strong style="color:var(--iom)">The Island swaps people with the UK.</strong> Each new sector imports its specialists: older, experienced, mid-career. Meanwhile, between the 2011 and 2021 censuses — the flat-population years — transport lost 1,190 jobs. Banking lost 1,076. Insurance lost 605. Wholesale distribution lost 489. Manufacturing lost 236. Agriculture and fishing lost 186.
     </div></div>
     <div class="step" data-act="a3" data-idx="4"><div class="step-inner">
-      The workers those sectors no longer needed — disproportionately younger, local people — left. A flat population is not stillness. It is churn at equilibrium: specialists in, school-leavers out.
-      <p class="keyline" style="margin-top:12px">On a full island, every migrant in is a migrant out.</p>
+      <strong>Mid-career specialists in; disproportionately younger, local people out.</strong> A flat population is not stillness. It is churn at equilibrium: specialists in, school-leavers out.
     </div></div>
     <div class="step" data-act="a3" data-idx="5"><div class="step-inner">
-      Total employment barely moved either: <strong>43,134</strong> in 2011, <strong>43,519</strong> in 2021 — up under one per cent, tracking the population. Government itself did not grow: public administration added just 130 jobs, and the wider public sector was flat to slightly down. What did grow was construction, health services, IT — and, sharpest of all, the flavour of the decade: e-gaming, from 658 jobs in 2016 to <strong>1,086</strong> by 2021, about two and a half per cent of the workforce.
+      Total employment barely moved either: <strong>43,134</strong> in 2011, <strong>43,519</strong> in 2021 — up under one per cent, tracking the population. The public sector traced a V that the decade&rsquo;s totals hide: <strong>10,042 &rarr; 9,144 &rarr; 9,934</strong> across the three censuses — cut hard after the VAT settlement was rebased, rebuilt once the new revenue arrangement bedded in (Act 4 tells that story). What grew across the decade was construction, health services, IT — and the flavour of the decade, e-gaming: from 658 jobs in 2016 to <strong>1,086</strong> by 2021, about two and a half per cent of the workforce. But flavours fade. E-gaming&rsquo;s share of the economy peaked at <strong>21 per cent</strong> in 2017/18 and has slid since — 15.7 per cent by 2021/22, 13.6 per cent by 2022/23. <strong style="color:var(--iom)">The rise was fast; the fall began before the decade was out.</strong>
       <details class="aside"><summary>For the technically minded</summary>
-      Employment is from the census of population (residents in work, self-classified by industry), so it is a different lens from the GVA accounts. Sector figures above are Census 2011 and Census 2021 published industry tables (Census 2011 Table 3.6; Census 2021 Part II Table 1.7), matched to the same 2011–2021 window as the population comparison above; e-gaming is not broken out as its own census category until 2016, so its earlier point uses that year instead of 2011. An earlier version of this section compared 2001 to 2021 using a different, non-census-report employment series that undercounted both years by a growing margin and implied a fall where the census reports themselves show resident employment rising 2001–2021; it was corrected after further fact-checking. Note that a census measures stocks, not flows: it shows where jobs stood, not the gross traffic in between, so the two-way churn cannot be read from it directly. The churn mechanism — specialists in, displaced younger workers out — is the reading of the 2010/11 systems-dynamics work, consistent with these stocks. One honest limitation: the simulator in Act 6 carries net migration only; it cannot represent the two-way flow. E-gaming employment counts licence-holder staff; its £801m of GVA (2023) includes offshore margins.</details>
+      Employment is from the census of population (residents in work, self-classified by industry), so it is a different lens from the GVA accounts. Sector figures above are Census 2011 and Census 2021 published industry tables (Census 2011 Table 3.6; Census 2021 Part II Table 1.7), matched to the same 2011–2021 window as the population comparison above; e-gaming is not broken out as its own census category until 2016, so its earlier point uses that year instead of 2011. An earlier version of this section compared 2001 to 2021 using a different, non-census-report employment series that undercounted both years by a growing margin and implied a fall where the census reports themselves show resident employment rising 2001–2021; it was corrected after further fact-checking. Note that a census measures stocks, not flows: it shows where jobs stood, not the gross traffic in between, so the two-way churn cannot be read from it directly. The churn mechanism — specialists in, displaced younger workers out — is the reading of the 2010/11 systems-dynamics work, consistent with these stocks. One honest limitation: the simulator in Act 6 carries net migration only; it cannot represent the two-way flow. E-gaming employment counts licence-holder staff; its £801m of GVA (2023) includes margins booked to the Island on business with customers largely elsewhere.</details>
     </div></div>
   </div>
-  <div class="g-col">
+  <div class="g-col"><div class="fig-stack">
     <figure class="fig-panel fig-alt on" id="a3-figA">
       <div class="fig-title">Population of the Isle of Man</div>
       <div class="fig-sub">Residents, 1951–2024</div>
@@ -472,7 +489,7 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       <div class="fig-src">Source: Isle of Man census of population, 2011 and 2021 (Census 2011 Table 3.6; Census 2021 Part II Table 1.7). Residents in employment by industry. E-gaming's earlier point is 2016 (dashed line), the first year the census breaks it out as its own category.</div>
       <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a3-tblB"></div></details>
     </figure>
-  </div>
+  </div></div>
 </div>
 </section>
 
@@ -489,27 +506,26 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       The Island does not keep its own VAT takings directly. Under a revenue-sharing agreement with the UK it draws a share of a common pool. In 1998 that share brought in <strong>£156m</strong>. By 2007: <strong>£430m</strong>. It nearly trebled in nine years — while the economy, in real terms, went nowhere.
     </div></div>
     <div class="step" data-act="a4" data-idx="1"><div class="step-inner">
-      This one stream rose from <strong>52 per cent to 72 per cent</strong> of Treasury receipts. Spending followed it up. So did public hiring. The loop on the right span faster each year: spend, get measured, claim the share, receive, spend again.
+      This one stream rose from <strong>52 per cent to 72 per cent</strong> of Treasury receipts. Spending followed it up. So did public hiring. <strong style="color:var(--iom)">For a decade, the <span style="color:var(--green)">public sector's growth</span> was paid for by a formula, not by the economy.</strong> The loop on the right span faster each year: spend, get measured, claim the share, receive, spend again.
     </div></div>
     <div class="step" data-act="a4" data-idx="2"><div class="step-inner">
-      <strong>2009 and 2011:</strong> the UK rebased the formula, twice. Receipts fell from £438m in 2006 to <strong>£296m</strong> in 2012. The engine had been paying for the government. Now the government had to shrink — and, mostly, didn't.
+      <strong>2009 and 2011:</strong> the UK rebased the formula, twice. Receipts fell from £438m in 2006 to <strong>£296m</strong> in 2012. The engine had been paying for the government — and now <strong style="color:var(--green)">the government genuinely shrank</strong>: <strong>the workforce fell by roughly a sixth</strong> between 2008 and 2015, following the receipts down. Watch the two lines move together.
     </div></div>
     <div class="step" data-act="a4" data-idx="3"><div class="step-inner">
-      <strong>2016:</strong> a new arrangement, FERSA, ties the share to the Island's own measured expenditure, averaged over five years. A further true-up follows in <strong>2025</strong>. Each revision moves the pool closer to what islanders actually spend.
+      <strong>2016:</strong> a new arrangement, FERSA, ties the share to the Island's own measured expenditure, averaged over five years. A further true-up follows in <strong>2025</strong>. And two constraints lifted almost together: the revenue squeeze eased — and in <strong>April 2015</strong> the government suspended the Personnel Control Mechanism, the headcount cap that had governed staff numbers since 1991, replacing it with a limit on staffing <em>costs</em> only. <strong>Hiring resumed</strong>: back above 7,500 by 2024, though still below the 2008 peak. By January 2025 the Council of Ministers felt the need for a new Recruitment Control Framework — in its own words, to &ldquo;help restrict the growth of the public sector&rdquo;.
     </div></div>
     <div class="step" data-act="a4" data-idx="4"><div class="step-inner">
-      <p class="keyline">For a decade, the public sector's growth was paid for by a formula, not by the economy.</p>
       <details class="aside"><summary>For the technically minded</summary>
-      Under the 1979 Customs and Excise Agreement, shared duties are pooled and divided by formula. Before 2009 the Island's share keyed off an arrangement that outgrew its measured economy; the 2009 and 2011 revisions and the 2016 Final Expenditure Revenue Sharing Arrangement progressively re-anchored it to actual island final expenditure, with a five-year averaging lag. Receipts here are nominal Customs &amp; Excise revenue, Treasury accounts.</details>
+      Under the 1979 Customs and Excise Agreement, shared duties are pooled and divided by formula. Before 2009 the Island's share keyed off an arrangement that outgrew its measured economy; the 2009 and 2011 revisions and the 2016 Final Expenditure Revenue Sharing Arrangement progressively re-anchored it to actual island final expenditure, with a five-year averaging lag. Receipts here are nominal Customs &amp; Excise revenue, Treasury accounts. The workforce series is whole-of-government full-time equivalents, excluding the Post Office and Manx Utilities, assembled from the Government Annual Reports (2004&ndash;08, 2011), Civil Service Commission reports (the 2013&ndash;14 points are derived from a stated Civil-Service-to-total ratio and shown hollow), an Office of Human Resources report (2015) and FoI/Cabinet Office figures (2016&ndash;24). The census confirms the same V independently: public-sector employment 10,042 (2011) &rarr; 9,144 (2016) &rarr; 9,934 (2021). On staff-number controls: the Personnel Control Mechanism (headcount targets, established by the Council of Ministers in 1991) was suspended in April 2015 and replaced by the Employment Costs Budgetary Control Mechanism, which limits staffing costs but not staff numbers; a Recruitment Control Framework was introduced alongside it, effective 20 January 2025, aiming to &ldquo;restrict the growth of the public service&rdquo; and &ldquo;reduce the employee costs of Isle of Man Government&rdquo; (Council of Ministers, <em>Recruitment Control Framework</em>, approved 9 January 2025).</details>
     </div></div>
   </div>
   <div class="g-col"><figure class="fig-panel">
-    <div class="fig-title">Customs &amp; Excise receipts</div>
-    <div class="fig-sub">£ million per year, nominal, 1998–2023</div>
+    <div class="fig-title">Customs &amp; Excise receipts — and the workforce they paid for</div>
+    <div class="fig-sub">Receipts: £ million per year, nominal, 1998–2023 · Government workforce (FTE), right axis, 2004–2024</div>
     <div id="a4-chart"></div>
     <div id="a4-loop" style="margin-top:6px"></div>
-    <div class="fig-src">Source: Isle of Man Treasury accounts, Customs &amp; Excise receipts.</div>
-    <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a4-tbl"></div></details>
+    <div class="fig-src">Sources: Isle of Man Treasury accounts (receipts); Isle of Man Government Annual Reports 2009 &amp; 2011, Civil Service Commission reports, OHR and Cabinet Office figures (workforce FTE — excludes Post Office &amp; Manx Utilities; 2013–14 points are ratio-derived estimates, shown hollow).</div>
+    <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a4-tbl"></div><div class="tbl-scroll" id="a4-tbl2" style="margin-top:8px"></div></details>
   </figure></div>
 </div>
 </section>
@@ -531,7 +547,8 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     </div></div>
     <div class="step" data-act="a5" data-idx="2"><div class="step-inner">
       Three claimants bid for one fixed pool of workers and homes: the <strong>public sector</strong>, the <strong>existing economy</strong>, and <strong>this year's flavour</strong>. A new sector does not conjure new people. It outbids an old employer for staff, and outbids a neighbour for a house.
-      <p class="keyline" style="margin-top:12px">Our competition isn't with the globe. It's internal.</p>
+      <p class="keyline" style="margin-top:12px"><strong style="color:var(--iom)">Our competition isn't with the globe. It's internal.</strong></p>
+      <p style="margin-top:12px">And this is the relationship with migration, concluded: <strong style="color:var(--iom)">on a full island, every migrant in is a migrant out.</strong> Attraction policy decides who is swapped — never how many we are. The one lever that adds instead of swaps is supply: homes first, then people, then growth. That is why the supply side is the priority — and the simulator below lets you test it.</p>
       <details class="aside"><summary>For the technically minded</summary>
       House prices are the official annual median house price (houses only — flats and land excluded), the average of the four quarterly Appendix One figures published in the Isle of Man Housing Market Reports; the series is only available on a consistent basis from 2011, so 2011 is used as the common base year here (not 2005). Population between censuses is interpolated linearly. Output is the real GVA index of Act 1, rebased to 2011 (latest year 2022). In a supply-constrained labour and housing market, sector promotion largely reallocates inputs and capitalises into prices — the mechanism the simulator below makes explicit. An earlier version of this page used a median of all land-registry transactions (flats and land included), which runs ~12% below the houses-only median with a matching trend; a reader's cross-check prompted the switch to the official series.</details>
     </div></div>
@@ -676,10 +693,11 @@ const DATA = {
     {s:'Manufacturing', a:2295, b:2059},
     {s:'Agriculture & fishing', a:850, b:664},
     {s:'Retail', a:3683, b:3599},
-    {s:'Public administration', a:3058, b:3188},
+    /* public admin (3,058 → 3,188) and medical & health (3,539 → 4,663)
+       combined on one line at the author's request; components in tooltip */
+    {s:'Public admin & health', a:6597, b:7851, note:'Public administration 3,058 → 3,188 · Medical & health 3,539 → 4,663'},
     {s:'Information technology', a:609, b:1293},
     {s:'Construction', a:3352, b:4214},
-    {s:'Medical & health services', a:3539, b:4663},
     {s:'E-gaming', a:658, b:1086, yA:2016}
   ],
   customs: {years:[1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023],
@@ -759,7 +777,7 @@ function LineChart(el, cfg) {
     gGrid.innerHTML = '';
     (cfg.yTicks || []).forEach(v => {
       E('line', {x1:pad.l, x2:W - pad.r + 40, y1:y(v), y2:y(v), stroke:'var(--border2)', 'stroke-width':1, opacity:0.55}, gGrid);
-      E('text', {x:pad.l - 7, y:y(v) + 3.5, 'text-anchor':'end', 'font-size':10, fill:'var(--muted)'}, gGrid)
+      E('text', {x:pad.l - 7, y:y(v) + 3.5, 'text-anchor':'end', 'font-size':10, fill: cfg.axisColor || 'var(--muted)'}, gGrid)
         .textContent = cfg.yFmt ? cfg.yFmt(v) : v;
     });
     (cfg.xTicks || []).forEach(yr => {
@@ -768,7 +786,7 @@ function LineChart(el, cfg) {
       E('line', {x1:x(i), x2:x(i), y1:H - pad.b, y2:H - pad.b + 4, stroke:'var(--border2)', 'stroke-width':1}, gGrid);
     });
     E('line', {x1:pad.l, x2:W - pad.r + 40, y1:H - pad.b, y2:H - pad.b, stroke:'var(--border2)', 'stroke-width':1}, gGrid);
-    if (cfg.yLabel) E('text', {x:pad.l - 34, y:12, 'font-size':10, fill:'var(--muted)'}, gGrid).textContent = cfg.yLabel;
+    if (cfg.yLabel) E('text', {x:pad.l - 34, y:12, 'font-size':10, fill: cfg.axisColor || 'var(--muted)'}, gGrid).textContent = cfg.yLabel;
   }
 
   function pathFor(vals) {
@@ -842,8 +860,13 @@ function LineChart(el, cfg) {
     const from = curIdx < 0 ? 0 : x(curIdx) + 6;
     const to = x(idx) + 6;
     curIdx = idx;
-    tween(from, to, dur == null ? 900 : dur, w => clipRect.setAttribute('width', w));
-    labelAt(idx);
+    const step = (W - pad.l - pad.r) / (n - 1);
+    tween(from, to, dur == null ? 900 : dur, w => {
+      clipRect.setAttribute('width', w);
+      /* end label rides the reveal front instead of jumping to the target */
+      const i = Math.round((w - 6 - pad.l) / step);
+      labelAt(Math.max(0, Math.min(i, n - 1)));
+    });
   }
 
   /* annotations: {id, year, v, text, dy} */
@@ -996,39 +1019,91 @@ function Dumbbell(el) {
   const W = 720, rowH = 36, top = 30, H = top + rows.length * rowH + 34;
   const pad = {l:150, r:76};
   const svg = E('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Employment by sector, 2011 versus 2021 census'}, el);
-  const x = v => pad.l + v / 5000 * (W - pad.l - pad.r);
-  [0, 1000, 2000, 3000, 4000, 5000].forEach(v => {
+  const XMAX = 8000;  // public admin & health combined row reaches 7,851
+  const x = v => pad.l + v / XMAX * (W - pad.l - pad.r);
+  [0, 2000, 4000, 6000, 8000].forEach(v => {
     E('line', {x1:x(v), x2:x(v), y1:top - 8, y2:H - 26, stroke:'var(--border2)', 'stroke-width':1, opacity:0.45}, svg);
     E('text', {x:x(v), y:H - 12, 'text-anchor':'middle', 'font-size':10, fill:'var(--muted)'}, svg).textContent = fmtN(v);
   });
   E('text', {x:W - pad.r + 40, y:H - 12, 'text-anchor':'end', 'font-size':10, fill:'var(--muted)'}, svg).textContent = 'jobs';
-  const rowEls = rows.map((r, i) => {
+  /* Each row is a little timeline the reader watches: the earlier-census dot
+     appears, a second grey dot slides away from it drawing the connecting
+     line, and on arrival the moving dot turns blue (= 2021) and the change
+     label fades in. Rows play in sequence. */
+  const rowObjs = rows.map((r, i) => {
     const cy = top + i * rowH + rowH / 2;
     const g = E('g', {class:'db-row'}, svg);
     const yA = r.yA || 2011;
-    E('text', {x:pad.l - 10, y:cy + 4, 'text-anchor':'end', 'font-size':11.5, fill: r.s === 'Public administration' ? 'var(--text)' : 'var(--muted2)', 'font-weight': r.s === 'Public administration' ? 700 : 400}, g).textContent = r.s + (r.yA ? ` (${r.yA})` : '');
-    E('line', {x1:x(r.a), x2:x(r.b), y1:cy, y2:cy, stroke:'var(--border2)', 'stroke-width':2, opacity: r.yA ? 0.55 : 1, 'stroke-dasharray': r.yA ? '3,2' : 'none'}, g);
-    E('circle', {cx:x(r.a), cy:cy, r:5, style:`fill:var(--uk);stroke:var(--surface)`, 'stroke-width':2, opacity: r.yA ? 0.6 : 1}, g);
-    E('circle', {cx:x(r.b), cy:cy, r:5, style:'fill:var(--iom);stroke:var(--surface)', 'stroke-width':2}, g);
+    const label = E('text', {x:pad.l - 10, y:cy + 4, 'text-anchor':'end', 'font-size':11.5, opacity:0,
+      fill: r.s === 'Public admin & health' ? 'var(--text)' : 'var(--muted2)',
+      'font-weight': r.s === 'Public admin & health' ? 700 : 400}, g);
+    label.textContent = r.s + (r.yA ? ` (${r.yA})` : '');
+    const aOp = r.yA ? 0.6 : 1;
+    const line = E('line', {x1:x(r.a), x2:x(r.a), y1:cy, y2:cy, stroke:'var(--border2)', 'stroke-width':2,
+      opacity: r.yA ? 0.55 : 1, 'stroke-dasharray': r.yA ? '3,2' : 'none'}, g);
+    const dotA = E('circle', {cx:x(r.a), cy:cy, r:5, style:'fill:var(--uk);stroke:var(--surface)', 'stroke-width':2, opacity:0}, g);
+    const dotB = E('circle', {cx:x(r.a), cy:cy, r:5, style:'fill:var(--uk);stroke:var(--surface)', 'stroke-width':2, opacity:0}, g);
     const dv = r.b - r.a;
-    E('text', {x:Math.max(x(r.a), x(r.b)) + 12, y:cy + 4, 'font-size':11, fill:'var(--muted2)', 'font-variant-numeric':'tabular-nums'}, g)
-      .textContent = (dv >= 0 ? '+' : '−') + fmtN(Math.abs(dv));
+    const delta = E('text', {x:Math.max(x(r.a), x(r.b)) + 12, y:cy + 4, 'font-size':11, fill:'var(--muted2)', opacity:0,
+      'font-variant-numeric':'tabular-nums'}, g);
+    delta.textContent = (dv >= 0 ? '+' : '−') + fmtN(Math.abs(dv));
+    const o = {r, label, line, dotA, dotB, delta, aOp, state:0, timers:[]};  // 0 hidden · 1 scheduled · 2 playing/shown
     // hover
     const hitR = E('rect', {x:0, y:cy - rowH / 2, width:W, height:rowH, fill:'transparent'}, g);
     hitR.addEventListener('pointermove', ev => {
+      if (o.state !== 2) return;
       tipShow(`<div class="tip-yr">${r.s}</div>
         <div class="tip-row"><i style="background:var(--uk)"></i>${yA}<b>${fmtN(r.a)}</b></div>
         <div class="tip-row"><i style="background:var(--iom)"></i>2021<b>${fmtN(r.b)}</b></div>
-        <div class="tip-row">Change<b>${(dv >= 0 ? '+' : '−') + fmtN(Math.abs(dv))}</b></div>`, ev.clientX, ev.clientY);
+        <div class="tip-row">Change<b>${(dv >= 0 ? '+' : '−') + fmtN(Math.abs(dv))}</b></div>` +
+        (r.note ? `<div class="tip-row" style="opacity:0.75">${r.note}</div>` : ''), ev.clientX, ev.clientY);
     });
     hitR.addEventListener('pointerleave', tipHide);
-    return g;
+    return o;
   });
+  function resetRow(o) {
+    o.timers.forEach(clearTimeout); o.timers = [];
+    o.label.setAttribute('opacity', 0);
+    o.dotA.setAttribute('opacity', 0);
+    o.dotB.setAttribute('opacity', 0);
+    o.dotB.setAttribute('cx', x(o.r.a));
+    o.dotB.style.fill = 'var(--uk)';
+    o.line.setAttribute('x2', x(o.r.a));
+    o.delta.setAttribute('opacity', 0);
+    o.state = 0;
+  }
+  function finishRow(o) {  // instant end state (reduced motion / re-sync)
+    o.timers.forEach(clearTimeout); o.timers = [];
+    o.label.setAttribute('opacity', 1);
+    o.dotA.setAttribute('opacity', o.aOp);
+    o.dotB.setAttribute('opacity', 1);
+    o.dotB.setAttribute('cx', x(o.r.b));
+    o.dotB.style.fill = 'var(--iom)';
+    o.line.setAttribute('x2', x(o.r.b));
+    o.delta.setAttribute('opacity', 1);
+    o.state = 2;
+  }
+  function playRow(o) {
+    o.state = 2;
+    tween(0, 1, 160, v => { o.label.setAttribute('opacity', v); o.dotA.setAttribute('opacity', v * o.aOp); });
+    o.timers.push(setTimeout(() => {
+      o.dotB.setAttribute('opacity', 1);
+      tween(x(o.r.a), x(o.r.b), 480, cx => { o.dotB.setAttribute('cx', cx); o.line.setAttribute('x2', cx); });
+      o.timers.push(setTimeout(() => {
+        o.dotB.style.fill = 'var(--iom)';   // arrival: the mover becomes 2021
+        tween(0, 1, 200, v => o.delta.setAttribute('opacity', v));
+      }, 500));
+    }, 180));
+  }
   function revealRows(count) {
-    rowEls.forEach((g, i) => {
-      const on = i < count;
-      if (on && !g.classList.contains('on')) g.style.transitionDelay = RM ? '0s' : (Math.max(0, i - (count === rows.length ? 5 : 0)) * 0.1) + 's';
-      g.classList.toggle('on', on);
+    let k = 0;
+    rowObjs.forEach((o, i) => {
+      if (i >= count) { if (o.state !== 0) resetRow(o); return; }
+      if (o.state !== 0) return;                 // already playing or shown
+      if (RM) { finishRow(o); return; }
+      o.state = 1;
+      o.timers.push(setTimeout(() => playRow(o), k * 480));
+      k++;
     });
   }
   return {revealRows};
@@ -1138,15 +1213,25 @@ const a3pop = LineChart(document.getElementById('a3-pop'), {
 
 const a3db = Dumbbell(document.getElementById('a3-db'));
 
+/* Receipts x-domain extended one year past the last receipts observation
+   (2023) to 2024 so the government-workforce series — which runs to 2024 —
+   shares exactly the same x-mapping. The extra year carries a null receipts
+   value, so pathFor/area-close simply stop drawing at 2023 as before; only
+   the local chart-build arrays are extended, not DATA.customs itself. */
+const A4_YEARS = DATA.customs.years.concat([2024]);
+const A4_VALUES = DATA.customs.values.concat([null]);
+
 const a4 = LineChart(document.getElementById('a4-chart'), {
-  h: 300, aria: 'Customs and Excise receipts 1998 to 2023 in nominal pounds million',
-  years: DATA.customs.years,
+  w: 720, h: 330,
+  aria: 'Customs and Excise receipts 1998 to 2023 in nominal pounds million, with government workforce full-time equivalents 2004 to 2024 on a secondary right-hand axis',
+  years: A4_YEARS,
   yDom: [0, 500], yTicks: [0, 100, 200, 300, 400, 500],
   xTicks: [1998, 2003, 2008, 2013, 2018, 2023],
-  yLabel: '£m / year',
+  yLabel: '£m',
   yFmt: v => '£' + v,
-  pad: {r:104},
-  series: [{id:'ce', name:'C&E receipts', color:'var(--blue)', values:DATA.customs.values, width:2.5, area:true,
+  axisColor: 'var(--blue)',
+  pad: {r:150},
+  series: [{id:'ce', name:'C&E receipts', color:'var(--blue)', values:A4_VALUES, width:2.5, area:true,
     endFmt:v => '£' + Math.round(v) + 'm', fmt:v => '£' + v.toFixed(0) + 'm'}],
   anns: [
     {id:'boom', year:2006, v:438.5, text:'2006: £438m — nearly\ntreble the 1998 take', dy:-38, anchor:'end', dx:6},
@@ -1156,6 +1241,80 @@ const a4 = LineChart(document.getElementById('a4-chart'), {
     {id:'trueup', year:2023, v:441.7, text:'2025 true-up →', dy:-16, anchor:'end', dx:6}
   ]
 });
+
+/* Government workforce FTE, plotted INSIDE the receipts chart's own SVG on a
+   secondary right-hand y-axis, sharing the receipts chart's x-mapping (both
+   run 1998/2004–2024 across the same W/pad). Whole-of-government FTE: IoM
+   Govt Annual Reports 2009/2011 Annex 5, CS Commission reports (2013/14
+   ratio-derived, hollow), OHR, FoI/Cabinet Office. Registry:
+   lg_shape_whole_govt_fte (pass4_inputs). The right-axis domain is padded
+   well above the data (6,300–10,500) so the FTE line sits in its own lower
+   band, clear of the receipts line/area/annotations above it — the two
+   series only share x-range from 2004 on, when receipts is already well
+   clear of this band. Born hidden; drawn in via a4fte.revealTo(), called
+   from the a4(i) scroll handler alongside the receipts reveal. */
+const a4fte = (function FteOverlay(){
+  const svg = a4.svg;
+  const W = 720, H = 330, pad = {l:42, r:150, t:28, b:30};
+  const obs = [[2004,7584],[2005,7772.5],[2006,7815.4],[2007,7848.3],[2008,7960.2],[2011,7233.3],[2015,6702.9],[2016,6736.5],[2023.7,7432.5],[2024,7533]];
+  const der = [[2013,7093.4],[2014,6878.9]];
+  const all = obs.concat(der).sort((a,b) => a[0] - b[0]);
+  const derSet = new Set(der.map(d => d[0]));
+  const xYear = yr => pad.l + (yr - 1998) / (2024 - 1998) * (W - pad.l - pad.r);
+  const yDom2 = [6300, 10500];
+  const y2 = v => H - pad.b - (v - yDom2[0]) / (yDom2[1] - yDom2[0]) * (H - pad.t - pad.b);
+
+  // right-hand axis: ticks + title, coloured to match the FTE line so the
+  // axis visually binds to its series (left axis is coloured to match
+  // receipts via axisColor above).
+  const gAxis = E('g', {}, svg);
+  [7000, 7500, 8000].forEach(v => {
+    const yy = y2(v);
+    E('line', {x1:W - pad.r + 58, x2:W - pad.r + 64, y1:yy, y2:yy, stroke:'var(--green)', 'stroke-width':1, opacity:0.7}, gAxis);
+    E('text', {x:W - pad.r + 70, y:yy + 3.5, 'text-anchor':'start', 'font-size':10, fill:'var(--green)'}, gAxis).textContent = (v / 1000) + 'k';
+  });
+  /* axis title left-aligned with the tick-label column below it */
+  E('text', {x:W - pad.r + 70, y:12, 'text-anchor':'start', 'font-size':10, fill:'var(--green)'}, svg).textContent = 'Gov FTE';
+
+  const clipId = 'clip' + (++CLIP_ID);
+  const defs = E('defs', {}, svg);
+  const clipRect = E('rect', {x:0, y:0, width:0, height:H}, E('clipPath', {id:clipId}, defs));
+  const g = E('g', {'clip-path':`url(#${clipId})`}, svg);
+
+  for (let i = 1; i < all.length; i++) {
+    const [y0, v0] = all[i - 1], [y1, v1] = all[i];
+    E('line', {x1:xYear(y0), y1:y2(v0), x2:xYear(y1), y2:y2(v1), stroke:'var(--green)', 'stroke-width':2.5,
+      'stroke-dasharray': (y1 - y0) > 2.5 ? '5,5' : 'none', opacity: (y1 - y0) > 2.5 ? 0.6 : 1}, g);
+  }
+  all.forEach(([yr, v]) => {
+    E('circle', {cx:xYear(yr), cy:y2(v), r:4,
+      style: derSet.has(yr) ? 'fill:var(--surface);stroke:var(--green)' : 'fill:var(--green);stroke:var(--surface)',
+      'stroke-width':2}, g);
+  });
+
+  const anns = {};
+  function mkAnn(id, x, y, text, color, anchor, weight) {
+    const t = E('text', {class:'ann', x, y, 'text-anchor':anchor || 'middle', 'font-size':10.5,
+      fill:color || 'var(--muted2)', 'font-weight':weight || 600}, svg);
+    t.textContent = text;
+    anns[id] = t;
+  }
+  mkAnn('fte8k', xYear(2008), y2(7960.2) - 9, '7,960', 'var(--muted2)', 'middle');
+  mkAnn('fteshrink', xYear(2011.5), y2(6702.9) + 18, '2008→15: −16%', 'var(--muted2)', 'middle');
+  mkAnn('ftegrow', xYear(2019.6), y2(7150), 'growing again from 2016', 'var(--muted2)', 'middle');
+  mkAnn('fteend', xYear(2024) + 10, y2(7533) + 4, '7,533', 'var(--green)', 'start', 700);
+
+  let curW = 0;
+  function revealTo(yr, dur) {
+    const w = Math.max(0, xYear(yr));
+    tween(curW, w, dur == null ? 900 : dur, ww => clipRect.setAttribute('width', ww));
+    curW = w;
+  }
+  function showAnns(ids) {
+    for (const id in anns) anns[id].classList.toggle('on', ids.includes(id));
+  }
+  return {revealTo, showAnns};
+}());
 
 const a4loop = LoopDiagram(document.getElementById('a4-loop'));
 
@@ -1191,7 +1350,7 @@ const a5 = LineChart(document.getElementById('a5-chart'), {
   series: [
     {id:'pop', name:'Population', color:'var(--green)', values:A5.pop, endFmt:v => (v - 100 >= 0 ? '+' : '') + (v - 100).toFixed(1) + '%', fmt:v => v.toFixed(1)},
     {id:'gva', name:'Real output', color:'var(--iom)', values:A5.gva, endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)},
-    {id:'hp', name:'House price', color:'var(--amber)', values:A5.hp, width:2.5, endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)}
+    {id:'hp', name:'House price', color:'var(--amber)', values:A5.years.map(() => null), width:2.5, endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)}
   ]
 });
 
@@ -1206,6 +1365,13 @@ fillTable('a3-tblB', ['Sector', 'Earlier year', '2021', 'Change'],
   DATA.db.map(r => [r.s, (r.yA || 2011) + ': ' + fmtN(r.a), fmtN(r.b), (r.b - r.a >= 0 ? '+' : '−') + fmtN(Math.abs(r.b - r.a))]));
 fillTable('a4-tbl', ['Year', 'Receipts £m'],
   DATA.customs.years.map((y, i) => [y, DATA.customs.values[i].toFixed(1)]));
+fillTable('a4-tbl2', ['Year', 'Government FTE', 'Basis'], [
+  [2004, '7,584', 'Annual Report 2009, Annex 5'], [2005, '7,773', 'Annual Report 2009'],
+  [2006, '7,815', 'Annual Report 2009'], [2007, '7,848', 'Annual Report 2009'],
+  [2008, '7,960', 'Annual Report 2009'], [2011, '7,233', 'Annual Report 2011, Annex 5'],
+  [2013, '7,093', 'derived (CS Commission ratio)'], [2014, '6,879', 'derived (CS Commission ratio)'],
+  [2015, '6,703', 'OHR report'], [2016, '6,737', 'FoI'],
+  ['2023 (Sep)', '7,433', 'FoI / Cabinet Office'], ['2024 (Jan)', '7,533', 'Cabinet Office']]);
 fillTable('a5-tbl', ['Year', 'House price', 'Real output', 'Population'],
   A5.years.map((y, i) => [y,
     A5.hp[i] == null ? '–' : A5.hp[i].toFixed(1),
@@ -1234,10 +1400,11 @@ const HANDLERS = {
       const stops = [11, 16, 16];  // 2011, 2024, 2024
       a3pop.revealTo(stops[i]);
       a3pop.showAnns([[], ['peak', 'flat'], ['peak', 'flat', 'nat']][i]);
+      a3db.revealRows(0);  // reset so the timeline replays on re-entry
     } else {
       // 3: the declines (imported specialists displace); 4: churn (same rows,
       // the reader dwells on the asymmetry); 5: the full picture incl. public
-      a3db.revealRows(i <= 4 ? 7 : 12);
+      a3db.revealRows(i <= 4 ? 7 : 11);
     }
   },
   a4(i) {
@@ -1245,6 +1412,13 @@ const HANDLERS = {
     a4.revealTo(stops[i]);
     a4.showAnns([['boom'], ['boom', 'share'], ['rebase'], ['fersa', 'trueup'], ['rebase', 'fersa', 'trueup']][i]);
     a4loop.setMode(['spin', 'fast', 'cut', 'cut', 'cut'][i]);
+    // FTE line draws in stages alongside the narrative: first points at i=0
+    // (the VAT-share step), out to the 2008 peak at i=1 ("paid for by a
+    // formula"), the austerity slide at i=2 ("fell by roughly a sixth"),
+    // then the regrowth to 2024 at i=3; annotations follow the same beats.
+    const fteStop = [2005, 2008, 2015, 2024, 2024][i];
+    a4fte.revealTo(fteStop);
+    a4fte.showAnns([[], ['fte8k'], ['fte8k', 'fteshrink'], ['fte8k', 'fteshrink', 'ftegrow', 'fteend'], ['fte8k', 'fteshrink', 'ftegrow', 'fteend']][i]);
   },
   a5(i) {
     a5.revealTo(A5.years.length - 1, 800);
@@ -1358,6 +1532,17 @@ window.addEventListener('load', layoutRefresh);
 
 /* hero draw-in on load */
 setTimeout(() => heroChart.revealTo(DATA.idx.years.length - 1, RM ? 0 : 2200), 350);
+
+/* scroll cue: hide once the reader starts moving (or arrived mid-page) */
+(() => {
+  const cue = document.querySelector('.scroll-cue');
+  if (!cue) return;
+  const check = () => {
+    if (window.scrollY > 60) { cue.classList.add('off'); window.removeEventListener('scroll', check); }
+  };
+  window.addEventListener('scroll', check, {passive: true});
+  check();
+})();
 </script>
 <!-- ═══════════════════ ACT 6 — the model ═══════════════════
      PARITY: JS port verified against model_p2.py (params_p2.json, pass 2) on

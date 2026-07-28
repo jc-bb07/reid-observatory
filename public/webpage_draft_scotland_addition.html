@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deaths by Suicide — Crown Dependencies, England/Wales & Scotland Islands [DRAFT]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#0f172a; --surface:#1e293b; --surface2:#162032; --border2:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --muted2:#64748b;
+    --blue:#60a5fa; --green:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa; --gold:#C9A24A;
+    --c-ew:#60a5fa; --c-iom:#f87171; --c-gy:#34d399; --c-jsy:#a78bfa;
+    --c-ork:#22d3ee; --c-shet:#fb923c; --c-nes:#f472b6;
+    --cvs:#0f172a; --grid:#1e293b; --axis:#334155; --tick:#64748b;
+  }
+  [data-theme="light"] {
+    --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9; --border2:#cbd5e1;
+    --text:#0f172a; --muted:#475569; --muted2:#64748b;
+    --blue:#2563eb; --green:#059669; --amber:#d97706; --red:#dc2626; --purple:#7c3aed; --gold:#92600a;
+    --c-ew:#2563eb; --c-iom:#dc2626; --c-gy:#059669; --c-jsy:#7c3aed;
+    --c-ork:#0e7490; --c-shet:#c2410c; --c-nes:#db2777;
+    --cvs:#f8fafc; --grid:#e2e8f0; --axis:#cbd5e1; --tick:#94a3b8;
+  }
+  html, body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text);
+    padding:20px 24px 40px; font-size:14px; -webkit-font-smoothing:antialiased;
+    width:100%; overflow-x:hidden; line-height:1.5; transition:background 0.2s,color 0.2s; }
+  h1 { font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text); margin-bottom:4px;
+    border-left:3px solid var(--gold); padding-left:12px; }
+  .subtitle { font-size:12px; color:var(--muted); margin-bottom:16px; padding-left:15px; }
+  h2.section-hdr { font-size:16px; font-weight:800; letter-spacing:-0.02em; color:var(--text);
+    margin:28px 0 4px; border-left:3px solid var(--c-ork); padding-left:12px; }
+  .section-sub { font-size:12px; color:var(--muted); margin-bottom:16px; padding-left:15px; line-height:1.6; }
+  .draft-flag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+    color:var(--bg); background:var(--amber); border-radius:4px; padding:2px 7px; margin-left:8px;
+    letter-spacing:0.04em; vertical-align:middle; }
+
+  /* Support banner — Samaritans guideline: always include signposting */
+  .support-banner {
+    background:rgba(96,165,250,0.07); border:1px solid rgba(96,165,250,0.25);
+    border-left:3px solid var(--blue); border-radius:8px; padding:10px 14px;
+    margin-bottom:16px; font-size:12px; color:var(--muted); line-height:1.7;
+  }
+  .support-banner strong { color:var(--text); }
+  .support-banner a { color:var(--blue); text-decoration:none; }
+
+  .warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3);
+    border-left:3px solid var(--amber); border-radius:8px; padding:10px 14px; margin-bottom:16px;
+    font-size:12px; color:var(--amber); font-weight:500; }
+  .card { background:var(--surface); border:1px solid var(--border2); border-radius:10px;
+    overflow:visible; margin-bottom:14px; transition:background 0.2s; }
+
+  /* View tabs */
+  .view-tabs { display:flex; gap:4px; padding:10px 12px; border-bottom:1px solid var(--border2);
+    background:var(--surface2); border-radius:10px 10px 0 0; flex-wrap:wrap; align-items:center; }
+  .view-tab { border:1px solid var(--border2); border-radius:6px; padding:5px 12px;
+    font-size:11px; font-family:'JetBrains Mono',monospace; cursor:pointer;
+    background:transparent; color:var(--muted); transition:all 0.15s; }
+  .view-tab.active { background:var(--blue); color:var(--bg); border-color:var(--blue); }
+  .view-tab:hover:not(.active) { border-color:var(--muted); color:var(--text); }
+
+  /* Toggles */
+  .toggles { display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px;
+    border-bottom:1px solid var(--border2); align-items:center; }
+  .toggle-btn { border:2px solid transparent; border-radius:20px; padding:3px 12px;
+    font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600;
+    cursor:pointer; transition:all 0.18s; white-space:nowrap; }
+
+  #chart-wrap { position:relative; width:100%; max-width:900px; }
+  canvas { display:block; width:100%; height:auto; }
+
+  #tooltip { position:absolute; pointer-events:none; background:var(--surface);
+    border:1px solid var(--border2); border-radius:8px; padding:10px 13px; font-size:12px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.35); min-width:180px; max-width:280px; display:none; z-index:10; }
+  .t-year { font-weight:700; font-size:13px; margin-bottom:6px; color:var(--text); }
+  .t-row { margin-bottom:4px; display:flex; align-items:flex-start; gap:6px; }
+  .t-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:2px; }
+  .t-val { font-weight:600; color:var(--text); }
+  .t-note { color:var(--muted2); font-size:11px; }
+
+  .legend-bar { display:flex; flex-wrap:wrap; gap:6px 18px; padding:8px 14px;
+    border-top:1px solid var(--border2); font-size:11px; color:var(--muted);
+    background:var(--surface2); border-radius:0 0 10px 10px; }
+  .leg { display:flex; align-items:center; gap:5px; }
+
+  /* Notes section */
+  .notes-hdr { padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; user-select:none; border-bottom:1px solid var(--border2);
+    background:var(--surface2); border-radius:10px 10px 0 0; }
+  .notes-hdr h2 { font-size:13px; font-weight:700; color:var(--text); }
+  .notes-hdr .hint { font-size:11px; color:var(--muted); }
+  .notes-body { padding:0 16px 16px; background:var(--surface); border-radius:0 0 10px 10px; }
+  .nb { margin-top:14px; }
+  .nb h3 { font-size:11px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .jdot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .nb ul { list-style:disc; padding-left:18px; }
+  .nb li { font-size:12px; color:var(--muted); line-height:1.65; margin-bottom:3px; }
+  .al { color:var(--red); font-weight:600; }
+  .ok { color:var(--green); font-weight:600; }
+  .sources { margin-top:14px; font-size:11px; color:var(--muted2); border-top:1px solid var(--border2); padding-top:10px; }
+  .sources p { margin-bottom:3px; }
+
+  /* Bottom support footer — Samaritans guideline */
+  .support-footer {
+    margin-top:20px; background:var(--surface2); border:1px solid var(--border2);
+    border-radius:8px; padding:12px 16px; font-size:12px; color:var(--muted); line-height:1.7;
+  }
+  .support-footer strong { color:var(--text); }
+  .support-footer a { color:var(--blue); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<h1>Deaths by Suicide — Crown Dependencies &amp; England/Wales<span class="draft-flag">DRAFT — Scotland section added, pending review</span></h1>
+<p class="subtitle">Isle of Man · Guernsey · Jersey · England &amp; Wales · Orkney, Shetland &amp; Na h-Eileanan Siar (Scotland) &nbsp;|&nbsp; Annual counts, crude/rolling rates, and age-standardised rates &nbsp;|&nbsp; <em>Crown Dependencies &amp; E&amp;W updated June 2026 · Scotland islands added July 2026</em></p>
+
+<!-- SAMARITANS GUIDELINE: prominent support signposting at top -->
+<div class="support-banner">
+  <strong>If you or someone you know needs support:</strong> Samaritans are available 24/7, free of charge — call <strong>116 123</strong> or visit <a href="https://www.samaritans.org" target="_blank" rel="noopener">samaritans.org</a>. In the Isle of Man, Lifeline is available on <strong>0808 808 8000</strong>. These statistics describe population-level trends and are intended for public health and policy audiences.
+</div>
+
+<div class="warn">
+  ⚠ Data sources, methodologies, populations and recording standards differ significantly between jurisdictions. Cross-jurisdictional comparisons require care. See Data Governance Notes below.
+</div>
+
+<div class="card">
+  <!-- VIEW TABS -->
+  <div class="view-tabs">
+    <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-right:4px;">View:</span>
+    <button class="view-tab active" id="tab-counts">Annual counts</button>
+    <button class="view-tab" id="tab-crude">Crude rate /100k</button>
+    <button class="view-tab" id="tab-asmr">3yr rolling ASMR /100k</button>
+    <span style="margin-left:auto;font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Range:</span>
+    <button class="view-tab" id="range-all" style="margin-left:4px;">All years</button>
+    <button class="view-tab active" id="range-2006">From 2006</button>
+  </div>
+
+  <!-- SERIES TOGGLES -->
+  <div class="toggles" id="toggles">
+    <button class="toggle-btn" id="btn-ew"  style="border-color:#60a5fa;background:#60a5fa;color:#0f172a;">England &amp; Wales</button>
+    <button class="toggle-btn" id="btn-iom" style="border-color:#f87171;background:#f87171;color:#0f172a;">Isle of Man</button>
+    <button class="toggle-btn" id="btn-gy"  style="border-color:#34d399;background:#34d399;color:#0f172a;">Guernsey</button>
+    <button class="toggle-btn" id="btn-jsy" style="border-color:#a78bfa;background:#a78bfa;color:#0f172a;">Jersey</button>
+  </div>
+
+  <div id="chart-wrap">
+    <canvas id="chart" width="900" height="440"></canvas>
+    <div id="tooltip">
+      <div class="t-year" id="t-year"></div>
+      <div id="t-rows"></div>
+    </div>
+  </div>
+
+  <div class="legend-bar" id="legend-bar">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- DATA GOVERNANCE NOTES -->
+<div class="card">
+  <div class="notes-hdr" id="notes-toggle">
+    <h2>📋 Data Governance Notes</h2>
+    <span class="hint" id="hint-text">▲ Click to collapse</span>
+  </div>
+  <div class="notes-body" id="notes-body">
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#60a5fa;"></span> England &amp; Wales — ONS</h3>
+      <ul>
+        <li><span class="ok">METRIC (ASMR tab):</span> Age-standardised mortality rate per 100,000, 2013 European Standard Population, ages 10+. Annual single-year figures.</li>
+        <li><span class="ok">METRIC (counts &amp; crude rate tabs):</span> Annual registration counts from ONS bulletin. Crude rate = count ÷ mid-year population × 100,000.</li>
+        <li><span class="ok">COVERAGE:</span> 1981–2024. ICD-9 before 1993; ICD-10 from 1993 (X60–X84 + Y10–Y34).</li>
+        <li><span class="al">⚠ SERIES BREAK 26 July 2018:</span> Standard of proof lowered from criminal ("beyond all reasonable doubt") to civil ("balance of probabilities"). Significant upward shift in registered deaths. Pre- and post-2018 series are NOT directly comparable. Chart marks this break.</li>
+        <li>Figures are for year of registration, not year of occurrence. Inquest delays mean registration may lag death by months or years.</li>
+      </ul>
+    </div>
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#f87171;"></span> Isle of Man — IOM Public Health Directorate</h3>
+      <ul>
+        <li><span class="ok">COUNTS:</span> Annual registration counts, ICD-10 X60–X84 + Y10–Y34, from IOM Mortality Report 2022 Figure 28 and FOI responses. Year of registration.</li>
+        <li><span class="ok">CRUDE RATE:</span> Calculated as count ÷ 85,000 × 100,000. Population is stable at approximately 85,000.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 European Standard Population, from Figure 29 of IOM Mortality Report 2022 and confirmed FOI responses. Plotted at midpoint year of window.</li>
+        <li><span class="al">⚠ SMALL NUMBERS:</span> With ~85,000 population, one death shifts the crude rate by ~1.2/100k. Annual counts range 2–24. Treat single-year figures as highly volatile.</li>
+        <li><span class="al">⚠ 2020 SPIKE:</span> Registration-year count was 24; police year-of-death count for 2020 was 19. Inquest delays cause significant registration lag on IOM (12–18 months typical).</li>
+        <li>ASMR values confirmed from FOI: 2014–16=7.8, 2015–17=10.2, 2016–18=10.7 (FOI 1228481); 2020–22=17.8 (Mortality Report 2022 text). Other values read from Figure 29 chart image (±1–2 units).</li>
+      </ul>
+    </div>
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#34d399;"></span> Guernsey — Public Health Intelligence Unit</h3>
+      <ul>
+        <li><span class="ok">COUNTS:</span> Annual figures are NOT published due to small numbers. The count series shown here uses 3-year rolling average annual counts from bar charts in Guernsey Mortality Trends 2021 and 2024. These are averages, not individual-year counts.</li>
+        <li><span class="ok">CRUDE RATE:</span> Not shown for Guernsey — cannot derive reliable annual crude rates from 3-year averages.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 European Standard Population. Confirmed: 2013–15=7.0/100k; 2019–21=15.4/100k (Mortality Trends 2021). All other values from published charts.</li>
+        <li><span class="al">⚠ 2022–24 ASMR:</span> Two values shown — 9.6/100k (confirmed closed inquests only) and 11.0/100k (maximum if all outstanding inquests recorded as suicide). True value lies between these.</li>
+        <li>Total deaths 2002–2021: 104. Total 2005–2024: 112. 2021 peak: 11 deaths (highest single year in 20 years). 2024: 6 confirmed deaths. Population ~63,000–64,000; includes Alderney.</li>
+        <li>Source: Guernsey Mortality Trends 2021 (Aug 2023) and Mortality Trends 2024 (Oct 2025), Public Health Intelligence Unit, States of Guernsey.</li>
+      </ul>
+    </div>
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#a78bfa;"></span> Jersey — Health and Care Jersey / Statistics Jersey</h3>
+      <ul>
+        <li><span class="ok">COUNTS:</span> Annual counts from Jersey Mortality Statistics reports (Figure 14 in 2020 report; Figure 16 in 2024 report). Definition: intentional self-harm + undetermined intent, consistent with ONS. Year of registration.</li>
+        <li><span class="ok">CRUDE RATE:</span> Calculated as count ÷ ~105,000 × 100,000. Population grew from ~103,000 (2007) to ~107,000 (2023); 105,000 used as approximation throughout.</li>
+        <li><span class="ok">ASMR:</span> 3-year rolling, 2013 ESP, from Jersey Mortality Statistics 2024 Figure 17. Plotted at midpoint year of window.</li>
+        <li><span class="al">⚠ OUTSTANDING INQUESTS:</span> Jersey reports note that comprehensive data is only available once inquest process is complete. 2023 figures confirmed; some years may be subject to revision.</li>
+        <li>Age and sex breakdown suppressed under Freedom of Information (Jersey) Law 2011 Art.25 due to small numbers and privacy risk.</li>
+        <li>Source: Jersey Mortality Statistics 2020 and 2024, Health and Care Jersey / Statistics Jersey.</li>
+      </ul>
+    </div>
+
+    <div class="nb" style="background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;">
+      <h3 style="color:var(--purple);">⚖ Comparability across jurisdictions</h3>
+      <ul>
+        <li>The 3-year rolling ASMR series (all using 2013 ESP) are the most directly comparable metric across IoM, Guernsey, Jersey, and E&amp;W. Even so, differences in coroner practice and inquest timelines mean like-for-like comparison requires caution.</li>
+        <li>Annual counts and crude rates are available for IoM and Jersey — these are honest about volatility. Guernsey publishes only 3-year averages for this cause due to small numbers.</li>
+        <li>E&amp;W ASMR series has a methodological break in 2018 (standard of proof change) that does not apply to the Crown Dependencies, which follow their own coroner systems.</li>
+        <li>All jurisdictions include undetermined intent (Y10–Y34) alongside confirmed suicide (X60–X84), which is standard practice and broadly consistent across series.</li>
+      </ul>
+    </div>
+
+    <div class="sources">
+      <p><strong>Sources</strong></p>
+      <p>• ONS, <em>Suicides in England and Wales: 2024 registrations</em> — ons.gov.uk</p>
+      <p>• IOM Public Health Directorate, <em>Mortality Report 2022</em> (GD 2024/0073), Figures 28 &amp; 29</p>
+      <p>• IOM Cabinet Office FOI responses: 1228481 (2020), 4081089 (2024)</p>
+      <p>• Guernsey Public Health Intelligence Unit, <em>Mortality Trends 2021</em> (Aug 2023) and <em>Mortality Trends 2024</em> (Oct 2025) — gov.gg/publichealthinfo</p>
+      <p>• Jersey Mortality Statistics 2020 and 2024, Health and Care Jersey / Statistics Jersey — gov.je</p>
+      <p>• A full data file with sources per row is available: <a href="/suicide-data.csv" style="color:var(--blue);">suicide-data.csv</a></p>
+      <p>• Scotland (Orkney, Shetland, Na h-Eileanan Siar) is compiled separately from <strong>National Records of Scotland (NRS)</strong> — see the Scotland section below for its own data, methodology and sources.</p>
+      <p style="margin-top:6px;color:var(--muted2);font-style:italic;">Compiled June 2026. Values read from published charts carry visual-estimation uncertainty of ±1–2 per 100,000.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- NEW SECTION — SCOTLAND: ORKNEY, SHETLAND, NA H-EILEANAN SIAR (DRAFT ADDITION) -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+
+<h2 class="section-hdr">Scotland — Orkney, Shetland &amp; Na h-Eileanan Siar</h2>
+<p class="section-sub">National Records of Scotland (NRS) probable suicide statistics for Scotland's three island council areas, benchmarked against the Scotland national rate &nbsp;|&nbsp; Annual counts by sex, 1974–2024, and 5-year rolling age-standardised rates with 95% confidence intervals, 2000–2024 &nbsp;|&nbsp; <em>Added July 2026 — draft, not yet published</em></p>
+
+<div class="warn">
+  ⚠ Scotland publishes <strong>5-year</strong> rolling ASMR for small areas like these (not the 3-year windows used for the Crown Dependencies above) because annual counts are too small and volatile to support a stable rate at this population size. The two ASMR series are <strong>not on the same window length</strong> and should not be read as directly interchangeable without accounting for that difference in smoothing. See Data Governance Notes below — including NRS's own finding that none of these three areas is currently a statistically significant outlier.
+</div>
+
+<div class="card">
+  <!-- VIEW TABS -->
+  <div class="view-tabs">
+    <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-right:4px;">View:</span>
+    <button class="view-tab active" id="tab-sct-counts">Annual counts</button>
+    <button class="view-tab" id="tab-sct-asmr">5yr rolling ASMR /100k</button>
+
+    <span id="range-row-sct" style="margin-left:auto;display:flex;align-items:center;gap:4px;">
+      <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Range:</span>
+      <button class="view-tab active" id="range-sct-all">All years (1974–)</button>
+      <button class="view-tab" id="range-sct-2000">From 2000</button>
+    </span>
+
+    <span style="display:flex;align-items:center;gap:4px;margin-left:10px;">
+      <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Sex:</span>
+      <button class="view-tab active" id="sex-sct-p">Persons</button>
+      <button class="view-tab" id="sex-sct-m">Male</button>
+      <button class="view-tab" id="sex-sct-f">Female</button>
+    </span>
+  </div>
+
+  <!-- SERIES TOGGLES -->
+  <div class="toggles" id="toggles-sct">
+    <button class="toggle-btn" id="btn-ork"  style="border-color:#22d3ee;background:#22d3ee;color:#0f172a;">Orkney Islands</button>
+    <button class="toggle-btn" id="btn-shet" style="border-color:#fb923c;background:#fb923c;color:#0f172a;">Shetland Islands</button>
+    <button class="toggle-btn" id="btn-nes"  style="border-color:#f472b6;background:#f472b6;color:#0f172a;">Na h-Eileanan Siar</button>
+    <button class="toggle-btn" id="btn-scot" style="border-color:#C9A24A;background:#C9A24A;color:#0f172a;">Scotland (national)</button>
+  </div>
+
+  <div id="chart-wrap-sct" style="position:relative;width:100%;max-width:900px;">
+    <canvas id="chart-sct" width="900" height="440"></canvas>
+    <div id="tooltip-sct" style="position:absolute;pointer-events:none;background:var(--surface);
+      border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-size:12px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.35);min-width:180px;max-width:280px;display:none;z-index:10;">
+      <div class="t-year" id="t-year-sct"></div>
+      <div id="t-rows-sct"></div>
+    </div>
+  </div>
+
+  <div class="legend-bar" id="legend-bar-sct">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- DATA GOVERNANCE NOTES — SCOTLAND -->
+<div class="card">
+  <div class="notes-hdr" id="notes-toggle-sct">
+    <h2>📋 Data Governance Notes — Scotland</h2>
+    <span class="hint" id="hint-text-sct">▲ Click to collapse</span>
+  </div>
+  <div class="notes-body" id="notes-body-sct">
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#22d3ee;"></span> Orkney Islands — National Records of Scotland</h3>
+      <ul>
+        <li><span class="ok">COUNTS:</span> Annual registered probable-suicide counts, 1974–2024, by sex (Persons/Male/Female), from NRS <em>Probable Suicides 2024</em> publication, Table_4A. Definition: ICD-10 X60–X84 (intentional self-harm) + Y10–Y34 (undetermined intent), consistent with the Crown Dependencies and E&amp;W definition used above.</li>
+        <li><span class="ok">ASMR:</span> 5-year rolling age-standardised mortality rate, 2013 European Standard Population, with 95% confidence intervals, for all windows 2000–2004 through 2020–2024 (plotted at window midpoint year). Source: NRS Table_4B.</li>
+        <li><span class="al">⚠ SMALL NUMBERS:</span> Population ~22,000. Annual counts range 0–8 deaths across the full 1974–2024 series. A single death shifts the picture materially — treat single-year counts as illustrative, not a stable trend indicator.</li>
+        <li><span class="al">⚠ NOT A CONFIRMED STATISTICAL OUTLIER:</span> in the most recent complete window (2019–2023), Orkney's ASMR was 19.5/100,000 (95% CI 10.7–28.2, n=20 deaths) against a Scotland rate of 14.5/100,000 (95% CI 14.1–15.0). The point estimate is higher, but the confidence interval overlaps Scotland's — by NRS's own significance test this is <strong>not</strong> statistically significant. See the cross-area note below.</li>
+      </ul>
+    </div>
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#fb923c;"></span> Shetland Islands — National Records of Scotland</h3>
+      <ul>
+        <li><span class="ok">COUNTS:</span> Annual registered probable-suicide counts, 1974–2024, by sex, from NRS <em>Probable Suicides 2024</em> publication, Table_4A. Same ICD-10 definition as above.</li>
+        <li><span class="ok">ASMR:</span> 5-year rolling ASMR, 2013 ESP, with 95% CI, 2000–2004 through 2020–2024. Source: NRS Table_4B.</li>
+        <li><span class="al">⚠ SMALL NUMBERS:</span> Population ~23,000. Annual counts range 0–8 deaths/year.</li>
+        <li><span class="al">⚠ TREND, NOT AN OUTLIER:</span> Shetland's ASMR was elevated in the 2000s (23.9/100,000 for the 2000–2004 window) but has fallen substantially since — 10.4/100,000 (95% CI 4.5–16.3, n=12) for 2019–2023, now <em>below</em> the Scotland average of 14.5. Neither the earlier high nor the current lower figure is statistically significant against Scotland at NRS's own confidence threshold — the confidence interval overlaps in both periods.</li>
+      </ul>
+    </div>
+
+    <div class="nb">
+      <h3><span class="jdot" style="background:#f472b6;"></span> Na h-Eileanan Siar (Western Isles) — National Records of Scotland</h3>
+      <ul>
+        <li><span class="ok">COUNTS:</span> Annual registered probable-suicide counts, 1974–2024, by sex, from NRS <em>Probable Suicides 2024</em> publication, Table_4A. Same ICD-10 definition as above.</li>
+        <li><span class="ok">ASMR:</span> 5-year rolling ASMR, 2013 ESP, with 95% CI, 2000–2004 through 2020–2024. Source: NRS Table_4B.</li>
+        <li><span class="ok">SOURCE VERIFICATION:</span> figures on this page are taken directly from NRS's own published tables and checked line-by-line, given how sensitive small-area statistics are to transcription error.</li>
+        <li><span class="al">⚠ SMALL NUMBERS:</span> Population ~26,000. Annual counts range 0–10 deaths/year.</li>
+        <li><span class="al">⚠ NOT A CONFIRMED STATISTICAL OUTLIER:</span> in the most recent window (2019–2023), Na h-Eileanan Siar's ASMR was 18.1/100,000 (95% CI 10.3–25.9, n=22) against Scotland's 14.5/100,000 (95% CI 14.1–15.0). As with Orkney, the point estimate is higher but the confidence interval overlaps Scotland's — not statistically significant by NRS's own test.</li>
+      </ul>
+    </div>
+
+    <div class="nb" style="background:rgba(167,139,250,0.07);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;">
+      <h3 style="color:var(--purple);">⚖ Statistical significance — read before drawing conclusions</h3>
+      <ul>
+        <li>Using NRS's own method (checking whether an area's 95% confidence interval overlaps Scotland's), <strong>none of Orkney, Shetland or Na h-Eileanan Siar is currently a statistically significant outlier</strong> from the Scotland average, in the most recent 5-year window (2019–2023) or in most windows checked historically. This is NRS's own published finding, not a reinterpretation.</li>
+        <li>Of all 32 Scottish council areas in the 2019–2023 window, only three were statistically significantly <em>higher</em> than Scotland: Dundee City (21.0/100k), Highland (20.5/100k) and East Ayrshire (19.1/100k) — a large urban authority and two mainland local authorities, none of them island areas. Two areas were significantly <em>lower</em>: City of Edinburgh and East Renfrewshire.</li>
+        <li>NRS's own published commentary highlights "remote small towns" (a Scottish Government Urban/Rural classification applied to small mainland towns as well as islands) as the geography type with the most consistently elevated rate over the past decade — a distinct and better-evidenced unit of analysis than "islands" as such.</li>
+        <li>Wide confidence intervals reflect genuinely small underlying death counts (12–29 deaths per 5-year window per area). This means the data cannot currently rule out a real elevated risk in these three areas — but it equally cannot confirm one. Report the point estimates as just that: point estimates, not proof.</li>
+        <li>Methodological note: Scotland's council-area ASMR uses 5-year rolling windows; the Crown Dependencies above use 3-year rolling windows; England &amp; Wales publishes single-year ASMR. Wider windows smooth out more year-to-year noise, so absolute smoothness should not be read as evidence of a more (or less) stable underlying rate.</li>
+      </ul>
+    </div>
+
+    <div class="sources">
+      <p><strong>Sources</strong></p>
+      <p>• National Records of Scotland (NRS), <em>Probable Suicides 2024</em> — Publication Tables (Table_4A: annual counts by council area and sex; Table_4B: 5-year rolling ASMR with 95% CI) — nrscotland.gov.uk/publications/probable-suicides-2024/</p>
+      <p>• National Records of Scotland, <em>Probable Suicides 2024</em> — Background and Methodology</p>
+      <p>• National Records of Scotland press release, <em>"Increase in deaths by suicide"</em>, 13 August 2024</p>
+      <p style="margin-top:6px;color:var(--muted2);font-style:italic;">Compiled July 2026. This section is a draft pending James's review and is not yet published to the live page.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SAMARITANS GUIDELINE: support signposting also at end of content -->
+<div class="support-footer">
+  <strong>Support is available.</strong> If this content has raised difficult feelings, please reach out. Samaritans: <strong>116 123</strong> (free, 24/7) · <a href="https://www.samaritans.org" target="_blank" rel="noopener">samaritans.org</a> · email <a href="mailto:jo@samaritans.org">jo@samaritans.org</a>. Isle of Man Lifeline: <strong>0808 808 8000</strong>. These statistics are published to support public health understanding, not to sensationalise. Recovery from suicidal crisis is possible — <a href="https://www.samaritans.org/support-us/our-research/research-archive/suicidal-behaviour-public-health-issue/" target="_blank" rel="noopener">evidence shows that most people who experience suicidal thoughts go on to live full lives</a>.
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+// England & Wales ASMR (annual, per 100k, 2013 ESP)
+// Pre-2018: criminal standard. Post-2018: civil standard. Break marked on chart.
+const EW_PRE = {
+  1981:14.7,1982:14.5,1983:14.2,1984:14.3,1985:14.1,1986:14.6,1987:14.9,1988:14.7,1989:13.8,1990:13.6,
+  1991:13.2,1992:12.7,1993:12.2,1994:11.9,1995:11.7,1996:11.4,1997:11.2,1998:11.4,1999:11.5,2000:11.2,
+  2001:11.1,2002:11.0,2003:11.0,2004:10.9,2005:10.6,2006:10.3,2007:10.2,2008:10.5,2009:10.8,2010:11.1,
+  2011:11.5,2012:10.9,2013:11.0,2014:10.8,2015:10.5,2016:10.2,2017:10.1
+};
+const EW_POST = {
+  2018:11.2,2019:11.0,2020:10.0,2021:10.7,2022:10.7,2023:11.2,2024:11.4
+};
+
+// E&W annual counts (ONS) — used for counts and crude rate views
+// Crude rate = count / EW population * 100k (population ~56-60M; use published ONS crude rates)
+// For simplicity: store counts and use ONS-published crude rates directly where available
+// Using approximate counts derived from published ONS ASMR + population data
+// Source: ONS Suicides in England and Wales 2024 registrations
+const EW_COUNTS = {
+  2006:5554,2007:5377,2008:5706,2009:5675,2010:5608,2011:6045,2012:5981,2013:6233,
+  2014:6122,2015:6188,2016:5965,2017:5821,2018:6507,2019:5691,2020:4912,
+  2021:5583,2022:5642,2023:5726,2024:6190
+};
+const EW_POP = { // mid-year population estimates (millions) for crude rate
+  2006:53.7,2007:54.0,2008:54.3,2009:54.8,2010:55.2,2011:55.6,2012:56.0,2013:56.4,
+  2014:56.9,2015:57.4,2016:57.9,2017:58.4,2018:58.7,2019:58.9,2020:59.0,
+  2021:59.6,2022:59.8,2023:60.1,2024:60.4
+};
+
+// IoM annual registration counts (ICD-10 X60-X84 + Y10-Y34)
+// Source: IOM Mortality Report 2022 Fig 28; 2023 from FOI 4081089
+const IOM_COUNTS = {
+  2006:6,2007:9,2008:9,2009:15,2010:7,2011:9,2012:9,2013:12,
+  2014:2,2015:11,2016:6,2017:8,2018:12,2019:8,2020:24,2021:9,2022:12,2023:14
+};
+const IOM_POP = 85000;
+
+// IoM 3yr rolling ASMR (plotted at midpoint year)
+// CONFIRMED: 2015=7.8, 2016=10.2, 2017=10.7 (FOI 1228481); 2021=17.8 (report text)
+// Others: read from Fig 29 chart image (±1-2 units)
+const IOM_ASMR = {
+  2007:10.0,2008:14.0,2009:13.0,2010:12.0,2011:12.0,2012:10.0,2013:12.0,2014:10.0,
+  2015:7.8,2016:10.2,2017:10.7,2018:10.0,2019:18.0,2020:17.0,2021:17.8
+};
+const IOM_ASMR_CONF = new Set([2015,2016,2017,2021]);
+
+// Guernsey 3yr average annual counts (NOT individual year counts)
+// Source: Mortality Trends 2021 Fig 49 & Mortality Trends 2024 Fig 50 (bar charts read visually)
+// Plotted at midpoint year of window
+const GY_COUNT_AVG = {
+  2005:3,2006:2,2007:3,2008:3,2009:5,2010:7,2011:6,2012:4,
+  2013:4,2014:7,2015:7,2016:7,2017:7,2018:7,2019:9,2020:8,2021:8,2022:7
+};
+
+// Guernsey 3yr rolling ASMR (2013 ESP)
+// CONFIRMED: 2014(2013-15)=7.0; 2020(2019-21)=15.4 from Mortality Trends 2021
+// 2022(2021-23): min 9.6 (closed inquests), max 11.0 (if all open = suicide)
+const GY_ASMR = {
+  2014:7.0,2015:12.2,2016:12.4,2017:12.1,2018:12.8,2019:15.4,2020:14.1,2021:12.2,2022:9.6
+};
+const GY_ASMR_MAX = { 2022:11.0 }; // upper bound for 2022 (open inquests)
+const GY_ASMR_CONF = new Set([2014,2020]);
+
+// Jersey annual counts
+// Source: Jersey Mortality Statistics 2020 Fig 14 (2007-2019); 2024 Fig 16 (2017-2023)
+const JSY_COUNTS = {
+  2007:15,2008:16,2009:26,2010:10,2011:8,2012:12,2013:9,2014:7,2015:10,
+  2016:15,2017:6,2018:12,2019:12,2020:6,2021:6,2022:11,2023:6
+};
+const JSY_POP = 105000; // approximate; grew 103k→107k over period
+
+// Jersey 3yr rolling ASMR (2013 ESP)
+// Source: Jersey Mortality Statistics 2024 Figure 17
+const JSY_ASMR = {
+  2013:8.8,2014:8.0,2015:10.2,2016:9.8,2017:10.5,2018:9.3,2019:10.8,2020:7.6,2021:7.1,2022:7.0
+};
+
+// ── CANVAS SETUP ──────────────────────────────────────────────────────────────
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+const W = 900, H = 440;
+canvas.width = W; canvas.height = H;
+
+const PAD = {top:44, right:60, bottom:52, left:58};
+let XMIN = 2006, XMAX = 2024;
+
+function CW() { return W - PAD.left - PAD.right; }
+function CH() { return H - PAD.top - PAD.bottom; }
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+function tc(name) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const fallbacks = {
+    '--cvs':'#0f172a','--grid':'#1e293b','--axis':'#334155','--tick':'#64748b',
+    '--muted':'#94a3b8','--c-ew':'#60a5fa','--c-iom':'#f87171','--c-gy':'#34d399','--c-jsy':'#a78bfa'
+  };
+  return v || fallbacks[name] || '#888';
+}
+function T() {
+  return {
+    cvs:tc('--cvs'), grid:tc('--grid'), axis:tc('--axis'), tick:tc('--tick'),
+    muted:tc('--muted'), ew:tc('--c-ew'), iom:tc('--c-iom'), gy:tc('--c-gy'), jsy:tc('--c-jsy'),
+  };
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentView = 'counts'; // 'counts' | 'crude' | 'asmr'
+let vis = { ew:true, iom:true, gy:true, jsy:true };
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function xP(yr) { return PAD.left + ((yr - XMIN) / (XMAX - XMIN)) * CW(); }
+function yP(v, ymin, ymax) { return PAD.top + (1 - (v - ymin) / (ymax - ymin)) * CH(); }
+
+function getRange() {
+  // Determine sensible y range based on current view and visible series
+  let vals = [];
+  const yrs = range(XMIN, XMAX);
+  if (currentView === 'counts') {
+    if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y]) vals.push(EW_COUNTS[y]); });
+    if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]); });
+    if (vis.gy)  yrs.forEach(y => { if (GY_COUNT_AVG[y]) vals.push(GY_COUNT_AVG[y]); });
+    if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]); });
+  } else if (currentView === 'crude') {
+    if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y] && EW_POP[y]) vals.push(EW_COUNTS[y]/(EW_POP[y]*1e6)*1e5); });
+    if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]/IOM_POP*1e5); });
+    if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]/JSY_POP*1e5); });
+    // Guernsey not shown on crude (no annual counts)
+  } else {
+    if (vis.ew)  Object.values({...EW_PRE,...EW_POST}).forEach(v => { if (range(XMIN,XMAX).some(y => ({...EW_PRE,...EW_POST})[y]===v)) vals.push(v); });
+    if (vis.iom) Object.values(IOM_ASMR).forEach(v => vals.push(v));
+    if (vis.gy)  Object.values(GY_ASMR).forEach(v => vals.push(v));
+    if (vis.jsy) Object.values(JSY_ASMR).forEach(v => vals.push(v));
+    // recalculate properly
+    vals = [];
+    const ewAll = {...EW_PRE,...EW_POST};
+    yrs.forEach(y => {
+      if (vis.ew && ewAll[y])   vals.push(ewAll[y]);
+      if (vis.iom && IOM_ASMR[y]) vals.push(IOM_ASMR[y]);
+      if (vis.gy && GY_ASMR[y])  vals.push(GY_ASMR[y]);
+      if (vis.jsy && JSY_ASMR[y]) vals.push(JSY_ASMR[y]);
+    });
+  }
+  if (!vals.length) return [0, 30];
+  const mx = Math.max(...vals);
+  return [0, Math.ceil(mx * 1.15 / 5) * 5];
+}
+
+function range(a, b) { const r=[]; for(let i=a;i<=b;i++) r.push(i); return r; }
+
+// ── DRAW ──────────────────────────────────────────────────────────────────────
+function draw() {
+  const t = T();
+  const [YMIN, YMAX] = getRange();
+  const yp = v => yP(v, YMIN, YMAX);
+
+  ctx.fillStyle = t.cvs;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  const gridSteps = 6;
+  for (let i = 0; i <= gridSteps; i++) {
+    const v = YMIN + (YMAX - YMIN) * i / gridSteps;
+    const y = yp(v);
+    ctx.strokeStyle = t.grid; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + CW(), y); ctx.stroke();
+    ctx.fillStyle = t.tick; ctx.font = '10px "JetBrains Mono"'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(v), PAD.left - 6, y + 3);
+  }
+
+  // X axis labels
+  const yrs = range(XMIN, XMAX);
+  const step = Math.max(1, Math.floor((XMAX - XMIN) / 10));
+  ctx.fillStyle = t.tick; ctx.font = '10px "JetBrains Mono"'; ctx.textAlign = 'center';
+  yrs.forEach((y,i) => {
+    if ((y - XMIN) % step !== 0) return;
+    ctx.fillText(y, xP(y), PAD.top + CH() + 18);
+  });
+
+  // 2018 break line (E&W standard of proof change) — ASMR view only
+  if (currentView === 'asmr' && vis.ew && XMIN <= 2018 && XMAX >= 2018) {
+    ctx.strokeStyle = 'rgba(96,165,250,0.3)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(xP(2018), PAD.top); ctx.lineTo(xP(2018), PAD.top + CH()); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(96,165,250,0.5)'; ctx.font = '9px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('⚠ 2018 E&W', xP(2018), PAD.top - 6);
+    ctx.fillText('proof change', xP(2018), PAD.top + 4);
+  }
+
+  // Axis labels
+  ctx.fillStyle = t.muted; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  const yLabel = currentView === 'counts' ? 'Deaths (registrations)' : 'Rate per 100,000 population';
+  ctx.save(); ctx.translate(14, PAD.top + CH()/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText(yLabel, 0, 0); ctx.restore();
+
+  // Title
+  ctx.fillStyle = t.muted; ctx.font = '11px Inter'; ctx.textAlign = 'left';
+  const viewLabel = currentView === 'counts' ? 'Annual registered deaths'
+    : currentView === 'crude' ? 'Crude rate per 100,000 (annual)'
+    : '3-year rolling ASMR per 100,000 (2013 ESP)';
+  ctx.fillText(viewLabel, PAD.left, PAD.top - 18);
+
+  // ── DRAW SERIES ──
+  if (currentView === 'counts') drawCounts(t, yp);
+  else if (currentView === 'crude') drawCrude(t, yp);
+  else drawASMR(t, yp);
+
+  updateLegend();
+}
+
+function drawLine(data, color, yp, dashed=false, dotRadius=3, hollow=false) {
+  const yrs = Object.keys(data).map(Number).filter(y => y >= XMIN && y <= XMAX).sort((a,b)=>a-b);
+  if (!yrs.length) return;
+  ctx.strokeStyle = color; ctx.lineWidth = 2;
+  if (dashed) ctx.setLineDash([5,4]); else ctx.setLineDash([]);
+  ctx.beginPath();
+  yrs.forEach((y,i) => {
+    const x = xP(y), yy = yp(data[y]);
+    i === 0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.stroke(); ctx.setLineDash([]);
+  // Dots
+  yrs.forEach(y => {
+    const x = xP(y), yy = yp(data[y]);
+    ctx.beginPath(); ctx.arc(x, yy, dotRadius, 0, Math.PI*2);
+    if (hollow) { ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke(); }
+    else { ctx.fillStyle = color; ctx.fill(); }
+  });
+}
+
+function drawCounts(t, yp) {
+  if (vis.iom) drawLine(IOM_COUNTS, t.iom, yp, false, 3.5);
+  if (vis.jsy) drawLine(JSY_COUNTS, t.jsy, yp, false, 3.5);
+  // Guernsey — 3yr avg bars (subtle)
+  if (vis.gy) {
+    Object.entries(GY_COUNT_AVG).forEach(([yr, v]) => {
+      const y = +yr;
+      if (y < XMIN || y > XMAX) return;
+      const x = xP(y); const yy = yp(v); const barW = Math.max(4, CW()/(XMAX-XMIN)*0.5);
+      ctx.fillStyle = t.gy + '55';
+      ctx.fillRect(x - barW/2, yy, barW, yp(0) - yy);
+      ctx.strokeStyle = t.gy; ctx.lineWidth = 1;
+      ctx.strokeRect(x - barW/2, yy, barW, yp(0) - yy);
+    });
+  }
+  // E&W — secondary axis label note
+  if (vis.ew) {
+    // E&W counts are thousands — draw on same chart with note
+    const ewData = {};
+    Object.entries(EW_COUNTS).forEach(([y,v]) => { if (+y>=XMIN && +y<=XMAX) ewData[+y]=v; });
+    // Need separate y scale for E&W; skip for clarity, show note
+    ctx.fillStyle = t.ew + 'aa'; ctx.font = '10px Inter'; ctx.textAlign = 'left';
+    ctx.fillText('E&W counts not to same scale (thousands) — use crude rate or ASMR view for comparison', PAD.left+2, PAD.top+14);
+  }
+}
+
+function drawCrude(t, yp) {
+  if (vis.ew) {
+    const ewCrude = {};
+    Object.entries(EW_COUNTS).forEach(([y,c]) => {
+      if (EW_POP[+y]) ewCrude[+y] = c / (EW_POP[+y] * 1e6) * 1e5;
+    });
+    // Split at 2018 break
+    const pre = {}, post = {};
+    Object.entries(ewCrude).forEach(([y,v]) => { if (+y<=2017) pre[+y]=v; else post[+y]=v; });
+    drawLine(pre, t.ew, yp, false, 3);
+    drawLine(post, t.ew, yp, true, 3);
+  }
+  if (vis.iom) {
+    const iomCrude = {};
+    Object.entries(IOM_COUNTS).forEach(([y,c]) => { iomCrude[+y] = c/IOM_POP*1e5; });
+    drawLine(iomCrude, t.iom, yp, false, 3.5);
+  }
+  if (vis.jsy) {
+    const jsyCrude = {};
+    Object.entries(JSY_COUNTS).forEach(([y,c]) => { jsyCrude[+y] = c/JSY_POP*1e5; });
+    drawLine(jsyCrude, t.jsy, yp, false, 3.5);
+  }
+  if (vis.gy) {
+    ctx.fillStyle = t.gy+'aa'; ctx.font='10px Inter'; ctx.textAlign='left';
+    ctx.fillText('Guernsey: annual counts not published — crude rate not available. Use ASMR view.', PAD.left+2, PAD.top+14);
+  }
+}
+
+function drawASMR(t, yp) {
+  const ewAll = {...EW_PRE, ...EW_POST};
+  if (vis.ew) {
+    const pre = {}, post = {};
+    Object.entries(EW_PRE).forEach(([y,v]) => { if(+y>=XMIN) pre[+y]=v; });
+    Object.entries(EW_POST).forEach(([y,v]) => { if(+y<=XMAX) post[+y]=v; });
+    if (Object.keys(pre).length) drawLine(pre, t.ew, yp, false, 3);
+    if (Object.keys(post).length) drawLine(post, t.ew, yp, true, 3);
+  }
+  if (vis.iom) {
+    const conf={}, unconf={};
+    Object.entries(IOM_ASMR).forEach(([y,v]) => {
+      if (+y<XMIN||+y>XMAX) return;
+      IOM_ASMR_CONF.has(+y) ? conf[+y]=v : unconf[+y]=v;
+    });
+    // Draw full line then overlay dots
+    drawLine(IOM_ASMR, t.iom, yp, false, 3, false);
+    // Hollow dots for unconfirmed
+    Object.entries(unconf).forEach(([y,v]) => {
+      const x=xP(+y), yy=yp(v);
+      ctx.beginPath(); ctx.arc(x,yy,4,0,Math.PI*2);
+      ctx.strokeStyle=t.iom; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle=tc('--cvs'); ctx.fill();
+    });
+  }
+  if (vis.gy) {
+    drawLine(GY_ASMR, t.gy, yp, false, 4);
+    // Error bar for 2022 (open inquest range)
+    if (GY_ASMR_MAX[2022] && 2022 >= XMIN && 2022 <= XMAX) {
+      const x = xP(2022);
+      const y1 = yp(GY_ASMR[2022]), y2 = yp(GY_ASMR_MAX[2022]);
+      ctx.strokeStyle = t.gy; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x,y2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(x-5,y2); ctx.lineTo(x+5,y2); ctx.stroke();
+    }
+    // Hollow for non-confirmed
+    Object.entries(GY_ASMR).forEach(([y,v]) => {
+      if(+y<XMIN||+y>XMAX) return;
+      if (!GY_ASMR_CONF.has(+y)) {
+        const x=xP(+y), yy=yp(v);
+        ctx.beginPath(); ctx.arc(x,yy,4,0,Math.PI*2);
+        ctx.strokeStyle=t.gy; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle=tc('--cvs'); ctx.fill();
+      }
+    });
+  }
+  if (vis.jsy) drawLine(JSY_ASMR, t.jsy, yp, false, 3.5);
+}
+
+function updateLegend() {
+  const t = T();
+  const lb = document.getElementById('legend-bar');
+  const items = [];
+
+  if (currentView === 'counts') {
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM annual count</div>`);
+    if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey annual count</div>`);
+    if (vis.gy)  items.push(`<div class="leg"><span style="display:inline-block;width:14px;height:14px;background:${t.gy}55;border:1px solid ${t.gy};vertical-align:middle;"></span> Guernsey 3yr avg count (not individual years)</div>`);
+    if (vis.ew)  items.push(`<div class="leg" style="color:${t.ew}aa;">E&amp;W: use crude rate or ASMR view for comparison</div>`);
+  } else if (currentView === 'crude') {
+    if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W (pre-2018 solid · post-2018 dashed — proof change)</div>`);
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM crude rate</div>`);
+    if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey crude rate</div>`);
+    if (vis.gy)  items.push(`<div class="leg" style="color:${t.gy}aa;">Guernsey: not available (annual counts not published)</div>`);
+  } else {
+    if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W ASMR (annual · dashed post-2018)</div>`);
+    if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM 3yr ASMR (● confirmed · ○ read from chart ±1-2)</div>`);
+    if (vis.gy)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.gy};border-radius:2px;"></span> Guernsey 3yr ASMR (● confirmed · ○ from chart · error bar = inquest range)</div>`);
+    if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey 3yr ASMR</div>`);
+  }
+  lb.innerHTML = items.join('');
+}
+
+// ── TOOLTIP ───────────────────────────────────────────────────────────────────
+let rect = canvas.getBoundingClientRect();
+canvas.addEventListener('mousemove', e => {
+  rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const yr = Math.round(XMIN + (mx - PAD.left) / CW() * (XMAX - XMIN));
+  if (yr < XMIN || yr > XMAX) { document.getElementById('tooltip').style.display='none'; return; }
+
+  const t = T();
+  const rows = [];
+  const [YMIN,YMAX] = getRange();
+
+  if (currentView === 'counts') {
+    if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man', v:`${IOM_COUNTS[yr]} deaths`, note:'annual registrations'});
+    if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${JSY_COUNTS[yr]} deaths`, note:'annual registrations'});
+    if (vis.gy && GY_COUNT_AVG[yr]) rows.push({color:t.gy, label:'Guernsey', v:`~${GY_COUNT_AVG[yr]}/yr`, note:'3yr rolling average — not individual year'});
+    if (vis.ew && EW_COUNTS[yr]) rows.push({color:t.ew, label:'England & Wales', v:`${EW_COUNTS[yr].toLocaleString()} deaths`, note:'annual registrations (different scale)'});
+  } else if (currentView === 'crude') {
+    if (vis.ew && EW_COUNTS[yr] && EW_POP[yr]) rows.push({color:t.ew, label:'E&W', v:`${(EW_COUNTS[yr]/(EW_POP[yr]*1e6)*1e5).toFixed(1)}/100k`, note: yr>=2018 ? 'post-2018 civil standard' : 'pre-2018 criminal standard'});
+    if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man', v:`${(IOM_COUNTS[yr]/IOM_POP*1e5).toFixed(1)}/100k`, note:'year of registration'});
+    if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${(JSY_COUNTS[yr]/JSY_POP*1e5).toFixed(1)}/100k`, note:'year of registration'});
+  } else {
+    const ewAll = {...EW_PRE,...EW_POST};
+    if (vis.ew && ewAll[yr]) rows.push({color:t.ew, label:'E&W', v:`${ewAll[yr].toFixed(1)}/100k`, note: yr>=2018 ? 'civil std' : 'criminal std'});
+    if (vis.iom && IOM_ASMR[yr]) rows.push({color:t.iom, label:`IoM (${IOM_ASMR[yr-1]||'?'}–${yr+1} window)`, v:`${IOM_ASMR[yr].toFixed(1)}/100k`, note: IOM_ASMR_CONF.has(yr) ? 'confirmed' : 'read from chart ±1-2'});
+    if (vis.gy && GY_ASMR[yr]) rows.push({color:t.gy, label:'Guernsey', v:`${GY_ASMR[yr].toFixed(1)}/100k${GY_ASMR_MAX[yr]?' – '+GY_ASMR_MAX[yr]+' max':''}`, note: GY_ASMR_CONF.has(yr) ? 'confirmed' : 'from published chart'});
+    if (vis.jsy && JSY_ASMR[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${JSY_ASMR[yr].toFixed(1)}/100k`, note:'3yr rolling'});
+  }
+
+  if (!rows.length) { document.getElementById('tooltip').style.display='none'; return; }
+
+  document.getElementById('t-year').textContent = yr;
+  document.getElementById('t-rows').innerHTML = rows.map(r =>
+    `<div class="t-row"><span class="t-dot" style="background:${r.color}"></span><div><span class="t-val">${r.label}: ${r.v}</span><br><span class="t-note">${r.note}</span></div></div>`
+  ).join('');
+
+  const tip = document.getElementById('tooltip');
+  tip.style.display = 'block';
+  const sw = tip.offsetWidth;
+  const relX = (xP(yr)/W) * rect.width;
+  tip.style.left = (relX + sw + 16 > rect.width ? relX - sw - 8 : relX + 12) + 'px';
+  tip.style.top = '50px';
+});
+canvas.addEventListener('mouseleave', () => { document.getElementById('tooltip').style.display='none'; });
+
+// ── VIEW TABS ─────────────────────────────────────────────────────────────────
+['counts','crude','asmr'].forEach(v => {
+  document.getElementById(`tab-${v}`).addEventListener('click', () => {
+    currentView = v;
+    document.querySelectorAll('.view-tab[id^="tab-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById(`tab-${v}`).classList.add('active');
+    draw();
+  });
+});
+
+document.getElementById('range-all').addEventListener('click', () => {
+  XMIN=1981; XMAX=2024;
+  document.getElementById('range-all').classList.add('active');
+  document.getElementById('range-2006').classList.remove('active');
+  draw();
+});
+document.getElementById('range-2006').addEventListener('click', () => {
+  XMIN=2006; XMAX=2024;
+  document.getElementById('range-2006').classList.add('active');
+  document.getElementById('range-all').classList.remove('active');
+  draw();
+});
+
+// ── SERIES TOGGLES ────────────────────────────────────────────────────────────
+const COLORS = { ew:'--c-ew', iom:'--c-iom', gy:'--c-gy', jsy:'--c-jsy' };
+['ew','iom','gy','jsy'].forEach(k => {
+  document.getElementById(`btn-${k}`).addEventListener('click', () => {
+    vis[k] = !vis[k];
+    const col = tc(COLORS[k]);
+    const btn = document.getElementById(`btn-${k}`);
+    btn.style.background = vis[k] ? col : 'transparent';
+    btn.style.color = vis[k] ? tc('--cvs') : col;
+    btn.style.borderColor = col;
+    draw();
+  });
+});
+
+// ── NOTES TOGGLE ──────────────────────────────────────────────────────────────
+document.getElementById('notes-toggle').addEventListener('click', () => {
+  const body = document.getElementById('notes-body');
+  const hint = document.getElementById('hint-text');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  hint.textContent = open ? '▼ Click to expand' : '▲ Click to collapse';
+  setTimeout(reportHeight, 60);
+});
+
+// ── RESPONSIVE & IFRAME COMMS ─────────────────────────────────────────────────
+function resize() {
+  const wrap = document.getElementById('chart-wrap');
+  const w = Math.min(wrap.offsetWidth || wrap.clientWidth || W, W);
+  if (!w) return;
+  canvas.style.height = Math.round(w * H / W) + 'px';
+}
+
+let _lastH = 0;
+function reportHeight() {
+  resize();
+  const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+  if (Math.abs(h - _lastH) < 4) return;
+  _lastH = h;
+  try { window.parent.postMessage({ type:'resize', height: h + 24 }, '*'); } catch(e) {}
+}
+
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'theme') {
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+    draw();
+  }
+});
+
+let _rTimer;
+window.addEventListener('resize', () => { clearTimeout(_rTimer); _rTimer = setTimeout(() => { resize(); draw(); }, 120); });
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+draw();
+let _ready = false;
+function safeInit() {
+  if (_ready) return;
+  const wrap = document.getElementById('chart-wrap');
+  if ((wrap.offsetWidth || wrap.clientWidth) < 50) return;
+  _ready = true;
+  resize(); draw();
+  setTimeout(reportHeight, 80);
+}
+const _poll = setInterval(() => { if (_ready) { clearInterval(_poll); return; } safeInit(); }, 40);
+window.addEventListener('load', () => { safeInit(); setTimeout(safeInit, 250); setTimeout(() => { if (!_ready) { _ready=true; resize(); draw(); setTimeout(reportHeight,80); } }, 800); });
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SCOTLAND CHART LOGIC (draft addition) — deliberately namespaced/prefixed    -->
+<!-- with "Sct"/"SCT" so it never collides with the Crown Dependencies chart     -->
+<!-- variables/functions defined in the script block above.                     -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<script>
+// ── DATA (National Records of Scotland, "Probable Suicides 2024" publication) ─
+// area keys: ork = Orkney Islands, shet = Shetland Islands, nes = Na h-Eileanan Siar,
+// scot = Scotland (national benchmark). sex keys: p = Persons, m = Male, f = Female.
+
+// Annual registered counts, 1974-2024 (Table_4A)
+const SCT_COUNTS = {
+  ork: {
+    p: {1974:6,1975:6,1976:3,1977:4,1978:7,1979:2,1980:4,1981:3,1982:3,1983:4,1984:3,1985:2,1986:0,1987:1,1988:3,1989:8,1990:1,1991:2,1992:2,1993:4,1994:6,1995:5,1996:5,1997:8,1998:3,1999:3,2000:4,2001:1,2002:3,2003:6,2004:1,2005:4,2006:3,2007:1,2008:5,2009:2,2010:3,2011:4,2012:1,2013:4,2014:5,2015:3,2016:3,2017:5,2018:6,2019:3,2020:4,2021:2,2022:8,2023:3,2024:3},
+    m: {1974:2,1975:5,1976:1,1977:2,1978:3,1979:2,1980:2,1981:2,1982:2,1983:4,1984:3,1985:2,1986:0,1987:1,1988:2,1989:7,1990:1,1991:1,1992:1,1993:4,1994:5,1995:4,1996:4,1997:3,1998:2,1999:2,2000:3,2001:0,2002:1,2003:5,2004:1,2005:4,2006:3,2007:1,2008:3,2009:1,2010:3,2011:2,2012:1,2013:3,2014:3,2015:2,2016:2,2017:4,2018:6,2019:2,2020:3,2021:2,2022:5,2023:2,2024:1},
+    f: {1974:4,1975:1,1976:2,1977:2,1978:4,1979:0,1980:2,1981:1,1982:1,1983:0,1984:0,1985:0,1986:0,1987:0,1988:1,1989:1,1990:0,1991:1,1992:1,1993:0,1994:1,1995:1,1996:1,1997:5,1998:1,1999:1,2000:1,2001:1,2002:2,2003:1,2004:0,2005:0,2006:0,2007:0,2008:2,2009:1,2010:0,2011:2,2012:0,2013:1,2014:2,2015:1,2016:1,2017:1,2018:0,2019:1,2020:1,2021:0,2022:3,2023:1,2024:2},
+  },
+  shet: {
+    p: {1974:2,1975:5,1976:1,1977:4,1978:4,1979:2,1980:6,1981:2,1982:4,1983:4,1984:3,1985:0,1986:4,1987:2,1988:1,1989:2,1990:5,1991:2,1992:3,1993:2,1994:8,1995:1,1996:5,1997:8,1998:7,1999:2,2000:5,2001:4,2002:6,2003:7,2004:4,2005:2,2006:5,2007:6,2008:5,2009:4,2010:5,2011:7,2012:7,2013:5,2014:1,2015:3,2016:0,2017:0,2018:3,2019:2,2020:4,2021:3,2022:2,2023:1,2024:2},
+    m: {1974:1,1975:5,1976:1,1977:3,1978:4,1979:2,1980:4,1981:2,1982:3,1983:4,1984:3,1985:0,1986:1,1987:2,1988:1,1989:2,1990:4,1991:1,1992:0,1993:1,1994:5,1995:1,1996:3,1997:8,1998:6,1999:1,2000:4,2001:3,2002:6,2003:6,2004:4,2005:1,2006:3,2007:5,2008:5,2009:4,2010:2,2011:7,2012:6,2013:4,2014:1,2015:3,2016:0,2017:0,2018:1,2019:1,2020:2,2021:2,2022:2,2023:1,2024:2},
+    f: {1974:1,1975:0,1976:0,1977:1,1978:0,1979:0,1980:2,1981:0,1982:1,1983:0,1984:0,1985:0,1986:3,1987:0,1988:0,1989:0,1990:1,1991:1,1992:3,1993:1,1994:3,1995:0,1996:2,1997:0,1998:1,1999:1,2000:1,2001:1,2002:0,2003:1,2004:0,2005:1,2006:2,2007:1,2008:0,2009:0,2010:3,2011:0,2012:1,2013:1,2014:0,2015:0,2016:0,2017:0,2018:2,2019:1,2020:2,2021:1,2022:0,2023:0,2024:0},
+  },
+  nes: {
+    p: {1974:3,1975:6,1976:4,1977:3,1978:4,1979:2,1980:2,1981:3,1982:4,1983:5,1984:3,1985:5,1986:8,1987:2,1988:8,1989:7,1990:6,1991:6,1992:3,1993:3,1994:7,1995:5,1996:10,1997:6,1998:7,1999:5,2000:9,2001:8,2002:1,2003:6,2004:3,2005:7,2006:3,2007:9,2008:7,2009:3,2010:2,2011:4,2012:3,2013:5,2014:4,2015:4,2016:3,2017:6,2018:7,2019:3,2020:5,2021:6,2022:1,2023:7,2024:8},
+    m: {1974:3,1975:6,1976:3,1977:2,1978:3,1979:1,1980:1,1981:3,1982:4,1983:4,1984:3,1985:3,1986:7,1987:2,1988:6,1989:6,1990:6,1991:5,1992:3,1993:3,1994:5,1995:5,1996:8,1997:4,1998:7,1999:3,2000:9,2001:7,2002:1,2003:5,2004:3,2005:7,2006:2,2007:6,2008:6,2009:2,2010:2,2011:3,2012:2,2013:3,2014:3,2015:3,2016:1,2017:6,2018:5,2019:3,2020:3,2021:5,2022:1,2023:6,2024:6},
+    f: {1974:0,1975:0,1976:1,1977:1,1978:1,1979:1,1980:1,1981:0,1982:0,1983:1,1984:0,1985:2,1986:1,1987:0,1988:2,1989:1,1990:0,1991:1,1992:0,1993:0,1994:2,1995:0,1996:2,1997:2,1998:0,1999:2,2000:0,2001:1,2002:0,2003:1,2004:0,2005:0,2006:1,2007:3,2008:1,2009:1,2010:0,2011:1,2012:1,2013:2,2014:1,2015:1,2016:2,2017:0,2018:2,2019:0,2020:2,2021:1,2022:0,2023:1,2024:2},
+  },
+  scot: {
+    p: {1974:642,1975:688,1976:657,1977:659,1978:723,1979:764,1980:777,1981:728,1982:735,1983:669,1984:688,1985:756,1986:765,1987:708,1988:774,1989:718,1990:749,1991:706,1992:793,1993:912,1994:834,1995:836,1996:846,1997:874,1998:878,1999:874,2000:878,2001:887,2002:899,2003:794,2004:835,2005:763,2006:765,2007:838,2008:843,2009:746,2010:781,2011:889,2012:830,2013:795,2014:696,2015:672,2016:728,2017:680,2018:784,2019:833,2020:805,2021:753,2022:762,2023:790,2024:704},
+    m: {1974:378,1975:375,1976:377,1977:382,1978:439,1979:433,1980:479,1981:472,1982:477,1983:453,1984:469,1985:513,1986:543,1987:497,1988:553,1989:506,1990:566,1991:523,1992:576,1993:679,1994:611,1995:625,1996:620,1997:655,1998:650,1999:663,2000:674,2001:646,2002:676,2003:578,2004:609,2005:549,2006:592,2007:620,2008:630,2009:549,2010:581,2011:639,2012:608,2013:611,2014:497,2015:476,2016:517,2017:522,2018:581,2019:620,2020:575,2021:565,2022:556,2023:589,2024:518},
+    f: {1974:264,1975:313,1976:280,1977:277,1978:284,1979:331,1980:298,1981:256,1982:258,1983:216,1984:219,1985:243,1986:222,1987:211,1988:221,1989:212,1990:183,1991:183,1992:217,1993:233,1994:223,1995:211,1996:226,1997:219,1998:228,1999:211,2000:204,2001:241,2002:223,2003:216,2004:226,2005:214,2006:173,2007:218,2008:213,2009:197,2010:200,2011:250,2012:222,2013:184,2014:199,2015:196,2016:211,2017:158,2018:203,2019:213,2020:230,2021:188,2022:206,2023:201,2024:186},
+  },
+};
+
+// 5-year rolling ASMR, 2013 ESP, with 95% CI, windows 2000-2004..2020-2024
+// (Table_4B). Keyed by window MIDPOINT year (e.g. 2000-2004 -> 2002).
+const SCT_ASMR = {
+  ork: {
+    p: {2002:{v:15.4,lo:7.6,hi:23.3,n:15},2003:{v:15.2,lo:7.4,hi:22.9,n:15},2004:{v:16.8,lo:8.8,hi:24.8,n:17},2005:{v:14.6,lo:7.2,hi:22.1,n:15},2006:{v:13.9,lo:6.5,hi:21.2,n:14},2007:{v:14.2,lo:6.9,hi:21.5,n:15},2008:{v:13.6,lo:6.4,hi:20.9,n:14},2009:{v:14.2,lo:6.9,hi:21.4,n:15},2010:{v:14.4,lo:7,hi:21.7,n:15},2011:{v:13.2,lo:6.3,hi:20.2,n:14},2012:{v:16.6,lo:8.6,hi:24.6,n:17},2013:{v:16.6,lo:8.6,hi:24.6,n:17},2014:{v:15.5,lo:7.8,hi:23.3,n:16},2015:{v:19.3,lo:10.7,hi:27.8,n:20},2016:{v:21.6,lo:12.4,hi:30.7,n:22},2017:{v:19,lo:10.5,hi:27.5,n:20},2018:{v:19.3,lo:10.9,hi:27.7,n:21},2019:{v:19.5,lo:10.8,hi:28.2,n:20},2020:{v:22.7,lo:13.2,hi:32.1,n:23},2021:{v:19.5,lo:10.7,hi:28.2,n:20},2022:{v:19.8,lo:11,hi:28.7,n:20}},
+    m: {2002:{v:21.2,lo:7.8,hi:34.6,n:10},2003:{v:23.2,lo:9.3,hi:37.1,n:11},2004:{v:28.7,lo:13.5,hi:44,n:14},2005:{v:28.3,lo:13.3,hi:43.4,n:14},2006:{v:24.5,lo:10.4,hi:38.5,n:12},2007:{v:23.3,lo:9.9,hi:36.7,n:12},2008:{v:21.8,lo:8.7,hi:34.9,n:11},2009:{v:18.9,lo:7.1,hi:30.7,n:10},2010:{v:19.5,lo:7.3,hi:31.8,n:10},2011:{v:19.1,lo:7.1,hi:31,n:10},2012:{v:23.8,lo:10.2,hi:37.3,n:12},2013:{v:22,lo:8.8,hi:35.2,n:11},2014:{v:21.9,lo:8.8,hi:35.1,n:11},2015:{v:27,lo:12.7,hi:41.3,n:14},2016:{v:33.2,lo:17.2,hi:49.3,n:17},2017:{v:30.7,lo:15.4,hi:46.1,n:16},2018:{v:33.2,lo:17.1,hi:49.3,n:17},2019:{v:35.3,lo:18.2,hi:52.4,n:17},2020:{v:38.1,lo:20.2,hi:56.1,n:18},2021:{v:29.9,lo:13.9,hi:45.9,n:14},2022:{v:27.8,lo:12.4,hi:43.2,n:13}},
+    f: {2002:{v:10.3,lo:1.2,hi:19.3,n:5},2003:{v:8,lo:0.1,hi:15.9,n:4},2004:{v:5.8,lo:-0.8,hi:12.4,n:3},2005:{v:1.9,lo:-1.8,hi:5.5,n:1},2006:{v:3.6,lo:-1.4,hi:8.7,n:2},2007:{v:5.3,lo:-0.7,hi:11.3,n:3},2008:{v:5.2,lo:-0.7,hi:11.1,n:3},2009:{v:9.3,lo:1.1,hi:17.6,n:5},2010:{v:9.3,lo:1.1,hi:17.6,n:5},2011:{v:7.5,lo:0.1,hi:14.8,n:4},2012:{v:9.7,lo:1.1,hi:18.2,n:5},2013:{v:12,lo:2.3,hi:21.6,n:6},2014:{v:9.8,lo:1.1,hi:18.6,n:5},2015:{v:12,lo:2.3,hi:21.7,n:6},2016:{v:10.4,lo:1.2,hi:19.7,n:5},2017:{v:7.5,lo:0,hi:15.1,n:4},2018:{v:6.6,lo:0.1,hi:13.1,n:4},2019:{v:5,lo:-0.7,hi:10.8,n:3},2020:{v:8.6,lo:1,hi:16.3,n:5},2021:{v:10.8,lo:2,hi:19.6,n:6},2022:{v:13.5,lo:3.4,hi:23.5,n:7}},
+  },
+  shet: {
+    p: {2002:{v:23.9,lo:14.6,hi:33.1,n:26},2003:{v:20.9,lo:12.3,hi:29.5,n:23},2004:{v:21.7,lo:12.9,hi:30.4,n:24},2005:{v:21.4,lo:12.8,hi:29.9,n:24},2006:{v:19.6,lo:11.4,hi:27.8,n:22},2007:{v:19.2,lo:11.2,hi:27.2,n:22},2008:{v:21.4,lo:13,hi:29.7,n:25},2009:{v:23.7,lo:14.7,hi:32.7,n:27},2010:{v:24.3,lo:15.3,hi:33.4,n:28},2011:{v:24.3,lo:15.2,hi:33.3,n:28},2012:{v:21.7,lo:13.2,hi:30.3,n:25},2013:{v:20.1,lo:11.9,hi:28.4,n:23},2014:{v:13.6,lo:6.9,hi:20.2,n:16},2015:{v:7.7,lo:2.6,hi:12.7,n:9},2016:{v:6.1,lo:1.6,hi:10.7,n:7},2017:{v:7.1,lo:2.2,hi:12,n:8},2018:{v:7.6,lo:2.6,hi:12.7,n:9},2019:{v:10.2,lo:4.4,hi:16,n:12},2020:{v:11.9,lo:5.6,hi:18.1,n:14},2021:{v:10.4,lo:4.5,hi:16.3,n:12},2022:{v:10.6,lo:4.6,hi:16.7,n:12}},
+    m: {2002:{v:41.7,lo:24.4,hi:59,n:23},2003:{v:35.8,lo:19.9,hi:51.7,n:20},2004:{v:35.5,lo:19.8,hi:51.3,n:20},2005:{v:33.3,lo:18.3,hi:48.4,n:19},2006:{v:31.5,lo:16.9,hi:46.2,n:18},2007:{v:30.8,lo:16.5,hi:45,n:18},2008:{v:31.7,lo:17.4,hi:46,n:19},2009:{v:40,lo:23.5,hi:56.5,n:23},2010:{v:41.3,lo:24.7,hi:58,n:24},2011:{v:39.6,lo:23.3,hi:55.9,n:23},2012:{v:34.7,lo:19.4,hi:50,n:20},2013:{v:36.4,lo:20.8,hi:52.1,n:21},2014:{v:23.5,lo:11.1,hi:35.8,n:14},2015:{v:13.5,lo:4.1,hi:22.9,n:8},2016:{v:8.5,lo:1,hi:15.9,n:5},2017:{v:8.7,lo:1,hi:16.4,n:5},2018:{v:7.2,lo:0.1,hi:14.3,n:4},2019:{v:10.4,lo:2,hi:18.8,n:6},2020:{v:13.7,lo:4.1,hi:23.2,n:8},2021:{v:14.3,lo:4.3,hi:24.2,n:8},2022:{v:16.3,lo:5.6,hi:26.9,n:9}},
+    f: {2002:{v:5.4,lo:-0.7,hi:11.5,n:3},2003:{v:5.5,lo:-0.7,hi:11.7,n:3},2004:{v:7.2,lo:0.1,hi:14.3,n:4},2005:{v:8.9,lo:1.1,hi:16.7,n:5},2006:{v:7.1,lo:0.1,hi:14,n:4},2007:{v:7,lo:0.1,hi:13.9,n:4},2008:{v:10.6,lo:2.1,hi:19,n:6},2009:{v:7,lo:0.1,hi:13.9,n:4},2010:{v:6.9,lo:0.1,hi:13.7,n:4},2011:{v:8.6,lo:1.1,hi:16.1,n:5},2012:{v:8.5,lo:1.1,hi:15.9,n:5},2013:{v:3.3,lo:-1.3,hi:8,n:2},2014:{v:3.3,lo:-1.3,hi:7.9,n:2},2015:{v:1.6,lo:-1.6,hi:4.8,n:1},2016:{v:3.5,lo:-1.4,hi:8.3,n:2},2017:{v:5.1,lo:-0.7,hi:10.9,n:3},2018:{v:8.4,lo:1,hi:15.8,n:5},2019:{v:10.2,lo:2,hi:18.4,n:6},2020:{v:10.1,lo:2,hi:18.3,n:6},2021:{v:6.7,lo:0.1,hi:13.4,n:4},2022:{v:5.2,lo:-0.7,hi:11.2,n:3}},
+  },
+  nes: {
+    p: {2002:{v:21.4,lo:13.2,hi:29.5,n:27},2003:{v:20.5,lo:12.4,hi:28.7,n:25},2004:{v:16,lo:8.9,hi:23.1,n:20},2005:{v:21.6,lo:13.5,hi:29.7,n:28},2006:{v:22.1,lo:13.9,hi:30.2,n:29},2007:{v:21.9,lo:13.8,hi:29.9,n:29},2008:{v:17.5,lo:10.4,hi:24.5,n:24},2009:{v:18.5,lo:11.1,hi:25.8,n:25},2010:{v:14,lo:7.6,hi:20.4,n:19},2011:{v:12.5,lo:6.4,hi:18.5,n:17},2012:{v:13.9,lo:7.4,hi:20.4,n:18},2013:{v:15.3,lo:8.4,hi:22.1,n:20},2014:{v:14.5,lo:7.8,hi:21.1,n:19},2015:{v:17.1,lo:9.8,hi:24.4,n:22},2016:{v:19.8,lo:11.8,hi:27.9,n:24},2017:{v:18.9,lo:11.1,hi:26.7,n:23},2018:{v:20.2,lo:12,hi:28.4,n:24},2019:{v:22.9,lo:14.1,hi:31.7,n:27},2020:{v:19.2,lo:11,hi:27.4,n:22},2021:{v:18.1,lo:10.3,hi:25.9,n:22},2022:{v:22.5,lo:13.7,hi:31.4,n:27}},
+    m: {2002:{v:38,lo:23,hi:53,n:25},2003:{v:36.4,lo:21.4,hi:51.4,n:23},2004:{v:28.1,lo:14.9,hi:41.2,n:18},2005:{v:34.8,lo:20.4,hi:49.2,n:23},2006:{v:35.8,lo:21.3,hi:50.3,n:24},2007:{v:34.1,lo:20,hi:48.2,n:23},2008:{v:25.7,lo:13.7,hi:37.7,n:18},2009:{v:27.1,lo:14.7,hi:39.4,n:19},2010:{v:21.1,lo:10.3,hi:32,n:15},2011:{v:17.4,lo:7.4,hi:27.5,n:12},2012:{v:19.8,lo:8.8,hi:30.9,n:13},2013:{v:21.4,lo:9.9,hi:32.9,n:14},2014:{v:18.8,lo:7.9,hi:29.7,n:12},2015:{v:25.4,lo:12.7,hi:38.1,n:16},2016:{v:29.9,lo:15.8,hi:43.9,n:18},2017:{v:30,lo:15.9,hi:44.1,n:18},2018:{v:30.5,lo:16.1,hi:44.8,n:18},2019:{v:36.8,lo:21,hi:52.6,n:22},2020:{v:29.3,lo:15,hi:43.7,n:17},2021:{v:29.4,lo:15.4,hi:43.4,n:18},2022:{v:33.7,lo:18.8,hi:48.7,n:21}},
+    f: {2002:{v:3.9,lo:-1.6,hi:9.4,n:2},2003:{v:3.9,lo:-1.6,hi:9.4,n:2},2004:{v:3,lo:-1.2,hi:7.2,n:2},2005:{v:7.5,lo:0.9,hi:14.1,n:5},2006:{v:7.5,lo:0.9,hi:14.1,n:5},2007:{v:8.8,lo:1.7,hi:15.9,n:6},2008:{v:8.8,lo:1.7,hi:15.9,n:6},2009:{v:9.2,lo:1.8,hi:16.7,n:6},2010:{v:6.3,lo:0.1,hi:12.5,n:4},2011:{v:7.2,lo:0.8,hi:13.6,n:5},2012:{v:7.8,lo:0.8,hi:14.8,n:5},2013:{v:9.2,lo:1.7,hi:16.6,n:6},2014:{v:10.2,lo:2.5,hi:18,n:7},2015:{v:8.9,lo:1.6,hi:16.1,n:6},2016:{v:9.9,lo:1.9,hi:18,n:6},2017:{v:8,lo:0.9,hi:15.2,n:5},2018:{v:10,lo:1.9,hi:18.2,n:6},2019:{v:9.1,lo:1,hi:17.1,n:5},2020:{v:9.3,lo:1.1,hi:17.6,n:5},2021:{v:6.7,lo:-0.1,hi:13.5,n:4},2022:{v:11,lo:2,hi:20.1,n:6}},
+  },
+  scot: {
+    p: {2002:{v:16.8,lo:16.3,hi:17.3,n:4293},2003:{v:16.3,lo:15.8,hi:16.8,n:4178},2004:{v:15.8,lo:15.3,hi:16.3,n:4056},2005:{v:15.5,lo:15,hi:16,n:3995},2006:{v:15.6,lo:15.1,hi:16.1,n:4044},2007:{v:15.1,lo:14.7,hi:15.6,n:3955},2008:{v:15.1,lo:14.6,hi:15.6,n:3973},2009:{v:15.5,lo:15,hi:16,n:4097},2010:{v:15.4,lo:14.9,hi:15.8,n:4089},2011:{v:15.2,lo:14.7,hi:15.6,n:4041},2012:{v:14.9,lo:14.5,hi:15.4,n:3991},2013:{v:14.5,lo:14.1,hi:15,n:3882},2014:{v:13.9,lo:13.5,hi:14.3,n:3721},2015:{v:13.3,lo:12.9,hi:13.8,n:3571},2016:{v:13.3,lo:12.8,hi:13.7,n:3560},2017:{v:13.7,lo:13.3,hi:14.2,n:3697},2018:{v:14.2,lo:13.7,hi:14.7,n:3830},2019:{v:14.3,lo:13.8,hi:14.7,n:3855},2020:{v:14.6,lo:14.1,hi:15,n:3937},2021:{v:14.5,lo:14.1,hi:15,n:3943},2022:{v:14,lo:13.6,hi:14.4,n:3814}},
+    m: {2002:{v:26.1,lo:25.2,hi:27,n:3183},2003:{v:24.9,lo:24,hi:25.9,n:3058},2004:{v:24.4,lo:23.5,hi:25.3,n:3004},2005:{v:23.9,lo:23,hi:24.8,n:2948},2006:{v:24.1,lo:23.2,hi:25,n:3000},2007:{v:23.4,lo:22.5,hi:24.2,n:2940},2008:{v:23.5,lo:22.6,hi:24.3,n:2972},2009:{v:23.7,lo:22.8,hi:24.5,n:3019},2010:{v:23.4,lo:22.6,hi:24.3,n:3007},2011:{v:23.2,lo:22.4,hi:24,n:2988},2012:{v:22.8,lo:22,hi:23.6,n:2936},2013:{v:22,lo:21.2,hi:22.8,n:2831},2014:{v:21,lo:20.2,hi:21.8,n:2709},2015:{v:20.3,lo:19.5,hi:21.1,n:2623},2016:{v:20,lo:19.2,hi:20.8,n:2593},2017:{v:20.9,lo:20.1,hi:21.6,n:2716},2018:{v:21.6,lo:20.8,hi:22.4,n:2815},2019:{v:21.9,lo:21.1,hi:22.8,n:2863},2020:{v:22.2,lo:21.4,hi:23,n:2897},2021:{v:22.2,lo:21.4,hi:23,n:2905},2022:{v:21.3,lo:20.5,hi:22.1,n:2803}},
+    f: {2002:{v:8.4,lo:7.9,hi:8.9,n:1110},2003:{v:8.5,lo:8,hi:9,n:1120},2004:{v:8,lo:7.5,hi:8.5,n:1052},2005:{v:7.9,lo:7.4,hi:8.4,n:1047},2006:{v:7.8,lo:7.3,hi:8.3,n:1044},2007:{v:7.5,lo:7.1,hi:8,n:1015},2008:{v:7.4,lo:6.9,hi:7.9,n:1001},2009:{v:7.9,lo:7.5,hi:8.4,n:1078},2010:{v:7.9,lo:7.4,hi:8.4,n:1082},2011:{v:7.7,lo:7.2,hi:8.1,n:1053},2012:{v:7.7,lo:7.2,hi:8.1,n:1055},2013:{v:7.6,lo:7.2,hi:8.1,n:1051},2014:{v:7.3,lo:6.9,hi:7.8,n:1012},2015:{v:6.9,lo:6.4,hi:7.3,n:948},2016:{v:7,lo:6.5,hi:7.4,n:967},2017:{v:7.1,lo:6.6,hi:7.5,n:981},2018:{v:7.3,lo:6.9,hi:7.8,n:1015},2019:{v:7.1,lo:6.7,hi:7.6,n:992},2020:{v:7.5,lo:7,hi:7.9,n:1040},2021:{v:7.4,lo:7,hi:7.9,n:1038},2022:{v:7.2,lo:6.7,hi:7.6,n:1011}},
+  },
+};
+
+const SCT_AREAS = ['ork','shet','nes','scot'];
+const SCT_LABELS = { ork:'Orkney Islands', shet:'Shetland Islands', nes:'Na h-Eileanan Siar', scot:'Scotland (national)' };
+const SCT_COLORVAR = { ork:'--c-ork', shet:'--c-shet', nes:'--c-nes', scot:'--gold' };
+
+// ── CANVAS SETUP ──────────────────────────────────────────────────────────────
+const canvasSct = document.getElementById('chart-sct');
+const ctxSct = canvasSct.getContext('2d');
+const WS = 900, HS = 440;
+canvasSct.width = WS; canvasSct.height = HS;
+
+const PADS = {top:44, right:60, bottom:52, left:58};
+let XMIN_SCT = 1974, XMAX_SCT = 2024;
+let rangeSctAll = true; // true = full 1974- range on counts view
+
+function CWS() { return WS - PADS.left - PADS.right; }
+function CHS() { return HS - PADS.top - PADS.bottom; }
+
+function tcSct(name) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const fallbacks = {
+    '--cvs':'#0f172a','--grid':'#1e293b','--axis':'#334155','--tick':'#64748b','--muted':'#94a3b8',
+    '--c-ork':'#22d3ee','--c-shet':'#fb923c','--c-nes':'#f472b6','--gold':'#C9A24A'
+  };
+  return v || fallbacks[name] || '#888';
+}
+function TSct() {
+  return {
+    cvs:tcSct('--cvs'), grid:tcSct('--grid'), axis:tcSct('--axis'), tick:tcSct('--tick'), muted:tcSct('--muted'),
+    ork:tcSct('--c-ork'), shet:tcSct('--c-shet'), nes:tcSct('--c-nes'), scot:tcSct('--gold'),
+  };
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentViewSct = 'counts'; // 'counts' | 'asmr'
+let visSct = { ork:true, shet:true, nes:true, scot:true };
+let sexSct = 'p'; // 'p' | 'm' | 'f'
+
+function xPSct(yr) { return PADS.left + ((yr - XMIN_SCT) / (XMAX_SCT - XMIN_SCT)) * CWS(); }
+function yPSct(v, ymin, ymax) { return PADS.top + (1 - (v - ymin) / (ymax - ymin)) * CHS(); }
+
+function updateRangeSct() {
+  if (currentViewSct === 'asmr') { XMIN_SCT = 2000; XMAX_SCT = 2024; }
+  else { XMIN_SCT = rangeSctAll ? 1974 : 2000; XMAX_SCT = 2024; }
+}
+
+function rangeArr(a, b) { const r=[]; for(let i=a;i<=b;i++) r.push(i); return r; }
+
+function getRangeSct() {
+  let vals = [];
+  const yrs = rangeArr(XMIN_SCT, XMAX_SCT);
+  if (currentViewSct === 'counts') {
+    ['ork','shet','nes'].forEach(a => { if (visSct[a]) yrs.forEach(y => { const v = SCT_COUNTS[a][sexSct][y]; if (v !== undefined) vals.push(v); }); });
+    // Scotland deliberately excluded from y-range on counts view (different scale — see note)
+  } else {
+    SCT_AREAS.forEach(a => { if (visSct[a]) yrs.forEach(y => { const d = SCT_ASMR[a][sexSct][y]; if (d) vals.push(Math.max(0, d.hi)); }); });
+  }
+  if (!vals.length) return [0, 30];
+  const mx = Math.max(...vals);
+  return [0, Math.ceil(mx * 1.1 / 5) * 5];
+}
+
+// ── DRAW ──────────────────────────────────────────────────────────────────────
+function drawSct() {
+  const t = TSct();
+  const [YMIN, YMAX] = getRangeSct();
+  const yp = v => yPSct(v, YMIN, YMAX);
+
+  ctxSct.fillStyle = t.cvs;
+  ctxSct.fillRect(0, 0, WS, HS);
+
+  const gridSteps = 6;
+  for (let i = 0; i <= gridSteps; i++) {
+    const v = YMIN + (YMAX - YMIN) * i / gridSteps;
+    const y = yp(v);
+    ctxSct.strokeStyle = t.grid; ctxSct.lineWidth = 1;
+    ctxSct.beginPath(); ctxSct.moveTo(PADS.left, y); ctxSct.lineTo(PADS.left + CWS(), y); ctxSct.stroke();
+    ctxSct.fillStyle = t.tick; ctxSct.font = '10px "JetBrains Mono"'; ctxSct.textAlign = 'right';
+    ctxSct.fillText(Math.round(v*10)/10, PADS.left - 6, y + 3);
+  }
+
+  const yrs = rangeArr(XMIN_SCT, XMAX_SCT);
+  const step = Math.max(1, Math.floor((XMAX_SCT - XMIN_SCT) / 10));
+  ctxSct.fillStyle = t.tick; ctxSct.font = '10px "JetBrains Mono"'; ctxSct.textAlign = 'center';
+  yrs.forEach(y => {
+    if ((y - XMIN_SCT) % step !== 0) return;
+    ctxSct.fillText(y, xPSct(y), PADS.top + CHS() + 18);
+  });
+
+  ctxSct.fillStyle = t.muted; ctxSct.font = '10px Inter'; ctxSct.textAlign = 'center';
+  const yLabel = currentViewSct === 'counts' ? 'Deaths (registrations)' : 'Rate per 100,000 population';
+  ctxSct.save(); ctxSct.translate(14, PADS.top + CHS()/2); ctxSct.rotate(-Math.PI/2);
+  ctxSct.fillText(yLabel, 0, 0); ctxSct.restore();
+
+  ctxSct.fillStyle = t.muted; ctxSct.font = '11px Inter'; ctxSct.textAlign = 'left';
+  const sexLabel = sexSct === 'p' ? 'Persons' : sexSct === 'm' ? 'Male' : 'Female';
+  const viewLabel = currentViewSct === 'counts'
+    ? `Annual registered deaths — ${sexLabel}`
+    : `5-year rolling ASMR per 100,000 (2013 ESP) with 95% CI — ${sexLabel} · NOT the same window length as the 3yr Crown Dependencies series above`;
+  ctxSct.fillText(viewLabel, PADS.left, PADS.top - 18);
+
+  if (currentViewSct === 'counts') drawCountsSct(t, yp);
+  else drawASMRSct(t, yp);
+
+  updateLegendSct();
+}
+
+function drawLineSct(data, color, yp, dotRadius=3) {
+  const yrs = Object.keys(data).map(Number).filter(y => y >= XMIN_SCT && y <= XMAX_SCT).sort((a,b)=>a-b);
+  if (!yrs.length) return;
+  ctxSct.strokeStyle = color; ctxSct.lineWidth = 2; ctxSct.setLineDash([]);
+  ctxSct.beginPath();
+  yrs.forEach((y,i) => {
+    const x = xPSct(y), yy = yp(data[y]);
+    i === 0 ? ctxSct.moveTo(x,yy) : ctxSct.lineTo(x,yy);
+  });
+  ctxSct.stroke();
+  yrs.forEach(y => {
+    const x = xPSct(y), yy = yp(data[y]);
+    ctxSct.beginPath(); ctxSct.arc(x, yy, dotRadius, 0, Math.PI*2);
+    ctxSct.fillStyle = color; ctxSct.fill();
+  });
+}
+
+function drawCountsSct(t, yp) {
+  ['ork','shet','nes'].forEach(a => {
+    if (visSct[a]) drawLineSct(SCT_COUNTS[a][sexSct], t[a], yp, 3.5);
+  });
+  if (visSct.scot) {
+    ctxSct.fillStyle = t.scot + 'aa'; ctxSct.font = '10px Inter'; ctxSct.textAlign = 'left';
+    ctxSct.fillText('Scotland (national) not to same scale (hundreds of deaths/year) — use ASMR view to compare rates', PADS.left+2, PADS.top+14);
+  }
+}
+
+function drawASMRSct(t, yp) {
+  SCT_AREAS.forEach(a => {
+    if (!visSct[a]) return;
+    const data = SCT_ASMR[a][sexSct];
+    const color = t[a];
+    // Whiskers (95% CI) drawn first, behind the line
+    ctxSct.globalAlpha = 0.45;
+    Object.entries(data).forEach(([y,d]) => {
+      const yr = +y; if (yr < XMIN_SCT || yr > XMAX_SCT) return;
+      const x = xPSct(yr);
+      const yLo = yp(Math.max(0, d.lo)), yHi = yp(d.hi);
+      ctxSct.strokeStyle = color; ctxSct.lineWidth = 1.5;
+      ctxSct.beginPath(); ctxSct.moveTo(x, yLo); ctxSct.lineTo(x, yHi); ctxSct.stroke();
+      ctxSct.beginPath(); ctxSct.moveTo(x-4, yHi); ctxSct.lineTo(x+4, yHi); ctxSct.stroke();
+      ctxSct.beginPath(); ctxSct.moveTo(x-4, yLo); ctxSct.lineTo(x+4, yLo); ctxSct.stroke();
+    });
+    ctxSct.globalAlpha = 1;
+    // Point estimate line
+    const flat = {}; Object.entries(data).forEach(([y,d]) => { flat[+y] = d.v; });
+    drawLineSct(flat, color, yp, a === 'scot' ? 2.5 : 3.5);
+  });
+}
+
+function updateLegendSct() {
+  const t = TSct();
+  const lb = document.getElementById('legend-bar-sct');
+  const items = [];
+  if (currentViewSct === 'counts') {
+    ['ork','shet','nes'].forEach(a => { if (visSct[a]) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t[a]};border-radius:2px;"></span> ${SCT_LABELS[a]} annual count</div>`); });
+    if (visSct.scot) items.push(`<div class="leg" style="color:${t.scot}aa;">Scotland (national): use ASMR view for a comparable rate</div>`);
+  } else {
+    SCT_AREAS.forEach(a => { if (visSct[a]) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t[a]};border-radius:2px;"></span> ${SCT_LABELS[a]} 5yr ASMR (whiskers = 95% CI)</div>`); });
+  }
+  lb.innerHTML = items.join('');
+}
+
+// ── TOOLTIP ───────────────────────────────────────────────────────────────────
+let rectSct = canvasSct.getBoundingClientRect();
+canvasSct.addEventListener('mousemove', e => {
+  rectSct = canvasSct.getBoundingClientRect();
+  const scaleX = WS / rectSct.width;
+  const mx = (e.clientX - rectSct.left) * scaleX;
+  const yr = Math.round(XMIN_SCT + (mx - PADS.left) / CWS() * (XMAX_SCT - XMIN_SCT));
+  const tip = document.getElementById('tooltip-sct');
+  if (yr < XMIN_SCT || yr > XMAX_SCT) { tip.style.display='none'; return; }
+
+  const t = TSct();
+  const rows = [];
+  if (currentViewSct === 'counts') {
+    ['ork','shet','nes'].forEach(a => {
+      const v = SCT_COUNTS[a][sexSct][yr];
+      if (visSct[a] && v !== undefined) rows.push({color:t[a], label:SCT_LABELS[a], v:`${v} deaths`, note:'annual registrations'});
+    });
+    if (visSct.scot && SCT_COUNTS.scot[sexSct][yr] !== undefined) rows.push({color:t.scot, label:'Scotland', v:`${SCT_COUNTS.scot[sexSct][yr].toLocaleString()} deaths`, note:'different scale — national total'});
+  } else {
+    SCT_AREAS.forEach(a => {
+      const d = SCT_ASMR[a][sexSct][yr];
+      if (visSct[a] && d) rows.push({color:t[a], label:SCT_LABELS[a], v:`${d.v.toFixed(1)}/100k`, note:`95% CI ${Math.max(0,d.lo).toFixed(1)}–${d.hi.toFixed(1)} · n=${d.n} · window centred here`});
+    });
+  }
+  if (!rows.length) { tip.style.display='none'; return; }
+
+  document.getElementById('t-year-sct').textContent = yr;
+  document.getElementById('t-rows-sct').innerHTML = rows.map(r =>
+    `<div class="t-row"><span class="t-dot" style="background:${r.color}"></span><div><span class="t-val">${r.label}: ${r.v}</span><br><span class="t-note">${r.note}</span></div></div>`
+  ).join('');
+
+  tip.style.display = 'block';
+  const sw = tip.offsetWidth;
+  const relX = (xPSct(yr)/WS) * rectSct.width;
+  tip.style.left = (relX + sw + 16 > rectSct.width ? relX - sw - 8 : relX + 12) + 'px';
+  tip.style.top = '50px';
+});
+canvasSct.addEventListener('mouseleave', () => { document.getElementById('tooltip-sct').style.display='none'; });
+
+// ── VIEW TABS ─────────────────────────────────────────────────────────────────
+['counts','asmr'].forEach(v => {
+  document.getElementById(`tab-sct-${v}`).addEventListener('click', () => {
+    currentViewSct = v;
+    document.getElementById('tab-sct-counts').classList.toggle('active', v==='counts');
+    document.getElementById('tab-sct-asmr').classList.toggle('active', v==='asmr');
+    document.getElementById('range-row-sct').style.display = (v === 'asmr') ? 'none' : 'flex';
+    updateRangeSct();
+    drawSct();
+  });
+});
+
+document.getElementById('range-sct-all').addEventListener('click', () => {
+  rangeSctAll = true;
+  document.getElementById('range-sct-all').classList.add('active');
+  document.getElementById('range-sct-2000').classList.remove('active');
+  updateRangeSct(); drawSct();
+});
+document.getElementById('range-sct-2000').addEventListener('click', () => {
+  rangeSctAll = false;
+  document.getElementById('range-sct-2000').classList.add('active');
+  document.getElementById('range-sct-all').classList.remove('active');
+  updateRangeSct(); drawSct();
+});
+
+// ── SEX TOGGLE ────────────────────────────────────────────────────────────────
+['p','m','f'].forEach(s => {
+  document.getElementById(`sex-sct-${s}`).addEventListener('click', () => {
+    sexSct = s;
+    ['p','m','f'].forEach(k => document.getElementById(`sex-sct-${k}`).classList.toggle('active', k===s));
+    drawSct();
+  });
+});
+
+// ── SERIES TOGGLES ────────────────────────────────────────────────────────────
+['ork','shet','nes','scot'].forEach(k => {
+  document.getElementById(`btn-${k}`).addEventListener('click', () => {
+    visSct[k] = !visSct[k];
+    const col = tcSct(SCT_COLORVAR[k]);
+    const btn = document.getElementById(`btn-${k}`);
+    btn.style.background = visSct[k] ? col : 'transparent';
+    btn.style.color = visSct[k] ? tcSct('--cvs') : col;
+    btn.style.borderColor = col;
+    drawSct();
+  });
+});
+
+// ── NOTES TOGGLE ──────────────────────────────────────────────────────────────
+document.getElementById('notes-toggle-sct').addEventListener('click', () => {
+  const body = document.getElementById('notes-body-sct');
+  const hint = document.getElementById('hint-text-sct');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  hint.textContent = open ? '▼ Click to expand' : '▲ Click to collapse';
+  setTimeout(reportHeight, 60); // reuse reportHeight() defined in the main script above
+});
+
+// ── RESPONSIVE ────────────────────────────────────────────────────────────────
+function resizeSct() {
+  const wrap = document.getElementById('chart-wrap-sct');
+  const w = Math.min(wrap.offsetWidth || wrap.clientWidth || WS, WS);
+  if (!w) return;
+  canvasSct.style.height = Math.round(w * HS / WS) + 'px';
+}
+
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'theme') { drawSct(); } // theme attribute already set by main script's listener
+});
+
+let _rTimerSct;
+window.addEventListener('resize', () => { clearTimeout(_rTimerSct); _rTimerSct = setTimeout(() => { resizeSct(); drawSct(); }, 120); });
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateRangeSct();
+drawSct();
+let _readySct = false;
+function safeInitSct() {
+  if (_readySct) return;
+  const wrap = document.getElementById('chart-wrap-sct');
+  if ((wrap.offsetWidth || wrap.clientWidth) < 50) return;
+  _readySct = true;
+  resizeSct(); drawSct();
+  setTimeout(reportHeight, 80);
+}
+const _pollSct = setInterval(() => { if (_readySct) { clearInterval(_pollSct); return; } safeInitSct(); }, 40);
+window.addEventListener('load', () => { safeInitSct(); setTimeout(safeInitSct, 250); setTimeout(() => { if (!_readySct) { _readySct=true; resizeSct(); drawSct(); setTimeout(reportHeight,80); } }, 800); });
+</script>
+</body>
+</html>
