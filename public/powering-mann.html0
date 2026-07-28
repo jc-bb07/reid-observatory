@@ -90,20 +90,11 @@ svg{display:block;width:100%;height:auto}
 .ctl input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0 0}
 .ctl .hint{font-size:11.5px;color:var(--ink-3);line-height:1.35}
 .seg{display:inline-flex;border:1px solid var(--grid);border-radius:10px;overflow:hidden;margin:4px 0}
-.resetBtn{border:1px solid var(--grid);background:var(--surface-1);color:var(--ink-2);border-radius:8px;padding:4px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
-.resetBtn:hover{border-color:var(--accent);color:var(--accent)}
 .seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;font-weight:600;padding:6px 14px;cursor:pointer}
 .seg button.on{background:var(--accent);color:#fff}
 .toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);font-weight:600;margin-top:8px}
 .toggle input{accent-color:var(--accent);width:16px;height:16px}
 .outs{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:16px 0 4px}
-.xgrid{display:grid;grid-template-columns:1fr;gap:8px 26px}
-.xgrid>*{min-width:0}
-@media (min-width:900px){
-  .xgrid{grid-template-columns:11fr 9fr}
-  .xout{position:sticky;top:64px;align-self:start}
-  .xout .outs{grid-template-columns:repeat(2,1fr)}
-}
 .out{border:1px solid var(--grid);border-radius:12px;padding:12px 14px}
 .out .v{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums}
 .out .l{font-size:12px;color:var(--ink-3);line-height:1.3;margin-top:2px}
@@ -133,7 +124,6 @@ body.quick .quick-hidden-note{display:block}
   .out .v{font-size:20px}
   figure{overflow-x:auto}
   figure svg{min-width:640px}
-  #firmChart{min-width:560px}
   .modeBar{top:0}
   h1{font-size:30px}
   .standfirst{font-size:16px}
@@ -159,7 +149,7 @@ body.quick .quick-hidden-note{display:block}
 <div class="hero">
   <div class="kicker">Data Library · 11 · Electrification</div>
   <h1>Powering Mann</h1>
-  <p class="standfirst">Reliable, affordable, sovereign and clean. A proposed direction for Isle of Man electricity: solar, storage, household flexibility, two interconnectors. High optionality, no single bet, tested against the island's asset clock, debt and planning politics. A proposition to argue with, not a plan to obey.</p>
+  <p class="standfirst">Reliable, affordable, sovereign and clean. An evidence-led strategy for Isle of Man electricity built on solar, storage, household flexibility and two strong interconnectors, tested against the island's actual asset clock, debt position and planning politics. Offered as a recommendation to argue with, not a decision to accept.</p>
   <p class="meta-line">Coalfinch Observatory · July 2026 · Independent analysis. All figures sourced or flagged as assumptions; nothing here is Manx Utilities or Isle of Man Government policy.</p>
   <div class="modeBar">
     <div class="seg" id="modeSeg">
@@ -172,10 +162,10 @@ body.quick .quick-hidden-note{display:block}
 <section id="summary">
   <h2>Executive summary</h2>
   <div class="card">
-    <p><strong>The decision is forced either way.</strong> The island's two keystone assets retire within a decade of each other: the Pulrose gas plant, roughly 90% of our electricity, around 2033; the single subsea cable to England, in service since 2000, around 2035. Doing nothing is not on the table. The question is what replaces them.</p>
-    <p><strong>The proposal is a portfolio, not a monument.</strong> Two interconnectors of around 100 MW, diversified in route and ideally counterparty. A grid-forming utility battery of 30 to 40 MW for frequency support, fast reserve and black-start. 45 to 60 MW of solar across rooftops, businesses and a few well-sited ground arrays, with community batteries and, later, bidirectional EV charging. Efficiency first, because the cheapest unit is the one never bought. Gas stays as standby until the new kit has proven itself, then retires. Every element is independently useful. High optionality, no single bet.</p>
-    <p><strong>On the planning record, this is the buildable path.</strong> Rooftops, substations, industrial land, seabed. None of it needs the turbines the island has organised against for three years. Wind stays an option; nothing here depends on winning that fight.</p>
-    <p><strong>And it is financially grounded.</strong> Manx Utilities carries a £185m bond to 2034 on 85,000 people paying 29.5p a unit. The proposal phases £320&#8211;420m over 15 years, mostly bankable infrastructure, and avoids the El Hierro trap of chasing total self-sufficiency at any cost. Jersey lands power at 22.20p by importing most of it. Sovereignty comes from redundancy, not from generating every electron at home.</p><p><strong>One caveat before anything else.</strong> This was put together by an engineer and an AI, not a power systems consultancy. Treat it as a costed direction with the homework shown, and treat commissioning real grid engineering as the first action inside it.</p>
+    <p><strong>The decision is forced either way.</strong> The island's two keystone assets retire within a decade of each other: the Pulrose gas plant, which supplies roughly 90% of our electricity, reaches end of life around 2033, and the single subsea cable to England, in service since 2000, around 2035. Doing nothing is not an option on the table. The question is only what we replace them with.</p>
+    <p><strong>The recommended answer is a portfolio, not a monument.</strong> Two interconnectors of around 100 MW each, diversified in route and ideally in counterparty. A grid-forming utility battery of roughly 30 to 40 MW that carries frequency support, fast reserve and black-start. Around 45 to 60 MW of solar spread across rooftops, commercial buildings and a small number of well-sited ground arrays, absorbed locally by community batteries and, later, bidirectional EV charging. An efficiency programme that treats saved demand as the cheapest unit of all. Gas stays only as a standby resilience asset until the second cable and battery fleet have proven themselves, then retires.</p>
+    <p><strong>On the planning record to date, this is the buildable path.</strong> Every element sits on rooftops, in substations, industrial land or under the sea. None of it asks the Manx public to accept turbines on the uplands they have organised against for three years. Onshore wind remains a genuine option the island may choose later; this strategy simply does not depend on winning that fight.</p>
+    <p><strong>It is also the financially honest one.</strong> Manx Utilities still carries a £185m bond due 2034 on an 85,000-person customer base paying 29.5p per unit. The plan phases roughly £320m to £420m of investment over 15 years, most of it revenue-backed infrastructure of kinds that lenders routinely finance, and it explicitly avoids the trap that caught El Hierro: chasing 100% self-sufficiency with bespoke storage at any cost. Jersey lands power at 22.20p per unit by importing most of it. Sovereignty comes from redundancy and local flexibility, not from generating every electron at home.</p>
   </div>
 </section>
 <section id="today">
@@ -196,8 +186,8 @@ body.quick .quick-hidden-note{display:block}
     <div class="fig-sub">Remaining life of the assets the island depends on. Hover any bar for detail.</div>
     <svg id="clockChart" viewBox="0 0 960 300" role="img" aria-label="Timeline of asset end-of-life dates from 2026 to 2036"></svg>
   </figure>
-  <p>The Pulrose CCGT (25&#8211;85 MW) supplies about 90% of island electricity, end of life ~2033. The sole interconnector, a 104 km AC cable rated 40&#8211;60 MW, follows ~2035 on the independent system guide's estimate; Manx Utilities suggests it could run longer, but a 1990s cable carrying the island's future deserves a funded decision, not optimism. Behind them: a ~38 MW diesel station at Peel, ~50 MW of reserve diesels at Douglas, 1.2 MW of hydro and the 5.5 MW Energy from Waste plant. Storm &#201;owyn cut power across the island in January 2025 and damaged Peel station on its way through.</p>
-  <p class="deep">Policy already points this way: Tynwald adopted 100% decarbonised electricity by 2030 back in 2022, and Manx Utilities' roadmap pairs local renewables with a new interconnector. Delivery has not followed: the 2030 pledge is officially "at risk", the 30 MW renewables target has produced ~7 MW of private rooftops, the wind farm is still pre-application, and the second interconnector is a £200m estimate with earliest commissioning ~2031. The proposal below is about closing that gap with tools the island will actually consent to.</p>
+  <p>The Pulrose combined-cycle gas plant (25&#8211;85 MW) supplies about 90% of island electricity and reaches end of life around 2033. The sole interconnector, a 104 km AC cable rated around 40 MW continuous and up to 60 MW for sustained periods, follows around 2035 on the independent system guide's estimate (Manx Utilities has suggested it could run longer; either way, a 1990s cable carrying the island's future deserves a funded replacement decision, not optimism). The Energy from Waste contract expires in 2029, the water bond in 2030, the electricity bond in 2034. Behind these sit a ~38 MW diesel backup station at Peel (run about 120 hours a year), ~50 MW of reserve diesels at Douglas, 1.2 MW of hydro at Sulby and the 5.5 MW Energy from Waste plant. Storm &#201;owyn in January 2025 cut power across the island and damaged Peel power station, a reminder that the backup fleet is itself exposed.</p>
+  <p class="deep">Government policy already points where this analysis lands: Tynwald adopted 100% decarbonised electricity by 2030 in October 2022, and Manx Utilities' own roadmap pairs local renewables with a new interconnector. But the June 2025 progress report rated the 2030 pledge "at risk", the 30 MW renewables-by-2026 target has delivered roughly 7 MW of private rooftop capacity, the flagship onshore wind farm was still at pre-application stage in July 2026, and the second interconnector carries a £200m planning estimate with earliest commissioning around 2031. The strategy below is about closing that delivery gap with the tools the island will actually consent to.</p>
 </section>
 
 <section id="explorer">
@@ -209,9 +199,7 @@ body.quick .quick-hidden-note{display:block}
       <button data-h="2030" class="on">2030</button><button data-h="2035">2035</button><button data-h="2045">2045</button>
     </div>
     <span class="hint" id="horizonHint" style="font-size:12px;color:var(--ink-3);margin-left:12px"></span>
-    <div class="xgrid">
-    <div class="xleft">
-    <h3 style="display:flex;align-items:center;gap:14px">2 · Set the portfolio <button id="resetBtn" class="resetBtn" title="Restore default portfolio">&#8635; Reset</button></h3>
+    <h3>2 · Set the portfolio</h3>
     <div class="controls">
       <div class="ctl"><label>Rooftop + commercial solar <output id="o_roof">15 MW</output></label>
         <input type="range" id="r_roof" min="0" max="50" step="1" value="15">
@@ -244,15 +232,7 @@ body.quick .quick-hidden-note{display:block}
         <div class="hint" style="margin-top:6px">At 2030 the existing 60 MW cable still counts if Link 1 is unbuilt.</div>
       </div>
     </div>
-    </div>
-    <div class="xout">
     <h3>3 · What it delivers</h3>
-    <figure style="border:none;padding:0;margin:6px 0 10px">
-      <figcaption>Winter evening stress test</figcaption>
-      <div class="fig-sub">A dark, still, cold January teatime: solar contributes nothing. Firm capacity vs peak after flexibility, with the largest single asset removed (N-1).</div>
-      <div class="legend" id="firmLegend"></div>
-      <svg id="firmChart" viewBox="0 0 960 240" role="img" aria-label="Firm capacity stack versus winter peak demand"></svg>
-    </figure>
     <div class="outs">
       <div class="out"><div class="v" id="x_clean">&#8211;</div><div class="l">low-carbon share of annual energy (solar + hydro + imports)</div></div>
       <div class="out"><div class="v" id="x_solar">&#8211;</div><div class="l">of annual demand met by island solar</div></div>
@@ -261,47 +241,51 @@ body.quick .quick-hidden-note{display:block}
       <div class="out"><div class="v" id="x_capex">&#8211;</div><div class="l">indicative capital cost of the chosen build</div></div>
       <div class="out"><div class="v" id="x_bill">&#8211;</div><div class="l">indicative unit-cost delta vs replacing gas plant and cable like-for-like</div></div>
     </div>
-    </div>
-    </div>
     <figure style="border:none;padding:0;margin:18px 0 4px">
       <figcaption>Monthly energy balance</figcaption>
       <div class="fig-sub">Where each month's energy comes from under your portfolio. Solar peaks in summer exactly when demand is lowest; winter is carried by imports, storage cycling and any retained gas.</div>
       <div class="legend" id="mixLegend"></div>
       <svg id="mixChart" viewBox="0 0 960 320" role="img" aria-label="Stacked monthly energy balance by source"></svg>
     </figure>
+    <figure style="border:none;padding:0;margin:14px 0 4px">
+      <figcaption>Winter evening stress test</figcaption>
+      <div class="fig-sub">A dark, still, cold 6pm in January: solar contributes nothing. Firm capacity is stacked against peak demand after flexibility, with the largest single asset removed (N-1).</div>
+      <div class="legend" id="firmLegend"></div>
+      <svg id="firmChart" viewBox="0 0 960 240" role="img" aria-label="Firm capacity stack versus winter peak demand"></svg>
+    </figure>
     <p class="note" id="modelNote"></p>
   </div>
 </section>
 <section id="assessment">
-  <h2>The proposal, assessed</h2>
+  <h2>The strategy, assessed</h2>
   <p class="lede">Eight questions any serious energy plan must answer, taken in turn.</p>
 
   <h3>1 · Technical feasibility</h3>
-  <p>Every element runs today on a grid this size. Kauai (~82 MW peak against our 75) operates at up to 90% inverter-based generation and rode through the trip of a 26 MW unit in hundredths of a second. Su&#240;uroy ran ten days on 100% inverter-based wind with a 6.3 MW battery and a synchronous condenser. Shetland hangs an archipelago off one HVDC link with a 68 MW bridging battery. Nothing here makes the island a guinea pig.</p>
-  <p class="deep">The caveat is solar physics. At this latitude solar manages a 10&#8211;11% capacity factor and near-nothing on a January evening; 50 MW yields roughly an eighth of annual demand, mostly in summer when demand bottoms at 23 MW. Solar plus storage cannot run a Manx winter, which is why the interconnectors and gas standby are load-bearing parts of the design, not accessories.</p>
+  <p>Every element of this strategy is running today on a grid the island's size. Kauai, at roughly 82 MW peak against our 75 MW, routinely operates at up to 90% inverter-based generation; in April 2023 its two grid-forming solar-plus-battery plants caught the trip of a 26 MW turbine in hundredths of a second and kept the lights on. Su&#240;uroy in the Faroes ran ten straight days on 100% inverter-based wind with a 6.3 MW battery and a synchronous condenser. Shetland now hangs a whole archipelago off one HVDC link with a 68 MW battery bridging outages while its old power station idles on standby. Nothing in this portfolio requires technology the island would be first to use.</p>
+  <p class="deep">The honest caveat is solar physics. At Irish Sea latitude, solar delivers a 10&#8211;11% capacity factor and almost nothing on a January evening. Fifty megawatts of Manx solar yields roughly 46 GWh a year, around an eighth of demand, concentrated in summer when demand bottoms out at 23 MW. Solar plus storage alone cannot run a Manx winter, and no credible engineer will tell you otherwise. That is precisely why the interconnectors and the transitional gas standby are load-bearing parts of this design rather than accessories.</p>
 
   <h3>2 · Grid stability and black-start</h3>
-  <p>Today the grid's stability is Pulrose: spinning steel providing inertia, fault current and a frequency reference. Retire it without a plan and protection relays stop tripping, because inverters deliver only 1.1&#8211;1.5 times rated current into a fault. The field-proven 2030s architecture: two or three separated grid-forming battery stations (30&#8211;40 MW) as the fast backbone, one or two flywheel-boosted synchronous condensers for fault level and voltage, and protection reset to a higher rate-of-change-of-frequency standard, as Ireland did. Exactly the territory where this proposal needs real power-systems engineering, not an explorer widget.</p>
-  <p class="deep">Black-start precedents exist: Hawaii's Kapolei battery is contracted to restart thermal plant after a blackout, and Kauai's battery powered an intentional island including hospital loads in 2024. Grid-forming BESS plus retained gas as the diverse second path beats today's position, where restoration hangs on one thermal site and one cable. The unforgiving rule: fast reserve must always cover the largest single infeed. Two links plus batteries keep that number manageable; one big link without storage does not.</p>
+  <p>Today the grid's stability is Pulrose: spinning steel providing inertia, fault current and a reference frequency. Retire it without a replacement plan and protection relays stop tripping properly, because inverters supply only 1.1&#8211;1.5 times rated current into a fault against the large multiples synchronous machines deliver. The credible 2030s architecture, demonstrated across Kauai, South Australia, Hawaii and the Faroes, is: two or three geographically separated grid-forming battery stations totalling 30&#8211;40 MW as the fast-response backbone (frequency response in tens of milliseconds, virtual inertia, contracted black-start, islanded operation); one or two flywheel-boosted synchronous condensers at key 33 kV nodes for fault level and voltage; and protection resettled to a higher rate-of-change-of-frequency standard, as EirGrid did across Ireland.</p>
+  <p class="deep">Black-start deserves plain language. Hawaii's Kapolei battery is contracted to restart thermal plant after a full blackout; ScottishPower black-started part of the Scottish network from a wind farm in 2020; Kauai's battery powered an intentional transmission island including hospital loads in 2024. A grid-forming BESS black-start capability on the island, with retained gas or diesel as the diverse second path, is a stronger restoration position than today's, where restoration depends on one thermal site and one cable. The sizing rule is unforgiving and must be respected: the island must always hold fast reserve at least equal to its largest single infeed. Two links plus a battery fleet keeps that number manageable; one big link without storage does not.</p>
 
   <h3>3 · Capital and operating cost trade-offs</h3>
-  <p>On 2025&#8211;26 UK benchmarks: ground solar ~£0.65&#8211;0.8m per MW, utility BESS ~£650k per MW plus 3&#8211;8% for grid-forming, and Manx Utilities' own £200m estimate per interconnector. The whole portfolio lands indicatively at £320&#8211;420m over 15 years. Reference points the island already knows: £40&#8211;46.5m for one 20 MW wind farm, £30m for the consented Billown solar farm, £660m for Shetland's single cable.</p>
-  <p class="deep">Operating costs run the other way and pay for the capital: every imported or solar kWh displaces gas bought on the market that handed Manx Utilities a £42m loss in 2022&#8211;23 and customers a near-60% price shock. Jersey, importing ~95%, charges 22.20p against our 29.5p. Interconnector systems trade fuel risk for financing risk, and financing risk can be fixed for 25 years at signing.</p>
+  <p>Using 2025&#8211;26 UK benchmark costs: ground-mount solar at roughly £0.65&#8211;0.8m per MW, commercial rooftops around £0.75&#8211;1.0m, domestic rooftops £1.5&#8211;2.0m (island logistics will push these up somewhat). Utility BESS at a median ~£650k per MW for two-hour systems, with grid-forming capability adding only 3&#8211;8%. Manx Utilities' own planning estimate for a new interconnector is £200m. A portfolio of two links, 30&#8211;40 MW of BESS, 45&#8211;60 MW of mixed solar, community storage, V2G enablement and an efficiency programme lands indicatively in the £320&#8211;420m range spread over 15 years, against reference points the island already accepts: £40&#8211;46.5m for a single 20 MW wind farm, £30m for the consented 26 MW Billown solar farm, £660m for Shetland's single cable.</p>
+  <p class="deep">The operating cost logic runs the other way and pays for the capital. Every imported or solar kWh displaces gas bought on a volatile world market, the same market that handed Manx Utilities a £42m loss in 2022&#8211;23 and customers a near-60% price shock. Jersey, importing ~95% of its power under long-term contracts, charges 22.20p per unit against our 29.5p. Interconnector-plus-renewables systems trade fuel risk for financing risk, and financing risk is the one you can fix for 25 years at signing.</p>
 
   <h3>4 · Resilience: cable faults, fuel disruption, peak demand</h3>
-  <p><strong>Cable fault:</strong> Jersey's EDF1 failed permanently in 2012 (weeks of diesel, a 9.5% tariff rise); Guernsey's single link failed in 2018 and hurt its finances badly. Two Manx links on separate routes leave 100 MW plus batteries plus standby; today the same fault leaves one gas plant that retires in 2033. <strong>Fuel disruption:</strong> the island's gas arrives through one 11.7 km subsea spur; every megawatt of solar, storage and interconnection shrinks that exposure. <strong>Peak demand:</strong> electrification pushes peak toward ~130 MW by 2050; UK trials show 8&#8211;15% peak reduction from flexibility, and V2G turns the car fleet into distributed capacity.</p>
-  <p class="deep">A bonus the island's network engineers will recognise: subsea power cables can bundle fibre, as today's link already does (operated by e-llan within Manx Utilities). Fibre pairs in both new links buy resilient connectivity alongside resilient power.</p>
-  <p class="deep">Counterparty diversity is not hypothetical: France threatened to cut Jersey's power in the 2021 fishing dispute. One link to Britain and one to Ireland is the strongest sovereignty position available; two separated British routes still solve the engineering. The Irish option earns a feasibility study, not an assumption. The bolder configuration, a GB&#8211;Mann&#8211;Ireland route, could in principle sell spare transit capacity between the two power markets, the way commercial interconnectors earn their keep; that belongs in the study's scope.</p>
+  <p>Test the portfolio against the three failures that matter. <strong>Cable fault:</strong> Jersey's EDF1 cable failed permanently in 2012, forcing weeks of on-island diesel and a 9.5% tariff rise; Guernsey's single link failed in 2018 (replaced 2019) and hurt its finances badly. With two Manx links on separate routes, a single fault leaves 100 MW of import capability plus the battery fleet plus standby thermal. Today, the same fault leaves us wholly dependent on one gas plant that retires in 2033. <strong>Fuel disruption:</strong> the island's gas arrives through one 11.7 km subsea spur off the Scotland&#8211;Ireland pipeline. Every megawatt of solar, storage and interconnection reduces exposure to that single pipe, and a strategic standby fleet holding light fuel oil (as Peel does) covers the gap while it lasts. <strong>Peak demand:</strong> electrified heat and transport push peak toward ~130 MW by 2050 on current projections. Flexibility is the cheap answer: UK trials show 8&#8211;15% peak reduction from time-of-use and smart control, V2G turns the car fleet into distributed capacity, and the explorer above shows how far that stretches the wires we already have.</p>
+  <p class="deep">There is a bonus the island's network engineers will recognise: subsea power cables can bundle optical fibre, and today's link already does exactly that (its fibre is operated by e-llan Communications within Manx Utilities). Specify fibre pairs in both new links and the same trench buys resilient connectivity for the island's digital economy alongside resilient power, plus a saleable dark fibre asset.</p>
+  <p class="deep">Diversity of counterparty matters too, and it is not hypothetical: in May 2021 France threatened to cut Jersey's electricity during the fishing licence dispute. One link to Britain and one to Ireland would be the strongest sovereignty position available to a small island; two links to Britain on separated routes is the fallback that still solves the engineering. The Irish option deserves a serious feasibility study, not an assumption either way: the distance is comparable, but it means dealing with a second market (I-SEM) and TSO, and the economics depend on Irish wholesale prices that are themselves volatile.</p>
 
   <h3>5 · Customer bills and the retail model</h3>
-  <p>Manx households pay 29.5p; import-led Jersey pays 22.20p. The gap is mostly fuel exposure, debt service and subscale thermal generation. The realistic ambition is a decade of below-inflation rises, then genuine cuts as the bond rolls off in 2034 and fuel purchases shrink.</p>
-  <p class="deep">On standing charges: the island already runs a low 25.5p/day charge that Manx Utilities admits under-recovers connection costs. A mostly-fixed model would blunt every incentive this proposal depends on. The coherent design is the opposite: low honest fixed charge, meaningful unit rate, visible credits for flexibility. An export rate pegged to avoided import cost (Jersey recalculates its 9.53p buy-back annually on exactly that basis), cheap EV windows, paid peak events, a social tariff. The smart meter fleet, due complete end-2026, makes all of it cheap to run.</p>
+  <p>Start from the uncomfortable truth: Manx households pay 29.5p per unit while Jersey, the import-led island next door, pays 22.20p. The gap is mostly fuel exposure, legacy debt service and subscale thermal generation. This strategy attacks the first and third and refuses to add recklessly to the second. A realistic ambition is not a dramatic cut but a decade of rises below inflation while the UK's own transition costs push mainland bills around, followed by genuine reductions as the bond rolls off in 2034 and fuel purchases shrink.</p>
+  <p class="deep">On the standing charge question: the island already runs an unusually low standing charge at 25.5p per day, which Manx Utilities itself admits does not cover the cost of a connection. A mostly-fixed-charge model would be the wrong direction for this strategy; it blunts every incentive this plan depends on. The defensible design is the opposite: keep the fixed charge low and honest, keep a meaningful unit rate, and let flexibility earn visible credits: an export rate pegged transparently to avoided import cost (Jersey recalculates its 9.53p buy-back annually on exactly that basis), cheap overnight EV windows, paid peak-reduction events on the UK Demand Flexibility Service model, and a social tariff to protect low-users, which Manx Utilities is already exploring. The smart meter fleet, due substantially complete by end-2026, makes all of this administratively cheap. A low-standing-charge model is not just plausible here; it is the coherent choice, provided the wires costs forgone are recovered honestly through the unit rate and Tynwald says so out loud.</p>
 
   <h3>6 · Regulation and market design</h3>
-  <p>One government-owned utility with Tynwald-approved pricing can capture the whole value of flexibility without Britain's supplier-versus-network coordination mess. What is missing is the rulebook: a formula-based export tariff instead of a unilateral one; time-of-use as the smart-meter default with an EV/V2G window; a standing flexibility register with posted prices; connection standards for home batteries and bidirectional chargers; and independent economic oversight of electricity, most simply by extending CURA's existing gas remit. Most of this is tariff policy Tynwald already approves annually.</p>
+  <p>The island's institutional setup is a genuine advantage if used deliberately. One vertically integrated, government-owned utility, with pricing approved by Tynwald, can internalise the whole value of flexibility (avoided imports, deferred reinforcement, reduced peaking) without the supplier-versus-network coordination problems Britain wrestles with. What is missing is the rulebook. Five changes would make household and business flexibility genuinely valuable: a published, formula-based export tariff pegged to avoided import cost rather than set unilaterally; time-of-use as the default smart-meter offering with an EV/V2G window; a standing flexibility register through which Manx Utilities posts prices for peak reduction and storage services, a right-sized alternative to a full Piclo-style market for 50,000 meters; a clear connection and operating standard for domestic batteries, community storage and bidirectional chargers; and independent economic oversight of electricity, most simply by extending CURA's existing gas-tariff remit, so that flexibility payments and cost recovery do not depend entirely on utility-board discretion. None of this requires new primary legislation beyond the regulator question; most of it is tariff policy Tynwald already approves annually.</p>
 
   <h3>7 · Demand reduction and efficiency</h3>
-  <p>The cheapest megawatt is the one never generated. The Energy Efficiency Scheme has reached ~4,500 households; full uptake saves ~£700 a year per home. UK evidence puts 8&#8211;15% peak reduction in reach from time-of-use and smart heating. Heat Wise and the new-build boiler ban will electrify heating and raise winter peak, so every insulated loft shrinks the cables, batteries and standby the island must finance. Efficiency is infrastructure. Fund it first.</p>
+  <p>The cheapest megawatt is still the one never generated. The island's Energy Efficiency Scheme has reached about 4,500 households with £1.7m of measures; full uptake saves around £700 a year per home, and loft insulation alone saves £100&#8211;130. UK evidence puts 8&#8211;15% peak reduction within reach through time-of-use and smart heating, with far more in poorly controlled homes. This matters doubly because the Heat Wise programme and the new-build fossil boiler ban will electrify heating and raise winter peak; every insulated loft and smart-controlled heat pump shrinks the interconnector, battery and standby capacity the island must finance. The strategy therefore treats efficiency as infrastructure: a first-phase, island-wide retrofit push targeted at the oldest housing stock, funded ahead of the big capital assets because it makes every one of them smaller.</p>
 
   <h3>8 · The 5, 10 and 20 year path</h3>
   <p>Set out in full in the <a href="#phasing">phased plan</a> below: prove and prepare to 2031, replace and switch to 2036, optimise and retire thereafter. The sequencing rule throughout is that no legacy asset is withdrawn until its replacement has operated through a winter.</p>
@@ -310,9 +294,9 @@ body.quick .quick-hidden-note{display:block}
 <section id="politics">
   <h2>The politics: why this portfolio is buildable</h2>
   <p class="lede">Opposition to wind on the island is a fact of the planning record, not a prejudice to be lectured away. This strategy treats it as a design constraint.</p>
-  <p>The record is specific. The publicly-owned Earystane/Scard wind farm ("Cair Vie", turbines to 185 m, £40&#8211;46.5m) was meant to be running by end-2026; in July 2026 it had not yet filed a planning application, against an organised community campaign, a defeated Tynwald motion and a Tynwald Day petition. Offshore, &#216;rsted's 1.4 GW Mooir Vannin faces a 5,000-signature opposition petition and an MoD radar objection, with a Council of Ministers decision expected 2027. Yet consultations show support for renewables in principle: 80% backed onshore wind in 2019. The pattern: support in the abstract, contention at every specific site.</p>
-  <p class="deep">Compare the alternatives. Rooftop solar sits on buildings; ~1,000 households already have it. Batteries live in containers on industrial land. Interconnectors are invisible once laid. Flexibility is a tariff. Efficiency is money in pockets. Only ground solar touches the landscape debate at all, and Billown drew nothing like wind's resistance. None of this says wind is bad; Manx wind above 10.5 m/s is a superb resource. It says energy security should not queue behind the island's most contested planning fight, and a plan that works without wind can always add it later.</p>
-  <p class="deep">Mooir Vannin, honestly: an export project in Manx waters, its value to the island fiscal rather than electrical, its fate with the examination panel and Council of Ministers in 2027. Under Attorney General guidance, election candidates are constrained from campaigning on it. This page treats it as a scenario: if consented, negotiate hard on option fees and a future island connection; if refused, nothing here changes.</p>
+  <p>The record is specific. The publicly-owned Earystane/Scard wind farm ("Cair Vie", 3&#8211;4 turbines up to 185 m, £40&#8211;46.5m) was meant to be operating by end-2026; in July 2026 it had not yet submitted a planning application, facing an organised community campaign on habitat, landscape and noise grounds, a Tynwald motion to stop it (defeated), and a Tynwald Day petition. Offshore, &#216;rsted's 1.4 GW Mooir Vannin project has drawn a 5,000-signature opposition petition, an MoD radar objection, and hard questions about option fees and how little of its output serves the island; its examination closed in September 2026 territory with a Council of Ministers decision expected in 2027. Yet the same public tells consultations it supports renewables in principle, 80% for onshore wind in 2019, roughly 70% supportive in &#216;rsted's own 2024 consultation. The pattern is consistent: support in the abstract, contention at every specific site on a small island where every ridge is somebody's horizon.</p>
+  <p class="deep">Now put the alternatives side by side. Rooftop solar sits on buildings nobody has to look at differently; around 1,000 island households have already installed it, and the only sizeable solar proposal, Billown, drew nothing like the organised resistance wind attracts. Batteries live in containers on industrial and substation land. Interconnectors are invisible from the day the ship leaves. Flexible demand is a tariff, not a structure. Efficiency is money in people's pockets. Of the whole portfolio, only ground-mount solar touches the landscape debate at all, and at the 20&#8211;40 MW scale needed it means two or three well-screened lowland sites of the kind the planning system has already consented once. This is not an argument that wind is bad; Manx wind at over 10.5 m/s is a superb resource and 20 MW would meaningfully cut winter imports. It is an argument about sequencing: the island should not park its energy security behind the single most contested planning fight it has, and a strategy that works without wind can always be improved by wind later if consent is won fairly.</p>
+  <p class="deep">Mooir Vannin deserves its own honesty. It is best understood as an export project in Manx waters: built, its power flows overwhelmingly to Britain, and its value to the island is fiscal (rent, taxation, community fund) plus optional. The examination panel and Council of Ministers will settle it in 2027, and under Attorney General guidance, candidates in the September 2026 election are constrained from campaigning on it. This analysis therefore treats it as a scenario, not a plank: if consented, the island should negotiate hard for option-fee parity with UK Crown Estate benchmarks and for a priced option on a future island connection; if refused, nothing in this strategy changes.</p>
   <div class="table-scroll">
   <table>
     <caption style="caption-side:top;text-align:left;font-size:12.5px;color:var(--ink-3);padding:0 0 6px">Acceptability comparison, from the Manx planning record</caption>
@@ -387,7 +371,7 @@ body.quick .quick-hidden-note{display:block}
 </section>
 
 <section id="portfolio">
-  <h2>Proposed portfolio</h2>
+  <h2>Recommended portfolio</h2>
   <p class="lede">Sized for the 2035 system: ~95 MW winter peak after efficiency, ~430 GWh, Pulrose retired, both links live.</p>
   <div class="table-scroll">
   <table>
@@ -437,7 +421,7 @@ body.quick .quick-hidden-note{display:block}
       <li>Efficiency at scale: extend the Energy Efficiency Scheme from pilot (£1.7m, 4,500 homes) to an island-wide retrofit programme aimed at the oldest stock, alongside Heat Wise. Target 8%+ peak reduction by 2031.</li>
       <li>Finish the smart meter rollout (due substantially complete end-2026) and launch the retail rulebook: formula-based export tariff, default time-of-use, EV window, paid peak events, social tariff.</li>
       <li>Commission the first grid-forming BESS station (10&#8211;15 MW) by 2029 and run annual islanding and black-start trials with it.</li>
-      <li>Open formal connection discussions with National Grid on the GB side, and EirGrid on the Irish side, in 2026. Then take the interconnector decisions this Tynwald cannot dodge: route survey and procurement for the 100 MW UK replacement (order by 2028), and a genuine UK-vs-Ireland feasibility study for Link 2 with a decision gate by 2030, including whether a GB&#8211;Mann&#8211;Ireland configuration could trade transit capacity between the two markets. Specify fibre pairs in both.</li>
+      <li>Open formal connection discussions with National Grid on the GB side, and EirGrid on the Irish side, in 2026. Then take the interconnector decisions this Tynwald cannot dodge: route survey and procurement for the 100 MW UK replacement (order by 2028), and a genuine UK-vs-Ireland feasibility study for Link 2 with a decision gate by 2030. Specify fibre pairs in both.</li>
       <li>Consent 20&#8211;30 MW of ground solar (get Billown built) and remove friction from rooftop installs; connect community batteries where rooftop clusters justify them.</li>
       <li>Keep Pulrose fully maintained. Nothing retires in this phase.</li>
     </ul>
@@ -470,17 +454,17 @@ body.quick .quick-hidden-note{display:block}
   <h2>Next steps and open scenarios</h2>
   <p class="lede">A strategy is only as good as its first phone call. Here is what has to happen now, and the futures the plan must be able to absorb.</p>
   <h3>Do now, meaning 2026, not three years out</h3>
-  <p>The most time-critical action costs almost nothing: <strong>open formal connection discussions with National Grid.</strong> A 100 MW link needs a GB-side connection agreement, and connections, converters and cable ships are queued years deep. "Earliest ~2031" is only true if the conversation starts now; every year of delay stretches the exposure window when Pulrose is gone and one 35-year-old cable is doing the work. The parallel call to EirGrid buys the island's strongest sovereignty option for the price of a feasibility study. Alongside: commission an independent power-systems study to kick the tyres on everything on this page, issue the grid-forming BESS specification, publish the flexibility rulebook, and get consented ground solar moving. None of this waits for an election.</p>
+  <p>The single most time-critical action on this entire page costs almost nothing: <strong>open formal connection discussions with National Grid.</strong> A new 100 MW link needs a grid connection agreement on the GB side, and GB connections are queued years deep even after queue reform; HVDC converter capacity and cable-lay vessels are booked out similarly. Manx Utilities' own "earliest ~2031" for a second link is only true if the GB-side conversation, the connection application and the route survey all start immediately. Every year of delay moves 2031 to 2032 and stretches the island's exposure window, the years when Pulrose is gone or geriatric and one 35-year-old cable is doing the work, from uncomfortable to reckless. The parallel call to EirGrid about an Irish landing costs a feasibility study and buys the strongest sovereignty option the island has. Alongside those calls: issue the grid-forming BESS procurement specification, publish the flexibility retail rulebook, and get consented ground solar moving. None of this waits for an election.</p>
   <h3>Scenario: a mega AI datacentre pitches up</h3>
-  <p class="deep">A hyperscale AI campus runs near-flat: 30 MW adds ~40% to average demand, 100 MW more than doubles it. Try the slider above. The opportunity is real: an anchor tenant could underwrite the second interconnector the way Viking underwrote Shetland's £660m link, and a datacentre plus two fibre-equipped cables is an economic strategy, not just an energy one. The sequencing is unforgiving: operators shop on time-to-power, and an island that has not opened its National Grid conversation has nothing to sell. Decide in advance what to ask of such a tenant: heat reuse, flexibility commitments, a contribution to firm capacity.</p>
+  <p class="deep">This is no longer hypothetical anywhere with cool weather, political stability and fibre, which is a fair description of the Isle of Man. A hyperscale AI campus runs near-flat, day and night: 30 MW would add roughly 40% to the island's average demand at a stroke, and 100 MW would more than double it. Try it in the explorer above; the slider is there. Two things follow. First, the opportunity is real: an anchor tenant on a long-term contract could underwrite the second interconnector, the battery fleet and more, the way Ofgem only approved Shetland's £660m link once the Viking wind farm committed. A datacentre plus two fibre-equipped cables is an economic strategy, not just an energy one. Second, the sequencing is unforgiving: datacentre operators shop on time-to-power, and an island that has not even opened its National Grid conversation has nothing to sell them. The capacity conversation must run ahead of the demand it hopes to attract, and the island should also decide in advance what it would ask of such a tenant: heat reuse, flexibility commitments, and a contribution to firm capacity, not just land and a substation.</p>
   <h3>Other futures the plan absorbs</h3>
-  <p class="deep">If Mooir Vannin is consented, the island's negotiating position changes and nothing else. If gas prices spike early, efficiency, the first battery and the existing cable are the cushion, which is why they come first. If the old cable fails before replacement, the island runs on Pulrose and diesels while a repair mobilises: survivable today, catastrophic after 2033, and the strongest argument for ordering Link 1 by 2028. If a future Tynwald wins genuine consent for wind, 20 MW slots straight in and the plan improves.</p>
+  <p class="deep">If Mooir Vannin is consented in 2027, nothing here changes except the island's negotiating position, which should include option-fee parity with UK Crown Estate benchmarks and a priced option on a future island connection. If gas prices spike before the new links are live, the efficiency programme, the first BESS station and the existing cable are the cushion, which is exactly why they come first in the phasing. If the old cable fails early, before its replacement, the island runs on Pulrose plus diesels while a repair is mobilised: survivable today, catastrophic after 2033, and the strongest single argument for ordering Link 1 by 2028. And if a future Tynwald wins genuine consent for onshore wind, 20 MW slots into this portfolio and displaces winter imports; the plan improves, it does not break.</p>
 </section>
 
 <section id="verdict">
-  <h2>The proposition</h2>
+  <h2>Our recommendation</h2>
   <div class="verdict-band">
-    <p><strong>Distributed flexibility plus strong interconnectors looks stronger than a generation-heavy model, and not by a little.</strong> Generation-heavy self-sufficiency at 85,000 people means either the wind fight the island has spent three years not winning, or El Hierro economics: bespoke kit at €6,000&#8211;7,000 per kW that peaked at 54% of annual supply. Pure import dependence fails the other way, as Jersey's 2012 cable failure and the 2021 French threat showed. The portfolio sits between: interconnection for cost and carbon, distributed solar and storage for sovereignty, flexibility because it is the cheapest capacity, standby thermal until redundancy is proven. Kauai runs this model at our scale. Jersey prices it. Shetland financed it. But this is a proposition, not a verdict: it needs the power-systems engineering the Observatory does not have, the explorer exists so you can build the counter-case, and the best counter-cases get published.</p>
+    <p><strong>The Isle of Man should pursue a distributed-flexibility-plus-strong-interconnectors model, not a generation-heavy one.</strong> The evidence is unusually one-sided for a policy question. Generation-heavy self-sufficiency at 85,000 people means either the wind fight the island has spent three years not winning, or El Hierro economics: bespoke systems at €6,000&#8211;7,000 per kW that managed 54% of annual supply in their best year and usually much less. Pure import dependence fails the other way, as Jersey's 2012 cable failure and the 2021 French cut-off threat both showed. The defensible position is the portfolio: interconnection for cost and carbon, distributed solar and storage for sovereignty and daily resilience, flexibility because it is the cheapest capacity on offer, and standby thermal until, and only until, redundancy is proven. Kauai runs this model at our exact scale today. Jersey prices it. Shetland financed it. None of it requires a single turbine on a Manx hillside, and all of it survives the loss of any one asset, any one fuel, or any one neighbour's goodwill. This is a recommendation, not a verdict from on high: the explorer exists so you can build the counter-case, and the Observatory will publish the best ones.</p>
   </div>
 </section>
 
@@ -492,11 +476,9 @@ body.quick .quick-hidden-note{display:block}
     <div class="card"><h3 style="margin-top:0">Demand</h3>
       <p style="font-size:14px">2026 baseline 360 GWh / 75 MW winter peak / 23 MW summer minimum (Manx system guide). Horizons: 2030 &#8776;385 GWh, 82 MW; 2035 &#8776;430 GWh, 95 MW; 2045 &#8776;500 GWh, 115 MW, an Observatory interpolation toward the ~130 MW by 2050 projection as heat and transport electrify. Monthly demand shape winter-weighted. Flexibility slider reduces peak only, plus a small energy saving. The large-load slider adds a near-flat demand block (90% utilisation, 95% coincident with peak) that flexibility does not touch.</p></div>
     <div class="card"><h3 style="margin-top:0">Supply</h3>
-      <p style="font-size:14px">Solar: 10.5% annual capacity factor, UK monthly profile, so 1 MW &#8776; 0.92 GWh/yr, heavily summer-weighted. Hydro 4 GWh. Energy from Waste (the incinerator) 5.5 MW / ~32 GWh, assumed continuing. Existing cable 40 MW firm (60 MW sustained) to 2035. New links 100 MW each. BESS shifts energy within days; it is counted as firm capacity, not annual energy. V2G firm contribution = vehicles &#215; 7 kW &#215; 30%. Gas standby is firm capacity and the residual energy supplier when imports and solar fall short.</p></div>
+      <p style="font-size:14px">Solar: 10.5% annual capacity factor, UK monthly profile, so 1 MW &#8776; 0.92 GWh/yr, heavily summer-weighted. Hydro 4 GWh. Energy from Waste 5.5 MW / ~32 GWh to 2029, assumed renewed. Existing cable 40 MW firm (60 MW sustained) to 2035. New links 100 MW each. BESS shifts energy within days; it is counted as firm capacity, not annual energy. V2G firm contribution = vehicles &#215; 7 kW &#215; 30%. Gas standby is firm capacity and the residual energy supplier when imports and solar fall short.</p></div>
     <div class="card"><h3 style="margin-top:0">Costs</h3>
       <p style="font-size:14px">Capex: ground solar £0.75m/MW; rooftop blend £1.2m/MW; utility BESS £0.68m/MW (2h, grid-forming); community storage £290/kWh; V2G charger £1,500; interconnector £200m per 100 MW link (MU estimate); syncons £20m; efficiency £3,000 per treated home. Indicative unit-cost delta: annuitised capex (6%, 25y cables/solar, 15y batteries) plus fuel/import costs (imports 9p/kWh delivered, gas 8p/kWh fuel, solar 0 marginal) divided by units sold, compared against a counterfactual that keeps the gas model, which after 2033&#8211;35 still means replacing the CCGT (~£80m) and the cable (~£200m). Fuel price volatility, the thing that produced the 2023 shock, is not priced in on either side. Directional only.</p></div>
-    <div class="card"><h3 style="margin-top:0">Asset lives</h3>
-      <p style="font-size:14px">Typical design lives: subsea cables ~40 years (the existing link will have done ~35), HVDC converter electronics ~20 before refresh, solar panels 25&#8211;35 with inverter swaps every 10&#8211;15, grid batteries 15&#8211;20 with mid-life augmentation as capacity fades, synchronous condensers 30&#8211;40, V2G chargers 10&#8211;15, insulation 40+, CCGTs ~30 (hence Pulrose's 2033). The model annuitises in two buckets: 25 years at 6% (cables, solar, syncons, efficiency) and 15 years (batteries, chargers, gas life-extension). That treats cables conservatively (25-year money on a 40-year asset) and batteries slightly generously (no augmentation line); the errors pull opposite ways, and a real financing case would replace both with actual tenors.</p></div>
     <div class="card"><h3 style="margin-top:0">Carbon &amp; security</h3>
       <p style="font-size:14px">Grid intensity: gas generation 400 g/kWh; imports 100 g (2030), 50 g (2035), 25 g (2045) reflecting GB/Irish decarbonisation trajectories; solar and hydro 0 (lifecycle emissions excluded consistently); Energy from Waste treated as carbon-neutral here since it exists for waste disposal regardless, a simplification worth arguing about. N-1 test: firm capacity minus the largest single asset must exceed peak after flexibility. Largest asset is whichever is biggest of: one link, the BESS fleet's largest station (assumed half the fleet), or gas standby.</p></div>
   </div>
@@ -571,7 +553,7 @@ body.quick .quick-hidden-note{display:block}
 </section>
 
 <footer>
-  <p><strong>Coalfinch Observatory</strong> · Powering Mann · Independent analysis, July 2026. Written and modelled by James Cochrane with AI research assistance; neither is a power systems consultancy, which is why commissioning one is the first action proposed. Every headline figure carries a source above and modelling assumptions are stated in full. This page is analysis, not advice, and it is not a statement for or against any application currently before the island's consenting processes. Corrections welcome: the Observatory publishes them.</p>
+  <p><strong>Coalfinch Observatory</strong> · Powering Mann · Independent analysis, July 2026. Written and modelled by James Cochrane with AI research assistance; every headline figure carries a source above, and modelling assumptions are stated in full. This page is analysis, not advice, and it is not a statement for or against any application currently before the island's consenting processes. Corrections welcome: the Observatory publishes them.</p>
 </footer>
 </div>
 <div class="tip" id="tip"></div>
@@ -776,17 +758,12 @@ function renderMix(r){
 /* ---------- firm chart ---------- */
 function renderFirm(r){
   var svg=document.getElementById('firmChart');svg.innerHTML='';
-  var cw=(svg.parentElement&&svg.parentElement.clientWidth)||960;
-  var compact=cw<640;
-  var W=compact?560:960,Hh=240,pl=compact?100:150,pr=compact?66:90,pt=16,pb=34;
-  svg.setAttribute('viewBox','0 0 '+W+' '+Hh);
+  var W=960,Hh=240,pl=150,pr=90,pt=16,pb=34;
   var iw=W-pl-pr;
   var colors={'Interconnectors':cssVar('--s1'),'Utility + community batteries':cssVar('--s3'),
     'V2G fleet':cssVar('--s5'),'Gas / diesel standby':cssVar('--s2'),'EfW + hydro':cssVar('--s6')};
   var max=Math.max(r.firmTotal,r.peak)*1.15||10;
-  var rows=compact
-    ?[{label:'All assets',scale:1,drop:null},{label:'After N-1',scale:1,drop:r.largestName}]
-    :[{label:'All firm assets',scale:1,drop:null},{label:'After N-1 loss',scale:1,drop:r.largestName}];
+  var rows=[{label:'All firm assets',scale:1,drop:null},{label:'After N-1 loss',scale:1,drop:r.largestName}];
   var bh=44,gap=36;
   rows.forEach(function(row,ri){
     var y=pt+ri*(bh+gap);var x=pl;
@@ -810,7 +787,7 @@ function renderFirm(r){
   var px=pl+iw*r.peak/max;
   svg.appendChild(el('line',{x1:px,x2:px,y1:pt-6,y2:pt+2*bh+gap+8,stroke:cssVar('--ink-1'),'stroke-width':1.5,'stroke-dasharray':'5 4'}));
   var pt1=el('text',{x:px,y:pt+2*bh+gap+26,'text-anchor':'middle','class':'dl'});
-  pt1.textContent=(compact?'peak: ':'winter peak after flexibility: ')+fmt(r.peak,0)+' MW';svg.appendChild(pt1);
+  pt1.textContent='winter peak after flexibility: '+fmt(r.peak,0)+' MW';svg.appendChild(pt1);
   var lg=document.getElementById('firmLegend');lg.innerHTML='';
   Object.keys(colors).forEach(function(k){if(r.firmParts[k]>0.05){var sp=document.createElement('span');
     sp.innerHTML='<i style="background:'+colors[k]+'"></i>'+k;lg.appendChild(sp);}});
@@ -819,12 +796,12 @@ function renderFirm(r){
 /* ---------- asset clock ---------- */
 function renderClock(){
   var svg=document.getElementById('clockChart');svg.innerHTML='';
-  var W=960,Hh=250,pl=220,pr=30,pt=14,pb=30;
-  svg.setAttribute('viewBox','0 0 960 250');
+  var W=960,Hh=300,pl=220,pr=30,pt=14,pb=30;
   var iw=W-pl-pr;
   var y0=2026,y1=2036.5;
   function X(yr){return pl+iw*(yr-y0)/(y1-y0);}
   var items=[
+    {n:'EfW contract',end:2029,note:'Richmond Hill contract expires 2029; renewal decision due'},
     {n:'Water bond £75m',end:2030,note:'Repayable by March 2030'},
     {n:'Pulrose CCGT (~90% of supply)',end:2033,note:'Commissioned 2003 · end of life ~2033',crit:true},
     {n:'Electricity bond £185m',end:2034,note:'Repayable by August 2034 at ~5.4%'},
@@ -894,22 +871,11 @@ function renderAll(){
   document.getElementById(id).addEventListener('input',renderAll);});
 ['t_ic1','t_ic2'].forEach(function(id){
   document.getElementById(id).addEventListener('change',renderAll);});
-document.getElementById('resetBtn').addEventListener('click',function(){
-  var DEF={r_roof:15,r_ground:20,r_bess:30,r_comm:10,r_v2g:1000,r_flex:8,r_gas:40,r_dc:0};
-  for(var k in DEF)document.getElementById(k).value=DEF[k];
-  document.getElementById('t_ic1').checked=true;
-  document.getElementById('t_ic2').checked=true;
-  state.h='2030';
-  document.querySelectorAll('#horizonSeg button').forEach(function(x){
-    x.classList.toggle('on',x.dataset.h==='2030');});
-  renderAll();
-});
 document.querySelectorAll('#horizonSeg button').forEach(function(b){
   b.addEventListener('click',function(){
     document.querySelectorAll('#horizonSeg button').forEach(function(x){x.classList.remove('on');});
     b.classList.add('on');state.h=b.dataset.h;renderAll();});});
 if(matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',renderAll);
-var rsz;window.addEventListener('resize',function(){clearTimeout(rsz);rsz=setTimeout(renderAll,150);});
 renderAll();
 
 /* ---------- Observatory embed bridge ----------

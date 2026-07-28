@@ -9,18 +9,18 @@ import ABOUT from "./about.json";
 
 // ── Colour themes ─────────────────────────────────────────────────────────────
 const THEMES = {
-  dark: {
-    bg:"#0f172a", surface:"#1e293b", surface2:"#162032", border:"#1e293b", border2:"#334155",
-    text:"#e2e8f0", muted:"#94a3b8", muted2:"#cbd5e1",
+  dark: { /* v0.8: matches the observatory night ramp (teal-tinted, no true blacks) */
+    bg:"#0c1620", surface:"#12222a", surface2:"#0e1b23", border:"#18262f", border2:"#2b4049",
+    text:"#e2ecea", muted:"#7e9a94", muted2:"#a9c1bb",
     blue:"#60a5fa", blueDim:"#1d4ed8", green:"#34d399", amber:"#fbbf24",
     purple:"#a78bfa", red:"#f87171", gold:"#C9A24A",
     iom:"#3b82f6", gsy:"#10b981", jsy:"#f59e0b", uk:"#94a3b8",
   },
   health: {
     bg:"#f0f9f8", surface:"#ffffff", surface2:"#e6f4f1", border:"#cce8e4", border2:"#99d5cc",
-    text:"#0f172a", muted:"#3d6b65", muted2:"#1e4a44",
-    blue:"#2f7d6c", blueDim:"#e6f4f1", green:"#059669", amber:"#d97706",
-    purple:"#7c3aed", red:"#dc2626", gold:"#92600a",
+    text:"#0f172a", muted:"#33625b", muted2:"#1e4a44",
+    blue:"#2f7d6c", blueDim:"#e6f4f1", green:"#047857", amber:"#b45309",
+    purple:"#6d28d9", red:"#b91c1c", gold:"#92600a",
     iom:"#1d4ed8", gsy:"#059669", jsy:"#b45309", uk:"#475569",
   },
   light: {
@@ -36,8 +36,8 @@ const TAB_GROUPS = [
   { id: "econ-group",      label: "Economy & Society",  color: "#34d399", homeTab: "econHome",
     tabs: [
       { id: "econHome",      label: "Overview"             },
-      { id: "econperf",      label: "Economic Performance" },
-      { id: "econmix",       label: "Economic Mix"         },
+      { id: "islandStory",   label: "IOM Economy Story"    },
+      { id: "econperf",      label: "Economy Explorer"     },
       { id: "demog",         label: "Demographics Explorer" },
       { id: "iomPopChange",  label: "Population Change"    },
       { id: "inflation",     label: "Inflation"            },
@@ -61,16 +61,29 @@ const TAB_GROUPS = [
       { id: "wages",         label: "Wages"                },
       { id: "affordability", label: "Affordability"        },
       { id: "mybudget",      label: "My Budget"            },
+      { id: "div-briefs",    label: "Policy Briefs", divider: true },
+      { id: "housingApprenticeshipsBrief", label: "Brief: Housing & Apprenticeships" },
     ]
   },
   { id: "health-group",    label: "Health & Care",       color: "#5ea99a", homeTab: "healthHome",
     tabs: [
-      { id: "healthHome",    label: "Overview"         },
-      { id: "manxBenchmark", label: "Healthcare Explorer" },
-      { id: "yourHealth",    label: "Your Health"      },
-      { id: "mcWhenWho",     label: "Something's Wrong?" },
-      { id: "nobles-flow",   label: "System View"      },
-      { id: "nobles-v15",    label: "Simulation"       },
+      { id: "healthHome",       label: "Overview"         },
+      { id: "div-islands",      label: "Six-Island Comparisons", divider: true },
+      { id: "islandsHub",       label: "Islands Observatory" },
+      { id: "islandsPH",        label: "Public Health"       },
+      { id: "islandsGov",       label: "Governance"          },
+      { id: "islandsFin",       label: "Financial"           },
+      { id: "islandsPrimary",   label: "Primary Care"        },
+      { id: "islandsSecondary", label: "Secondary Care"      },
+      { id: "islandsTertiary",  label: "Tertiary & Remoteness" },
+      { id: "islandsRoadmap",   label: "Changelog & Roadmap" },
+      { id: "div-iom",          label: "Isle of Man Deep Dives", divider: true },
+      { id: "manxBenchmark",    label: "Healthcare Explorer" },
+      { id: "mcBudgetFlows",    label: "Budget — Money In, Money Out" },
+      { id: "yourHealth",       label: "Your Health"      },
+      { id: "mcWhenWho",        label: "Something's Wrong?" },
+      { id: "nobles-flow",      label: "System View"      },
+      { id: "nobles-v15",       label: "Simulation"       },
     ]
   },
   { id: "privacy-group",   label: "Privacy & Data",      color: "#a78bfa", homeTab: "privacyHome",
@@ -903,12 +916,13 @@ function EconHomeTab({ C, onNavigate }) {
 
       <div onClick={() => onNavigate("econperf")} style={{ cursor: "pointer" }}>
         {card(
-          "Economic Performance",
+          "Economy Explorer",
           `GDP and GVA per head, real growth rates, and output relative to the UK across the
-          Isle of Man, Jersey, and Guernsey — 2000 to present. Nominal and real (constant
-          prices) series, with cross-jurisdictional ratio and cumulative indexed growth.
+          Isle of Man, Jersey, and Guernsey, plus which industries actually drive that output —
+          sector-by-sector contribution to GDP, GVA per worker, and how the balance between
+          finance, the public sector and the local economy has shifted since 1997/98.
           Sources: IoM National Income reports, Statistics Jersey, States of Guernsey Statistics,
-          ONS ABML/EBAQ/ABMI.`,
+          ONS ABML/EBAQ/ABMI/GDP(O)/JOBS02.`,
           C.green
         )}
       </div>
@@ -919,17 +933,6 @@ function EconHomeTab({ C, onNavigate }) {
           `Population aging across all three Crown Dependencies, 1821–2040. Census data plus
           cohort-shift projections. Dependency ratios, population pyramids, age structure,
           and what the trajectory looks like under different migration scenarios.`,
-          C.green
-        )}
-      </div>
-
-      <div onClick={() => onNavigate("econmix")} style={{ cursor: "pointer" }}>
-        {card(
-          "Productivity by Sector",
-          `National income and employment by sector — contribution to GDP versus share of
-          the workforce, revealing which sectors drive economic output relative to their
-          size. Covers financial services, eGaming, ICT, health, education and the public
-          sector. Data from IoM National Income reports and the Digest employment series.`,
           C.green
         )}
       </div>
@@ -1039,6 +1042,17 @@ function HealthHomeTab({ C, onNavigate }) {
         letterSpacing: "0.08em", marginBottom: 12 }}>
         Tools in this section
       </div>
+
+      {card(
+        "Islands Observatory — six island health systems, compared",
+        `Isle of Man, Jersey, Guernsey, NHS Orkney, NHS Shetland and NHS Western Isles,
+        with England, Wales and Scotland as baselines. Public health, governance,
+        financial flows, and primary / secondary / tertiary care — one card per
+        jurisdiction per metric, IoM first, three switchable views, every figure sourced,
+        every gap shown. Ends with a changelog and an improvement roadmap.`,
+        "#5ea99a",
+        () => onNavigate("islandsHub")
+      )}
 
       {card(
         "Manx Care Benchmarking Dashboard",
@@ -1172,6 +1186,23 @@ function HouseholdHomeTab({ C, onNavigate }) {
         )}
       </div>
 
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase",
+        letterSpacing: "0.08em", marginBottom: 12, marginTop: 24 }}>
+        Policy briefs
+      </div>
+
+      <div onClick={() => onNavigate("housingApprenticeshipsBrief")} style={{ cursor: "pointer" }}>
+        {card(
+          "Brief: Housing & Apprenticeships",
+          `The Island needs young working-age residents to sustain its workforce, tax base
+          and public services as the population ages — but housing costs are the biggest
+          reason people who want to stay are questioning whether they still can. A four-part
+          framework — supply, access, funding, and market power — with apprenticeships and
+          skills built into the delivery mechanism itself, not bolted on afterwards.`,
+          "#fb923c"
+        )}
+      </div>
+
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
         borderRadius: 8, padding: "14px 16px", marginBottom: 24,
@@ -1210,19 +1241,30 @@ function Centred({ children }) {
 }
 
 // ── Auto-sizing iframe ────────────────────────────────────────────────────────
-function AutoIframe({ src, title, theme }) {
+// autoResize=false is for pages that manage their own internal scroll (e.g.
+// CSS position:sticky / scrollytelling pages that read window.scrollY inside
+// the iframe). Those pages need a real scrolling viewport, not a "grow to fit
+// all content" one — growing the iframe changes its own internal vh-based
+// layout, which re-reports an even bigger height, compounding every cycle.
+// With ~50 x 78vh step sections that showed up as a real bug: reported height
+// went 17,530px -> 348,800px -> 6.9M px -> 33.5M px (Chromium's size cap)
+// inside about 50ms of load, which is what "flashes then disappears" was.
+function AutoIframe({ src, title, theme, autoResize = true, height: fixedHeight = "calc(100vh - 120px)" }) {
+  const MAX_AUTO_HEIGHT = 20000; // defensive cap even for well-behaved pages
   const [height, setHeight] = useState("calc(100vh - 120px)");
   const ref = useRef(null);
 
   useEffect(() => {
+    if (!autoResize) return;
     const handler = (e) => {
       if (e.data && e.data.type === "resize") {
-        setHeight(e.data.height + "px");
+        const h = Math.min(Number(e.data.height) || 0, MAX_AUTO_HEIGHT);
+        setHeight(h + "px");
       }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, []);
+  }, [autoResize]);
 
   // Send theme to iframe on load and whenever it changes
   const sendTheme = () => {
@@ -1237,14 +1279,14 @@ function AutoIframe({ src, title, theme }) {
       ref={ref}
       src={src}
       title={title}
-      scrolling="no"
+      scrolling={autoResize ? "no" : "auto"}
       onLoad={sendTheme}
       style={{
         width: "100%",
-        height,
+        height: autoResize ? height : fixedHeight,
         border: "none",
         display: "block",
-        overflow: "hidden",
+        overflow: autoResize ? "hidden" : "auto",
         background: bg,
       }}
     />
@@ -1496,10 +1538,12 @@ function AppContent() {
 
   // ── Iframe keep-alive ──────────────────────────────────────────────────────
   const IFRAME_TABS = new Set([
-    "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","econmix","inflation",
+    "islandStory",
+    "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
-    "overview","wages","affordability","mybudget",
-    "mcReviews","mcWhenWho","yourHealth","nobles-flow","nobles-v15",
+    "overview","wages","affordability","mybudget","housingApprenticeshipsBrief",
+    "mcWhenWho","yourHealth","nobles-flow","nobles-v15",
+    "islandsHub","islandsPH","islandsGov","islandsFin","islandsPrimary","islandsSecondary","islandsTertiary","islandsRoadmap","mcBudgetFlows",
   ]);
   useEffect(() => {
     // Send theme to newly-visible iframe
@@ -1558,11 +1602,17 @@ function AppContent() {
     home:           <LandingTab C={C} onNavigate={setTab} isNarrow={isNarrow} />,
     about:          <AboutTab C={C} />,
     econHome:       <EconHomeTab C={C} onNavigate={setTab} />,
+    islandStory: (
+      <AutoIframe src="/island-that-didnt-grow.html" title="The Island That Didn't Grow" theme={themeName} autoResize={false} />
+    ),
 
     healthHome:     <HealthHomeTab C={C} onNavigate={setTab} />,
     govHome:        <GovHomeTab C={C} onNavigate={setTab} />,
     privacyHome:    <PrivacyHomeTab C={C} />,
     householdHome:  <HouseholdHomeTab C={C} onNavigate={setTab} />,
+    housingApprenticeshipsBrief: (
+      <AutoIframe src="/housing-solution.html" title="Brief: Housing & Apprenticeships" theme={themeName} />
+    ),
 
     reid: (
       <AutoIframe src="/reidentification.html" title="Re-identification Observatory" theme={themeName} />
@@ -1591,11 +1641,8 @@ function AppContent() {
     suicide: (
       <AutoIframe src="/suicide-rates.html" title="Suicide Mortality Rates" theme={themeName} />
     ),
-    econmix: (
-      <AutoIframe src="/iom-economic-mix.html" title="Productivity by Sector" theme={themeName} />
-    ),
     econperf: (
-      <AutoIframe src="/economic-performance.html" title="Economic Performance" theme={themeName} />
+      <AutoIframe src="/economy-explorer.html" title="Economy Explorer" theme={themeName} />
     ),
     overview: (
       <AutoIframe src="/overview.html" title="Economic Overview" theme={themeName} />
@@ -1622,9 +1669,34 @@ function AppContent() {
       <AutoIframe src="/manx-care-benchmark.html" title="Manx Care Benchmarking Dashboard" theme={themeName} />
     ),
 
-    mcReviews: (
-      <AutoIframe src="/manxcare-reviews-tracker.html" title="Manx Care Reviews Tracker" theme={themeName} />
+    islandsHub: (
+      <AutoIframe src="/islands/01_index.html" title="Islands Observatory — Hub" theme={themeName} />
     ),
+    islandsPH: (
+      <AutoIframe src="/islands/02_public-health.html" title="Islands — Public Health" theme={themeName} />
+    ),
+    islandsGov: (
+      <AutoIframe src="/islands/03_governance.html" title="Islands — Governance" theme={themeName} />
+    ),
+    islandsFin: (
+      <AutoIframe src="/islands/04_financial.html" title="Islands — Financial" theme={themeName} />
+    ),
+    islandsPrimary: (
+      <AutoIframe src="/islands/05_primary-care.html" title="Islands — Primary Care" theme={themeName} />
+    ),
+    islandsSecondary: (
+      <AutoIframe src="/islands/06_secondary-care.html" title="Islands — Secondary Care" theme={themeName} />
+    ),
+    islandsTertiary: (
+      <AutoIframe src="/islands/07_tertiary-remoteness.html" title="Islands — Tertiary & Remoteness" theme={themeName} />
+    ),
+    islandsRoadmap: (
+      <AutoIframe src="/islands/08_roadmap.html" title="Islands — Changelog & Roadmap" theme={themeName} />
+    ),
+    mcBudgetFlows: (
+      <AutoIframe src="/manxcare-budget-sankey.html" title="Manx Care Budget — Money In, Money Out" theme={themeName} />
+    ),
+
     mcCancer: (
       <AutoIframe src="/cancer-care.html" title="Cancer Care" theme={themeName} />
     ),
@@ -1783,19 +1855,28 @@ function AppContent() {
         maxWidth: 960, margin: "32px auto 0", padding: "16px 0 4px",
         borderTop: `1px solid ${C.border2}`,
         fontSize: 11, color: C.muted2,
-        display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8,
       }}>
-        <span>
-          <a href="https://coalfinch.com" target="_blank" rel="noopener"
-            style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
-          {" "}·{" "}
-          <a href="mailto:observatory@coalfinch.com"
-            style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
-        </span>
-        <span>
-          <a href="/privacy4budget.html"
-            style={{ color: C.muted2, textDecoration: "none" }}>Privacy Policy</a>
-        </span>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+          <span>
+            <a href="https://coalfinch.com" target="_blank" rel="noopener"
+              style={{ color: C.muted2, textDecoration: "none" }}>Coalfinch</a>
+            {" "}·{" "}
+            <a href="mailto:observatory@coalfinch.com"
+              style={{ color: C.muted2, textDecoration: "none" }}>observatory@coalfinch.com</a>
+          </span>
+          <span>
+            <a href="/privacy4budget.html"
+              style={{ color: C.muted2, textDecoration: "none" }}>Privacy Policy</a>
+          </span>
+        </div>
+        <div style={{ marginTop: 8, fontSize: 10, color: C.muted, lineHeight: 1.6 }}>
+          © 2026 Coalfinch. Analysis and commentary on this site are licensed for reuse with
+          attribution to coalfinch.com. Underlying government statistics remain under the{" "}
+          <a href="https://www.gov.im/about-this-site/open-government-licence/" target="_blank" rel="noopener"
+            style={{ color: C.muted, textDecoration: "underline", textDecorationColor: C.border2 }}>
+            Open Government Licence
+          </a>.
+        </div>
       </div>
       )}
 
@@ -1804,6 +1885,7 @@ function AppContent() {
 }
 
 export default function App() {
+ 
   return (
     <AuthProvider>
       <AppContent />
