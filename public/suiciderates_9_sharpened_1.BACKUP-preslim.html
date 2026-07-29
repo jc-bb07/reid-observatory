@@ -255,6 +255,9 @@ body.light {
       <button class="view-tab active" id="tab-asmr">Rolling ASMR /100k</button>
       <button class="view-tab iom-tab" id="tab-iom">Demographics ↗</button>
       <button class="view-tab iom-tab" id="tab-unemp">Labour market ↗</button>
+      <button class="view-tab iom-tab" id="tab-family">Family courts ↗</button>
+      <button class="view-tab iom-tab" id="tab-mental">Mental health ↗</button>
+      <button class="view-tab iom-tab" id="tab-mech">Mechanisms ↗</button>
     </div>
     <div class="view-tabs" id="range-row" style="border-radius:0; border-bottom:1px solid var(--border2); padding:6px 12px;">
       <span style="font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-right:4px;">Range:</span>
@@ -788,9 +791,258 @@ body.light {
   </div>
 
 </div><!-- /unemp-panel -->
-  <div id="family-panel" style="display:none;"></div>
-  <div id="mental-panel" style="display:none;"></div>
-  <div id="mech-panel" style="display:none;"></div>
+<div id="family-panel" style="display:none;">
+
+  <div style="padding:10px 0 12px;">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Family courts &middot; divorce &amp; family applications over time</span>
+  </div>
+
+  <div class="unemp-narrative" style="margin-bottom:14px;">
+    <strong>Why this is here.</strong> Family disruption and social integration are among the oldest suicide risk variables in the literature (Durkheim, 1897) and sit outside the labour-market story the rest of this site tests, so they are worth checking independently rather than assumed. The specific version tested here is the <em>relational cost</em> of leaving a place: not physical distance, but what someone loses by moving (custody arrangements, schooling, housing, care ties). Family court caseload is a rough, procedurally mediated proxy for relationship breakdown, not a measure of it; a proper test would need comparative family-law and relocation data across legal regimes, which this site doesn't have.
+  </div>
+
+  <div style="font-size:11px;color:var(--muted2);line-height:1.7;margin-bottom:14px;border-left:2px solid var(--border2);padding-left:12px;">
+    Removed in this revision: an earlier version of this tab also charted lone-parent household prevalence from the 2021/22 Censuses. A single cross-sectional snapshot with no Crown Dependency coverage, no time dimension, and no established link to the outcome couldn't test anything, and invited a family-structure league-table reading this site has no basis for. Taken out rather than caveated.
+  </div>
+
+  <div class="warn" style="margin-bottom:14px;">
+    ⚠ Four different measures from four different court systems, plotted as an <strong>index</strong> against a common base year, <strong>2018 = 100 for every territory</strong>, not raw counts — Jersey runs in the low hundreds, Scotland in the thousands, England &amp; Wales in the hundreds of thousands, so a shared count axis would flatten three of the four lines. 2018 is used (rather than each territory's own first available year) so every line crosses the same point in the same year, making it easier to read divergence before/after that point — chosen because 2018 is the earliest year all four territories have real data for. This is about shape, not rate: does the curve rise, fall, or spike in the same years across territories, not which line sits highest. Scotland's figures run on the Scottish fiscal year (April–March) and are plotted at their start year, an approximation of up to ~6 months against the calendar-year figures used everywhere else. The underlying measures aren't identical either — Jersey is divorce &amp; judicial separation petitions filed (combined, not split in the published digest), Isle of Man is divorce applications (old-law and no-fault combined across the 2024 reform), England &amp; Wales is divorce case starts (petitions pre-2022, no-fault applications from 6 April 2022), Scotland is the broader "Family" case category (of which divorce &amp; dissolution is roughly 73-75% in every year it's separately published). 2022 is missing for England &amp; Wales — the year the law changed mid-year and no single official combined-regime total was published. Guernsey has no equivalent published data at all.
+  </div>
+
+  <div class="card" style="padding:14px 16px;margin-bottom:14px;">
+    <div class="iom-canvas-wrap" style="height:320px;"><canvas id="family-time-chart"></canvas></div>
+  </div>
+
+  <div class="unemp-narrative">
+    <strong>Read the amplitudes with scale in mind.</strong> Against the shared 2018 base, Isle of Man swings hardest (159% in 2016, down to base, a 150% pandemic peak in 2020, then 131&ndash;147% through 2022&ndash;2024 before 101% in 2025); Jersey and Scotland move in narrower bands, dip through COVID, and decline gently since; England &amp; Wales barely leaves a ~91&ndash;100% band across the whole run. But amplitude is partly a function of size before it says anything about strain. England &amp; Wales aggregates over 100,000 cases a year across nearly 60 million people: random year-to-year variation alone is on the order of &plusmn;0.3%, so a flat line is close to guaranteed. Isle of Man's series runs at roughly 150&ndash;230 applications a year, where pure count noise is already about &plusmn;7%, and a single procedural change, listing backlog, or the 2024 no-fault reform can move the total by tens of cases. IoM's observed swings (&plusmn;30&ndash;60%) do exceed pure count noise, so something real moves year to year, but at these numbers the prime suspects are administrative (reform anticipation, court listing timing, a small advocate pool) before they are social. Two honest conclusions rather than one dramatic one: the four caseload series do not visibly co-move, and this chart, at these sample sizes, could not have detected modest co-movement even if it exists. Nor can it be lined up against the suicide series directly: IoM suicide registrations lag deaths by 12&ndash;18 months through inquests, and caseload has its own procedural lags, so even a real relationship would be smeared across two to three years here.
+  </div>
+
+  <div class="card" style="margin-bottom:0;margin-top:10px;">
+    <div class="notes-hdr" onclick="toggleFamilyGov()" id="family-gov-toggle">
+      <h2>📋 Data governance — family structure</h2>
+      <span class="hint" id="family-gov-hint">▼ Click to expand</span>
+    </div>
+    <div id="family-gov-body" style="display:none;padding:0 16px 16px;background:var(--surface);">
+      
+      <div class="nb" style="margin-top:14px;">
+        <h3><span class="jdot" style="background:var(--c-iom);"></span> Family court caseload — time series</h3>
+        <ul>
+          <li><span class="ok">SOURCE:</span> Isle of Man — Courts &amp; Tribunals Service, General Registry Annual Reports: 2019 edition (Figure 8, "2016-2019" — 234, 216, 147, and a mid-year-projected 178 for 2019 not used, see below), 2020/2021 double-issue edition (Figure 8, "2018-2021" — 147, 195, 221, 177) and 2025 edition (Chart 22, "2021-2025", divorce + no-fault divorce applications combined — 177, 216, 202, 193, 148). Cross-checked at two overlap points: 2018 (147 in both the 2019 and 2020/2021 editions, exact match) and 2021 (177 in both the 2020/2021 and 2025 editions, exact match). The 2019 edition's own 2019 figure (178) was explicitly labelled a projection based on actuals through June 2019 only — the ACTUAL full-year 2019 figure (195), as later confirmed in the 2020/2021 edition, is used in the chart instead.</li>
+          <li>Jersey — Judicial Greffe, Court Service Annual Reports 2014-2024, Appendix B/C Statistical Digest, "Divorce and judicial separation petitions filed": full run, no gaps (212, 225, 231, 219, 200, 211, 175, 186, 169, 161, 151). Every year 2014-2023 corroborated across two independent report editions; 2019 sourced only from the 2020 report's prior-year comparison column since no standalone 2019 edition was found.</li>
+          <li>England &amp; Wales — HMCTS Family Court Statistics Quarterly, Table 12/Section 10 (Divorce), calendar-year figures as stated directly in each Oct-Dec bulletin: 2017 109,339 · 2018 118,141 · 2019 116,612 · 2020 111,996 · 2021 107,724 · 2023 110,770 · 2024 108,657 · 2025 109,184 (FCSQ Oct-Dec 2025 bulletin, published 26 March 2026 — the bulletin's own narrative states "109,184 applications under the NFD law in 2025... down 1% compared to 2024"). 2022 excluded: the No-Fault Divorce Act took effect 6 April 2022, splitting the year between old-law petitions (Q1, ~30,154) and new-law applications (6 Apr-31 Dec, 89,123) with no single official combined total published for the full year.</li>
+          <li><span class="ok">Latest data available as of this update (July 2026):</span> Isle of Man runs to 2025 (actual, from the 2025 annual report edition). England &amp; Wales now also runs to 2025 (actual, FCSQ published 26 March 2026). Jersey stops at 2024 — no 2025 Court Service Annual Report exists yet; the 2024 edition itself wasn't published until 23 September 2025, roughly 9 months after year-end, so a 2025 edition is unlikely before around September 2026. Scotland stops at 2024/25 (full year); the SCTS workbook does carry a partial "2025/26 YTD" figure (8,838) and its own extrapolated "2025/26 projected" figure (~10,606), but neither is a completed actual year, so neither is plotted — consistent with this site's practice of using actuals over projections (see the Isle of Man 2019 note above).</li>
+          <li>Scotland — combined series: gov.scot "Civil Justice Statistics in Scotland" bulletin series, Table 5 "Family procedure cases initiated," 2010/11-2019/20 (14,496 · 13,679 · 13,862 · 13,853 · 13,605 · 12,892 · 13,250 · 12,652 · 12,989 · 12,251 — figures cross-checked as identical across the 2011-12, 2013-14, 2015-16 and 2019-20 bulletin editions) plus Scottish Courts &amp; Tribunals Service "Courts Data Scotland: Civil" workbook, April 2026 edition, user-supplied, "Family" thematic category, 2019/20-2024/25 (12,250 · 10,546 · 12,314 · 11,445 · 11,120 · 10,885). The two series were cross-checked at their 2019/20 overlap: 12,251 (old) vs 12,250 (new) — treated as continuous. Note this is a decade-long gradual decline pre-COVID (14,496→12,989, 2010/11-2018/19), not a flat pre-pandemic baseline, before the sharp 2020/21 COVID dip.</li>
+          <li><span class="al">⚠ Not a matched measure across territories</span> — see the warning above the chart. Index values are calculated against a common base year, 2018=100 for all four territories (chosen as the earliest year all four have real data for), so lines can be compared for timing and shape around that shared pivot — but the underlying measures still differ (see above), so absolute index height still shouldn't be read as meaning the same thing across territories, only within one territory's own line over time.</li>
+          <li>Guernsey — Royal Court of Guernsey checked directly (not blocked); no published family/matrimonial caseload statistics found, consistent with Guernsey being the weakest-data Crown Dependency throughout this whole project.</li>
+        </ul>
+      </div>
+      <div class="sources" style="margin-top:12px;">
+        <p>• Isle of Man Courts &amp; Tribunals Service, General Registry Annual Reports (2020/2021, 2025 editions) · Jersey Judicial Greffe, Court Service Annual Reports 2014-2024 · HMCTS Family Court Statistics Quarterly, Table 12 · gov.scot Civil Justice Statistics in Scotland bulletins (2011-12 through 2019-20 editions), Table 5 · Scottish Courts &amp; Tribunals Service, Courts Data Scotland: Civil (April 2026 edition)</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /family-panel -->
+<div id="mental-panel" style="display:none;">
+
+  <div style="padding:10px 0 12px;">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Mental health &middot; recorded depression prevalence, 2025</span>
+  </div>
+
+  <div class="warn" style="margin-bottom:14px;">
+    ⚠ Not suicide data, and not a direct test of "does mental illness predict suicide" — that relationship is close to definitional and not informative on its own. This tests something narrower: does the same island pattern visible in the suicide/labour-market data also show up in recorded mental-health prevalence, or does it diverge? Currently Scotland-context only (Orkney, Shetland, Na h-Eileanan Siar, Scotland national) — Isle of Wight, Anglesey and the Crown Dependencies are not yet covered; England &amp; Wales prescribing data is being sourced separately and will be added if it comes together.
+  </div>
+
+  <div class="card" style="padding:14px 16px;margin-bottom:14px;">
+    <div class="iom-canvas-wrap" style="height:260px;"><canvas id="mental-chart"></canvas></div>
+  </div>
+
+  <div class="unemp-narrative">
+    <strong>The pattern doesn't run the way a simple story predicts.</strong> Shetland has both the <em>highest</em> recorded depression prevalence of the three islands (15.1%, matching the Scotland national rate) <em>and</em> the lowest suicide rate — the one island council area below the Scotland national average 2019–2023 (see Labour Market tab). Orkney is the reverse: the <em>lowest</em> depression prevalence of the three (13.2%) but an above-average suicide rate. If population mental-illness burden were the main driver of the suicide gap, this ordering should run the other way. It doesn't prove burden is irrelevant — recorded prevalence depends on GP diagnosis and registration practice, which can itself differ by area (see mechanisms 5 and 7 on the Mechanisms tab) — but it's a real divergence, not a confirmation, and worth reading that way rather than as evidence either mechanism is settled. One reading consistent with the ordering: recorded prevalence is partly a measure of case-finding, and case-finding is protective — the direction the Gotland GP study points (see mechanism 7 on the Mechanisms tab).
+  </div>
+
+  <div class="card" style="margin-bottom:0;margin-top:10px;">
+    <div class="notes-hdr" onclick="toggleMentalGov()" id="mental-gov-toggle">
+      <h2>📋 Data governance — mental health</h2>
+      <span class="hint" id="mental-gov-hint">▼ Click to expand</span>
+    </div>
+    <div id="mental-gov-body" style="display:none;padding:0 16px 16px;background:var(--surface);">
+      <div class="nb" style="margin-top:14px;">
+        <ul>
+          <li><span class="ok">SOURCE:</span> Public Health Scotland, National Therapeutic Indicators dashboard raw data export (2025-12-31 snapshot, user-exported). "Prevalence" sheet, indicator group Mental Health, condition Depression — recorded depression as % of registered patients, by NHS Board, 2025.</li>
+          <li><span class="al">⚠ The two prescribing indicators below are not a neutral cross-board comparison.</span> "National Therapeutic Indicators" (NTIs) are an active Public Health Scotland benchmarking programme, not passive monitoring — PHS's own Quality Prescribing Strategy guides explicitly instruct boards to review their data against other boards' and address "unwarranted variation." A mechanism actively pushing boards toward convergence is currently operating on this indicator family (confirmed via PHS/gov.scot documentation), so any snapshot gap between boards may understate the "true" underlying difference by an unknown amount — there's national-average trend data for these indicators, but nothing found quantifying how much the inter-board gap itself has narrowed. Read as context under caution, not as evidence: <strong style="color:var(--text);">long-term antidepressant use</strong> (adults on antidepressants ≥2 years, as % of all adults on antidepressants) — Orkney 57.2%, Shetland 65.6%, Na h-Eileanan Siar 64.0%, Scotland 60.1%; <strong style="color:var(--text);">combination antidepressants</strong> (people on 2+ antidepressants per 1,000 registered patients) — Orkney 5.9, Shetland 5.0, Na h-Eileanan Siar 8.1, Scotland 5.7. Not mixed into the main chart.</li>
+          <li>Geography here is NHS Board, not council area — but Orkney, Shetland and Na h-Eileanan Siar are each their own single-council-area health board, so this lines up exactly with the geography used everywhere else on this site for these three.</li>
+          <li>Depression prevalence (the measure actually charted above) sits on firmer ground than the prescribing indicators: it's a GP-recorded diagnosis register, and Scotland dropped QOF (the pay-for-performance scheme that would have created a comparable convergence incentive) in 2016 with no equivalent "unwarranted variation" review programme put in its place for diagnosis coding. It still depends on GP diagnostic practice and patients presenting for care, not the true underlying population prevalence of depression — that ordinary caveat still applies — but it isn't subject to the same active management loop as the antidepressant indicators above.</li>
+          <li><span class="al">⚠ Not yet covered:</span> Isle of Wight, Anglesey (England/Wales use a different prescribing data system — OpenPrescribing.net — not yet pulled), Isle of Man, Jersey, Guernsey (no comparable published measure found).</li>
+        </ul>
+      </div>
+      <div class="sources" style="margin-top:12px;">
+        <p>• Public Health Scotland, National Therapeutic Indicators dashboard (user-exported raw data, snapshot to 31 Dec 2025) · PHS NTI data visualisation methodology notes · Scottish Government <em>Quality Prescribing Strategy: Antidepressants, guide for improvement 2024–2027</em> (board convergence/"unwarranted variation" review process) · PHS national data catalogue, QOF (closed 2016)</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /mental-panel -->
+<div id="mech-panel" style="display:none;">
+
+  <div style="padding:10px 0 12px;">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Why does remoteness correlate with suicide risk? · candidate mechanisms, tested against the evidence on this site</span>
+  </div>
+
+  <div class="warn" style="margin-bottom:14px;">
+    ⚠ Nothing on this tab is a finding. These are candidate explanations, generated to be tested against real data — several contradict each other, and the evidence above supports some better than others. No causal relationship is asserted anywhere on this page.
+  </div>
+
+  <div style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-left:3px solid var(--blue);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.85;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--blue);margin-bottom:8px;">The starting question, and why the simple version doesn't survive contact with the data</div>
+    The intuitive story is <strong style="color:var(--text);">psychological entrapment</strong> — it's harder to physically get away from a source of distress if you live somewhere remote or insular. But the territories on this site don't sort the way that simple version predicts — and the comparator set doesn't actually separate cleanly on "physically cut off" in the first place: the <strong style="color:var(--text);">Faroe Islands</strong>, <strong style="color:var(--text);">Gotland</strong>, Isle of Man, Jersey and Guernsey are all reachable by ferry/air only with no bridge or tunnel to a mainland, so that criterion alone doesn't distinguish any of them from each other. Gotland is, if anything, the <em>best</em>-connected territory in the whole set (up to 16 ferry sailings and ~4 flights a day, sub-3-hour crossings) — yet it still shows a below-average suicide rate and near-lowest unemployment, alongside the more sparsely-connected but similarly low-unemployment Faroe Islands. Meanwhile the <strong style="color:var(--text);">Isle of Man</strong>, which has the highest recent 3-year ASMR in the Crown Dependencies/E&amp;W set (a figure inflated by the 2020 window &mdash; see the chart note above), has decent transport links and isn't remote in any physical sense either. Isolation-as-distance doesn't explain the pattern on its own — worth reading alongside the Family courts tab's caseload chart, which tests a different version of "distance": not how far away somewhere is, but what it costs someone, relationally, to leave.
+  </div>
+
+  <div class="unemp-grid">
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">1 · Thin labour markets — economic lock-in</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> the risk factor isn't being physically stuck on an island — it's being economically stuck. A thin local labour market means losing a job (or being unable to work) means losing access to <em>the entire</em> local market, because relocation is costly. Remoteness matters only insofar as it shrinks the number of employers. (Earlier drafts called this monopsony, but the load-bearing feature is thinness: monopsony proper predicts suppressed wages for people <em>in</em> work, whereas thinness predicts a catastrophic cost of <em>losing</em> work. The second is the suicide-relevant claim, and the two are separately testable.)
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> the IoM audit's 4.1× overrepresentation of unemployed/unable-to-work among suicide decedents (see Demographics tab); the Faroese paradox — near-zero unemployment, near-zero of the "stuck" state; Gotland's isolation-plus-full-employment combination.
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> Orkney, Shetland and Na h-Eileanan Siar don't sort by employment health the way this predicts — Shetland (best labour-market figures) is the one island below the Scotland average, but Orkney (also decent figures) is not. Its headline evidence is also causally ambiguous: the 4.1&times; figure includes "unable to work", where illness can produce the labour-market state rather than the reverse (see the caution now attached to that figure on the Demographics tab).
+        <br><br>
+        <strong style="color:var(--cyan,#22d3ee);">Untested prediction, not yet evidence:</strong> this mechanism predicts Faroese regions cut off from Tórshavn by ferry/helicopter (pre-tunnel Suðuroy; pre-2020 Eysturoy/Norðoyar) should show measurably higher unemployment than tunnel-connected regions. Hagstova Føroya publishes a regional monthly unemployment table (StatBank AM02020) that could test this directly, but nobody has pulled the actual pre/post-tunnel figures yet — so this stays a testable prediction on this site, not a confirmed finding, until someone does.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> stop targeting headline unemployment — JSA/claimant count captures roughly 1-in-6 of the true unemployed-or-unable-to-work group on the IoM. Build active labour-market and re-entry support around the Census-measured excluded population instead, ideally delivered through health settings (individual placement-and-support style), not the jobcentre.
+      </div>
+    </div>
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">2 · Prosperity / wealth buffering <span style="font-weight:400;font-size:10px;color:var(--muted2);text-transform:none;letter-spacing:0;">(largely subsumed into 1 — retained as a tested-and-narrowed candidate)</span></span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> islands per se do nothing; suicide tracks economic security in general, and islands just happen to span the full range of it. Faroe and Gotland are rich and fully employed. IoM and the Scottish islands have pockets of real exclusion hiding under prosperous headline statistics.
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> the Faroe/Gotland pattern cleanly, and is broadly consistent with mechanism 1.
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> the IoM is wealthy on GDP-per-capita terms, and its long-term-sick inactivity rate (~5.0%) is <em>lower</em> than Scotland's (~7.7%) — yet IoM has the highest recent 3-year ASMR in its comparator set. Average prosperity doesn't track the outcome; this mechanism mostly collapses into mechanism 1 once you look at distribution rather than averages.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> a distributional audit, not an aggregate one — find who is invisible in the official statistics (the JSA-vs-Census gap on the Labour market tab is the clearest example) and make that population, not the claimant count, the headline the territory's labour statistics report against.
+      </div>
+    </div>
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">3 · The "wrong-sized settlement" gap</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> risk peaks not in the most remote places but in remote <em>small towns</em> — too big for the dense informal mutual support of a village, too small and cut off to sustain proper services or the anonymity-plus-opportunity of a city. A U-shaped settlement-size curve, and islands are risky only when their main settlement sits in the trough.
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> this is the mechanism with the most direct supporting evidence already on this site — Scotland's own urban-rural classification shows "remote small town" areas with a higher ASMR than "remote rural" areas in multiple years (see Data Governance Notes, main chart). Shetland's below-average rate fits if Lerwick, plus strong internal connectivity, functions as a genuinely complete hub rather than an isolated small town.
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> Tórshavn is also a remote small town by population — unless its role as national capital (full government, hospital, university, media) makes it functionally "complete" despite its size, which is really a refinement of this mechanism (hub <em>completeness</em>, not settlement population) rather than a contradiction of it.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> counterintuitive — don't spread services thin across remote areas. Concentrate into one genuinely complete hub per territory (24/7 crisis capacity, psychiatric liaison near A&amp;E, non-clinical "third places" open evenings) and solve transport <em>to</em> that hub, rather than trying to replicate services everywhere.
+      </div>
+    </div>
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">4 · Out-migration selection</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> islands export their most mobile, resourced people. Whoever stays — or returns after failing to launch elsewhere — is selected for fewer options and worse outcomes. Territories with strong economies retain or re-attract people and escape this selection effect; territories with weak economies concentrate it.
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> the Faroese and Gotland patterns read as retention success stories under this framing. Could also explain divergence between Orkney/Shetland/Na h-Eileanan Siar if their demographic pipelines differ — Shetland's oil and renewables economy plausibly retains working-age people better than the other two.
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> the IoM has net in-migration in many years, which cuts against a pure selection story — though in-migrants are themselves selected for economic attachment (work permits), so a "stuck native" subgroup could coexist with net inward migration. Testing this needs age-structure and cohort data this site doesn't yet have.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> track and target the "returner/stayer" cohort specifically — working-age men who never left or returned early, concentrated in non-mobile occupations — with transition support timed to known choke points (end of a fishing or construction season, a redundancy event), rather than population-wide campaigns.
+      </div>
+    </div>
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">5 · Means, alcohol, and health-system practice</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> some of the cross-territory gap is boring and proximate rather than structural — alcohol culture, prescribing practices, means availability, and how different coroners or registrars classify deaths. Faroe has historically restrictive alcohol policy; small jurisdictions may code differently than ONS/NRS.
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> part of the Faroese paradox; potentially part of the Scotland-vs-England gap (Scotland's alcohol-specific death rate runs roughly double E&amp;W's).
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> the <em>within</em>-jurisdiction findings (mechanisms 1 and 3) can't be classification artefacts, since they compare areas using the same coroner and registration system.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> a jurisdiction-specific means/alcohol audit before anything else — for the IoM, extend the GD2023/0019 audit's questions on alcohol involvement, prescribed-drug access and method, then act on whichever is overrepresented. Separately: commission a classification-comparability check between Manx, Channel Island and ONS/NRS coding before trusting any cross-territory league table, including the ones on this site.
+      </div>
+    </div>
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">6 · Occupational composition</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> islands differ in what people do for a living, and occupation itself carries risk. National occupational analyses (ONS's suicide-by-occupation work for England; comparable findings elsewhere) consistently find elevated rates in agriculture, fishing and parts of construction: solitary work, seasonal and precarious income, occupational access to lethal means, and cultures of self-reliance that suppress help-seeking. Island economies are built disproportionately from exactly these occupations, so part of any "island effect" may be compositional rather than geographic.
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> potentially the Orkney/Shetland divergence that defeats mechanism 1. Orkney's economy leans agricultural; Shetland's leans oil, gas and renewables — more salaried, more unionised, more shift-structured. Two islands with similar remoteness and similar headline labour figures can still differ substantially in occupational risk mix.
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> the Isle of Man, whose economy is dominated by finance, e-gaming and professional services — low-risk occupations on paper — yet carries the highest recent 3-year ASMR in its comparator set. Composition can modulate the island pattern; it can't be the whole story.
+        <br><br>
+        <strong style="color:var(--cyan,#22d3ee);">Untested prediction, not yet evidence:</strong> occupation of decedents. The GD2023/0019 audit could code this from records it already holds; NRS publishes Scotland-level occupational analyses that could be set against the three islands' industry mix. If the island gap shrinks materially after adjusting for occupation, this mechanism is doing real work.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> target prevention by occupation, not just geography — the farming and healthcare sectors both have established occupation-specific prevention literatures (means-access protocols, peer outreach timed to seasonal pressure points) that a small jurisdiction can adopt off the shelf.
+      </div>
+    </div>
+
+    <div class="iom-subcard">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:var(--blue);">7 · Detection &amp; treatment contact</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">The claim:</strong> what varies between territories is not the amount of distress but whether distress gets found and treated. Primary-care recognition of depression, waiting times, and willingness to present all differ by place — and in small communities the confidentiality problem is real: the GP's receptionist may be a neighbour, which suppresses presentation exactly where visibility is highest.
+        <br><br>
+        This mechanism has the most famous natural experiment in the field, and it happened on one of this site's own comparators. The <strong style="color:var(--text);">Gotland study</strong>: in 1983&ndash;84 Sweden ran a systematic depression-education programme for every GP on Gotland (Rutz and colleagues, published in Acta Psychiatrica Scandinavica). Suicides fell in the years immediately after, with the clearest effect among women — then drifted back as the trained GPs left the island. Gotland's present-day below-average rate should be read with that history in mind: it isn't only a well-connected, fully-employed island; it's arguably the most intensively studied primary-care suicide-prevention site anywhere.
+        <br><br>
+        <strong style="color:var(--green);">Explains well:</strong> the Mental health tab's inversion. Shetland records the <em>highest</em> depression prevalence of the three Scottish islands and has the <em>lowest</em> suicide rate; Orkney records the lowest prevalence and an above-average rate. If recorded prevalence partly measures case-finding rather than burden, that ordering is what a detection mechanism predicts: high recorded prevalence can be a sign the system is catching people.
+        <br><br>
+        <strong style="color:var(--amber);">Struggles with:</strong> recorded prevalence is ambiguous by construction (see the Mental health tab's governance notes), and the Gotland effect itself faded — a caution against reading any single-period rate as a stable property of a place rather than of its current service configuration.
+        <br><br>
+        <strong style="color:var(--cyan,#22d3ee);">Untested prediction, not yet evidence:</strong> contact-before-death rates. An audit of the GD2023/0019 type can establish what fraction of decedents had recent primary-care or mental-health contact; that figure differs between systems in the wider literature and is the direct test of this mechanism. FOI-able in principle for the IoM.
+        <br><br>
+        <strong style="color:var(--text);">Policy implication:</strong> the one mechanism on this list with a proven, exportable, cheap intervention: systematic GP education on depression recognition, plus confidential access routes that bypass small-community visibility (off-island telehealth, out-of-area appointments).
+      </div>
+    </div>
+
+    <div class="iom-subcard" style="border-color:rgba(244,114,182,0.35);">
+      <div class="unemp-panel-hdr"><span class="unemp-jur" style="color:#f472b6;">8 · Entrapment, salvaged — the working synthesis</span></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.75;">
+        The original intuition isn't wrong, just imprecise. Entrapment is a psychological state produced when someone hits a life shock — job loss, relationship breakdown, disgrace — in a context with <strong style="color:var(--text);">no exit and no anonymity</strong>: everyone already knows, and there's nowhere to reconstitute yourself. Islands raise risk only when both conditions hold at once: the shock rate is high (a weak or thin local economy) <em>and</em> the escape valves — alternative jobs, a complete service hub, a feasible relocation — are absent. Faroe and Gotland are islands where those valves work; the Isle of Man and several Scottish islands are places where, for some residents, they don't.
+        <br><br>
+        This isn't armchair psychology dressed up, either. Defeat-and-entrapment is the central motivational pathway in the current academic models of suicide — Williams' "cry of pain" and O'Connor's integrated motivational-volitional (IMV) model — which treat entrapment as what generates suicidal ideation, and separate factors (means access, acquired capability, impulsivity) as what governs whether ideation becomes action. Mechanisms 5, 6 and 7 sit on that second stage; this synthesis sits on the first. The two stages need different interventions, which is why "combine them" is a structure, not a fudge.
+        <br><br>
+        <strong style="color:#f472b6;">Working headline: "islands don't trap people; failed local labour markets and incomplete hubs do — islands just make those failures harder to escape."</strong>
+        <br><br>
+        This is really mechanisms 1 and 3 combined (with 7 as the service-side lever acting on the same pathway), and it's the only entry on this list that survives contact with every finding on this site rather than most of them.
+      </div>
+    </div>
+
+  </div><!-- /unemp-grid mechanisms -->
+
+  <div class="unemp-narrative" style="margin-top:4px;">
+    <strong>On aggregating small territories.</strong> Every territory here has a small-numbers problem for suicide counts specifically — Orkney, Shetland, Na h-Eileanan Siar, Faroe, Gotland and PEI all sit at single digits to low double digits per year. Comparing territories one at a time, as most of the charts on this site necessarily do, is statistically underpowered by design; it's presented as description, not inference. A more defensible approach — not yet built — would pool territory-years by <em>mechanism category</em> rather than by raw geography: group territory-years into strata like {tight labour market / slack}, {complete service hub / incomplete}, {well-connected / ferry-only}, and compare pooled rates across strata using 5-year rolling windows with Poisson-based confidence intervals on the raw counts (Scotland already publishes its island figures this way). That design uses Faroe and Gotland as the natural control cases they are, and would let each island be matched against 2-3 comparable mainland regions on population, age structure and industry mix — rather than compared directly against a large national aggregate it was never a fair match for. One hard rule for any future version of this: never pool raw counts across coding jurisdictions (NRS vs ONS vs Hagstova vs Statistics Canada) without a classification-comparability check first (see mechanism 5) — a pooled trend that's partly a coding artefact would be worse than no pooled trend at all.
+  </div>
+
+  <div class="unemp-narrative" style="margin-top:10px;">
+    <strong>And on aggregating the time series into a single overall trend: no — but for a fixable reason.</strong> A summed or averaged line across territories is the weakest version of the idea. It would be dominated by whichever series is largest, it would inherit every coding difference the paragraph above warns about, and it answers a question nobody is asking ("what does the average island line look like") instead of the real one ("do suicide, labour-market exclusion, and family disruption move together"). The design that answers the real question is a <strong style="color:var(--text);">within-territory panel model</strong>: Poisson regression on annual death counts with a log-population offset, a fixed effect per territory, common year effects, dummies for documented breaks (E&amp;W's 2018 proof-standard change), and the economic covariate of interest entered with 0&ndash;2 year lags. The territory fixed effects absorb every stable between-territory difference — coroner practice, coding, demography — so identification comes only from whether deaths move with the covariate <em>within</em> each territory over time. Cross-jurisdiction incomparability then drops out of the estimate instead of contaminating a pooled line, though within-territory coding breaks still need their dummies.
+    <br><br>
+    Why single territories look uninformative even though the underlying relationship is well established: the aggregate literature (e.g. Nordt and colleagues, Lancet Psychiatry 2015) associates major unemployment shocks with relative rises in suicide on the order of 20&ndash;30%, and roughly one in five suicides worldwide with unemployment. On an IoM baseline of about ten deaths a year, a 20&ndash;30% effect is two or three extra deaths against random year-to-year noise of roughly &plusmn;3 — invisible by construction. Pooled across ten small territories and two decades of territory-years, the same effect becomes detectable. That is the statistical version of the intuition that suicide, divorce and economic wellbeing "should move together with a large enough sample": they probably do, and the sample exists — it's just spread across territories rather than years, which is exactly what a fixed-effects panel is for. Divorce/family caseload can join the same model as a covariate, but only with reform-year dummies of its own: filing counts respond to law changes, fees and court capacity as much as to underlying relationship stress (IoM's 2024 no-fault reform and E&amp;W's 2022 change both move those series for purely administrative reasons — see the Family courts tab).
+  </div>
+
+  <div class="card" style="margin-bottom:0;margin-top:10px;">
+    <div class="notes-hdr" onclick="toggleMechGov()" id="mech-gov-toggle">
+      <h2>📋 Data governance — mechanisms</h2>
+      <span class="hint" id="mech-gov-hint">▼ Click to expand</span>
+    </div>
+    <div id="mech-gov-body" style="display:none;padding:0 16px 16px;background:var(--surface);">
+      <div class="nb" style="margin-top:14px;">
+        <ul>
+          <li>Mechanisms 1&ndash;5 and the synthesis (now numbered 8) were generated as a structured idea-generation exercise (a separate model instance briefed with every finding on this site, asked to propose and stress-test mechanisms rather than default to generic recommendations), then organised here against the evidence actually present on the Suicide Rates and Labour Market tabs. Mechanisms 6 (occupational composition) and 7 (detection &amp; treatment contact) were added on a July 2026 editorial pass against the same evidence. All are hypotheses to test, not conclusions.</li>
+          <li>Faroe Islands and Gotland comparator data (suicide counts/rates, unemployment, tunnel-connectivity gradient) referenced above is sourced but not yet built into the charts on this site — see the observatory's working notes for the underlying figures.</li>
+          <li>Mechanism 7's Gotland history is standard literature (Rutz, von Knorring &amp; W&aring;linder, Acta Psychiatrica Scandinavica, late 1980s, with early-1990s follow-up showing the effect fading after GP turnover), not site-derived data — as is mechanism 6's occupational-risk pattern (ONS suicide-by-occupation analyses for England). Neither has been re-verified against primary sources on this pass; both are flagged for citation before any formal use.</li>
+          <li>Scotland urban-rural finding ("remote small town" &gt; "remote rural") is drawn from NRS urban-rural classification tables, cross-referenced against the Key Findings sheet in the project's working documents — not independently re-verified on this pass.</li>
+          <li><span class="al">⚠</span> Mechanism 5's classification-comparability caveat applies to every cross-territory comparison on this entire site, not just this tab — treat league-table-style readings of the ASMR chart with the same caution.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /mech-panel -->
 
 <div class="card">
   <div class="notes-hdr" id="notes-toggle">
@@ -2089,9 +2341,128 @@ document.getElementById('tab-iom').addEventListener('click', () => {
   document.getElementById('range-row').style.display = 'none';
 });
 
+// ── FAMILY STRUCTURE TAB ──────────────────────────────────────────────────────
+document.getElementById('tab-family').addEventListener('click', () => {
+  document.getElementById('chart-body').style.display = 'none';
+  document.getElementById('iom-panel').style.display = 'none';
+  document.getElementById('unemp-panel').style.display = 'none';
+  document.getElementById('family-panel').style.display = 'block';
+  document.getElementById('mental-panel').style.display = 'none';
+  document.getElementById('mech-panel').style.display = 'none';
+  document.getElementById('range-row').style.display = 'none';
+  document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-family').classList.add('active');
+  if (!window._familyChartDrawn) { drawFamilyTimeChart(); window._familyChartDrawn = true; }
+  setTimeout(reportHeight, 60);
+});
+
+['counts','crude','asmr'].forEach(v => {
+  document.getElementById(`tab-${v}`).addEventListener('click', () => {
+    document.getElementById('family-panel').style.display = 'none';
+    document.getElementById('mental-panel').style.display = 'none';
+  });
+});
+document.getElementById('tab-iom').addEventListener('click', () => {
+  document.getElementById('family-panel').style.display = 'none';
+  document.getElementById('mental-panel').style.display = 'none';
+});
+document.getElementById('tab-unemp').addEventListener('click', () => {
+  document.getElementById('family-panel').style.display = 'none';
+  document.getElementById('mental-panel').style.display = 'none';
+});
+
+function toggleFamilyGov() {
+  const body = document.getElementById('family-gov-body');
+  const hint = document.getElementById('family-gov-hint');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  hint.textContent = open ? '\u25bc Click to expand' : '\u25b2 Click to collapse';
+  setTimeout(reportHeight, 60);
+}
+
+// ── MENTAL HEALTH TAB ─────────────────────────────────────────────────────────
+document.getElementById('tab-mental').addEventListener('click', () => {
+  document.getElementById('chart-body').style.display = 'none';
+  document.getElementById('iom-panel').style.display = 'none';
+  document.getElementById('unemp-panel').style.display = 'none';
+  document.getElementById('family-panel').style.display = 'none';
+  document.getElementById('mental-panel').style.display = 'block';
+  document.getElementById('mech-panel').style.display = 'none';
+  document.getElementById('range-row').style.display = 'none';
+  document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-mental').classList.add('active');
+  if (!window._mentalChartDrawn) { drawMentalChart(); window._mentalChartDrawn = true; }
+  setTimeout(reportHeight, 60);
+});
+
+['counts','crude','asmr'].forEach(v => {
+  document.getElementById(`tab-${v}`).addEventListener('click', () => {
+    document.getElementById('mental-panel').style.display = 'none';
+  });
+});
+document.getElementById('tab-iom').addEventListener('click', () => {
+  document.getElementById('mental-panel').style.display = 'none';
+});
+document.getElementById('tab-unemp').addEventListener('click', () => {
+  document.getElementById('mental-panel').style.display = 'none';
+});
+document.getElementById('tab-family').addEventListener('click', () => {
+  document.getElementById('mental-panel').style.display = 'none';
+});
+
+function toggleMentalGov() {
+  const body = document.getElementById('mental-gov-body');
+  const hint = document.getElementById('mental-gov-hint');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  hint.textContent = open ? '\u25bc Click to expand' : '\u25b2 Click to collapse';
+  setTimeout(reportHeight, 60);
+}
+
 function toggleUnempGov() {
   const body = document.getElementById('unemp-gov-body');
   const hint = document.getElementById('unemp-gov-hint');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  hint.textContent = open ? '\u25bc Click to expand' : '\u25b2 Click to collapse';
+  setTimeout(reportHeight, 60);
+}
+
+// ── MECHANISMS TAB ──────────────────────────────────────────────
+document.getElementById('tab-mech').addEventListener('click', () => {
+  document.getElementById('chart-body').style.display = 'none';
+  document.getElementById('iom-panel').style.display = 'none';
+  document.getElementById('unemp-panel').style.display = 'none';
+  document.getElementById('family-panel').style.display = 'none';
+  document.getElementById('mental-panel').style.display = 'none';
+  document.getElementById('mech-panel').style.display = 'block';
+  document.getElementById('range-row').style.display = 'none';
+  document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-mech').classList.add('active');
+  setTimeout(reportHeight, 60);
+});
+
+['counts','crude','asmr'].forEach(v => {
+  document.getElementById(`tab-${v}`).addEventListener('click', () => {
+    document.getElementById('mech-panel').style.display = 'none';
+  });
+});
+document.getElementById('tab-iom').addEventListener('click', () => {
+  document.getElementById('mech-panel').style.display = 'none';
+});
+document.getElementById('tab-unemp').addEventListener('click', () => {
+  document.getElementById('mech-panel').style.display = 'none';
+});
+document.getElementById('tab-family').addEventListener('click', () => {
+  document.getElementById('mech-panel').style.display = 'none';
+});
+document.getElementById('tab-mental').addEventListener('click', () => {
+  document.getElementById('mech-panel').style.display = 'none';
+});
+
+function toggleMechGov() {
+  const body = document.getElementById('mech-gov-body');
+  const hint = document.getElementById('mech-gov-hint');
   const open = body.style.display !== 'none';
   body.style.display = open ? 'none' : 'block';
   hint.textContent = open ? '\u25bc Click to expand' : '\u25b2 Click to collapse';
@@ -2309,3 +2680,154 @@ function buildUChart(jur,fromYear){
   }
 }
 
+// ── FAMILY STRUCTURE TAB — family court caseload, indexed time series ─────────
+// Index = each territory's own first available year set to 100. Shape comparison, not rate — see warn box.
+// IoM 2016-2017 from General Registry Annual Report 2019 edition (Figure 8, "2016-2019"); 2019 figure
+// there (178) was an explicit mid-year projection through June 2019 — the ACTUAL full-year 2019 figure
+// (195) as later reported in the 2020/2021 edition's Figure 8 is used here instead. 2018 (147) matches
+// exactly across both editions, confirming continuity.
+const IOM_DIVORCE_APPS = {2016:234,2017:216,2018:147,2019:195,2020:221,2021:177,2022:216,2023:202,2024:193,2025:148};
+const JSY_PETITIONS = {2014:212,2015:225,2016:231,2017:219,2018:200,2019:211,2020:175,2021:186,2022:169,2023:161,2024:151};
+const SCOT_FAMILY = {2010:14496,2011:13679,2012:13862,2013:13853,2014:13605,2015:12892,2016:13250,2017:12652,2018:12989,2019:12251,2020:10546,2021:12314,2022:11445,2023:11120,2024:10885};
+const EW_DIVORCE = {2017:109339,2018:118141,2019:116612,2020:111996,2021:107724,2023:110770,2024:108657,2025:109184};
+
+const FAMILY_TIME_BASE_YEAR = 2018; // common base year across all four series, not each series' own first year
+function indexSeries(obj, baseYear){
+  const years=Object.keys(obj).map(Number).sort((a,b)=>a-b);
+  const base=obj[baseYear!=null?baseYear:years[0]];
+  const out={};
+  years.forEach(y=>{ out[y]=(obj[y]/base)*100; });
+  return out;
+}
+function indexBaselinePlugin(){
+  return {
+    id:'indexBaseline',
+    beforeDraw(chart){
+      const area = chart.chartArea, yScale = chart.scales.y;
+      if(!area||!yScale) return;
+      const yPix=yScale.getPixelForValue(100);
+      const ctx=chart.ctx;
+      ctx.save();
+      ctx.strokeStyle=U_GRID; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(area.left,yPix); ctx.lineTo(area.right,yPix); ctx.stroke();
+      ctx.restore();
+    }
+  };
+}
+function drawFamilyTimeChart(){
+  loadCjs(()=>{
+    const series=[
+      {data:IOM_DIVORCE_APPS,label:'Isle of Man — divorce applications',color:tc('--c-iom')},
+      {data:JSY_PETITIONS,label:'Jersey — divorce & judicial separation petitions filed',color:tc('--c-jsy')},
+      {data:SCOT_FAMILY,label:'Scotland (national) — "Family" cases initiated',color:tc('--c-scot')},
+      {data:EW_DIVORCE,label:'England & Wales — divorce case starts',color:tc('--c-ew')}
+    ];
+    const allYears=[...new Set(series.flatMap(s=>Object.keys(s.data).map(Number)))].sort((a,b)=>a-b);
+    const datasets=series.map(s=>{
+      const idx=indexSeries(s.data, FAMILY_TIME_BASE_YEAR);
+      return {
+        label:s.label,
+        data:allYears.map(y=>idx[y]!=null?idx[y]:null),
+        borderColor:s.color,backgroundColor:s.color,
+        spanGaps:false,tension:0.25,pointRadius:3,pointHoverRadius:5,borderWidth:2
+      };
+    });
+    if(window._familyTimeChart){window._familyTimeChart.destroy();}
+    window._familyTimeChart=new Chart(document.getElementById('family-time-chart'),{
+      type:'line',
+      data:{labels:allYears,datasets},
+      plugins:[indexBaselinePlugin()],
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'bottom',labels:{color:U_TICK,font:{size:9},boxWidth:12,padding:10}},
+          tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw==null?'—':ctx.raw.toFixed(1)} (index)`}}
+        },
+        scales:{
+          x:{ticks:{color:U_TICK,font:{size:9}},grid:{color:U_GRID},border:{color:U_GRID}},
+          y:{ticks:{color:U_TICK,font:{size:9}},grid:{color:U_GRID},border:{color:U_GRID},title:{display:true,text:'Index (own first available year = 100)',color:U_TICK,font:{size:8}}}
+        }
+      }
+    });
+  });
+}
+
+// ── MENTAL HEALTH TAB — recorded depression prevalence, PHS NTI export ────────
+const MENTAL_DEP = {
+  scot:{v:15.0,label:'Scotland (national)',color:'--c-scot'},
+  shet:{v:15.1,label:'Shetland',color:'--c-shet'},
+  wi:{v:15.0,label:'Na h-Eileanan Siar',color:'--c-wi'},
+  ork:{v:13.2,label:'Orkney',color:'--c-ork'}
+};
+function drawMentalChart(){
+  loadCjs(()=>{
+    const order=['scot','shet','wi','ork'];
+    const labels=order.map(k=>MENTAL_DEP[k].label);
+    const data=order.map(k=>MENTAL_DEP[k].v);
+    const colors=order.map(k=>tc(MENTAL_DEP[k].color));
+    if(window._mentalChart){window._mentalChart.destroy();}
+    window._mentalChart=new Chart(document.getElementById('mental-chart'),{type:'bar',data:{labels,datasets:[
+      {label:'Recorded depression prevalence',data,backgroundColor:colors,borderRadius:3,barThickness:26}
+    ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)}% of registered patients`}}},scales:{x:{min:0,max:18,ticks:{color:U_TICK,font:{size:9},callback:v=>v+'%'},grid:{color:U_GRID},border:{color:U_GRID},title:{display:true,text:'% of registered patients with recorded depression, 2025',color:U_TICK,font:{size:8}}},y:{ticks:{color:U_TICK,font:{size:10}},grid:{display:false},border:{color:U_GRID}}}}});
+  });
+}
+
+// ── END UNEMPLOYMENT OVERLAY ──────────────────────────────────────────────────
+let _ready = false;
+function safeInit() {
+  if (_ready) return;
+  const wrap = document.getElementById('chart-wrap');
+  if ((wrap.offsetWidth || wrap.clientWidth) < 50) return;
+  _ready = true;
+  resize(); draw();
+  setTimeout(reportHeight, 80);
+}
+const _poll = setInterval(() => { if (_ready) { clearInterval(_poll); return; } safeInit(); }, 40);
+window.addEventListener('load', () => { safeInit(); setTimeout(safeInit, 250); setTimeout(() => { if (!_ready) { _ready=true; resize(); draw(); setTimeout(reportHeight,80); } }, 800); });
+</script>
+  <div class="page-footer">
+    <span>observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>IoM Public Health (GD 2025/0091) · IoM Constabulary FOI 3968233 · ONS · Statistics Jersey · States of Guernsey · <a href="https://coalfinch.com">Coalfinch</a></span>
+  </div>
+
+</div><!-- /shell -->
+<script>
+/* Observatory theme sync v4 — consolidated. An earlier copy of this listener
+   lived in a malformed <script src=...> tag whose inline body a browser
+   silently never executes once src is set — so the 'observatory-theme'
+   convention (light: boolean) was never actually wired up, only
+   'theme'/'setTheme' (theme: string) was. Listening for both, and also
+   rebuilding the Chart.js demographics/labour-market sub-panels (their
+   axis colours are captured as plain strings at chart-creation time and
+   otherwise never update), is what stops those panels going unreadable
+   after a live theme flip from the parent shell. */
+(function () {
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+    // Redraw canvas-based chart so colours update with theme
+    if (typeof draw === 'function') draw();
+    // Rebuild any already-built Chart.js sub-panels so their axis/grid
+    // colours (frozen at first render) pick up the new theme too.
+    if (window._iomChartsDrawn) {
+      window._iomChartsDrawn = false;
+      drawIomCharts();
+    }
+    if (window._unempChartsDrawn) {
+      window._unempChartsDrawn = false;
+      drawUnempCharts();
+    }
+  }
+  try { if (localStorage.getItem('observatory-theme') === 'light') applyTheme(true); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'observatory-theme') applyTheme(!!d.light);
+    else if (d.type === 'theme' || d.type === 'setTheme') applyTheme(d.theme === 'light');
+  });
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+</body>
+</html>

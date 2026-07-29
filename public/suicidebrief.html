@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The islands don't have a suicide problem — they have a data problem · Crown Dependencies Observatory</title>
+<meta name="description" content="A pre-registered analysis showing the islands' apparent suicide 'crisis' is largely an artefact of how the number is calculated — one hard year, 2020, smeared across a decade by rolling averages, and mistaken for a local crisis in jurisdiction after jurisdiction."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0b1120;--surface:#1e293b;--surface2:#141f33;--border2:#2b3a52;
+  --text:#e8eef7;--muted:#93a3b8;--muted2:#c7d2e0;--blue:#60a5fa;--green:#34d399;--amber:#fbbf24;--red:#f87171;--purple:#a78bfa;--cyan:#22d3ee;--orange:#fb923c;--pink:#f472b6;
+  --font:'Inter',system-ui,sans-serif;--serif:'Newsreader',Georgia,serif;--mono:'JetBrains Mono',monospace;}
+body.light{--bg:#f6f8fc;--surface:#fff;--surface2:#eef2f8;--border2:#d3ddea;--text:#0f172a;--muted:#5b6b80;--muted2:#334155;--blue:#2563eb;--green:#059669;--amber:#c77b06;--red:#dc2626;--purple:#7c3aed;--cyan:#0891b2;--orange:#ea580c;--pink:#db2777;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+#app{max-width:1080px;margin:0 auto;padding:24px 26px 80px}
+.theme-btn{position:fixed;top:14px;right:16px;z-index:30;background:var(--surface);border:1px solid var(--border2);color:var(--muted2);font-size:11px;font-weight:600;padding:6px 11px;border-radius:20px;cursor:pointer;font-family:var(--font)}
+body.js .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+body.js .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){body.js .reveal{opacity:1!important;transform:none!important;transition:none!important}}
+.section-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:2.6rem 0 .8rem;display:flex;align-items:center;gap:.6rem}
+.act{font-family:var(--mono);color:var(--bg);background:var(--blue);font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px}
+.hero{position:relative;margin-bottom:1.2rem;padding:1.6rem 0 1.3rem;border-bottom:1px solid var(--border2)}
+.danger-tag{display:inline-flex;align-items:center;gap:.45rem;font-size:12.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:1rem}
+.danger-tag svg{width:15px;height:15px}
+h1{font-size:40px;font-weight:900;line-height:1.07;letter-spacing:-0.03em;margin-bottom:.9rem;max-width:22ch}
+h1 em{font-style:normal;color:var(--amber)}
+.lede{font-size:16px;color:var(--muted2);line-height:1.6;max-width:74ch}
+.hero-spark{position:absolute;top:1.4rem;right:0;width:170px;height:80px;opacity:.9;pointer-events:none}
+@media(max-width:720px){.hero-spark{display:none}h1{font-size:31px}}
+.draft{display:inline-block;background:rgba(251,191,36,.14);color:var(--amber);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:12px;margin-bottom:1rem}
+.hook{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.35;color:var(--amber);font-weight:500;margin-bottom:.9rem;max-width:24ch}
+.hook em{font-style:italic;text-decoration:underline;text-decoration-color:rgba(251,191,36,.4);text-underline-offset:3px}
+.origin{position:relative;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:1.5rem 1.6rem 1.3rem;margin:1.4rem 0}
+.origin .qm{position:absolute;top:-14px;left:18px;font-family:var(--serif);font-size:64px;line-height:1;color:var(--amber);opacity:.5}
+.origin p{font-family:var(--serif);font-size:21px;line-height:1.42;color:var(--text);font-weight:500;max-width:70ch}
+.origin p em{font-style:italic;color:var(--amber)}
+.origin .by{display:block;margin-top:.6rem;font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+.narrative{background:var(--surface2);border:1px solid var(--border2);border-top:2px solid var(--green);border-radius:8px;padding:1rem 1.25rem;margin:1.1rem 0;font-size:12.5px;color:var(--muted2);line-height:1.7}
+.narrative strong{color:var(--text)}
+p.body{font-size:14px;color:var(--muted2);line-height:1.78;margin:.7rem 0;max-width:82ch}
+p.body strong{color:var(--text)}
+.big{font-size:19px;color:var(--text);font-weight:700;line-height:1.42;margin:.9rem 0;letter-spacing:-0.01em;max-width:80ch}
+.big .hot{color:var(--red)}.big .pop{color:var(--amber)}
+ol.methods{margin:.4rem 0 .6rem 1.2rem;font-size:13px;color:var(--muted2);line-height:1.6;max-width:80ch}
+ol.methods li{margin-bottom:.3rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;align-items:start}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.chart-panel{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin:1.1rem 0;box-shadow:0 6px 22px rgba(0,0,0,.14)}
+.panel-header{padding:.9rem 1.1rem .5rem}
+.panel-title{font-size:13.5px;font-weight:800}
+.panel-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+.chart-wrap{padding:.3rem 1rem 0;height:280px}
+.legend{display:flex;gap:13px;flex-wrap:wrap;padding:.5rem 1.1rem 1.1rem;font-size:10.5px;color:var(--muted2)}
+.leg-item{display:flex;align-items:center;gap:5px}.leg-sw{width:12px;height:3px;border-radius:2px}
+.hl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:.85rem;margin:1.1rem 0}
+.clip{background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;display:flex;flex-direction:column}
+.clip:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 14px 30px rgba(0,0,0,.28)}
+.clip-top{display:flex;justify-content:space-between;align-items:center;padding:.55rem .85rem;background:linear-gradient(90deg,rgba(248,113,113,.14),transparent);border-bottom:1px solid var(--border2)}
+.clip-outlet{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--red)}
+.clip-date{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.clip-head{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.28;padding:.75rem .85rem .5rem;flex:1}
+.clip-link{font-size:10px;font-family:var(--mono);color:var(--muted);text-decoration:none;padding:0 .85rem .7rem;letter-spacing:.03em}
+.clip-link:hover{color:var(--blue)}
+.recur{font-size:13px;color:var(--muted);font-style:italic;line-height:1.65;margin:.6rem 0 .2rem;padding-left:.9rem;border-left:2px solid var(--amber);max-width:82ch}
+.danger{text-align:center;margin:2.1rem 0;padding:1.6rem 1.2rem}
+.danger-big{font-size:32px;font-weight:900;letter-spacing:-0.02em;line-height:1.08;color:var(--red)}
+.danger-sub{font-size:14.5px;color:var(--muted2);line-height:1.6;margin-top:.7rem;max-width:60ch;margin-left:auto;margin-right:auto}
+.danger-sub strong{color:var(--text)}
+/* linear bar chart */
+.bars-frame{display:flex;gap:8px;padding:.8rem 1rem .4rem}
+.bars-y{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;height:170px;padding-bottom:20px;font-family:var(--mono);font-size:9px;color:var(--muted);flex:none;width:16px}
+.bars{position:relative;flex:1;display:flex;align-items:flex-end;gap:4px;height:170px;padding-bottom:20px;background-image:repeating-linear-gradient(to top,transparent,transparent calc(25% - 1px),var(--border2) calc(25% - 1px),var(--border2) 25%);background-size:100% calc(100% - 20px);background-position:bottom;background-repeat:no-repeat}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:150px;justify-content:flex-end;align-self:flex-end}
+.bar .b{width:100%;background:var(--muted);border-radius:3px 3px 0 0;min-height:2px;transform:scaleY(0);transform-origin:bottom}
+body.js .reveal.in .bar .b{animation:grow .9s cubic-bezier(.2,.85,.2,1) forwards}
+body:not(.js) .bar .b{transform:scaleY(1)}
+@keyframes grow{to{transform:scaleY(1)}}
+.bar:nth-child(2) .b{animation-delay:.03s}.bar:nth-child(3) .b{animation-delay:.06s}.bar:nth-child(4) .b{animation-delay:.09s}.bar:nth-child(5) .b{animation-delay:.12s}.bar:nth-child(6) .b{animation-delay:.15s}.bar:nth-child(7) .b{animation-delay:.18s}.bar:nth-child(8) .b{animation-delay:.21s}.bar:nth-child(9) .b{animation-delay:.24s}.bar:nth-child(10) .b{animation-delay:.27s}.bar:nth-child(11) .b{animation-delay:.3s}.bar:nth-child(12) .b{animation-delay:.33s}.bar:nth-child(13) .b{animation-delay:.36s}.bar:nth-child(14) .b{animation-delay:.39s}.bar:nth-child(15) .b{animation-delay:.42s}.bar:nth-child(16) .b{animation-delay:.45s}.bar:nth-child(17) .b{animation-delay:.48s}.bar:nth-child(18) .b{animation-delay:.51s}
+.bar.hot .b{background:var(--red);box-shadow:0 0 18px rgba(248,113,113,.55)}
+.bar .yr{font-size:8px;color:var(--muted);font-family:var(--mono);transform:rotate(-60deg);white-space:nowrap;margin-top:6px;height:0}
+.bar .n{font-size:8.5px;color:var(--muted2);font-family:var(--mono)}
+.bar.hot .n{color:var(--red);font-weight:700}
+.viz-note{font-size:10.5px;color:var(--muted);line-height:1.55;padding:.8rem 1.1rem .9rem}
+.cmp-table{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin:1rem 0}
+.cmp-scroll{overflow-x:auto}
+.cmp-head,.cmp-row{display:grid;grid-template-columns:1.7fr 1fr 1.3fr;min-width:520px}
+.cmp-head{padding:.6rem .9rem;border-bottom:1px solid var(--border2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.cmp-row{padding:.6rem .9rem;border-bottom:1px solid var(--border2);align-items:center;font-size:12.5px}
+.cmp-row:last-of-type{border-bottom:none}
+.cmp-row .cn{font-weight:600}.cmp-row .cv{font-family:var(--mono);color:var(--muted2);font-size:11px}
+.tagline{font-family:var(--mono);font-weight:700}.tagline.ns{color:var(--green)}
+blockquote{border-left:3px solid var(--muted);padding:.5rem 0 .5rem 1rem;margin:.9rem 0;font-family:var(--serif);font-size:16px;color:var(--muted2);font-style:italic;line-height:1.55;max-width:80ch}
+blockquote cite{display:block;font-style:normal;font-size:10.5px;color:var(--muted);margin-top:.45rem;font-family:var(--font)}
+.thesis{background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(52,211,153,.07));border:1px solid var(--border2);border-left:4px solid var(--amber);border-radius:12px;padding:1.4rem 1.6rem;margin:1.6rem 0}
+.thesis-q{font-size:15px;color:var(--muted2);font-weight:600;margin-bottom:.35rem}
+.thesis-a{font-size:25px;font-weight:900;line-height:1.22;letter-spacing:-0.01em;max-width:24ch}
+.thesis-a .no{color:var(--green)}.thesis-a em{font-style:normal;color:var(--amber)}
+.thesis-body{font-size:13px;color:var(--muted2);line-height:1.65;margin-top:.7rem;max-width:80ch}
+.thesis-body strong{color:var(--text)}
+.coda{border:1px dashed var(--border2);border-radius:12px;padding:1.4rem 1.6rem;margin:1.6rem 0;background:var(--surface2)}
+.coda p{font-size:15px;line-height:1.6;color:var(--muted2);max-width:78ch}
+.coda p strong{color:var(--text)}
+.coda .kick{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem}
+.coda .places{font-family:var(--serif);font-size:18px;color:var(--text);margin-top:.6rem;font-style:italic}
+.pillar{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.pillar-head{display:flex;align-items:center;gap:.8rem;padding:1rem 1.1rem;border-bottom:1px solid var(--border2)}
+.pillar-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.pillar-ico.p1{background:rgba(251,191,36,.16);color:var(--amber)}.pillar-ico.p2{background:rgba(52,211,153,.16);color:var(--green)}.pillar-ico.p3{background:rgba(96,165,250,.16);color:var(--blue)}
+.pillar-ico svg{width:19px;height:19px}
+.pillar-title{font-size:14.5px;font-weight:800}.pillar-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.lever{padding:.85rem 1.1rem;border-bottom:1px solid var(--border2)}.lever:last-child{border-bottom:none}
+.lever-title{font-size:12.5px;font-weight:700;margin-bottom:.3rem}
+.lever-body{font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:.45rem}
+.lever-tags{display:flex;gap:.4rem;flex-wrap:wrap}
+.tag{font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:10px}
+.tag.ev{background:rgba(96,165,250,.15);color:var(--blue)}.tag.win{background:rgba(52,211,153,.15);color:var(--green)}.tag.care{background:rgba(251,191,36,.15);color:var(--amber)}
+.support{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:1rem 1.15rem;margin-top:1.4rem;font-size:12.5px;color:var(--muted2);line-height:1.7}
+.support strong{color:var(--text)}
+footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);font-size:10.5px;color:var(--muted);line-height:1.65}
+/* consistent measure — all body text spans the container to the same right edge as the charts */
+.lede,p.body,.big,.recur,.origin p,.thesis-body,.coda p,blockquote,ol.methods{max-width:none}
+</style>
+</head>
+<body>
+<button class="theme-btn" id="theme-btn">Light mode</button>
+<div id="app">
+
+  <span class="draft">Draft · not for public release until Public Health IoM is briefed</span>
+
+  <div class="narrative reveal"><strong>Every life matters.</strong> This is about how suicide statistics are calculated and read — not whether the issue is serious. It is. It uses only population-level figures, no individual is identifiable, and it follows Samaritans media guidelines throughout. If you or someone you know is struggling, the support lines are at the foot of this page.</div>
+
+  <div class="hero">
+    <svg class="hero-spark" viewBox="0 0 170 80" fill="none"><polyline points="0,62 22,58 44,60 66,54 88,56 110,20 132,32 170,36" stroke="#f87171" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="110" cy="20" r="4.2" fill="#f87171"/><polyline points="0,64 170,64" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/></svg>
+    <p class="hook">Sometimes I hate statistics. I mean, <em>really</em> hate statistics.</p>
+    <h1>The islands don't have a suicide problem. They have a <em>data</em> problem.</h1>
+    <p class="lede">Every few years a small island is told its suicide rate is soaring — "highest in a decade," "double the UK," "the only place to rise in the pandemic." A pre-registered analysis shows those headlines are largely manufactured by <em>how the number is calculated</em>: one genuinely hard year, 2020, smeared across a decade by rolling averages — and mistaken for a local crisis in jurisdiction after jurisdiction.</p>
+  </div>
+
+  <div class="section-label reveal">The question</div>
+  <p class="big reveal">Do the small island jurisdictions have genuinely higher suicide rates than Great Britain — and if so, why?</p>
+  <p class="body reveal">We studied the statistics of the <strong>Isle of Man, Jersey and Guernsey; Orkney, Shetland and Na h-Eileanan Siar; and the Isle of Wight and Anglesey</strong> — benchmarked against <strong>England &amp; Wales</strong> and <strong>Scotland</strong>, and pre-registered before we ran it, so the answer couldn't be steered. (The Faroe Islands, Gotland and Prince Edward Island were lined up as international comparators but <em>dropped for insufficient comparable data</em> — the harmonisation problem, again, before we'd even begun.)</p>
+
+  <div class="section-label reveal"><span class="act">Act I</span>What the headlines look like</div>
+  <p class="body reveal">Plotted as the official <strong>3-year rolling age-standardised rate</strong>, the islands tower over a flat England &amp; Wales. Guernsey doubles (7 → 15). The Isle of Man leaps ~60% to nearly 18. It looks like an emergency.</p>
+  <div class="chart-panel reveal">
+    <div class="panel-header"><div class="panel-title">Suicide rate, 3-year rolling ASMR /100,000 — the Crown Dependencies</div><div class="panel-sub">Crown Dependencies (3-yr rolling) vs England &amp; Wales (annual). Same source, 2013 ESP.</div></div>
+    <div class="chart-wrap"><canvas id="asmr"></canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:#f87171"></span>Isle of Man</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#34d399"></span>Guernsey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#a78bfa"></span>Jersey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#60a5fa"></span>England &amp; Wales</span>
+    </div>
+  </div>
+
+  <div class="section-label reveal"><span class="act">Act II</span>What the headlines say</div>
+  <div class="hl-grid">
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">7 Mar 2024</span></div><div class="clip-head">"Guernsey suicide figures soar over both Jersey and the UK"</div><a class="clip-link" href="https://www.itv.com/news/channel/2024-03-07/guernsey-suicide-figures-soar-over-both-jersey-and-the-uk" target="_blank" rel="noopener">read the article →</a></div>
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Feb 2026</span></div><div class="clip-head">"ManxPACT raises concerns over suicide rates and mental-health provision"</div><a class="clip-link" href="https://gold.manxradio.com/news/isle-of-man-news/manxpact-raises-concerns-over-suicide-rates-and-mental-health-provision-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">14 Oct 2022</span></div><div class="clip-head">"Suicide accounts for a tenth of Guernsey's sudden deaths"</div><a class="clip-link" href="https://www.itv.com/news/channel/2022-10-14/suicide-accounts-for-a-tenth-of-guernseys-sudden-deaths" target="_blank" rel="noopener">read the article →</a></div>
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">20 Aug 2021</span></div><div class="clip-head">"NHS reminds anyone struggling to seek help after probable suicide figures released"</div><a class="clip-link" href="https://www.shetnews.co.uk/2021/08/20/nhs-reminds-anyone-who-is-struggling-to-seek-help-and-support-after-probable-suicide-figures-released/" target="_blank" rel="noopener">read the article →</a></div>
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">7 Sep 2011</span></div><div class="clip-head">"Efforts to reduce suicide rate"</div><a class="clip-link" href="https://www.shetnews.co.uk/2011/09/07/efforts-to-reduce-suicide-rate/" target="_blank" rel="noopener">read the article →</a></div>
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">10 Mar 2025</span></div><div class="clip-head">"Just come and ask: charities plea for anyone struggling to seek help"</div><a class="clip-link" href="https://www.shetnews.co.uk/2025/03/10/just-come-ask-charities-plea/" target="_blank" rel="noopener">read the article →</a></div>
+  </div>
+  <p class="recur reveal">Fourteen years, four jurisdictions, the same recurring themes — small close-knit communities, isolation, service access, stigma, the volatility of small numbers. Official agencies caution against over-reading single-year rates every time; the alarm recurs anyway. That persistence is the tell.</p>
+
+  <div class="origin reveal">
+    <span class="qm">&ldquo;</span>
+    <p>I read these too. I thought I'd spotted a pattern — that island suicide rates were consistently high, and that I had to do something about it. So I registered a study to test it properly, before I could talk myself into an answer. <em>It told me I was wrong.</em></p>
+    <span class="by">— why this analysis exists</span>
+  </div>
+
+  <div class="section-label reveal"><span class="act">Act III</span>Why the headlines and the statistics disagree</div>
+  <p class="body reveal">Here is what stopped us. When we tested it properly (Act&nbsp;V), the rigorous answer was <strong>no real difference</strong> — no island stands out from its comparator. Yet the headlines aren't invented: the published rates really do read high. Both are true at once — and once we asked <em>how that could be</em>, the reason turned out to be the same for every island: <strong>how the number is built.</strong></p>
+  <p class="body reveal"><strong>How the machine works.</strong> The headline is a 3- or 5-year <strong>rolling average</strong> — the smoothing that official agencies (ONS among them) recommend for small populations, to damp volatility and protect identities. But put one extraordinary year through that smoother and it doesn't stay one year. 2020 was genuinely hard — the pandemic, and for the Isle of Man a backlog of inquests all concluding at once. That single spike is then spread across every overlapping window, plotted a year or two early, and kept in the figures long <em>after</em> the real peak has passed. On tiny counts, that one design choice is the whole difference between "ordinary" and "crisis" — and it does it to <strong>every island at once.</strong></p>
+  <p class="body reveal">Which is exactly what you see when you line them up: Guernsey (7 → 15), the Isle of Man (10 → 18), and Scotland's islands on their own 5-year measure all crest in the <strong>same window, around 2019–2021</strong> — while England &amp; Wales, on an annual measure, stays flat.</p>
+  <div class="chart-panel reveal">
+    <div class="panel-header"><div class="panel-title">Suicide rate, 5-year rolling ASMR /100,000 — the Scottish islands</div><div class="panel-sub">Orkney, Shetland &amp; Na h-Eileanan Siar (5-yr rolling, NRS) vs Scotland. Note: <em>different</em> window (5-yr) and <em>different</em> comparator (Scotland ~14) — which is the harmonisation problem in one chart.</div></div>
+    <div class="chart-wrap"><canvas id="scot"></canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:#22d3ee"></span>Orkney</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#fb923c"></span>Shetland</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#f472b6"></span>Na h-Eileanan Siar</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#93a3b8"></span>Scotland</span>
+    </div>
+  </div>
+  <p class="big reveal">A dozen different places — different economies, different geographies, hundreds of miles apart — all moving in the <span class="pop">same window</span>. That is not a dozen local crises. It is the <span class="hot">one thing they share</span>: the same smoothing, applied to the same rare, spiky year. (Shetland is the exception that proves it — its rate genuinely <em>fell</em> after 2014, and even that can't be told apart from noise at this scale.)</p>
+
+  <div class="danger reveal">
+    <div class="danger-big">Bad statistics are dangerous.</div>
+    <div class="danger-sub">They frighten communities, stigmatise islands, and send scarce help chasing a problem that may not be there — <strong>while every real death still matters just as much.</strong></div>
+  </div>
+
+  <div class="section-label reveal"><span class="act">Act IV</span>The proof — one year, not a trend</div>
+  <p class="body reveal">Strip the rolling average away and look at the Isle of Man's <em>actual annual</em> registrations on a plain linear scale. The "crisis" is one year — <strong>2020</strong> — and even that is inflated: 24 registered, but 19 actually occurred; the rest are inquest timing.</p>
+  <div class="chart-panel reveal">
+    <div class="panel-header"><div class="panel-title">Isle of Man — annual suicide registrations, 2006–2023</div><div class="panel-sub">IoM Public Health Directorate / FOI. Linear scale. One spike, not a rising trend.</div></div>
+    <div class="bars-frame">
+      <div class="bars-y"><span>24</span><span>18</span><span>12</span><span>6</span><span>0</span></div>
+      <div class="bars">
+        <div class="bar"><span class="n">6</span><div class="b" style="height:25%"></div><span class="yr">'06</span></div>
+        <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'07</span></div>
+        <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'08</span></div>
+        <div class="bar"><span class="n">15</span><div class="b" style="height:63%"></div><span class="yr">'09</span></div>
+        <div class="bar"><span class="n">7</span><div class="b" style="height:29%"></div><span class="yr">'10</span></div>
+        <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'11</span></div>
+        <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'12</span></div>
+        <div class="bar"><span class="n">12</span><div class="b" style="height:50%"></div><span class="yr">'13</span></div>
+        <div class="bar"><span class="n">2</span><div class="b" style="height:8%"></div><span class="yr">'14</span></div>
+        <div class="bar"><span class="n">11</span><div class="b" style="height:46%"></div><span class="yr">'15</span></div>
+        <div class="bar"><span class="n">6</span><div class="b" style="height:25%"></div><span class="yr">'16</span></div>
+        <div class="bar"><span class="n">8</span><div class="b" style="height:33%"></div><span class="yr">'17</span></div>
+        <div class="bar"><span class="n">12</span><div class="b" style="height:50%"></div><span class="yr">'18</span></div>
+        <div class="bar"><span class="n">8</span><div class="b" style="height:33%"></div><span class="yr">'19</span></div>
+        <div class="bar hot"><span class="n">24</span><div class="b" style="height:100%"></div><span class="yr">'20</span></div>
+        <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'21</span></div>
+        <div class="bar"><span class="n">12</span><div class="b" style="height:50%"></div><span class="yr">'22</span></div>
+        <div class="bar"><span class="n">14</span><div class="b" style="height:58%"></div><span class="yr">'23</span></div>
+      </div>
+    </div>
+    <div class="viz-note">Excluding 2020, the Island averages ≈ 11.6 per 100,000 — effectively the England &amp; Wales level. As 2020 leaves the rolling window, the "record" rate falls back.</div>
+  </div>
+
+  <div class="section-label reveal"><span class="act">Act V</span>Tested properly, no island stands out</div>
+  <p class="body reveal">There is no single "UK" rate to beat: <strong>England &amp; Wales sits ~11, Scotland ~14.</strong> Benchmarked correctly — Crown Dependencies against England &amp; Wales, Scottish islands against Scotland — and tested five ways (direct comparison with confidence intervals; statistical shrinkage; a pre-registered panel with a power analysis; a synthetic control for Shetland; and a year-by-year Isle of Man analysis), every island is <strong>indistinguishable from its comparator</strong> — much closer to its neighbour than the headlines suggest:</p>
+  <div class="cmp-table reveal"><div class="cmp-scroll">
+    <div class="cmp-head"><div>Island</div><div>Comparator</div><div>Verdict</div></div>
+    <div class="cmp-row"><div class="cn">Isle of Man</div><div class="cv">E&amp;W (~11)</div><div><span class="tagline ns">not distinguishable</span></div></div>
+    <div class="cmp-row"><div class="cn">Orkney / Shetland / Na h-Eileanan Siar</div><div class="cv">Scotland (~14)</div><div><span class="tagline ns">not distinguishable</span></div></div>
+    <div class="cmp-row"><div class="cn">Jersey / Guernsey</div><div class="cv">E&amp;W (~11)</div><div><span class="tagline ns">not distinguishable</span></div></div>
+    <div class="cmp-row"><div class="cn">Isle of Wight / Anglesey</div><div class="cv">E&amp;W (~11)</div><div><span class="tagline ns">not distinguishable</span></div></div>
+  </div></div>
+  <p class="body reveal">Public Health told the committee the rate can't demonstrate a significant difference — even that it is "not very sensitive," and richer measures are needed:</p>
+  <blockquote class="reveal">"A suicide rate is still … a rare event. So in order to demonstrate a statistically significant difference, whether up or down, it needs a long time … it is very unlikely that we would say there is a statistically significant change either up or down in that short period."<cite>Public Health evidence, SAPRC First Report 2025-26 (PP 2026/0133) — 684 pages</cite></blockquote>
+  <p class="body reveal">But they <strong>defended</strong> the 3-year average (as ONS-advised) and stopped there. They did not take the next step: that the apparent elevation is an artefact of that very average, and that the underlying rate sits at England &amp; Wales' level. <strong>That step is what this analysis adds.</strong></p>
+
+  <div class="thesis reveal">
+    <div class="thesis-q">So — do the islands have a suicide problem?</div>
+    <div class="thesis-a"><span class="no">No</span> — not one the data can show. They have a <em>data</em> problem.</div>
+    <div class="thesis-body">Not "proven identical" — the numbers are too sparse to rule out a modest difference either way. Which <em>is</em> the point: the rate cannot answer the question it is being asked. And this is <strong>not</strong> "small numbers, so it doesn't matter" — every death warrants review, exactly as Public Health argues. It means the rate should inform, not alarm.</div>
+  </div>
+
+  <div class="coda reveal">
+    <div class="kick">The value of a clear answer</div>
+    <p>A <strong>684-page</strong> committee report reached the caveat but not the conclusion. This analysis reached it in <strong>a day, pro bono</strong> — pre-registered, cross-checked in two independent statistical engines. One cost the taxpayer a great deal to arrive nowhere in particular. The other, freely, may have spared a little money and a great deal of fear.</p>
+    <p class="places">In Canada. In Scotland. In Jersey. In Guernsey. And here at home.</p>
+  </div>
+
+  <div class="section-label reveal">What to do instead — three shifts</div>
+
+  <div class="pillar reveal">
+    <div class="pillar-head"><div class="pillar-ico p1"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5 L11 11 L8.5 15.5 L13 13 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div><div><div class="pillar-title">Redirect the effort to action</div><div class="pillar-sub">Stop explaining a difference that isn't there</div></div></div>
+    <div class="lever"><div class="lever-title">Stop hunting a special island cause</div><div class="lever-body">"Why is our rate higher?" cannot be answered from the rate — not for want of effort, but because the numbers can't carry it. The inconclusive committee search is not a failure; it is the correct answer, arriving. Put that effort into case-level review of every death, and into the actions below.</div><div class="lever-tags"><span class="tag ev">Formalises the Committee's own evidence</span></div></div>
+    <div class="lever"><div class="lever-title">Monitor what's sensitive, not what's blunt</div><div class="lever-body">Public Health itself asked for richer measures than the headline rate — a "suicide prevention profile," and the reach of interventions (people trained, people supported, waits shortened). Track those; they change in months, not the decade the rate needs.</div><div class="lever-tags"><span class="tag ev">Public Health's own ask</span></div></div>
+    <div class="lever"><div class="lever-title">Clear leadership and delivery</div><div class="lever-body">The committee found "frustration with the pace of change… a lack of clear leadership for the Strategy… and an inability to work with the third sector." Name an accountable owner; work with the charities that are already doing the work.</div><div class="lever-tags"><span class="tag care">Governance</span></div></div>
+  </div>
+
+  <div class="pillar reveal">
+    <div class="pillar-head"><div class="pillar-ico p2"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="pillar-title">Do what works — whether or not any island differs</div><div class="pillar-sub">Prevention that stands on its own</div></div></div>
+    <div class="lever"><div class="lever-title">Fix the two-year mental-health waiting list</div><div class="lever-body">The single most-repeated grievance across 684 pages — and the reason ManxPACT exists. No data reform matters more than a two-year wait for adult mental-health support.</div><div class="lever-tags"><span class="tag care">Access first</span></div></div>
+    <div class="lever"><div class="lever-title">Back the peer support that already works — as a bridge, not a substitute</div><div class="lever-body">The Island already has award-winning peer support — <strong>Ed Space</strong>'s men's group among it — and adult mental-health services refer into it. That matters: men, and the economically excluded, carry most of the risk and are hardest to reach through clinical routes. Resource and formalise that kind of community support as a genuine bridge <em>while</em> people wait — alongside treatment, never as a way to move them off the list instead of treating them. ManxPACT proposed exactly this and was turned down.</div><div class="lever-tags"><span class="tag win">Award-winning, local, low-cost</span></div></div>
+    <div class="lever"><div class="lever-title">Adopt BS 30480 — the workplace suicide standard</div><div class="lever-body">The UK's first workplace suicide standard (BSI, 2025) is free and adoptable across Government and major employers. The Island's own audit (GD2023/0019) found 33% of those who died were unemployed or unable to work — a 4.1× overrepresentation — a direct local mandate.</div><div class="lever-tags"><span class="tag win">Free, off-the-shelf</span><span class="tag ev">GD2023/0019</span></div></div>
+  </div>
+
+  <div class="pillar reveal">
+    <div class="pillar-head"><div class="pillar-ico p3"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3" stroke="currentColor" stroke-width="2"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5" stroke="currentColor" stroke-width="2"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="pillar-title">Fix the data</div><div class="pillar-sub">So the number stops manufacturing crises</div></div></div>
+    <div class="lever"><div class="lever-title">A published, occurrence-based database — the Scotland (ScotSID) model</div><div class="lever-body">The Island already runs a real-time suspected-suicide surveillance tool (Strategy objective 2.3.2). Evolve it into a transparent, occurrence-based, comparable record — figures published as standard, not prised out by FOI.</div><div class="lever-tags"><span class="tag win">Builds on existing work</span><span class="tag ev">ScotSID precedent</span></div></div>
+    <div class="lever"><div class="lever-title">Publish annual counts; retire the rolling headline</div><div class="lever-body">National Records of Scotland already publishes annual council-area counts — including years of 0, 1 or 2. Honest annual counts, presented with care, are more transparent than 3-year smoothing, not less safe. The rolling-average headline is what turns one year into a trend.</div><div class="lever-tags"><span class="tag ev">Scotland already does this</span></div></div>
+    <div class="lever"><div class="lever-title">Harmonise measurement across the islands</div><div class="lever-body">Crown Dependencies use a 3-year window, the Scottish islands a 5-year one, England &amp; Wales an annual one; some count by registration, others differ (see the two charts above — they aren't even on the same ruler). A common basis is needed before any cross-island comparison means anything.</div><div class="lever-tags"><span class="tag ev">Comparability</span></div></div>
+  </div>
+
+  <div class="support reveal"><strong>If you or someone you know is struggling, support is available any time.</strong><br>
+  <strong>Samaritans</strong> — 116 123 (free, 24/7) · <strong>Isle of Man Lifeline</strong> — 0808 808 8000 (free, 24/7) · <strong>SHOUT</strong> — text 85258 (free, 24/7). Island-based support is also offered by <strong>Isle Listen</strong> and <strong>ManxPACT</strong>. If you have been bereaved by suicide, support is available through local services and The Children's Centre postvention service.</div>
+
+  <footer>Working draft — Crown Dependencies Observatory · Suicide statistics &amp; measurement · compiled July 2026. Analysis pre-registered (OSF); territory-year aggregates from published official statistics only, no individual-level data. Findings and recommendations are proposals for discussion, not adopted policy. <strong>Not for public release until Public Health Isle of Man has been briefed.</strong> Sources: NRS Probable Suicides 2024; ONS suicide registrations; IoM Public Health Directorate Mortality Reports &amp; FOI; States of Guernsey Public Health; Statistics Jersey; SAPRC First Report 2025-26 (PP 2026/0133); BSI BS 30480:2025. Headlines: ITV News Channel (7 Mar 2024, 14 Oct 2022), Manx Radio (13 Feb 2026), Shetland News (7 Sep 2011, 20 Aug 2021, 10 Mar 2025).</footer>
+
+</div>
+<script>
+document.body.classList.add('js');
+const YEARS=[2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+const EW  =[10.3,10.2,10.5,10.8,11.1,11.5,10.9,11.0,10.8,10.5,10.2,10.1,11.2,11.0,10.0,10.7,10.7,11.2,11.4];
+const IOM =[null,10,14,13,12,12,10,12,10,7.8,10.2,10.7,10,18,17,17.8,13.9,null,null];
+const GY  =[null,null,null,null,null,null,null,null,7.0,12.2,12.4,12.1,12.8,15.4,14.1,12.2,9.6,null,null];
+const JSY =[null,null,null,null,null,null,null,8.8,8.0,10.2,9.8,10.5,9.3,10.8,7.6,7.1,7.0,null,null];
+const YS=[2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022];
+const ORK=[15.4,15.2,16.8,14.6,13.9,14.2,13.6,14.2,14.4,13.2,16.6,16.6,15.5,19.3,21.6,19.0,19.3,19.5,22.7,19.5,19.8];
+const SHET=[23.9,20.9,21.7,21.4,19.6,19.2,21.4,23.7,24.3,24.3,21.7,20.1,13.6,7.7,6.1,7.1,7.6,10.2,11.9,10.4,10.6];
+const WI=[21.4,20.5,16.0,21.6,22.1,21.9,17.5,18.5,14.0,12.5,13.9,15.3,14.5,17.1,19.8,18.9,20.2,22.9,19.2,18.1,22.5];
+const SCOT=[16.8,16.3,15.8,15.5,15.6,15.1,15.1,15.5,15.4,15.2,15.0,14.5,13.9,13.3,13.3,13.7,14.2,14.3,14.6,14.5,14.0];
+let drawn=false;
+function mk(id,labels,sets,ymax){
+  const light=document.body.classList.contains('light');
+  const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)', tick=light?'#5b6b80':'#93a3b8';
+  const c=document.getElementById(id); if(!c||!window.Chart)return;
+  if(c._c)c._c.destroy();
+  c._c=new Chart(c,{type:'line',data:{labels,datasets:sets.map(s=>({label:s[0],data:s[1],borderColor:s[2],backgroundColor:s[2],borderWidth:s[3]?2:2.6,borderDash:s[3]||[],pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:false}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:1100},interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e8eef7',bodyColor:light?'#5b6b80':'#93a3b8',borderColor:light?'#d3ddea':'#2b3a52',borderWidth:1,callbacks:{label:x=>x.raw==null?null:` ${x.dataset.label}: ${x.raw}/100k`}}},
+      scales:{x:{ticks:{color:tick,font:{size:9},maxTicksLimit:12},grid:{color:grid}},y:{min:0,max:ymax,ticks:{color:tick,font:{size:9},callback:v=>v+'/100k'},grid:{color:grid}}}}});
+}
+function draw(){
+  mk('asmr',YEARS,[['Isle of Man',IOM,'#f87171'],['Guernsey',GY,'#34d399'],['Jersey',JSY,'#a78bfa'],['England & Wales',EW,'#60a5fa',[5,4]]],26);
+  mk('scot',YS,[['Orkney',ORK,'#22d3ee'],['Shetland',SHET,'#fb923c'],['Na h-Eileanan Siar',WI,'#f472b6'],['Scotland',SCOT,'#93a3b8',[5,4]]],28);
+}
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');
+  if(e.target.querySelector&&e.target.querySelector('canvas')&&!drawn){drawn=true;setTimeout(draw,120);}
+  io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+window.addEventListener('load',()=>setTimeout(()=>{if(!drawn){drawn=true;draw();}},400));
+const tbtn=document.getElementById('theme-btn');
+tbtn.onclick=()=>{document.body.classList.toggle('light');tbtn.textContent=document.body.classList.contains('light')?'Dark mode':'Light mode';if(drawn)draw();};
+window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.theme==='light';if(l!==document.body.classList.contains('light')){document.body.classList.toggle('light');tbtn.textContent=l?'Dark mode':'Light mode';if(drawn)draw();}}});
+</script>
+</body>
+</html>
