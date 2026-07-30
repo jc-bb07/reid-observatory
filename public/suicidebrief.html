@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>The islands don't have a suicide problem, they have a data problem · Crown Dependencies Observatory</title>
+<title>The island suicide rate has a critical data problem · Crown Dependencies Observatory</title>
 <meta name="description" content="A pre-registered analysis showing the islands' apparent suicide 'crisis' is largely an artefact of how the number is calculated: one hard year, 2020, smeared across a decade by rolling averages, and mistaken for a local crisis in jurisdiction after jurisdiction."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap" rel="stylesheet"/>
@@ -123,12 +123,12 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
 
   <div class="hero">
     <svg class="hero-spark" viewBox="0 0 170 80" fill="none"><polyline points="0,62 22,58 44,60 66,54 88,56 110,20 132,32 170,36" stroke="#f87171" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="110" cy="20" r="4.2" fill="#f87171"/><polyline points="0,64 170,64" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/></svg>
-    <h1>The islands don't have a suicide problem.<br/>They have a <em>data</em> problem.</h1>
+    <h1>The island suicide rate<br/>has a critical <em>data</em> problem.</h1>
     <p class="lede"><span class="open">Sometimes I hate statistics. I mean, <em>really</em> hate statistics.</span> These last few years, the Isle of Man has been told its suicide rate is soaring: "highest in a decade," "the only place in the British Isles to rise in the pandemic." It made me wonder. Does the Isle of Man have a problem, or is it an <em>Island</em> problem? So I started a study, and looked at all the islands. And I immediately found a pattern.</p>
   </div>
 
   <div class="section-label reveal"><span class="act">Act I</span>The pattern, across every island</div>
-  <p class="body reveal">The question stopped being an Isle of Man question. It became one that took in all the islands I looked at. Plotted as the official 3-year rolling age-standardised rate, they tower over a flat England &amp; Wales. Guernsey more than doubles, to 15. The Isle of Man climbs to nearly 18, well above England &amp; Wales near 11. It looks like an emergency, and it looks like the same emergency in every place at once.</p>
+  <p class="body reveal">The question stopped being an Isle of Man question. It became one that took in all the islands I looked at. Plotted out, they tower over a flat England &amp; Wales. Guernsey more than doubles, to 15. The Isle of Man climbs to nearly 18, well above England &amp; Wales near 11. It looks like an emergency, and the same emergency seems to be everywhere you turn.</p>
   <div class="chart-panel reveal">
     <div class="panel-header"><div class="panel-title">Suicide rate, 3-year rolling ASMR /100,000 · the Crown Dependencies</div><div class="panel-sub">Crown Dependencies (3-yr rolling) vs England &amp; Wales (annual). Same source, 2013 ESP.</div></div>
     <div class="chart-wrap"><canvas id="asmr"></canvas></div>
@@ -139,7 +139,17 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
       <span class="leg-item"><span class="leg-sw" style="background:#60a5fa"></span>England &amp; Wales</span>
     </div>
   </div>
-  <p class="body reveal">And it was not just the Crown Dependencies. Scotland's islands do the same thing on their own 5-year measure: Orkney and Na h-Eileanan Siar climbing, all cresting late.</p>
+  <p class="body reveal">Now strip the smoothing away and plot the raw annual rate. The Isle of Man and Jersey lurch between roughly 2 and 28 per 100,000 from one year to the next; England &amp; Wales, with a big population behind it, barely moves. (Guernsey cannot even appear here: it publishes only 3-year averages, never a single year. That gap is part of the problem.)</p>
+  <div class="chart-panel reveal">
+    <div class="panel-header"><div class="panel-title">Crown Dependencies · raw annual rate, unsmoothed, from 2008</div><div class="panel-sub">Crude annual rate (deaths / population), Isle of Man and Jersey vs England &amp; Wales (dashed). This is what the smoothed line above is made of.</div></div>
+    <div class="chart-wrap"><canvas id="iomann"></canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:#f87171"></span>Isle of Man</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#a78bfa"></span>Jersey</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#60a5fa"></span>England &amp; Wales (dashed)</span>
+    </div>
+  </div>
+  <p class="body reveal">And it was not just the Crown Dependencies, and not only 2020. Scotland's islands show it on a different timeline entirely: Orkney and Na h-Eileanan Siar have run above the Scottish rate since around 2014, while Shetland's has fallen away. Different islands, different years, the same alarming-looking climb.</p>
   <div class="chart-panel reveal">
     <div class="panel-header"><div class="panel-title">Suicide rate, 5-year rolling ASMR /100,000 · the Scottish islands</div><div class="panel-sub">Orkney, Shetland &amp; Na h-Eileanan Siar (5-yr rolling, NRS) vs Scotland. Note a different window (5-yr) and a different comparator (Scotland ~14), which is the harmonisation problem in one chart.</div></div>
     <div class="chart-wrap"><canvas id="scot"></canvas></div>
@@ -150,7 +160,18 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
       <span class="leg-item"><span class="leg-sw" style="background:#93a3b8"></span>Scotland</span>
     </div>
   </div>
-  <p class="big reveal">A dozen different places. Different economies, different geographies, hundreds of miles apart. All apparently in crisis, all at the same time. That was the pattern. The question was <span class="pop">why</span>.</p>
+  <p class="body reveal">Do the same for the Scottish islands against Scotland's own near-flat line, and the "sustained rise" dissolves into what it is: a rate swinging between 0 and 36 per 100,000 as a single death comes or goes. Orkney's rolling "2020 peak" is really its count of eight in 2022; Shetland's fall is plain; and Na h-Eileanan Siar drops to one death in 2022, then rebounds, which is exactly the kind of one-death wobble that could be an inquest-registration delay, or could be pure chance, and that nobody can tell apart at this scale.</p>
+  <div class="chart-panel reveal">
+    <div class="panel-header"><div class="panel-title">The Scottish islands · raw annual rate, unsmoothed, from 2008</div><div class="panel-sub">Crude annual rate (NRS counts / population) vs Scotland (dashed). 0 to ~36 per 100,000 a year, on a single death. This is what the 5-year rolling lines above are made of.</div></div>
+    <div class="chart-wrap"><canvas id="scotann"></canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-sw" style="background:#22d3ee"></span>Orkney</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#fb923c"></span>Shetland</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#f472b6"></span>Na h-Eileanan Siar</span>
+      <span class="leg-item"><span class="leg-sw" style="background:#93a3b8"></span>Scotland (dashed)</span>
+    </div>
+  </div>
+  <p class="big reveal">Small island after small island. Different economies, different geographies, hundreds of miles apart, each with a rolling line that looks alarming, and each, underneath, a scatter of single-figure counts swinging on one death. That was the pattern. The question was <span class="pop">why so little kept reading as so much</span>.</p>
 
   <div class="section-label reveal"><span class="act">Act II</span>The headlines reading the picture</div>
   <div class="hl-grid">
@@ -158,15 +179,15 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
     <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Feb 2026</span></div><div class="clip-head">"ManxPACT raises concerns over suicide rates and mental-health provision"</div><a class="clip-link" href="https://gold.manxradio.com/news/isle-of-man-news/manxpact-raises-concerns-over-suicide-rates-and-mental-health-provision-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
     <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">14 Oct 2022</span></div><div class="clip-head">"Suicide accounts for a tenth of Guernsey's sudden deaths"</div><a class="clip-link" href="https://www.itv.com/news/channel/2022-10-14/suicide-accounts-for-a-tenth-of-guernseys-sudden-deaths" target="_blank" rel="noopener">read the article →</a></div>
     <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">20 Aug 2021</span></div><div class="clip-head">"NHS reminds anyone struggling to seek help after probable suicide figures released"</div><a class="clip-link" href="https://www.shetnews.co.uk/2021/08/20/nhs-reminds-anyone-who-is-struggling-to-seek-help-and-support-after-probable-suicide-figures-released/" target="_blank" rel="noopener">read the article →</a></div>
-    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">7 Sep 2011</span></div><div class="clip-head">"Efforts to reduce suicide rate"</div><a class="clip-link" href="https://www.shetnews.co.uk/2011/09/07/efforts-to-reduce-suicide-rate/" target="_blank" rel="noopener">read the article →</a></div>
+    <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Sep 2025</span></div><div class="clip-head">"We need to talk about the suicide rate on the Isle of Man"</div><a class="clip-link" href="https://www.manxradio.com/news/isle-of-man-news/we-need-to-talk-about-the-suicide-rate-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
     <div class="clip reveal"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">10 Mar 2025</span></div><div class="clip-head">"Just come and ask: charities plea for anyone struggling to seek help"</div><a class="clip-link" href="https://www.shetnews.co.uk/2025/03/10/just-come-ask-charities-plea/" target="_blank" rel="noopener">read the article →</a></div>
   </div>
-  <p class="recur reveal">Fourteen years, four jurisdictions, the same recurring themes: small close-knit communities, isolation, service access, stigma, the volatility of small numbers. Official agencies caution against over-reading single-year rates every time. The alarm recurs anyway. That persistence is the tell.</p>
+  <p class="recur reveal">Five years, three island jurisdictions, the same recurring themes: small close-knit communities, isolation, service access, stigma, the volatility of small numbers. Official agencies caution against over-reading single-year rates every time. The alarm recurs anyway. That persistence is the tell.</p>
 
   <div class="section-label reveal"><span class="act">Act III</span>So I ran the numbers properly</div>
   <p class="body reveal">Before I could talk myself into an answer, I wrote the study down and registered it publicly (OSF), so the method was fixed before I saw the result. The registered hypothesis was plain. <strong>Do the small island jurisdictions have genuinely higher suicide rates than Great Britain, and if so, why?</strong></p>
-  <p class="body reveal">We built a panel of territories from 2001 to 2024: the small islands, with England &amp; Wales and Scotland as large-population anchors. We benchmarked correctly, because there is no single "UK" rate to beat. England &amp; Wales sits near 11, Scotland near 14. Then we tested it several ways: a fixed-effects Poisson model with a wild cluster bootstrap; empirical-Bayes shrinkage; the pre-registered panel; a synthetic control for Shetland with placebo inference; and a year-by-year analysis of the Isle of Man. We cross-checked the whole thing in a second statistical engine (R).</p>
-  <p class="body reveal">Here is what stopped us, and it cuts both ways. No island could be shown to differ from its comparator. The pre-registered panel returned a rate ratio of <strong>1.004</strong>, a clean null. But the deeper finding is the one that matters: at these numbers, the rate has almost no power to detect even a large difference. The pooled result looks decisive only because England &amp; Wales carries it. The small islands, on their own, cannot demonstrate a difference of any plausible size, in <em>either</em> direction. The rate is not telling us the islands are fine. It is telling us it cannot answer the question at all.</p>
+  <p class="body reveal">We built a panel from 2001 to 2024: the small islands, with England &amp; Wales, Scotland and Prince Edward Island as comparison anchors. We benchmarked correctly, because there is no single "UK" rate to beat. England &amp; Wales sits near 11, Scotland near 14. Then we tested it several ways: a fixed-effects Poisson model with a wild cluster bootstrap; empirical-Bayes shrinkage; the pre-registered panel; a synthetic control for Shetland with placebo inference; and a year-by-year analysis of the Isle of Man. We cross-checked the whole thing in a second statistical engine (R).</p>
+  <p class="body reveal">Here is what stopped us. Tested several ways, no island stands out from its comparator, and the pre-registered panel, pooled across every territory and cross-checked in a second engine, came back a clean null: a rate ratio of <strong>1.004</strong>. The reason it had to be pooled at all is the point that matters most. Any single island, on its own, is far too sparse to detect even a large difference. The Isle of Man alone is sixteen years of data and a single cluster; its headline rate cannot settle the question in either direction. That is the data problem in one line: the number everyone quotes is the one number that can never answer it.</p>
   <div class="cmp-table reveal"><div class="cmp-scroll">
     <div class="cmp-head"><div>Island</div><div>Comparator</div><div>Verdict</div></div>
     <div class="cmp-row"><div class="cn">Isle of Man</div><div class="cv">E&amp;W (~11)</div><div><span class="tagline ns">not distinguishable</span></div></div>
@@ -180,7 +201,7 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
   <p class="body reveal">But they defended the 3-year average and stopped there. They did not take the next step: that the apparent elevation is an artefact of that very average, and that the underlying rate sits at the England &amp; Wales level. That step is what this analysis adds. Which leaves one obvious question. If there is no real difference, why does every island look like it is on fire?</p>
 
   <div class="section-label reveal"><span class="act">Act IV</span>One year, not a trend</div>
-  <p class="body reveal"><strong>How the machine works.</strong> The headline is a 3-year or 5-year rolling average, the smoothing that official agencies (ONS among them) recommend for small populations, to damp volatility and protect identities. But put one extraordinary year through that smoother and it does not stay one year. 2020 was genuinely hard: the pandemic, and for the Isle of Man a backlog of inquests all concluding at once. That single spike is then spread across every overlapping window, plotted a year or two early, and kept in the figures long after the real peak has passed. On tiny counts, that one design choice is the whole difference between "ordinary" and "crisis," and it does it to every island at once.</p>
+  <p class="body reveal"><strong>How the machine works.</strong> The headline is a 3-year or 5-year rolling average, the smoothing that official agencies (ONS among them) recommend for small populations, to damp volatility and protect identities. But put one extraordinary year through that smoother and it does not stay one year. 2020 was genuinely hard: the pandemic, and for the Isle of Man a backlog of inquests all concluding at once. That single spike is then spread across every overlapping window, plotted a year or two early, and kept in the figures long after the real peak has passed. On tiny counts, that one design choice is the whole difference between "ordinary" and "crisis," and it can do the same to any small island's figures. None of this is the islands' fault: rolling averages are the standard, ONS-recommended way to handle small populations and protect identities. The only trouble is that the smoothed figure then gets read as a trend, when it never can be one.</p>
   <p class="body reveal">Strip the rolling average away and look at the Isle of Man's actual annual registrations on a plain linear scale. The "crisis" is one year, <strong>2020</strong>, and even that is inflated: 24 registered, but 19 actually occurred. The rest is inquest timing.</p>
   <div class="chart-panel reveal">
     <div class="panel-header"><div class="panel-title">Isle of Man · annual suicide registrations, 2006 to 2023</div><div class="panel-sub">IoM Public Health Directorate / FOI. Linear scale. One spike, not a rising trend.</div></div>
@@ -194,9 +215,9 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
         <div class="bar"><span class="n">7</span><div class="b" style="height:29%"></div><span class="yr">'10</span></div>
         <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'11</span></div>
         <div class="bar"><span class="n">9</span><div class="b" style="height:38%"></div><span class="yr">'12</span></div>
-        <div class="bar"><span class="n">12</span><div class="b" style="height:50%"></div><span class="yr">'13</span></div>
+        <div class="bar"><span class="n">11</span><div class="b" style="height:46%"></div><span class="yr">'13</span></div>
         <div class="bar"><span class="n">2</span><div class="b" style="height:8%"></div><span class="yr">'14</span></div>
-        <div class="bar"><span class="n">11</span><div class="b" style="height:46%"></div><span class="yr">'15</span></div>
+        <div class="bar"><span class="n">8</span><div class="b" style="height:33%"></div><span class="yr">'15</span></div>
         <div class="bar"><span class="n">6</span><div class="b" style="height:25%"></div><span class="yr">'16</span></div>
         <div class="bar"><span class="n">8</span><div class="b" style="height:33%"></div><span class="yr">'17</span></div>
         <div class="bar"><span class="n">12</span><div class="b" style="height:50%"></div><span class="yr">'18</span></div>
@@ -209,7 +230,7 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
     </div>
     <div class="viz-note">Excluding 2020, the Island averages about 11.6 per 100,000, effectively the England &amp; Wales level. As 2020 leaves the rolling window, the "record" rate falls back.</div>
   </div>
-  <p class="big reveal">A dozen places moving together is not a dozen separate local crises. It is <span class="hot">two things they share</span>: one hard year, and the same smoothing that stretches it into a decade. (Shetland is the exception that proves it. Its rate genuinely <em>fell</em> after 2014, and even that cannot be told apart from noise at this scale.)</p>
+  <p class="big reveal">One small island after another, each with an alarming rolling line, at different times and for different reasons, and not one of them, tested properly, stands apart from ordinary variation. What they share is not a crisis. It is <span class="hot">a number too small, and too smoothed, to tell the difference.</span> (Shetland is the exception that proves it: its rate genuinely <em>fell</em> after 2014, and even that cannot be told apart from noise at this scale.)</p>
 
   <div class="danger reveal">
     <div class="danger-big">Bad statistics are dangerous.</div>
@@ -219,14 +240,14 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
   <div class="section-label reveal"><span class="act">Act V</span>The conclusion</div>
   <div class="thesis reveal">
     <div class="thesis-q">So, do the islands have a suicide problem?</div>
-    <div class="thesis-a"><span class="no">No</span>, not one the data can show. They have a <em>data</em> problem.</div>
+    <div class="thesis-a"><span class="no">Not measurably different</span> from Great Britain. Or at least, not to a standard any statistics body would accept. They have a <em>data</em> problem.</div>
     <div class="thesis-body">Not "proven identical": the numbers are too sparse to rule out a modest difference either way. Which <em>is</em> the point. The rate cannot answer the question it is being asked. And this is <strong>not</strong> "small numbers, so it does not matter." Every death warrants review, exactly as Public Health argues. It means the rate should inform, not alarm.</div>
   </div>
 
   <div class="coda reveal">
     <div class="kick">The value of a clear answer</div>
     <p>A <strong>684-page</strong> committee report reached the caveat but not the conclusion. This analysis reached it in <strong>a day, pro bono</strong>, pre-registered, cross-checked in two independent statistical engines. One cost the taxpayer a great deal to arrive nowhere in particular. The other, freely, may have spared a little money and a great deal of fear.</p>
-    <p class="places">In Canada. In Scotland. In Jersey. In Guernsey. And here at home.</p>
+    <p class="places">In Canada. In Scotland. In Jersey. In Guernsey. And here, in the Isle of Man.</p>
   </div>
 
   <div class="section-label reveal">Policy suggestions: what to do instead</div>
@@ -249,14 +270,15 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
   <div class="pillar reveal">
     <div class="pillar-head"><div class="pillar-ico p3"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3" stroke="currentColor" stroke-width="2"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5" stroke="currentColor" stroke-width="2"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="pillar-title">Fix the data</div><div class="pillar-sub">So the number stops manufacturing crises</div></div></div>
     <div class="lever"><div class="lever-title">A published, occurrence-based database, on the Scotland (ScotSID) model</div><div class="lever-body">The Island already runs a real-time suspected-suicide surveillance tool (Strategy objective 2.3.2). Evolve it into a transparent, occurrence-based, comparable record. Figures published as standard, not prised out by FOI.</div><div class="lever-tags"><span class="tag win">Builds on existing work</span><span class="tag ev">ScotSID precedent</span></div></div>
-    <div class="lever"><div class="lever-title">Publish annual counts. Retire the rolling headline</div><div class="lever-body">National Records of Scotland already publishes annual council-area counts, including years of 0, 1 or 2. Honest annual counts, presented with care, are more transparent than 3-year smoothing, not less safe. The rolling-average headline is what turns one year into a trend.</div><div class="lever-tags"><span class="tag ev">Scotland already does this</span></div></div>
-    <div class="lever"><div class="lever-title">Harmonise measurement across the islands</div><div class="lever-body">Crown Dependencies use a 3-year window, the Scottish islands a 5-year one, England &amp; Wales an annual one. Some count by registration, others differ (see the two charts above, they are not even on the same ruler). A common basis is needed before any cross-island comparison means anything.</div><div class="lever-tags"><span class="tag ev">Comparability</span></div></div>
+    <div class="lever"><div class="lever-title">Publish annual counts. Retire the rolling headline</div><div class="lever-body">National Records of Scotland already publishes annual council-area counts, including years of 0, 1 or 2. Honest annual counts, presented with care, are more transparent than 3-year smoothing, not less safe. The rolling-average headline is what turns one year into a trend. If a single smoothed figure is genuinely needed, use one that carries its uncertainty, an empirical-Bayes estimate or an annual count with its confidence interval, not a moving average, which manufactures trends out of noise.</div><div class="lever-tags"><span class="tag ev">Scotland already does this</span></div></div>
+    <div class="lever"><div class="lever-title">Harmonise measurement across the islands</div><div class="lever-body">Crown Dependencies use a 3-year window, the Scottish islands a 5-year one, England &amp; Wales an annual one. Some count by registration, others differ (see the charts above, they are not even on the same ruler). A common basis is needed before any cross-island comparison means anything.</div><div class="lever-tags"><span class="tag ev">Comparability</span></div></div>
   </div>
 
-  <div class="support reveal"><strong>If you or someone you know is struggling, support is available any time.</strong><br>
-  <strong>Samaritans</strong> 116 123 (free, 24/7) · <strong>Isle of Man Lifeline</strong> 0808 808 8000 (free, 24/7) · <strong>SHOUT</strong> text 85258 (free, 24/7). Island-based support is also offered by <strong>Isle Listen</strong> and <strong>ManxPACT</strong>. If you have been bereaved by suicide, support is available through local services and The Children's Centre postvention service.</div>
+  <div class="support reveal"><strong>If you or someone you know is struggling, support is available.</strong><br>
+  <strong>Samaritans</strong> 116 123 (free, 24/7) · <strong>SHOUT</strong> text 85258 (free, 24/7) · <strong>Isle Stand Up To Suicide</strong> 803040 (2pm to 10pm) · <strong>Papyrus HOPELINE</strong> 0800 068 4141 (for anyone under 35, or worried about a young person).<br>
+  <strong>Isle of Man peer &amp; community support.</strong> <strong>ManxPACT:</strong> Saturdays, 10:30am to noon, at Costa (Ramsey) and the Sea Terminal (Douglas). <strong>Ed Space</strong> (men): Thursdays, 7pm, venues around the Island. <strong>Women's Talk:</strong> Tuesdays, 7pm, around the Island.</div>
 
-  <footer>Working draft, Crown Dependencies Observatory · Suicide statistics &amp; measurement · compiled July 2026. Analysis pre-registered (OSF); territory-year aggregates from published official statistics only, no individual-level data. Findings and recommendations are proposals for discussion, not adopted policy. <strong>Not for public release until Public Health Isle of Man has been briefed.</strong> Sources: NRS Probable Suicides 2024; ONS suicide registrations; IoM Public Health Directorate Mortality Reports &amp; FOI; States of Guernsey Public Health; Statistics Jersey; SAPRC First Report 2025-26 (PP 2026/0133); BSI BS 30480:2025. Headlines: ITV News Channel (7 Mar 2024, 14 Oct 2022), Manx Radio (13 Feb 2026), Shetland News (7 Sep 2011, 20 Aug 2021, 10 Mar 2025).</footer>
+  <footer>Working draft, Crown Dependencies Observatory · Suicide statistics &amp; measurement · compiled July 2026. Analysis pre-registered (OSF); territory-year aggregates from published official statistics only, no individual-level data. Findings and recommendations are proposals for discussion, not adopted policy. <strong>Not for public release until Public Health Isle of Man has been briefed.</strong> Sources: NRS Probable Suicides 2024; ONS suicide registrations; IoM Public Health Directorate Mortality Reports &amp; FOI; States of Guernsey Public Health; Statistics Jersey; SAPRC First Report 2025-26 (PP 2026/0133); BSI BS 30480:2025. Headlines: ITV News Channel (7 Mar 2024, 14 Oct 2022), Manx Radio (13 Feb 2026, 13 Sep 2025), Shetland News (20 Aug 2021, 10 Mar 2025).</footer>
 
 </div>
 <script>
@@ -271,20 +293,54 @@ const ORK=[15.4,15.2,16.8,14.6,13.9,14.2,13.6,14.2,14.4,13.2,16.6,16.6,15.5,19.3
 const SHET=[23.9,20.9,21.7,21.4,19.6,19.2,21.4,23.7,24.3,24.3,21.7,20.1,13.6,7.7,6.1,7.1,7.6,10.2,11.9,10.4,10.6];
 const WI=[21.4,20.5,16.0,21.6,22.1,21.9,17.5,18.5,14.0,12.5,13.9,15.3,14.5,17.1,19.8,18.9,20.2,22.9,19.2,18.1,22.5];
 const SCOT=[16.8,16.3,15.8,15.5,15.6,15.1,15.1,15.5,15.4,15.2,15.0,14.5,13.9,13.3,13.3,13.7,14.2,14.3,14.6,14.5,14.0];
+// raw CRUDE annual rate /100k (from 2008) — unsmoothed. Big comparators dashed.
+const YIOM=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023];
+const IOM_R=[10.6,17.6,8.2,10.6,10.6,12.9,2.4,9.4,7.1,9.4,14.1,9.4,28.2,10.6,14.1,16.5];
+const JSY_R=[15.2,24.8,9.5,7.6,11.4,8.6,6.7,8.6,14.3,5.7,11.4,11.4,5.7,5.7,10.5,5.7];
+const EW_R=[10.5,10.4,10.2,10.9,10.7,11.1,10.8,10.8,10.3,10.0,11.1,9.7,8.3,9.4,9.4,9.5];
+const YRA=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+const ORK_R=[22.2,8.9,13.3,17.8,4.4,17.8,22.2,13.3,13.3,22.2,26.7,13.3,17.8,8.9,35.6,13.3,13.3];
+const SHET_R=[21.7,17.4,21.7,30.4,30.4,21.7,4.3,13.0,0.0,0.0,13.0,8.7,17.4,13.0,8.7,4.3,8.7];
+const WI_R=[26.4,11.3,7.5,15.1,11.3,18.9,15.1,15.1,11.3,22.6,26.4,11.3,18.9,22.6,3.8,26.4,30.2];
+const SCOT_R=[15.4,13.6,14.3,16.2,15.1,14.5,12.7,12.3,13.3,12.4,14.3,15.2,14.7,13.7,13.9,14.4,12.8];
+// underlying annual counts (for tooltips)
+const IOM_C=[9,15,7,9,9,11,2,8,6,8,12,8,24,9,12,14];
+const JSY_C=[16,26,10,8,12,9,7,9,15,6,12,12,6,6,11,6];
+const EW_C=[5706,5675,5608,6045,5981,6233,6122,6188,5965,5821,6507,5691,4912,5583,5642,5726];
+const ORK_C=[5,2,3,4,1,4,5,3,3,5,6,3,4,2,8,3,3];
+const SHET_C=[5,4,5,7,7,5,1,3,0,0,3,2,4,3,2,1,2];
+const WI_C=[7,3,2,4,3,5,4,4,3,6,7,3,5,6,1,7,8];
+const SCOT_C=[843,746,781,889,830,795,696,672,728,680,784,833,805,753,762,790,704];
 let drawn=false;
-function mk(id,labels,sets,ymax){
+const covidLine={id:'covid',afterDatasetsDraw(c){
+  const i=c.data.labels.indexOf(2020); if(i<0)return;
+  const m=c.getDatasetMeta(0); if(!m||!m.data[i])return;
+  const x=m.data[i].x, ctx=c.ctx;
+  ctx.save();
+  ctx.strokeStyle='rgba(203,213,225,.5)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(x,c.chartArea.top+11); ctx.lineTo(x,c.chartArea.bottom); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle='rgba(148,163,184,.95)'; ctx.font='700 8.5px Inter,system-ui,sans-serif';
+  ctx.textAlign='center'; ctx.fillText('COVID',x,c.chartArea.top+7);
+  ctx.restore();
+}};
+function mk(id,labels,sets,ymax,unit){
+  unit=unit===undefined?'/100k':unit;
   const light=document.body.classList.contains('light');
   const grid=light?'rgba(0,0,0,.06)':'rgba(255,255,255,.06)', tick=light?'#5b6b80':'#93a3b8';
   const c=document.getElementById(id); if(!c||!window.Chart)return;
   if(c._c)c._c.destroy();
-  c._c=new Chart(c,{type:'line',data:{labels,datasets:sets.map(s=>({label:s[0],data:s[1],borderColor:s[2],backgroundColor:s[2],borderWidth:s[3]?2:2.6,borderDash:s[3]||[],pointRadius:0,pointHoverRadius:4,tension:.3,spanGaps:false}))},
+  c._c=new Chart(c,{type:'line',plugins:[covidLine],data:{labels,datasets:sets.map(s=>({label:s[0],data:s[1],counts:s[4]||null,borderColor:s[2],backgroundColor:s[2],borderWidth:s[3]?2:2.6,borderDash:s[3]||[],pointRadius:2.6,pointHoverRadius:5,tension:.25,spanGaps:false}))},
     options:{responsive:true,maintainAspectRatio:false,animation:{duration:1100},interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e8eef7',bodyColor:light?'#5b6b80':'#93a3b8',borderColor:light?'#d3ddea':'#2b3a52',borderWidth:1,callbacks:{label:x=>x.raw==null?null:` ${x.dataset.label}: ${x.raw}/100k`}}},
-      scales:{x:{ticks:{color:tick,font:{size:9},maxTicksLimit:12},grid:{color:grid}},y:{min:0,max:ymax,ticks:{color:tick,font:{size:9},callback:v=>v+'/100k'},grid:{color:grid}}}}});
+      plugins:{legend:{display:false},tooltip:{backgroundColor:light?'#fff':'#1e293b',titleColor:light?'#0f172a':'#e8eef7',bodyColor:light?'#5b6b80':'#93a3b8',borderColor:light?'#d3ddea':'#2b3a52',borderWidth:1,callbacks:{label:x=>{if(x.raw==null)return null;const c=x.dataset.counts?` (${x.dataset.counts[x.dataIndex]} deaths)`:'';return ` ${x.dataset.label}: ${x.raw}${unit}${c}`;}}}},
+      scales:{x:{ticks:{color:tick,font:{size:9},maxTicksLimit:12},grid:{color:grid}},y:{min:0,max:ymax,ticks:{color:tick,font:{size:9},callback:v=>v+unit},grid:{color:grid}}}}});
 }
 function draw(){
-  mk('asmr',YEARS,[['Isle of Man',IOM,'#f87171'],['Guernsey',GY,'#34d399'],['Jersey',JSY,'#a78bfa'],['England & Wales',EW,'#60a5fa',[5,4]]],26);
-  mk('scot',YS,[['Orkney',ORK,'#22d3ee'],['Shetland',SHET,'#fb923c'],['Na h-Eileanan Siar',WI,'#f472b6'],['Scotland',SCOT,'#93a3b8',[5,4]]],28);
+  const i8=YEARS.indexOf(2008), yr=YEARS.slice(i8);
+  mk('asmr',yr,[['Isle of Man',IOM.slice(i8),'#f87171'],['Guernsey',GY.slice(i8),'#34d399'],['Jersey',JSY.slice(i8),'#a78bfa'],['England & Wales',EW.slice(i8),'#60a5fa',[5,4]]],26);
+  mk('iomann',YIOM,[['Isle of Man',IOM_R,'#f87171',null,IOM_C],['Jersey',JSY_R,'#a78bfa',null,JSY_C],['England & Wales',EW_R,'#60a5fa',[5,4],EW_C]],30);
+  const j8=YS.indexOf(2008), ys=YS.slice(j8);
+  mk('scot',ys,[['Orkney',ORK.slice(j8),'#22d3ee'],['Shetland',SHET.slice(j8),'#fb923c'],['Na h-Eileanan Siar',WI.slice(j8),'#f472b6'],['Scotland',SCOT.slice(j8),'#93a3b8',[5,4]]],28);
+  mk('scotann',YRA,[['Orkney',ORK_R,'#22d3ee',null,ORK_C],['Shetland',SHET_R,'#fb923c',null,SHET_C],['Na h-Eileanan Siar',WI_R,'#f472b6',null,WI_C],['Scotland',SCOT_R,'#93a3b8',[5,4],SCOT_C]],38);
 }
 const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');
   if(e.target.querySelector&&e.target.querySelector('canvas')&&!drawn){drawn=true;setTimeout(draw,120);}
