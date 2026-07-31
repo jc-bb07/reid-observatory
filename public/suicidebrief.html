@@ -57,7 +57,7 @@ p.body strong{color:var(--text)}
 .clip-link{font-size:10px;font-family:var(--mono);color:var(--muted);text-decoration:none;padding:0 .85rem .7rem;letter-spacing:.03em}
 .clip-link:hover{color:var(--blue)}
 .scrolly{position:relative;height:175vh}
-#animScrolly{height:360vh}
+#animScrolly,#animScrollyShet{height:360vh}
 .anim-panel{width:100%;margin:0}
 .scrolly-stage{position:sticky;top:0;height:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:.9rem;padding:5vh 0 4vh}
 .scrolly-count{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
@@ -258,6 +258,17 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
       <span class="leg-item"><span class="leg-sw" style="background:#93a3b8"></span>Scotland (dashed)</span>
     </div>
   </div>
+  <p class="body reveal">The mechanism runs the other way too, and Shetland is where it shows most clearly. Its own 5-year rolling ASMR falls from 20.1 in 2013 to a floor of 6.1 by 2016, then sits at 6-8 for four straight published points before climbing back to 10-12. Read on its own, that looks like a real, sustained, multi-year success. It is real — but the flat floor is exaggerated the same way the Isle of Man's 2020 crest was: two ordinary quiet years, 2016 and 2017, both landing at <strong>zero</strong> registered deaths, sit inside every one of those four overlapping windows at once.</p>
+  <div class="scrolly" id="animScrollyShet">
+    <div class="scrolly-stage">
+      <div class="chart-panel anim-panel">
+        <div class="panel-header"><div class="panel-title">Shetland annual registrations, and how the "5-year rolling" number is built</div><div class="panel-sub">Each amber point is the mean of five grey bars, plotted at the middle year. Scroll to build it: watch 2016 and 2017 — both zero — get baked into four separate points, pulling the whole line down before it becomes a rate. (NRS, <em>Probable Suicides, Scotland 2024</em>, Table 4A.)</div></div>
+        <div class="anim-wrap"><canvas id="rollanimShet"></canvas></div>
+      </div>
+      <div class="scrolly-hint">scroll to build the rolling line ↓</div>
+    </div>
+  </div>
+  <p class="fnote reveal"><strong>Zero is not an error.</strong> Shetland has around 23,000 people. At Scotland's own average rate, its <em>expected</em> annual count is roughly 3 deaths a year — low enough that 0 in any given year is a routine outcome, not an anomaly, and two 0-years in a row is well within normal variation at this population size. Nothing here says the decline since 2013 isn't real: the raw annual toll did roughly halve, from about 5.25/yr pre-2013 to about 2/yr since. What the flat 6-8 floor adds is a shape the raw counts alone don't support — four published points built from the same two quiet years, not four independently quiet windows.</p>
   <div class="section-label reveal"><span class="act">Act V</span>The verdict: a glimmer of light</div>
   <div class="thesis reveal">
     <div class="thesis-q">So, do the islands have a suicide problem?</div>
@@ -281,7 +292,7 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
   <div class="pillar reveal">
     <div class="pillar-head"><div class="pillar-ico p1"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5 L11 11 L8.5 15.5 L13 13 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div><div><div class="pillar-title">Redirect the effort to action</div><div class="pillar-sub">Stop explaining a difference that isn't there</div></div></div>
     <div class="lever"><div class="lever-title">Stop hunting a special island cause</div><div class="lever-body">"Why is our rate higher?" cannot be answered from the rate, not for want of effort, but because the numbers cannot carry it. The committee asked it, more than once, and Public Health's honest answer was that nobody knows. That inconclusive search is not a failure. It is the correct answer, arriving. The 684-page interim report it produced is roughly ninety pages of analysis atop nearly six hundred of annexes, transcripts and attached policies. Put that effort into case-level review of every death, and into the actions below.</div><div class="lever-tags"><span class="tag ev">Formalises the Committee's own evidence</span></div></div>
-    <div class="lever"><div class="lever-title">What happened in Shetland?</div><div class="lever-body">Shetland's rate ran high through the 2000s, then fell sharply after 2013, from around 24 per 100,000 to around 7, and has sat below the Scottish rate since. It coincided with years of sustained local prevention work. Did that cause the fall? Honestly, no one can prove it: even a drop that sharp is not statistically distinguishable from chance at this scale. But that is the point. You act on what is likely to help, and you do not wait for a rate that can never certify it worked.</div><div class="lever-tags"><span class="tag win">Act, don't wait for proof</span></div></div>
+    <div class="lever"><div class="lever-title">What happened in Shetland?</div><div class="lever-body">Shetland's rate ran high through the 2000s, then fell after 2013 and has sat below the Scottish rate since — that part is real: raw annual deaths roughly halved, from about 5.25/yr before 2013 to about 2/yr after. But the published shape — a sharp drop to ~7, then a flat floor there for four straight points (2015-2018) — overstates itself. Two ordinary years, 2016 and 2017, both registered zero deaths, and sit inside all four of those windows at once (see Act IV). Shetland isn't magical; it's small, and small populations have 0-years from time to time. Did sustained local prevention work cause the underlying decline? No one can prove that either way at this scale. But don't reach for the flat trough as if it were four years of independent confirmation — it's largely two years, counted four times.</div><div class="lever-tags"><span class="tag win">Act, don't wait for proof</span></div></div>
     <div class="lever"><div class="lever-title">Monitor what's sensitive, not what's blunt</div><div class="lever-body">Public Health itself asked for richer measures than the headline rate: a "suicide prevention profile," and the reach of interventions (people trained, people supported, waits shortened). Track those. They change in months, not the decade the rate needs.</div><div class="lever-tags"><span class="tag ev">Public Health's own ask</span></div></div>
     <div class="lever"><div class="lever-title">Clear leadership and delivery</div><div class="lever-body">In February 2024 the committee recognised "a frustration with the pace of change, a perception of a lack of clear leadership for the Strategy and Government's apparent inability to work more closely with the third sector", and by 2026 it recorded that engagement had improved. But still nobody owns this: the Cabinet Office Minister rejects a single political figurehead, DHSC holds exactly one Strategy action, Public Health calls itself the facilitator "not the deliverer", and accountability "does come down to lead agencies". Name an accountable owner. Work with the charities that are already doing the work.</div><div class="lever-tags"><span class="tag care">Governance</span></div></div>
   </div>
@@ -457,6 +468,96 @@ window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.
         const last=S[S.length-1];
         ctx.fillStyle=lineCol; ctx.textAlign='right';
         ctx.fillText('Isle of Man', X(YR.length-1), Y(avg(last.i)*mult)-18);
+        ctx.restore();
+      }
+    }
+  }
+  function draw(){
+    if(!fitted){fit();fitted=true;}
+    let e=END2;
+    if(sc){ const total=sc.offsetHeight-window.innerHeight; const passed=Math.min(Math.max(-sc.getBoundingClientRect().top,0),total>0?total:0); const p=(total>0?passed/total:1); const lead=0.12; e=Math.max(0,(p-lead)/(1-lead))*END2; }
+    render(e);
+  }
+  let tick=false;
+  function onScroll(){ if(!tick){tick=true;requestAnimationFrame(function(){tick=false;draw();});} }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  let rz; window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){fitted=false;draw();},150);});
+  draw();
+})();
+// ---- Act IV (counter-example): animated "how the 5-year rolling number is built" — Shetland ----
+(function(){
+  const cv=document.getElementById('rollanimShet'); if(!cv||!cv.getContext) return;
+  const YR=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+  const C =[5,4,5,7,7,5,1,3,0,0,3,2,4,3,2,1,2]; // NRS Table 4A, Shetland, single-year counts
+  const POP=23000, K=100000/POP;
+  const ctx=cv.getContext('2d'); let W,H=330,DPR=1;
+  function fit(){DPR=window.devicePixelRatio||1;W=cv.clientWidth||600;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);}
+  const YMAX=28,L=38,Rr=14,YB=258,YT=48; // headroom for the post-conversion rate (peaks ~24.3), not just the raw counts (peak 7)
+  const X=i=>L+(W-L-Rr)*(i/(YR.length-1));
+  const Y=v=>YB-(YB-YT)*(v/YMAX);
+  const avg=i=>(C[i-2]+C[i-1]+C[i]+C[i+1]+C[i+2])/5;
+  const isZero=y=>y===2016||y===2017;
+  const S=[]; let t=1000;
+  for(let i=2;i<=YR.length-3;i++){
+    const slow=i<=3, big=isZero(YR[i]);
+    const show=slow?800:360, hold=big?1900:(slow?1300:230);
+    S.push({i,t0:t,ts:t+show,t1:t+show+hold,slow,big}); t+=show+hold;
+  }
+  const END=t+900, END2=END+4600; const sc=document.getElementById('animScrollyShet'); let fitted=false;
+  const isL=()=>document.body.classList.contains('light');
+  // Scotland (national) own raw annual rate — flat comparator, same array used elsewhere on this page
+  const SCOT_R_LOCAL=[15.4,13.6,14.3,16.2,15.1,14.5,12.7,12.3,13.3,12.4,14.3,15.2,14.7,13.7,13.9,14.4,12.8];
+  function render(e){
+    const mut=isL()?'#5b6b80':'#93a3b8', grid=isL()?'rgba(0,0,0,.07)':'rgba(255,255,255,.08)', am=isL()?'#c77b06':'#fbbf24';
+    const rP=e>END?Math.min(1,(e-END)/2200):0, mult=1+(K-1)*rP, barA=1-rP, lineCol=rP>0.5?(isL()?'#c2410c':'#fb923c'):am;
+    ctx.clearRect(0,0,W,H);
+    ctx.font='9px Inter,system-ui,sans-serif';ctx.textAlign='right';
+    [0,7,14,21,28].forEach(v=>{const y=Y(v);ctx.strokeStyle=grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-Rr,y);ctx.stroke();ctx.fillStyle=mut;ctx.fillText(v,L-6,y+3);});
+    ctx.textAlign='center';ctx.fillStyle=mut;ctx.font='8.5px Inter,system-ui,sans-serif';ctx.fillText('year of registration',(L+W-Rr)/2,H-3);
+    const bw=Math.min(20,(W-L-Rr)/YR.length*0.6);
+    for(let i=0;i<YR.length;i++){
+      const g=Math.max(0,Math.min(1,(e-i*40)/300)); if(g<=0)continue;
+      const h=(YB-Y(C[i]))*g, x=X(i), zero=isZero(YR[i]);
+      if(barA>0.02){ ctx.globalAlpha=barA;
+        ctx.fillStyle=zero?'#fb923c':(isL()?'#94a3b8':'#5b6b80');
+        if(C[i]>0) ctx.fillRect(x-bw/2,YB-h,bw,h);
+        ctx.textAlign='center';ctx.fillStyle=zero?'#fb923c':mut;ctx.font=(zero?'700 ':'')+'8.5px Inter,system-ui,sans-serif';
+        if(g>=1) ctx.fillText(C[i],x,YB-h-3);
+        ctx.globalAlpha=1;
+      }
+      if(g>=1){ctx.textAlign='center';ctx.fillStyle=mut;ctx.font='8px Inter,system-ui,sans-serif';ctx.fillText(YR[i],x,YB+15);}
+    }
+    let active=null,started=false;
+    ctx.strokeStyle=lineCol;ctx.lineWidth=2.4;ctx.beginPath();
+    for(const s of S){ if(e>=s.t1){const x=X(s.i),y=Y(avg(s.i)*mult); started?ctx.lineTo(x,y):(ctx.moveTo(x,y),started=true);} if(e>=s.t0&&e<s.t1)active=s; }
+    ctx.stroke();
+    ctx.fillStyle=lineCol; for(const s of S){ if(e>=s.t1){const x=X(s.i),y=Y(avg(s.i)*mult);ctx.beginPath();ctx.arc(x,y,2.8,0,7);ctx.fill();} }
+    if(active){
+      const i=active.i, ap=Math.min(1,(e-active.t0)/280), red=active.big?'#fb923c':am;
+      ctx.globalAlpha=ap;
+      const top=Y(Math.max(C[i-2],C[i-1],C[i],C[i+1],C[i+2]))-10, xa=X(i-2), xb=X(i+2), xm=X(i);
+      ctx.strokeStyle=red;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(xa,top+6);ctx.lineTo(xa,top);ctx.lineTo(xb,top);ctx.lineTo(xb,top+6);ctx.moveTo(xm,top);ctx.lineTo(xm,top-6);ctx.stroke();
+      ctx.fillStyle=red;ctx.textAlign='center';ctx.font='700 '+(active.slow?11:10)+'px Inter,system-ui,sans-serif';
+      ctx.fillText('('+C[i-2]+'+'+C[i-1]+'+'+C[i]+'+'+C[i+1]+'+'+C[i+2]+')/5 = '+avg(i).toFixed(1), xm, top-11);
+      ctx.globalAlpha=1;
+    }
+    ctx.save(); ctx.textAlign='left'; ctx.font='700 9px Inter,system-ui,sans-serif';
+    ctx.globalAlpha=1-rP; ctx.fillStyle=mut; ctx.fillText('deaths / year', L-2, YT-24);
+    ctx.globalAlpha=rP; ctx.fillStyle=lineCol; ctx.fillText('rate per 100,000', L-2, YT-24);
+    ctx.globalAlpha=1; ctx.restore();
+    if(rP>0){
+      const scA=Math.min(1,(e-END-2200)/1800);
+      if(scA>0){
+        ctx.save(); ctx.globalAlpha=scA;
+        ctx.strokeStyle=isL()?'#475569':'#93a3b8'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath();
+        for(let i=0;i<YR.length;i++){ const x=X(i),y=Y(Math.min(SCOT_R_LOCAL[i],YMAX)); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+        ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle=isL()?'#475569':'#93a3b8'; ctx.font='700 9px Inter,system-ui,sans-serif'; ctx.textAlign='right';
+        ctx.fillText('Scotland (raw annual)', X(YR.length-1), Y(Math.min(SCOT_R_LOCAL[YR.length-1],YMAX))-8);
+        const last=S[S.length-1];
+        ctx.fillStyle=lineCol; ctx.textAlign='right';
+        ctx.fillText('Shetland (5yr rolling)', X(YR.length-1), Y(avg(last.i)*mult)+16);
         ctx.restore();
       }
     }

@@ -289,7 +289,7 @@ body.light {
     <label class="ci-check"><input type="checkbox" id="ci-wi"> <span style="color:#f472b6;">Na h-Eileanan Siar</span></label>
   </div>
   <div style="padding:0 12px 6px;font-size:10px;color:var(--muted2);line-height:1.6;" id="scot-overlay-note">
-    <span style="color:var(--text);font-weight:600;">Scotland island council areas (NRS) use a <strong>5-year</strong> rolling ASMR window (vs 3-year for the Crown Dependencies) and are drawn <span style="border-bottom:2px dotted currentColor;">dotted</span> to flag this.</span> Population denominators are fixed at recent estimates (Orkney ~22,000 · Shetland ~23,000 · Na h-Eileanan Siar ~26,000). None of the three is currently statistically significantly different from the Scottish average (also shown, dotted, using the same 5-year NRS window) — tick the boxes above to show each island's confidence-interval bars. ASMR view only: these series are not shown on Annual counts / Crude rate, where a fixed population denominator would be misleading at this small a scale.
+    <span style="color:var(--text);font-weight:600;">Scotland island council areas (NRS) use a <strong>5-year</strong> rolling ASMR window (vs 3-year for the Crown Dependencies) and are drawn <span style="border-bottom:2px dotted currentColor;">dotted</span> to flag this.</span> NRS states the 5-year window (rather than 3) directly: small numbers mean "the numbers of suicides can fluctuate markedly from year to year, particularly for the smaller Health Board and Council areas." NRS itself publishes this figure labelled by its full year-range (e.g. "2020-2024 average"), not at a single midpoint year — plotting it at the window's midpoint here is this site's own choice, made for visual comparability with the 3-year Crown Dependencies lines. Population denominators are fixed at recent estimates (Orkney ~22,000 · Shetland ~23,000 · Na h-Eileanan Siar ~26,000). None of the three is currently statistically significantly different from the Scottish average (also shown, dotted, using the same 5-year NRS window) — tick the boxes above to show each island's confidence-interval bars. Annual counts and crude rate are also available (Counts / Crude rate tabs above) — NRS does publish genuine single-year counts for these areas (Table 4A); read them with the same small-numbers caution as the rest of this page, since some years fall to 0.
   </div>
 
   <div style="padding:8px 12px;margin:0 12px 8px;font-size:10px;color:var(--muted2);line-height:1.65;border-left:3px solid #f59e0b;background:rgba(245,158,11,0.05);border-radius:0 6px 6px 0;">
@@ -609,7 +609,7 @@ body.light {
   <div style="padding:14px 0 8px;border-top:1px solid var(--border2);margin-top:4px;">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);font-family:'JetBrains Mono',monospace;">Scotland &amp; the Scottish islands — a different pairing</span>
     <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7;">
-      These four use <strong style="color:var(--text);">5-year rolling ASMR</strong> on the left axis instead of annual death counts — Scotland island council areas are too small for individual-year counts to be published (see the Data Governance notes on the main chart), and Scotland national uses the same NRS methodology for direct comparability. The right axis is DWP/ONS claimant count as % of residents aged 16-64 (Nomis NM_162_1) — the same measure used for England &amp; Wales above, not seasonally adjusted. Window runs 2002–2025; claimant count continues to the present, but the pink ASMR line stops at 2022 — NRS's published rolling-ASMR table doesn't yet extend further. Scotland's card also carries a cyan marker for long-term-sick/disabled inactivity (~7.7% of working-age population, most recent published figure).
+      These four use <strong style="color:var(--text);">5-year rolling ASMR</strong> on the left axis rather than annual death counts — not because NRS withholds individual-year counts for these areas (it publishes them, Table 4A; see the main chart's Counts tab and Data Governance notes), but because a single-digit annual count would be too volatile to read usefully against a percentage-based labour-market axis here. Scotland national uses the same rolling-ASMR basis for direct comparability. The right axis is DWP/ONS claimant count as % of residents aged 16-64 (Nomis NM_162_1) — the same measure used for England &amp; Wales above, not seasonally adjusted. Window runs 2002–2025; claimant count continues to the present, but the pink ASMR line stops at 2022 — NRS's published rolling-ASMR table doesn't yet extend further. Scotland's card also carries a cyan marker for long-term-sick/disabled inactivity (~7.7% of working-age population, most recent published figure).
     </div>
   </div>
 
@@ -763,7 +763,7 @@ body.light {
           <h3><span class="jdot" style="background:var(--c-scot);"></span> Scotland, Orkney, Shetland, Na h-Eileanan Siar — unemployment series</h3>
           <ul>
             <li><span class="ok">SOURCE:</span> DWP/ONS Claimant Count, % of residents aged 16-64. Monthly, not seasonally adjusted. Nomis dataset NM_162_1 — same source and definition as the England &amp; Wales panel above, queried by local authority / region. Series runs Jan 1992–present; chart window runs 2002–2025; the ASMR line itself stops at 2022 where NRS's published table ends.</li>
-            <li><span class="al">⚠ Left axis is ASMR (rate), not deaths (count):</span> Scotland island council areas are too small for NRS to publish individual-year death counts — only the 5-year rolling ASMR is available (see main chart's Data Governance Notes). Scotland national plotted on the same rolling-ASMR basis for direct comparability, even though annual counts do exist for Scotland as a whole.</li>
+            <li><span class="al">⚠ Left axis is ASMR (rate), not deaths (count):</span> chosen for readability against a percentage-based labour-market axis, not because the data is unavailable — NRS does publish genuine single-year death counts for these council areas (Table 4A; see the main chart's Counts tab and Data Governance Notes), it's just a very volatile single-digit series to plot against a smooth percentage line. Scotland national plotted on the same rolling-ASMR basis for direct comparability.</li>
             <li>Disability-benefit caseload (Adult Disability Payment + residual PIP/DLA), as a share of total population, snapshot 31 Jan 2026: Scotland ~9.2%, Na h-Eileanan Siar ~8.2%, Orkney ~6.4%, Shetland ~6.0%. Source: Social Security Scotland / House of Commons Library local-authority data. Denominator is total population, not working-age — a rough first-pass figure, not a precise like-for-like rate; ADP eligibility ends at state pension age and island populations skew older, so this likely understates the islands' true rate relative to Scotland's.</li>
             <li>Long-term sick/disabled economic inactivity, % of working-age (16-64) population, most recent published: Scotland ~7.7% (Oct 2024–Sep 2025), UK ~5.8% (year ending Sept 2023), IoM ~5.0% (2021 Census), Jersey 3% (2021 Census, different denominator — all adults 16+, not working-age). Not directly chartable at Orkney/Shetland/Na h-Eileanan Siar level — Labour Force Survey sample size is too small for a reason-for-inactivity breakdown below Scotland national.</li>
             <li>Scottish Government's own <em>Scottish Islands Data Overview 2025</em> states suicide rates 2019–2023 were above the Scotland national average in five of six island council areas — Shetland was the exception.</li>
@@ -858,7 +858,7 @@ body.light {
   </div>
 
   <div class="unemp-narrative">
-    <strong>The pattern doesn't run the way a simple story predicts.</strong> Shetland has both the <em>highest</em> recorded depression prevalence of the three islands (15.1%, matching the Scotland national rate) <em>and</em> the lowest suicide rate — the one island council area below the Scotland national average 2019–2023 (see Labour Market tab). Orkney is the reverse: the <em>lowest</em> depression prevalence of the three (13.2%) but an above-average suicide rate. If population mental-illness burden were the main driver of the suicide gap, this ordering should run the other way. It doesn't prove burden is irrelevant — recorded prevalence depends on GP diagnosis and registration practice, which can itself differ by area (see mechanisms 5 and 7 on the Mechanisms tab) — but it's a real divergence, not a confirmation, and worth reading that way rather than as evidence either mechanism is settled. One reading consistent with the ordering: recorded prevalence is partly a measure of case-finding, and case-finding is protective — the direction the Gotland GP study points (see mechanism 7 on the Mechanisms tab).
+    <strong>The pattern doesn't run the way a simple story predicts.</strong> Shetland has both the <em>highest</em> recorded depression prevalence of the three islands (15.1%, matching the Scotland national rate) <em>and</em> the lowest suicide rate — the one island council area below the Scotland national average 2019–2023 (see Labour Market tab). Orkney is the reverse: the <em>lowest</em> depression prevalence of the three (13.2%) but an above-average suicide rate. If population mental-illness burden were the main driver of the suicide gap, this ordering should run the other way. It doesn't prove burden is irrelevant — recorded prevalence depends on GP diagnosis and registration practice, which can itself differ by area (see mechanisms 5 and 7 on the Mechanisms tab) — but it's a real divergence, not a confirmation, and worth reading that way rather than as evidence either mechanism is settled. One reading consistent with the ordering: recorded prevalence is partly a measure of case-finding, and case-finding is protective — the direction the Gotland GP study points (see mechanism 7 on the Mechanisms tab). <span class="al">⚠</span> Worth reading Shetland's side of this cautiously: its 5yr ASMR carries a wide CI (10.4, 4.5–16.3), and its lowest published points (2015-18) are amplified by two consecutive zero-count years (2016, 2017 — see Counts tab) sitting inside four overlapping windows, not four independently quiet years. The below-average ranking itself is externally sourced (Scottish Islands Data Overview 2025), but the depth and flatness of the trough shouldn't be read as more settled than that.
   </div>
 
   <div class="card" style="margin-bottom:0;margin-top:10px;">
@@ -989,7 +989,7 @@ body.light {
         <br><br>
         This mechanism has the most famous natural experiment in the field, and it happened on one of this site's own comparators. The <strong style="color:var(--text);">Gotland study</strong>: in 1983&ndash;84 Sweden ran a systematic depression-education programme for every GP on Gotland (Rutz and colleagues, published in Acta Psychiatrica Scandinavica). Suicides fell in the years immediately after, with the clearest effect among women — then drifted back as the trained GPs left the island. Gotland's present-day below-average rate should be read with that history in mind: it isn't only a well-connected, fully-employed island; it's arguably the most intensively studied primary-care suicide-prevention site anywhere.
         <br><br>
-        <strong style="color:var(--green);">Explains well:</strong> the Mental health tab's inversion. Shetland records the <em>highest</em> depression prevalence of the three Scottish islands and has the <em>lowest</em> suicide rate; Orkney records the lowest prevalence and an above-average rate. If recorded prevalence partly measures case-finding rather than burden, that ordering is what a detection mechanism predicts: high recorded prevalence can be a sign the system is catching people.
+        <strong style="color:var(--green);">Explains well:</strong> the Mental health tab's inversion. Shetland records the <em>highest</em> depression prevalence of the three Scottish islands and has the <em>lowest</em> suicide rate; Orkney records the lowest prevalence and an above-average rate. If recorded prevalence partly measures case-finding rather than burden, that ordering is what a detection mechanism predicts: high recorded prevalence can be a sign the system is catching people. Caveat: Shetland's low point estimate itself is a wide-CI, small-numbers figure whose lowest years are partly a rolling-window artefact (two consecutive zero-count years, see main chart Counts tab) — the inversion is real and worth noting, but shouldn't be leaned on as if either side of it were a precise measurement.
         <br><br>
         <strong style="color:var(--amber);">Struggles with:</strong> recorded prevalence is ambiguous by construction (see the Mental health tab's governance notes), and the Gotland effect itself faded — a caution against reading any single-period rate as a stable property of a place rather than of its current service configuration.
         <br><br>
@@ -1105,11 +1105,12 @@ body.light {
         <li><span class="ok">SOURCE:</span> National Records of Scotland, <em>Probable Suicides, Scotland 2024</em> (Tables 4A &amp; 4B), published 16 Sept 2025, updated 28 Oct 2025. Same definition as the Crown Dependencies and E&amp;W: ICD-10 X60–X84 (intentional self-harm) + Y10–Y34 (undetermined intent).</li>
         <li><span class="ok">COUNTS:</span> Table 4A — genuine single-year registration counts, Persons, 1974–2024. Not rolling averages.</li>
         <li><span class="ok">CRUDE RATE:</span> Calculated from Table 4A counts against fixed recent population estimates (Orkney ~22,000, Shetland ~23,000, Na h-Eileanan Siar ~26,000) — populations held constant across the whole series, as with IoM's crude rate above.</li>
-        <li><span class="al">⚠ ASMR WINDOW DIFFERS:</span> Table 4B gives a <strong>5-year</strong> rolling ASMR (2013 ESP), not the Crown Dependencies' 3-year window — NRS uses 5 years specifically because small numbers make a 3-year window too volatile at this population size (NRS Notes, note 5). Plotted at window midpoint; drawn dotted throughout to flag the different window length.</li>
+        <li><span class="al">⚠ ASMR WINDOW DIFFERS:</span> Table 4B gives a <strong>5-year</strong> rolling ASMR (2013 ESP), not the Crown Dependencies' 3-year window — NRS states this reasoning directly: small numbers mean, in NRS's own words, that suicide counts "can fluctuate markedly from year to year, particularly for the smaller Health Board and Council areas" (NRS Notes, note 5). NRS itself publishes this figure labelled by its full year-range (e.g. "2020-2024 average"), not at a single midpoint year. Plotting it at the window's midpoint here is this site's own choice, for visual comparability with the 3-year Crown Dependencies lines — drawn dotted throughout to flag both the different window length and that the midpoint placement is our construction, not NRS's.</li>
         <li><span class="al">⚠ NOT STATISTICALLY SIGNIFICANT:</span> Checked directly against NRS's own non-overlapping-confidence-interval test (2019–2023 window): none of Orkney (19.5, CI 10.7–28.2), Shetland (10.4, CI 4.5–16.3) or Na h-Eileanan Siar (18.1, CI 10.3–25.9) has a confidence interval sitting entirely above Scotland's (14.1–15.0) — despite Orkney and Na h-Eileanan Siar showing higher point estimates. Only Dundee City, Highland and East Ayrshire are significantly elevated council areas in that window, and none of those three is an island. Error bars on the ASMR view show this directly — this is a genuine complication for a simple "islands are worse" reading, not a reason to discard it: wide CIs from small populations mean a real island effect can't currently be ruled out, but it isn't proven at council-area level either.</li>
         <li>NRS's own strongest defensible geographic finding is about "remote small towns" (Urban Rural Classification UR4), not islands specifically — UR4 areas had the highest ASMR of all six UR categories in 2022 and 2023, ahead of "remote rural" (UR6) areas in every year checked. That is arguably a better match for a compounding <em>geographic + social-density/relational entrapment</em> hypothesis than pure isolation would predict.</li>
         <li><span class="ok">SCOTLAND (NATIONAL) REFERENCE LINE:</span> plotted from the same Table 4B-equivalent (Table 3B, Health Board summary, "Scotland" row), same 5-year rolling window and 2013 ESP standardisation — so it's directly comparable to the three island lines above, not to the Crown Dependencies' 3-year series. This is the line the islands' confidence intervals are being tested against; its own CI isn't plotted (tick boxes above are scoped to the three islands) but is available in its tooltip.</li>
-        <li><span class="ok">CONFIDENCE-INTERVAL CHECKBOXES:</span> off by default to keep the ASMR view legible — each island's 95% CI error bars can be switched on individually next to the island toggles. Counts and crude rate views intentionally exclude the three islands and the Scotland line entirely: NRS doesn't publish a rolling annual count for these areas the way it does the 5-year ASMR, and applying a fixed population denominator to a raw single-year count would be far more misleading here than it already is for the Crown Dependencies.</li>
+        <li><span class="ok">CONFIDENCE-INTERVAL CHECKBOXES:</span> off by default to keep the ASMR view legible — each island's 95% CI error bars can be switched on individually next to the island toggles. The Scotland (national) line has no CI checkbox of its own (it's the reference line the three islands are tested against) but its interval is available in its tooltip.</li>
+        <li><span class="ok">COUNTS / CRUDE RATE NOW SHOWN:</span> the three islands and Scotland (national) appear on the Counts and Crude rate tabs too, drawn from the same Table 4A genuine annual counts noted above — not derived from the 5-year ASMR. Read them with real caution: at these populations (~22-26k) a single-digit annual count is expected to swing sharply, and some years are genuinely 0 (e.g. Shetland 2016 and 2017) — that is normal Poisson variation at this population size, not a data error or a sign anything unusual happened.</li>
       </ul>
     </div>
 
@@ -1569,14 +1570,20 @@ function getRange() {
     if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]); });
     if (vis.gy)  yrs.forEach(y => { if (GY_COUNT_AVG[y]) vals.push(GY_COUNT_AVG[y]); });
     if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]); });
-    // Scotland island council areas are ASMR-only (see ASMR branch below) — a fixed
-    // population denominator on a raw annual count would be misleading at this scale.
+    // Scotland island council areas — genuine single-year NRS counts (Table 4A), added
+    // alongside the Crown Dependencies. Small numbers (0-10/yr): read with the same
+    // caution as everywhere else on this axis, not a reason to omit them.
+    if (vis.ork)  yrs.forEach(y => { if (ORK_COUNTS[y] != null) vals.push(ORK_COUNTS[y]); });
+    if (vis.shet) yrs.forEach(y => { if (SHET_COUNTS[y] != null) vals.push(SHET_COUNTS[y]); });
+    if (vis.wi)   yrs.forEach(y => { if (WI_COUNTS[y] != null) vals.push(WI_COUNTS[y]); });
     // E&W intentionally excluded — it uses its own right axis
   } else if (currentView === 'crude') {
     if (vis.ew)  yrs.forEach(y => { if (EW_COUNTS[y] && EW_POP[y]) vals.push(EW_COUNTS[y]/(EW_POP[y]*1e6)*1e5); });
     if (vis.iom) yrs.forEach(y => { if (IOM_COUNTS[y]) vals.push(IOM_COUNTS[y]/IOM_POP*1e5); });
     if (vis.jsy) yrs.forEach(y => { if (JSY_COUNTS[y]) vals.push(JSY_COUNTS[y]/JSY_POP*1e5); });
-    // Scotland island council areas are ASMR-only — see note above.
+    if (vis.ork)  yrs.forEach(y => { if (ORK_COUNTS[y] != null) vals.push(ORK_COUNTS[y]/ORK_POP*1e5); });
+    if (vis.shet) yrs.forEach(y => { if (SHET_COUNTS[y] != null) vals.push(SHET_COUNTS[y]/SHET_POP*1e5); });
+    if (vis.wi)   yrs.forEach(y => { if (WI_COUNTS[y] != null) vals.push(WI_COUNTS[y]/WI_POP*1e5); });
     // Guernsey not shown on crude (no annual counts)
   } else {
     // recalculate properly
@@ -1685,8 +1692,13 @@ function drawCounts(t, yp, YMAX) {
   // Left axis: IoM, Jersey, Guernsey (0–30 range)
   if (vis.iom) drawLine(IOM_COUNTS, t.iom, yp, false, 3.5);
   if (vis.jsy) drawLine(JSY_COUNTS, t.jsy, yp, false, 3.5);
-  // Scotland island council areas are ASMR-only — see drawASMR(). A raw annual count
-  // against a fixed population denominator would be misleading at this small a scale.
+  // Scotland island council areas — genuine single-year NRS Table 4A counts. Dotted,
+  // same convention as their ASMR line, to flag these as the most volatile series on
+  // this axis (single-digit annual counts against ~22-26k populations) — not a reason
+  // to withhold them, since NRS itself publishes them this way.
+  if (vis.ork)  drawLine(ORK_COUNTS,  tc('--c-ork'),  yp, false, 3, false, [2,3]);
+  if (vis.shet) drawLine(SHET_COUNTS, tc('--c-shet'), yp, false, 3, false, [2,3]);
+  if (vis.wi)   drawLine(WI_COUNTS,   tc('--c-wi'),   yp, false, 3, false, [2,3]);
   // Guernsey — 3yr avg bars
   if (vis.gy) {
     Object.entries(GY_COUNT_AVG).forEach(([yr, v]) => {
@@ -1784,7 +1796,22 @@ function drawCrude(t, yp) {
     ctx.fillStyle = t.gy+'aa'; ctx.font='10px Inter'; ctx.textAlign='left';
     ctx.fillText('Guernsey: annual counts not published — crude rate not available. Use ASMR view.', PAD.left+2, PAD.top+14);
   }
-  // Scotland island council areas are ASMR-only — see drawASMR().
+  // Scotland island council areas — crude rate from genuine NRS Table 4A annual counts
+  // against fixed recent population estimates (populations held constant across the
+  // whole series, as with IoM/Jersey above). Dotted for the same small-numbers reason
+  // as the Counts view.
+  if (vis.ork) {
+    const orkCrude = {}; Object.entries(ORK_COUNTS).forEach(([y,c]) => { orkCrude[+y] = c/ORK_POP*1e5; });
+    drawLine(orkCrude, tc('--c-ork'), yp, false, 3, false, [2,3]);
+  }
+  if (vis.shet) {
+    const shetCrude = {}; Object.entries(SHET_COUNTS).forEach(([y,c]) => { shetCrude[+y] = c/SHET_POP*1e5; });
+    drawLine(shetCrude, tc('--c-shet'), yp, false, 3, false, [2,3]);
+  }
+  if (vis.wi) {
+    const wiCrude = {}; Object.entries(WI_COUNTS).forEach(([y,c]) => { wiCrude[+y] = c/WI_POP*1e5; });
+    drawLine(wiCrude, tc('--c-wi'), yp, false, 3, false, [2,3]);
+  }
 }
 
 function drawASMR(t, yp) {
@@ -1874,11 +1901,17 @@ function updateLegend() {
     if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey annual count (left axis)</div>`);
     if (vis.gy)  items.push(`<div class="leg"><span style="display:inline-block;width:14px;height:14px;background:${t.gy}55;border:1px solid ${t.gy};vertical-align:middle;"></span> Guernsey 3yr avg count (left axis — not individual years)</div>`);
     if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W annual count (right axis — thousands)</div>`);
+    if (vis.ork)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted ${tc('--c-ork')};"></span> Orkney annual count (NRS Table 4A · single digits, read with care)</div>`);
+    if (vis.shet) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted ${tc('--c-shet')};"></span> Shetland annual count (NRS Table 4A · single digits, read with care)</div>`);
+    if (vis.wi)   items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted ${tc('--c-wi')};"></span> Na h-Eileanan Siar annual count (NRS Table 4A · single digits, read with care)</div>`);
   } else if (currentView === 'crude') {
     if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W (pre-2018 solid · post-2018 dashed — proof change)</div>`);
     if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM crude rate</div>`);
     if (vis.jsy) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.jsy};border-radius:2px;"></span> Jersey crude rate</div>`);
     if (vis.gy)  items.push(`<div class="leg" style="color:${t.gy}aa;">Guernsey: not available (annual counts not published)</div>`);
+    if (vis.ork)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted ${tc('--c-ork')};"></span> Orkney crude rate (fixed pop. ~22,000)</div>`);
+    if (vis.shet) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted ${tc('--c-shet')};"></span> Shetland crude rate (fixed pop. ~23,000)</div>`);
+    if (vis.wi)   items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:0;border-top:2px dotted ${tc('--c-wi')};"></span> Na h-Eileanan Siar crude rate (fixed pop. ~26,000)</div>`);
   } else {
     if (vis.ew)  items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.ew};border-radius:2px;"></span> E&amp;W ASMR (annual · dashed post-2018)</div>`);
     if (vis.iom) items.push(`<div class="leg"><span style="display:inline-block;width:24px;height:3px;background:${t.iom};border-radius:2px;"></span> IoM 3yr ASMR (● confirmed · ○ read from chart ±1-2)</div>`);
@@ -1910,10 +1943,16 @@ canvas.addEventListener('mousemove', e => {
     if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${JSY_COUNTS[yr]} deaths`, note:'annual registrations'});
     if (vis.gy && GY_COUNT_AVG[yr]) rows.push({color:t.gy, label:'Guernsey', v:`~${GY_COUNT_AVG[yr]}/yr`, note:'3yr rolling average — not individual year'});
     if (vis.ew && EW_COUNTS[yr]) rows.push({color:t.ew, label:'England & Wales', v:`${EW_COUNTS[yr].toLocaleString()} deaths`, note:'right axis (thousands)'});
+    if (vis.ork  && ORK_COUNTS[yr]  != null) rows.push({color:tc('--c-ork'),  label:'Orkney', v:`${ORK_COUNTS[yr]} deaths`, note:'NRS Table 4A, single-year registration'});
+    if (vis.shet && SHET_COUNTS[yr] != null) rows.push({color:tc('--c-shet'), label:'Shetland', v:`${SHET_COUNTS[yr]} deaths`, note:'NRS Table 4A, single-year registration'});
+    if (vis.wi   && WI_COUNTS[yr]   != null) rows.push({color:tc('--c-wi'),   label:'Na h-Eileanan Siar', v:`${WI_COUNTS[yr]} deaths`, note:'NRS Table 4A, single-year registration'});
   } else if (currentView === 'crude') {
     if (vis.ew && EW_COUNTS[yr] && EW_POP[yr]) rows.push({color:t.ew, label:'E&W', v:`${(EW_COUNTS[yr]/(EW_POP[yr]*1e6)*1e5).toFixed(1)}/100k`, note: yr>=2018 ? 'post-2018 civil standard' : 'pre-2018 criminal standard'});
     if (vis.iom && IOM_COUNTS[yr]) rows.push({color:t.iom, label:'Isle of Man', v:`${(IOM_COUNTS[yr]/IOM_POP*1e5).toFixed(1)}/100k`, note:'year of registration'});
     if (vis.jsy && JSY_COUNTS[yr]) rows.push({color:t.jsy, label:'Jersey', v:`${(JSY_COUNTS[yr]/JSY_POP*1e5).toFixed(1)}/100k`, note:'year of registration'});
+    if (vis.ork  && ORK_COUNTS[yr]  != null) rows.push({color:tc('--c-ork'),  label:'Orkney', v:`${(ORK_COUNTS[yr]/ORK_POP*1e5).toFixed(1)}/100k`, note:`${ORK_COUNTS[yr]} deaths / ~22,000 pop.`});
+    if (vis.shet && SHET_COUNTS[yr] != null) rows.push({color:tc('--c-shet'), label:'Shetland', v:`${(SHET_COUNTS[yr]/SHET_POP*1e5).toFixed(1)}/100k`, note:`${SHET_COUNTS[yr]} deaths / ~23,000 pop.`});
+    if (vis.wi   && WI_COUNTS[yr]   != null) rows.push({color:tc('--c-wi'),   label:'Na h-Eileanan Siar', v:`${(WI_COUNTS[yr]/WI_POP*1e5).toFixed(1)}/100k`, note:`${WI_COUNTS[yr]} deaths / ~26,000 pop.`});
   } else {
     const ewAll = {...EW_PRE,...EW_POST};
     if (vis.ew && ewAll[yr]) rows.push({color:t.ew, label:'E&W', v:`${ewAll[yr].toFixed(1)}/100k`, note: yr>=2018 ? 'civil std' : 'criminal std'});
@@ -1943,13 +1982,14 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseleave', () => { document.getElementById('tooltip').style.display='none'; });
 
 // ── VIEW TABS ─────────────────────────────────────────────────────────────────
-// Scotland island council areas (and the Scotland-national reference line) are ASMR-only —
-// a fixed population denominator on a raw annual count would be misleading at this small a
-// scale. Grey out and disable their toggles/checkboxes on the other two views rather than
-// just silently doing nothing when clicked.
+// Scotland island council areas (and the Scotland-national reference line) are now
+// available on all three views: 5-year rolling ASMR (Table 4B) plus genuine single-year
+// counts and crude rate (Table 4A). Toggles stay enabled on every tab; the CI-checkbox
+// row is still ASMR-specific, since NRS's published confidence intervals are for the
+// rolling ASMR, not the raw annual counts.
 function updateScotAvailability() {
   const asmrOnly = currentView !== 'asmr';
-  document.querySelectorAll('.scot-btn, #scot-islands-label').forEach(el => el.classList.toggle('is-disabled', asmrOnly));
+  document.querySelectorAll('#scot-ci-row .ci-check').forEach(el => el.classList.toggle('is-disabled', asmrOnly));
 }
 ['counts','crude','asmr'].forEach(v => {
   document.getElementById(`tab-${v}`).addEventListener('click', () => {
