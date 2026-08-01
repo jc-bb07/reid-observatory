@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Tertiary & remoteness · Islands Observatory</title>
+<title>Governance · Islands Observatory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
@@ -1008,80 +1008,6 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   a { color: #111827 !important; text-decoration: none; }
   .page-footer { margin-top: 20px; }
 }
-
-/* ══════════════════════════════════════════════════════════════════════
-   MOBILE SIMPLIFIED MODE — public view only, text cut drastically,
-   graphics and numbers brought forward. Scoped to ≤780px; desktop and
-   tablet layouts above that width are completely untouched.
-   James, Session 12: "way too text heavy on mobile... bring the graphics
-   and important data elements front and centre." ══════════════════════ */
-@media (max-width: 780px) {
-
-  /* Public view only on mobile — lock the lens, hide the switch */
-  body[data-lens] [data-lens] { display: none !important; }
-  body[data-lens] [data-lens~="public"] { display: block !important; }
-  .lens-switch { display: none !important; }
-  .opp-actions, .wn-out { display: none !important; }
-
-  /* Trim the header chrome */
-  .brand-sub { display: none; }
-  .topbar-inner { gap: 8px; }
-  .obs-nav {
-    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-  }
-
-  /* Onboarding whisper: one short line, not a three-step lecture */
-  .whisper > b { display: none; }
-  .whisper .w-step:nth-of-type(1) { display: none; }
-  .whisper::before {
-    content: "Tap a tile to explore an island · tap any number for its source";
-    font-size: 11px; color: var(--muted2); flex: 1 1 100%;
-  }
-
-  /* Lens framing text: the point is the number, not the paragraph */
-  .lens-note {
-    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-    overflow: hidden; font-size: 11px; padding: 10px 12px;
-  }
-
-  /* Section labels: headline only — no long subtitle trailing off the edge */
-  .section-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
-
-  /* Comparability caveat: methodology chrome, not a mobile-first read */
-  .compare-banner { display: none; }
-
-  /* Chip legend (where a page still uses it): keep the coloured chips as a visual key, drop the sentences */
-  .chip-legend { grid-template-columns: repeat(2, auto); gap: 6px 12px; padding: 9px 11px; }
-  .chip-legend .cl-def { display: none; }
-
-  /* Dashboard links become tappable icon tiles, not description cards */
-  .dash-links { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .dash-link { padding: 16px 10px; text-align: center; }
-  .dash-link .dl-num { display: block; font-size: 17px; margin-bottom: 4px; }
-  .dash-link .dl-name { margin: 0; font-size: 12px; }
-  .dash-link .dl-desc { display: none; }
-
-  /* Search/refine toolbar (Governance reviews): politician-grade tool, off by default on mobile */
-  .filter-bar:has(#searchInput) { display: none !important; }
-
-  /* View-toggle button rows: pick the richer default (see page JS) and drop the switcher */
-  .card-controls { display: none !important; }
-
-  /* Footer: keep the essentials, drop the long source-list trailer */
-  .page-footer { font-size: 9px; }
-  .page-footer span:last-child { display: none; }
-
-  /* Methodology accordion stays collapsed and out of the way */
-  .method-details summary { padding: 10px 12px; font-size: 10px; }
-}
-
-@media (max-width: 480px) {
-  .lens-note { -webkit-line-clamp: 1; }
-  .dash-links { grid-template-columns: 1fr; }
-  .dash-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; }
-  .dash-link .dl-num { margin-bottom: 0; }
-}
 </style>
 </head>
 <body>
@@ -1089,7 +1015,7 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 
 <div class="topbar"><div class="topbar-inner">
   <a class="brand" href="01_index.html">ISLANDS <span class="isl">OBSERVATORY</span><span class="brand-sub">healthcare</span></a>
-  <nav class="obs-nav"><a href="01_index.html">Hub</a><a href="02_public-health.html">Public health</a><a href="03_governance.html">Governance</a><a href="04_financial.html">Financial</a><a href="05_primary-care.html">Primary</a><a href="06_secondary-care.html">Secondary</a><a href="07_tertiary-remoteness.html" class="here">Tertiary</a><a href="08_roadmap.html">Roadmap</a></nav>
+  <nav class="obs-nav"><a href="01_index.html">Hub</a><a href="02_public-health.html">Public health</a><a href="03_governance.html" class="here">Governance</a><a href="04_financial.html">Financial</a><a href="05_primary-care.html">Primary</a><a href="06_secondary-care.html">Secondary</a><a href="07_tertiary-remoteness.html">Tertiary</a><a href="08_roadmap.html">Roadmap</a></nav>
   <div class="top-right">
     <div class="lens-switch" id="lensSwitch"></div>
     <button class="theme-btn" onclick="obsToggleTheme()" title="Toggle light/dark">◐</button>
@@ -1097,54 +1023,49 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
 </div></div>
 <div class="shell">
 
-  <div class="section-label" style="margin-top:26px;">07 · Tertiary care &amp; remoteness — what living behind a sea crossing costs a health system</div>
+  <div class="section-label" style="margin-top:26px;">03 · Governance — reviews, inspections and audit: did anyone do what they said?</div>
   <div class="lens-note">
-    <div data-lens="public"><span class="lens-tag">Public lens</span>When your hospital can't provide a treatment, you fly. The system pays for the seat, the hotel and the specialist — and when the weather closes the airport, you wait. This page counts those costs and flights where anyone has published them — and shows exactly where the numbers are missing.</div>
-    <div data-lens="politician"><span class="lens-tag">Politician lens</span>The airbridge is measurable: IoM's flight-cancellation rate has run at roughly <strong>twice Jersey's every year since 2018</strong>. Yet no jurisdiction publishes weather-closure data, no Scottish board publishes transfer costs, and the IoM's new 5-year air-ambulance contract values are undisclosed. Five ready-made information requests are at the bottom of this page.</div>
-    <div data-lens="management"><span class="lens-tag">Management lens</span>Two levers appear across all six systems: <strong>repatriate activity</strong> (Shetland's MRI suite: 842 scans in year one, credited with travel savings — same logic as IoM's tertiary strategy) and <strong>manage the corridor</strong> (contract design for weather-resilient transfer capacity). The benchmark: Western Isles keeps 93% of unscheduled admissions local.</div>
+    <div data-lens="public"><span class="lens-tag">Public lens</span>Every few years your health system gets reviewed or inspected. The findings make headlines; the follow-through rarely does. This tracker holds <strong>every recommendation we could extract</strong> — with its status where one has ever been published, and an honest <em>Unknown</em> where it hasn't.</div>
+    <div data-lens="politician"><span class="lens-tag">Politician lens</span>The scoreboard shows who tracks implementation and who doesn't. Below it, filter your jurisdiction's stack to <strong>Identified / Accepted / Unknown</strong> — each is a question waiting to be asked. IoM items carry ⚑ objection flags with Hansard links; the question-generator lives on each card via the Hub's Focus panel.</div>
+    <div data-lens="management"><span class="lens-tag">Management lens</span>Practice worth borrowing: <strong>Jersey</strong> implemented a structured recommendations-tracking system (C&AG R21, verified 2022) and publishes C&AG follow-ups that re-grade every rec. <strong>Scotland's</strong> HIS inspects on a rolling cycle with published improvement plans. <strong>IoM</strong> statuses are reconstructable from Hansard. <strong>Guernsey</strong> has none of these — the cheapest upgrade on this page.</div>
   </div>
 
   <div class="compare-banner" style="margin-top:10px;"><b>Direct numerical comparison without reading caveats is misleading.</b> Each jurisdiction defines, measures and reports on its own basis — hover or tap any figure for its basis and source before drawing conclusions.</div>
 
-  <div class="section-label">Headlines</div>
-  <div class="stat-strip" id="kpiStrip"></div>
-
-  <div class="section-label">Isle of Man tertiary spend — the detail behind the £26.3m</div>
-  <div class="stat-strip" id="tertDetail"></div>
-
-  <div class="section-label">Isle of Man mental-health placements off-island — 2020 to 2025</div>
-  <div class="stat-strip" id="mhStrip"></div>
-
-  <div class="section-label">Flight cancellations — the weather tax, 2018–2025 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;">(CAA cancellation stats · all-cause · IoM &amp; Jersey only — Guernsey and the HIAL island airports are not monitored)</span></div>
-  <div class="chart-box"><canvas id="caaChart" height="120"></canvas>
-    <div style="font-size:10px;color:var(--muted);margin-top:6px;">Cancellation = non-operation announced &lt;24h either side of scheduled departure; weather is not separated out, but winter spikes at island airports are a serviceable weather signal. 2020–21 rates distorted by COVID schedule collapses. IoM 2023: 5.18% (524 flights) — the year the airbridge story broke into Tynwald. Source: CAA Annual Punctuality Full Analysis 2018–2025.</div>
+  <div class="section-label">Cross-island scoreboard</div>
+  <div class="panel" style="padding:6px 10px;">
+    <table class="obs-table" id="sbTable"></table>
   </div>
 
-  <div class="section-label">Isle of Man — scheduled patient transfer spend (FOI series)</div>
-  <div class="chart-box"><canvas id="spendChart" height="120"></canvas>
-    <div style="font-size:10px;color:var(--muted);margin-top:6px;">Elective/scheduled transfers only — excludes emergency air ambulance. 2024-25 incomplete at FOI date (Mar 2025); actuals likely higher. Source: Manx Care FOI 4458173, 12 Mar 2025. On top of this sits £26.3m of tertiary provider spend (Manx Care Annual Report 2024-25, p.73) and the air-ambulance contracts below.</div>
+  <div id="followThroughWrap" style="display:none;">
+    <div class="section-label">Inspection follow-through — relevant to your selected jurisdiction (Western Isles)</div>
+    <div class="panel" style="font-size:12px;line-height:1.65;color:var(--muted2);" id="followThrough"></div>
   </div>
 
-  <div class="section-label">Emergency airbridge — GNAAS missions from the FOI log</div>
-  <div class="geo-wrap" style="grid-template-columns: 1fr 1fr;">
-    <div class="panel" id="gnaasPanel"></div>
-    <div class="panel" id="offIslandPanel"></div>
+  <div class="section-controls">
+    <div class="section-label-inline">Jurisdiction stack</div>
+    <div class="card-controls">
+      <button class="expand-btn" onclick="setAllCollapsed(false)">Expand all</button>
+      <button class="expand-btn" onclick="setAllCollapsed(true)">Collapse all</button>
+    </div>
+  </div>
+  <div class="jur-chips" id="jurChips" style="margin-top:0;"></div>
+
+  <div class="section-label" style="margin-top:16px;">Review timeline <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:10px;">— click a dot to jump · dim dots = stubs / FOI pending</span></div>
+  <div class="timeline-wrap"><div class="tl-track" id="timeline"><div class="tl-line"></div></div></div>
+
+  <div class="filter-bar" style="margin-top:14px;">
+    <span class="filter-label">Status</span>
+    <div id="statusFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <span class="filter-label" id="impactLabel">Impact</span>
+    <div id="impactFilters" style="display:contents"></div>
+    <div class="filter-sep"></div>
+    <input class="search-input" id="searchInput" type="search" placeholder="Search actions…" oninput="applyFilters()"/>
+    <span class="filter-count" id="filterCount"></span>
   </div>
 
-  <div class="section-label">The tertiary tier at a glance — IoM first</div>
-  <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="tierStrip"></table></div>
-
-  <div class="section-label">Remoteness exposure profile — components, deliberately not a score</div>
-  <div class="lens-note" style="border-left-color:var(--amber);">
-    <div data-lens="public"><span class="lens-tag">Why no single number?</span>An honest "remoteness risk score" is not possible yet: the biggest input — how often weather actually severs the corridor — is <b>unpublished for four of the six islands</b>. Rather than invent weights, this table shows each component with its real value or its gap. A column full of dashes is itself the risk statement.</div>
-    <div data-lens="politician"><span class="lens-tag">The ask</span>Every dashed cell below maps to a specific information request (bottom of this page). Once HIAL/Ronaldsway weather logs and board transfer costs are released, a properly-weighted exposure index becomes possible — and defensible.</div>
-    <div data-lens="management"><span class="lens-tag">Method note</span>Components are incommensurable (a % local-care share vs a cancellation rate) and coverage is asymmetric, so any composite would be dominated by imputation choices. Component-level comparison is the analytically honest form; an illustrative index can follow the FOI returns.</div>
-  </div>
-  <div class="panel" style="padding:6px 10px;"><table class="obs-table" id="remotenessGrid" style="width:100%;table-layout:fixed;font-size:10px;"></table></div>
-
-  <div class="section-label">The weather-data gap — no one publishes airport closures</div>
-  <div class="lens-note" style="border-left-color:var(--blue);" id="weatherSummary"></div>
-  <div class="opp-stack" id="foiStack"></div>
+  <div class="reviews-stack" id="reviewsStack"></div>
 
   
   <details class="method-details">
@@ -1159,8 +1080,8 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   </details>
 
   <div class="page-footer">
-    <span>Islands Observatory · 05 Island premium · built 15 Jul 2026</span>
-    <span>Manx Care FOIs 4458173 / 3801793 / 4914137 · CAA punctuality statistics · WIHB HNA 2025 · Audit Scotland AAR 2024/25 · P.A.C.3/2025</span>
+    <span>Islands Observatory · 03 Reviews &amp; actions · built 15 Jul 2026</span>
+    <span>IoM: Tynwald Hansard, gov.im, SAPRC/PAC · Jersey: JAO, States Assembly · Scotland: HIS, Audit Scotland · Guernsey: parliament.gg</span>
   </div>
 
 </div>
@@ -9630,6 +9551,7 @@ Object.assign(OBS, {"mcWorkforce": {"labels": ["Apr 21", "May 21", "Jun 21", "Ju
 
 /* ==== EXTENSION 7: 5yr finance / GP anchor / population health (gen_data7.py) ==== */
 Object.assign(OBS, {"mcFinance5yr": {"years": ["2021/22", "2022/23", "2023/24", "2024/25", "2025/26"], "budget": [269064.0, 282858.0, 313275.0, 346823.0, 361822.0], "expenditure": [279061.0, 291624.0, 344394.0, 362433.0, 376678.0], "variance": [-9997.0, -8767.0, -31119.0, -15610.0, -14856.0], "cipTotal5yr": 42000, "agency": {"y2122": 13200, "y2526": 6300}, "bank2526": 15300, "src": "Manx Care, Five Years In Review (Jun 2026) p28-31 — manx-care/annual-reports/ManxCare_5_Year_Retrospective.pdf", "note": "Operational budget vs expenditure excluding fund claims, as published by Manx Care. The 2023/24 deficit peak (£31.1m) coincided with 6% pay uplifts (£14.8m) and CQC/OFSTED implementation costs."}, "gpEnglandAnchor": {"avgTotalPerPatient": 169.74, "year": "2023/24", "src": "NHS England Digital, NHS Payments to General Practice 2023/24 (pub. 29 May 2025)", "note": "England average TOTAL NHS payment per registered patient (all categories: global sum, PMS balance, QOF, premises etc.; PCN-attributed categories removed from 2023/24). NOT comparable 1:1 with the global sum per weighted patient, and not directly comparable with IoM’s £120 flat capitation unless what the £120 covers is published."}, "popHealth": {"note": "Population-health scorecard — values shown verbatim from published sources held in the library; blue chips = published somewhere, not yet extracted; red chips = not published anywhere we can find. Bases differ (single-year vs 3-yr rolling; registration vs occurrence) — read the basis under every number.", "rows": [{"metric": "Life expectancy at birth", "unit": "years", "cells": {"iom": {"d": "m 79.4 · f 84.4", "basis": "3-yr rolling (Mortality Report 2023, §8.1)", "src": "IoM Mortality Report 2023"}, "jsy": {"d": "m 81.3 · f 84.9", "basis": "2021-23 · 2022-24 edition published — refresh next pass", "src": "Jersey PH Life Expectancy & HLE Report (Oct 2024)"}, "gsy": {"d": "83.6 (persons)", "basis": "2022-24 3-yr rolling", "src": "Guernsey Mortality Trends 2024 / Better Life Indicators"}, "ork": {"d": "m 79.3 · f 82.8", "basis": "2022-24 3-yr abridged · CIs m 77.7-80.9, f 81.4-84.1", "src": "NRS Life Expectancy in Scotland 2022-2024, Table 4 (workbook in library 15 Jul 2026)"}, "shl": {"d": "m 79.5 · f 83.9", "basis": "2022-24 3-yr abridged · CIs m 78.1-80.8, f 82.7-85.2 · highest female LE of the six islands", "src": "NRS LE 2022-2024, Table 4"}, "wis": {"d": "m 76.8 · f 80.8", "basis": "2022-24 3-yr abridged · CIs m 75.5-78.1, f 79.3-82.2 · lowest of the three Scottish island boards", "src": "NRS LE 2022-2024, Table 4"}, "eng": {"d": "m 79.4 · f 83.3", "basis": "2022-24", "src": "ONS National life tables UK 2022-2024 (10 Dec 2025)"}}}, {"metric": "Healthy life expectancy at birth", "unit": "years", "cells": {"iom": {"d": "not published", "gap": true, "red": true, "note": "DFLE/HALE not calculated — Mortality Report 2022 has no HLE section"}, "jsy": {"d": "m 63.8 · f 61.2", "basis": "2022/23 · CORRECTED: Jersey DOES publish HLE (was marked not-published)", "src": "Jersey PH Life Expectancy & HLE Report (Oct 2024)"}, "gsy": {"d": "60.2 (m 61.6 · f 59.4)", "basis": "2022-24 · HLE at 65 = 13.7 yrs", "src": "Guernsey Mortality Trends 2024 §3.2"}, "ork": {"d": "m 72.9 · f 74.1", "basis": "2022-24 · above the Scottish average both sexes · wide CIs (f 63.2-85.0) · Official Statistics in Development (ONS interim method; APS accreditation suspended)", "src": "NRS Healthy Life Expectancy 2022-2024, Table 3"}, "shl": {"d": "m 68.3 · f 70.8", "basis": "2022-24 · CIs ±10-12 yrs · Official Statistics in Development", "src": "NRS HLE 2022-2024, Table 3"}, "wis": {"d": "m 63.4 · f 64.5", "basis": "2022-24 · CIs f 51.0-77.9 — NRS: interpret with extreme caution · Official Statistics in Development", "src": "NRS HLE 2022-2024, Table 3"}, "eng": {"d": "m 60.9 · f 61.3", "basis": "2021-23 · 2022-24 edition published — refresh next pass", "src": "ONS Health state life expectancies UK"}}}, {"metric": "Suicide mortality", "unit": "age-standardised rate per 100,000 (bases differ)", "cells": {"iom": {"d": "17.8", "basis": "3-yr 2020-22", "src": "IoM Mortality Report 2022 (GD 2024/0073)"}, "jsy": {"d": "7.0", "basis": "3-yr 2021-23", "src": "Jersey Mortality Statistics 2024 Fig 17"}, "gsy": {"d": "9.6", "basis": "3-yr 2021-23 · closed inquests only (max 11.x pending)", "src": "Guernsey Mortality Trends 2024 Fig 51"}, "ork": {"d": "19.8", "basis": "5-yr 2020-24 ASMR · 20 deaths · CI 11.0-28.7 vs Scotland 14.0 — above average but not statistically significant", "src": "NRS Probable Suicides 2024, Table 3B"}, "shl": {"d": "10.6", "basis": "5-yr 2020-24 · 12 deaths · CI 4.6-16.7 — lowest board rate in Scotland (not significant vs avg)", "src": "NRS Probable Suicides 2024, Table 3B"}, "wis": {"d": "22.5", "basis": "5-yr 2020-24 · 27 deaths · CI 13.7-31.4 — highest board rate in Scotland, wide CI overlaps Scottish avg", "src": "NRS Probable Suicides 2024, Table 3B"}, "eng": {"d": "11.4 (E&W)", "basis": "2024 registrations · post-2018 civil standard", "src": "ONS Suicides in E&W, 2024 registrations"}}}, {"metric": "Infant mortality", "unit": "deaths <1yr per 1,000 live births", "cells": {"iom": {"d": "not published", "gap": true, "red": true, "note": "Mortality Report 2023 has NO infant mortality section (checked 14 Jul 2026); births-deaths FOI (D4E resubmission) pending"}, "jsy": {"d": "<5 deaths/yr", "basis": "2024 · counts suppressed <5 every year since 2009 — no rate derivable", "src": "Jersey Mortality Report 2024 p2"}, "gsy": {"d": "0.7", "basis": "3-yr 2022-24 · 15 infant deaths over 2012-24 · wide CIs", "src": "Guernsey Mortality Trends 2024 §4.3 Fig 15"}, "ork": {"d": "0 deaths (2024)", "basis": "0 infant deaths of 146 live births · single year, counts ~0-2/yr — no stable rate derivable (Scotland 3.5/1k)", "src": "NRS Vital Events 2024, Table 1.03"}, "shl": {"d": "0 deaths (2024)", "basis": "0 of 166 live births · single year — no stable rate derivable", "src": "NRS Vital Events 2024, Table 1.03"}, "wis": {"d": "0 deaths (2024)", "basis": "0 of 176 live births · single year — no stable rate derivable", "src": "NRS Vital Events 2024, Table 1.03"}, "eng": {"d": "3.9", "basis": "2023 · England & Wales · W Mids highest 6.1, SW lowest 2.5", "src": "ONS Child & infant mortality in E&W 2023 (Apr 2025)"}}}, {"metric": "Childhood immunisation (MMR2 by age 5)", "unit": "% coverage", "cells": {"iom": {"d": "to collect", "gap": true, "note": "coverage published intermittently — collection target (PH IoM annual report)"}, "jsy": {"d": "to collect", "gap": true, "note": "Jersey publishes childhood immunisation stats — to collect"}, "gsy": {"d": "to collect", "gap": true, "note": "to collect (PH Guernsey)"}, "ork": {"d": "94.8%", "basis": "year ending 31 Mar 2026 · 184 of 194 · WHO target 95%", "src": "PHS Childhood Immunisation open data (extracted 14 Jul 2026)", "series": [96.8, 96.2, 93.3, 93.8, 94.2, 94.8], "seriesLabels": ["FY21", "FY22", "FY23", "FY24", "FY25", "FY26"]}, "shl": {"d": "86.7%", "basis": "year ending 31 Mar 2026 · 169 of 195", "src": "PHS Childhood Immunisation open data (extracted 14 Jul 2026)", "series": [83.7, 87.1, 84.7, 79.9, 88.1, 86.7], "seriesLabels": ["FY21", "FY22", "FY23", "FY24", "FY25", "FY26"]}, "wis": {"d": "86.1%", "basis": "year ending 31 Mar 2026 · 149 of 173", "src": "PHS Childhood Immunisation open data (extracted 14 Jul 2026)", "series": [89.0, 95.3, 92.7, 91.3, 90.9, 86.1], "seriesLabels": ["FY21", "FY22", "FY23", "FY24", "FY25", "FY26"]}, "eng": {"d": "83.7%", "basis": "FY 2024-25 · UK 84.4% · London under-recording caveat", "src": "UKHSA COVER annual report England 2024-25"}}}, {"metric": "Cancer screening coverage (breast · bowel · cervical)", "unit": "% of eligible population", "cells": {"iom": {"d": "to collect", "gap": true, "note": "NB the 2025Cancer_Statistics.pdf in the library is a GUERNSEY FOI response, not IoM screening (checked 14 Jul 2026) — IoM screening still to collect (PH IoM)"}, "jsy": {"d": "to collect", "gap": true, "note": "screening programme stats published — to collect"}, "gsy": {"d": "to collect", "gap": true, "note": "to collect (PH Guernsey)"}, "ork": {"d": "bowel 70.0 · cervical 63.5", "basis": "bowel=uptake May23-Apr25 (target 60) · cervical=coverage 25-64 FY2024/25 · both ABOVE Scotland (65.2 / 55.3) · breast: NO reliable figure — PHS suspended accreditation Feb 2026 (data-quality errors)", "src": "PHS bowel KPI report Apr 2026, Table 1 · PHS cervical open data (both extracted 15 Jul 2026)"}, "shl": {"d": "bowel 73.6 · cervical 63.4", "basis": "bowel=uptake May23-Apr25 — HIGHEST board uptake in Scotland · cervical=coverage 25-64 FY2024/25 · breast: no reliable figure (accreditation suspended Feb 2026)", "src": "PHS bowel KPI Apr 2026, Table 1 · PHS cervical open data"}, "wis": {"d": "bowel 67.6 · cervical 59.1", "basis": "bowel=uptake May23-Apr25 · cervical=coverage 25-64 FY2024/25 · both above Scotland (65.2 / 55.3) · breast: no reliable figure (accreditation suspended Feb 2026)", "src": "PHS bowel KPI Apr 2026, Table 1 · PHS cervical open data"}, "eng": {"d": "breast 70.6 · bowel 67.6 · cervical 68.8", "basis": "breast=uptake 2024-25 · bowel=uptake 2023-24 (coverage 71.8) · cervical=coverage 25-64 2023-24 — MEASURES DIFFER", "src": "NHSE Digital / gov.uk screening statistics"}}}]}});
+
 </script>
 <script>
 
@@ -9977,212 +9899,318 @@ obsPaintFocus();
 </script>
 <script>
 
-/* ---------- 05 Island premium ---------- */
-function axisColors() { return obsAxis(); }
-var charts = [];
-function obsOnTheme() { drawCharts(); }
+/* ---------- 03 Reviews & Actions ---------- */
+var ISLANDS = ['iom','jsy','gsy','ork','shl','wis'];
 
-function renderKpis() {
-  var t = OBS.premium.iomTertiary;
-  var g = OBS.premium.gnaas;
-  var kpis = [
-    { v: '£26.3m', l: 'IoM tertiary provider spend 2024-25 — £4.2m (19%) over plan', s: t.src, c: JUR.iom.color },
-    { v: '£3.43m', l: 'IoM scheduled transfer spend 2023-24 (air/sea + road + rail + hotels)', s: 'Manx Care FOI 4458173 (derived total)', c: JUR.iom.color },
-    { v: '432', l: OBS.premium.iomDaytime.label, s: OBS.premium.iomDaytime.src, c: JUR.iom.color },
-    { v: String(g.missions), l: 'GNAAS air-ambulance missions logged, ' + g.missionWindow, s: g.missionsSrc, c: JUR.iom.color },
-    { v: OBS.premium.wi.unscheduledLocal + '%', l: 'Western Isles unscheduled admissions treated locally (81% of specialist consultations local)', imp: '<span class="chip improving" title="The keep-care-local benchmark of the six islands">✓ benchmark</span>', s: OBS.premium.wi.src, c: JUR.wis.color },
-    { v: OBS.premium.jsy.arrangements, l: 'Jersey off-island tertiary arrangements under review by new governance committee', s: OBS.premium.jsy.src, c: JUR.jsy.color },
-  ];
-  document.getElementById('kpiStrip').innerHTML = kpis.map(function(k) {
-    return '<div class="mini-kpi" style="--kc:' + k.c + '" title="' + esc(k.s) + '"><div class="mk-v">' + k.v + '</div><div class="mk-l">' + esc(k.l) + (k.imp ? ' ' + k.imp : '') + '</div></div>';
+function impactScore(imp) { return imp.scope + imp.risk + imp.urgency; }
+function impactLabel(imp) { var s = impactScore(imp); return s >= 8 ? 'high' : s >= 6 ? 'medium' : 'low'; }
+function impactDisplay(l) { return { high:'▲ High', medium:'◆ Mid', low:'▼ Low' }[l]; }
+function reviewById(id) { return ALL_REVIEWS.find(function(r) { return r.id === id; }); }
+
+/* ----- scoreboard ----- */
+function oldestOpen(jid) {
+  var open = actionsFor(jid).filter(function(a) { return OPEN_STATUSES.indexOf(a.status) >= 0; });
+  if (!open.length) return null;
+  var o = open.slice().sort(function(a, b) {
+    return ((reviewById(a.reviewId) || {}).dateSort || 9999) - ((reviewById(b.reviewId) || {}).dateSort || 9999);
+  })[0];
+  var r = reviewById(o.reviewId) || {};
+  return { ref: o.ref, review: r.shortName, date: r.date };
+}
+function renderScoreboard() {
+  var rows = ISLANDS.map(function(id) {
+    var j = JUR[id];
+    var revs = reviewsFor(id), acts = actionsFor(id), c = statusCounts(acts);
+    var revs19 = revs.filter(function(r) { return r.dateSort >= 2019; });
+    var since19 = revs19.length;
+    var published = revs19.filter(function(r) { return r.published === true; }).length;
+    var withActs = new Set(acts.map(function(a) { return a.reviewId; })).size;
+    var pubRatio = since19 ? Math.round(published / since19 * 100) : 0;
+    var done = c.completed || 0, pct = acts.length ? Math.round(done / acts.length * 100) : null;
+    var contested = acts.filter(function(a) { return a.objections && a.objections.length; }).length;
+    var oo = oldestOpen(id);
+    var segs = STATUS_ORDER.map(function(st) {
+      if (!c[st]) return '';
+      var col = { completed:'var(--green)', 'in-progress':'var(--amber)', accepted:'#0ea5e9', partial:'var(--orange)', identified:'var(--blue)', unknown:'var(--muted)', rejected:'var(--red)' }[st];
+      return '<div style="width:' + (c[st] / acts.length * 100) + '%;background:' + col + '" title="' + c[st] + ' ' + (STATUS_LABELS[st] || st) + '"></div>';
+    }).join('');
+    return '<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + j.color + ';margin-right:6px;"></span><b>' + j.name + '</b></td>' +
+      '<td class="num">' + since19 + ' <span class="src-inline">(' + published + '/' + since19 + ' published, ' + pubRatio + '%)</span></td>' +
+      '<td class="num">' + acts.length + ' <span class="src-inline">from ' + withActs + ' report' + (withActs === 1 ? '' : 's') + '</span></td>' +
+      '<td>' + (acts.length ? '<div style="display:flex;height:10px;border-radius:3px;overflow:hidden;min-width:110px;background:var(--surface2)">' + segs + '</div>' : '<span class="gap-chip">none published</span>') + '</td>' +
+      '<td class="num" style="color:' + (pct === null ? 'var(--muted)' : pct >= 50 ? 'var(--green)' : 'var(--amber)') + '">' + (pct === null ? '—' : pct + '%') + '</td>' +
+      '<td class="num" style="color:var(--amber)">' + (contested || '—') + '</td>' +
+      '<td style="font-size:10px;color:var(--muted2)">' + (oo ? '<b>' + oo.ref + '</b> · ' + esc(oo.review || '') + ' <span class="src-inline">(' + esc(oo.date || '') + ')</span>' : '—') + '</td></tr>';
   }).join('');
+  document.getElementById('sbTable').innerHTML =
+    '<tr><th>Jurisdiction</th><th>Reviews ≥2019</th><th>Actions</th><th>Status mix</th><th>% done</th><th>⚑ Contested</th><th>Oldest open item</th></tr>' + rows +
+    '<tr><td colspan="7" style="font-size:10px;color:var(--muted);border-bottom:none;">Status mix: <span style="color:var(--green)">completed</span> · <span style="color:var(--amber)">in-progress</span> · <span style="color:#0ea5e9">accepted</span> · <span style="color:var(--orange)">partial</span> · <span style="color:var(--blue)">identified</span> · <span style="color:var(--muted)">unknown</span> · <span style="color:var(--red)">rejected</span>. "% done" counts only <i>completed</i>. Jersey Mascie-Taylor + C&AG R.7 statuses are Unknown pending a published follow-up — that is a finding about Jersey\'s public tracking, not about delivery.</td></tr>';
 }
 
-function drawCharts() {
-  charts.forEach(function(c) { c.destroy(); }); charts = [];
-  var c = axisColors();
-  var years = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
-  function caaSeries(airport, field) {
-    return years.map(function(y) {
-      var r = OBS.premium.caa.find(function(x) { return x.airport === airport && x.year === y; });
-      return r ? r[field] : null;
-    });
+/* ----- follow-through panel ----- */
+function renderFollowThrough() {
+  document.getElementById('followThroughWrap').style.display = obsJur() === 'wis' ? '' : 'none';
+  var wih = actionsFor('wis').filter(function(a) { return a.reviewId === 'wis-his24'; });
+  var repeats = actionsFor('wis').filter(function(a) { return a.reviewId === 'wis-mh26' && a.notes && /repeat/i.test(a.notes); });
+  document.getElementById('followThrough').innerHTML =
+    '<b style="color:var(--text)">Sep 2024:</b> HIS inspected Western Isles Hospital and issued <b style="color:var(--red)">' + wih.length + ' requirements</b> — the largest single set in this observatory. ' +
+    '<b style="color:var(--text)">Oct 2025:</b> HIS returned; the follow-up report (published Jan 2026) is <b>not yet in the library</b>, so every requirement below still reads <i>Identified</i>. ' +
+    '<b style="color:var(--text)">Feb 2026:</b> a separate mental-health inspection issued 17 requirements — and <b style="color:var(--amber)">' + repeats.length + ' of them repeat themes from 2024</b> (policy governance, training compliance, incident learning, documentation, staffing method, dignity):' +
+    '<div style="margin-top:8px;">' + repeats.map(function(a) {
+      return '<div style="padding:4px 0;border-top:1px solid var(--border);font-size:11px;"><b>' + a.ref + '</b> ' + esc((a.text || '').slice(0, 110)) + '… <span class="src-inline">' + esc(a.notes) + '</span></div>';
+    }).join('') + '</div>' +
+    '<div style="margin-top:8px;font-size:11px;" data-lens="politician"><span class="lens-tag">Ask</span>Has NHS Western Isles published its improvement action plan status against all 22 requirements, and why were governance and staffing findings repeated 17 months apart? <span class="src-inline">his-western-isles-inspection-2024.pdf · his-western-isles-mental-health-inspection-2026.pdf</span></div>' +
+    '<div style="margin-top:8px;font-size:11px;" data-lens="management"><span class="lens-tag">Note</span>Repeat findings across inspections are the classic signature of action-plan theatre — closing items on paper without embedding change. The Jan 2026 follow-up report will show which of the 22 were verifiably fixed.</div>';
+}
+
+/* ----- stack (generalised design-reference pattern) ----- */
+var activeStatuses = new Set(['all']), activeImpacts = new Set(['all']);
+
+function focusReviews() {
+  return reviewsFor(obsJur()).slice().sort(function(a, b) { return b.dateSort - a.dateSort; });
+}
+function focusActions() { return actionsFor(obsJur()); }
+
+function renderTimeline() {
+  var revs = focusReviews();
+  var tl = document.getElementById('timeline');
+  tl.innerHTML = '<div class="tl-line"></div>';
+  if (!revs.length) return;
+  var years = revs.map(function(r) { return r.dateSort; });
+  var minY = Math.min.apply(null, years.concat([2019])) - 0.5, maxY = 2026.9, span = maxY - minY;
+  for (var y = Math.ceil(minY); y <= 2026; y++) {
+    var el = document.createElement('div');
+    el.className = 'tl-year'; el.style.left = ((y - minY) / span * 100).toFixed(1) + '%'; el.textContent = y;
+    tl.appendChild(el);
   }
-  charts.push(new Chart(document.getElementById('caaChart').getContext('2d'), {
-    type: 'line',
-    data: { labels: years, datasets: [
-      { label: 'Isle of Man — all routes', data: caaSeries('iom', 'rate'), borderColor: JUR.iom.color, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 3, tension: 0.25 },
-      { label: 'IoM–Liverpool corridor', data: caaSeries('iom', 'lpl_rate'), borderColor: JUR.iom.color, backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [5, 4], pointRadius: 2, tension: 0.25 },
-      { label: 'Jersey — all routes', data: caaSeries('jsy', 'rate'), borderColor: JUR.jsy.color, backgroundColor: 'transparent', borderWidth: 2.5, pointRadius: 3, tension: 0.25 }
-    ] },
-    options: { responsive: true, aspectRatio: obsAR(2.3),
-      plugins: { legend: { labels: { color: c.tick, font: { size: 10 }, boxWidth: 12 } },
-        tooltip: { callbacks: {
-          label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + '%'; },
-          afterBody: function(items) {
-            var y = years[items[0].dataIndex];
-            var r = OBS.premium.caa.find(function(x) { return x.airport === 'iom' && x.year === y; });
-            return r ? ['IoM: ' + fmtN(r.cancelled) + ' of ' + fmtN(r.flights) + ' flights cancelled', 'src: ' + r.src] : [];
-          } } } },
-      scales: { x: { ticks: { color: c.tick, font: { size: 10 } }, grid: { color: c.grid } },
-        y: { min: 0, ticks: { color: c.tick, font: { size: 10 }, callback: function(v) { return v + '%'; } }, grid: { color: c.grid },
-          title: { display: true, text: '% of flights cancelled', color: c.tick, font: { size: 10 } } } }
+  var sorted = revs.slice().sort(function(a, b) { return a.dateSort - b.dateSort; });
+  var labelled = sorted.filter(function(r) { return !r.stub && !r.foi; });
+  var TW = 680, HALF = 40, lastRight = { a: [-999, -999, -999], b: [-999, -999, -999] };
+  function freeDepth(side, px) { var lr = lastRight[side]; for (var d = 0; d < 3; d++) if (px - HALF > lr[d]) return d; return 2; }
+  var placements = {};
+  labelled.forEach(function(r) {
+    var px = (r.dateSort - minY) / span * TW;
+    var dA = freeDepth('a', px), dB = freeDepth('b', px), side, depth;
+    if (lastRight.a[dA] <= lastRight.b[dB]) { side = 'a'; depth = dA; } else { side = 'b'; depth = dB; }
+    lastRight[side][depth] = px + HALF;
+    placements[r.id] = side + depth;
+  });
+  sorted.forEach(function(r) {
+    var pct = (r.dateSort - minY) / span;
+    if (r.stub || r.foi) {
+      var sd = document.createElement('div');
+      sd.className = 'tl-dot tl-stub'; sd.style.left = (pct * 100).toFixed(1) + '%';
+      sd.style.background = r.color; sd.title = r.shortName + ' — ' + r.date + ' (' + (r.foi ? 'unpublished/FOI' : 'not yet extracted') + ')';
+      tl.appendChild(sd);
+      var initials = r.shortName.length > 14 ? r.shortName.split(/\s+/).map(function(w) { return w[0]; }).join('').toUpperCase() : r.shortName;
+      var px2 = pct * TW;
+      var dA2 = freeDepth('a', px2), dB2 = freeDepth('b', px2), side2, depth2;
+      if (lastRight.a[dA2] <= lastRight.b[dB2]) { side2 = 'a'; depth2 = dA2; } else { side2 = 'b'; depth2 = dB2; }
+      lastRight[side2][depth2] = px2 + 24;
+      var sl = document.createElement('div');
+      sl.className = 'tl-label ' + side2 + depth2;
+      sl.style.left = (pct * 100).toFixed(1) + '%';
+      sl.style.color = r.color; sl.style.opacity = '0.55'; sl.style.fontStyle = 'italic'; sl.style.fontSize = '8px';
+      sl.textContent = initials;
+      sl.title = sd.title;
+      sl.onclick = function() { jumpToReview(r.id); };
+      tl.appendChild(sl);
+      return;
     }
-  }));
-
-  var fys = ['2020-21', '2021-22', '2022-23', '2023-24', '2024-25'];
-  /* one IoM chart, four spend categories: teal ramp, not state colours (v0.8 palette rule) */
-  var ramp = obsRamp(4);
-  var cats = [
-    { name: 'Air and sea travel', color: ramp[0] },
-    { name: 'Accommodation - UK', color: ramp[1] },
-    { name: 'Road transport - UK and IoM', color: ramp[2] },
-    { name: 'Rail transport - UK', color: ramp[3] }
-  ];
-  charts.push(new Chart(document.getElementById('spendChart').getContext('2d'), {
-    type: 'bar',
-    data: { labels: fys, datasets: cats.map(function(cat) {
-      return { label: cat.name.replace(' - UK and IoM', '').replace(' - UK', ''), backgroundColor: cat.color, borderRadius: 3,
-        data: fys.map(function(fy) {
-          var r = OBS.premium.iomTransferSpend.find(function(x) { return x.cat === cat.name && x.fy === fy; });
-          return r ? r.v / 1e6 : null;
-        }) };
-    }) },
-    options: { responsive: true, aspectRatio: obsAR(2.3),
-      plugins: { legend: { labels: { color: c.tick, font: { size: 10 }, boxWidth: 12 } },
-        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': £' + (ctx.parsed.y * 1000).toFixed(0) + 'k'; } } } },
-      scales: { x: { stacked: true, ticks: { color: c.tick, font: { size: 10 } }, grid: { display: false } },
-        y: { stacked: true, ticks: { color: c.tick, font: { size: 10 }, callback: function(v) { return '£' + v + 'm'; } }, grid: { color: c.grid },
-          title: { display: true, text: '£ million / year', color: c.tick, font: { size: 10 } } } }
-    }
-  }));
+    var cls = placements[r.id];
+    var tick = document.createElement('div');
+    tick.className = 'tl-tick ' + cls; tick.style.left = (pct * 100).toFixed(1) + '%'; tl.appendChild(tick);
+    var dot = document.createElement('div');
+    dot.className = 'tl-dot'; dot.style.left = (pct * 100).toFixed(1) + '%'; dot.style.background = r.color;
+    dot.title = r.shortName + ' — ' + r.date; dot.onclick = function() { jumpToReview(r.id); }; tl.appendChild(dot);
+    var lbl = document.createElement('div');
+    lbl.className = 'tl-label ' + cls; lbl.style.left = (pct * 100).toFixed(1) + '%'; lbl.style.color = r.color;
+    lbl.onclick = function() { jumpToReview(r.id); };
+    if (r.published === false) {
+      lbl.style.fontStyle = 'italic'; lbl.style.opacity = '0.82';
+      lbl.innerHTML = esc(r.shortName) + '<span style="font-size:8px;font-style:normal;opacity:0.7;margin-left:2px">(unpub)</span>';
+      dot.style.background = r.color + 'bb'; dot.style.boxShadow = '0 0 0 2px ' + r.color + '55';
+    } else { lbl.textContent = r.shortName; }
+    lbl.title = r.shortName + ' — ' + r.date;
+    tl.appendChild(lbl);
+  });
 }
 
-function renderGnaas() {
-  var g = OBS.premium.gnaas;
-  var order = Object.keys(g.outcomes).sort(function(a, b) { return g.outcomes[b] - g.outcomes[a]; });
-  var max = Math.max.apply(null, order.map(function(k) { return g.outcomes[k]; }));
-  document.getElementById('gnaasPanel').innerHTML =
-    '<div class="section-label" style="margin-top:0;">GNAAS mission outcomes · ' + g.missionWindow + '</div>' +
-    order.map(function(k) {
-      var v = g.outcomes[k];
-      return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;">' +
-        '<div style="min-width:150px;font-size:11px;color:var(--muted2)">' + esc(k) + '</div>' +
-        '<div style="flex:1;height:12px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + (v / max * 100) + '%;background:' + JUR.iom.color + ';"></div></div>' +
-        '<div class="num" style="font-size:11px;font-family:\'JetBrains Mono\',monospace;min-width:24px;text-align:right;">' + v + '</div></div>';
-    }).join('') +
-    '<div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;">Retainer was £' + fmtN(g.retainer) + '/yr to Mar 2025 (' + esc(g.retainerSrc) + '); ~£7k per callout. ' + esc(g.contracts) + ' <span class="src-inline">' + esc(g.contractsSrc) + '</span></div>' +
-    '<div style="font-size:10px;color:var(--muted);margin-top:4px;">One mission aborted due to weather (29 May 2025) — the only weather-abort visible in any island dataset. <span class="src-inline">' + esc(g.missionsSrc) + '</span></div>';
-
-  document.getElementById('offIslandPanel').innerHTML =
-    '<div class="section-label" style="margin-top:0;">Off-island dependency — who keeps care local?</div>' +
-    '<div style="font-size:12px;line-height:1.7;color:var(--muted2);">' +
-    '<b style="color:' + JUR.wis.color + '">Western Isles:</b> ' + OBS.premium.wi.unscheduledLocal + '% of unscheduled admissions treated locally; ' + OBS.premium.wi.specialistLocal + '% of specialist consultations local. ' + esc(OBS.premium.wi.pathways) + ' <span class="src-inline">' + esc(OBS.premium.wi.src) + '</span><br/><br/>' +
-    '<b style="color:' + JUR.jsy.color + '">Jersey:</b> ' + esc(OBS.premium.jsy.committee) + ' <span class="src-inline">' + esc(OBS.premium.jsy.src) + '</span><br/><br/>' +
-    '<b style="color:' + JUR.shl.color + '">Shetland:</b> ' + esc(OBS.premium.shlMri.note) + ' <span class="src-inline">' + esc(OBS.premium.shlMri.src) + '</span><br/><br/>' +
-    '<b style="color:' + JUR.iom.color + '">Isle of Man:</b> tertiary spend £26.3m vs £22.1m plan (2024-25). <span class="src-inline">' + esc(OBS.premium.iomTertiary.src) + '</span><br/><br/>' +
-    '<span class="gap-chip">gaps</span> <span style="font-size:11px;">Guernsey: no off-island spend/volume figures found. Orkney &amp; Shetland: no published patient-travel expenditure lines. Scottish Ambulance Service missions not broken down by island board.</span></div>';
+function renderStack() {
+  var stack = document.getElementById('reviewsStack');
+  stack.innerHTML = '';
+  var revs = focusReviews(), acts = focusActions();
+  if (!revs.length) {
+    stack.innerHTML = '<div class="panel" style="font-size:12px;color:var(--muted)">No reviews held for this jurisdiction.</div>';
+    return;
+  }
+  revs.forEach(function(r) {
+    var ra = acts.filter(function(a) { return a.reviewId === r.id; });
+    var isStub = r.stub || r.foi;
+    var counts = statusCounts(ra);
+    var pills = Object.keys(counts).map(function(st) {
+      return '<span class="rpill ' + (st === 'in-progress' ? 'inprogress' : st) + '">' + counts[st] + ' ' + (STATUS_LABELS[st] || st) + '</span>';
+    }).join('');
+    var pub = r.published === true ? '<span class="pub-yes">✓ Published</span>' : r.published === false ? '<span class="pub-no">✗ Not published</span>' : '<span class="pub-unk">? Unclear</span>';
+    var links = [r.url ? '<a class="report-link" href="' + r.url + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + (r.urlLabel || 'Report ↗') + '</a>' : '',
+                 r.url2 ? '<a class="report-link" href="' + r.url2 + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">' + (r.url2Label || 'Response ↗') + '</a>' : '']
+      .filter(Boolean).join('<span class="meta-sep"> · </span>');
+    var actionsHtml;
+    if (r.stub) actionsHtml = '<div class="action-placeholder">Stub — document identified, contents not yet extracted into this tracker</div>';
+    else if (r.foi) actionsHtml = '<div class="action-placeholder">Unpublished — FOI candidate</div>';
+    else if (!ra.length) actionsHtml = '<div class="action-placeholder">No actions recorded' + (r.id === 'jsy-r148' ? ' — the review made no formal recommendations (see card note)' : '') + '</div>';
+    else actionsHtml = ra.map(function(a) {
+      var hasImp = a.impact && a.impact.scope;
+      var il = hasImp ? impactLabel(a.impact) : null;
+      var objBtn = (a.objections && a.objections.length)
+        ? '<button class="obj-badge" onmouseenter="showObjTooltip(event,\'' + a.ref + '\')" onmouseleave="hideTooltip()" onclick="showObjTooltip(event,\'' + a.ref + '\')">⚑ ' + a.objections.length + '</button>' : '';
+      return '<div class="action-row' + (a.status === 'completed' ? ' completed-action' : '') + '" data-ref="' + a.ref + '" data-status="' + a.status + '" data-impact="' + (il || 'none') + '">' +
+        '<span class="ar-ref">' + a.ref + '</span>' +
+        '<span class="st ' + a.status + '">' + (STATUS_LABELS[a.status] || a.status) + '</span>' +
+        '<div class="ar-body"><div class="action-text">' + esc(a.text) + '</div>' +
+        (a.notes ? '<div class="action-notes">' + esc(a.notes) + '</div>' : '') +
+        (a.owner || a.due ? '<div class="action-notes" style="color:var(--muted)">' + esc([a.owner, a.due ? 'due ' + a.due : ''].filter(Boolean).join(' · ')) + '</div>' : '') +
+        (a.source ? '<span class="source-chip">via ' + esc(a.source) + '</span>' : '') + '</div>' +
+        '<div class="ar-badges">' +
+        (hasImp ? '<span class="impact-badge ' + il + '" onmouseenter="showImpactTooltip(event,\'' + a.ref + '\')" onmouseleave="hideImpactTooltip()" onclick="showImpactTooltip(event,\'' + a.ref + '\')">' + impactDisplay(il) + '</span>' : '') +
+        objBtn + '</div></div>';
+    }).join('');
+    var item = document.createElement('div');
+    item.className = 'review-item collapsed' + (isStub ? ' stub-item' : '');
+    item.dataset.reviewId = r.id;
+    item.style.setProperty('--rc', r.color);
+    item.innerHTML =
+      '<div class="review-header" onclick="toggleCollapse(this.closest(\'.review-item\'))">' +
+      '<div class="rh-top"><div class="rh-name">' + esc(r.shortName) + '</div>' +
+      '<div class="rh-right">' + pub + '<span class="rh-date">' + esc(r.date) + '</span><span class="rh-toggle">▾</span></div></div>' +
+      '<div class="rh-what">' + esc(r.what) + '</div>' +
+      '<div class="rh-meta"><span>' + esc(r.author) + '</span>' +
+      (r.commissioner && r.commissioner !== r.author ? '<span class="meta-sep">·</span><span>comm. ' + esc(r.commissioner) + '</span>' : '') +
+      (links ? '<span class="meta-sep">·</span>' + links : '') + '</div>' +
+      (!isStub && ra.length ? '<div class="rh-pills">' + pills + '</div>' : '') + '</div>' +
+      (!isStub && ra.length ? '<button class="actions-toggle-bar" onclick="toggleCollapse(this.closest(\'.review-item\'))">' +
+        '<span class="atb-collapsed">▼ Show ' + ra.length + ' action' + (ra.length !== 1 ? 's' : '') + '</span>' +
+        '<span class="atb-expanded">▲ Hide actions</span><span class="atb-hint">click to expand / collapse</span></button>' : '') +
+      '<div class="action-list">' + actionsHtml + '</div>';
+    stack.appendChild(item);
+  });
 }
 
-function renderWeather() {
-  var w = OBS.premium.weatherGap;
-  var ferry = (OBS.ferry || []).map(function(f) {
-    var j = JUR[f.id];
-    return '<br/><b style="color:' + j.color + '">' + esc(f.name) + ': ' + esc(f.v) + '</b> — ' + esc(f.basis) + ' <span class="src-inline">' + esc(f.src) + '</span>';
+function toggleCollapse(item) { item.classList.toggle('collapsed'); }
+function setAllCollapsed(state) { document.querySelectorAll('.review-item').forEach(function(i) { i.classList.toggle('collapsed', state); }); }
+function jumpToReview(id) {
+  var item = document.querySelector('.review-item[data-review-id="' + id + '"]');
+  if (!item) return;
+  item.classList.remove('collapsed'); item.classList.add('highlighted');
+  setTimeout(function() { item.classList.remove('highlighted'); }, 1800);
+  item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* filters */
+function renderFilterPills() {
+  var statuses = ['all'].concat(STATUS_ORDER);
+  document.getElementById('statusFilters').innerHTML = statuses.map(function(s) {
+    return '<button class="filter-pill' + (s === 'all' ? ' on' : '') + '" data-status="' + s + '" onclick="toggleFilter(\'status\',\'' + s + '\',this)">' + (s === 'all' ? 'All' : STATUS_LABELS[s] || s) + '</button>';
   }).join('');
-  document.getElementById('weatherSummary').innerHTML = '<span class="lens-tag">Finding</span>' + esc(w.summary) + ' <span class="src-inline">' + esc(w.src) + '</span>' +
-    '<div style="margin-top:8px;font-size:11px;"><b>What ferries add:</b> the sea link publishes slightly more than the air link —' + ferry + '<br/><span style="color:var(--muted)">CalMac is the one operator that separates weather from other causes — the ≈4-point weather share is the best-quantified island weather tax anywhere in this observatory.</span></div>';
-  document.getElementById('foiStack').innerHTML = w.foiTargets.map(function(f, i) {
-    var text = 'FREEDOM OF INFORMATION REQUEST\n\nTo: ' + f.target + '\n\nRequest: ' + f.ask + '.\n\nPlease provide the information broken down by month and by site/airport for the most recent five years, in machine-readable form (CSV or spreadsheet) where held.\n\nBasis/context: ' + f.basis + '.';
-    return '<div class="opp-card" style="--oc:var(--blue)"><div class="opp-kind" style="color:var(--blue)">FOI target ' + (i + 1) + '</div>' +
-      '<div class="opp-title">' + esc(f.target) + '</div>' +
-      '<div class="opp-detail">' + esc(f.ask) + ' — <i>' + esc(f.basis) + '</i></div>' +
-      '<div class="opp-actions"><button class="wn-btn" onclick="toggleWN(\'foi' + i + '\')">FOI draft</button></div>' + '<div class="public-swap" data-lens="public"><b>What you can do:</b> this data simply is not published anywhere — worth raising with your representative or the operator directly. Switch to the <b>Politician</b> view (top right) for the formal request wording.</div>' +
-      '<div class="wn-out" id="wn-foi' + i + '"><button class="copy-btn" onclick="copyWN(this,\'foi' + i + '\')">Copy</button><span id="wntext-foi' + i + '">' + esc(text) + '</span></div></div>';
-  }).join('');
-}
-
-function renderTierStrip() {
-  var order = ['iom','jsy','gsy','ork','shl','wis'];
-  document.getElementById('tierStrip').innerHTML =
-    '<tr><th>Jurisdiction</th><th>Across the water</th><th>Detail</th><th>Source</th></tr>' +
-    order.map(function(id) {
-      var t = OBS.tiers[id].tertiary, j = JUR[id];
-      return '<tr><td><b style="color:' + j.color + '">' + j.name + '</b></td>' +
-        '<td style="font-size:11px;font-weight:700;">' + esc(t.headline) + '</td>' +
-        '<td style="font-size:11px;">' + esc(t.detail) + '</td>' +
-        '<td class="src-inline">' + esc(t.src) + '</td></tr>';
+  var anyImpact = focusActions().some(function(a) { return a.impact && a.impact.scope; });
+  document.getElementById('impactLabel').style.display = anyImpact ? '' : 'none';
+  document.getElementById('impactFilters').innerHTML = !anyImpact ? '' :
+    '<button class="filter-pill on" data-impact="all" onclick="toggleFilter(\'impact\',\'all\',this)">All</button>' +
+    ['high','medium','low'].map(function(i) {
+      return '<button class="filter-pill" data-impact="' + i + '" onclick="toggleFilter(\'impact\',\'' + i + '\',this)">' + i[0].toUpperCase() + i.slice(1) + '</button>';
     }).join('');
 }
-function renderRemoteness() {
-  var order = ['iom','jsy','gsy','ork','shl','wis'];
-  var gap = function(note) { return { d: null, note: note }; };
-  var COMPONENTS = [
-    { name:'Keeping care local', unit:'share of care delivered on-island', cells:{
-      iom:{ d:'7.3% of budget goes off-island', note:'tertiary £26.3m of £362.4m spend (derived) · Manx Care AR 2024-25' },
-      jsy:{ d:'50+ UK arrangements', note:'volume/spend total unpublished · P.A.C.3/2025' },
-      gsy: gap('off-island volumes and spend unpublished — MSG scrutiny KPI only (9 referrals/mo flagged)'),
-      ork: gap('no published local-care share'), shl: gap('no published local-care share'),
-      wis:{ d:'93% unscheduled local · 81% specialist local', note:'WIHB HNA Mar 2025' } }},
-    { name:'Transfer volume & cost', unit:'patients moved / £ spent', cells:{
-      iom:{ d:'432 daytime flights/yr · ~£3.4m/yr', note:'FOI 3801793 / FOI 4458173 (2023, 2023-24)' },
-      jsy:{ d:'21,835 patient transport journeys', note:'2025, all transport · ARA 2025' },
-      gsy: gap('not published'),
-      ork: gap('patient travel line not published — FOI target'),
-      shl:{ d:'MRI repatriation: 842 scans yr 1', note:'travel savings credited · Audit Scotland AAR 2024/25' },
-      wis: gap('HIPTS reimbursement volumes not published — FOI target') }},
-    { name:'Corridor reliability', unit:'% services cancelled (all-cause)', cells:{
-      iom:{ d:'2.2–5.2%/yr flights · ferry 94%', note:'CAA 2018-25 (2023 spike 5.18%) · Steam Packet 12mo to May 2026' },
-      jsy:{ d:'0.5–3.2%/yr flights', note:'CAA 2018-25 — consistently ~half IoM rate' },
-      gsy: gap('Guernsey airport NOT in CAA cancellation dataset'),
-      ork: gap('Kirkwall NOT in CAA dataset · HIAL FOI target'),
-      shl: gap('Sumburgh NOT in CAA dataset · fog notorious · HIAL FOI target'),
-      wis:{ d:'ferry ~95.3% (99.3% excl-weather)', note:'CalMac YtM 2025 — weather ≈4pp, the only quantified weather share held' } }},
-    { name:'Weather quantification', unit:'is weather impact measurable from published data?', cells:{
-      iom: gap('cancellations all-cause; 1 weather-aborted GNAAS mission visible (29 May 2025)'),
-      jsy: gap('all-cause only; fog events reported anecdotally'),
-      gsy: gap('nothing published'), ork: gap('nothing published'), shl: gap('nothing published'),
-      wis:{ d:'YES — CalMac separates weather', note:'winter 2019/20 peak >12% weather cancellations on major routes' } }},
-    { name:'Data visibility', unit:'can the public see this system’s remoteness costs?', cells:{
-      iom:{ d:'best of six', note:'FOI-built series: transfers, costs, missions, tertiary spend' },
-      jsy:{ d:'partial', note:'journeys + committee established; no spend total' },
-      gsy: gap('weakest of six — no volumes, costs, or corridor stats'),
-      ork: gap('audit-level only'), shl:{ d:'partial', note:'DIA + MRI story in audit; no transfer line' },
-      wis:{ d:'partial', note:'HNA shares + CalMac; no cost line' } }},
-  ];
-  var html = '<tr><th style="width:16%;">Component</th>' + order.map(function(id) {
-    return '<th style="text-align:left;color:' + JUR[id].color + ';width:14%;">' + JUR[id].short + '</th>';
-  }).join('') + '</tr>';
-  html += '<tr><td style="font-size:11px;font-weight:700;">Population served<div style="font-size:9px;font-weight:400;color:var(--muted);">people (census / NRS estimate)</div></td>' +
-    order.map(function(id) {
-      var p = JUR[id].population;
-      return '<td title="' + esc(p ? p.src : '') + '"><span style="font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + (p ? fmtN(p.v) : '—') + '</span></td>';
-    }).join('') + '</tr>';
-  html += '<tr><td style="font-size:11px;font-weight:700;">Scheduled flight time to tertiary centre<div style="font-size:9px;font-weight:400;color:var(--muted);">minutes, scheduled (not door-to-door)</div></td>' +
-    order.map(function(id) {
-      return '<td title="airline timetables + board travel policies — route/season dependent"><span class="chip toextract" style="font-size:8px;padding:1px 6px;">to collect</span></td>';
-    }).join('') + '</tr>';
-  COMPONENTS.forEach(function(c) {
-    html += '<tr><td style="font-size:11px;font-weight:700;">' + esc(c.name) +
-      '<div style="font-size:9px;font-weight:400;color:var(--muted);">' + esc(c.unit) + '</div></td>' +
-      order.map(function(id) {
-        var cell = c.cells[id];
-        if (!cell || cell.d == null) return '<td title="' + esc(cell ? cell.note : '') + '"><span class="chip notpub" style="font-size:8px;padding:1px 6px;">not measurable</span></td>';
-        return '<td title="' + esc(cell.note) + '"><span style="font-size:11px;font-weight:700;font-family:\'JetBrains Mono\',monospace;">' + esc(cell.d) + '</span></td>';
-      }).join('') + '</tr>';
+function toggleFilter(type, val, btn) {
+  var set = type === 'status' ? activeStatuses : activeImpacts;
+  var attr = type === 'status' ? 'data-status' : 'data-impact';
+  if (val === 'all') {
+    document.querySelectorAll('.filter-pill[' + attr + ']').forEach(function(b) { b.classList.remove('on'); });
+    btn.classList.add('on'); set.clear(); set.add('all');
+  } else {
+    var allBtn = document.querySelector('.filter-pill[' + attr + '="all"]');
+    if (allBtn) allBtn.classList.remove('on');
+    set.delete('all');
+    btn.classList.toggle('on');
+    if (btn.classList.contains('on')) set.add(val); else set.delete(val);
+    if (!set.size) { set.add('all'); if (allBtn) allBtn.classList.add('on'); }
+  }
+  applyFilters();
+}
+function applyFilters() {
+  var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var isFiltered = !activeStatuses.has('all') || !activeImpacts.has('all') || q;
+  var visible = 0;
+  var acts = focusActions();
+  document.querySelectorAll('.action-row').forEach(function(row) {
+    var a = acts.find(function(x) { return x.ref === row.dataset.ref; });
+    if (!a) return;
+    var il = row.dataset.impact;
+    var rev = reviewById(a.reviewId);
+    var mS = activeStatuses.has('all') || activeStatuses.has(a.status);
+    var mI = activeImpacts.has('all') || activeImpacts.has(il);
+    var mQ = !q || (a.text || '').toLowerCase().includes(q) || (rev && rev.shortName.toLowerCase().includes(q)) || (a.notes || '').toLowerCase().includes(q);
+    var show = mS && mI && mQ;
+    row.classList.toggle('hidden-action', !show);
+    if (show) visible++;
   });
-  html += '<tr><td colspan="7" style="font-size:10px;color:var(--muted);border-bottom:none;">Red chips mark components that cannot be measured from any published source — each maps to an information request below. No composite score is computed: see the note above for why.</td></tr>';
-  document.getElementById('remotenessGrid').innerHTML = html;
+  document.querySelectorAll('.review-item').forEach(function(item) {
+    var rev = reviewById(item.dataset.reviewId);
+    if (rev && (rev.stub || rev.foi)) { item.classList.remove('dimmed'); return; }
+    var vis = item.querySelectorAll('.action-row:not(.hidden-action)').length;
+    if (isFiltered && vis > 0) item.classList.remove('collapsed');
+    item.classList.toggle('dimmed', isFiltered && vis === 0);
+  });
+  document.getElementById('filterCount').textContent = isFiltered ? visible + ' action' + (visible !== 1 ? 's' : '') + ' shown' : '';
 }
-function renderTertDetail() {
-  document.getElementById('tertDetail').innerHTML = OBS.tertiaryDetail.iom.map(function(k) {
-    return '<div class="mini-kpi" style="--kc:' + JUR.iom.color + '" title="' + esc(k.s) + '"><div class="mk-v" style="font-size:19px;">' + esc(k.d) + '</div><div class="mk-l">' + esc(k.l) + '</div></div>';
-  }).join('') + '<div class="mini-kpi" style="--kc:var(--muted);border-style:dashed;opacity:0.8;"><div class="mk-l" style="font-size:10px;">' + esc(OBS.tertiaryDetail.note) + ' Jersey/Guernsey/board equivalents: no published tertiary detail — roadmap.</div></div>';
-  document.getElementById('mhStrip').innerHTML = OBS.mhPlacements.iom.map(function(k) {
-    return '<div class="mini-kpi" style="--kc:var(--purple)" title="' + esc(k.s) + '"><div class="mk-v" style="font-size:19px;">' + esc(k.d) + '</div><div class="mk-l">' + esc(k.l) + '</div></div>';
+
+
+/* tooltips */
+var tooltip = document.getElementById('tooltip');
+var impactTt = document.createElement('div'); impactTt.id = 'impact-tooltip'; document.body.appendChild(impactTt);
+function positionTooltip(el, ttEl) {
+  var r = el.getBoundingClientRect(), left = r.left, top = r.bottom + 6;
+  if (left + 344 > window.innerWidth - 8) left = window.innerWidth - 344 - 8;
+  if (top + 200 > window.innerHeight - 8) top = r.top - 200 - 6;
+  ttEl.style.left = left + 'px'; ttEl.style.top = top + 'px';
+}
+function showObjTooltip(e, ref) {
+  var a = focusActions().find(function(x) { return x.ref === ref; });
+  if (!a || !a.objections || !a.objections.length) return;
+  tooltip.innerHTML = a.objections.map(function(o, i) {
+    return (i > 0 ? '<div class="tooltip-divider"></div>' : '') +
+      '<div class="tooltip-obj-item"><div class="tooltip-who">⚑ ' + esc(o.who) + '</div>' +
+      '<div class="tooltip-reason">' + esc(o.reason) + '</div>' +
+      (o.sourceUrl ? '<a class="tooltip-source" href="' + o.sourceUrl + '" target="_blank" rel="noopener">↗ ' + esc(o.sourceLabel || 'Source') + '</a>'
+        : o.sourceLabel ? '<div class="tooltip-source" style="color:var(--muted)">' + esc(o.sourceLabel) + '</div>' : '') + '</div>';
   }).join('');
+  tooltip.classList.add('visible');
+  positionTooltip(e.currentTarget, tooltip);
 }
-renderTertDetail(); renderTierStrip(); renderRemoteness(); renderKpis(); drawCharts(); renderGnaas(); renderWeather();
+function hideTooltip() { tooltip.classList.remove('visible'); }
+function showImpactTooltip(e, ref) {
+  var a = focusActions().find(function(x) { return x.ref === ref; });
+  if (!a || !a.impact) return;
+  var il = impactLabel(a.impact), sc = impactScore(a.impact);
+  impactTt.innerHTML = '<div class="it-row"><span class="it-label">Scope (1–3)</span><span class="it-score">' + a.impact.scope + '</span></div>' +
+    '<div class="it-row"><span class="it-label">Risk (1–3)</span><span class="it-score">' + a.impact.risk + '</span></div>' +
+    '<div class="it-row"><span class="it-label">Urgency (1–3)</span><span class="it-score">' + a.impact.urgency + '</span></div>' +
+    '<div class="it-total">Score ' + sc + '/9 — <span style="color:' + (il === 'high' ? 'var(--red)' : il === 'medium' ? 'var(--amber)' : 'var(--green)') + '">' + il.toUpperCase() + '</span></div>';
+  impactTt.classList.add('visible');
+  positionTooltip(e.currentTarget, impactTt);
+}
+function hideImpactTooltip() { impactTt.classList.remove('visible'); }
+document.addEventListener('scroll', function() { hideTooltip(); hideImpactTooltip(); }, true);
+
+function refreshFocus() {
+  activeStatuses = new Set(['all']); activeImpacts = new Set(['all']);
+  document.getElementById('searchInput').value = '';
+  renderJurChips('jurChips');
+  renderTimeline(); renderFilterPills(); renderStack(); applyFilters();
+}
+function obsOnJur() { renderFollowThrough(); refreshFocus(); }
+function obsOnLens() {}
+
+renderScoreboard(); renderFollowThrough(); refreshFocus();
 
 </script>
 </body>

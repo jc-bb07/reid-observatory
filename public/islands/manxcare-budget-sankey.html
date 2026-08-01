@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manx Care / DHSC Budget — Where the money comes from and goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell (same contract
+   as iomg-budget-sankey.html / manxcare-reviews-tracker.html iframes).
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+    if (window._msRedraw) window._msRedraw();
+  }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    } else if (e.data.type === 'setTheme' || e.data.type === 'theme') {
+      // App shell (AutoIframe) protocol — 'health' teal theme arrives as 'light'
+      applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+    }
+  });
+  // Same-origin as the shell: pick up the stored theme immediately (no flash),
+  // then let whichever parent protocol answers override.
+  try {
+    var stored = localStorage.getItem('observatory-theme');
+    if (stored) applyTheme(stored === 'light' || stored === 'health');
+  } catch (err) {}
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{ /* observatory v0.8 night ramp — synced with common.py tokens (Session 9) */
+  --teal-50:#12211e;--teal-100:#1b322d;--teal-200:#274942;--teal-300:#376c60;--teal-400:#459281;--teal-500:#56b39f;--teal-600:#6ec4b1;--teal-700:#91d4c6;--teal-800:#bfe3dc;
+  --bg:#0c1620;--surface:#12222a;--surface2:#0e1b23;--border:#18262f;--border2:#2b4049;--text:#e2ecea;--muted:#7e9a94;--muted2:#a9c1bb;
+  --gold:#4fb39c;--on-accent:#0c1620; /* page accent = observatory teal (was gold — freed the hue for the staff-costs category) */
+  --gov:#3b82f6;--own:#10b981;--staff:#C9A24A;--other:#a78bfa;--offisland:#fb923c;--ptransport:#38bdf8;--supp:#fb7185;--flag:#f87171;--good:#34d399;--iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#7e9a94;
+  --blue:#60a5fa;--blue-dim:rgba(79,179,156,.15);}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:14px;overflow:hidden;display:flex;flex-direction:column}
+body.light{
+  --teal-50:#f2faf8;--teal-100:#dbf0eb;--teal-200:#b9dfd7;--teal-300:#8ac7b9;--teal-400:#54ab98;--teal-500:#409683;--teal-600:#2f7d6c;--teal-700:#256557;--teal-800:#19463c;
+  --bg:#f0f9f8;--surface:#ffffff;--surface2:#e6f4f1;--border:#cce8e4;--border2:#99d5cc;
+  --text:#0f172a;--muted:#33625b;--muted2:#1e4a44;
+  --gold:#2f7d6c;--on-accent:#ffffff;
+  --gov:#2563eb;--own:#059669;--staff:#b45309;--other:#6d28d9;--offisland:#c2410c;--ptransport:#0891b2;--supp:#e11d48;--flag:#b91c1c;--good:#047857;--iom:#1d4ed8;--gsy:#059669;--jsy:#b45309;--uk:#33625b;
+  --blue:#2563eb;--blue-dim:rgba(47,125,108,.10);
+}
+html:has(body.light){background:#f0f9f8}
+
+/* ── Header ── */
+.hdr{padding:6px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:16px}
+.chart-title{font-size:14px;font-weight:800;letter-spacing:-.02em}
+.chart-sub{font-size:9px;color:var(--muted);margin-top:1px}
+.fy-label{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:600;color:var(--gold);letter-spacing:-.02em;line-height:1}
+.fy-sub{font-size:9px;color:var(--muted);text-align:right;margin-top:2px}
+.hdr-left{flex:1;min-width:0;overflow:hidden}
+.hdr-right{flex-shrink:0;text-align:right}
+
+/* ── Controls row ── */
+.controls{display:flex;align-items:center;gap:10px;padding:5px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:nowrap}
+.play-btn{background:var(--gold);color:var(--on-accent);border:none;border-radius:5px;padding:0 12px;height:28px;font-size:11px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;letter-spacing:.03em;white-space:nowrap}
+.play-btn:hover{opacity:.85}
+.yr-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px}
+input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;height:16px}
+.yr-marks{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+.node-select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:"Inter",sans-serif;padding:0 6px;height:28px;cursor:pointer;min-width:180px;flex-shrink:0}
+.node-select:focus{outline:none;border-color:var(--gold)}
+.node-select:disabled{opacity:.4;cursor:not-allowed}
+.ctrl-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.toggle-group{display:flex;border:1px solid var(--border2);border-radius:6px;overflow:hidden;flex-shrink:0}
+.toggle-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:600;padding:0 12px;height:28px;transition:background .15s,color .15s;white-space:nowrap}
+.toggle-btn.active{background:var(--blue-dim);color:var(--blue)}
+.toggle-btn:hover:not(.active){color:var(--text)}
+.toggle-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap}
+.toggle-wrap label{font-size:10px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle-wrap input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+
+/* ── Stats bar ── */
+.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.stat{flex:1;padding:5px 12px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.stat-val{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;color:var(--text);margin-top:1px}
+.stat-val.flag{color:var(--flag)}
+.stat-val.good{color:var(--good)}
+
+/* ── Viz ── */
+#viz-row{display:flex;flex:1;overflow:hidden;min-height:0}
+.viz{flex:2.1;overflow:hidden;position:relative;min-width:0}
+svg{display:block;width:100%;height:100%}
+.col-hdr{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;fill:var(--muted);text-anchor:middle}
+.lbl-r{font-size:11.5px;fill:var(--text);dominant-baseline:middle;text-anchor:start}
+.lbl-l{font-size:11.5px;fill:var(--text);dominant-baseline:middle;text-anchor:end}
+.lbl-a{font-family:"JetBrains Mono",monospace;font-size:10px;fill:var(--muted);dominant-baseline:middle;text-anchor:start}
+.lbl-al{font-family:"JetBrains Mono",monospace;font-size:10px;fill:var(--muted);dominant-baseline:middle;text-anchor:end}
+.fn-marker{color:var(--gold);font-weight:700;font-size:9px;cursor:pointer;text-decoration:none}
+rect.node{cursor:pointer;stroke:rgba(255,255,255,.10);stroke-width:.5;transition:filter .18s ease}
+rect.node:hover{filter:brightness(1.25) saturate(1.1)}
+body.light rect.node{stroke:rgba(15,23,42,.12)}
+path.link{transition:filter .18s ease,opacity .18s ease}
+path.link:hover{filter:brightness(1.3) saturate(1.15)}
+
+/* ── Directorate snapshot panel ── */
+#snap-panel{flex:1;min-width:220px;max-width:340px;border-left:1px solid var(--border);overflow-y:auto;padding:10px 14px 14px;background:var(--surface)}
+#snap-panel h4{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+#snap-panel .snap-sub{font-size:9.5px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.snap-row{margin-bottom:7px}
+.snap-row-top{display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;gap:6px}
+.snap-row-top .nm{color:var(--text);line-height:1.3}
+.snap-row-top .vl{font-family:"JetBrains Mono",monospace;color:var(--muted);flex-shrink:0}
+.snap-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.snap-bar-fill{height:100%;background:var(--gold);border-radius:3px}
+.snap-note{font-size:9px;color:var(--flag);line-height:1.6;margin-top:10px;padding-top:8px;border-top:1px dashed var(--border2)}
+.snap-empty{font-size:10.5px;color:var(--muted);line-height:1.7;padding:6px 0}
+.snap-sep{height:1px;background:var(--border2);margin:16px 0 12px}
+
+/* ── Time-series popup ── */
+#ts-popup{position:fixed;display:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px 10px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:100;pointer-events:none;min-width:230px}
+#ts-popup .ts-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+#ts-popup .ts-sub{font-size:9px;color:var(--muted);margin-bottom:6px;line-height:1.5}
+#ts-canvas{display:block}
+
+/* ── Governance notes ── */
+.gov-notes{background:var(--surface2);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.gov-notes.open{max-height:640px;overflow-y:auto}
+.gov-inner{padding:12px 20px 14px;font-size:10.5px;line-height:1.65;color:var(--muted2);columns:2;column-gap:32px}
+.gov-inner h4{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;column-span:all}
+.gov-inner h5{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin:9px 0 3px;break-after:avoid}
+.gov-inner p{margin:0 0 5px}
+.gov-inner .flag{color:var(--flag);font-weight:600}
+.gov-notes-toggle{display:flex;align-items:center;gap:8px;padding:5px 20px;background:var(--surface2);border-top:1px solid var(--border);cursor:pointer;flex-shrink:0;user-select:none}
+.gov-notes-toggle span{font-size:9.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted2)}
+.gov-notes-toggle span:hover{color:var(--text)}
+.gov-chevron{font-size:9px;color:var(--muted2);transition:transform .3s}
+.gov-notes-toggle.open .gov-chevron{transform:rotate(180deg)}
+.fn-target{scroll-margin-top:8px}
+
+/* ── Year pill strip (mobile landscape) ── */
+#yr-pills{display:none;align-items:center;gap:3px;flex:1}
+.yr-pill{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:500;color:var(--muted);cursor:pointer;padding:2px 5px;border-radius:3px;border:1px solid transparent;background:none;white-space:nowrap;transition:color .12s}
+.yr-pill:hover{color:var(--text)}
+.yr-pill.active{color:var(--gold);font-weight:800;border-color:var(--gold);background:rgba(201,162,74,.1)}
+
+/* ── Landscape mobile ── */
+@media (max-width:900px) and (orientation:landscape){
+  .hdr{display:none}
+  .yr-wrap input[type=range]{display:none}
+  .yr-marks{display:none}
+  #yr-pills{display:flex!important;order:-3}
+  .play-btn{order:-2}
+  .ctrl-sep{display:none}
+  .node-select{order:-1;min-width:0;flex-shrink:1}
+  .toggle-group{order:0}
+  .toggle-wrap{order:1}
+  #snap-panel{display:none}
+  .stats{flex-wrap:wrap}
+  .stat{flex:1 1 33%;min-width:33%;border-bottom:1px solid var(--border)}
+}
+/* ── Portrait mobile ── */
+@media (max-width:900px) and (orientation:portrait){
+  .hdr{padding:6px 12px}
+  .chart-title{font-size:11.5px}
+  .chart-sub{display:none}
+  .fy-label{font-size:17px}
+  .fy-sub{display:none}
+  .controls{flex-wrap:wrap;gap:6px;padding:5px 12px;row-gap:4px}
+  .yr-wrap{flex-basis:100%;order:2}
+  .yr-marks span:nth-child(odd){display:none}
+  .node-select{min-width:0;flex:1}
+  .ctrl-sep{display:none}
+  .stats{flex-wrap:wrap}
+  .stat{flex:1 1 33%;min-width:33%;border-bottom:1px solid var(--border)}
+  #viz-row{flex-direction:column}
+  #snap-panel{max-width:none;border-left:none;border-top:1px solid var(--border);max-height:150px}
+  .gov-inner{columns:1}
+}
+body{box-sizing:border-box}
+
+/* v0.8 micro-polish (Session 9): print + reduced motion */
+@media print{
+  html,body{overflow:visible;height:auto;background:#fff}
+  body{color:#0f172a}
+  .controls,.play-btn,#ts-popup{display:none !important}
+  .hdr,.stats,.gov-notes{border-color:#d1d5db}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<script>try{var t=localStorage.getItem('observatory-theme');if(t==='light'||t==='health')document.body.classList.add('light');}catch(e){}</script>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Manx Care / DHSC Budget — money in, money out</div>
+    <div class="chart-sub">Plain-English guide to how Isle of Man health &amp; social care is funded and spent</div>
+  </div>
+  <div class="hdr-right">
+    <div class="fy-label" id="fy-disp">2024-25</div>
+    <div class="fy-sub">year ending 31 March</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play-btn"><span id="play-icon">&#9654;</span> <span id="play-label">Animate</span></button>
+  <div class="yr-wrap">
+    <input type="range" id="yr-slider" min="0" max="3" step="1" value="2">
+    <div class="yr-marks" id="yr-marks"></div>
+  </div>
+  <div id="yr-pills"></div>
+  <div class="ctrl-sep"></div>
+  <div class="toggle-wrap">
+    <input type="checkbox" id="proj-chk">
+    <label for="proj-chk">Show budget projections</label>
+  </div>
+  <select class="node-select" id="horizon-select" style="min-width:90px" disabled>
+    <option value="10" selected>10 years</option>
+    <option value="20">20 years</option>
+    <option value="30">30 years</option>
+  </select>
+  <div class="ctrl-sep"></div>
+  <select class="node-select" id="node-select">
+    <option value="">— Focus on… —</option>
+    <optgroup label="Where the money comes from">
+      <option value="gov">Government Budget (the Mandate)</option>
+      <option value="supp">Extra money approved in-year</option>
+      <option value="own">Manx Care's own income</option>
+    </optgroup>
+    <optgroup label="What it's spent on">
+      <option value="staff">Staff pay</option>
+      <option value="other">Medicines, equipment &amp; running costs</option>
+    </optgroup>
+  </select>
+  <div class="ctrl-sep"></div>
+  <div class="toggle-wrap">
+    <input type="checkbox" id="deflate-chk" checked>
+    <label for="deflate-chk">Constant prices (2024-25)</label>
+  </div>
+  <div class="ctrl-sep"></div>
+  <div class="toggle-group">
+    <button class="toggle-btn active" id="btn-plain" onclick="setAudience('plain')">Plain language</button>
+    <button class="toggle-btn" id="btn-tech" onclick="setAudience('tech')">Technical</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lbl" id="lbl-tot">Total spent</div><div class="stat-val" id="s-tot">—</div></div>
+  <div class="stat"><div class="stat-lbl" id="lbl-budget">Vs. Government Budget target</div><div class="stat-val" id="s-var">—</div></div>
+  <div class="stat"><div class="stat-lbl">Spend per person</div><div class="stat-val" id="s-cap">—</div></div>
+  <div class="stat"><div class="stat-lbl">Savings found (CIP)</div><div class="stat-val" id="s-cip">—</div></div>
+</div>
+
+<div id="viz-row">
+  <div class="viz"><svg id="chart"></svg></div>
+  <div id="snap-panel"></div>
+</div>
+
+<div class="gov-notes-toggle" id="gov-toggle" onclick="toggleGov()">
+  <span class="gov-chevron" id="gov-chevron">&#9660;</span>
+  <span>Governance &amp; methodology notes</span>
+</div>
+<div class="gov-notes" id="gov-notes">
+  <div class="gov-inner">
+    <h4>Manx Care / DHSC Budget — governance &amp; methodology notes</h4>
+
+    <h5 id="fn-1" class="fn-target"><span style="color:var(--gold)">①</span> What is "the Mandate"?</h5>
+    <p>Each year, the Department of Health &amp; Social Care (DHSC) sets Manx Care a "Mandate" — a funding agreement that says how much Government money Manx Care gets to run Island health and social care services, and what it's expected to deliver in return. It's the single biggest source of Manx Care's money, paid for by Isle of Man taxpayers and National Insurance contributions. This node shows only the originally-approved amount — where Manx Care went on to spend more than that, the extra is shown separately as "Extra money approved in-year" (see note ⑫).</p>
+
+    <h5 id="fn-2" class="fn-target"><span style="color:var(--gold)">②</span> Why you might see a bigger number elsewhere (£404m)</h5>
+    <p>A media-reported figure of around £404m for 2025-26 covers a wider, gross scope than the £361.8m Mandate figure shown here. This chart shows the Mandate — the funding agreement between DHSC and Manx Care — consistently across all years, not the wider figure.</p>
+
+    <h5 id="fn-3" class="fn-target"><span style="color:var(--gold)">③</span> Manx Care's own income</h5>
+    <p>Alongside the Mandate, Manx Care earns some money itself: staff accommodation charges, retail (e.g. hospital shops), social care charges, and income from treating private patients. This came to <strong>£17.6m in 2024-25</strong>, up from £15.9m (2023-24) and £14.8m (2022-23) — small next to the Mandate, but real and separately reported. <span class="flag">Not fabricated:</span> sourced from Manx Care's audited Annual Report financial statements each year.</p>
+
+    <h5 id="fn-4" class="fn-target"><span style="color:var(--gold)">④</span> "Savings found" (CIP)</h5>
+    <p>CIP stands for Cost Improvement Programme — money saved each year through smarter, more efficient working (better rostering, procurement, reducing waste), not cuts to services. Manx Care has beaten its savings target in every year shown: £9.9m delivered vs £4.3m target (2022-23), £8.5m vs £4.5m (2023-24), £13.4m vs £6.3m (2024-25). CIP figures are shown in cash terms for the year they were delivered, regardless of the constant-prices toggle.</p>
+
+    <h5 id="fn-5" class="fn-target"><span style="color:var(--gold)">⑤</span> Constant prices (2024-25)</h5>
+    <p>The "Constant prices" toggle removes the effect of inflation so you can compare years fairly, using the Isle of Man CPI (Statistics Isle of Man, IoM Historic Data Sets, December 2025; financial-year averages, rebased to 2024-25=100). With it on (the default), every year's figures are restated in 2024-25 pounds, so you're seeing real growth after stripping out inflation. 2025-26 uses a partial-year average (April–December 2025 only) since the full year isn't over yet. Switch it off to see the original cash amounts exactly as published in Manx Care's own reports.</p>
+
+    <h5 id="fn-6" class="fn-target"><span style="color:var(--gold)">⑥</span> Directorate breakdown — a known gap in the source data</h5>
+    <p>The panel on the right shows how 2024-25 spending splits by clinical service area, from Manx Care's own Annual Report (p.62). <span class="flag">These named categories add up to £267.6m</span>, but Manx Care's own report gives a "Clinical Care Groups" subtotal of £328.6m for the same set of services — a £61.0m gap that isn't itemised anywhere in the published report. We checked this against the original PDF page image to rule out an extraction error: it's a genuine inconsistency in Manx Care's own published table (which also repeats one row — "Women, Children &amp; Family Services" — twice, with two different prior-year comparison figures). We're showing the numbers exactly as published rather than adjusting them to make them reconcile. This breakdown only exists for 2024-25; earlier and later years aren't shown at this level of detail. Figures here are always shown in cash terms, regardless of the constant-prices toggle.</p>
+
+    <h5 id="fn-7" class="fn-target"><span style="color:var(--gold)">⑦</span> Treatment sent to UK hospitals &amp; patient transport</h5>
+    <p>For 2024-25 only, we've split "Medicines, equipment &amp; running costs" into three real, separately-sourced parts: £26.3m on off-Island (tertiary) care — treatment Manx Care sends to UK hospitals because it isn't available on-Island — £413,822 on patient transport (arranging and funding those journeys), and £125.7m of everything else in that category. Earlier and later years don't have this split published, so they show one combined "running costs" figure instead — a genuine difference in available detail, not a rounding choice. Off-Island care is Manx Care's least predictable cost: it rose in 2024-25 partly due to a 3.9% NHS tariff increase.</p>
+
+    <h5 id="fn-11" class="fn-target"><span style="color:var(--gold)">⑪</span> DHSC budget-by-category panel — read the small print</h5>
+    <p>The lower panel on the right (2023-24 and 2024-25 only) comes from DHSC's own internal Financial Plan, which budgets Manx Care's money across six categories: payroll, agency/contracted/temporary staff, supplies, transport, grants, and infrastructure. Two things to know before comparing it with the main chart: <span class="flag">it's the originally approved budget, not actual spend</span> — Manx Care doesn't publish outturn at this level of detail — and <span class="flag">it covers DHSC as a whole</span>, which is overwhelmingly Manx Care but also includes a small DHSC-retained residual (strategy, governance, grants to charities — around £11m a year). Because it's an earlier budget vintage, its total won't match the revised in-year budget used in the stats bar above (e.g. £312.1m for 2024-25 here vs £346.8m there) — both are real, correctly-labelled figures, just from different points in the year. Always shown in cash terms, regardless of the constant-prices toggle.</p>
+
+    <h5 id="fn-12" class="fn-target"><span style="color:var(--gold)">⑫</span> "Extra money approved in-year" — what this node means</h5>
+    <p>In every year shown here, Manx Care spent more than the Mandate originally set aside. When that happens, the shortfall can't just be spent — Tynwald (the Isle of Man's parliament) has to formally approve extra in-year funding, usually called a <strong>Supplementary Vote</strong>, before it can be covered. This node is our own calculation of that gap (actual net spend minus the originally-approved Mandate), and it lines up closely with the confirmed figures where we could find them: Manx Care's own Annual Report describes a <strong>£30m Supplementary Vote approved in October 2023</strong> covering that year's £31.1m operational deficit, and a <strong>£15.3m combined Supplementary Vote position</strong> for 2024-25 covering a £15.6m operational deficit (the small differences are because the approved Vote also nets in small underspends elsewhere in DHSC, which this Manx-Care-only chart doesn't include). For 2022-23, Manx Care's report describes an £8.8m "deficit"/"overspend" but we didn't find the specific "Supplementary Vote" wording in that year's document, so we can't confirm the same formal mechanism applied — the node is shown on the same basis regardless, but treat that one year's label as our calculation rather than a confirmed quote.</p>
+
+    <h5 id="fn-8" class="fn-target"><span style="color:var(--gold)">⑧</span> How the flows are drawn</h5>
+    <p>The ribbons connecting each funding source to each spending category are modelled proportionally: money isn't earmarked source-by-source in the underlying accounts (a pound from patient charges isn't tracked separately from a pound from the Mandate once it's spent). Only the column totals — each source's total income, each category's total spend — are real, reported figures; the individual source-to-category ribbon widths are a standard sankey-diagram convention for splitting a shared pool, not a further data point.</p>
+
+    <h5 id="fn-9" class="fn-target"><span style="color:var(--gold)">⑨</span> 2025-26 — target only, not yet actual</h5>
+    <p>For 2025-26, only the Mandate funding target (£361.8m) has been published — the financial year isn't complete and Manx Care's Annual Report for it isn't out yet. The staff-pay / running-costs split you see for that year is an <em>estimate</em>, based on 2024-25's proportions, not a reported actual. CIP and per-person figures for 2025-26 aren't shown for the same reason.</p>
+
+    <h5 id="fn-10" class="fn-target"><span style="color:var(--gold)">⑩</span> Spend per person</h5>
+    <p>Uses a constant population estimate of approximately 84,000 across all years shown, for comparability — it isn't adjusted year to year, since we only have a precise mid-year population estimate pinned to 2024-25. Treat year-to-year per-person changes as indicative of spend growth, not population change. Per-person figures follow the constant-prices toggle like the main chart.</p>
+
+    <h5 id="fn-13" class="fn-target"><span style="color:var(--gold)">⑬</span> 10/20/30-year projections — read this before using them</h5>
+    <p><span class="flag">These are illustrative modelled projections, not approved Government budgets.</span> Real Manx Care/DHSC budgets are set one year at a time (occasionally three, via Operating Plans) — nobody has approved, or could meaningfully approve, a 2054-55 health budget today. The projection extrapolates recent growth trends forward using a fixed annual rate per category (see the assumptions panel when projections are switched on), compounded every year.</p>
+    <p><strong>Small rate differences compound into large sums.</strong> At the default ~5.1%/yr, the 2024-25 baseline of roughly £362m becomes an illustrative ~£600m by +10 years, ~£980m by +20, and past £1.6bn by +30 — over four times today's figure. A modeller's choice between, say, 4% and 6% growth would swing the 30-year figure by hundreds of millions of pounds. Treat the shape of the trend as the useful information, not the precise long-range £ figure.</p>
+    <p><strong>What the model does not, and cannot, capture:</strong> changes in Government funding policy or Tynwald's own priorities; new medical technology or treatments changing the cost or shape of care; economic shocks, recessions, or unusual inflation spikes; changes in Isle of Man population (a static ~84,000 estimate is used throughout, per note ⑩ — no population growth or ageing is modelled); capital investment needs (Manx Care doesn't hold its own capital budget, so none is projected); and whether the assumed CIP/efficiency savings rate — based on only three years of actual data — can really be sustained for a decade or three.</p>
+    <p>The off-Island care growth premium is our own modelling addition, not a sourced Government assumption — flagged as such in the assumptions panel. Use these projections to explore "what if recent trends continue" scenarios and to stress-test how sensitive the long-run picture is to the assumptions, not as a financial plan or a substitute for Government's own budgeting process.</p>
+
+    <h5>Sources</h5>
+    <p>Manx Care Annual Reports 2021-22 to 2024-25; DHSC Mandates to Manx Care 2021-22 to 2026-27; DHSC Assessments of Manx Care 2021-22 to 2024-25; Manx Care Operating Plans 2024-25 to 2026-27; DHSC Department Plans 2022-23, 2023-24 and 2025-26; DHSC Financial Plan 2024/25 (Table 1, category-level Manx Care and DHSC budgets); Statistics Isle of Man IoM Historic Data Sets, December 2025 (CPI, for the constant-prices toggle). All published by the Isle of Man Government (gov.im), Tynwald (tynwald.org.im) and Statistics Isle of Man under the Open Government Licence.</p>
+  </div>
+</div>
+
+<div id="ts-popup">
+  <div class="ts-title" id="ts-title"></div>
+  <div class="ts-sub" id="ts-sub"></div>
+  <canvas id="ts-canvas" width="220" height="100"></canvas>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// DATA — verified against Manx Care Annual Reports 2022-23 / 2023-24 / 2024-25
+// (financial performance summary tables) and DHSC Mandates / Department Plans.
+// All values £m, nominal (cash) terms. See governance notes for sourcing and known gaps.
+// ══════════════════════════════════════════════════════════════════════════
+const HIST_YEARS = ['2022-23','2023-24','2024-25','2025-26'];
+let YEARS = HIST_YEARS; // mutable — swapped to PROJECTION_YEARS when projection mode is on
+const POP_EST = 84000; // constant population estimate used for per-capita comparability — see fn-10
+
+// ══════════════════════════════════════════════════════════════════════════
+// FORWARD PROJECTIONS (10 / 20 / 30 year illustrative scenarios) — see fn-13
+// ══════════════════════════════════════════════════════════════════════════
+// All rates are ANNUAL, compounding. Centralised here so they're easy to find
+// and adjust — nothing below this object should ever hardcode a growth number.
+//
+// Where possible these are grounded in DHSC's OWN documented funding-formula
+// methodology (DHSC Financial Plan 2024/25, Table 1: "Funding Formula" scenario
+// column), not invented: CPI (4%) + demographic/demand growth (3.12%, Manx
+// Care's own figure for that year) − CIP/efficiency savings (2%) = 5.12% net,
+// which is the exact rate that table applies to Payroll and Supplies & Services.
+// The off-Island care premium is our own modelling addition (not from a source
+// document) reflecting that off-Island care has been Manx Care's least
+// predictable, fastest-rising cost in every year of actual data we have.
+const PROJECTION_ASSUMPTIONS = {
+  baseYear: '2024-25', // last full actual year — the anchor every projection grows from
+  general: {
+    cpi: 0.04,           // general inflation — DHSC Financial Plan 2024/25 funding-formula CPI assumption
+    demand: 0.0312,      // demographic / non-demographic / healthcare-specific demand growth — same source, Manx Care's own figure
+    cipOffset: 0.02       // efficiency/CIP savings assumed to offset gross growth — same source ("less CIP target")
+  },
+  // categories.*.growth = the resulting annual compounding rate applied to that use-category
+  categories: {
+    staff:      { growth: 0.0512, note: 'CPI + demand − CIP, per DHSC funding-formula methodology' },
+    otherrun:   { growth: 0.0512, note: 'Same funding-formula rate; DHSC\'s own table applies this to Supplies & Services' },
+    ptransport: { growth: 0.0512, note: 'Assumed to track the same general formula (no separate transport-specific rate is published)' },
+    offisland:  { growth: 0.0712, note: 'Funding-formula rate (5.12%) plus a +2pt premium — our own assumption, not sourced — for off-Island care\'s historically higher, less predictable growth (e.g. the 3.9% single-year NHS tariff uplift in 2024-25)' },
+  },
+  ownIncomeGrowth: 0.04 // Manx Care's own income (patient charges etc.) assumed to track CPI only
+};
+
+let projectionMode = false;
+let PROJECTION_YEAR_DATA = {};
+let PROJECTION_YEARS = [];
+
+// projectedYearLabel(baseYearKey, n) -> 'YYYY-YY' label n years after the base year
+function projectedYearLabel(baseYearKey, n){
+  if(n===0) return baseYearKey;
+  const startYear = parseInt(baseYearKey.slice(0,4),10) + n;
+  const endYY = String((startYear+1)%100).padStart(2,'0');
+  return startYear + '-' + endYY;
+}
+
+// projectBudgetSeries(baseYearKey, horizonYears, assumptions)
+// Pure function: base-year actuals in, an object of year-label -> projected record out.
+// Each record has the same shape computeFlow() already expects from an actual year
+// (employee/other/income/offIsland/patientTransport/total), so no rendering code
+// needs to know or care whether a record is historical or projected.
+function projectBudgetSeries(baseYearKey, horizonYears, assumptions){
+  const base = YEAR_DATA[baseYearKey];
+  if(!base || !base.actual){ throw new Error('Projection base year must be a real actual year'); }
+  const baseOffIsland = base.offIsland || 0;
+  const basePTransport = base.patientTransport || 0;
+  const baseOtherRun = base.other - baseOffIsland - basePTransport;
+
+  const series = {};
+  for(let n=0; n<=horizonYears; n++){
+    const label = projectedYearLabel(baseYearKey, n);
+    const gStaff = Math.pow(1+assumptions.categories.staff.growth, n);
+    const gOff   = Math.pow(1+assumptions.categories.offisland.growth, n);
+    const gTrans = Math.pow(1+assumptions.categories.ptransport.growth, n);
+    const gOther = Math.pow(1+assumptions.categories.otherrun.growth, n);
+    const gOwn   = Math.pow(1+assumptions.ownIncomeGrowth, n);
+
+    const employee = base.employee * gStaff;
+    const offIsland = baseOffIsland * gOff;
+    const patientTransport = basePTransport * gTrans;
+    const otherRunComputed = baseOtherRun * gOther;
+    const other = offIsland + patientTransport + otherRunComputed;
+    const income = base.income * gOwn;
+    const total = employee + other - income; // net Government funding requirement, same definition as historical d.total
+
+    series[label] = {
+      actual:false, projected:true, yearsOut:n,
+      employee, other, income, offIsland, patientTransport, otherRunComputed, total,
+      budget: total // no separate approved-vs-actual concept for a hypothetical future year
+    };
+  }
+  return series;
+}
+
+// buildSankeyLinksForHorizon(horizonYears) — (re)builds PROJECTION_YEAR_DATA / PROJECTION_YEARS
+// for the requested horizon, from the current PROJECTION_ASSUMPTIONS. Called whenever the
+// user changes the horizon selector or turns projections on.
+function buildSankeyLinksForHorizon(horizonYears){
+  PROJECTION_YEAR_DATA = projectBudgetSeries(PROJECTION_ASSUMPTIONS.baseYear, horizonYears, PROJECTION_ASSUMPTIONS);
+  PROJECTION_YEARS = Object.keys(PROJECTION_YEAR_DATA);
+  return {data:PROJECTION_YEAR_DATA, years:PROJECTION_YEARS};
+}
+
+// getProjectionCAGR(nodeId, yearKey) — derives the actual compound annual growth rate
+// between the base year and the given projected year, for tooltip display. Derived from
+// the series itself (not duplicated from the assumptions constants) so it's always exact.
+function getProjectionCAGR(nodeId, yearKey){
+  const rec = PROJECTION_YEAR_DATA[yearKey];
+  if(!rec || !rec.yearsOut) return null;
+  const baseRec = PROJECTION_YEAR_DATA[PROJECTION_ASSUMPTIONS.baseYear];
+  const FIELD = {staff:'employee', offisland:'offIsland', ptransport:'patientTransport', otherrun:'otherRunComputed', own:'income', gov:'total'};
+  const field = FIELD[nodeId];
+  if(!field) return null;
+  const baseVal = baseRec[field], curVal = rec[field];
+  if(!baseVal) return null;
+  return Math.pow(curVal/baseVal, 1/rec.yearsOut) - 1;
+}
+
+// Isle of Man CPI deflators (Statistics Isle of Man, IoM Historic Data Sets, Dec 2025).
+// Rebased to 2024-25 = 1.0. Multiply a nominal £ figure by DEFLATORS[year] to restate
+// it in 2024-25 prices. 2025-26 is a partial-year (Apr-Dec 2025) average. See fn-5.
+const DEFLATORS = {
+  '2022-23': 1.081041,
+  '2023-24': 1.023646,
+  '2024-25': 1.0,
+  '2025-26': 0.973436
+};
+let useConstPrices = true;
+
+const YEAR_DATA = {
+  '2022-23': {
+    actual:true, income:14.798, employee:182.404, other:124.018,
+    total:291.624, budget:282.858,
+    cip:{delivered:9.9, target:4.3, pct:3.5}
+  },
+  '2023-24': {
+    actual:true, income:15.910, employee:215.364, other:134.642, // employee incl. £7.004m one-off pay award
+    total:334.096, budget:302.975,
+    cip:{delivered:8.5, target:4.5, pct:null},
+    // Original Pink Book budget by category, DHSC-wide (Manx Care + small DHSC-retained residual) — see fn-11
+    budgetCategories:{payroll:197.639, infra:1.822, transport:5.095, supplies:13.740, agency:97.903, grants:2.144, total:318.343}
+  },
+  '2024-25': {
+    actual:true, income:17.642, employee:227.627, other:152.448,
+    total:362.434, budget:346.823,
+    cip:{delivered:13.4, target:6.3, pct:3.9},
+    offIsland:26.3, patientTransport:0.413822,
+    // Original Pink Book budget by category, DHSC-wide — a different (earlier) budget vintage
+    // than the £346.823m revised budget used above; see fn-11
+    budgetCategories:{payroll:203.588, infra:1.876, transport:5.248, supplies:14.144, agency:100.850, grants:2.209, total:327.915},
+    directorates:[
+      {name:'Medicine, Urgent Care &amp; Ambulance Service', v:47.447},
+      {name:'Surgery, Theatres, Critical Care &amp; Anaesthetics', v:45.606},
+      {name:'Integrated Cancer &amp; Diagnostics', v:26.996},
+      {name:'Women, Children &amp; Family Services', v:20.997},
+      {name:'Integrated Mental Health Services', v:30.790},
+      {name:'Primary Care &amp; Community Services', v:64.760},
+      {name:'Tertiary Care (treatment sent to UK hospitals)', v:31.038},
+    ],
+    directoratesNamedTotal:267.634, directoratesGroupTotal:328.644
+  },
+  '2025-26': {
+    actual:false, mandateTarget:361.8,
+    staffEstShare:0.5989, otherEstShare:0.4011 // based on 2024-25 employee/other proportions — see fn-9
+  }
+};
+
+const NODE_META = {
+  gov:        {short:'Government Budget (the Mandate)', color:'var(--gov)', fn:'fn-1', col:0},
+  supp:       {short:'Extra money approved in-year', color:'var(--supp)', fn:'fn-12', col:0},
+  own:        {short:"Manx Care's own income", color:'var(--own)', fn:'fn-3', col:0},
+  staff:      {short:'Staff pay', color:'var(--staff)', fn:null, col:1},
+  other:      {short:'Medicines, equipment & running costs', color:'var(--other)', fn:'fn-7', col:1},
+  otherrun:   {short:'Medicines, equipment & running costs', color:'var(--other)', fn:'fn-7', col:1},
+  offisland:  {short:'Treatment sent to UK hospitals', color:'var(--offisland)', fn:'fn-7', col:1},
+  ptransport: {short:'Patient transport', color:'var(--ptransport)', fn:'fn-7', col:1},
+};
+// Groups nodes whose id differs by year but represent the same underlying concept,
+// so "Focus on…" and hover-highlighting still work across years with different detail levels.
+const NODE_GROUP = {gov:'gov', supp:'supp', own:'own', staff:'staff', other:'other', otherrun:'other', offisland:'other', ptransport:'other'};
+
+function cssVar(v){
+  // resolve a var(--x) string to its computed colour for canvas/Chart.js use
+  if(!v.startsWith('var(')) return v;
+  const name = v.slice(4,-1);
+  return getComputedStyle(document.body).getPropertyValue(name).trim() || '#94a3b8';
+}
+
+function defl(v, yearKey){ return useConstPrices ? v * (DEFLATORS[yearKey]||1) : v; }
+
+function getYearRecord(yearKey){
+  return projectionMode ? PROJECTION_YEAR_DATA[yearKey] : YEAR_DATA[yearKey];
+}
+
+function computeFlow(yearKey){
+  const d = getYearRecord(yearKey);
+  let sources, uses, total;
+
+  if(d.projected){
+    // Forward projection — see fn-13. No overrun/Supplementary-Vote concept applies to a
+    // hypothetical future year, so sources are just gov (net funding requirement) + own income.
+    // Projections always carry the off-Island/transport/running-costs split (derived from the
+    // base year's real proportions and grown forward), unlike some historical years.
+    const grossUses = d.employee + d.other;
+    total = grossUses; // deflator toggle isn't meaningful for projections — see fn-13; always shown in base-year (2024-25) prices
+    sources = [
+      {id:'gov', value: d.total},
+      {id:'own', value: d.income}
+    ];
+    uses = [
+      {id:'staff', value: d.employee},
+      {id:'offisland', value: d.offIsland},
+      {id:'ptransport', value: d.patientTransport},
+      {id:'otherrun', value: d.otherRunComputed}
+    ];
+  } else if(d.actual){
+    // Gross expenditure (employee + other) is what both sides of the Sankey must sum to.
+    // d.total is already NET of Manx Care's own income (it's Employee+Other-Income, matching
+    // Manx Care's own "Operational" line) — i.e. it's the net amount Government had to fund.
+    // Sources = that net Government requirement + Manx Care's own income, which together equal
+    // gross expenditure exactly. See fn-12 for the further gov -> (original Mandate + overrun) split.
+    const grossUses = d.employee + d.other;
+    const netGovNeed = d.total;
+    total = defl(grossUses, yearKey);
+    if(netGovNeed > d.budget + 0.01){
+      // Actual spend needed more than the originally-approved Mandate — the gap had to be
+      // separately approved in-year (a "Supplementary Vote") — see fn-12
+      sources = [
+        {id:'gov', value: defl(d.budget, yearKey)},
+        {id:'supp', value: defl(netGovNeed - d.budget, yearKey)},
+        {id:'own', value: defl(d.income, yearKey)}
+      ];
+    } else {
+      sources = [
+        {id:'gov', value: defl(netGovNeed, yearKey)},
+        {id:'own', value: defl(d.income, yearKey)}
+      ];
+    }
+    if(d.offIsland!=null){
+      // Extra real, sourced detail only available for this year — see fn-7
+      const otherRun = d.other - d.offIsland - d.patientTransport;
+      uses = [
+        {id:'staff', value: defl(d.employee, yearKey)},
+        {id:'offisland', value: defl(d.offIsland, yearKey)},
+        {id:'ptransport', value: defl(d.patientTransport, yearKey)},
+        {id:'otherrun', value: defl(otherRun, yearKey)}
+      ];
+    } else {
+      uses = [
+        {id:'staff', value: defl(d.employee, yearKey)},
+        {id:'other', value: defl(d.other, yearKey)}
+      ];
+    }
+  } else {
+    total = defl(d.mandateTarget, yearKey);
+    sources = [{id:'gov', value: defl(d.mandateTarget, yearKey)}];
+    uses = [
+      {id:'staff', value: defl(d.mandateTarget * d.staffEstShare, yearKey)},
+      {id:'other', value: defl(d.mandateTarget * d.otherEstShare, yearKey)}
+    ];
+  }
+  return {sources, uses, total};
+}
+
+// ── Formatting ───────────────────────────────────────────────────────────
+// formatProjectedCurrency: switches to £bn above £1,000m — matters for 20/30-year
+// projections, which can plausibly compound past £1bn; harmless for historical
+// figures (never near that scale) so it's used everywhere, not just in projection mode.
+const formatProjectedCurrency = v => Math.abs(v)>=1000 ? '£'+(v/1000).toFixed(2)+'bn' : '£'+v.toFixed(1)+'m';
+const fmt = formatProjectedCurrency;
+const fmtK = v => v>=1 ? fmt(v) : '£'+Math.round(v*1000).toLocaleString()+'k';
+const pct = (v,t) => t>0 ? (v/t*100).toFixed(1)+'%' : '—';
+
+// ══════════════════════════════════════════════════════════════════════════
+// SANKEY RENDERING (hand-rolled 2-column, D3 keyed joins so node/link counts
+// can legitimately differ between years — e.g. 2025-26 has one source node).
+// ══════════════════════════════════════════════════════════════════════════
+const svg = d3.select('#chart');
+const PAD=6, TPAD=26, BPAD=8, NODE_W=16, NODE_GAP=14, LPAD=190, RPAD=190;
+let W,H;
+
+function isCompact(){ return window.innerWidth<=900; }
+
+function dims(){
+  const r = document.querySelector('.viz').getBoundingClientRect();
+  W = r.width; H = r.height;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+}
+
+function colX(col){ return col===0 ? LPAD : W-RPAD; }
+
+function buildLayout(yearKey){
+  const {sources, uses, total} = computeFlow(yearKey);
+  const availH = H - TPAD - BPAD;
+  const scale = v => v/total * (availH - NODE_GAP*(Math.max(sources.length,uses.length)-1));
+
+  function stack(list){
+    let y = TPAD;
+    return list.map(n=>{
+      const h = Math.max(2, scale(n.value));
+      const item = Object.assign({}, n, {y0:y, y1:y+h, h});
+      y += h + NODE_GAP;
+      return item;
+    });
+  }
+  const srcNodes = stack(sources);
+  const useNodes = stack(uses);
+
+  // links: proportional allocation, stacked in fixed order within each node
+  const links = [];
+  const srcCursor = {}; srcNodes.forEach(n=>srcCursor[n.id]=n.y0);
+  const useCursor = {}; useNodes.forEach(n=>useCursor[n.id]=n.y0);
+  srcNodes.forEach(s=>{
+    useNodes.forEach(u=>{
+      const v = s.value * (u.value/total);
+      if(v<=0.0001) return;
+      const sh = v/s.value * s.h;
+      const uh = v/u.value * u.h;
+      const sy0=srcCursor[s.id], sy1=sy0+sh;
+      const uy0=useCursor[u.id], uy1=uy0+uh;
+      srcCursor[s.id]=sy1; useCursor[u.id]=uy1;
+      links.push({id:s.id+'|'+u.id, source:s.id, use:u.id, value:v, sy0,sy1,uy0,uy1});
+    });
+  });
+  return {srcNodes, useNodes, links, total};
+}
+
+function rib(x0,sy0,sy1,x1,ty0,ty1){
+  const cx=(x0+x1)/2;
+  return 'M'+x0+','+sy0+
+    'C'+cx+','+sy0+' '+cx+','+ty0+' '+x1+','+ty0+
+    'L'+x1+','+ty1+
+    'C'+cx+','+ty1+' '+cx+','+sy1+' '+x0+','+sy1+'Z';
+}
+
+let selectedNode = '';
+let curYearIdx = 2, playing=false, timer=null;
+const DUR = 900, EASE = d3.easeCubicInOut;
+
+function nodeOpacity(id){
+  if(!selectedNode) return 1;
+  return NODE_GROUP[id]===selectedNode ? 1 : 0.12;
+}
+function linkOpacity(l){
+  if(!selectedNode) return 0.55;
+  return (NODE_GROUP[l.source]===selectedNode || NODE_GROUP[l.use]===selectedNode) ? 0.8 : 0.04;
+}
+
+function draw(yearIdx, animate){
+  const yearKey = YEARS[yearIdx];
+  const lyt = buildLayout(yearKey);
+  const x0 = colX(0), x1 = colX(1);
+  const t = animate ? svg.transition().duration(DUR).ease(EASE) : null;
+
+  // column headers
+  const hdrs = svg.selectAll('text.col-hdr').data([
+    {x:x0+NODE_W/2, t:'Where the money comes from'},
+    {x:x1+NODE_W/2, t:"What it's spent on"}
+  ]);
+  hdrs.enter().append('text').attr('class','col-hdr').attr('y',14)
+    .merge(hdrs).attr('x',d=>d.x).text(d=>d.t);
+  hdrs.exit().remove();
+
+  // ── LINKS ──
+  const link = svg.selectAll('path.link').data(lyt.links, d=>d.id);
+  link.exit().transition().duration(animate?DUR:0).style('opacity',0).remove();
+  const linkEnter = link.enter().append('path').attr('class','link')
+    .attr('fill', d=>cssVar(NODE_META[d.source].color)).attr('fill-opacity',0)
+    .attr('d', d=>rib(x0+NODE_W, d.sy0, d.sy1, x1, d.uy0, d.uy1))
+    .style('opacity',0)
+    .on('mouseenter', function(e,d){ d3.select(this).raise(); })
+    .append('title');
+  svg.selectAll('path.link').filter(d=>lyt.links.find(x=>x.id===d.id))
+    .select('title').text(d=>NODE_META[d.source].short+' → '+NODE_META[d.use].short+': '+fmt(d.value));
+
+  const linkMerge = svg.selectAll('path.link').data(lyt.links, d=>d.id);
+  (animate? linkMerge.transition(t) : linkMerge)
+    .attr('d', d=>rib(x0+NODE_W, d.sy0, d.sy1, x1, d.uy0, d.uy1))
+    .attr('fill-opacity', d=>linkOpacity(d))
+    .style('opacity',1);
+
+  // ── NODES ──
+  const allNodes = lyt.srcNodes.map(n=>Object.assign({col:0,x:x0},n))
+    .concat(lyt.useNodes.map(n=>Object.assign({col:1,x:x1},n)));
+
+  const node = svg.selectAll('rect.node').data(allNodes, d=>d.id);
+  node.exit().transition().duration(animate?DUR:0).style('opacity',0).remove();
+  const nodeEnter = node.enter().append('rect').attr('class','node')
+    .attr('width',NODE_W).style('opacity',0)
+    .on('mouseenter', nodeMouseEnter).on('mouseleave', nodeMouseLeave)
+    .on('click', (e,d)=>{ const g=NODE_GROUP[d.id]; selectedNode = (selectedNode===g? '':g); document.getElementById('node-select').value=selectedNode; applyHighlight(); });
+
+  const nodeMerge = svg.selectAll('rect.node').data(allNodes, d=>d.id);
+  (animate? nodeMerge.transition(t) : nodeMerge)
+    .attr('x', d=>d.x).attr('y', d=>d.y0).attr('height', d=>Math.max(2,d.h))
+    .attr('fill', d=>cssVar(NODE_META[d.id].color))
+    .style('opacity',1);
+
+  // ── LABELS (value + name) ──
+  const lbl = svg.selectAll('g.node-lbl').data(allNodes, d=>d.id);
+  lbl.exit().remove();
+  const lblEnter = lbl.enter().append('g').attr('class','node-lbl');
+  lblEnter.append('text').attr('class', d=>d.col===0?'lbl-l':'lbl-r');
+  lblEnter.append('text').attr('class', d=>d.col===0?'lbl-al':'lbl-a').attr('dy',13);
+
+  const lblMerge = svg.selectAll('g.node-lbl').data(allNodes, d=>d.id);
+  lblMerge.attr('transform', d=> {
+    const tx = d.col===0 ? d.x-8 : d.x+NODE_W+8;
+    const ty = (d.y0+d.y1)/2;
+    return 'translate('+tx+','+ty+')';
+  });
+  const FN_GLYPH = {'fn-1':'①','fn-3':'③','fn-7':'⑦','fn-12':'⑫','fn-13':'⑬'};
+  lblMerge.select('text.lbl-l, text.lbl-r').text(d=>{
+    const m = NODE_META[d.id];
+    if(projectionMode) return m.short + ' ' + FN_GLYPH['fn-13']; // every projected figure carries the same modelling caveat
+    const fnMark = m.fn ? ' '+(FN_GLYPH[m.fn]||'') : '';
+    return m.short + fnMark;
+  });
+  lblMerge.select('text.lbl-a, text.lbl-al').text(d=>fmt(d.value));
+
+  document.getElementById('fy-disp').textContent = yearKey;
+  updateStats(yearKey);
+  updateSnapshotPanel(yearKey);
+}
+
+function applyHighlight(){
+  svg.selectAll('rect.node').transition().duration(200).style('opacity', d=>nodeOpacity(d.id));
+  svg.selectAll('path.link').transition().duration(200).attr('fill-opacity', d=>linkOpacity(d));
+  svg.selectAll('g.node-lbl').transition().duration(200).style('opacity', d=>nodeOpacity(d.id)===1?1:0.25);
+}
+
+// ── Stats bar ──
+function updateStats(yearKey){
+  const d = getYearRecord(yearKey);
+
+  if(d.projected){
+    document.getElementById('lbl-tot').textContent = 'Projected total spend';
+    const totShown = d.employee + d.other;
+    document.getElementById('s-tot').textContent = fmt(totShown);
+    const capVal = (totShown*1000000/POP_EST);
+    document.getElementById('s-cap').textContent = '£'+Math.round(capVal).toLocaleString()+' (static population — see note ⑩)';
+
+    const baseRec = PROJECTION_YEAR_DATA[PROJECTION_ASSUMPTIONS.baseYear];
+    const baseTotal = baseRec.employee + baseRec.other;
+    const growthPct = (totShown/baseTotal - 1) * 100;
+    const cagr = d.yearsOut>0 ? (Math.pow(totShown/baseTotal, 1/d.yearsOut)-1)*100 : 0;
+    document.getElementById('lbl-budget').textContent = 'Growth vs base year (' + PROJECTION_ASSUMPTIONS.baseYear + ')';
+    const varEl = document.getElementById('s-var');
+    varEl.textContent = d.yearsOut>0 ? ('+'+growthPct.toFixed(0)+'% total · '+cagr.toFixed(2)+'%/yr CAGR') : 'Base year — 0%';
+    varEl.className = 'stat-val';
+
+    const cipEl = document.getElementById('s-cip');
+    cipEl.textContent = (PROJECTION_ASSUMPTIONS.general.cipOffset*100).toFixed(1)+'%/yr assumed (modelled, not delivered)';
+    cipEl.className = 'stat-val';
+    return;
+  }
+
+  document.getElementById('lbl-tot').textContent = useConstPrices ? 'Total spent (2024-25 prices)' : 'Total spent';
+  const totNom = d.actual ? d.total : d.mandateTarget;
+  const totShown = defl(totNom, yearKey);
+  document.getElementById('s-tot').textContent = d.actual ? fmt(totShown) : fmt(totShown)+' (target)';
+  const capVal = (totShown*1000000/POP_EST);
+  document.getElementById('s-cap').textContent = '£'+Math.round(capVal).toLocaleString();
+
+  const varEl = document.getElementById('s-var');
+  const lblBudget = document.getElementById('lbl-budget');
+  if(d.actual){
+    const budgetShown = defl(d.budget, yearKey);
+    const variance = totShown - budgetShown;
+    const pctv = (variance/budgetShown*100);
+    lblBudget.textContent = 'Vs. Government Budget target';
+    varEl.textContent = (variance>=0?'+':'') + fmt(variance) + ' (' + (pctv>=0?'+':'') + pctv.toFixed(1) + '%)';
+    varEl.className = 'stat-val ' + (variance>0.05?'flag':(variance<-0.05?'good':''));
+  } else {
+    lblBudget.textContent = 'Government Budget target';
+    varEl.textContent = fmt(totShown) + ' — year not yet complete';
+    varEl.className = 'stat-val';
+  }
+
+  const cipEl = document.getElementById('s-cip');
+  if(d.cip){
+    // CIP always shown in cash terms — see fn-4
+    cipEl.textContent = fmt(d.cip.delivered) + ' vs ' + fmt(d.cip.target) + ' target';
+    cipEl.className = 'stat-val good';
+  } else {
+    cipEl.textContent = 'Not yet available';
+    cipEl.className = 'stat-val';
+  }
+}
+
+// ── Directorate snapshot + budget-category panel (always shown in cash terms — see fn-6/⑪) ──
+function directorateBlockHTML(d){
+  if(!d.directorates){
+    return '<h4>Spend by service area</h4>'+
+      '<div class="snap-empty">This deeper "by service area" breakdown is only published for 2024-25 — Manx Care doesn\'t report this level of detail for other years. Move the year slider to 2024-25 to see it.</div>';
+  }
+  const max = Math.max(...d.directorates.map(x=>x.v));
+  let html = '<h4>2024-25 spend by service area</h4>'+
+    '<div class="snap-sub">A deeper look at where 2024-25\'s money went, from Manx Care\'s own Annual Report. Only available for this year — see note <a class="fn-marker" href="#fn-6" onclick="openGov()">⑥</a>.</div>';
+  d.directorates.forEach(x=>{
+    html += '<div class="snap-row"><div class="snap-row-top"><span class="nm">'+x.name+'</span><span class="vl">'+fmt(x.v)+'</span></div>'+
+      '<div class="snap-bar-track"><div class="snap-bar-fill" style="width:'+(x.v/max*100).toFixed(1)+'%"></div></div></div>';
+  });
+  html += '<div class="snap-note">These named categories total £'+d.directoratesNamedTotal.toFixed(1)+'m — but Manx Care\'s own report gives £'+d.directoratesGroupTotal.toFixed(1)+'m as the "Clinical Care Groups" subtotal for the same services. The £'+(d.directoratesGroupTotal-d.directoratesNamedTotal).toFixed(1)+'m gap isn\'t itemised in the published report. See note <a class="fn-marker" href="#fn-6" onclick="openGov()">⑥</a>.</div>';
+  return html;
+}
+
+function budgetCategoryBlockHTML(d, yearKey){
+  if(!d.budgetCategories){
+    return '<h4>DHSC budget by category</h4>'+
+      '<div class="snap-empty">DHSC\'s own category-level budget (payroll, agency &amp; contracted, supplies, transport, grants, infrastructure) is only available for 2023-24 and 2024-25.</div>';
+  }
+  const bc = d.budgetCategories;
+  const items = [
+    ['Staff pay (payroll)', bc.payroll],
+    ['Agency, contracted &amp; temporary staff services', bc.agency],
+    ['Medicines, equipment &amp; supplies', bc.supplies],
+    ['Transport', bc.transport],
+    ['Grants to other care providers', bc.grants],
+    ['Buildings &amp; infrastructure', bc.infra],
+  ];
+  const max = Math.max(...items.map(x=>x[1]));
+  let html = '<h4>DHSC budget by category ('+yearKey+')</h4>'+
+    '<div class="snap-sub"><span style="color:var(--flag);font-weight:600">Budgeted, not actual</span> — and covers DHSC as a whole, not Manx Care alone. See note <a class="fn-marker" href="#fn-11" onclick="openGov()">⑪</a>.</div>';
+  items.sort((a,b)=>b[1]-a[1]).forEach(([name,v])=>{
+    html += '<div class="snap-row"><div class="snap-row-top"><span class="nm">'+name+'</span><span class="vl">'+fmt(v)+'</span></div>'+
+      '<div class="snap-bar-track"><div class="snap-bar-fill" style="width:'+(v/max*100).toFixed(1)+'%;background:var(--gov)"></div></div></div>';
+  });
+  return html;
+}
+
+function assumptionsBlockHTML(yearKey){
+  const a = PROJECTION_ASSUMPTIONS;
+  const d = getYearRecord(yearKey);
+  let html = '<h4>Projection assumptions</h4>'+
+    '<div class="snap-sub">Modelled growth rates, not approved budgets. See note <a class="fn-marker" href="#fn-13" onclick="openGov()">⑬</a>.</div>';
+  const rows = [
+    ['Staff pay', a.categories.staff.growth],
+    ['Treatment sent to UK hospitals', a.categories.offisland.growth],
+    ['Patient transport', a.categories.ptransport.growth],
+    ['Medicines, equipment & running costs', a.categories.otherrun.growth],
+    ["Manx Care's own income", a.ownIncomeGrowth],
+  ];
+  const max = Math.max(...rows.map(r=>r[1]));
+  rows.forEach(([name,rate])=>{
+    html += '<div class="snap-row"><div class="snap-row-top"><span class="nm">'+name+'</span><span class="vl">'+(rate*100).toFixed(2)+'%/yr</span></div>'+
+      '<div class="snap-bar-track"><div class="snap-bar-fill" style="width:'+(rate/max*100).toFixed(1)+'%;background:var(--supp)"></div></div></div>';
+  });
+  html += '<div class="snap-note" style="color:var(--muted)">Base year: '+a.baseYear+' · '+d.yearsOut+' year'+(d.yearsOut===1?'':'s')+' out.'+
+    ' Baseline formula (staff, running costs): CPI ('+(a.general.cpi*100).toFixed(1)+'%) + demand growth ('+(a.general.demand*100).toFixed(2)+'%) − CIP/efficiency ('+(a.general.cipOffset*100).toFixed(1)+'%) — the same methodology DHSC\'s own 2024/25 Financial Plan uses. Off-Island care carries an extra, un-sourced premium for its historically volatile growth. Adjust any of these in the <code>PROJECTION_ASSUMPTIONS</code> object in the code.</div>';
+  return html;
+}
+
+function updateSnapshotPanel(yearKey){
+  const panel = document.getElementById('snap-panel');
+  if(projectionMode){
+    panel.innerHTML = assumptionsBlockHTML(yearKey);
+    return;
+  }
+  const d = YEAR_DATA[yearKey];
+  panel.innerHTML = directorateBlockHTML(d) + '<div class="snap-sep"></div>' + budgetCategoryBlockHTML(d, yearKey);
+}
+
+// ── Hover time-series popup ──
+let tsChart=null, tsHideTimer=null;
+
+function getNodeTimeSeries(nodeId){
+  const vals = YEARS.map(yk=>{
+    const {sources, uses} = computeFlow(yk);
+    const n = sources.find(s=>s.id===nodeId) || uses.find(u=>u.id===nodeId);
+    return n ? n.value : null;
+  });
+  return {years:YEARS, vals};
+}
+
+function showTsPopup(nodeId, svgRect){
+  clearTimeout(tsHideTimer);
+  const popup = document.getElementById('ts-popup');
+  const {years, vals} = getNodeTimeSeries(nodeId);
+  const m = NODE_META[nodeId];
+  const color = cssVar(m.color);
+  const isEstYear = i => !getYearRecord(years[i]).actual;
+
+  const onlyLatestYear = !projectionMode && ['offisland','ptransport','otherrun'].includes(nodeId);
+  document.getElementById('ts-title').textContent = m.short;
+  if(projectionMode){
+    const curYearKey = YEARS[curYearIdx];
+    const cagr = getProjectionCAGR(nodeId, curYearKey);
+    document.getElementById('ts-sub').textContent = cagr==null
+      ? ('Base year ' + PROJECTION_ASSUMPTIONS.baseYear + ' — modelled projection, see note ⑬')
+      : ('Base year ' + PROJECTION_ASSUMPTIONS.baseYear + ' → ' + curYearKey + ' · ' + (cagr*100).toFixed(2) + '%/yr · modelled, not an approved budget — see note ⑬');
+  } else {
+    document.getElementById('ts-sub').textContent = onlyLatestYear
+      ? 'Only published for 2024-25 — see note ⑦'
+      : (useConstPrices?'2024-25 prices':'Nominal (cash)') + ' £, by year' + (nodeId==='staff'||nodeId==='other' ? ' · 2025-26 is an estimate, not an actual — see note ⑨' : '');
+  }
+
+  const canvas = document.getElementById('ts-canvas');
+  if(tsChart){ tsChart.destroy(); tsChart=null; }
+  const isLight = document.body.classList.contains('light');
+  tsChart = new Chart(canvas,{
+    type:'line',
+    data:{
+      labels: years,
+      datasets:[{
+        data: vals,
+        borderColor: color,
+        backgroundColor: color+'33',
+        borderWidth:2,
+        pointRadius: vals.map((v,i)=>isEstYear(i)?4:3),
+        pointStyle: vals.map((v,i)=>isEstYear(i)?'rectRot':'circle'),
+        pointBackgroundColor: color,
+        segment:{ borderDash: ctx => isEstYear(ctx.p1DataIndex) ? [4,3] : undefined },
+        fill:true, tension:0.25, spanGaps:true
+      }]
+    },
+    options:{
+      animation:false, responsive:false,
+      plugins:{legend:{display:false}, tooltip:{
+        callbacks:{label:ctx=>fmt(ctx.raw)},
+        backgroundColor:isLight?'#ffffff':'#12222a', titleColor:isLight?'#33625b':'#e2ecea', bodyColor:isLight?'#0f172a':'#7e9a94',
+        borderColor:isLight?'#cce8e4':'#2b4049', borderWidth:1
+      }},
+      scales:{
+        x:{ticks:{color:isLight?'#1e4a44':'#a9c1bb', font:{size:8}, maxRotation:0}, grid:{color:isLight?'rgba(15,23,42,0.07)':'rgba(226,236,234,0.06)'}},
+        y:{ticks:{color:isLight?'#1e4a44':'#a9c1bb', font:{size:8}, callback:v=>'£'+v+'m'}, grid:{color:isLight?'rgba(15,23,42,0.07)':'rgba(226,236,234,0.06)'}}
+      }
+    }
+  });
+
+  popup.style.visibility='hidden'; popup.style.display='block';
+  const pw=popup.offsetWidth||260, ph=popup.offsetHeight||160;
+  popup.style.visibility='';
+  const vw=window.innerWidth, vh=window.innerHeight;
+  let px=svgRect.right+12, py=svgRect.top-ph/2;
+  if(px+pw>vw-10) px=svgRect.left-pw-12;
+  if(py<10) py=10;
+  if(py+ph>vh-10) py=vh-ph-10;
+  popup.style.left=px+'px'; popup.style.top=py+'px';
+}
+function hideTsPopup(){ tsHideTimer=setTimeout(()=>{ document.getElementById('ts-popup').style.display='none'; },120); }
+function nodeMouseEnter(event,d){ showTsPopup(d.id, event.target.getBoundingClientRect()); }
+function nodeMouseLeave(){ hideTsPopup(); }
+document.getElementById('ts-popup').addEventListener('mouseenter', ()=>clearTimeout(tsHideTimer));
+document.getElementById('ts-popup').addEventListener('mouseleave', hideTsPopup);
+
+// ── Focus-on dropdown ──
+document.getElementById('node-select').addEventListener('change', function(){
+  selectedNode = this.value;
+  applyHighlight();
+});
+
+// ── Constant prices toggle ──
+document.getElementById('deflate-chk').addEventListener('change', function(){
+  useConstPrices = this.checked;
+  draw(curYearIdx, false);
+});
+
+// ── Plain / Technical toggle (governs governance-note depth only — labels stay plain-English) ──
+function setAudience(a){
+  document.getElementById('btn-plain').classList.toggle('active', a==='plain');
+  document.getElementById('btn-tech').classList.toggle('active', a==='tech');
+}
+
+// ── Year slider / pills / animate ──
+function fyStr(i){ return YEARS[i]; }
+function setYear(i, animate){
+  curYearIdx = i;
+  document.getElementById('yr-slider').value = i;
+  updatePills(i);
+  draw(i, animate);
+}
+function play(){
+  playing = true;
+  document.getElementById('play-icon').innerHTML='&#10074;&#10074;';
+  document.getElementById('play-label').textContent='Pause';
+  timer = setInterval(()=>{
+    let next = curYearIdx+1;
+    if(next>YEARS.length-1){ stop(); return; }
+    setYear(next, true);
+  }, DUR+350);
+}
+function stop(){
+  playing=false; clearInterval(timer);
+  document.getElementById('play-icon').innerHTML='&#9654;';
+  document.getElementById('play-label').textContent='Animate';
+}
+document.getElementById('play-btn').addEventListener('click', ()=>{
+  if(playing) stop();
+  else { if(curYearIdx>=YEARS.length-1) setYear(0,false); play(); }
+});
+document.getElementById('yr-slider').addEventListener('input', function(){
+  stop(); setYear(+this.value, true);
+});
+
+function rebuildPills(){
+  const wrap = document.getElementById('yr-pills');
+  wrap.innerHTML = '';
+  YEARS.forEach((yk,i)=>{
+    const b=document.createElement('button');
+    b.className='yr-pill'+(i===curYearIdx?' active':'');
+    b.textContent=yk;
+    b.onclick=()=>{ stop(); setYear(i,true); };
+    wrap.appendChild(b);
+  });
+}
+function updatePills(i){
+  document.querySelectorAll('.yr-pill').forEach((p,idx)=>p.classList.toggle('active', idx===i));
+}
+
+// yr-marks used to be a fixed 4-span strip for the 4 historical years; now generated so the
+// same slider can show either the historical run or an N-year projection run.
+function renderYearMarks(){
+  const wrap = document.getElementById('yr-marks');
+  wrap.innerHTML = '';
+  // Thin out labels if there are many (e.g. a 30-year run) so they don't overlap.
+  const showEvery = YEARS.length > 12 ? Math.ceil(YEARS.length/8) : 1;
+  YEARS.forEach((yk,i)=>{
+    const span = document.createElement('span');
+    span.textContent = (i%showEvery===0 || i===YEARS.length-1) ? yk : '';
+    wrap.appendChild(span);
+  });
+}
+
+// ── Projection mode: horizon selector + checkbox ──────────────────────────
+function updateSankeyForHorizon(){
+  stop();
+  if(projectionMode){
+    const horizon = +document.getElementById('horizon-select').value;
+    buildSankeyLinksForHorizon(horizon);
+    YEARS = PROJECTION_YEARS;
+  } else {
+    YEARS = HIST_YEARS;
+  }
+  curYearIdx = 0;
+  const slider = document.getElementById('yr-slider');
+  slider.min = 0; slider.max = YEARS.length-1; slider.value = 0;
+  renderYearMarks();
+  rebuildPills();
+  draw(0,false);
+}
+document.getElementById('proj-chk').addEventListener('change', function(){
+  projectionMode = this.checked;
+  document.getElementById('horizon-select').disabled = !projectionMode;
+  document.getElementById('deflate-chk').disabled = projectionMode; // deflator doesn't apply to projections — always base-year prices, see fn-13
+  updateSankeyForHorizon();
+});
+document.getElementById('horizon-select').addEventListener('change', function(){
+  if(projectionMode) updateSankeyForHorizon();
+});
+
+// ── Governance notes toggle ──
+function toggleGov(){
+  document.getElementById('gov-notes').classList.toggle('open');
+  document.getElementById('gov-toggle').classList.toggle('open');
+}
+function openGov(){
+  const notes=document.getElementById('gov-notes');
+  if(!notes.classList.contains('open')){ notes.classList.add('open'); document.getElementById('gov-toggle').classList.add('open'); }
+}
+document.querySelectorAll('a.fn-marker').forEach(a=>{
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    openGov();
+    setTimeout(()=>{ document.getElementById(this.getAttribute('href').slice(1))?.scrollIntoView({behavior:'smooth',block:'start'}); }, 60);
+  });
+});
+
+// ── Redraw hook for theme sync ──
+window._msRedraw = ()=>draw(curYearIdx, false);
+
+// ── Init ──
+function init(){ dims(); renderYearMarks(); rebuildPills(); draw(curYearIdx,false); }
+window.addEventListener('resize', ()=>{ dims(); draw(curYearIdx,false); });
+init();
+</script>
+</body>
+</html>
