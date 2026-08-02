@@ -1008,80 +1008,6 @@ body[data-lens="public"] .opp-actions, body[data-lens="public"] .wn-out { displa
   a { color: #111827 !important; text-decoration: none; }
   .page-footer { margin-top: 20px; }
 }
-
-/* ══════════════════════════════════════════════════════════════════════
-   MOBILE SIMPLIFIED MODE — public view only, text cut drastically,
-   graphics and numbers brought forward. Scoped to ≤780px; desktop and
-   tablet layouts above that width are completely untouched.
-   James, Session 12: "way too text heavy on mobile... bring the graphics
-   and important data elements front and centre." ══════════════════════ */
-@media (max-width: 780px) {
-
-  /* Public view only on mobile — lock the lens, hide the switch */
-  body[data-lens] [data-lens] { display: none !important; }
-  body[data-lens] [data-lens~="public"] { display: block !important; }
-  .lens-switch { display: none !important; }
-  .opp-actions, .wn-out { display: none !important; }
-
-  /* Trim the header chrome */
-  .brand-sub { display: none; }
-  .topbar-inner { gap: 8px; }
-  .obs-nav {
-    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-    mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
-  }
-
-  /* Onboarding whisper: one short line, not a three-step lecture */
-  .whisper > b { display: none; }
-  .whisper .w-step:nth-of-type(1) { display: none; }
-  .whisper::before {
-    content: "Tap a tile to explore an island · tap any number for its source";
-    font-size: 11px; color: var(--muted2); flex: 1 1 100%;
-  }
-
-  /* Lens framing text: the point is the number, not the paragraph */
-  .lens-note {
-    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-    overflow: hidden; font-size: 11px; padding: 10px 12px;
-  }
-
-  /* Section labels: headline only — no long subtitle trailing off the edge */
-  .section-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
-
-  /* Comparability caveat: methodology chrome, not a mobile-first read */
-  .compare-banner { display: none; }
-
-  /* Chip legend (where a page still uses it): keep the coloured chips as a visual key, drop the sentences */
-  .chip-legend { grid-template-columns: repeat(2, auto); gap: 6px 12px; padding: 9px 11px; }
-  .chip-legend .cl-def { display: none; }
-
-  /* Dashboard links become tappable icon tiles, not description cards */
-  .dash-links { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .dash-link { padding: 16px 10px; text-align: center; }
-  .dash-link .dl-num { display: block; font-size: 17px; margin-bottom: 4px; }
-  .dash-link .dl-name { margin: 0; font-size: 12px; }
-  .dash-link .dl-desc { display: none; }
-
-  /* Search/refine toolbar (Governance reviews): politician-grade tool, off by default on mobile */
-  .filter-bar:has(#searchInput) { display: none !important; }
-
-  /* View-toggle button rows: pick the richer default (see page JS) and drop the switcher */
-  .card-controls { display: none !important; }
-
-  /* Footer: keep the essentials, drop the long source-list trailer */
-  .page-footer { font-size: 9px; }
-  .page-footer span:last-child { display: none; }
-
-  /* Methodology accordion stays collapsed and out of the way */
-  .method-details summary { padding: 10px 12px; font-size: 10px; }
-}
-
-@media (max-width: 480px) {
-  .lens-note { -webkit-line-clamp: 1; }
-  .dash-links { grid-template-columns: 1fr; }
-  .dash-link { display: flex; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; }
-  .dash-link .dl-num { margin-bottom: 0; }
-}
 </style>
 </head>
 <body>
@@ -9632,6 +9558,7 @@ Object.assign(OBS, {"mcWorkforce": {"labels": ["Apr 21", "May 21", "Jun 21", "Ju
 
 /* ==== EXTENSION 7: 5yr finance / GP anchor / population health (gen_data7.py) ==== */
 Object.assign(OBS, {"mcFinance5yr": {"years": ["2021/22", "2022/23", "2023/24", "2024/25", "2025/26"], "budget": [269064.0, 282858.0, 313275.0, 346823.0, 361822.0], "expenditure": [279061.0, 291624.0, 344394.0, 362433.0, 376678.0], "variance": [-9997.0, -8767.0, -31119.0, -15610.0, -14856.0], "cipTotal5yr": 42000, "agency": {"y2122": 13200, "y2526": 6300}, "bank2526": 15300, "src": "Manx Care, Five Years In Review (Jun 2026) p28-31 — manx-care/annual-reports/ManxCare_5_Year_Retrospective.pdf", "note": "Operational budget vs expenditure excluding fund claims, as published by Manx Care. The 2023/24 deficit peak (£31.1m) coincided with 6% pay uplifts (£14.8m) and CQC/OFSTED implementation costs."}, "gpEnglandAnchor": {"avgTotalPerPatient": 169.74, "year": "2023/24", "src": "NHS England Digital, NHS Payments to General Practice 2023/24 (pub. 29 May 2025)", "note": "England average TOTAL NHS payment per registered patient (all categories: global sum, PMS balance, QOF, premises etc.; PCN-attributed categories removed from 2023/24). NOT comparable 1:1 with the global sum per weighted patient, and not directly comparable with IoM’s £120 flat capitation unless what the £120 covers is published."}, "popHealth": {"note": "Population-health scorecard — values shown verbatim from published sources held in the library; blue chips = published somewhere, not yet extracted; red chips = not published anywhere we can find. Bases differ (single-year vs 3-yr rolling; registration vs occurrence) — read the basis under every number.", "rows": [{"metric": "Life expectancy at birth", "unit": "years", "cells": {"iom": {"d": "m 79.4 · f 84.4", "basis": "3-yr rolling (Mortality Report 2023, §8.1)", "src": "IoM Mortality Report 2023"}, "jsy": {"d": "m 81.3 · f 84.9", "basis": "2021-23 · 2022-24 edition published — refresh next pass", "src": "Jersey PH Life Expectancy & HLE Report (Oct 2024)"}, "gsy": {"d": "83.6 (persons)", "basis": "2022-24 3-yr rolling", "src": "Guernsey Mortality Trends 2024 / Better Life Indicators"}, "ork": {"d": "m 79.3 · f 82.8", "basis": "2022-24 3-yr abridged · CIs m 77.7-80.9, f 81.4-84.1", "src": "NRS Life Expectancy in Scotland 2022-2024, Table 4 (workbook in library 15 Jul 2026)"}, "shl": {"d": "m 79.5 · f 83.9", "basis": "2022-24 3-yr abridged · CIs m 78.1-80.8, f 82.7-85.2 · highest female LE of the six islands", "src": "NRS LE 2022-2024, Table 4"}, "wis": {"d": "m 76.8 · f 80.8", "basis": "2022-24 3-yr abridged · CIs m 75.5-78.1, f 79.3-82.2 · lowest of the three Scottish island boards", "src": "NRS LE 2022-2024, Table 4"}, "eng": {"d": "m 79.4 · f 83.3", "basis": "2022-24", "src": "ONS National life tables UK 2022-2024 (10 Dec 2025)"}}}, {"metric": "Healthy life expectancy at birth", "unit": "years", "cells": {"iom": {"d": "not published", "gap": true, "red": true, "note": "DFLE/HALE not calculated — Mortality Report 2022 has no HLE section"}, "jsy": {"d": "m 63.8 · f 61.2", "basis": "2022/23 · CORRECTED: Jersey DOES publish HLE (was marked not-published)", "src": "Jersey PH Life Expectancy & HLE Report (Oct 2024)"}, "gsy": {"d": "60.2 (m 61.6 · f 59.4)", "basis": "2022-24 · HLE at 65 = 13.7 yrs", "src": "Guernsey Mortality Trends 2024 §3.2"}, "ork": {"d": "m 72.9 · f 74.1", "basis": "2022-24 · above the Scottish average both sexes · wide CIs (f 63.2-85.0) · Official Statistics in Development (ONS interim method; APS accreditation suspended)", "src": "NRS Healthy Life Expectancy 2022-2024, Table 3"}, "shl": {"d": "m 68.3 · f 70.8", "basis": "2022-24 · CIs ±10-12 yrs · Official Statistics in Development", "src": "NRS HLE 2022-2024, Table 3"}, "wis": {"d": "m 63.4 · f 64.5", "basis": "2022-24 · CIs f 51.0-77.9 — NRS: interpret with extreme caution · Official Statistics in Development", "src": "NRS HLE 2022-2024, Table 3"}, "eng": {"d": "m 60.9 · f 61.3", "basis": "2021-23 · 2022-24 edition published — refresh next pass", "src": "ONS Health state life expectancies UK"}}}, {"metric": "Suicide mortality", "unit": "age-standardised rate per 100,000 (bases differ)", "cells": {"iom": {"d": "17.8", "basis": "3-yr 2020-22", "src": "IoM Mortality Report 2022 (GD 2024/0073)"}, "jsy": {"d": "7.0", "basis": "3-yr 2021-23", "src": "Jersey Mortality Statistics 2024 Fig 17"}, "gsy": {"d": "9.6", "basis": "3-yr 2021-23 · closed inquests only (max 11.x pending)", "src": "Guernsey Mortality Trends 2024 Fig 51"}, "ork": {"d": "19.8", "basis": "5-yr 2020-24 ASMR · 20 deaths · CI 11.0-28.7 vs Scotland 14.0 — above average but not statistically significant", "src": "NRS Probable Suicides 2024, Table 3B"}, "shl": {"d": "10.6", "basis": "5-yr 2020-24 · 12 deaths · CI 4.6-16.7 — lowest board rate in Scotland (not significant vs avg)", "src": "NRS Probable Suicides 2024, Table 3B"}, "wis": {"d": "22.5", "basis": "5-yr 2020-24 · 27 deaths · CI 13.7-31.4 — highest board rate in Scotland, wide CI overlaps Scottish avg", "src": "NRS Probable Suicides 2024, Table 3B"}, "eng": {"d": "11.4 (E&W)", "basis": "2024 registrations · post-2018 civil standard", "src": "ONS Suicides in E&W, 2024 registrations"}}}, {"metric": "Infant mortality", "unit": "deaths <1yr per 1,000 live births", "cells": {"iom": {"d": "not published", "gap": true, "red": true, "note": "Mortality Report 2023 has NO infant mortality section (checked 14 Jul 2026); births-deaths FOI (D4E resubmission) pending"}, "jsy": {"d": "<5 deaths/yr", "basis": "2024 · counts suppressed <5 every year since 2009 — no rate derivable", "src": "Jersey Mortality Report 2024 p2"}, "gsy": {"d": "0.7", "basis": "3-yr 2022-24 · 15 infant deaths over 2012-24 · wide CIs", "src": "Guernsey Mortality Trends 2024 §4.3 Fig 15"}, "ork": {"d": "0 deaths (2024)", "basis": "0 infant deaths of 146 live births · single year, counts ~0-2/yr — no stable rate derivable (Scotland 3.5/1k)", "src": "NRS Vital Events 2024, Table 1.03"}, "shl": {"d": "0 deaths (2024)", "basis": "0 of 166 live births · single year — no stable rate derivable", "src": "NRS Vital Events 2024, Table 1.03"}, "wis": {"d": "0 deaths (2024)", "basis": "0 of 176 live births · single year — no stable rate derivable", "src": "NRS Vital Events 2024, Table 1.03"}, "eng": {"d": "3.9", "basis": "2023 · England & Wales · W Mids highest 6.1, SW lowest 2.5", "src": "ONS Child & infant mortality in E&W 2023 (Apr 2025)"}}}, {"metric": "Childhood immunisation (MMR2 by age 5)", "unit": "% coverage", "cells": {"iom": {"d": "to collect", "gap": true, "note": "coverage published intermittently — collection target (PH IoM annual report)"}, "jsy": {"d": "to collect", "gap": true, "note": "Jersey publishes childhood immunisation stats — to collect"}, "gsy": {"d": "to collect", "gap": true, "note": "to collect (PH Guernsey)"}, "ork": {"d": "94.8%", "basis": "year ending 31 Mar 2026 · 184 of 194 · WHO target 95%", "src": "PHS Childhood Immunisation open data (extracted 14 Jul 2026)", "series": [96.8, 96.2, 93.3, 93.8, 94.2, 94.8], "seriesLabels": ["FY21", "FY22", "FY23", "FY24", "FY25", "FY26"]}, "shl": {"d": "86.7%", "basis": "year ending 31 Mar 2026 · 169 of 195", "src": "PHS Childhood Immunisation open data (extracted 14 Jul 2026)", "series": [83.7, 87.1, 84.7, 79.9, 88.1, 86.7], "seriesLabels": ["FY21", "FY22", "FY23", "FY24", "FY25", "FY26"]}, "wis": {"d": "86.1%", "basis": "year ending 31 Mar 2026 · 149 of 173", "src": "PHS Childhood Immunisation open data (extracted 14 Jul 2026)", "series": [89.0, 95.3, 92.7, 91.3, 90.9, 86.1], "seriesLabels": ["FY21", "FY22", "FY23", "FY24", "FY25", "FY26"]}, "eng": {"d": "83.7%", "basis": "FY 2024-25 · UK 84.4% · London under-recording caveat", "src": "UKHSA COVER annual report England 2024-25"}}}, {"metric": "Cancer screening coverage (breast · bowel · cervical)", "unit": "% of eligible population", "cells": {"iom": {"d": "to collect", "gap": true, "note": "NB the 2025Cancer_Statistics.pdf in the library is a GUERNSEY FOI response, not IoM screening (checked 14 Jul 2026) — IoM screening still to collect (PH IoM)"}, "jsy": {"d": "to collect", "gap": true, "note": "screening programme stats published — to collect"}, "gsy": {"d": "to collect", "gap": true, "note": "to collect (PH Guernsey)"}, "ork": {"d": "bowel 70.0 · cervical 63.5", "basis": "bowel=uptake May23-Apr25 (target 60) · cervical=coverage 25-64 FY2024/25 · both ABOVE Scotland (65.2 / 55.3) · breast: NO reliable figure — PHS suspended accreditation Feb 2026 (data-quality errors)", "src": "PHS bowel KPI report Apr 2026, Table 1 · PHS cervical open data (both extracted 15 Jul 2026)"}, "shl": {"d": "bowel 73.6 · cervical 63.4", "basis": "bowel=uptake May23-Apr25 — HIGHEST board uptake in Scotland · cervical=coverage 25-64 FY2024/25 · breast: no reliable figure (accreditation suspended Feb 2026)", "src": "PHS bowel KPI Apr 2026, Table 1 · PHS cervical open data"}, "wis": {"d": "bowel 67.6 · cervical 59.1", "basis": "bowel=uptake May23-Apr25 · cervical=coverage 25-64 FY2024/25 · both above Scotland (65.2 / 55.3) · breast: no reliable figure (accreditation suspended Feb 2026)", "src": "PHS bowel KPI Apr 2026, Table 1 · PHS cervical open data"}, "eng": {"d": "breast 70.6 · bowel 67.6 · cervical 68.8", "basis": "breast=uptake 2024-25 · bowel=uptake 2023-24 (coverage 71.8) · cervical=coverage 25-64 2023-24 — MEASURES DIFFER", "src": "NHSE Digital / gov.uk screening statistics"}}}]}});
+
 </script>
 <script>
 
