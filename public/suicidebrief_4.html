@@ -155,42 +155,6 @@ details.drop>summary:hover{color:var(--text)}
 .drop-body .pillar:first-of-type{margin-top:.9rem}
 footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);font-size:10.5px;color:var(--muted);line-height:1.65}
 .lede,p.body,.big,.recur,.thesis-body,.coda p,blockquote{max-width:none}
-
-/* ---------- view toggle: Public / Technical ---------- */
-.viewbar{display:flex;justify-content:center;align-items:center;gap:.7rem;padding:.1rem 0 1.15rem;flex-wrap:wrap}
-.viewbar-lab{font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
-.viewpill{display:inline-flex;border:1px solid var(--border2);border-radius:7px;overflow:hidden;background:var(--surface)}
-.viewpill button{appearance:none;background:transparent;border:0;border-right:1px solid var(--border2);color:var(--muted);font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:8px 22px;cursor:pointer;transition:background .18s,color .18s}
-.viewpill button:last-child{border-right:0}
-.viewpill button:hover{color:var(--text)}
-.viewpill button[aria-pressed="true"]{background:var(--green);color:var(--bg)}
-.view{display:none}
-.view.on{display:block}
-
-/* ---------- public view ---------- */
-.p-hero{padding:1.1rem 0 1.2rem;border-bottom:1px solid var(--border2);margin-bottom:1.2rem}
-.p-hero h1{margin-bottom:.8rem}
-.p-lede{font-size:16.5px;color:var(--muted2);line-height:1.7}
-.p-lede strong{color:var(--text)}
-.p-h{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:2.1rem 0 .7rem}
-.p-card{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--amber);border-radius:9px;padding:.95rem 1.15rem;margin:.75rem 0}
-.p-card h3{font-size:14.5px;font-weight:800;margin-bottom:.3rem;letter-spacing:-0.01em}
-.p-card p{font-size:13.5px;color:var(--muted2);line-height:1.72}
-.p-card p strong{color:var(--text)}
-.p-card.c2{border-left-color:var(--red)}
-.p-card.c3{border-left-color:var(--cyan)}
-.p-say{background:var(--surface);border:1px solid var(--border2);border-top:2px solid var(--red);border-radius:9px;padding:1rem 1.2rem;margin:1.3rem 0;font-size:13.5px;color:var(--muted2);line-height:1.75}
-.p-say strong{color:var(--text)}
-.p-do{list-style:none;margin:.6rem 0 0;padding:0}
-.p-do li{position:relative;padding-left:1.4rem;margin:.55rem 0;font-size:13.5px;color:var(--muted2);line-height:1.68}
-.p-do li:before{content:"→";position:absolute;left:0;color:var(--green);font-weight:800}
-.p-do li strong{color:var(--text)}
-.p-kicker{font-size:19px;font-weight:800;line-height:1.4;letter-spacing:-0.01em;color:var(--text);margin:1.5rem 0 .3rem}
-.p-kicker .pop{color:var(--amber)}
-.p-more{background:var(--surface2);border:1px dashed var(--border2);border-radius:9px;padding:1rem 1.15rem;margin:1.6rem 0 .4rem;font-size:13px;color:var(--muted2);line-height:1.7}
-.p-more a{color:var(--blue)}
-.p-btn{display:inline-block;margin-top:.7rem;background:var(--green);color:var(--bg);border:0;border-radius:7px;font-family:var(--font);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;cursor:pointer}
-@media(max-width:720px){.p-lede{font-size:15px}.viewpill button{padding:8px 15px}}
 </style>
 </head>
 <body>
@@ -201,119 +165,6 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
 
   <div class="narrative reveal"><strong>Every life matters.</strong> This is about how suicide statistics are calculated and read, not whether the issue is serious. It is. It uses only population-level figures, no individual is identifiable, and it follows Samaritans media guidelines throughout. If you or someone you know is struggling, the support lines are at the foot of this page.</div>
 
-  <div class="viewbar">
-    <span class="viewbar-lab">Reading level</span>
-    <div class="viewpill" role="group" aria-label="Choose a version of this briefing">
-      <button type="button" id="btn-public" data-view="public" aria-pressed="true">Public</button>
-      <button type="button" id="btn-technical" data-view="technical" aria-pressed="false">Technical</button>
-    </div>
-  </div>
-
-
-  <!-- ============================ PUBLIC VIEW ============================ -->
-  <div class="view on" id="view-public">
-
-    <div class="p-hero">
-      <h1>The island suicide rate<br/>has a critical <em>data</em> problem.</h1>
-      <p class="p-lede">For years the Isle of Man has been told its suicide rate is the highest in a decade, and the only one in the British Isles to have risen through the pandemic. The same alarm has gone up in Guernsey, in Jersey, in Orkney and Shetland. <strong>So I tested it,</strong> across ten island territories, using a method registered publicly before I looked at the answer.</p>
-      <p class="p-lede" style="margin-top:.8rem"><strong>The islands do not have a suicide problem the rate can prove. They have a measurement problem.</strong></p>
-    </div>
-
-    <div class="p-h">First, what we have all been told</div>
-    <p class="p-lede" style="font-size:14px">Five years, three island jurisdictions, hundreds of miles apart. The same alarm, over and over. Scroll through them.</p>
-
-    <div class="scrolly" id="hlScrollyPub">
-      <div class="scrolly-stage">
-        <div class="scrolly-count">Headline <b>1</b> of 6</div>
-        <div class="scrolly-cards">
-          <div class="clip sclip" data-i="0" data-isle="shet"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">20 Aug 2021</span></div><div class="clip-head">"NHS reminds anyone struggling to seek help after probable suicide figures released"</div><a class="clip-link" href="https://www.shetnews.co.uk/2021/08/20/nhs-reminds-anyone-who-is-struggling-to-seek-help-and-support-after-probable-suicide-figures-released/" target="_blank" rel="noopener">read the article &rarr;</a></div>
-          <div class="clip sclip" data-i="1" data-isle="gsy"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">14 Oct 2022</span></div><div class="clip-head">"Suicide accounts for a tenth of Guernsey's sudden deaths"</div><a class="clip-link" href="https://www.itv.com/news/channel/2022-10-14/suicide-accounts-for-a-tenth-of-guernseys-sudden-deaths" target="_blank" rel="noopener">read the article &rarr;</a></div>
-          <div class="clip sclip" data-i="2" data-isle="gsy"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">7 Mar 2024</span></div><div class="clip-head">"Guernsey suicide figures soar over both Jersey and the UK"</div><a class="clip-link" href="https://www.itv.com/news/channel/2024-03-07/guernsey-suicide-figures-soar-over-both-jersey-and-the-uk" target="_blank" rel="noopener">read the article &rarr;</a></div>
-          <div class="clip sclip" data-i="3" data-isle="shet"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">10 Mar 2025</span></div><div class="clip-head">"Just come and ask: charities plea for anyone struggling to seek help"</div><a class="clip-link" href="https://www.shetnews.co.uk/2025/03/10/just-come-ask-charities-plea/" target="_blank" rel="noopener">read the article &rarr;</a></div>
-          <div class="clip sclip" data-i="4" data-isle="iom"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Sep 2025</span></div><div class="clip-head">"We need to talk about the suicide rate on the Isle of Man"</div><a class="clip-link" href="https://www.manxradio.com/news/isle-of-man-news/we-need-to-talk-about-the-suicide-rate-on-the-isle-of-man/" target="_blank" rel="noopener">read the article &rarr;</a></div>
-          <div class="clip sclip" data-i="5" data-isle="iom"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Feb 2026</span></div><div class="clip-head">"ManxPACT raises concerns over suicide rates and mental-health provision"</div><a class="clip-link" href="https://gold.manxradio.com/news/isle-of-man-news/manxpact-raises-concerns-over-suicide-rates-and-mental-health-provision-on-the-isle-of-man/" target="_blank" rel="noopener">read the article &rarr;</a></div>
-        </div>
-        <div class="scrolly-hint">keep scrolling &darr;</div>
-      </div>
-    </div>
-    <p class="recur">Small close-knit communities, isolation, service access, stigma. Different islands, different years, the same story every time. So is it real?</p>
-
-    <div class="p-h">What the analysis found</div>
-
-    <div class="p-card">
-      <h3>1. No island stands out, in either direction</h3>
-      <p>The method was written down and registered publicly before I saw any answer, then run across eleven territories from 2001 to 2024 and cross-checked in a second statistical package. It came back flat: <strong>a rate ratio of 1.004</strong>. No island is measurably worse than its mainland comparator, and none is measurably better. These deaths are, thankfully, rare enough that a place the size of the Isle of Man cannot produce a rate precise enough to settle the question either way.</p>
-    </div>
-
-    <div class="p-card c2">
-      <h3>2. So why does every island look like an emergency?</h3>
-      <p>Because of how the number is built. <strong>The headline rate is not a count of deaths.</strong> It is a three-year rolling average, the standard way to steady a rare figure in a small population, and none of this is the islands' fault. But put one extraordinary year through that smoother and it does not stay one year.</p>
-    </div>
-
-    <div class="p-h">Watch the number being built</div>
-    <p class="p-lede" style="font-size:14px">Scroll slowly through the chart below and it will assemble itself. Three things to watch for:</p>
-    <ul class="p-do" style="margin-bottom:1rem">
-      <li><strong>The grey bars are the real thing:</strong> the deaths registered on the Island in each single year.</li>
-      <li><strong>The amber dots are the published figure:</strong> each one is simply that bar plus the two either side of it, divided by three. The sum is shown on screen as it happens.</li>
-      <li><strong>Watch 2020.</strong> One hard year, counted three separate times: once as part of 2019, once as 2020, once as 2021. Then the whole line turns into a rate per 100,000 and climbs past England and Wales.</li>
-    </ul>
-
-    <div class="scrolly" id="animScrollyPub">
-      <div class="scrolly-stage">
-        <div class="chart-panel anim-panel">
-          <div class="panel-header"><div class="panel-title">Isle of Man: how the "3-year rolling" headline is made</div><div class="panel-sub">Grey bars, deaths registered per year. Amber line, the published figure, each point the average of three bars. (IoM Public Health Directorate / FOI.)</div></div>
-          <div class="anim-wrap"><canvas id="rollanimPub"></canvas></div>
-        </div>
-        <div class="scrolly-hint">scroll to build the line &darr;</div>
-      </div>
-    </div>
-
-    <p class="fnote"><strong>The upshot.</strong> The Island's "crisis" is one year, 2020, and even that year is inflated by inquest timing: 24 deaths were registered, 19 actually occurred. Strip 2020 out and the Island averages about 11.6 per 100,000, effectively the England and Wales level. As 2020 leaves the rolling window, the "record" rate falls back on its own. It also explains a puzzle that has troubled the committee looking into this: because a three-year average is plotted at its middle year, a 2020 event genuinely does appear to start <em>before</em> the pandemic. 2019 itself was an unremarkable year.</p>
-
-    <div class="p-card c3">
-      <h3>3. It works in reverse, too</h3>
-      <p>The same smoother manufactures good news as readily as bad. Shetland's rate looks like a flat four-year success story. Its decline is real, raw deaths there roughly halved. But the flat floor in the published chart is largely <strong>two ordinary quiet years counted four times over</strong>.</p>
-    </div>
-
-    <p class="p-lede" style="font-size:14px">Same exercise, five-year window this time. Watch 2016 and 2017, both of which registered <strong>zero</strong> deaths, land inside four separate published figures at once.</p>
-
-    <div class="scrolly" id="animScrollyShetPub">
-      <div class="scrolly-stage">
-        <div class="chart-panel anim-panel">
-          <div class="panel-header"><div class="panel-title">Shetland: the same trick, running the other way</div><div class="panel-sub">Each orange point is the average of five bars, plotted at the middle year. (National Records of Scotland, <em>Probable Suicides, Scotland 2024</em>.)</div></div>
-          <div class="anim-wrap"><canvas id="rollanimShetPub"></canvas></div>
-        </div>
-        <div class="scrolly-hint">scroll to build the line &darr;</div>
-      </div>
-    </div>
-
-    <p class="fnote"><strong>Zero is not an error.</strong> Shetland has around 23,000 people. Two quiet years running is a routine outcome at that size, not a miracle and not a mistake. Nothing here says the decline is not real. What the flat floor adds is a shape the raw counts do not support: four published points built from the same two years.</p>
-
-    <div class="p-say">
-      <strong>What this does not say.</strong> It does not say the numbers are small so it does not matter. Every one of these deaths warrants review, and the risks named in the evidence are real: a third of the sixty-five people who died between 2016 and 2021 were unemployed or unable to work; debt, loneliness, living alone and long-term disability run through the record; and the adult mental-health waiting list still has not moved. <strong>None of that needs a rate to justify acting on it, and nothing here should delay that support by a single day.</strong>
-    </div>
-
-    <div class="p-h">What should change</div>
-    <ul class="p-do">
-      <li><strong>Publish honest annual counts,</strong> as National Records of Scotland already does, instead of a rolling headline that turns one year into a decade-long trend.</li>
-      <li><strong>Show the uncertainty</strong> on any smoothed figure that is published, as the ONS does.</li>
-      <li><strong>Fix the adult mental-health wait,</strong> and name someone accountable for delivery. No data reform matters more.</li>
-      <li><strong>Compare islands to islands.</strong> Holding 85,000 people against 60 million mostly measures the arithmetic, not the health service.</li>
-    </ul>
-
-    <p class="p-kicker">No island is cursed with suicide. <span class="pop">The methodology is the curse.</span></p>
-    <p class="p-lede" style="font-size:14px">Handled carelessly, statistics frighten communities, stigmatise islands, and send scarce help chasing a problem that may not be there, while every real death still matters just as much. The honest numbers turn out to be kinder than the smoothed ones.</p>
-
-    <div class="p-more">
-      <strong>Want the workings?</strong> The technical version carries the full argument: every chart, the pre-registered model and its robustness checks, the committee evidence, the sources, and the complete set of policy recommendations. The pre-registration is public at <a href="https://osf.io/nrf4s" target="_blank" rel="noopener">osf.io/nrf4s</a>.<br/>
-      <button type="button" class="p-btn" data-view="technical">Read the technical version</button>
-    </div>
-
-  </div>
-  <!-- ========================== END PUBLIC VIEW ========================== -->
-
-  <!-- ========================== TECHNICAL VIEW =========================== -->
-  <div class="view" id="view-technical">
   <div class="hero">
     <svg class="hero-spark" viewBox="0 0 170 80" fill="none"><polyline points="0,62 22,58 44,60 66,54 88,56 110,20 132,32 170,36" stroke="#f87171" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="110" cy="20" r="4.2" fill="#f87171"/><polyline points="0,64 170,64" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/></svg>
     <h1>The island suicide rate<br/>has a critical <em>data</em> problem.</h1>
@@ -489,9 +340,6 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
     <p class="body"><strong>The full work.</strong> The pre-registration is public: <a href="https://osf.io/nrf4s" target="_blank" rel="noopener" style="color:var(--blue)">osf.io/nrf4s</a> (OSF Registries, Secondary Data Preregistration, registered 29 July 2026). The data, the code, and two short-report papers, one on the measurement artefact and one on the pre-registered panel null, will be released in full. <em>Preprint links to follow.</em></p>
   </div></details>
 
-  </div>
-  <!-- ======================== END TECHNICAL VIEW ========================= -->
-
   <div class="narrative reveal"><strong>If you or someone you know is struggling, support is available.</strong><br>
   <strong>Samaritans</strong> 116 123 (free, 24/7) · <strong>SHOUT</strong> text 85258 (free, 24/7) · <strong>Isle Stand Up To Suicide</strong> 803040 (2pm to 10pm) · <strong>Papyrus HOPELINE</strong> 0800 068 4141 (for anyone under 35, or worried about a young person).<br>
   <strong>Isle of Man peer &amp; community support.</strong> <strong>ManxPACT:</strong> Saturdays, 10:30am to noon, at Costa (Ramsey) and the Sea Terminal (Douglas). <strong>Ed Space</strong> (men): Thursdays, 7pm, venues around the Island. <strong>Women's Talk:</strong> Tuesdays, 7pm, around the Island.</div>
@@ -569,8 +417,8 @@ const tbtn=document.getElementById('theme-btn');
 tbtn.onclick=()=>{document.body.classList.toggle('light');tbtn.textContent=document.body.classList.contains('light')?'Dark mode':'Light mode';if(drawn)draw();};
 window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.theme==='light';if(l!==document.body.classList.contains('light')){document.body.classList.toggle('light');tbtn.textContent=l?'Dark mode':'Light mode';if(drawn)draw();}}});
 // ---- Act IV: animated "how the 3-year rolling number is built" ----
-function initRollIOM(cvId,scId){
-  const cv=document.getElementById(cvId); if(!cv||!cv.getContext) return;
+(function(){
+  const cv=document.getElementById('rollanim'); if(!cv||!cv.getContext) return;
   const YR=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023];
   const C =[9,15,7,9,9,11,2,8,6,8,12,8,24,9,12,14];
   const ctx=cv.getContext('2d'); let W,H=330,DPR=1;
@@ -585,7 +433,7 @@ function initRollIOM(cvId,scId){
     const show=slow?800:360, hold=big?1900:(slow?1300:230);
     S.push({i,t0:t,ts:t+show,t1:t+show+hold,slow,big}); t+=show+hold;
   }
-  const END=t+900, END2=END+4600; const sc=document.getElementById(scId); let fitted=false;
+  const END=t+900, END2=END+4600; const sc=document.getElementById('animScrolly'); let fitted=false;
   const isL=()=>document.body.classList.contains('light');
   function render(e){
     const mut=isL()?'#5b6b80':'#93a3b8', grid=isL()?'rgba(0,0,0,.07)':'rgba(255,255,255,.08)', am=isL()?'#c77b06':'#fbbf24';
@@ -652,12 +500,10 @@ function initRollIOM(cvId,scId){
   window.addEventListener('scroll',onScroll,{passive:true});
   let rz; window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){fitted=false;draw();},150);});
   draw();
-}
-initRollIOM('rollanim','animScrolly');
-initRollIOM('rollanimPub','animScrollyPub');
+})();
 // ---- Act IV (counter-example): animated "how the 5-year rolling number is built" — Shetland ----
-function initRollSHET(cvId,scId){
-  const cv=document.getElementById(cvId); if(!cv||!cv.getContext) return;
+(function(){
+  const cv=document.getElementById('rollanimShet'); if(!cv||!cv.getContext) return;
   const YR=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
   const C =[5,4,5,7,7,5,1,3,0,0,3,2,4,3,2,1,2]; // NRS Table 4A, Shetland, single-year counts
   const POP=23000, K=100000/POP;
@@ -674,7 +520,7 @@ function initRollSHET(cvId,scId){
     const show=slow?800:360, hold=big?1900:(slow?1300:230);
     S.push({i,t0:t,ts:t+show,t1:t+show+hold,slow,big}); t+=show+hold;
   }
-  const END=t+900, END2=END+4600; const sc=document.getElementById(scId); let fitted=false;
+  const END=t+900, END2=END+4600; const sc=document.getElementById('animScrollyShet'); let fitted=false;
   const isL=()=>document.body.classList.contains('light');
   // Scotland (national) own raw annual rate — flat comparator, same array used elsewhere on this page
   const SCOT_R_LOCAL=[15.4,13.6,14.3,16.2,15.1,14.5,12.7,12.3,13.3,12.4,14.3,15.2,14.7,13.7,13.9,14.4,12.8];
@@ -744,14 +590,12 @@ function initRollSHET(cvId,scId){
   window.addEventListener('scroll',onScroll,{passive:true});
   let rz; window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){fitted=false;draw();},150);});
   draw();
-}
-initRollSHET('rollanimShet','animScrollyShet');
-initRollSHET('rollanimShetPub','animScrollyShetPub');
+})();
 // ---- Act II: scroll-driven headline scrollytelling ----
-function initHl(scId){
-  const sc=document.getElementById(scId); if(!sc) return;
+(function(){
+  const sc=document.getElementById('hlScrolly'); if(!sc) return;
   const cards=Array.prototype.slice.call(sc.querySelectorAll('.sclip')); const N=cards.length;
-  const num=sc.querySelector('.scrolly-count b'); let last=-1, tick=false;
+  const num=document.getElementById('hlNum'); let last=-1, tick=false;
   function upd(){
     tick=false;
     const total=sc.offsetHeight-window.innerHeight; if(total<=0) return;
@@ -763,41 +607,6 @@ function initHl(scId){
   window.addEventListener('scroll',onScroll,{passive:true});
   window.addEventListener('resize',onScroll);
   upd();
-}
-initHl('hlScrolly');
-initHl('hlScrollyPub');
-
-// ---- Public / Technical view toggle ----
-(function(){
-  var views={public:document.getElementById('view-public'),technical:document.getElementById('view-technical')};
-  var btns=Array.prototype.slice.call(document.querySelectorAll('.viewpill button'));
-  var current='public';
-  function nudge(){
-    // canvases and charts sized while hidden need re-fitting once visible
-    if(window.draw){ try{ draw(); }catch(e){} }
-    window.dispatchEvent(new Event('resize'));
-    window.dispatchEvent(new Event('scroll'));
-  }
-  function set(v,scroll){
-    if(!views[v]||v===current) { if(scroll) window.scrollTo({top:0,behavior:'smooth'}); return; }
-    current=v;
-    views.public.classList.toggle('on',v==='public');
-    views.technical.classList.toggle('on',v==='technical');
-    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view===v));});
-    try{history.replaceState(null,'','#'+v);}catch(e){}
-    if(scroll) window.scrollTo({top:0,behavior:'smooth'});
-    setTimeout(nudge,60);
-    setTimeout(nudge,400);
-  }
-  document.addEventListener('click',function(e){
-    var t=(e.target&&e.target.closest)?e.target.closest('[data-view]'):null; if(!t) return;
-    set(t.dataset.view,true);
-  });
-  var tb=document.getElementById('theme-btn');
-  if(tb) tb.addEventListener('click',function(){ setTimeout(nudge,50); });
-  window.addEventListener('message',function(e){ if(e.data&&e.data.theme) setTimeout(nudge,80); });
-  if(location.hash==='#technical'){ views.public.classList.remove('on'); views.technical.classList.add('on'); current='technical'; btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view==='technical'));}); }
-  window.addEventListener('load',function(){ setTimeout(nudge,500); });
 })();
 </script>
 </body>
