@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Santon Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(l){ document.body.classList.toggle('light', l); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Santon Parish Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html">← All three</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Income from general rate fund</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-sur">—</div><div class="stat-dlt" id="s-sur-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+  <div class="panel" id="p-table"><h3>Santon Parish Commissioners — Comprehensive Income and Expenditure Statement (£)</h3><div id="tbl"></div></div>
+  <div class="panel" id="p-bs">
+    <h3>Santon Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>The smallest of the three by a wide margin. Santon has no borrowing, no housing stock and no employees beyond its clerk. Its entire balance sheet is £126,529 — about four-fifths of Marown's, and four ten-thousandths of Braddan's £32.8m of fixed assets.</p>
+    <div id="bstbl"></div>
+  </div>
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Santon's audited Comprehensive Income and Expenditure Statement — actual outturn. Unlike Braddan and Marown, Santon has no committee structure at all: its accounts present a single flat list of expenses. That flat structure is preserved here rather than invented into groups.</p>
+    <p><b>The colouring is ours, not Santon's.</b> The expense lines are tinted by function — waste, works, environment and leisure, administration, compliance, and non-cash accounting entries — purely as a reading aid and to foreshadow a like-for-like comparison with the other two authorities. <em>Santon's accounts contain no such classification.</em> No subtotal nodes have been invented; every flow runs straight from the revenue account to a line exactly as published.</p>
+    <p><b>Santon balances, and then some.</b> It ran a surplus in all three years — £4,924, £6,698 and £3,491 — the opposite of Marown, which ran deficits throughout and drew on reserves. Santon's general revenue account grew from £52,040 to £61,216 in the latest year.</p>
+    <p><b>What Santon publishes itself: nothing.</b> Its own website states that the accounts and auditor's report "may be inspected free of charge at the Commissioners' Office", and has said so unchanged since 2019. None of the sixteen PDFs on santon.org.uk is a financial statement. Everything in this diagram exists publicly only because the Department of Infrastructure lays local authority accounts before Tynwald and posts them on gov.im. Without that central archive there would be no public record of Santon's finances at all.</p>
+    <p><b>Provenance and confidence.</b> OCR-recovered from scanned originals, then verified rather than trusted. Every year's expense lines re-add to the published total; the 2022-23 column appears in <em>both</em> the 2023 and 2024 accounts and the two readings agree exactly; and income less expenditure equals the published surplus in all three years. The balance sheet reconciles on every subtotal in both years. One oddity is Santon's own, not an OCR artefact: net current assets of £61,217 sit against a general revenue account of £61,216, and fixed assets of £65,312 against a capital adjustment account of £65,313 — a £1 rounding in each, which cancels so the totals still foot to £126,529.</p>
+    <p><b>Rate in the pound</b> is taken from note 8 of the accounts: 155p for 2023/24 and 141p for 2022/23. Santon did not publish a figure for 2021/22 in these statements, and its website overwrites the rates page each year, so that year is shown as unavailable rather than estimated.</p>
+    <p><b>Comparability.</b> Not directly comparable with the Braddan diagram, which is built from forward estimates on a rates-funded basis rather than audited outturn. Santon and Marown are on the same basis and the same three years, so those two <em>can</em> be read against each other.</p>
+    <p><b>Source.</b> Santon Parish Commissioners, Statements of Accounts for the years ended 31 March 2023 and 31 March 2024, prepared under FRS 102 Section 1A; external accountant Atla Accountancy Services Limited. Retrieved from gov.im, 4 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Santon publishes <b>none</b> of this itself — it exists publicly only because the Department lays local authority accounts before Tynwald.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+const YEARS=['2021-22','2022-23','2023-24'];
+const FN={waste:'--c-refuse',works:'--c-works',env:'--c-parks',admin:'--c-fgp',comp:'--c-disc',noncash:'--c-bal'};
+const FNLAB={waste:'Waste',works:'Works',env:'Environment & leisure',admin:'Administration',comp:'Compliance & finance',noncash:'Non-cash entries'};
+const FNOF={'Refuse collection':'waste','Refuse disposal':'waste','Street lighting':'works',
+ 'Amenity payments':'env','Parish maintenance expenses':'env','Playground costs':'env','Southern Local Authority Pool Board':'env',
+ "Clerk's salary":'admin','Office expenses':'admin','Rate collection charges':'admin','Website & domain name':'admin','Miscellaneous':'admin','Election':'admin',
+ 'Audit and accountancy fee':'comp','Insurance':'comp','Bank charges':'comp',
+ 'Depreciation':'noncash','Provision against irrecoverable rates':'noncash'};
+const D={
+'2021-22':{rateFund:91948, search:1045, interest:315, pound:null, surplus:4924, totalExp:88384,
+ exp:{'Refuse disposal':26340,'Refuse collection':12569,'Amenity payments':11212,"Clerk's salary":8939,'Parish maintenance expenses':8068,'Street lighting':3757,'Depreciation':3285,'Election':2373,'Insurance':2216,'Audit and accountancy fee':1950,'Southern Local Authority Pool Board':1844,'Office expenses':1733,'Rate collection charges':1319,'Playground costs':1154,'Miscellaneous':690,'Provision against irrecoverable rates':489,'Website & domain name':305,'Bank charges':141}},
+'2022-23':{rateFund:100739, search:770, interest:721, pound:141, surplus:6698, totalExp:95532,
+ exp:{'Refuse disposal':23872,'Refuse collection':19234,'Parish maintenance expenses':13835,'Amenity payments':12918,"Clerk's salary":9361,'Depreciation':3285,'Street lighting':2995,'Audit and accountancy fee':2050,'Insurance':1861,'Southern Local Authority Pool Board':1862,'Rate collection charges':1587,'Office expenses':1290,'Playground costs':681,'Miscellaneous':328,'Website & domain name':220,'Bank charges':162,'Election':0,'Provision against irrecoverable rates':-9}},
+'2023-24':{rateFund:110912, search:975, interest:1159, pound:155, surplus:3491, totalExp:109555,
+ exp:{'Refuse disposal':26397,'Refuse collection':19234,'Parish maintenance expenses':14500,'Amenity payments':13712,"Clerk's salary":9972,'Street lighting':6240,'Depreciation':5685,'Provision against irrecoverable rates':2953,'Office expenses':2523,'Audit and accountancy fee':2150,'Southern Local Authority Pool Board':1864,'Insurance':1805,'Rate collection charges':1678,'Playground costs':408,'Website & domain name':165,'Bank charges':160,'Miscellaneous':109,'Election':0}}
+};
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={};Object.entries(d.exp).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});return c;};
+
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inc=d.rateFund+d.search+d.interest;
+  const inflow=inc+sum(credits(d)), outflow=pos(d.exp)+d.surplus;
+  return {y,expDiff:sum(d.exp)-d.totalExp,surDiff:(inc-d.totalExp)-d.surplus,flowDiff:inflow-outflow};});
+const bad=AUDIT.filter(a=>a.expDiff||a.surDiff||a.flowDiff);
+if(bad.length)console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Santon reconciles in all years: expense lines match the published total, income − expenditure = the published surplus, and the diagram balances');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,l,c,k,o)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label:l,col:c,kind:k,ord:o||0});}return idx[id];};
+  const hub=add('hub','Revenue account','--accent','hub',0);
+  [['rate','Income from general rate fund',d.rateFund],['search','Search fees',d.search],['interest','Interest income',d.interest]]
+    .forEach(([k,l,v],i)=>{if(v>0){const s=add('inc|'+k,l,'--c-income','src',i);L.push({source:s,target:hub,value:v,col:'--c-income'});}});
+  Object.entries(credits(d)).forEach(([k,v],i)=>{const s=add('cr|'+k,k,'--c-income','src',20+i);L.push({source:s,target:hub,value:v,col:'--c-income'});});
+  const ORD={waste:1,env:2,works:3,admin:4,comp:5,noncash:6};
+  Object.entries(d.exp).filter(([,v])=>v>0).sort((a,b)=>{const fa=FNOF[a[0]],fb=FNOF[b[0]];return (ORD[fa]-ORD[fb])||(b[1]-a[1]);})
+    .forEach(([k,v])=>{const f=FNOF[k]||'admin';const li=add('e|'+k,k,FN[f],'item',ORD[f]);L.push({source:hub,target:li,value:v,col:FN[f]});});
+  const su=add('sur','Surplus carried to reserves','--c-bal','item',9);
+  L.push({source:hub,target:su,value:d.surplus,col:'--c-bal'});
+  return {nodes:N,links:L};
+}
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')return d.rateFund+d.search+d.interest+sum(credits(d));
+    if(id==='sur')return d.surplus;
+    if(id==='inc|rate')return d.rateFund;
+    if(id==='inc|search')return d.search;
+    if(id==='inc|interest')return d.interest;
+    if(id.indexOf('cr|')===0){const c=credits(d);return c[id.slice(3)]||0;}
+    if(id.indexOf('e|')===0)return Math.max(0,d.exp[id.slice(2)]||0);
+    return 0;});
+}
+function spark(id,col,ci){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10,mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1),Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===ci?4:2.3)+'" fill="'+(i===ci?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===ci?0:1.5)+'"/>').join('')
+   +YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===ci?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('')
+   +'</svg></div>';
+}
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+function draw(y,an){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  const g=graph(y),LPAD=210,RPAD=270;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(14).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value)).extent([[LPAD,14],[W-RPAD,H-14]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=D[y].rateFund+D[y].search+D[y].interest+sum(credits(D[y]));
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0)
+   .merge(lk).transition().duration(an?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>cssv(d.col)).style('stroke-opacity',0.4);
+  root.selectAll('path.link')
+   .on('mousemove',function(ev,d){root.selectAll('path.link').classed('dim',x=>x!==d);
+     tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+      .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+       +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+       +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+       +spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));})
+   .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect');ndE.append('text').attr('class','nlab');ndE.append('text').attr('class','nval');
+  const A=ndE.merge(nd);
+  A.transition().duration(an?750:0).style('opacity',1);
+  A.select('rect').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+   .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>cssv(d.col)).attr('rx',3);
+  A.select('text.nlab').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+   .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  A.select('text.nval').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+   .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+   .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  A.on('mousemove',function(ev,d){root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+     tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+      .html('<div class="tt-t">'+d.label+'</div>'
+       +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+       +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+       +spark(d.id,d.col,YEARS.indexOf(y)));})
+   .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent=fmt(d.rateFund);
+  document.getElementById('s-rate-d').textContent=arrow(d.rateFund,pv&&pv.rateFund);
+  document.getElementById('s-pound').textContent=d.pound?d.pound+'p':'—';
+  document.getElementById('s-pound-d').textContent=d.pound?(pv&&pv.pound?'▲ +'+(d.pound-pv.pound)+'p on last year':'first year published'):'not published for this year';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-sur').textContent='+'+fmt(d.surplus);
+  document.getElementById('s-sur-d').textContent=pv?(d.surplus>pv.surplus?'▲ surplus grew':'▼ surplus shrank'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+document.getElementById('legend').innerHTML=
+ '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +Object.keys(FNLAB).map(k=>'<div class="lg"><div class="sw" style="background:var('+FN[k]+')"></div>'+FNLAB[k]+'</div>').join('')
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Functional colouring is an Observatory overlay — Santon\'s accounts are a flat list</div>';
+
+function buildTable(){
+  const rows=[],m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  R('Search fees',d=>m(d.search),'sub'); R('Interest income',d=>m(d.interest),'sub');
+  R('Income from general rate fund',d=>m(d.rateFund),'sub');
+  R('Total income',d=>m(d.rateFund+d.search+d.interest),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('EXPENDITURE',()=>'','grp');
+  const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y].exp).forEach(k=>ks.add(k)));
+  const ORD={waste:1,env:2,works:3,admin:4,comp:5,noncash:6};
+  [...ks].sort((a,b)=>(ORD[FNOF[a]]-ORD[FNOF[b]])||a.localeCompare(b)).forEach(k=>R(k,d=>m(d.exp[k]||0),'sub'));
+  R('Total expenditure',d=>m(d.totalExp),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Net surplus for the year',d=>'+'+d.surplus.toLocaleString(),'grp');
+  R('Rate in the pound',d=>d.pound?d.pound+'p':'not published','grp');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+(2000+ +y.slice(-2))+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> Expense lines re-add to the published total in all three years; total income less expenditure equals the published surplus exactly; and the 2022-23 column was read independently from both the 2023 and 2024 accounts with identical results. <b>Source.</b> Santon Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Comprehensive Income and Expenditure Statement. Retrieved from gov.im, 4 August 2026.</p>';
+}
+buildTable();
+const BSROWS=[['h','Fixed assets',null,null],['r','Tangible fixed assets',65312,70997],
+ ['h','Current assets',null,null],['r','Debtors',29660,11873],['r','Cash at bank',59304,81879],['s','',88964,93752],
+ ['h','Current liabilities',null,null],['r','Creditors',-27747,-41711],['t','Net current assets',61217,52041],
+ ['T','Total assets less current liabilities',126529,123038],
+ ['h','Reserves',null,null],['r','General revenue account',61216,52040],['r','Capital adjustment account',65313,70998],['T','',126529,123038]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th></tr></thead><tbody>'
+   +BSROWS.map(r=>{const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+     return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('')
+   +'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> No borrowing, no housing, no pension liability. The general revenue account grew from £52,040 to £61,216 — Santon is quietly accumulating, where Marown is drawing down. Debtors jumped from £11,873 to £29,660 while cash fell from £81,879 to £59,304, which on an authority this size is worth a question rather than an alarm.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered, then verified: current assets re-add, net current assets reconcile, and total reserves equal total assets less current liabilities in both years. The £1 gaps between net current assets and the general revenue account, and between fixed assets and the capital adjustment account, are in Santon\'s own published figures and cancel out.</p>'
+   +'<p class="foot"><b>Source.</b> Santon Parish Commissioners, Statement of Accounts for the year ended 31 March 2024, Balance Sheet, page 11. Retrieved from gov.im, 4 August 2026.</p>';
+}
+buildBS();
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{if(timer){stop();return;}play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(p){Object.keys(PANELS).forEach(x=>{const on=x===p&&!document.getElementById(x).classList.contains('on');
+  document.getElementById(x).classList.toggle('on',on);document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const l=document.body.classList.toggle('light');this.textContent=l?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',l?'light':'dark');}catch(e){} draw(YEARS[cur],false);});
+draw(YEARS[cur],false);
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

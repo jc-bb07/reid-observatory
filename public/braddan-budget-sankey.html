@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Braddan Parish Commissioners — Where the rates go · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+/* ── OBSERVATORY THEME SYNC — same contract as iomg-budget-sankey.html ── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+    if (window._msRedraw) window._msRedraw();
+  }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme')
+      applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Braddan Parish Commissioners — where the rates go</div>
+    <div class="chart-sub">Rates-funded estimates, 2022-23 to 2026-27 · every year balances to the pound · source: Braddan's own published estimates explanations</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html">← All three</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div>
+      <div class="fy-label" id="fy">2026-27</div>
+      <div class="fy-sub">financial year</div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="4" value="4" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2022-23</span><span>2023-24</span><span>2024-25</span><span>2025-26</span><span>2026-27</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rate poundage</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate income</div><div class="stat-val" id="s-inc">—</div><div class="stat-dlt" id="s-inc-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Net rateable value</div><div class="stat-val" id="s-rv">—</div><div class="stat-dlt" id="s-rv-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Domestic refuse charge</div><div class="stat-val" id="s-ref">—</div><div class="stat-dlt" id="s-ref-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table">
+    <h3>Braddan Parish Commissioners — rates-funded estimates, all years (£)</h3>
+    <div id="tbl"></div>
+  </div>
+
+  <div class="panel" id="p-bs">
+    <h3>Braddan Parish Commissioners — Balance Sheet as at 31 March 2025</h3>
+    <p>This is <b>not</b> the same thing as the Sankey. The diagram shows the rates-funded revenue estimates — about £2.5m a year. The balance sheet shows what the authority owns and owes, on a full accruals basis, and it is a far larger entity than the rate account suggests.</p>
+    <div id="bstbl"></div>
+  </div>
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Braddan's published <em>estimates explanations</em> — the forward budget the Commissioners set each year when striking the rate. Income (rate income, and from 2023-24 a net contribution from halls and community facilities) flows into the rates account and out again across the four service committees, the discounts allowed on rates, and the projected year-end credit balance.</p>
+    <p><b>Why the estimates and not the accounts.</b> Braddan publishes both. The estimates are machine-readable and structurally identical year to year; the statutory accounts are scanned images with no text layer and would need OCR. More importantly the two are prepared on different bases — estimates are forward-looking on a rates-funded basis, the accounts are outturn on a full accruals basis including depreciation and pension movements. They do not reconcile, and mixing them in one diagram would be indefensible. This diagram is estimates only.</p>
+    <p><b>The arithmetic checks.</b> In every one of the five years, total income equals total expenditure plus the projected year-end credit balance, exactly, to the pound. That identity is verified in the data rather than assumed.</p>
+    <p><b>The 2024-25 capital restatement.</b> The 2024-25 estimates show Capital Costs at £31,109 and Capital Costs New at £1,035,453. The following year's document restates the same year as £978,404 and £88,158. The total is identical (£1,066,562) — the split between the two lines was reallocated. This diagram uses each year's own published figures, so the 2024-25 capital split is as originally published.</p>
+    <p><b>Halls and community facilities.</b> In 2022-23 this was a small net cost (£187) and appears on the expenditure side. From 2023-24 it became a net income source and moves to the left of the diagram. That switch is real, not a presentational choice.</p>
+    <p><b>The rate account is not the whole authority.</b> Braddan’s audited balance sheet shows £32.8m of fixed assets and roughly £18.1m of borrowing, with £998,684 of interest paid in 2024-25 — none of which appears in this diagram, because it sits in the housing account rather than the rates account. See the Balance sheet tab. Read this Sankey as "where the rates go", not "everything Braddan does".</p>
+    <p><b>What this is not.</b> These are budget estimates, not outturn — what the Commissioners planned to spend, not what they spent. Nothing here shows whether the money was spent as planned.</p>
+    <p><b>Source.</b> Braddan Parish Commissioners, Estimates Explanations 2023-24, 2024-25, 2025-26 and 2026-27, published at braddan.im. The 2022-23 column is taken from the comparator column of the 2023-24 document. Retrieved 4 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Braddan also carries about <b>£18.1m of borrowing</b> and paid <b>£998,684</b> of interest in 2024-25 — none of it in this diagram, because it sits in the housing account.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA ══════════
+   Every figure transcribed from Braddan's published estimates explanations.
+   Identity verified in code below: income === expenditure + balance, exactly. */
+const YEARS = ['2022-23','2023-24','2024-25','2025-26','2026-27'];
+
+const D = {
+'2022-23':{rv:556509, rate:230.00, refuse:82.00, rateIncome:1279971, halls:-187, discounts:21600,
+  fgp:{'Salaries, administration & establishment':341187,'Vehicles, plant & equipment':2258,'Accountancy & insurance':33700,'IT costs':32744,'Legal & professional':12500,'Capital costs':133571,'Miscellaneous':500,'DOI housing':15725,'Capital costs new':292451},
+  works:{'Street lighting':54099,'Transferred services':46200},
+  parks:{'Environment':68034},
+  refuseS:{'Waste management':113578,'Litter':16000,'Civic amenity site':86590}, balance:9047},
+'2023-24':{rv:561491, rate:257.00, refuse:88.00, rateIncome:1443032, halls:229518, discounts:32468,
+  fgp:{'Salaries, administration & establishment':575902,'Vehicles, plant & equipment':16192,'Accountancy & insurance':37240,'IT costs':41166,'Legal & professional':21500,'Capital costs':55846,'Miscellaneous':500,'DOI housing':15725,'Capital costs new':412890},
+  works:{'Street lighting':79571,'Transferred services':50820},
+  parks:{'Environment':71294},
+  refuseS:{'Waste management':118506,'Litter':14500,'Civic amenity site':116630}, balance:11800},
+'2024-25':{rv:567305, rate:351.00, refuse:50.00, rateIncome:1991241, halls:410439, discounts:29869,
+  fgp:{'Salaries, administration & establishment':717654,'Vehicles, plant & equipment':29100,'Accountancy & insurance':49927,'IT costs':38396,'Legal & professional':25000,'Capital costs':31109,'Miscellaneous':500,'DOI housing':15725,'Capital costs new':1035453},
+  works:{'Street lighting':81891,'Transferred services':28900},
+  parks:{'Environment':7898},
+  refuseS:{'Waste management':184568,'Litter':1850,'Civic amenity site':121150}, balance:2690},
+'2025-26':{rv:567702, rate:357.00, refuse:92.00, rateIncome:2026696, halls:372493, discounts:30400,
+  fgp:{'Salaries, administration & establishment':748318,'Vehicles, plant & equipment':28879,'Accountancy & insurance':69698,'IT costs':50387,'Legal & professional':24000,'Capital costs':899983,'Miscellaneous':500,'DOI housing':15725,'Capital costs new':33535},
+  works:{'Street lighting':75702,'Transferred services':39770},
+  parks:{'Environment':24728},
+  refuseS:{'Waste management':162178,'Litter':0,'Civic amenity site':135050}, balance:60336},
+'2026-27':{rv:569272, rate:367.00, refuse:122.00, rateIncome:2089228, halls:402759, discounts:31338,
+  fgp:{'Salaries, administration & establishment':855559,'Vehicles, plant & equipment':29668,'Accountancy & insurance':67276,'IT costs':41850,'Legal & professional':34000,'Capital costs':848990,'Miscellaneous':500,'DOI housing':0,'Capital costs new':44804},
+  works:{'Street lighting':82237,'Transferred services':60166},
+  parks:{'Environment':129390},
+  refuseS:{'Waste management':122258,'Litter':8700,'Civic amenity site':132110}, balance:3141}
+};
+
+const COM = [
+  {key:'fgp',    label:'Finance & General Purposes', col:'--c-fgp'},
+  {key:'works',  label:'Works and Development',      col:'--c-works'},
+  {key:'parks',  label:'Parks and Leisure',          col:'--c-parks'},
+  {key:'refuseS',label:'Refuse Services',            col:'--c-refuse'}
+];
+const cssv = v => getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum = o => Object.values(o).reduce((a,b)=>a+b,0);
+
+/* ── integrity check: income must equal expenditure + balance, exactly ── */
+const AUDIT = YEARS.map(y=>{
+  const d=D[y];
+  const income = d.rateIncome + (d.halls>0 ? d.halls : 0);
+  const property = d.halls<0 ? -d.halls : 0;
+  const exp = d.discounts + sum(d.fgp) + sum(d.works) + sum(d.parks) + sum(d.refuseS) + property + d.balance;
+  return {y, income, exp, diff: income-exp};
+});
+if (AUDIT.some(a=>a.diff!==0)) console.error('IDENTITY BROKEN', AUDIT.filter(a=>a.diff!==0));
+else console.log('✓ identity holds in all years (income = expenditure + balance, to the pound)');
+
+/* ══════════ FORMATTING ══════════ */
+const fmt = v => v>=1000000 ? '£'+(v/1000000).toFixed(2)+'m' : v>=1000 ? '£'+Math.round(v/1000)+'k' : '£'+Math.round(v);
+const fmtFull = v => '£'+Math.round(v).toLocaleString();
+const pctOf = (v,t) => t>0 ? (v/t*100).toFixed(1)+'%' : '—';
+
+/* ══════════ BUILD GRAPH ══════════ */
+function graph(y){
+  const d = D[y];
+  const N=[], L=[], idx={};
+  const add=(id,label,col,kind,ord)=>{ if(idx[id]==null){ idx[id]=N.length; N.push({id,label,col,kind,ord:ord||0}); } return idx[id]; };
+
+  const hub = add('hub','Rates account','--accent','hub',0);
+  const inc = add('rate','Rate income','--c-income','src',0);
+  L.push({source:inc,target:hub,value:d.rateIncome,col:'--c-income'});
+  if(d.halls>0){
+    const h = add('halls','Halls & community facilities','--c-income','src',1);
+    L.push({source:h,target:hub,value:d.halls,col:'--c-income'});
+  }
+
+  const disc = add('disc','Discounts on rates','--c-disc','end',0);
+  L.push({source:hub,target:disc,value:d.discounts,col:'--c-disc'});
+
+  COM.forEach((c,ci_i)=>{
+    const tot = sum(d[c.key]);
+    if(tot<=0) return;
+    const ci = add(c.key,c.label,c.col,'com',ci_i+1);
+    L.push({source:hub,target:ci,value:tot,col:c.col});
+    Object.entries(d[c.key]).forEach(([k,v])=>{
+      if(v<=0) return;
+      const li = add(c.key+'|'+k,k,c.col,'item',ci_i+1);
+      L.push({source:ci,target:li,value:v,col:c.col});
+    });
+  });
+
+  if(d.halls<0){
+    const p = add('prop','Property — halls (net cost)','--c-fgp','end',5);
+    L.push({source:hub,target:p,value:-d.halls,col:'--c-fgp'});
+  }
+
+  const bal = add('bal','Projected year-end balance','--c-bal','end',6);
+  L.push({source:hub,target:bal,value:d.balance,col:'--c-bal'});
+
+  return {nodes:N, links:L};
+}
+
+
+/* ══════════ PER-NODE TIME SERIES (hover popout) ══════════ */
+function seriesFor(id){
+  return YEARS.map(y=>{
+    const d=D[y];
+    if(id==='rate')  return d.rateIncome;
+    if(id==='halls') return d.halls>0?d.halls:0;
+    if(id==='hub')   return d.rateIncome+(d.halls>0?d.halls:0);
+    if(id==='disc')  return d.discounts;
+    if(id==='prop')  return d.halls<0?-d.halls:0;
+    if(id==='bal')   return d.balance;
+    if(id.indexOf('|')>-1){ const a=id.split('|'); return (d[a[0]]&&d[a[0]][a[1]])||0; }
+    return d[id]?sum(d[id]):0;
+  });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id), W=232, H=46, P=5, BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1])), mn=0;
+  const X=i=>P+i*(W-2*P)/(s.length-1);
+  const Y=v=>BOT-((v-mn)/((mx-mn)||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col), sf=cssv('--surface'), mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+    + '<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Five-year path &nbsp;·&nbsp; peak ' + fmt(mx) + '</div>'
+    + '<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+    + '<path d="'+area+'" fill="'+c+'" opacity="0.14"/>'
+    + '<path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + dots + marks + '</svg></div>';
+}
+
+/* ══════════ RENDER ══════════ */
+const svg = d3.select('#chart'), tt = d3.select('#tt');
+let cur = 4, timer=null;
+
+function draw(y, animate){
+  const el = document.getElementById('chart');
+  const W = el.clientWidth, H = el.clientHeight;
+  if(W<10||H<10) return;
+  svg.attr('viewBox',`0 0 ${W} ${H}`);
+
+  const g = graph(y);
+  const LPAD=150, RPAD=252, TPAD=14, BPAD=14;
+  const sk = d3.sankey().nodeWidth(15).nodePadding(15).nodeAlign(d3.sankeyLeft).nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links} = sk({nodes:g.nodes.map(d=>({...d})), links:g.links.map(d=>({...d}))});
+
+  let root = svg.select('g.root');
+  if(root.empty()) root = svg.append('g').attr('class','root');
+  const total = D[y].rateIncome + (D[y].halls>0?D[y].halls:0);
+
+  /* links */
+  const lk = root.selectAll('path.link').data(links, d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE = lk.enter().append('path').attr('class','link')
+      .attr('d', d3.sankeyLinkHorizontal())
+      .attr('stroke-width', d=>Math.max(1,d.width))
+      .style('stroke', d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+      .attr('d', d3.sankeyLinkHorizontal())
+      .attr('stroke-width', d=>Math.max(1,d.width))
+      .style('stroke', d=>cssv(d.col))
+      .style('stroke-opacity', d=>d.target.kind==='item'?0.30:0.42);
+
+  root.selectAll('path.link')
+    .on('mousemove', function(ev,d){
+      root.selectAll('path.link').classed('dim', x=>x!==d);
+      tt.style('opacity',1)
+        .style('left', Math.min(ev.offsetX+16, W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html(`<div class="tt-t">${d.source.label} → ${d.target.label}</div>
+               <div class="tt-r"><span>Amount</span><span class="tt-v">${fmtFull(d.value)}</span></div>
+               <div class="tt-r"><span>Share of budget</span><span class="tt-v">${pctOf(d.value,total)}</span></div>
+               <div class="tt-r"><span>Pence on the rate</span><span class="tt-v">${(d.value/D[y].rv).toFixed(2)}p</span></div>`
+             + spark(d.target.id==='hub'?d.source.id:d.target.id, d.col, YEARS.indexOf(y)));
+    })
+    .on('mouseleave', function(){ root.selectAll('path.link').classed('dim',false); tt.style('opacity',0); });
+
+  /* nodes */
+  const nd = root.selectAll('g.node').data(nodes, d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE = nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect');
+  ndE.append('text').attr('class','nlab');
+  ndE.append('text').attr('class','nval');
+
+  const ndA = ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).ease(d3.easeCubicInOut).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0)
+    .attr('width',d=>d.x1-d.x0).attr('height',d=>Math.max(1,d.y1-d.y0))
+    .attr('fill',d=>cssv(d.col)).attr('rx',3);
+
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=> d.kind==='src' ? d.x0-9 : d.x1+9)
+    .attr('y',d=>(d.y0+d.y1)/2 - ((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=> d.kind==='src' ? 'end':'start')
+    .attr('dominant-baseline','middle')
+    .text(d=>d.label);
+
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=> d.kind==='src' ? d.x0-9 : d.x1+9)
+    .attr('y',d=>(d.y0+d.y1)/2 + 7)
+    .attr('text-anchor',d=> d.kind==='src' ? 'end':'start')
+    .attr('dominant-baseline','middle')
+    .text(d=> (d.y1-d.y0)>26 ? fmt(d.value)+'  ·  '+pctOf(d.value,total) : '');
+
+  ndA.on('mousemove', function(ev,d){
+      root.selectAll('path.link').classed('dim', l=>l.source.id!==d.id && l.target.id!==d.id);
+      tt.style('opacity',1)
+        .style('left', Math.min(ev.offsetX+16, W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html(`<div class="tt-t">${d.label}</div>
+               <div class="tt-r"><span>Amount</span><span class="tt-v">${fmtFull(d.value)}</span></div>
+               <div class="tt-r"><span>Share of budget</span><span class="tt-v">${pctOf(d.value,total)}</span></div>
+               <div class="tt-r"><span>Pence on the rate</span><span class="tt-v">${(d.value/D[y].rv).toFixed(2)}p</span></div>`
+             + spark(d.id, d.col, YEARS.indexOf(y)));
+    })
+    .on('mouseleave', function(){ root.selectAll('path.link').classed('dim',false); tt.style('opacity',0); });
+
+  /* stats */
+  const d=D[y], prev = cur>0 ? D[YEARS[YEARS.indexOf(y)-1]] : null;
+  const delta=(a,b,suf,dp)=>{ if(b==null) return 'first year shown'; const dd=a-b;
+    return (dd>0?'▲ +':dd<0?'▼ ':'')+(dd===0?'no change':Math.abs(dd).toFixed(dp==null?0:dp)+(suf||''))+(dd!==0?' on last year':''); };
+  document.getElementById('s-rate').textContent = d.rate.toFixed(0)+'p';
+  document.getElementById('s-rate-d').textContent = prev?delta(d.rate,prev.rate,'p',0):'first year shown';
+  document.getElementById('s-inc').textContent = fmt(d.rateIncome);
+  document.getElementById('s-inc-d').textContent = prev? (d.rateIncome>prev.rateIncome?'▲ +':'▼ ')+fmt(Math.abs(d.rateIncome-prev.rateIncome))+' on last year':'first year shown';
+  document.getElementById('s-rv').textContent = d.rv.toLocaleString();
+  document.getElementById('s-rv-d').textContent = prev?delta(d.rv,prev.rv,'',0):'first year shown';
+  document.getElementById('s-ref').textContent = '£'+d.refuse.toFixed(0);
+  document.getElementById('s-ref-d').textContent = prev?delta(d.refuse,prev.refuse,'',0).replace(/\+/,'+£').replace('▼ ','▼ £'):'first year shown';
+  document.getElementById('fy').textContent = y;
+}
+window._msRedraw = ()=>draw(YEARS[cur], false);
+
+/* legend */
+const LEG=[{l:'Income',c:'--c-income'},...COM.map(c=>({l:c.label,c:c.col})),{l:'Discounts on rates',c:'--c-disc'},{l:'Year-end balance',c:'--c-bal'}];
+document.getElementById('legend').innerHTML = LEG.map(x=>`<div class="lg"><div class="sw" style="background:var(${x.c})"></div>${x.l}</div>`).join('')
+  + `<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its five-year path, pound figure and pence-on-the-rate</div>`;
+
+/* table view */
+function buildTable(){
+  const rows=[];
+  const R=(lab,get,cls)=>rows.push(`<tr class="${cls||''}"><td>${lab}</td>`+YEARS.map(y=>`<td class="num">${get(D[y])}</td>`).join('')+'</tr>');
+  const money=v=>v===0?'—':fmtFull(v);
+  R('Net rateable value', d=>d.rv.toLocaleString(),'grp');
+  R('Rate in the pound', d=>d.rate.toFixed(0)+'p','grp');
+  R('Domestic refuse charge', d=>'£'+d.refuse.toFixed(0),'grp');
+  rows.push('<tr><td colspan="6" style="height:8px;border:none"></td></tr>');
+  R('INCOME — Rate income', d=>money(d.rateIncome),'grp');
+  R('INCOME — Halls & community facilities', d=>d.halls>0?money(d.halls):'—','grp');
+  R('Total income', d=>money(d.rateIncome+(d.halls>0?d.halls:0)),'grp');
+  rows.push('<tr><td colspan="6" style="height:8px;border:none"></td></tr>');
+  R('Discounts on rates', d=>money(d.discounts),'grp');
+  COM.forEach(c=>{
+    R(c.label.toUpperCase(), d=>money(sum(d[c.key])),'grp');
+    const keys=new Set(); YEARS.forEach(y=>Object.keys(D[y][c.key]).forEach(k=>keys.add(k)));
+    [...keys].forEach(k=>R(k, d=>money(d[c.key][k]||0),'sub'));
+  });
+  R('Property — halls (net cost)', d=>d.halls<0?money(-d.halls):'—','grp');
+  R('Projected year-end balance', d=>money(d.balance),'grp');
+  rows.push('<tr><td colspan="6" style="height:8px;border:none"></td></tr>');
+  R('Total expenditure + balance', d=>money(d.discounts+sum(d.fgp)+sum(d.works)+sum(d.parks)+sum(d.refuseS)+(d.halls<0?-d.halls:0)+d.balance),'grp');
+  document.getElementById('tbl').innerHTML =
+   `<table><thead><tr><th>Line</th>${YEARS.map(y=>`<th>${y}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
+    <p class="foot"><b>Identity check.</b> Total income equals total expenditure plus the projected year-end balance in every year, exactly — verified in code, not asserted. <b>Capital restatement.</b> The 2024-25 split between Capital costs and Capital costs new was later restated (£978,404 / £88,158 against the £31,109 / £1,035,453 shown here); the total is unchanged at £1,066,562. Figures are each year's own published estimates. <b>Source.</b> Braddan Parish Commissioners estimates explanations, braddan.im, retrieved 4 August 2026.</p>`;
+}
+buildTable();
+
+
+/* ══════════ BALANCE SHEET (from the audited accounts — different basis to the Sankey) ══════════
+   OCR'd from the scanned statutory accounts, then verified: every subtotal below re-adds
+   correctly and both years cross-foot. Figures are £. */
+const BS = {
+ rows:[
+  ['h','Fixed assets',null,null],
+  ['r','Tangible fixed assets',32744126,24767836],
+  ['r','Assets under construction',58444,7686325],
+  ['s','',32802570,32454161],
+  ['h','Current assets',null,null],
+  ['r','Stock',5989,5532],
+  ['r','Debtors',349766,318871],
+  ['r','Cash at bank',732700,911372],
+  ['r','Assets held for sale',0,445000],
+  ['r','Net pension assets',0,149000],
+  ['s','',1088455,1829775],
+  ['h','Current liabilities',null,null],
+  ['r','Short-term borrowing',758542,606700],
+  ['r','Lease purchase liability',4398,4398],
+  ['r','Creditors',681228,1160500],
+  ['s','',1444168,1771598],
+  ['t','Net current (liabilities)/assets',-355713,58177],
+  ['t','',32446857,32512338],
+  ['h','Long-term liabilities',null,null],
+  ['r','Long-term borrowing',17327582,17717863],
+  ['r','Lease purchase liability',12471,16869],
+  ['s','',17340053,17734732],
+  ['T','Total assets less liabilities',15106804,14777606],
+  ['h','Reserves',null,null],
+  ['r','General fund',1050006,469912],
+  ['r','Capital adjustment account',1460759,1246254],
+  ['r','Revaluation reserve',12291735,12621581],
+  ['r','Housing revenue reserve',99636,73714],
+  ['r','Pension reserve',0,149000],
+  ['r','DOI maintenance reserve',19477,31954],
+  ['r','Cronkbourne reserve',185191,185191],
+  ['T','',15106804,14777606]
+ ]
+};
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BS.rows.map(r=>{
+    const st = r[0]==='T' ? ' style="border-top:2px solid var(--border2);font-weight:700"' :
+               r[0]==='s' ? ' style="border-top:1px solid var(--border2)"' : '';
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';
+  }).join('');
+  document.getElementById('bstbl').innerHTML =
+   '<table><thead><tr><th>Line</th><th>2025</th><th>2024</th></tr></thead><tbody>'+body+'</tbody></table>'
+   + '<p class="foot"><b>What jumps out.</b> Braddan carries <b>£17.33m of long-term borrowing</b> plus £0.76m short-term — around £18.1m of debt against £32.8m of fixed assets, and it paid <b>£998,684 in interest</b> in 2024-25. None of that appears in the Sankey, because it sits in the housing account rather than the rate account. Net current assets have swung from +£58,177 to <b>−£355,713</b> in one year. The general fund reserve more than doubled, from £469,912 to £1,050,006.</p>'
+   + '<p class="foot"><b>Provenance and confidence.</b> Braddan’s statutory accounts are published only as scanned images with no text layer, so these figures were recovered by OCR. They are then <em>arithmetically verified</em>: every subtotal re-adds, net current assets reconcile, total assets less liabilities equals total reserves, and both years cross-foot independently. That is a strong check — OCR errors do not normally preserve six simultaneous identities. <b>The Comprehensive Income and Expenditure Statement on page 15 has not passed the same check</b> (one line OCR’d inconsistently) and is deliberately not reproduced here; it needs a second pass before use.</p>'
+   + '<p class="foot"><b>Source.</b> The Parish Commissioners of Braddan, Statement of Accounts for the year ended 31 March 2025, Balance Sheet, page 18. Approved by the Board 29 January 2026. Retrieved from gov.im, 4 August 2026.</p>';
+}
+buildBS();
+
+/* controls */
+const slider=document.getElementById('slider'), play=document.getElementById('play');
+slider.addEventListener('input',e=>{ cur=+e.target.value; stop(); draw(YEARS[cur],true); });
+function stop(){ if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';} }
+play.addEventListener('click',()=>{
+  if(timer){ stop(); return; }
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){ cur=0; slider.value=0; draw(YEARS[0],true); }
+  timer=setInterval(()=>{
+    if(cur>=YEARS.length-1){ stop(); return; }
+    cur++; slider.value=cur; draw(YEARS[cur],true);
+  },1600);
+});
+function toggle(btn,panel){
+  const b=document.getElementById(btn), p=document.getElementById(panel);
+  b.addEventListener('click',()=>{
+    const on=p.classList.toggle('on');
+    b.setAttribute('aria-pressed',on);
+    ['p-table','p-bs','p-notes'].filter(x=>x!==panel).forEach(x=>{
+      document.getElementById(x).classList.remove('on');
+      document.getElementById({'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'}[x]).setAttribute('aria-pressed','false');
+    });
+  });
+}
+toggle('btn-table','p-table'); toggle('btn-bs','p-bs'); toggle('btn-notes','p-notes');
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');
+    document.getElementById(x==='p-table'?'btn-table':'btn-notes').setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent = light?'Dark':'Light';
+  try{ localStorage.setItem('observatory-theme', light?'light':'dark'); }catch(e){}
+  draw(YEARS[cur],false);
+});
+
+draw(YEARS[cur], false);
+let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>draw(YEARS[cur],false),140); });
+</script>
+</body>
+</html>
