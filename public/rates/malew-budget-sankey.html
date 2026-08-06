@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Malew Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Malew Parish Commissioners — where the money goes</div>
+    <div class="chart-sub">General Fund outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#south">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rates income</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-sur">—</div><div class="stat-dlt" id="s-sur-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Malew Parish Commissioners — General Fund Detailed Income and Expenditure (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Malew Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>Malew is the only one of Braddan, Marown, Santon and Malew — besides Braddan itself — that carries real borrowing. Alongside Marown's and Santon's £nil, Malew had <b>£263,423</b> of commercial bank loans outstanding at 31 March 2024 (£81,519 short-term, £181,904 long-term), down from £343,832 a year earlier. The loans fund long-term capital projects and are being repaid on schedules of 10–30 years.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Malew's own supplementary schedule, headed "Reconciliation of Detailed Income and Expenditure Account to Statement of Movement on Reserves" — a General Fund, near-cash view of income and spending that reconciles exactly to the movement on Malew's general revenue reserve each year. Malew's PDF states this schedule "does not form part of the reviewed financial statements", but every figure in it is Malew's own published number, and it is the only place Malew breaks its spending down into individual lines rather than five committee headings. It excludes the separate Housing Revenue Account and non-cash accounting entries (depreciation, pension movements, asset impairment) which appear only in the audited, accruals-based Comprehensive Income and Expenditure Statement — see below.</p>
+    <p><b>Malew carries borrowing — the other two audited authorities in this set do not.</b> Marown and Santon have no debt at all. Malew has <b>£263,423</b> of commercial bank loans outstanding at 31 March 2024, made up of fixed-rate IOM Bank loans (3.52%) and variable-rate HSBC loans (0.95% above LIBOR), taken out over the years to fund capital projects, unsecured, and sanctioned loan-by-loan by Treasury and the Department of Infrastructure. Loan capital repayments and loan interest are drawn here as their own "Debt servicing" group, colour-matched to the reserves-movement colour used elsewhere on this site because — like a surplus carried to reserves — they are financing flows, not service costs.</p>
+    <p><b>The rate has not moved.</b> Malew charged <b>199p</b> in the pound in all three years shown — 2021/22, 2022/23 and 2023/24 alike. Rates income still rose, from £740,564 to £787,588, because the net rateable value of the parish grew from £399,187 to £419,720 as new development was added to the rate roll, not because the poundage went up. That is the opposite of Marown, which held its rate flat and then raised it 22.56% in one go, and of Braddan, whose rate rose 60% over four years.</p>
+    <p><b>Why this doesn't match the headline audited result.</b> Malew's audited Comprehensive Income and Expenditure Statement — the accruals-basis account that is actually reviewed — shows a <em>deficit</em> of £285,780 for 2022/23 and a <em>surplus</em> of £122,069 for 2023/24, both very different from the £100,167 and £63,158 surpluses shown in this diagram. The gap is non-cash items this diagram deliberately excludes: most of the 2022/23 deficit was a one-off £384,000 impairment charge against the housing stock (see below), plus depreciation and pension remeasurement that never touch the rate account. Both bases are genuine and both are Malew's own; this diagram uses the General Fund schedule because, like Marown's and Santon's diagrams, it is built to show where the rate pound actually goes.</p>
+    <p><b>The housing stock is gone.</b> Malew held eight dwellings at 1–6 Railway Terrace, vacated by 2020. During 2022/23 four were sold to the Department of Infrastructure and the rest demolished, clearing land for a roundabout on the proposed Ballasalla bypass; the Housing Revenue Account effectively wound down that year (net cost £8,302 in 2022/23, £473 in 2023/24, against £22,653 in 2021/22) and does not appear in this diagram at all. The £50,000 "Open space compensation" receipt in 2023/24 income appears alongside the continuing build-out of the Reayrt Mie estate by Dandara, described in Malew's own explanatory foreword — plausibly connected, but not itself stated in the accounts, so read as context rather than as a confirmed link.</p>
+    <p><b>Credits shown as inflows.</b> Two lines — rates written back and the bad debt provision — were credits (releases) rather than charges in some years. A Sankey cannot draw a negative flow, so a credit line appears on the income side marked "(credit)"; gross expenditure therefore reads slightly higher than the net published total, and the two reconcile exactly.</p>
+    <p><b>Ballasalla, Ronaldsway and the Airport.</b> Malew's parish covers Ballasalla, St Marks and Derbyhaven, and includes both the Ronaldsway and Balthane industrial estates and the Isle of Man Airport itself. Nothing in either year's accounts shows an airport-related joint board, rate or grant — the connection here is purely geographic, and no financial link has been assumed.</p>
+    <p><b>Not the same body as the burial authority.</b> Malew Burial Authority publishes its own, separate accounts (2024_malew-burial.pdf) and is not part of the Commissioners shown here; it has been left out entirely rather than merged in.</p>
+    <p><b>Provenance and confidence.</b> Malew publishes its accounts only as scanned images with no text layer, so these figures were recovered by OCR and then verified rather than trusted. Three independent checks were applied to every year: every income and expenditure line re-adds to the published total; the 2022/23 column appears in <em>both</em> the 2023 and 2024 accounts and the two readings agree to the pound, as does the rate poundage and rateable value note; and income minus expenditure equals the published surplus exactly, in all three years. Unlike Marown's accounts, no digit in Malew's detailed schedule was ambiguous enough to need the arithmetic to resolve it — every figure here was legible on the scan and independently confirmed by the reconciliation.</p>
+    <p><b>A reserve was reclassified, not misread.</b> Malew's 2023 accounts show the 31 March 2023 balance sheet split as Revaluation reserve £1,163,039 and Capital adjustment account £1,449,080. The 2024 accounts restate the same 31 March 2023 comparative as £1,247,157 and £1,364,962 — different individual lines, but the same £3,581,295 of net assets either way. Both readings pass every reconciliation check; this is a genuine restatement between components of reserves in Malew's own accounts, not an OCR disagreement, and the balance sheet below uses the more recent, restated split.</p>
+    <p><b>Malew's own website</b> (malew-parish.org) lists Financial Statements back to 2008 and recent Commissioners' minutes, but neither page surfaces rate-poundage history, budget figures or borrowing detail in a form readable without opening each individual PDF — unlike Marown, where the minutes directly stated a rate rise. Nothing found there is used in this diagram.</p>
+    <p><b>Comparability.</b> Malew is on the same audited, outturn accounting basis and the same three years as Marown and Santon, so a genuine read-across is possible for those three. It is not directly comparable with Braddan's diagram, which is built from forward budget estimates rather than audited outturn.</p>
+    <p><b>Source.</b> Malew Parish Commissioners, Financial Statements for the years ended 31 March 2023 and 31 March 2024 — Comprehensive Income and Expenditure Statement, Balance Sheet, Statement of Movement on Reserves, Reconciliation of Detailed Income and Expenditure Account to Statement of Movement on Reserves, and Notes 4, 5, 6 and 14. Independent chartered accountant's review report by the Authority's external accountant. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Malew held its rate at <b>199p</b> for three straight years — rates income still rose, because the rate roll grew, not the rate.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — General Fund detailed schedule, OCR-recovered and reconciled ══════════ */
+const YEARS=['2021-22','2022-23','2023-24'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const RATE={'2021-22':{pound:199,rv:399187},'2022-23':{pound:199,rv:399534},'2023-24':{pound:199,rv:419720}};
+const D={
+'2021-22':{
+ income:{'Rates income':740564,'Bank interest':43,'Search fees':3060,'Village hall hire':12378,'Refuse collection fees':97719,'Lease of office':99864,'Miscellaneous income':644},
+ services:{'Refuse collection':317474,'Street lighting':24058,'Public areas and grounds':3702,'Civic amenity site':111631,'Swimming pool contribution':9821,'Toilets':2613,'Village hall expenses':14027,'Transferred services':13023},
+ admin:{"Clerk's salary and expenses":76422,'Office expenses':136369,'Rate collection charges':7939,"Members' expenses":1313,'Election expenses':759,'Miscellaneous expenses':3095,'Assets purchased by revenue':14702,'Rates written back':3719,'Bad debt provision':15583},
+ compliance:{'Accountancy fees':4784,'Assurance review':2506,'Internal audit fees':2800,'Insurance':11205,'Legal and professional fees':180,'Bank charges':748},
+ debt:{'Loan capital repayments':71276,'Loan interest':21425},
+ surplus:83098, totalExp:871174},
+'2022-23':{
+ income:{'Rates income':747955,'Bank interest':6546,'Search fees':3180,'Village hall hire':11902,'Refuse collection fees':104401,'Lease of office':100430,'Miscellaneous income':3141},
+ services:{'Refuse collection':341823,'Street lighting':32492,'Public areas and grounds':16965,'Civic amenity site':133119,'Swimming pool contribution':9890,'Toilets':2100,'Village hall expenses':16884,'Transferred services':14535},
+ admin:{"Clerk's salary and expenses":80694,'Office expenses':96485,'Rate collection charges':8117,"Members' expenses":4876,'Election expenses':0,'Miscellaneous expenses':3204,'Assets purchased by revenue':12632,'Rates written back':-10644,'Bad debt provision':2230},
+ compliance:{'Accountancy fees':4436,'Assurance review':2750,'Internal audit fees':2800,'Insurance':11332,'Legal and professional fees':2000,'Bank charges':1011},
+ debt:{'Loan capital repayments':71974,'Loan interest':15683},
+ surplus:100167, totalExp:877388},
+'2023-24':{
+ income:{'Rates income':787588,'Bank interest':26834,'Other interest received':4005,'Search fees':3077,'Village hall hire':12098,'Refuse collection fees':115581,'Lease of office':103432,'Open space compensation':50000,'Miscellaneous income':954},
+ services:{'Refuse collection':415239,'Street lighting':45441,'Public areas and grounds':43185,'Civic amenity site':147674,'Swimming pool contribution':24788,'Toilets':2482,'Village hall expenses':19797,'Transferred services':15821},
+ admin:{"Clerk's salary and expenses":87263,'Office expenses':83486,'Rate collection charges':8553,"Members' expenses":4316,'Miscellaneous expenses':3410,'Assets purchased by revenue':20510,'Rates written back':-12333,'Bad debt provision':-2616},
+ compliance:{'Accountancy fees':5284,'Assurance review':2750,'Internal audit fees':2800,'Insurance':12561,'Legal and professional fees':9390,'Bank charges':1554},
+ debt:{'Loan capital repayments':80407,'Loan interest':18649},
+ surplus:63158, totalExp:1040411}
+};
+const GRP=[{k:'services',   l:'Services for the parish',c:'--c-refuse'},
+           {k:'admin',      l:'Administrative expenses', c:'--c-fgp'},
+           {k:'compliance', l:'Legal, professional & compliance', c:'--c-disc'},
+           {k:'debt',       l:'Debt servicing',           c:'--c-bal'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={}; GRP.forEach(g=>{Object.entries(d[g.k]).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});}); return c;};
+
+/* integrity: income + credits === gross outflow (groups) + surplus; group totals re-add to published expenditure; income - expenditure = published surplus */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inflow=sum(d.income)+sum(credits(d));
+  const outflow=GRP.reduce((a,g)=>a+pos(d[g.k]),0)+d.surplus;
+  const expTotal=GRP.reduce((a,g)=>a+sum(d[g.k]),0);
+  return {y,flowDiff:inflow-outflow,expDiff:expTotal-d.totalExp,surDiff:(sum(d.income)-d.totalExp)-d.surplus};
+});
+const bad=AUDIT.filter(a=>a.flowDiff!==0||a.expDiff!==0||a.surDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Malew reconciles in all years: flows balance, group totals match the published expenditure, and income − expenditure = the published surplus');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','General fund revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(credits(d)).forEach(([k,v],i)=>{
+    const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  const su=add('sur','Surplus carried to reserves','--c-bal','item',9);
+  L.push({source:hub,target:su,value:d.surplus,col:'--c-bal'});
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(credits(d));
+    if(id==='sur')  return d.surplus;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+
+  const g=graph(y),LPAD=200,RPAD=250,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(13).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=sum(D[y].income)+sum(credits(D[y]));
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>cssv(d.col))
+    .style('stroke-opacity',d=>d.target.kind==='item'?0.30:0.42);
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent=fmt(d.income['Rates income']);
+  document.getElementById('s-rate-d').textContent=arrow(d.income['Rates income'],pv&&pv.income['Rates income']);
+  document.getElementById('s-pound').textContent=RATE[y].pound+'p';
+  const rp=RATE[y],pvp=pi>=0?RATE[YEARS[pi]]:null;
+  document.getElementById('s-pound-d').textContent=pvp?(rp.pound===pvp.pound?'no change · rateable value '+fmt(rp.rv):(rp.pound>pvp.pound?'▲ +':'▼ ')+Math.abs(rp.pound-pvp.pound)+'p on last year'):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-sur').textContent='+'+fmt(d.surplus);
+  document.getElementById('s-sur-d').textContent=pv?(d.surplus>pv.surplus?'▲ surplus grew':'▼ surplus shrank'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Surplus carried to reserves</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(sum(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Total expenditure',d=>m(d.totalExp),'grp');
+  R('Surplus for the year',d=>'+'+d.surplus.toLocaleString(),'grp');
+  rows.push('<tr class="sub"><td>Rate in the pound</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].pound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Net rateable value</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].rv.toLocaleString()+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year the group subtotals re-add to the published total expenditure, and total income minus expenditure equals the published surplus exactly. The 2022-23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree. This schedule excludes the separate Housing Revenue Account and non-cash items (depreciation, pension movements, impairment) that appear only in the audited Comprehensive Income and Expenditure Statement — see Notes. <b>Source.</b> Malew Parish Commissioners, Financial Statements y/e 31 March 2023 and 2024, Reconciliation of Detailed Income and Expenditure Account to Statement of Movement on Reserves, and Note 14 (rateable value). Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null,null],
+ ['r','Tangible fixed assets',2877293,2898315,3909934],
+ ['h','Current assets',null,null,null],
+ ['r','Debtors',316351,101798,82402],
+ ['r','Cash at bank',1086732,1130604,483554],
+ ['s','',1403083,1232402,565956],
+ ['h','Current liabilities',null,null,null],
+ ['r','Short-term borrowing',-81519,-77970,-74414],
+ ['r','Creditors',-195590,-87590,-113011],
+ ['t','Net current assets',1125974,1066842,378531],
+ ['t','Total assets less current liabilities',4003267,3965157,4288465],
+ ['h','Long-term liabilities',null,null,null],
+ ['r','Pension liability',-75000,-118000,-572000],
+ ['r','Long-term borrowing',-181904,-265862,-341390],
+ ['T','Net assets',3746363,3581295,3375075],
+ ['h','Reserves',null,null,null],
+ ['r','Revaluation reserve',1154055,1247157,1585880],
+ ['r','Accumulated surpluses',1124912,1062228,370363],
+ ['r','Pensions reserve',-75000,-118000,-572000],
+ ['r','Usable capital receipts',24948,24948,24948],
+ ['r','Capital adjustment account',1517448,1364962,1965884],
+ ['T','',3746363,3581295,3375075]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Total borrowing fell from £343,832 to £263,423 in the year — Malew is paying its debt down, at roughly £80,000 a year of capital repayment. Net assets rose from £3,581,295 to £3,746,363. Debtors nearly tripled, from £101,798 to £316,351, and creditors more than doubled, from £87,590 to £195,590 — both moved by more in one year than in the whole of 2022/23, which is worth a question rather than an alarm on an authority mid-way through servicing a major new estate.</p>'
+   +'<p class="foot"><b>The 2022 column shows the housing stock still on the books</b> — tangible fixed assets fell from £3,909,934 to £2,898,315 in 2022/23 as the Railway Terrace dwellings were sold and demolished, alongside a pension liability that fell from £572,000 to £118,000 on actuarial remeasurement.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from scanned originals, then verified: current assets re-add, net current assets reconcile, and total reserves equal net assets in all three years. Net assets at 31 March 2023 (£3,581,295) read identically whether taken from the 2023 accounts or from the 2024 accounts\' comparative column, though the split between revaluation reserve and capital adjustment account differs between the two — a genuine restatement, not an OCR error; see Notes.</p>'
+   +'<p class="foot"><b>Source.</b> Malew Parish Commissioners, Financial Statements for the years ended 31 March 2023 and 31 March 2024, Balance Sheet and Note 5 (Borrowings), page 13 and page 25/29. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

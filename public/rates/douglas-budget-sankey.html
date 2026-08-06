@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Douglas Borough Council — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Douglas Borough Council — where the money goes</div>
+    <div class="chart-sub">General Fund revenue account (rate-funded services), years ended 31 March 2023, 2024 and 2025 · Housing Revenue Account shown separately — self-funded by rents, not rates · recovered by OCR and arithmetically verified · source: Douglas's own published Statement of Accounts</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#douglas">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-housing" aria-pressed="false">Housing</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2024-25</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2022-23</span><span>2023-24</span><span>2024-25</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Income from General Rate Fund</div><div class="stat-val" id="s-inc">—</div><div class="stat-dlt" id="s-inc-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Net rateable value</div><div class="stat-val" id="s-rv">—</div><div class="stat-dlt" id="s-rv-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Net deficit on provision of services</div><div class="stat-val" id="s-def">—</div><div class="stat-dlt" id="s-def-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table">
+    <h3>Douglas Borough Council — General Fund income and expenditure by service (£)</h3>
+    <div id="tbl"></div>
+  </div>
+
+  <div class="panel" id="p-housing">
+    <h3>Douglas Borough Council — Housing Revenue Account, 2022-23 to 2024-25</h3>
+    <p>Douglas is a landlord as well as a rate authority: it holds by far the largest council housing stock of any authority on this site — <b>2,372 dwellings plus 138 sheltered units in 2023</b>, standing at <b>2,244 dwellings plus 138 sheltered units (2,382 in total) by 2025</b>. The Housing Revenue Account (HRA) is legally ring-fenced and self-funded from rents, service charges and an Isle of Man Government housing deficiency grant — it does <b>not</b> draw on the general rate, and is deliberately kept out of the Sankey above. It is, however, folded into Douglas's single published "Net deficit on provision of services" headline (see the stat card and Notes), so it is summarised in full here.</p>
+    <div id="housetbl"></div>
+    <p class="foot" id="housefoot"></p>
+  </div>
+
+  <div class="panel" id="p-bs">
+    <h3>Douglas Borough Council — Balance Sheet as at 31 March 2023, 2024 and 2025</h3>
+    <p>Douglas is roughly 60-100&times; the scale of the parish authorities elsewhere on this site, and comfortably the largest balance sheet here — closer to a small city government than to Braddan, previously the biggest authority on this site (Braddan's balance sheet is about £32.8m; Douglas's council housing stock alone is worth <b>£320.5m</b>). This is <b>not</b> the same thing as the Sankey above: the diagram shows one year's General-Fund revenue flow, of the order of £15-20m; the balance sheet is a full-accruals snapshot of everything Douglas owns and owes, dominated by decades of housing and infrastructure investment.</p>
+    <div id="bstbl"></div>
+    <div id="bsfoot"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Douglas's General Fund Comprehensive Income and Expenditure Statement (CIES), broken down by the fifteen service lines Douglas itself reports gross income and gross expenditure against, for the three years ended 31 March 2023, 2024 and 2025. The Sankey diagram is General Fund only — rate-funded services. Douglas's Housing Revenue Account is a separate, legally ring-fenced, self-funding account (rents and government grant, not rates) and is deliberately <b>excluded</b> from the diagram, exactly as Braddan's much smaller housing account is excluded from Braddan's diagram elsewhere on this site. See the Housing tab for the HRA on its own terms.</p>
+    <p><b>The headline figure is the operating result, not the accounting bottom line.</b> Douglas's accounts publish two very different "bottom lines" each year. This page uses <b>"Net deficit on provision of services"</b> (£6.217m, £9.220m and £4.445m in 2022-23, 2023-24 and 2024-25) as the headline, because it reflects the year's actual funding position. The alternative, "Total Comprehensive Expenditure", is a much larger positive swing the other way — a net comprehensive <em>income</em> of £48.231m, £64.802m and £10.877m in the same three years — almost entirely non-cash fixed-asset revaluation gains (£26.4m, £72.7m and £16.1m) and pension remeasurement gains sitting outside the operating account. Using that figure as a headline would make Douglas look like it was making tens of millions of pounds a year, which is not what is happening operationally. It is not used here for that reason, and is shown only in this note for context.</p>
+    <p><b>Why the Sankey's own total differs from the published headline.</b> The published Net deficit on provision of services combines the General Fund result <em>and</em> the Housing Revenue Account result in one statutory figure — that is how Douglas's Comprehensive Income and Expenditure Statement is structured. Because the Sankey diagram shows General Fund flows only, its own balancing flow — labelled "General Fund position for the year" — comes to a smaller deficit each year (£5.577m, £3.060m and £2.476m) than the published headline. The gap in every year is exactly the Housing Revenue Account's own self-funded deficit for that year (£0.640m, £6.160m and £1.969m) — see the Housing tab. The two add up to the published headline exactly, in all three years; that identity is checked in code, not assumed. <b>A further caution:</b> the General Fund balancing flow itself is not simply "cash drawn from reserves" — Douglas's own General Fund revenue reserve is only £1.29m–£1.74m across these years, far smaller than the £2.5–5.6m gap — because a large share of General Fund "expenditure" here is non-cash depreciation and IAS19 pension cost adjustments that are reversed out through the capital adjustment account and pensions reserve under the statutory Movement in Reserves Statement, not funded from cash reserves at all.</p>
+    <p><b>Rates levied is not quite the same figure as rate income recognised.</b> Douglas's rate in the pound rose sharply — 468p (2022-23) to 509p (2023-24) to 573p (2024-25), a 22% rise in two years, against a broadly flat net rateable value of around £2.75m. Multiplying the two gives the amount of rates <em>levied</em> each year (£12.854m, £14.004m and £15.782m) — but the amount actually credited to the General Fund CIES as "Income from the General Rate Fund" is somewhat lower in every year (£12.492m, £13.666m and £15.382m), a gap of roughly £340,000-£400,000 a year. Douglas's own accounts do not reconcile that gap line-by-line in the material reviewed, so it is reported here as a flagged discrepancy — most likely discounts, reliefs and collection-rate adjustments — rather than silently merged into one figure. The Sankey uses the CIES-recognised figure, because that is the one the published net deficit reconciles against.</p>
+    <p><b>How fifteen services were bucketed into this site's category colours.</b> This site uses a fixed seven-colour palette for expenditure categories, developed for much smaller parish committee structures. Douglas's fifteen General Fund service lines were grouped, as a judgement call, into: <i>Waste &amp; Environmental Services</i> (Waste Services) in the refuse colour; <i>Property, Highways &amp; Car Parks</i> (Asset Management, Car Parks, Public &amp; Decorative Lighting) in the works colour; <i>Parks, Gardens &amp; Cemeteries</i> (Parks/Gardens/Recreational Facilities, Cemeteries &amp; Crematorium) in the parks colour; <i>Corporate Support &amp; Administration</i> (Support Services, Administration &amp; Management, Democratic Core) in the finance/general-purposes colour; <i>Regulatory Enforcement &amp; Income Collection</i> (Income Collection, Regulatory Enforcement) in the discounts colour; and — following the precedent set on Castletown's diagram, which faced the same problem with its library and civic centre — two further groups sharing the same neutral colour, distinguished by label and position rather than hue: <i>Civic &amp; Cultural Services</i> (Library, City Centre Management &amp; Public Events) and <i>Depreciation, Amortisation &amp; Pension Cost Adjustments</i> (the two cross-cutting non-service accounting lines that appear on every service in the source data but are shown here as their own group for legibility). Income lines are all drawn in the income colour regardless of service, matching every other diagram on this site.</p>
+    <p><b>One expenditure line goes negative.</b> "Cost adjustment regarding pensions" is a credit rather than a charge in 2023-24 (£(423)k) — an actuarial swing running the other way that year. Following the convention already used on Castletown's diagram, a negative expenditure line is drawn as its own small credit inflow rather than as a negative outflow, which a Sankey cannot render; the underlying total expenditure figure is unaffected either way.</p>
+    <p><b>"Douglas City Council", not "Douglas Borough Council".</b> Douglas's own Statement of Accounts is headed "Douglas City Council" throughout. The Isle of Man Government's roster of local authorities, and this site, both use "Douglas Borough Council" — the title above follows that convention for consistency with the rest of the Observatory, but Douglas's own self-description is "City Council" and that is worth knowing if you go looking for its accounts directly.</p>
+    <p><b>Scale.</b> Douglas is the Isle of Man's capital and by a wide margin the largest authority covered on this site so far — roughly 60-100&times; the size of a typical parish commission, and closer in absolute scale to a small city government than to Braddan, previously the biggest authority here. Its General Fund alone spends £17-19m gross a year before Housing; Braddan's whole rates account is about £2.5m.</p>
+    <p><b>Douglas hosts a joint waste facility that four other authorities pay into.</b> Note 12.4 of Douglas's accounts discloses the <b>Eastern District Civic Amenity Site Joint Committee</b> — Douglas operates the shared household waste and recycling site at Middle Park Industrial Estate on behalf of itself, Onchan, Braddan, Garff and Santon, who each pay Douglas a cost-apportioned share of the running costs. On the running-costs-only basis used from 2024 onward, the apportionment is roughly Douglas 62.5%, Onchan 17.7%, Braddan 12.8%, Garff 5.4% and Santon 1.7% of a total that grew from £764k (2022-23) to £820k (2023-24) to £909k (2024-25) — Douglas's own share is roughly £479k/£513k/£568k of that, already embedded within Douglas's own Waste Services cost above, not an addition to it. This is a <em>different</em> joint arrangement from the Southern Local Authorities Swimming Pool Board (Santon, Port Erin, Castletown) and the Northern authorities' joint boards (Andreas, Ballaugh, Bride, Jurby) already documented elsewhere on this site — worth noting, Santon appears to pay into <em>both</em> the Southern pool board and this Eastern civic amenity site, two separate joint arrangements. <b>One genuine inconsistency, not an OCR error:</b> the 2023 accounts' note 12.4 states "costs recoverable" figures that include one-off capital-scheme costs alongside running costs, which are not directly comparable to the running-costs-only apportionment basis used from 2024 onward — this is flagged here rather than silently blended into a single trend line.</p>
+    <p><b>Borrowing — pooled, not itemised, and not a direct government loan.</b> Douglas's £85-91m of long-term borrowing is entirely by bank loan facility sanctioned by the Isle of Man Government's Treasury/Department of Infrastructure under the Local Authority Borrowing Scheme, drawn from a pooled "Loans Pool" and not itemised loan-by-loan in the accounts reviewed. This is a different arrangement from Garff, the only other authority on this site that discloses borrowing directly from the Isle of Man Government as a distinct, itemised loan (around £123k-£147k) sitting alongside its own bank loans.</p>
+    <p><b>Provenance and confidence.</b> Two extraction agents independently OCR'd and cross-checked every figure on this page using the standard three-check method: group and total subtotals re-add exactly; comparative years read identically across adjacent published documents; and income minus expenditure reproduces each year's published result. A handful of OCR misreads were caught and corrected by that arithmetic constraint before this page was built, including: "Total current liabilities" first misread as £(21,040)k against an actual £(11,040)k; the 2025 "Total assets less current liabilities" first misread as £239,885k against an actual £289,885k; and a fixed-asset note figure first misread as £312,615k against an actual £12,615k. All three were caught because the corrected figures are the only ones that make the surrounding subtotals re-add.</p>
+    <p><b>Source.</b> Douglas Borough Council (Douglas City Council), Statement of Accounts for the years ended 31 March 2023, 2024 and 2025, General Fund Comprehensive Income and Expenditure Statement, Housing Revenue Account, Balance Sheet and Note 12.4 (Joint Committees), published at gov.im. Retrieved 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Douglas carries about <b>£85-91m of long-term borrowing</b>, all via the Isle of Man Government's pooled Local Authority Borrowing Scheme rather than an itemised loan — and its Housing Revenue Account (2,382 council dwellings, ~£320m of housing assets) is self-funded by rents, not rates, and isn't in the diagram above.</span>
+  <a id="lnk-housing">See Housing →</a>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — General Fund CIES by service, £ (converted from Douglas's published £'000) ══════════
+   Verified by two independent OCR/extraction passes; hard reconciliation checkpoints (giTotal, geTotal,
+   netCostGF, netCostAll, netDeficit, hra.netResult) are Douglas's own published subtotals, not derived —
+   the AUDIT block below recomputes each from the itemised lines and checks for an exact match. */
+const YEARS = ['2022-23','2023-24','2024-25'];
+
+const GRP = [
+  {k:'waste',    l:'Waste & Environmental Services',                    c:'--c-refuse'},
+  {k:'property', l:'Property, Highways & Car Parks',                    c:'--c-works'},
+  {k:'parks',    l:'Parks, Gardens & Cemeteries',                       c:'--c-parks'},
+  {k:'corp',     l:'Corporate Support & Administration',                c:'--c-fgp'},
+  {k:'reg',      l:'Regulatory Enforcement & Income Collection',        c:'--c-disc'},
+  {k:'civic',    l:'Civic & Cultural Services',                         c:'--c-bal'},
+  {k:'dep',      l:'Depreciation, Amortisation & Pension Cost Adjustments', c:'--c-bal'}
+];
+
+const D = {
+'2022-23':{
+  inc:{
+    waste:{'Waste Services':1237000},
+    property:{'Asset Management':397000,'Car Parks':1043000,'Public & Decorative Lighting':2000},
+    parks:{'Parks, Gardens & Recreational Facilities':439000,'Cemeteries & Crematorium':622000},
+    corp:{'Support Services':101000,'Administration & Management':425000},
+    reg:{'Income Collection (excl. rate discount)':38000,'Regulatory Enforcement':381000},
+    civic:{'Library':7000,'City Centre Management & Public Events':35000},
+    dep:{'Depreciation & amortisation':8000,'Cost adjustment regarding pensions':0}
+  },
+  exp:{
+    waste:{'Waste Services':4376000},
+    property:{'Asset Management':2372000,'Car Parks':34000,'Public & Decorative Lighting':681000},
+    parks:{'Parks, Gardens & Recreational Facilities':2435000,'Cemeteries & Crematorium':667000},
+    corp:{'Support Services':1961000,'Administration & Management':1751000,'Democratic Core':349000},
+    reg:{'Income Collection':565000,'Regulatory Enforcement':431000},
+    civic:{'Library':368000,'City Centre Management & Public Events':183000},
+    dep:{'Depreciation & amortisation':1219000,'Cost adjustment regarding pensions':1912000}
+  },
+  rateFundIncome:12492000, intReceivable:33000, intPayable:3533000,
+  giTotal:4735000, geTotal:19304000, netCostGF:14569000, netCostAll:15209000, netDeficit:6217000,
+  hra:{income:14224000, expenditure:14864000, netResult:640000, deficiencyGrant:820000},
+  rate:{pound:468, nrv:2750000, levied:12854000}
+},
+'2023-24':{
+  inc:{
+    waste:{'Waste Services':1311000},
+    property:{'Asset Management':445000,'Car Parks':1139000,'Public & Decorative Lighting':12000},
+    parks:{'Parks, Gardens & Recreational Facilities':395000,'Cemeteries & Crematorium':708000},
+    corp:{'Support Services':120000,'Administration & Management':431000},
+    reg:{'Income Collection (excl. rate discount)':61000,'Regulatory Enforcement':387000},
+    civic:{'Library':9000,'City Centre Management & Public Events':22000},
+    dep:{'Depreciation & amortisation':33000,'Cost adjustment regarding pensions':0}
+  },
+  exp:{
+    waste:{'Waste Services':4292000},
+    property:{'Asset Management':2530000,'Car Parks':50000,'Public & Decorative Lighting':733000},
+    parks:{'Parks, Gardens & Recreational Facilities':2171000,'Cemeteries & Crematorium':607000},
+    corp:{'Support Services':1985000,'Administration & Management':1856000,'Democratic Core':396000},
+    reg:{'Income Collection':596000,'Regulatory Enforcement':463000},
+    civic:{'Library':417000,'City Centre Management & Public Events':147000},
+    dep:{'Depreciation & amortisation':1066000,'Cost adjustment regarding pensions':-423000}
+  },
+  rateFundIncome:13666000, intReceivable:133000, intPayable:5046000,
+  giTotal:5073000, geTotal:16886000, netCostGF:11813000, netCostAll:17973000, netDeficit:9220000,
+  hra:{income:16556000, expenditure:22716000, netResult:6160000, deficiencyGrant:2401000, peelRoadImpairment:4679000},
+  rate:{pound:509, nrv:2750000, levied:14004000}
+},
+'2024-25':{
+  inc:{
+    waste:{'Waste Services':1386000},
+    property:{'Asset Management':481000,'Car Parks':1182000,'Public & Decorative Lighting':11000},
+    parks:{'Parks, Gardens & Recreational Facilities':400000,'Cemeteries & Crematorium':785000},
+    corp:{'Support Services':98000,'Administration & Management':433000},
+    reg:{'Income Collection (excl. rate discount)':30000,'Regulatory Enforcement':400000},
+    civic:{'Library':10000,'City Centre Management & Public Events':36000},
+    dep:{'Depreciation & amortisation':29000,'Cost adjustment regarding pensions':586000}
+  },
+  exp:{
+    waste:{'Waste Services':4686000},
+    property:{'Asset Management':2574000,'Car Parks':55000,'Public & Decorative Lighting':846000},
+    parks:{'Parks, Gardens & Recreational Facilities':2370000,'Cemeteries & Crematorium':586000},
+    corp:{'Support Services':2349000,'Administration & Management':1851000,'Democratic Core':416000},
+    reg:{'Income Collection':678000,'Regulatory Enforcement':465000},
+    civic:{'Library':427000,'City Centre Management & Public Events':180000},
+    dep:{'Depreciation & amortisation':1396000,'Cost adjustment regarding pensions':3000}
+  },
+  rateFundIncome:15382000, intReceivable:126000, intPayable:4969000,
+  giTotal:5867000, geTotal:18882000, netCostGF:13015000, netCostAll:14984000, netDeficit:4445000,
+  hra:{income:17359000, expenditure:19328000, netResult:1969000, deficiencyGrant:2124000},
+  rate:{pound:573, nrv:2750000, levied:15782000}
+}
+};
+
+const cssv = v => getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum = o => Object.values(o).reduce((a,b)=>a+b,0);
+const pos = o => Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits = o => { const c={}; Object.entries(o).forEach(([k,v])=>{ if(v<0) c[k+' (credit)']=-v; }); return c; };
+
+/* ── reconciliation self-check ── */
+const AUDIT = YEARS.map(y=>{
+  const d=D[y];
+  const giSum = GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0);
+  const geSum = GRP.reduce((a,g)=>a+sum(d.exp[g.k]),0);
+  const netCostCalc = geSum - giSum;
+  const netCostAllCalc = d.netCostGF + d.hra.netResult;
+  const headlineCalc = d.netCostAll - d.rateFundIncome - d.intReceivable + d.intPayable;
+  const hraCheck = (d.hra.income - d.hra.expenditure) - (-d.hra.netResult);
+  return {
+    y,
+    giDiff: giSum - d.giTotal,
+    geDiff: geSum - d.geTotal,
+    netCostDiff: netCostCalc - d.netCostGF,
+    netCostAllDiff: netCostAllCalc - d.netCostAll,
+    headlineDiff: headlineCalc - d.netDeficit,
+    hraDiff: hraCheck
+  };
+});
+const AUDIT_BAD = AUDIT.filter(a=>a.giDiff||a.geDiff||a.netCostDiff||a.netCostAllDiff||a.headlineDiff||a.hraDiff);
+if (AUDIT_BAD.length) console.error('RECONCILIATION FAILED', AUDIT_BAD);
+else console.log('✓ Douglas reconciles in all years: gross income and gross expenditure re-add to the published totals, General Fund net cost matches income − expenditure, and net cost of all services less rate income/interest equals the published Net deficit on provision of services, exactly.');
+
+/* ══════════ FORMATTING ══════════ */
+const fmt = v => Math.abs(v)>=1000000 ? (v<0?'−':'')+'£'+(Math.abs(v)/1000000).toFixed(2)+'m' : Math.abs(v)>=1000 ? (v<0?'−':'')+'£'+Math.round(Math.abs(v)/1000)+'k' : (v<0?'−':'')+'£'+Math.round(Math.abs(v));
+const fmtFull = v => (v<0?'−':'')+'£'+Math.round(Math.abs(v)).toLocaleString();
+const pctOf = (v,t) => t>0 ? (v/t*100).toFixed(1)+'%' : '—';
+
+/* ══════════ BUILD GRAPH (General Fund only — Housing Revenue Account is not part of this flow) ══════════ */
+function graph(y){
+  const d = D[y], N=[], L=[], idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{ if(idx[id]==null){ idx[id]=N.length; N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch}); } return idx[id]; };
+
+  const hub = add('hub','Douglas General Fund (rate-funded)','--accent','hub',0);
+
+  add('inc|rate','General rate income','--c-income','src',0);
+  L.push({source:idx['inc|rate'],target:hub,value:d.rateFundIncome,col:'--c-income'});
+  add('inc|int','Interest receivable','--c-income','src',1);
+  L.push({source:idx['inc|int'],target:hub,value:d.intReceivable,col:'--c-income'});
+
+  GRP.forEach((g,gi)=>{
+    /* income items for this group, flat into hub, income-teal */
+    Object.entries(d.inc[g.k]).forEach(([k,v])=>{
+      if(v<=0) return;
+      const id='inc|'+g.k+'|'+k;
+      add(id,k,'--c-income','src',2+gi);
+      L.push({source:idx[id],target:hub,value:v,col:'--c-income'});
+    });
+    /* credits: negative expenditure lines flow in as small credit inflows */
+    Object.entries(credits(d.exp[g.k])).forEach(([k,v])=>{
+      const id='cr|'+g.k+'|'+k;
+      add(id,k,'--c-income','src',80+gi);
+      L.push({source:idx[id],target:hub,value:v,col:'--c-income'});
+    });
+    /* expenditure group + its positive items */
+    const tot = pos(d.exp[g.k]);
+    if(tot<=0) return;
+    const ci = add(g.k,g.l,g.c,'com',gi+1);
+    L.push({source:hub,target:ci,value:tot,col:g.c});
+    Object.entries(d.exp[g.k]).forEach(([k,v])=>{
+      if(v<=0) return;
+      const li = add(g.k+'|'+k,k,g.c,'item',gi+1);
+      L.push({source:ci,target:li,value:v,col:g.c});
+    });
+  });
+
+  const ip = add('intpay','Interest payable & similar charges','--c-bal','end',90);
+  L.push({source:hub,target:ip,value:d.intPayable,col:'--c-bal'});
+
+  const giSum = GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0);
+  const geSum = GRP.reduce((a,g)=>a+sum(d.exp[g.k]),0);
+  const gfDeficit = (geSum - giSum) - d.rateFundIncome - d.intReceivable + d.intPayable;
+  if (gfDeficit > 0) {
+    const b = add('bal','General Fund balance (excl. Housing)','--c-bal','src',99,true);
+    L.push({source:idx['bal'],target:hub,value:gfDeficit,col:'--c-bal',hatch:true});
+  } else if (gfDeficit < 0) {
+    const b = add('bal','General Fund surplus (excl. Housing)','--c-bal','end',99);
+    L.push({source:hub,target:idx['bal'],value:-gfDeficit,col:'--c-bal'});
+  }
+
+  return {nodes:N, links:L};
+}
+
+/* ══════════ PER-NODE TIME SERIES (hover popout) ══════════ */
+function seriesFor(id){
+  return YEARS.map(y=>{
+    const d=D[y];
+    if(id==='hub'){
+      const giSum = GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0);
+      return giSum + d.rateFundIncome + d.intReceivable;
+    }
+    if(id==='inc|rate') return d.rateFundIncome;
+    if(id==='inc|int') return d.intReceivable;
+    if(id==='intpay') return d.intPayable;
+    if(id==='bal'){
+      const giSum = GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0);
+      const geSum = GRP.reduce((a,g)=>a+sum(d.exp[g.k]),0);
+      return Math.abs((geSum - giSum) - d.rateFundIncome - d.intReceivable + d.intPayable);
+    }
+    if(id.indexOf('inc|')===0){
+      const rest=id.slice(4); const parts=rest.split('|');
+      if(parts.length===2){ const [gk,k]=parts; return (d.inc[gk]&&d.inc[gk][k])||0; }
+      return 0;
+    }
+    if(id.indexOf('cr|')===0){
+      const rest=id.slice(3); const parts=rest.split('|');
+      if(parts.length===2){ const [gk,k]=parts; const v=(d.exp[gk]&&d.exp[gk][k])||0; return v<0?-v:0; }
+      return 0;
+    }
+    if(id.indexOf('|')>-1){ const a=id.split('|'); return Math.max(0,(d.exp[a[0]]&&d.exp[a[0]][a[1]])||0); }
+    return d.exp[id] ? pos(d.exp[id]) : 0;
+  });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id), W=232, H=46, P=5, BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1])), mn=0;
+  const X=i=>P+i*(W-2*P)/(s.length-1);
+  const Y=v=>BOT-((v-mn)/((mx-mn)||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col), sf=cssv('--surface'), mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+    + '<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak ' + fmt(mx) + '</div>'
+    + '<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+    + '<path d="'+area+'" fill="'+c+'" opacity="0.14"/>'
+    + '<path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + dots + marks + '</svg></div>';
+}
+
+/* ══════════ RENDER ══════════ */
+const svg = d3.select('#chart'), tt = d3.select('#tt');
+let cur = 2, timer=null;
+
+function draw(y, animate){
+  const el = document.getElementById('chart');
+  const W = el.clientWidth, H = el.clientHeight;
+  if(W<10||H<10) return;
+  svg.attr('viewBox',`0 0 ${W} ${H}`);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g = graph(y);
+  const LPAD=250, RPAD=290, TPAD=14, BPAD=14;
+  const sk = d3.sankey().nodeWidth(14).nodePadding(7).nodeAlign(d3.sankeyLeft).nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links} = sk({nodes:g.nodes.map(d=>({...d})), links:g.links.map(d=>({...d}))});
+
+  let root = svg.select('g.root');
+  if (root.empty()) root = svg.append('g').attr('class','root');
+  const hubNode = nodes.find(n=>n.id==='hub');
+  const total = hubNode ? hubNode.value : 1;
+
+  const lk = root.selectAll('path.link').data(links, d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE = lk.enter().append('path').attr('class','link')
+      .attr('d', d3.sankeyLinkHorizontal())
+      .attr('stroke-width', d=>Math.max(1,d.width))
+      .style('stroke', d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+      .attr('d', d3.sankeyLinkHorizontal())
+      .attr('stroke-width', d=>Math.max(1,d.width))
+      .style('stroke', d=>d.hatch?'url(#hatch)':cssv(d.col))
+      .style('stroke-opacity', d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove', function(ev,d){
+      root.selectAll('path.link').classed('dim', x=>x!==d);
+      tt.style('opacity',1)
+        .style('left', Math.min(ev.offsetX+16, W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html(`<div class="tt-t">${d.source.label} → ${d.target.label}</div>
+               <div class="tt-r"><span>Amount</span><span class="tt-v">${fmtFull(d.value)}</span></div>
+               <div class="tt-r"><span>Share of General Fund</span><span class="tt-v">${pctOf(d.value,total)}</span></div>`
+             + spark(d.target.id==='hub'?d.source.id:d.target.id, d.col, YEARS.indexOf(y)));
+    })
+    .on('mouseleave', function(){ root.selectAll('path.link').classed('dim',false); tt.style('opacity',0); });
+
+  const nd = root.selectAll('g.node').data(nodes, d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE = nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect');
+  ndE.append('text').attr('class','nlab');
+  ndE.append('text').attr('class','nval');
+
+  const ndA = ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).ease(d3.easeCubicInOut).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0)
+    .attr('width',d=>d.x1-d.x0).attr('height',d=>Math.max(1,d.y1-d.y0))
+    .attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=> d.kind==='src' ? d.x0-9 : d.x1+9)
+    .attr('y',d=>(d.y0+d.y1)/2 - ((d.y1-d.y0)>22?6:0))
+    .attr('text-anchor',d=> d.kind==='src' ? 'end':'start')
+    .attr('dominant-baseline','middle')
+    .text(d=>d.label);
+
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=> d.kind==='src' ? d.x0-9 : d.x1+9)
+    .attr('y',d=>(d.y0+d.y1)/2 + 7)
+    .attr('text-anchor',d=> d.kind==='src' ? 'end':'start')
+    .attr('dominant-baseline','middle')
+    .text(d=> (d.y1-d.y0)>22 ? fmt(d.value)+'  ·  '+pctOf(d.value,total) : '');
+
+  ndA.on('mousemove', function(ev,d){
+      root.selectAll('path.link').classed('dim', l=>l.source.id!==d.id && l.target.id!==d.id);
+      tt.style('opacity',1)
+        .style('left', Math.min(ev.offsetX+16, W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html(`<div class="tt-t">${d.label}</div>
+               <div class="tt-r"><span>Amount</span><span class="tt-v">${fmtFull(d.value)}</span></div>
+               <div class="tt-r"><span>Share of General Fund</span><span class="tt-v">${pctOf(d.value,total)}</span></div>`
+             + spark(d.id, d.col, YEARS.indexOf(y)));
+    })
+    .on('mouseleave', function(){ root.selectAll('path.link').classed('dim',false); tt.style('opacity',0); });
+
+  /* stats */
+  const d=D[y], prevY = YEARS[YEARS.indexOf(y)-1], prev = prevY ? D[prevY] : null;
+  const arrow=(a,b,fmtFn)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmtFn(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent = d.rate.pound+'p';
+  document.getElementById('s-rate-d').textContent = prev?arrow(d.rate.pound,prev.rate.pound,v=>v+'p'):'first year shown';
+  document.getElementById('s-inc').textContent = fmt(d.rateFundIncome);
+  document.getElementById('s-inc-d').textContent = prev?arrow(d.rateFundIncome,prev.rateFundIncome,fmt):'first year shown';
+  document.getElementById('s-rv').textContent = '£'+(d.rate.nrv/1000000).toFixed(2)+'m';
+  document.getElementById('s-rv-d').textContent = prev?(d.rate.nrv===prev.rate.nrv?'flat':arrow(d.rate.nrv,prev.rate.nrv,fmt)):'first year shown';
+  document.getElementById('s-def').textContent = fmt(d.netDeficit);
+  document.getElementById('s-def-d').textContent = prev?arrow(d.netDeficit,prev.netDeficit,fmt).replace('▲','▲ worse').replace('▼','▼ better'):'first year shown';
+  document.getElementById('fy').textContent = y;
+}
+window._msRedraw = ()=>draw(YEARS[cur], false);
+
+/* legend */
+const LEG=[{l:'Income',c:'--c-income'},...GRP.map(g=>({l:g.l,c:g.c})),{l:'Interest payable / General Fund balancing flow (hatched = deficit)',c:'--c-bal'}];
+document.getElementById('legend').innerHTML = LEG.map(x=>`<div class="lg"><div class="sw" style="background:var(${x.c})"></div>${x.l}</div>`).join('')
+  + `<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path and share of the General Fund</div>`;
+
+/* ══════════ TABLE VIEW ══════════ */
+function buildTable(){
+  const rows=[];
+  const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(lab,get,cls)=>rows.push(`<tr class="${cls||''}"><td>${lab}</td>`+YEARS.map(y=>`<td class="num">${get(D[y])}</td>`).join('')+'</tr>');
+  R('Rate in the pound (general rate)', d=>d.rate.pound+'p','grp');
+  R('Net rateable value (approx., flat)', d=>d.rate.nrv.toLocaleString(),'grp');
+  R('Total rates levied (rate × NRV, gross)', d=>m(d.rate.levied),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('INCOME — General rate income (credited to CIES)', d=>m(d.rateFundIncome),'grp');
+  R('INCOME — Interest receivable and other income', d=>m(d.intReceivable),'grp');
+  GRP.forEach(g=>{
+    R('INCOME — '+g.l.toUpperCase(), d=>m(sum(d.inc[g.k])),'grp');
+    const keys=new Set(); YEARS.forEach(y=>Object.keys(D[y].inc[g.k]).forEach(k=>keys.add(k)));
+    [...keys].forEach(k=>R(k, d=>m(d.inc[g.k][k]||0),'sub'));
+  });
+  R('TOTAL GROSS SERVICE INCOME', d=>m(GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0)),'grp');
+  R('TOTAL GENERAL FUND INCOME (service income + rate income + interest)', d=>m(GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0)+d.rateFundIncome+d.intReceivable),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{
+    R('EXPENDITURE — '+g.l.toUpperCase(), d=>m(sum(d.exp[g.k])),'grp');
+    const keys=new Set(); YEARS.forEach(y=>Object.keys(D[y].exp[g.k]).forEach(k=>keys.add(k)));
+    [...keys].forEach(k=>R(k, d=>m(d.exp[g.k][k]||0),'sub'));
+  });
+  R('EXPENDITURE — Interest payable and similar charges', d=>m(d.intPayable),'grp');
+  R('GROSS EXPENDITURE TOTAL (published, services only)', d=>m(d.geTotal),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('NET COST OF GENERAL FUND SERVICES (published)', d=>m(d.netCostGF),'grp');
+  R('NET COST OF ALL SERVICES (General Fund + Housing Revenue Account, published)', d=>m(d.netCostAll),'grp');
+  R('General Fund position for the year before Housing (not published — this diagram\'s own balancing flow)', d=>{
+     const giSum=GRP.reduce((a,g)=>a+sum(d.inc[g.k]),0), geSum=GRP.reduce((a,g)=>a+sum(d.exp[g.k]),0);
+     const v=(geSum-giSum)-d.rateFundIncome-d.intReceivable+d.intPayable; return (v>=0?'(':'')+Math.abs(v).toLocaleString()+(v>=0?' deficit)':' surplus');
+  },'grp');
+  R('Housing Revenue Account net result (self-funded, see Housing tab)', d=>'('+d.hra.netResult.toLocaleString()+' deficit)','sub');
+  R('NET DEFICIT ON PROVISION OF SERVICES (published headline)', d=>'('+d.netDeficit.toLocaleString()+')','grp');
+  document.getElementById('tbl').innerHTML =
+   `<table><thead><tr><th>Line</th>${YEARS.map(y=>`<th>y/e 31 Mar ${y.slice(-2)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
+    <p class="foot"><b>Reconciliation.</b> In every year: gross service income and gross service expenditure both re-add to Douglas's own published totals; gross expenditure minus gross income equals the published Net cost of General Fund services; and Net cost of all services (General Fund + Housing Revenue Account) less rate income, less interest receivable, plus interest payable equals the published Net deficit on provision of services, exactly. Verified in code (see console), not merely asserted. <b>Source.</b> Douglas Borough Council, Statement of Accounts, General Fund CIES, years ended 31 March 2023, 2024 and 2025, gov.im, retrieved 6 August 2026.</p>`;
+}
+buildTable();
+
+/* ══════════ HOUSING REVENUE ACCOUNT PANEL ══════════ */
+function buildHousing(){
+  const rows=[];
+  const m=v=>v==null?'—':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const R=(lab,get,cls)=>rows.push(`<tr class="${cls||''}"><td>${lab}</td>`+YEARS.map(y=>`<td class="num">${get(D[y])}</td>`).join('')+'</tr>');
+  R('HRA income (dwelling rents, service charges, deficiency grant, other)', d=>m(d.hra.income),'grp');
+  R('...of which Housing Deficiency Grant (Isle of Man Government)', d=>m(d.hra.deficiencyGrant),'sub');
+  R('HRA expenditure (repairs, supervision, rates/charges, depreciation/impairment)', d=>m(d.hra.expenditure),'grp');
+  R('...of which Peel Road Flats impairment (2023-24 only)', d=>m(d.hra.peelRoadImpairment),'sub');
+  R('HRA net result for the year (deficit, funded from HRA reserves)', d=>'('+d.hra.netResult.toLocaleString()+')','grp');
+  document.getElementById('housetbl').innerHTML =
+   `<table><thead><tr><th>Line (£)</th>${YEARS.map(y=>`<th>y/e 31 Mar ${y.slice(-2)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  document.getElementById('housefoot').innerHTML =
+   `<b>What jumps out.</b> The Housing Deficiency Grant Douglas receives from Isle of Man Government nearly tripled in one year — £820k (2022-23) to £2,401k (2023-24) — before easing back to £2,124k (2024-25), tracking a sharp widening in the HRA's own deficit that year (£640k to £6,160k) driven substantially by a <b>£4,679,000 impairment on Peel Road Flats</b>. The deficit narrowed again to £1,969k in 2024-25 but remains three times its 2022-23 level. Council housing dwellings net book value grew from <b>£266.3m (2022) to £320.5m (2025)</b> — by far the largest housing asset base of any authority on this site (Braddan's, for comparison, is about £18.1m — roughly 18&times; smaller). None of this HRA activity draws on the general rate: it is funded by rents, service charges and the Government deficiency grant, and its own deficits are met from HRA reserves, not the General Fund shown in the main Sankey. <b>Source.</b> Douglas Borough Council, Statement of Accounts, Housing Revenue Account and supporting notes, years ended 31 March 2023, 2024 and 2025, gov.im, retrieved 6 August 2026.`;
+}
+buildHousing();
+
+/* ══════════ BALANCE SHEET ══════════
+   £, most recent year first (2025 / 2024 / 2023). OCR'd from the scanned statutory accounts and
+   arithmetically verified: reserves re-add to total net worth exactly in all three years; the "assets
+   less liabilities" chain re-adds exactly in 2024 and 2025 and is £2k off in 2023 — a rounding wrinkle
+   in Douglas's own source figures, noted rather than silently corrected. */
+const BS = {
+ rows:[
+  ['h','Fixed assets',null,null,null],
+  ['r','Total fixed assets',383332000,371893000,310544000],
+  ['h','Current assets',null,null,null],
+  ['r','Total current assets',6124000,6204000,4785000],
+  ['h','Current liabilities',null,null,null],
+  ['r','Total current liabilities',-14480000,-12276000,-11040000],
+  ['t','Total assets less current liabilities',374976000,365954000,304289000],
+  ['h','Long-term liabilities',null,null,null],
+  ['r','Long-term borrowing',-84996000,-86946000,-88430000],
+  ['r','Net pension (liability)/asset — long-term',-95000,0,-1651000],
+  ['T','Total net worth',289885000,279008000,214206000],
+  ['h','Financed by (reserves)',null,null,null],
+  ['r','General Fund',1585000,1740000,1287000],
+  ['r','Capital adjustment account',36782000,33904000,37013000],
+  ['r','Revaluation reserve',247289000,239441000,173742000],
+  ['r','Housing revenue reserves',102000,-69000,35000],
+  ['r','Pensions reserve',-114000,109000,-1671000],
+  ['r','Capital receipts reserve',422000,472000,476000],
+  ['r','Earmarked reserves',3819000,3411000,3324000],
+  ['T','TOTAL RESERVES',289885000,279008000,214206000]
+ ]
+};
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BS.rows.map(r=>{
+    const st = r[0]==='T' ? ' style="border-top:2px solid var(--border2);font-weight:700"' :
+               r[0]==='t' ? ' style="border-top:1px solid var(--border2)"' : '';
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';
+  }).join('');
+  document.getElementById('bstbl').innerHTML =
+   '<table><thead><tr><th>Line</th><th>2025</th><th>2024</th><th>2023</th></tr></thead><tbody>'+body+'</tbody></table>';
+  document.getElementById('bsfoot').innerHTML =
+   '<p class="foot"><b>What jumps out.</b> Net worth rose roughly <b>35%</b> in one year (£214.2m to £279.0m, 2023 to 2024) then a further 3.9% to £289.9m in 2025 — driven almost entirely by fixed-asset revaluation gains (£26.4m, £72.7m and £16.1m across the three years), not operating surpluses; the General Fund operating position was in deficit throughout (see the Sankey). Total loans outstanding fell gently across the period — £92,991,000 (2023) to £92,584,000 (2024) to £90,963,000 (2025) — all drawn from the Isle of Man Government\'s pooled Local Authority Borrowing Scheme rather than itemised loan-by-loan (contrast Garff, the only other authority on this site with a directly itemised Isle of Man Government loan). Net pension position moved from a £1,651,000 long-term liability (2023) to a £133,000 net asset (2024, disclosed elsewhere on the balance sheet rather than as a long-term liability — shown as nil on that line here) back to a £95,000 liability (2025). <b>A rounding note:</b> the "assets less current liabilities minus long-term liabilities" chain reconciles to the published Total net worth exactly in 2024 and 2025, but is £2,000 higher than the published £214,206,000 figure for 2023 when recomputed from the components above — a minor wrinkle in Douglas\'s own source figures (the reserves total itself reconciles exactly to £214,206,000 in all cases), reported here as published rather than silently adjusted.</p>'
+   + '<p class="foot"><b>Provenance and confidence.</b> These figures were recovered by OCR from Douglas\'s scanned Statement of Accounts by two independent extraction passes, then arithmetically verified: reserves re-add to total net worth exactly in 2023, 2024 and 2025, and both years cross-foot independently. Three misreads were caught and corrected this way before publication: "Total current liabilities" first read as £(21,040,000) against an actual £(11,040,000); the 2025 "Total assets less current liabilities" first read as £239,885,000 against an actual £289,885,000; and a fixed-asset note figure first read as £312,615,000 against an actual £12,615,000 — each caught because only the corrected figure lets the surrounding subtotals re-add.</p>'
+   + '<p class="foot"><b>Source.</b> Douglas Borough Council (Douglas City Council), Statement of Accounts, Balance Sheet as at 31 March 2023, 2024 and 2025, published at gov.im. Retrieved 6 August 2026.</p>';
+}
+buildBS();
+
+/* controls */
+const slider=document.getElementById('slider'), play=document.getElementById('play');
+slider.addEventListener('input',e=>{ cur=+e.target.value; stop(); draw(YEARS[cur],true); });
+function stop(){ if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';} }
+play.addEventListener('click',()=>{
+  if(timer){ stop(); return; }
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){ cur=0; slider.value=0; draw(YEARS[0],true); }
+  timer=setInterval(()=>{
+    if(cur>=YEARS.length-1){ stop(); return; }
+    cur++; slider.value=cur; draw(YEARS[cur],true);
+  },1700);
+});
+const PANELS={'p-table':'btn-table','p-housing':'btn-housing','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on = x===panel && !document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);
+  });
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>show('p-bs'));
+document.getElementById('lnk-housing').addEventListener('click',()=>show('p-housing'));
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent = light?'Dark':'Light';
+  try{ localStorage.setItem('observatory-theme', light?'light':'dark'); }catch(e){}
+  draw(YEARS[cur],false);
+});
+
+draw(YEARS[cur], false);
+let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>draw(YEARS[cur],false),140); });
+</script>
+</body>
+</html>

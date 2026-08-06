@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
-<title>Marown Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<title>German Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="lib/d3.min.js"></script>
 <script src="lib/d3-sankey.min.js"></script>
@@ -12,7 +12,7 @@
 (function () {
   if (window.__obsThemeReady) return;
   window.__obsThemeReady = true;
-  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  function applyTheme(l){ document.body.classList.toggle('light', l); if (window._msRedraw) window._msRedraw(); }
   window.addEventListener('message', function (e) {
     if (!e.data) return;
     if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
@@ -28,11 +28,11 @@
 
 <div class="hdr">
   <div class="hdr-left">
-    <div class="chart-title">Marown Parish Commissioners — where the money goes</div>
+    <div class="chart-title">German Parish Commissioners — where the money goes</div>
     <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
   </div>
   <div class="hdr-right">
-    <a class="icon-btn" href="index.html#middle">← All authorities</a>
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
     <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
     <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
     <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
@@ -50,37 +50,38 @@
 </div>
 
 <div class="stats">
-  <div class="stat"><div class="stat-lab">Rate income</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
-  <div class="stat"><div class="stat-lab">Total income</div><div class="stat-val" id="s-inc">—</div><div class="stat-dlt" id="s-inc-d">—</div></div>
-  <div class="stat"><div class="stat-lab">Net cost of services</div><div class="stat-val" id="s-cost">—</div><div class="stat-dlt" id="s-cost-d">—</div></div>
-  <div class="stat"><div class="stat-lab">Deficit for the year</div><div class="stat-val" id="s-def">—</div><div class="stat-dlt" id="s-def-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Income from rate funds</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">General rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Gross expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-sur">—</div><div class="stat-dlt" id="s-sur-d">—</div></div>
 </div>
 
 <div class="main">
   <svg id="chart"></svg>
   <div class="tt" id="tt"></div>
 
-  <div class="panel" id="p-table"><h3>Marown Parish Commissioners — Detailed Income and Expenditure Account (£)</h3><div id="tbl"></div></div>
+  <div class="panel" id="p-table"><h3>German Parish Commissioners — Detailed Income and Expenditure Account (£)</h3><div id="tbl"></div></div>
 
   <div class="panel" id="p-bs">
-    <h3>Marown Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
-    <p>Marown is a small, unleveraged authority. Unlike Braddan — which carries roughly £18.1m of borrowing and paid £998,684 of interest in 2024-25 — Marown has <b>no borrowing at all</b>. Its entire balance sheet is £158,326 of net assets, most of it cash and debtors.</p>
+    <h3>German Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>German is a small, unleveraged authority. It has <b>no borrowing at all</b> and owns almost no fixed assets — just the £11,056 net book value of the public conveniences building. Nearly everything else on the balance sheet is accumulated cash: £432,157 of net assets, almost all of it the general rate fund reserve.</p>
     <div id="bstbl"></div>
   </div>
 
   <div class="panel" id="p-notes">
     <h3>Notes, sources and cautions</h3>
-    <p><b>What this shows.</b> Marown's audited Detailed Income and Expenditure Account — actual outturn, not budget. Income (rates plus small fees) and a drawdown from reserves flow into the revenue account and out across the three headings Marown itself uses: services for the parish, administrative expenses, and legal and professional costs.</p>
-    <p><b>Marown does not balance — and that is the story.</b> In all three years spending exceeded income, so the shortfall was met from accumulated reserves. That drawdown is drawn as a hatched inflow on the left, because it is financing rather than income. The deficits run £4,369, then £23,844, then £20,469. Marown's own minutes record that the rate was held flat in 2023/24 and 2024/25 and the gap funded from reserves — and then raised 22.56% for 2025/26. This diagram is what that decision looked like in the accounts.</p>
-    <p><b>Credits shown as inflows.</b> Two expenditure lines — the bad debt provision and rates written off — were credits in some years (a release rather than a charge). A Sankey cannot draw a negative flow, so where a line is a credit it appears on the income side marked "(credit)". Gross expenditure therefore reads slightly higher than the net figures in the published account, and the two reconcile exactly.</p>
-    <p><b>Provenance and confidence.</b> Marown publishes its accounts only as scanned images with no text layer, so these figures were recovered by OCR and then verified rather than trusted. Three independent checks were applied: every group subtotal re-adds; the 2022-23 column appears in <em>both</em> the 2023 and 2024 accounts and the two readings agree; and income minus net cost of services equals the published deficit exactly, in all three years. Where OCR was ambiguous the published subtotal fixed the digit — the 2022-23 dog bins line resolves to £3,881 and repairs to £68 because no other pair reaches £289,848; miscellaneous income in 2023-24 resolves to £1,172 for the same reason.</p>
-    <p><b>Not comparable with the Braddan diagram as it stands.</b> Braddan's Sankey is built from forward <em>estimates</em> on a rates-funded basis; this one is audited <em>outturn</em> on an accruals basis, and the two use different committee structures. They also barely overlap in time — Braddan runs 2022-23 to 2026-27, Marown 2021-22 to 2023-24, because Marown's accounts are two years behind. A genuine three-authority comparison needs a common functional mapping, which has deliberately not been imposed here.</p>
-    <p><b>Source.</b> Marown Parish Commissioners, Statement of Accounts for the years ended 31 March 2023 and 31 March 2024, Detailed Income and Expenditure Account and Balance Sheet, prepared by Moore Dixon Consulting Limited, assurance review by Crowe Isle of Man LLC. Retrieved from gov.im, 4 August 2026.</p>
+    <p><b>What this shows.</b> German's audited Detailed Income and Expenditure Account — actual outturn, not budget. Income comes from two separate levies, the General Rate Fund and the Refuse Rate Fund, each struck at its own poundage. Expenditure is grouped exactly as German's own accounts group it: Finance and general purposes, Property, Works and development, Leisure, Refuse disposal, and Bad debts provision/rates write-off.</p>
+    <p><b>German balances comfortably, every year.</b> Unlike Marown, which ran a deficit and drew on reserves in all three years, German produced a surplus throughout — £56,981, then £48,715, then £27,461 — each one carried into the general rate fund reserve. That reserve has grown every year: £354,402 → £403,906 → £432,157. The surplus is shown here as an outflow to reserves, on the same convention used for Santon.</p>
+    <p><b>Credits shown as inflows.</b> Two lines within Finance and general purposes — bank interest received and miscellaneous income — are credits against that group's costs in the published account, not spending. A Sankey cannot draw a negative flow, so each appears on the income side marked "(credit)". Gross expenditure therefore reads higher than German's own net cost of £242,159 (2023-24) / £227,359 (2022-23) / £213,829 (2021-22); the two reconcile exactly once the credits are added back.</p>
+    <p><b>Two rate funds, two poundages.</b> The General Rate Fund was struck at 93p, 93p and then 94p in the pound across the three years, on a shrinking rateable value (£167,103 → £174,594 → £164,186). The Refuse Rate Fund — a separate levy that also carries £78,000–£79,000 a year of fixed-charge income on top of the poundage — ran 62p, 63p, 64p on a broadly flat rateable value around £80,000–£81,000. Both poundages rose in every year shown.</p>
+    <p><b>Provenance and confidence.</b> German publishes its accounts only as scanned images with no text layer, so these figures were recovered by OCR and then verified rather than trusted. Three independent checks were applied: every group subtotal re-adds to the published gross expenditure of £253,219 (2023-24) / £232,366 (2022-23) / £215,513 (2021-22); the 2022-23 column appears in <em>both</em> the 2023 and 2024 accounts, in both the Comprehensive Income and Expenditure Statement and the Detailed Income and Expenditure Account, and every reading agrees exactly; and total rate income minus net cost of General Fund services equals the published surplus in all three years. The Explanatory Foreword's own prose figures — rate poundages, rateable values and surplus amounts — were checked against the accounts tables and match throughout, which is an unusually strong cross-check for a scanned document.</p>
+    <p><b>Not comparable with the Braddan diagram as it stands.</b> Braddan's Sankey is built from forward <em>estimates</em> on a rates-funded basis; this one is audited <em>outturn</em> on an accruals basis, and the two use different committee structures. German, Marown and Santon are all on the same accruals/outturn basis across the same three years, so those three can be read against each other, though German's own functional groupings differ from both.</p>
+    <p><b>Source.</b> German Parish Commissioners, Statement of Accounts for the years ended 31 March 2023 and 31 March 2024, Comprehensive Income and Expenditure Statement, Detailed Income and Expenditure Account and Balance Sheet. Retrieved from gov.im, 6 August 2026.</p>
   </div>
 </div>
 
 <div class="callout">
-  <span>Marown has no borrowing at all — its whole balance sheet is £158,326 of net assets, against Braddan's £18.1m of debt.</span>
+  <span>German runs two separate rate funds — general and refuse — and produced a surplus in all three years, growing its reserve to £432,157 with no borrowing at all.</span>
   <a id="lnk-bs">See the balance sheet →</a>
 </div>
 
@@ -92,42 +93,54 @@ const YEARS=['2021-22','2022-23','2023-24'];
 const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
 const D={
 '2021-22':{
- income:{'Rates — income from rate fund':287659,'Search fees':4175,'Refuse service fees':1662,'Interest income':220,'Office rent':901,'Miscellaneous income':0},
- services:{'Refuse collection and disposal':141471,'Western Civic Amenity Site Board':63673,'Street lighting':19958,'Grass cutting and gardening':8703,'Gulleys and roads':6057,'Public conveniences':5116,'WLASPB contribution':4586,'Depreciation':4242,'Bad debt provision':3861,'Rate collection charges':3458,'Dog bins':3288,'Christmas trees and decorations':2007,"Members' expenses":1653,'Computer':1018,'Clock expenses':572,'Civic service':541,'IOMMA membership and expenses':400,'Election expenses':324,'Donations':75},
- admin:{"Clerk's salary":15170,'Office expenses':2876,'Pensions net current service cost':1000,'Miscellaneous expenses':472},
- legal:{'Insurance':2219,'Assurance review':1950,'Internal audit fees':1890,'Accountancy fees':1844,'Bank charges':379,'Actuarial fees':183},
- deficit:4369, netCost:298986},
+ income:{'Income from the General Rate Fund':148052,'Income from the Refuse Rate Fund':122758},
+ fgp:{'Clerks Fees':11397,'Office expenses':3523,'Election expenses':376,'Insurance':1949,'Legal fees':0,'Audit and accountancy fees':4305,'Rate collection costs':3332,'Miscellaneous expenses':4226,'Bank charges':236,'German in Bloom':6070,'Depreciation':789,'Bank interest received':-474,'Miscellaneous income':-1210},
+ property:{'Public conveniences':5879},
+ works:{'Street lighting':7870,'Road maintenance':10393},
+ leisure:{'Swimming pool contributions':4167},
+ refuse:{'Civic amenity site contribution':47357,'Waste disposal charges':103628},
+ baddebt:{'Bad debts provision':16},
+ surplus:56981, netCost:213829, poundGen:93, poundRef:62, rvGen:167103, rvRef:80115, refuseFixed:78133},
 '2022-23':{
- income:{'Rates — income from rate fund':291075,'Search fees':3300,'Refuse service fees':1337,'Interest income':1322,'Office rent':911,'Miscellaneous income':100},
- services:{'Refuse collection and disposal':142155,'Western Civic Amenity Site Board':76264,'Street lighting':19961,'Public conveniences':11178,'Grass cutting and gardening':10150,'Gulleys and roads':7659,'WLASPB contribution':4658,'Depreciation':4375,'Dog bins':3881,'Rate collection charges':3534,'Platinum Jubilee costs':2579,'Christmas trees and decorations':2146,"Members' expenses":1288,'Computer':782,'Civic service':647,'IOMMA membership and expenses':344,'Newspaper notices':236,'Newsletter':182,'Donations':75,'Repairs and maintenance':68,'Bad debt provision':-988,'Rates write off':-1326},
- admin:{"Clerk's salary":16454,'Pensions net current service cost':3000,'Office expenses':2644,'Miscellaneous expenses':0},
- legal:{'Internal audit fees':2835,'Insurance':2407,'Assurance review':2350,'Accountancy fees':1806,'Bank charges':335,'Actuarial fees':210},
- deficit:23844, netCost:321889},
+ income:{'Income from the General Rate Fund':153703,'Income from the Refuse Rate Fund':122371},
+ fgp:{'Clerks Fees':11821,'Office expenses':3692,'Election expenses':0,'Insurance':2041,'Legal fees':1800,'Audit and accountancy fees':4055,'Rate collection costs':3932,'Miscellaneous expenses':5234,'Bank charges':249,'German in Bloom':8325,'Depreciation':789,'Bank interest received':-4462,'Miscellaneous income':-545},
+ property:{'Public conveniences':6367},
+ works:{'Street lighting':8727,'Road maintenance':10450},
+ leisure:{'Swimming pool contributions':4356},
+ refuse:{'Civic amenity site contribution':56721,'Waste disposal charges':102612},
+ baddebt:{'Bad debts provision':1195},
+ surplus:48715, netCost:227359, poundGen:93, poundRef:63, rvGen:174594, rvRef:80837, refuseFixed:78613},
 '2023-24':{
- income:{'Rates — income from rate fund':322316,'Search fees':2700,'Refuse service fees':1262,'Interest income':3083,'Office rent':946,'Miscellaneous income':1172},
- services:{'Refuse collection and disposal':152058,'Western Civic Amenity Site Board':70530,'Street lighting':26929,'Grass cutting and gardening':18735,'Gulleys and roads':13640,'WLASPB contribution':4676,'Public conveniences':4589,'Depreciation':4304,'Dog bins':4251,'Rate collection charges':3780,'Christmas trees and decorations':2296,'Bad debt provision':2278,"King's coronation expenses":2086,'Computer':1518,"Members' expenses":1203,'Civic service':734,'IOMMA membership and expenses':388,'Newspaper notices':100,'Donations':75,'Rates write off':-1053},
- admin:{"Clerk's salary":16664,'Office expenses':3440,'Miscellaneous expenses':385,'Pensions net current service cost':0},
- legal:{'Legal and professional fees':7750,'Internal audit fees':2835,'Insurance':2479,'Assurance review':2467,'Accountancy fees':2137,'Actuarial fees':341,'Bank charges':333},
- deficit:20469, netCost:351948}
+ income:{'Income from the General Rate Fund':146314,'Income from the Refuse Rate Fund':123306},
+ fgp:{'Clerks Fees':12614,'Office expenses':5659,'Election expenses':0,'Insurance':2174,'Legal fees':0,'Audit and accountancy fees':4745,'Rate collection costs':3851,'Miscellaneous expenses':2210,'Bank charges':244,'German in Bloom':9370,'Depreciation':790,'Bank interest received':-10670,'Miscellaneous income':-390},
+ property:{'Public conveniences':6198},
+ works:{'Street lighting':10017,'Road maintenance':11487},
+ leisure:{'Swimming pool contributions':4107},
+ refuse:{'Civic amenity site contribution':65188,'Waste disposal charges':113396},
+ baddebt:{'Bad debts provision':1169},
+ surplus:27461, netCost:242159, poundGen:94, poundRef:64, rvGen:164186, rvRef:80125, refuseFixed:78827}
 };
-const GRP=[{k:'services',l:'Services for the parish',c:'--c-refuse'},
-           {k:'admin',    l:'Administrative expenses',c:'--c-fgp'},
-           {k:'legal',    l:'Legal and professional',  c:'--c-disc'}];
+const GRP=[{k:'fgp',     l:'Finance and general purposes',           c:'--c-fgp'},
+           {k:'property',l:'Property',                               c:'--c-bal'},
+           {k:'works',   l:'Works and development',                  c:'--c-works'},
+           {k:'leisure', l:'Leisure',                                 c:'--c-parks'},
+           {k:'refuse',  l:'Refuse disposal',                        c:'--c-refuse'},
+           {k:'baddebt', l:'Bad debts provision / rates write-off',  c:'--c-disc'}];
 const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
 const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
 const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
-const credits=d=>{const c={}; Object.entries(d.services).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;}); return c;};
+const credits=d=>{const c={}; GRP.forEach(g=>{Object.entries(d[g.k]).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});}); return c;};
 
-/* integrity: income + credits + reserves drawdown === gross expenditure; and net === published */
+/* integrity: income + credits === gross expenditure + surplus; group nets sum to published net cost; income − net cost = published surplus */
 const AUDIT=YEARS.map(y=>{const d=D[y];
-  const inflow=sum(d.income)+sum(credits(d))+d.deficit;
-  const outflow=pos(d.services)+pos(d.admin)+pos(d.legal);
-  const net=sum(d.services)+sum(d.admin)+sum(d.legal);
-  return {y,inflow,outflow,flowDiff:inflow-outflow,netDiff:net-d.netCost,defDiff:(sum(d.income)-d.netCost)+d.deficit};
+  const inflow=sum(d.income)+sum(credits(d));
+  const outflow=GRP.reduce((a,g)=>a+pos(d[g.k]),0)+d.surplus;
+  const net=GRP.reduce((a,g)=>a+sum(d[g.k]),0);
+  return {y,flowDiff:inflow-outflow,netDiff:net-d.netCost,surDiff:(sum(d.income)-d.netCost)-d.surplus};
 });
-const bad=AUDIT.filter(a=>a.flowDiff!==0||a.netDiff!==0||a.defDiff!==0);
+const bad=AUDIT.filter(a=>a.flowDiff!==0||a.netDiff!==0||a.surDiff!==0);
 if(bad.length) console.error('RECONCILIATION FAILED',bad);
-else console.log('✓ Marown reconciles in all years: flows balance, group totals match the published net cost, and income − net cost = the published deficit');
+else console.log('✓ German reconciles in all years: flows balance, group totals match the published net cost, and rate income − net cost = the published surplus');
 
 const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
 const fmtFull=v=>'£'+Math.round(v).toLocaleString();
@@ -135,25 +148,25 @@ const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
 
 function graph(y){
   const d=D[y],N=[],L=[],idx={};
-  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const add=(id,label,col,kind,ord)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0});}return idx[id];};
   const hub=add('hub','Revenue account','--accent','hub',0);
   Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
     const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
   Object.entries(credits(d)).forEach(([k,v],i)=>{
     const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
-  if(d.deficit>0){ const s=add('res','Drawn from reserves','--c-bal','src',99,true);
-    L.push({source:s,target:hub,value:d.deficit,col:'--c-bal',hatch:true}); }
   GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
     const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
     Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
       const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  const su=add('sur','Surplus carried to the General Rate Fund','--c-bal','item',99);
+  L.push({source:hub,target:su,value:d.surplus,col:'--c-bal'});
   return {nodes:N,links:L};
 }
 
 function seriesFor(id){
   return YEARS.map(y=>{const d=D[y];
-    if(id==='hub')  return sum(d.income)+sum(credits(d))+d.deficit;
-    if(id==='res')  return d.deficit;
+    if(id==='hub')  return sum(d.income)+sum(credits(d));
+    if(id==='sur')  return d.surplus;
     if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
     if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
     if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
@@ -183,19 +196,14 @@ function draw(y,animate){
   const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
   if(W<10||H<10)return;
   svg.attr('viewBox','0 0 '+W+' '+H);
-  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
-    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
-      .attr('patternTransform','rotate(45)').append('line')
-      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
-  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
 
-  const g=graph(y),LPAD=200,RPAD=250,TPAD=14,BPAD=14;
+  const g=graph(y),LPAD=210,RPAD=270,TPAD=14,BPAD=14;
   const sk=d3.sankey().nodeWidth(15).nodePadding(14).nodeAlign(d3.sankeyLeft)
     .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
     .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
   const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
   let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
-  const total=sum(D[y].income)+sum(credits(D[y]))+D[y].deficit;
+  const total=sum(D[y].income)+sum(credits(D[y]));
 
   const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
   lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
@@ -203,8 +211,8 @@ function draw(y,animate){
     .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
   lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
     .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
-    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
-    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+    .style('stroke',d=>cssv(d.col))
+    .style('stroke-opacity',d=>d.target.kind==='item'?0.30:0.42);
 
   root.selectAll('path.link')
     .on('mousemove',function(ev,d){
@@ -225,7 +233,7 @@ function draw(y,animate){
   ndA.transition().duration(animate?750:0).style('opacity',1);
   ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
     .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
-    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>cssv(d.col)).attr('rx',3);
   ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
     .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
     .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
@@ -245,14 +253,15 @@ function draw(y,animate){
 
   const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
   const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
-  document.getElementById('s-rate').textContent=fmt(d.income['Rates — income from rate fund']);
-  document.getElementById('s-rate-d').textContent=arrow(d.income['Rates — income from rate fund'],pv&&pv.income['Rates — income from rate fund']);
-  document.getElementById('s-inc').textContent=fmt(sum(d.income));
-  document.getElementById('s-inc-d').textContent=arrow(sum(d.income),pv&&sum(pv.income));
-  document.getElementById('s-cost').textContent=fmt(d.netCost);
-  document.getElementById('s-cost-d').textContent=arrow(d.netCost,pv&&pv.netCost);
-  document.getElementById('s-def').textContent='−'+fmt(d.deficit);
-  document.getElementById('s-def-d').textContent=pv?(d.deficit>pv.deficit?'▲ deficit widened':'▼ deficit narrowed'):'first year shown';
+  const totalExp=d=>GRP.reduce((a,g)=>a+pos(d[g.k]),0);
+  document.getElementById('s-rate').textContent=fmt(sum(d.income));
+  document.getElementById('s-rate-d').textContent=arrow(sum(d.income),pv&&sum(pv.income));
+  document.getElementById('s-pound').textContent=d.poundGen+'p';
+  document.getElementById('s-pound-d').textContent=pv?(d.poundGen>pv.poundGen?'▲ +'+(d.poundGen-pv.poundGen)+'p on last year':(d.poundGen<pv.poundGen?'▼ −'+(pv.poundGen-d.poundGen)+'p on last year':'no change')):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(totalExp(d));
+  document.getElementById('s-exp-d').textContent=arrow(totalExp(d),pv&&totalExp(pv));
+  document.getElementById('s-sur').textContent='+'+fmt(d.surplus);
+  document.getElementById('s-sur-d').textContent=pv?(d.surplus>pv.surplus?'▲ surplus grew':'▼ surplus shrank'):'first year shown';
   document.getElementById('fy').textContent=y;
 }
 window._msRedraw=()=>draw(YEARS[cur],false);
@@ -260,7 +269,7 @@ window._msRedraw=()=>draw(YEARS[cur],false);
 document.getElementById('legend').innerHTML=
   '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
  +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
- +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Drawn from reserves (hatched)</div>'
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal)"></div>Surplus carried to reserves</div>'
  +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path</div>';
 
 function buildTable(){
@@ -269,37 +278,40 @@ function buildTable(){
   R('INCOME',()=>'','grp');
   const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
   [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
-  R('Total income',d=>m(sum(d.income)),'grp');
+  R('Total rate income',d=>m(sum(d.income)),'grp');
   rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
-  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(sum(d[g.k])),'grp');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(pos(d[g.k])),'grp');
     const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
     [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
   rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
-  R('Net cost of services',d=>m(d.netCost),'grp');
-  R('Deficit for the year',d=>'('+d.deficit.toLocaleString()+')','grp');
+  R('Net cost of General Fund services',d=>m(d.netCost),'grp');
+  R('Surplus for the year',d=>'+'+d.surplus.toLocaleString(),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('General rate — rate in the pound',d=>d.poundGen+'p','sub');
+  R('General rate — rateable value',d=>'£'+d.rvGen.toLocaleString(),'sub');
+  R('Refuse rate — rate in the pound',d=>d.poundRef+'p','sub');
+  R('Refuse rate — rateable value',d=>'£'+d.rvRef.toLocaleString(),'sub');
+  R('Refuse rate — fixed-charge income',d=>'£'+d.refuseFixed.toLocaleString(),'sub');
   document.getElementById('tbl').innerHTML=
    '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
-   +'<p class="foot"><b>Reconciliation.</b> In every year the group subtotals re-add to the published net cost of services, and total income minus net cost equals the published deficit exactly. The 2022-23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree. <b>Source.</b> Marown Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Detailed Income and Expenditure Account. Retrieved from gov.im, 4 August 2026.</p>';
+   +'<p class="foot"><b>Reconciliation.</b> In every year the group subtotals re-add to the published gross expenditure, and total rate income minus net cost of General Fund services equals the published surplus exactly. The 2022-23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree. <b>Source.</b> German Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Detailed Income and Expenditure Account and Explanatory Foreword. Retrieved from gov.im, 6 August 2026.</p>';
 }
 buildTable();
 
 const BSROWS=[
  ['h','Fixed assets',null,null],
- ['r','Tangible fixed assets',16939,21243],
+ ['r','Tangible fixed assets',11056,11846],
  ['h','Current assets',null,null],
- ['r','Debtors',75152,68779],
- ['r','Cash at bank',94894,120273],
- ['s','',170046,189052],
- ['r','Creditors: amounts falling due within one year',-27659,-30500],
- ['t','Net current assets',142387,158552],
- ['t','',159326,179795],
- ['r','Pension liability',-1000,-2000],
- ['T','Net assets',158326,177795],
+ ['r','Debtors',34938,35175],
+ ['r','Cash at bank',420531,393276],
+ ['s','',455469,428451],
+ ['r','Creditors',-23312,-24545],
+ ['T','Net current assets',432157,403906],
+ ['T','Total assets less liabilities',443213,415752],
  ['h','Reserves',null,null],
- ['r','Capital adjustment account',10436,14740],
- ['r','General rate fund',148890,165055],
- ['r','Pension reserve',-1000,-2000],
- ['T','',158326,177795]];
+ ['r','General rate fund',432157,403906],
+ ['r','Capital adjustment account',11056,11846],
+ ['T','',443213,415752]];
 function buildBS(){
   const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
   const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
@@ -308,9 +320,9 @@ function buildBS(){
     return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('');
   document.getElementById('bstbl').innerHTML=
    '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th></tr></thead><tbody>'+body+'</tbody></table>'
-   +'<p class="foot"><b>What jumps out.</b> No borrowing of any kind. Net assets fell £19,469 in the year — from £177,795 to £158,326 — and the general rate fund reserve dropped from £165,055 to £148,890, which is the £20,469 deficit working through. Cash at bank fell from £120,273 to £94,894. On that trajectory the reserve cushion is roughly seven years of deficit at the 2023-24 rate, which is the arithmetic behind the 22.56% rate rise for 2025/26.</p>'
-   +'<p class="foot"><b>Provenance.</b> OCR-recovered from a scanned original, then verified: current assets re-add, net current assets reconcile, and total reserves equal net assets in both years. One OCR misread was corrected by that check — net assets read as £168,326 but the reserves foot to £158,326, and £159,326 less the £1,000 pension liability confirms £158,326.</p>'
-   +'<p class="foot"><b>Source.</b> Marown Parish Commissioners, Statement of Accounts for the year ended 31 March 2024, Balance Sheet, page 9. Retrieved from gov.im, 4 August 2026.</p>';
+   +'<p class="foot"><b>What jumps out.</b> No borrowing of any kind, and virtually no fixed assets — just the £11,056 net book value of the public conveniences, most of which is already fully depreciated. Net assets rose £27,461 in the year — from £415,752 to £443,213 — the surplus working straight through into the general rate fund reserve, which grew from £403,906 to £432,157. Cash at bank rose from £393,276 to £420,531. On that trajectory German is building reserves, the opposite of Marown, which is drawing them down.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from a scanned original, then verified: current assets re-add, net current assets reconcile, and total reserves equal total assets less liabilities in both years. The 2023 column was read independently from both the 2023 and 2024 accounts and the two readings agree exactly.</p>'
+   +'<p class="foot"><b>Source.</b> German Parish Commissioners, Statement of Accounts for the year ended 31 March 2024, Balance Sheet, page 11. Retrieved from gov.im, 6 August 2026.</p>';
 }
 buildBS();
 

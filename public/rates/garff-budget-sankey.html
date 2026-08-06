@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23936d24' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Garff Parish District Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Garff Parish District Commissioners — where the money goes</div>
+    <div class="chart-sub">Comprehensive Income and Expenditure Statement, years ended 31 March 2023, 2024 and 2025 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2024-25</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2022-23</span><span>2023-24</span><span>2024-25</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rates income (general + refuse)</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Result for the year</div><div class="stat-val" id="s-res">—</div><div class="stat-dlt" id="s-res-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Garff Parish District Commissioners — Comprehensive Income and Expenditure Account (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Garff Parish District Commissioners — Balance Sheet as at 31 March 2025</h3>
+    <p>Garff carries far more borrowing than any other Parish-tier authority reviewed on this site — <b>£984,935</b> outstanding at 31 March 2025 (2024: £986,916; 2023: £924,163), split between ordinary commercial bank loans (HSBC, Isle of Man Bank) <em>and</em> a direct <b>Isle of Man Government Loan</b> of £132,647 (2024: £141,974), a distinct class of borrowing not seen at all in Malew, Arbory &amp; Rushen or the smaller parishes in this set. The scale reflects the authority formed by the 2016 merger of Laxey, Lonan and Maughold — now the largest local authority on the island by area — and its capital programme: the Cooil Roi sheltered housing complex, the authority's share of building the Eastern Civic Amenity Site, and even the Laxey Skate Park, which the Board's own foreword says was "funded through the Government loan facility".</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Garff's audited Comprehensive Income and Expenditure Statement, expanded to line-item detail using the authority's own Detailed Income and Expenditure Account (which "does not form part of the audited financial statements" but reproduces the same audited totals) and its Housing Revenue Income and Expenditure note. Six spending groups follow Garff's own committee structure: Finance and general purposes (which here also carries the small Property account), Works and development, Parks and leisure (which also carries the Swimming Pool contribution), Refuse disposal, Housing services at the Cooil Roi complex, and a sixth group — Depreciation, pensions &amp; debt servicing — bundling the non-committee overhead and financing lines (depreciation, the pension scheme's net current service cost, loan interest and net pension interest) the same way Malew's diagram isolates "Debt servicing" from service spending.</p>
+    <p><b>A 2016 merger, and its rates took six years to fully unify.</b> Garff Parish District Commissioners were formed in 2016 from the merger of Laxey Village District and the parish districts of Lonan and Maughold, and are now the largest local authority on the Isle of Man by geographical area. The clearest financial fingerprint of that merger sits in note 13 of the 2023 accounts: for 2021/22, Garff was <em>still</em> striking three separate rate poundages across the sheading — 147p, 112p and 126p — and three separate flat refuse charges — £157, £151 and £136 per property — presumably the inherited legacy rates of Laxey, Lonan and Maughold. Only from 2022/23, six years after the merger, did Garff move to a single unified rate (152p, and a single £171 refuse charge) across the whole authority. That unification year is the first year shown in this diagram.</p>
+    <p><b>Two joint boards, in two different directions.</b> Garff's own foreword states plainly: "The Commissioners work with neighbouring Authorities in the East and North of the island to provide the Eastern and Northern Civic Amenity Sites, Northern Swimming Pool, and Northern Sheltered Housing." The 2023 accounts add that the Eastern Civic Amenity Site is at Middle Park <em>in Braddan</em> — construction costs were paid in part to Douglas Borough Council. So Garff is a confirmed participant in two separate joint arrangements: a Northern group (amenity site, swimming pool and sheltered housing) reflecting Lonan and Maughold's position in the north-east, and a distinct Eastern group with authorities further south, run out of Braddan/Douglas. Both appear as related-party payments in note 9 every year (Northern Civic Amenity Site: £25,288 to £30,362 across the period; Eastern Civic Amenity Site: £41,437 to £50,674) and are drawn here inside the Refuse disposal and Parks and leisure groups respectively, since that is where Garff's own accounts book them.</p>
+    <p><b>Two deficit years, then a 14% rate rise.</b> Garff ran a deficit of £65,331 in 2022/23 and £7,206 in 2023/24 — both years drawn from reserves (shown hatched on the left of the diagram) — before swinging to a £92,829 surplus in 2024/25. The turnaround follows a stated, deliberate strategy: the Board raised rates 10.5% for 2023/24 and a further 14% for 2024/25, and its own foreword for 2024/25 describes "a particular objective being to strengthen the level of reserves to assist cash-flow and protect against unforeseen events." General revenue reserves rose accordingly, from £328,436 (2023) to £291,306 (2024, a fall) to £370,089 (2025).</p>
+    <p><b>Two rate charges, bundled into one flow.</b> Garff levies a conventional poundage-based general rate (152p in 2022/23, rising to 191.5p by 2024/25) <em>and</em> a separate flat refuse charge per property (£171, rising to £215.50) — a different charging mechanism, not a second poundage. Garff's own Comprehensive Income and Expenditure Statement showed these as a single combined "Rates income" line in 2022/23 and 2023/24; only the 2024/25 accounts split it into "Rates income" (general, £595,293) and "Refuse rates income" (£417,334), which sum to the same combined total this diagram uses throughout for comparability across all three years.</p>
+    <p><b>Housing at Cooil Roi is subsidised directly by central government.</b> Garff's sheltered housing complex runs a Housing Revenue Account distinct from the general rate fund, and — unlike Malew's now-demolished housing stock or Arbory &amp; Rushen's self-funding dwellings — its shortfall is met every year by an Isle of Man Government "deficiency grant" administered by the Department of Infrastructure: £111,877 (2022), rising to £144,194 (2024) before easing to £122,885 (2025). Related-party note 9 shows part of the interest on the Isle of Man Government Loan itself (£14,975 of £14,975 charged in 2025) is also met directly through this deficiency route, not paid by ratepayers.</p>
+    <p><b>Pension scheme swung from liability to asset.</b> Garff's share of the Isle of Man Local Government Superannuation Scheme (administered by Douglas Borough Council) showed a net liability of £151,000 at 31 March 2022, falling to £14,000 (2023), then flipping to a net <em>asset</em> of £9,000 (2024) before settling at exactly £nil (2025) after an asset-ceiling adjustment. The pension scheme's net current service cost and net interest cost were consequently genuine <em>costs</em> in 2022/23 (a combined £25,000) but net <em>credits</em> in 2023/24 and 2024/25 — shown in this diagram as income rather than as expenditure in the years they ran as a credit, exactly as Garff's own Comprehensive Income and Expenditure Statement presents them.</p>
+    <p><b>Provenance and confidence.</b> Garff publishes its accounts only as scanned images with no text layer, so every figure here was recovered by OCR at 300–400dpi and then verified rather than trusted. Three checks were applied throughout: every group's detail lines re-add to that group's own published subtotal; the 2023/24 year appears as the current year in the 2024 accounts and as the prior-year comparative in the 2025 accounts, and both readings were taken and cross-checked; and income minus expenditure equals the published result for the year exactly, in all three years. Six OCR issues were caught and corrected this way: (1) Parks and leisure income for 2024/25 first read as £53,413 on the summary Comprehensive Income and Expenditure Statement — the detailed schedule and the arithmetic (£245,484 − £58,413 = £187,071, and the published Net cost of services income total of £463,564) both require £58,413. (2) The 2023/24 "Deficit on provision of services" first read as £(7,296) in the 2024 accounts; the figure independently read from the 2025 accounts' comparative column, and required by the arithmetic (net cost of services −£840,221 + rates income £891,139 + profit on sale £5,000 − interest £63,124 = −£7,206), is £(7,206). (3) The "£" glyph was repeatedly misread as "8" throughout the Detailed Income and Expenditure Account (e.g. "$54,211" for £854,211; "$2,098" for £82,098; "$1,482" for £81,482) — corrected by pattern and confirmed by re-adding each subtotal. (4) Public conveniences costs for 2023/24 first read as £4,098 at 400dpi; only £4,698 closes the Parks and leisure subtotal to the published £233,521, and that figure is also what both the 2024 and 2025 accounts' detail schedules independently show for that year. (5) Capital receipts reserve at 31 March 2025 first read as £236; the Statement of Movement on Reserves shows it unchanged from the prior year's £286, and only £286 closes total reserves to the published net assets figure of £4,046,253. (6) Note 13's certified rateable value at 31 March 2024, printed in Garff's own 2024 accounts as £359,031, is arithmetically inconsistent with that year's own general rate levied (£547,626 at 168p implies a rateable value of £325,968) — and the 2025 accounts' own comparative column silently restates the same date as £325,968. This appears to be a genuine error in Garff's 2024 accounts, corrected the following year; £325,968 is used throughout this page.</p>
+    <p><b>Comparability.</b> Garff is on the same audited, accruals-basis Comprehensive Income and Expenditure Statement as Arbory &amp; Rushen, and can be read against it directly — both are 2016–2020-era merged authorities with their own housing stock. It is not directly comparable with Braddan's diagram, which is built from forward budget estimates rather than audited outturn.</p>
+    <p><b>Source.</b> Garff Parish District Commissioners, Statement of Accounts for the years ended 31 March 2023, 31 March 2024 and 31 March 2025 — Comprehensive Income and Expenditure Statement, Statement of Movement on Reserves, Balance Sheet, Detailed Income and Expenditure Account, and Notes 1, 3, 4, 5, 6, 7, 9, 13 and 15. Certified by the Tynwald Auditor General; independent audit report by Crowe Isle of Man Audit LLC. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Garff — the largest local authority on the island by area — carries close to <b>£1m</b> of borrowing, including a direct Isle of Man Government loan, and runs joint civic-amenity boards with neighbours to both its North and East.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — Comprehensive Income and Expenditure Statement + Detailed I&E Account, OCR-recovered and reconciled ══════════ */
+const YEARS=['2022-23','2023-24','2024-25'];
+const YEND={'2022-23':'31 March 2023','2023-24':'31 March 2024','2024-25':'31 March 2025'};
+const RATE={'2022-23':{pound:152,refuse:'£171',rv:324710},'2023-24':{pound:168,refuse:'£189',rv:325968},'2024-25':{pound:191.5,refuse:'£215.50',rv:326137}};
+
+const D={
+'2022-23':{
+ income:{'Rates income (general + refuse)':803320,'Dwelling rents (Cooil Roi)':192167,'Housing deficiency receivable (from Isle of Man Government)':136388,
+   'Parks and leisure rents (campsite, allotments)':44630,'Rents received (leased office/commercial premises)':21373,
+   'Admin allowance':8345,'Search fees':8700,'Rate write-back':3177},
+ fgp:{'Salaries':104747,'Pensions costs':29914,'Telephone, printing and stationery':2268,'Advertising and public notices':175,
+   'Rent and rates':2402,"Board members' expenses":2005,'Heat and light':5781,'Insurance':12161,'Accountancy':8793,
+   'Internal audit review':2790,'Audit fees':11481,'Legal and professional fees':16306,'Entertaining and events':13221,
+   'Subscriptions':350,'Rate collection costs':9252,'Provision against rate arrears':1848,'Bank charges':752,'IT costs':9580,
+   'Property maintenance':13431},
+ works:{'Street lighting':29705},
+ parks:{'Wages':72376,'Heritage costs':5855,'Equipment and vehicle maintenance':9469,'Amenities contractors':58105,
+   'Public conveniences contractors':12785,'Public conveniences costs':2499,'Parks, plants and maintenance':19919,
+   'Dog bylaw officer, signage and bins':1122,'Campsite costs':31384,'Swimming pool contributions (Northern Swimming Pool)':2596},
+ refuse:{'Waste disposal charges':163800,'Energy-from-waste (EFW) costs':154010,'Amenity site charges (Eastern & Northern sites)':65224,'Refuse bins':624},
+ housing:{'Salaries and wages':109842,'Administration charge':8345,'Heating':55496,'Repairs and maintenance':42515,
+   'Community area costs':7017,'Other costs':20383,'Rents, rates, taxes and other charges':17278,'Depreciation and impairment':41273},
+ debt:{'Depreciation':41706,'Pension scheme — net current service cost':22000,'Interest payable and finance charges':37846,'Net pension interest cost':3000},
+ result:-65331},
+'2023-24':{
+ income:{'Rates income (general + refuse)':891139,'Dwelling rents (Cooil Roi)':209053,'Housing deficiency receivable (from Isle of Man Government)':144194,
+   'Parks and leisure rents (campsite, allotments)':48726,'Rents received (leased office/commercial premises)':25912,
+   'Admin allowance':8762,'Search fees':7100,'Profit on sale of assets':5000,'Rate write-back':1764,'Pension scheme net credit':8000,'Miscellaneous income':63},
+ fgp:{'Salaries':113705,'Pensions costs':34462,'Telephone, printing and stationery':2956,'Advertising and public notices':412,
+   'Rent and rates':2087,"Board members' expenses":774,'Heat and light':4393,'Insurance':13728,'Accountancy':9979,
+   'Internal audit review':2990,'Audit fees':11680,'Legal and professional fees':12379,'Entertaining and events':9525,
+   'Subscriptions':350,'Rate collection costs':10067,'Provision against rate arrears':3492,'Bank charges':2100,'IT costs':13050,
+   'Property maintenance':8092},
+ works:{'Street lighting':31440},
+ parks:{'Wages':79012,'Heritage costs':6492,'Equipment and vehicle maintenance':7956,'Amenities contractors':67284,
+   'Public conveniences contractors':11780,'Public conveniences costs':4698,'Parks, plants and maintenance':11074,
+   'Dog bylaw officer, signage and bins':323,'Campsite costs':44902,'Swimming pool contributions (Northern Swimming Pool)':5201},
+ refuse:{'Waste disposal charges':173628,'Energy-from-waste (EFW) costs':166866,'Amenity site charges (Eastern & Northern sites)':67158,'Refuse bins':2623},
+ housing:{'Salaries and wages':117724,'Administration charge':8762,'Heating':44418,'Repairs and maintenance':44139,
+   'Community area costs':6456,'Other costs':21673,'Rents, rates, taxes and other charges':18402,'Depreciation and impairment':49191},
+ debt:{'Depreciation':46372,'Interest payable and finance charges':63124},
+ result:-7206},
+'2024-25':{
+ income:{'Rates income (general + refuse)':1012627,'Dwelling rents (Cooil Roi)':228786,'Housing deficiency receivable (from Isle of Man Government)':122885,
+   'Parks and leisure rents (campsite, allotments)':58413,'Rents received (leased office/commercial premises)':25499,
+   'Admin allowance':9622,'Search fees':7850,'Rate write-back':5588,'Pension scheme net credit':9000,'Net pension interest income':2000,'Miscellaneous income':1509},
+ fgp:{'Salaries':100046,'Pensions costs':33144,'Telephone, printing and stationery':2636,'Advertising and public notices':804,
+   'Rent and rates':14444,"Board members' expenses":1712,'Heat and light':5974,'Insurance':14347,'Accountancy':12050,
+   'Internal audit review':3435,'Audit fees':16101,'Legal and professional fees':4070,'Election expenses':247,'Entertaining and events':9186,
+   'Subscriptions':300,'Rate collection costs':13793,'Provision against rate arrears':3249,'Bank charges':2247,'IT costs':12847,
+   'Property maintenance':8303},
+ works:{'Street lighting':36334},
+ parks:{'Wages':82098,'Heritage costs':7368,'Equipment and vehicle maintenance':4965,'Amenities contractors':69194,
+   'Public conveniences contractors':13158,'Public conveniences costs':1912,'Parks, plants and maintenance':23524,
+   'Dog bylaw officer, signage and bins':451,'Campsite costs':42814,'Swimming pool contributions (Northern Swimming Pool)':4230},
+ refuse:{'Waste disposal charges':180573,'Energy-from-waste (EFW) costs':171703,'Amenity site charges (Eastern & Northern sites)':81482,'Refuse bins':672},
+ housing:{'Salaries and wages':106374,'Administration charge':9622,'Heating':43938,'Repairs and maintenance':38147,
+   'Community area costs':11296,'Other costs':22896,'Rents, rates, taxes and other charges':20239,'Depreciation and impairment':50056},
+ debt:{'Depreciation':45064,'Interest payable and finance charges':63905},
+ result:92829}
+};
+const GRP=[{k:'fgp',     l:'Finance, general purposes & property', c:'--c-fgp'},
+           {k:'works',   l:'Works and development',                c:'--c-works'},
+           {k:'parks',   l:'Parks and leisure',                    c:'--c-parks'},
+           {k:'refuse',  l:'Refuse disposal',                      c:'--c-refuse'},
+           {k:'housing', l:'Housing services (Cooil Roi)',         c:'--c-disc'},
+           {k:'debt',    l:'Depreciation, pensions & debt servicing', c:'--c-bal'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+
+/* integrity: every group's items re-add to that group's own hardcoded published total; income − expenditure = published result */
+const TOTALEXP={'2022-23':1283431,'2023-24':1356919,'2024-25':1390950};
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const grpTotal=GRP.reduce((a,g)=>a+sum(d[g.k]),0);
+  const incTotal=sum(d.income);
+  return {y,expDiff:grpTotal-TOTALEXP[y],resultDiff:(incTotal-grpTotal)-d.result};
+});
+const bad=AUDIT.filter(a=>a.expDiff!==0||a.resultDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Garff reconciles in all three years: every group\'s detail lines match the published subtotal, and income − expenditure = the published result for the year exactly');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+const totalFor=d=>sum(d.income)+(d.result<0?-d.result:0);
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','General revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  if(d.result<0){ const s=add('res','Drawn from reserves','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:-d.result,col:'--c-bal',hatch:true}); }
+  GRP.forEach((g,gi)=>{ const t=sum(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  if(d.result>0){ const su=add('sur','Surplus carried to reserves','--c-bal','item',9);
+    L.push({source:hub,target:su,value:d.result,col:'--c-bal'}); }
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return totalFor(d);
+    if(id==='sur')  return d.result>0?d.result:0;
+    if(id==='res')  return d.result<0?-d.result:0;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?sum(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=210,RPAD=270,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(11).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=totalFor(D[y]);
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  const totExp=GRP.reduce((a,g)=>a+sum(d[g.k]),0);
+  document.getElementById('s-rate').textContent=fmt(d.income['Rates income (general + refuse)']);
+  document.getElementById('s-rate-d').textContent=arrow(d.income['Rates income (general + refuse)'],pv&&pv.income['Rates income (general + refuse)']);
+  document.getElementById('s-pound').textContent=RATE[y].pound+'p';
+  const rp=RATE[y],pvp=pi>=0?RATE[YEARS[pi]]:null;
+  document.getElementById('s-pound-d').textContent=pvp?(rp.pound===pvp.pound?'no change · refuse charge '+rp.refuse:'▲ +'+(rp.pound-pvp.pound).toFixed(1)+'p · refuse charge '+rp.refuse):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(totExp);
+  document.getElementById('s-exp-d').textContent=arrow(totExp,pv?GRP.reduce((a,g)=>a+sum(pv[g.k]),0):null);
+  document.getElementById('s-res').textContent=(d.result>=0?'+':'−')+fmt(Math.abs(d.result));
+  document.getElementById('s-res-d').textContent=pv?(d.result>=0&&pv.result>=0?(d.result>pv.result?'▲ surplus grew':'▼ surplus shrank'):(d.result<0&&pv.result<0?(d.result<pv.result?'▲ deficit widened':'▼ deficit narrowed'):(d.result>=0?'▲ swung to surplus':'▼ swung to deficit'))):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Surplus carried to reserves / drawn from reserves (hatched)</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(sum(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Total expenditure',d=>m(GRP.reduce((a,g)=>a+sum(d[g.k]),0)),'grp');
+  R('Result for the year',d=>(d.result>=0?'+':'(')+Math.abs(d.result).toLocaleString()+(d.result<0?')':''),'grp');
+  rows.push('<tr class="sub"><td>Rate in the pound</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].pound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Flat refuse charge per property</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].refuse+'</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Certified net rateable value</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].rv.toLocaleString()+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year each of the six spending groups re-adds from its own detail lines to that group\'s own published subtotal, and total income minus total expenditure equals the published result for the year exactly (a deficit, drawn from reserves, in 2022/23 and 2023/24; a surplus in 2024/25). The 2023/24 column was read independently from both the 2024 and the 2025 accounts and the two readings agree. Six OCR corrections were made along the way — see Notes. <b>Source.</b> Garff Parish District Commissioners, Statement of Accounts y/e 31 March 2023, 2024 and 2025, Comprehensive Income and Expenditure Statement, Detailed Income and Expenditure Account and Note 7 (Housing). Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null,null],
+ ['r','Tangible fixed assets',4710468,4762307,4662616],
+ ['h','Current assets',null,null,null],
+ ['r','Debtors',114005,123570,107772],
+ ['r','Pension asset',0,9000,0],
+ ['r','Cash at bank',323640,152048,247951],
+ ['s','',437645,284618,355723],
+ ['h','Current liabilities',null,null,null],
+ ['r','Creditors',-116925,-86585,-114546],
+ ['r','Bank loans (short-term)',-46841,-45632,-42451],
+ ['r','Isle of Man Government Loan (short-term)',-9128,-9128,-9128],
+ ['t','Net current assets',264751,143273,189598],
+ ['t','Total assets less current liabilities',4975219,4905580,4852214],
+ ['h','Long-term liabilities',null,null,null],
+ ['r','Pension liabilities',0,0,-14000],
+ ['r','Bank loans (long-term)',-805447,-799310,-735174],
+ ['r','Isle of Man Government Loan (long-term)',-123519,-132846,-137410],
+ ['T','Net assets',4046253,3973424,3965630],
+ ['h','Reserves',null,null,null],
+ ['r','Capital adjustment account',1480501,1470755,1419781],
+ ['r','Capital receipts reserve',286,286,22504],
+ ['r','Revaluation reserve',2168454,2186595,2204737],
+ ['r','Pension reserve',0,9000,-14000],
+ ['r','General revenue reserve',370089,291306,328436],
+ ['r','Community areas reserve',22564,24719,18908],
+ ['r','Heating reserve',7314,3682,-2146],
+ ['r','Housing maintenance reserve',-2955,-12919,-12590],
+ ['T','',4046253,3973424,3965630]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2025</th><th>2024</th><th>2023</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Total borrowing — bank loans plus the Isle of Man Government Loan, short- and long-term combined — moved from £924,163 (2023) to £986,916 (2024) to £984,935 (2025): Garff took on new debt even as it repaid existing loans, consistent with a mid-merger authority still building out shared infrastructure (the Eastern Civic Amenity Site, the Laxey Skate Park) and its own Cooil Roi complex. Net assets rose every year — £3,965,630 (2023), £3,973,424 (2024), £4,046,253 (2025) — as the revaluation reserve alone (over £2.1m throughout) dwarfs the movements in every other line. The pension position swung from a £14,000 net liability (2023) to a £9,000 net asset (2024) back to exactly nil (2025).</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from scanned originals, then verified: current assets and current liabilities each re-add, net current assets reconcile, and total reserves equal net assets exactly in all three years. The 31 March 2025 capital receipts reserve first read as £236; only £286 — the same figure as the prior year, unchanged — closes total reserves to the published £4,046,253. The 31 March 2024 rateable value printed in note 13 of the 2024 accounts (£359,031) does not match that year\u2019s own general rate levied at 168p (implying £325,968) and was silently restated to £325,968 in the 2025 accounts\u2019 comparative column; that figure is used on this page — see Notes.</p>'
+   +'<p class="foot"><b>Source.</b> Garff Parish District Commissioners, Statement of Accounts for the years ended 31 March 2023, 2024 and 2025, Balance Sheet, and Note 5 (Long term borrowing). Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

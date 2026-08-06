@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Ballaugh Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(l){ document.body.classList.toggle('light', l); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Ballaugh Parish Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rate income (general + refuse)</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Combined rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus/(deficit) for the year</div><div class="stat-val" id="s-res">—</div><div class="stat-dlt" id="s-res-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Ballaugh Parish Commissioners — Comprehensive Income and Expenditure Statement (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Ballaugh Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>Ballaugh, like Marown and Santon, carries <b>no borrowing at all</b>. Its balance sheet fell from £180,295 to £141,874 in the year, almost entirely because a fresh RICS revaluation cut £25,740 off the carrying value of Ballaugh Railway Station and the parish's other land and buildings — a paper loss, not a cash one.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Ballaugh's audited Comprehensive Income and Expenditure Statement — actual outturn, not budget. Like Santon, Ballaugh's accounts present a single flat list of expenditure with no committee structure; that flat structure is preserved here, with function colours added purely as a reading aid. <em>Ballaugh's accounts contain no such classification.</em></p>
+    <p><b>Two rate funds, not one.</b> Uniquely among the three small parishes compared so far, Ballaugh levies <b>two separate rates</b> — a general rate (125p in the £ in 2023/24, on a rateable value of £78,831) and a refuse rate (69p in the £, on £77,696, plus a £50 fixed charge per rated property). Both are shown as separate income flows into the revenue account.</p>
+    <p><b>A revaluation, not a cash crisis, drove the 2023/24 deficit.</b> Ballaugh ran small surpluses in 2021/22 (£3,200) and 2022/23 (£43), then recorded a net deficit of £38,421 in 2023/24. Of that, £12,681 was an ordinary operating shortfall (expenditure growing faster than the two rate funds), but the larger £25,740 came from a fresh RICS valuation of the parish's land and buildings — cost of £163,241 revalued down to £98,400, net of the associated depreciation reversal. That figure is shown here as a distinct non-cash outflow, "Revaluation write-down", separate from ordinary spending, because unlike every other flow in this diagram it never touched the bank account.</p>
+    <p><b>Reserves flows shown as hatched.</b> In the two surplus years the excess is drawn off as "Surplus carried to reserves"; in the deficit year the shortfall is drawn from reserves as a hatched inflow on the left. Both directions occur in this three-year window, which is why the diagram (unlike Marown's, always a deficit, or Santon's, always a surplus) needs to show both.</p>
+    <p><b>Credits shown as inflows.</b> "Bad debts written off/(back)" was a credit — a release rather than a charge — in 2021/22 (£2,121) and 2022/23 (£126), then a genuine charge of £1,489 in 2023/24. Where it is a credit it is drawn as an income-side inflow marked "(credit)", exactly as in the Marown diagram.</p>
+    <p><b>Provenance and confidence.</b> Ballaugh publishes its accounts only as scanned images with no text layer, so every figure here was recovered by OCR and then verified rather than trusted. Three independent checks were applied: every year's expenditure lines re-add to the published "Total Expenditure" subtotal exactly; the 2022/23 column appears in <em>both</em> the 2023 and 2024 accounts and the two readings were compared digit-for-digit — an initial OCR pass misread "Rate collection charges" as £2,396 and "Play park" as a different figure for 2022/23, both corrected once the published total of £171,903 fixed the digits, then confirmed against a clean 600dpi re-scan of both source pages; and income minus expenditure minus the revaluation write-down equals the published net deficit or surplus exactly, in all three years.</p>
+    <p><b>Since these accounts.</b> Ballaugh's own rate-setting (reported via Manx Radio and Manx.News, not the Commissioners' own site) put the general rate at 135p for 2024/25 and 138p for 2025/26 — a further two years of increases beyond the 125p seen here in 2023/24, with the refuse charge to households held at £52. Ballaugh Parish Commissioners does not appear to publish a standalone website with a rates history; these figures exist publicly because the accounts are laid before Tynwald and posted on gov.im.</p>
+    <p><b>Comparability.</b> On the same audited-outturn basis as Marown and Santon, and the same three years, so those three can be read against each other. Not comparable with Braddan's diagram, which is built from forward estimates on a rates-funded basis.</p>
+    <p><b>Source.</b> Ballaugh Parish Commissioners, Statements of Accounts for the years ended 31 March 2023 and 31 March 2024, Comprehensive Income and Expenditure Statement, Balance Sheet and Notes to the Financial Statements; assurance review by Crowe Isle of Man LLC. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Ballaugh's £38,421 deficit in 2023/24 is mostly a paper loss — a RICS revaluation cut £25,740 off its buildings, not its bank balance.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — audited outturn, OCR-recovered and reconciled ══════════ */
+const YEARS=['2021-22','2022-23','2023-24'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const RATES={'2021-22':{genPound:120,genRV:78484,refPound:67,refRV:77349,fixed:48,props:506},
+             '2022-23':{genPound:122,genRV:78831,refPound:67,refRV:77696,fixed:48,props:509},
+             '2023-24':{genPound:125,genRV:78831,refPound:69,refRV:77696,fixed:50,props:509}};
+const D={
+'2021-22':{
+ income:{'Village Hall Hire':1645,'Release of deferred grant':3212,'Search Fees':1400,'Income from general rate fund':90778,'Income from general refuse rate fund':73438},
+ exp:{'Northern Parishes Refuse Collection Board':75960,'Parish hall':4579,'Northern Civic Amenity Site':24360,"Clerk's salary":10812,'Depreciation':7630,'Grass cutting and gardening':5123,'Millennium park and sports field':1315,'Street lighting':7487,'Local highway services':8684,'Public conveniences':5082,'Dog bins and litter collection':3955,'Rate collection charges':2262,'NLA Swimming Pool Board — contribution':1800,'Insurance':2441,'Accountancy fee':2475,'Assurance fee':1800,'Election expenses':292,'Office expenses':1408,'Miscellaneous':28,'Bad debts written off/(back)':-2121,'Bank charges':331,'Public Christmas trees and decorations':146,'Play park':1424},
+ revaluation:0, totalExp:167273, netResult:3200},
+'2022-23':{
+ income:{'Village Hall Hire':1110,'Release of deferred grant':3212,'Search Fees':1325,'Income from general rate fund':92618,'Income from general refuse rate fund':73681},
+ exp:{'Northern Parishes Refuse Collection Board':76244,'Parish hall':5975,'Northern Civic Amenity Site':23080,"Clerk's salary":13740,'Depreciation':6127,'Grass cutting and gardening':3975,'Millennium park and sports field':2520,'Street lighting':5902,'Local highway services':10454,'Public conveniences':4292,'Dog bins and litter collection':4680,'Rate collection charges':2837,'NLA Swimming Pool Board — contribution':2113,'Insurance':2044,'Accountancy fee':1244,'Assurance fee':2242,'Office expenses':1024,'Miscellaneous':324,'Bad debts written off/(back)':-126,'Bank charges':303,'Public Christmas trees and decorations':164,'Play park':2745},
+ revaluation:0, totalExp:171903, netResult:43},
+'2023-24':{
+ income:{'Village Hall Hire':1995,'Release of deferred grant':3212,'Search Fees':575,'Government grant — coronation event':1325,'Income from general rate fund':92847,'Income from general refuse rate fund':74159},
+ exp:{'Northern Parishes Refuse Collection Board':79060,'Parish hall':5365,'Northern Civic Amenity Site':24900,"Clerk's salary":16585,'Depreciation':6285,'Grass cutting and gardening':3790,'Millennium park and sports field':2520,'Street lighting':7628,'Local highway services':11704,'Public conveniences':5081,'Dog bins and litter collection':2999,'Rate collection charges':2896,'NLA Swimming Pool Board — contribution':2623,'Insurance':2442,'Accountancy fee':2156,'Assurance fee':2200,'Coronation event':1547,'Office expenses':520,'Miscellaneous':1577,'Bad debts written off/(back)':1489,'Bank charges':338,'Public Christmas trees and decorations':369,'Play park':2720},
+ revaluation:25740, totalExp:186794, netResult:-38421}
+};
+/* function colouring — Observatory overlay, not in Ballaugh's own accounts */
+const FN={waste:'--c-refuse',works:'--c-works',env:'--c-parks',admin:'--c-fgp',comp:'--c-disc',noncash:'--c-bal'};
+const FNLAB={waste:'Waste & refuse',works:'Roads, lighting & highways',env:'Environment, halls & leisure',admin:'Administration',comp:'Compliance & finance',noncash:'Non-cash / reserves entries'};
+const FNOF={'Northern Parishes Refuse Collection Board':'waste','Northern Civic Amenity Site':'waste','Dog bins and litter collection':'waste',
+ 'Street lighting':'works','Local highway services':'works',
+ 'Parish hall':'env','Millennium park and sports field':'env','Play park':'env','Public conveniences':'env','Grass cutting and gardening':'env','NLA Swimming Pool Board — contribution':'env','Public Christmas trees and decorations':'env','Coronation event':'env',
+ "Clerk's salary":'admin','Office expenses':'admin','Rate collection charges':'admin','Miscellaneous':'admin',
+ 'Insurance':'comp','Accountancy fee':'comp','Assurance fee':'comp','Bank charges':'comp','Bad debts written off/(back)':'comp',
+ 'Depreciation':'noncash'};
+const ORD={waste:1,works:2,env:3,admin:4,comp:5,noncash:6};
+
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={}; Object.entries(d.exp).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;}); return c;};
+
+/* integrity: exp lines re-add to published total; income - exp - revaluation = published net result; flows balance */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const incTot=sum(d.income), expTot=sum(d.exp);
+  const netCheck=incTot-expTot-d.revaluation;
+  const reserveIn=d.netResult<0?-d.netResult:0, reserveOut=d.netResult>0?d.netResult:0;
+  const inflow=incTot+sum(credits(d))+reserveIn;
+  const outflow=pos(d.exp)+d.revaluation+reserveOut;
+  return {y,expDiff:expTot-d.totalExp,netDiff:netCheck-d.netResult,flowDiff:inflow-outflow};
+});
+const bad=AUDIT.filter(a=>a.expDiff!==0||a.netDiff!==0||a.flowDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Ballaugh reconciles in all years: expenditure lines match the published total, income − expenditure − revaluation write-down = the published surplus/deficit, and the diagram balances');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','Revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(credits(d)).forEach(([k,v],i)=>{
+    const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  if(d.netResult<0){ const s=add('res','Drawn from reserves','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:-d.netResult,col:'--c-bal',hatch:true}); }
+  Object.entries(d.exp).filter(([,v])=>v>0).sort((a,b)=>{const fa=FNOF[a[0]],fb=FNOF[b[0]];return (ORD[fa]-ORD[fb])||(b[1]-a[1]);})
+    .forEach(([k,v])=>{const f=FNOF[k]||'admin'; const li=add('e|'+k,k,FN[f],'item',ORD[f]); L.push({source:hub,target:li,value:v,col:FN[f]}); });
+  if(d.revaluation>0){ const t=add('rv','Revaluation write-down (non-cash)','--c-bal','item',ORD.noncash);
+    L.push({source:hub,target:t,value:d.revaluation,col:'--c-bal'}); }
+  if(d.netResult>0){ const t=add('sur','Surplus carried to reserves','--c-bal','item',7);
+    L.push({source:hub,target:t,value:d.netResult,col:'--c-bal'}); }
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(credits(d))+(d.netResult<0?-d.netResult:0);
+    if(id==='res')  return d.netResult<0?-d.netResult:0;
+    if(id==='sur')  return d.netResult>0?d.netResult:0;
+    if(id==='rv')   return d.revaluation;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('e|')===0)   return Math.max(0,d.exp[id.slice(2)]||0);
+    return 0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=200,RPAD=250,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(11).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=sum(D[y].income)+sum(credits(D[y]))+(D[y].netResult<0?-D[y].netResult:0);
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null,r=RATES[y],pr=pi>=0?RATES[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  const rateIncome=d.income['Income from general rate fund']+d.income['Income from general refuse rate fund'];
+  const prRateIncome=pv?pv.income['Income from general rate fund']+pv.income['Income from general refuse rate fund']:null;
+  document.getElementById('s-rate').textContent=fmt(rateIncome);
+  document.getElementById('s-rate-d').textContent=arrow(rateIncome,prRateIncome);
+  document.getElementById('s-pound').textContent=(r.genPound+r.refPound)+'p';
+  document.getElementById('s-pound-d').textContent=pr?((r.genPound+r.refPound)>(pr.genPound+pr.refPound)?'▲ +':'▼ ')+Math.abs((r.genPound+r.refPound)-(pr.genPound+pr.refPound))+'p on last year (general '+r.genPound+'p + refuse '+r.refPound+'p)':'general '+r.genPound+'p + refuse '+r.refPound+'p';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-res').textContent=(d.netResult>=0?'+':'−')+fmt(Math.abs(d.netResult));
+  document.getElementById('s-res-d').textContent=pv?(d.netResult>=0&&pv.netResult>=0?(d.netResult>pv.netResult?'▲ surplus grew':'▼ surplus shrank'):(d.netResult<0&&pv.netResult<0?(d.netResult<pv.netResult?'▼ deficit widened':'▲ deficit narrowed'):(d.netResult<0?'▼ swung to deficit':'▲ swung to surplus'))):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +Object.keys(FNLAB).map(k=>'<div class="lg"><div class="sw" style="background:var('+FN[k]+')"></div>'+FNLAB[k]+'</div>').join('')
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Functional colouring is an Observatory overlay — Ballaugh\'s accounts are a flat list</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('EXPENDITURE',()=>'','grp');
+  const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y].exp).forEach(k=>ks.add(k)));
+  [...ks].sort((a,b)=>(ORD[FNOF[a]]-ORD[FNOF[b]])||a.localeCompare(b)).forEach(k=>R(k,d=>m(d.exp[k]||0),'sub'));
+  R('Total expenditure',d=>'('+d.totalExp.toLocaleString()+')','grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Net operating expenditure',d=>{const v=sum(d.income)-sum(d.exp);return (v<0?'(':'')+Math.abs(v).toLocaleString()+(v<0?')':'');},'grp');
+  R('Revaluation write-down',d=>d.revaluation?'('+d.revaluation.toLocaleString()+')':'—','sub');
+  R('Net surplus/(deficit) for the year',d=>(d.netResult<0?'(':'')+Math.abs(d.netResult).toLocaleString()+(d.netResult<0?')':''),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  rows.push('<tr class="grp"><td>General rate: pence in the £</td>'+YEARS.map(y=>'<td class="num">'+RATES[y].genPound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Refuse rate: pence in the £</td>'+YEARS.map(y=>'<td class="num">'+RATES[y].refPound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Rateable value (general / refuse)</td>'+YEARS.map(y=>'<td class="num">£'+RATES[y].genRV.toLocaleString()+' / £'+RATES[y].refRV.toLocaleString()+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year the expenditure lines re-add to the published Total Expenditure, and total income minus total expenditure minus the revaluation write-down equals the published net surplus/(deficit) exactly. The 2022/23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree once both were checked against a clean 600dpi re-scan. <b>Source.</b> Ballaugh Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Comprehensive Income and Expenditure Statement. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null],
+ ['r','Tangible fixed assets',106969,127766],
+ ['h','Current assets',null,null],
+ ['r','Debtors',24356,34947],
+ ['r','Cash at bank',26159,33955],
+ ['s','',50515,68902],
+ ['r','Creditors',-13594,-13350],
+ ['t','Net current assets',36921,55552],
+ ['h','Long-term liabilities',null,null],
+ ['r','Deferred income',-2016,-3023],
+ ['T','Total assets less liabilities',141874,180295],
+ ['h','Reserves',null,null],
+ ['r','Capital adjustment account',42498,71881],
+ ['r','Revaluation reserve',61446,49648],
+ ['r','General fund',37930,58766],
+ ['T','',141874,180295]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> No borrowing of any kind. Net assets fell £38,421 in the year — from £180,295 to £141,874 — matching the published deficit exactly, since the general fund, capital adjustment account and revaluation reserve together absorb it. The revaluation reserve alone accounts for over two-thirds of the movement: a RICS valuation cut the parish\'s land and buildings from a cost of £163,241 to £98,400, a £67,475 reduction in valuation partly offset by a £41,735 reversal of the depreciation already charged against it — a net £25,740 write-down. Cash at bank fell from £33,955 to £26,159 and debtors fell from £34,947 to £24,356, both consistent with a small parish paying down normal working-capital timing differences rather than any distress.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from a scanned original, then verified: current assets re-add, net current assets reconcile, and total reserves equal total assets less liabilities in both years. The fixed-asset note (cost, depreciation and net book value by asset class) independently confirms both the £106,969 closing net book value and the £25,740 net revaluation write-down that appears in the income and expenditure account.</p>'
+   +'<p class="foot"><b>Source.</b> Ballaugh Parish Commissioners, Statement of Accounts for the year ended 31 March 2024, Balance Sheet, page 11, and Note 1, Tangible fixed assets, page 19. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

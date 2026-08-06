@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
-<title>Where the rates go — Braddan, Marown and Santon · Crown Dependencies Observatory</title>
-<meta name="description" content="Interactive Sankey diagrams of the accounts of the three local authorities in the Middle constituency, Isle of Man.">
+<title>Where the rates go — Isle of Man local authorities · Crown Dependencies Observatory</title>
+<meta name="description" content="Interactive Sankey diagrams of the accounts of Isle of Man local authorities, region by region.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -13,6 +13,7 @@
   --bg:#0c1620;--surface:#12222a;--surface2:#0e1b23;--border:#18262f;--border2:#2b4049;
   --text:#e2ecea;--muted:#7e9a94;--muted2:#a9c1bb;--accent:#4fb39c;--on-accent:#0c1620;
   --c-fgp:#936d24;--c-works:#1c7ce5;--c-parks:#2ea957;--c-refuse:#cb4601;--c-disc:#ac65db;--c-income:#2ca2a2;--c-bal:#7e9a94;
+  --measure:880px;
 }
 body.light{
   --bg:#f0f9f8;--surface:#ffffff;--surface2:#e6f4f1;--border:#cce8e4;--border2:#99d5cc;
@@ -20,15 +21,23 @@ body.light{
 }
 html{background:var(--bg)}
 body{background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
-.wrap{max-width:1080px;margin:0 auto;padding:34px 24px 60px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:28px}
+.wrap{max-width:calc(var(--measure) + 48px);margin:0 auto;padding:34px 24px 60px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}
 h1{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.2}
-.sub{color:var(--muted);font-size:13px;margin-top:6px;max-width:70ch}
-.tbtn{background:none;border:1px solid var(--border2);color:var(--muted2);border-radius:6px;height:30px;padding:0 12px;font-size:11.5px;font-family:"Inter",sans-serif;cursor:pointer;font-weight:600;flex-shrink:0}
+.sub{color:var(--muted);font-size:13px;margin-top:6px}
+.navrow{display:flex;gap:8px;flex-shrink:0}
+.tbtn{background:none;border:1px solid var(--border2);color:var(--muted2);border-radius:6px;height:30px;padding:0 12px;font-size:11.5px;font-family:"Inter",sans-serif;cursor:pointer;font-weight:600;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center}
 .tbtn:hover{color:var(--text);border-color:var(--accent)}
-.lede{font-size:15px;color:var(--muted2);max-width:74ch;margin-bottom:26px}
+.tbtn.accent{border-color:var(--accent);color:var(--accent)}
+.tabs{display:flex;gap:6px;margin-bottom:22px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tabbtn{background:none;border:none;border-bottom:2.5px solid transparent;color:var(--muted);font-family:"Inter",sans-serif;font-size:13.5px;font-weight:700;padding:8px 4px 10px;margin-right:14px;cursor:pointer;letter-spacing:-.005em}
+.tabbtn:hover{color:var(--text)}
+.tabbtn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
+.lede{font-size:15px;color:var(--muted2);line-height:1.65;margin-bottom:26px}
 .lede b{color:var(--text)}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:34px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:34px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 18px 16px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:border-color .15s,transform .15s}
 .card:hover{border-color:var(--accent);transform:translateY(-2px)}
 .card h2{font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
@@ -40,17 +49,21 @@ h1{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.2}
 .kv span:last-child{font-family:"JetBrains Mono",monospace;font-weight:600}
 .go{margin-top:12px;font-size:12px;font-weight:700;color:var(--accent)}
 h3{font-size:15px;font-weight:700;margin:30px 0 10px;letter-spacing:-.01em}
-p.body{font-size:13.5px;color:var(--muted2);max-width:76ch;margin-bottom:12px}
+p.body{font-size:13.5px;color:var(--muted2);line-height:1.68;margin-bottom:12px}
 table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0 8px}
 th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border)}
 th:first-child,td:first-child{text-align:left}
 th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-bottom:1px solid var(--border2)}
 td.num{font-family:"JetBrains Mono",monospace}
-.cap{font-size:11.5px;color:var(--muted);max-width:78ch;line-height:1.55}
+.cap{font-size:11.5px;color:var(--muted);line-height:1.55}
 .warn{border-left:3px solid var(--c-fgp);background:var(--surface);padding:14px 16px;border-radius:0 8px 8px 0;margin:18px 0}
-.warn p{font-size:12.5px;color:var(--muted2);margin:0;max-width:74ch}
+.warn p{font-size:12.5px;color:var(--muted2);margin:0;line-height:1.62}
 .warn b{color:var(--text)}
-footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);max-width:80ch}
+.warn.good{border-left-color:var(--c-parks)}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:16px 20px;margin:8px 0 34px}
+.banner .t{font-size:13.5px;font-weight:700;color:var(--text)}
+.banner .d{font-size:12px;color:var(--muted2);margin-top:2px}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.6}
 a.inline{color:var(--accent)}
 .dl{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .dl a{font-size:11px;font-family:"JetBrains Mono",monospace;color:var(--muted2);border:1px solid var(--border2);border-radius:5px;padding:4px 9px;text-decoration:none}
@@ -63,10 +76,23 @@ a.inline{color:var(--accent)}
 <header>
   <div>
     <h1>Where the rates go</h1>
-    <div class="sub">The accounts of Braddan, Marown and Santon Parish Commissioners — the three local authorities of the Middle constituency, Isle of Man.</div>
+    <div class="sub">The accounts of Isle of Man local authorities, region by region — every pound traced from where it comes in to where it goes out.</div>
   </div>
-  <button class="tbtn" id="btn-theme">Light</button>
+  <div class="navrow">
+    <a class="tbtn" href="consolidated.html">Consolidated →</a>
+    <a class="tbtn accent" href="benchmarking.html">Benchmarking →</a>
+    <button class="tbtn" id="btn-theme">Light</button>
+  </div>
 </header>
+
+<div class="tabs">
+  <button class="tabbtn active" data-tab="middle">Middle</button>
+  <button class="tabbtn" data-tab="south">South</button>
+  <button class="tabbtn" data-tab="north">North, East &amp; West</button>
+  <button class="tabbtn" data-tab="douglas">Douglas &amp; Onchan</button>
+</div>
+
+<div class="tabpanel active" id="tab-middle">
 
 <p class="lede">Three authorities sharing one constituency, and almost nothing else. Braddan runs a housing stock, carries <b>£18.1m of borrowing</b> and spends more on interest than Santon spends on everything. Santon has <b>no borrowing, no staff beyond its clerk</b>, and a balance sheet of £126,529. Marown sits between them and has run a deficit three years running. Each diagram below traces every pound from where it comes in to where it goes out.</p>
 
@@ -121,9 +147,314 @@ a.inline{color:var(--accent)}
   <p><b>Read the comparison carefully.</b> These three diagrams are not yet like-for-like. Braddan's is built from forward <b>estimates</b>; Marown's and Santon's from audited <b>outturn</b>. They use different structures — Braddan has four service committees, Marown has three expense headings, Santon has none at all — and they cover different years, because Marown's and Santon's accounts run two years behind Braddan's. Marown and Santon <i>are</i> directly comparable with each other. A genuine three-way comparison needs a common functional mapping, which has deliberately not been imposed here rather than done quietly.</p>
 </div>
 
+</div><!-- /tab-middle -->
+
+<div class="tabpanel" id="tab-south">
+
+<p class="lede">Five authorities in the south, across three different tiers of local government — Parish, Village and Town — and the scale differences between tiers are bigger than the differences within any one of them. Port Erin, Port St Mary and Castletown each carry millions in borrowing for harbours, halls and housing; the parish bodies alongside them carry little or none.</p>
+
+<h3 style="margin-top:8px">Parish</h3>
+<p class="body">Arbory &amp; Rushen and Malew report on the same audited-outturn basis, for the same two years, so this pair is directly comparable. Arbory &amp; Rushen is the newest authority on the island — formed by a 2020 merger of the former separate Arbory and Rushen commissioners. Malew is the wealthiest by balance sheet of the two, and pays down real commercial bank debt every year.</p>
+<div class="cards">
+  <a class="card" href="arbory-rushen-budget-sankey.html">
+    <h2>Arbory &amp; Rushen</h2>
+    <div class="yrs">2022-23 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-refuse),var(--c-works))"></div>
+    <p>Formed 1 May 2020 from the merger of two separate parish commissioners. Runs its own housing revenue account and carries a small legacy commercial loan. Surplus grew six-fold in a single year.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£517,635</span></div>
+    <div class="kv"><span>Net assets</span><span>£1,075,678</span></div>
+    <div class="kv"><span>Borrowing</span><span>£28,450</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="malew-budget-sankey.html">
+    <h2>Malew</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-parks),var(--c-fgp))"></div>
+    <p>Ballasalla's authority. Carries genuine commercial bank debt, paid down every year, and absorbed a one-off £384k impairment tied to the Ballasalla bypass land disposal.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£787,588</span></div>
+    <div class="kv"><span>Net assets</span><span>£3,746,363</span></div>
+    <div class="kv"><span>Borrowing</span><span>£263,423</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>Village</h3>
+<p class="body">Port Erin and Port St Mary are the island's only two Village-tier authorities — separate from, and roughly the same order of size as, the parish they sit within. Both carry millions in borrowing, unlike any parish body built so far.</p>
+<div class="cards">
+  <a class="card" href="port-erin-budget-sankey.html">
+    <h2>Port Erin</h2>
+    <div class="yrs">2021-22 → 2024-25 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-works),var(--c-bal))"></div>
+    <p>The biggest balance sheet of any authority built so far — £30m of net assets — and a rate in the pound that overtook Braddan's this year. Surplus more than doubled in the most recent year.</p>
+    <div class="kv"><span>Rate income, 2024-25</span><span>£1,116,967</span></div>
+    <div class="kv"><span>Net assets</span><span>£30,010,664</span></div>
+    <div class="kv"><span>Borrowing</span><span>£5,211,515</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="port-st-mary-budget-sankey.html">
+    <h2>Port St Mary</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-disc),var(--c-bal))"></div>
+    <p>The highest rate in the pound of any authority built so far — 386p, ahead of Braddan — and a deficit every year, funded from a balance sheet swollen by a revaluation gain rather than by cash.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£532,169</span></div>
+    <div class="kv"><span>Net assets</span><span>£17,226,706</span></div>
+    <div class="kv"><span>Borrowing</span><span>£4,489,130</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>Town</h3>
+<p class="body">Castletown is the first Town-tier authority built — the ancient former capital, and structurally closer to Braddan than to any parish: real committees, a harbour, a museum contribution, and its own published accounts going back to 2010/11.</p>
+<div class="cards">
+  <a class="card" href="castletown-budget-sankey.html">
+    <h2>Castletown</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn (2023-24 draft)</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-fgp),var(--c-works))"></div>
+    <p>Its own site publishes accounts back to 2010/11 — the best self-published record of any authority here. Rate in the pound rose from 304p to 356p in three years, and is confirmed at 398p for 2025/26.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£1,231,242</span></div>
+    <div class="kv"><span>Net assets</span><span>£32,801,341</span></div>
+    <div class="kv"><span>Borrowing</span><span>£10,384,205</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>The scale gap, by tier</h3>
+<p class="body">Sorted by rate income, most recent verified year for each. The tier boundaries are where the real jumps are — not the Middle/South split above them.</p>
+<table>
+  <thead><tr><th>Authority</th><th>Tier</th><th>Rate income</th><th>Rate in the £</th><th>Result for year</th><th>Borrowing</th><th>Net assets</th></tr></thead>
+  <tbody>
+    <tr><td>Castletown</td><td>Town</td><td class="num">£1,231,242</td><td class="num">356p</td><td class="num">+£174,880</td><td class="num">£10.4m</td><td class="num">£32.8m</td></tr>
+    <tr><td>Port Erin</td><td>Village</td><td class="num">£1,116,967</td><td class="num">378p</td><td class="num">+£351,783</td><td class="num">£5.2m</td><td class="num">£30.0m</td></tr>
+    <tr><td>Port St Mary</td><td>Village</td><td class="num">£532,169</td><td class="num">386p</td><td class="num">−£124,936</td><td class="num">£4.5m</td><td class="num">£17.2m</td></tr>
+    <tr><td>Malew</td><td>Parish</td><td class="num">£787,588</td><td class="num">199p</td><td class="num">+£63,158</td><td class="num">£263k</td><td class="num">£3.7m</td></tr>
+    <tr><td>Arbory &amp; Rushen</td><td>Parish</td><td class="num">£517,635</td><td class="num">162p</td><td class="num">+£42,885</td><td class="num">£28k</td><td class="num">£1.1m</td></tr>
+  </tbody>
+</table>
+<p class="cap">Years differ by authority — see each card above for its own year. Castletown's rate income combines its General and Refuse rate lines (both are rates, just itemised separately in its accounts); the other four use each authority's single general-rate-fund figure. Rate poundages are not adjusted for the different net-rateable-value base each authority sits on.</p>
+
+<div class="warn">
+  <p><b>Village and Town aren't just bigger parishes.</b> Every Village and Town authority here carries millions in borrowing; every Parish authority carries thousands or none. That's not incumbency or mismanagement — it's the tier: villages and towns own harbours, halls, promenades and housing stock that parishes simply don't have on their books. Comparing a parish's zero borrowing favourably against a town's £10m, without saying why, would be misleading.</p>
+</div>
+
+</div><!-- /tab-south -->
+
+<div class="tabpanel" id="tab-north">
+
+<p class="lede">Eleven authorities, none in Middle or South constituency, grouped here by geography rather than politics — seven in the north, one in the east, three in the west. Most are small parishes carrying no borrowing at all; Garff and the two Town-tier authorities, Ramsey and Peel, are the exceptions. What's striking about the rest isn't their size, it's how visibly they already share services with their neighbours — Ramsey and Peel don't just pay into shared boards, they <i>host</i> one each, and Michael is the first authority confirmed on two clusters at once.</p>
+
+<h3 style="margin-top:8px">North</h3>
+<p class="body">Andreas, Ballaugh, Bride, Jurby, Lezayre and Ramsey all sit in the north of the island. Four of the small parishes name the same shared bodies in their own accounts — the Northern Parishes Refuse Collection Board, the Northern Civic Amenity Site, and a Northern (Local Authorities) Swimming Pool Board — under near-identical wording, and Ramsey's own accounts confirm why: Ramsey <b>hosts</b> the Northern District Civic Amenity Joint Committee on behalf of all seven northern parishes and recovers £189,240 a year from the other six. This is the clearest cross-authority collaboration match found anywhere on this site; see the benchmarking page for the full comparison.</p>
+<div class="cards">
+  <a class="card" href="ramsey-budget-sankey.html">
+    <h2>Ramsey</h2>
+    <div class="yrs">2021-22 → 2022-23 · audited outturn · Town tier</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-fgp),var(--c-works),var(--c-refuse))"></div>
+    <p>Hosts the Northern District Civic Amenity Joint Committee on behalf of six neighbouring parishes, recovering £189,240 a year from them — Ramsey's answer to Douglas's Eastern site. Only one source PDF exists, so this page shows two years, not three.</p>
+    <div class="kv"><span>Rate income, 2022-23</span><span>£3,130,602</span></div>
+    <div class="kv"><span>Net assets</span><span>£68,257,705</span></div>
+    <div class="kv"><span>Borrowing</span><span>£30,313,288</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="andreas-budget-sankey.html">
+    <h2>Andreas</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-refuse),var(--c-fgp))"></div>
+    <p>Ran a deficit all three years, but its own reserve statement shows the cash-backed General Fund actually grew each year. Rate in the pound has since climbed to 188p, set for 2026/27 — a 30.5% jump in one year, per local press.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£136,131</span></div>
+    <div class="kv"><span>Net assets</span><span>£670,505</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="ballaugh-budget-sankey.html">
+    <h2>Ballaugh</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-fgp),var(--c-refuse))"></div>
+    <p>A near-breakeven authority until 2023-24, when a £25,740 downward revaluation of fixed assets turned a small surplus into a £38,421 deficit on paper — an accounting swing, not a cash one.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£167,006</span></div>
+    <div class="kv"><span>Net assets</span><span>£141,874</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="bride-budget-sankey.html">
+    <h2>Bride</h2>
+    <div class="yrs">2021-22 → 2024-25 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-parks),var(--c-refuse))"></div>
+    <p>The longest run of any authority here — four years, not three. Two deficit years pulled net assets from £196,376 down to £166,194, before a 2024-25 surplus took them back up to £173,146.</p>
+    <div class="kv"><span>Rate income, 2024-25</span><span>£116,730</span></div>
+    <div class="kv"><span>Net assets</span><span>£173,146</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="jurby-budget-sankey.html">
+    <h2>Jurby</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-works),var(--c-fgp))"></div>
+    <p>A deficit narrowing sharply — £22,391, then £18,350, then £6,710 — while net assets fell from £519,053 to £452,343, almost entirely a £60,000 downward asset revaluation, not operating losses.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£84,459</span></div>
+    <div class="kv"><span>Net assets</span><span>£452,343</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="lezayre-budget-sankey.html">
+    <h2>Lezayre</h2>
+    <div class="yrs">2021-22 → 2022-23 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-disc),var(--c-works))"></div>
+    <p>Only two years shown — its 2023-24 accounts weren't in the archive at time of retrieval, flagged on its own page. The last loan was cleared during 2021/22; both years since have run a modest deficit.</p>
+    <div class="kv"><span>Rate income, 2022-23</span><span>£199,426</span></div>
+    <div class="kv"><span>Net assets</span><span>£795,610</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>West</h3>
+<p class="body">German, Patrick, Michael and Peel sit in the west. Patrick and Michael's own accounts explicitly name a Western Civic Amenity Site Board and a Western (Local Authorities) Swimming Pool — the same Western Civic Amenity Site Board that Marown (Middle tab) already names — and Peel's own accounts confirm why: Peel <b>hosts</b> the Western civic amenity site and swimming pool on behalf of its neighbours, Peel's answer to Ramsey's northern role and Douglas's eastern one. Michael is the one authority on this site confirmed touching two clusters simultaneously — Western for civic amenity, swimming and housing, but Northern for refuse. German pays into an unnamed "civic amenity site" and swimming pool contribution that, on geography, is plausibly the same Western pair — but its own accounts don't use the word "Western", so that one link isn't confirmed.</p>
+<div class="cards">
+  <a class="card" href="peel-budget-sankey.html">
+    <h2>Peel</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn · Town tier</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-parks),var(--c-fgp),var(--c-refuse))"></div>
+    <p>Hosts the Western civic amenity site and Western swimming pool for its neighbours. No harbour on the balance sheet, despite Peel's fishing heritage — like Douglas's, it's managed by central government, not the Commissioners. Housing runs a structural surplus here, the reverse of Douglas's.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£1,661,273</span></div>
+    <div class="kv"><span>Net assets</span><span>£49,546,410</span></div>
+    <div class="kv"><span>Borrowing</span><span>£10,806,253</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="german-budget-sankey.html">
+    <h2>German</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-parks),var(--c-disc))"></div>
+    <p>The only surplus-every-year authority in this batch — though the surplus has more than halved in three years, from £56,981 to £27,461, as civic amenity and waste disposal costs both climbed.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£269,620</span></div>
+    <div class="kv"><span>Net assets</span><span>£443,213</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="patrick-budget-sankey.html">
+    <h2>Patrick</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-fgp),var(--c-works))"></div>
+    <p>Swung from a £34,365 deficit in 2022-23 — the year highway services costs nearly tripled — back to a £19,422 surplus in 2023-24. Rate in the pound has risen fastest of any authority here: 190p to 221p in two years.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£204,253</span></div>
+    <div class="kv"><span>Net assets</span><span>£76,551</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="michael-budget-sankey.html">
+    <h2>Michael</h2>
+    <div class="yrs">2021-22 → 2022-23 · audited outturn · District tier</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-disc),var(--c-fgp))"></div>
+    <p>The one authority confirmed on two joint-board clusters at once: Western for civic amenity, swimming and housing; Northern for refuse. Only one usable source PDF — the 2024 accounts file in the archive turned out to be corrupted.</p>
+    <div class="kv"><span>Rate income, 2022-23</span><span>£266,991</span></div>
+    <div class="kv"><span>Net assets</span><span>£569,174</span></div>
+    <div class="kv"><span>Borrowing</span><span>none</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>East</h3>
+<p class="body">Garff was formed in 2016 from the merger of the village district of Laxey and the parish districts of Lonan and Maughold — now the largest local authority on the island by geographical area, and the only one in this batch carrying real debt, including a direct Isle of Man Government loan alongside commercial borrowing. It took six years to fully unify: as late as 2021/22 it was still charging three separate legacy rate poundages from its three predecessor bodies. It also sits at the crossing point of two of this site's confirmed joint boards — an Eastern civic amenity site and a Northern one — geographically between the north and south clusters documented elsewhere on this page.</p>
+<div class="cards">
+  <a class="card" href="garff-budget-sankey.html">
+    <h2>Garff</h2>
+    <div class="yrs">2022-23 → 2024-25 · audited outturn</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-works),var(--c-refuse))"></div>
+    <p>The one authority in this batch that isn't debt-free — £984,935 of borrowing, including a direct Isle of Man Government loan that funded the Laxey Skate Park among other capital projects. Swung to a £92,829 surplus in 2024-25 after two deficit years.</p>
+    <div class="kv"><span>Rate income, 2024-25</span><span>£1,012,627</span></div>
+    <div class="kv"><span>Net assets</span><span>£4,046,253</span></div>
+    <div class="kv"><span>Borrowing</span><span>£984,935</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>The scale gap, north, east &amp; west</h3>
+<p class="body">Sorted by rate income, most recent verified year for each. Ramsey and Peel — both Town tier, both hosting a joint board — dominate the top of the table; the eight small parishes underneath are all debt-free except Garff.</p>
+<table>
+  <thead><tr><th>Authority</th><th>Cluster</th><th>Rate income</th><th>Rate in the £</th><th>Result for year</th><th>Net assets</th><th>Borrowing</th></tr></thead>
+  <tbody>
+    <tr><td>Ramsey</td><td>North</td><td class="num">£3,130,602</td><td class="num">445p</td><td class="num">+£614,176</td><td class="num">£68,257,705</td><td class="num">£30,313,288</td></tr>
+    <tr><td>Peel</td><td>West</td><td class="num">£1,661,273<sup>‡</sup></td><td class="num">267p</td><td class="num">+£524,009</td><td class="num">£49,546,410</td><td class="num">£10,806,253</td></tr>
+    <tr><td>Garff</td><td>East</td><td class="num">£1,012,627<sup>‡</sup></td><td class="num">191.5p</td><td class="num">+£92,829</td><td class="num">£4,046,253</td><td class="num">£984,935</td></tr>
+    <tr><td>Patrick</td><td>West</td><td class="num">£204,253</td><td class="num">221p</td><td class="num">+£19,422</td><td class="num">£76,551</td><td class="num">none</td></tr>
+    <tr><td>Lezayre</td><td>North</td><td class="num">£199,426</td><td class="num">97p<sup>‡</sup></td><td class="num">−£5,734</td><td class="num">£795,610</td><td class="num">none</td></tr>
+    <tr><td>Ballaugh</td><td>North</td><td class="num">£167,006</td><td class="num">125p<sup>‡</sup></td><td class="num">−£38,421</td><td class="num">£141,874</td><td class="num">none</td></tr>
+    <tr><td>Andreas</td><td>North</td><td class="num">£136,131</td><td class="num">134p</td><td class="num">−£13,532</td><td class="num">£670,505</td><td class="num">none</td></tr>
+    <tr><td>Bride</td><td>North</td><td class="num">£116,730</td><td class="num">70p</td><td class="num">+£6,952</td><td class="num">£173,146</td><td class="num">none</td></tr>
+    <tr><td>Jurby</td><td>North</td><td class="num">£84,459</td><td class="num">149p</td><td class="num">−£6,710</td><td class="num">£452,343</td><td class="num">none</td></tr>
+    <tr><td>German</td><td>West</td><td class="num">£269,620<sup>‡</sup></td><td class="num">94p</td><td class="num">+£27,461</td><td class="num">£443,213</td><td class="num">none</td></tr>
+    <tr><td>Michael</td><td>West/North</td><td class="num">£266,991<sup>‡</sup></td><td class="num">144p</td><td class="num">+£21,321</td><td class="num">£569,174</td><td class="num">none</td></tr>
+  </tbody>
+</table>
+<p class="cap"><sup>‡</sup>Where an authority runs separate general and refuse rate funds, the figure shown is the general rate fund alone, except Ballaugh, Lezayre, German, Garff, Peel and Michael, which are shown combined (general + refuse) because that's the headline figure their own pages use — see each page's own table for the full split. Years differ by authority; Ramsey's and Michael's 2022-23 are each their most recent verified year, not 2023-24, because a second source PDF was either missing (Ramsey) or corrupted (Michael).</p>
+
+<div class="warn">
+  <p><b>Three authorities host, the rest pay in — and Michael sits on two clusters at once.</b> Ramsey hosts the Northern District Civic Amenity Joint Committee for six neighbouring parishes; Peel hosts the equivalent Western civic amenity site and swimming pool; Douglas (see its own tab) hosts an Eastern one for Onchan, Braddan, Santon and Garff. Andreas, Ballaugh, Bride and Jurby each name at least two of the three Northern boards in their own accounts; Patrick and Michael each name the Western ones; Michael alone is confirmed on both. Four separate joint-board clusters, three of them now confirmed from both the host's and the payers' own published accounts — see the benchmarking page for the full map.</p>
+</div>
+
+</div><!-- /tab-north -->
+
+<div class="tabpanel" id="tab-douglas">
+
+<p class="lede">Douglas gets its own tab because it doesn't belong on anyone else's scale — it's the capital, a Borough Council rather than a Commissioners, and roughly ten times the rate income of Braddan or Castletown, the next-biggest authorities on this site. Its own accounts are headed "Douglas City Council," though the island's official roster and this site both use "Borough Council." The diagram below shows the General Fund only — the rate-funded services. Douglas also runs a Housing Revenue Account nearly nine times the size of the General Fund, self-funded by rents rather than rates; it's summarised separately on the diagram's own page rather than merged into the main flow. Onchan sits alongside it here rather than in the North/East/West tab, because the two are joined by a confirmed joint board and genuine geographic adjacency — Onchan is effectively Douglas's neighbour.</p>
+
+<div class="cards">
+  <a class="card" href="douglas-budget-sankey.html">
+    <h2>Douglas</h2>
+    <div class="yrs">2022-23 → 2024-25 · audited outturn · General Fund</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-fgp),var(--c-works),var(--c-refuse))"></div>
+    <p>Rate in the pound rose from 468p to 573p in two years — up 22%. Net deficit on the year narrowed to £4.445m in 2024-25 after a £9.22m deficit the year before. Net assets have grown to £289.9m, though most of that growth is unrealised property revaluation, not operating surplus.</p>
+    <div class="kv"><span>Rate income, 2024-25</span><span>£15,382,000</span></div>
+    <div class="kv"><span>Net assets</span><span>£289,885,000</span></div>
+    <div class="kv"><span>Borrowing</span><span>£90,963,000</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+  <a class="card" href="onchan-budget-sankey.html">
+    <h2>Onchan</h2>
+    <div class="yrs">2021-22 → 2023-24 · audited outturn · General Fund</div>
+    <div class="bar" style="background:linear-gradient(90deg,var(--c-income),var(--c-works),var(--c-disc))"></div>
+    <p>The Eastern Civic Amenity Site match is confirmed from <i>both</i> sides: Onchan's own accounts independently name Douglas as the site's administrator and its own payments, matching Douglas's disclosure line for line. A £12.7m prior-year restatement corrected a 2020 social-housing undervaluation.</p>
+    <div class="kv"><span>Rate income, 2023-24</span><span>£2,792,463</span></div>
+    <div class="kv"><span>Net assets</span><span>£66,223,100</span></div>
+    <div class="kv"><span>Borrowing</span><span>£15,081,307</span></div>
+    <div class="go">Open the diagram →</div>
+  </a>
+</div>
+
+<h3>How much bigger, exactly</h3>
+<table>
+  <thead><tr><th></th><th>Douglas</th><th>Castletown (next-biggest Town)</th><th>Multiple</th></tr></thead>
+  <tbody>
+    <tr><td>Rate income</td><td class="num">£15,382,000</td><td class="num">£1,231,242</td><td class="num">12.5×</td></tr>
+    <tr><td>Net assets</td><td class="num">£289,885,000</td><td class="num">£32,801,341</td><td class="num">8.8×</td></tr>
+    <tr><td>Borrowing</td><td class="num">£90,963,000</td><td class="num">£10,384,205</td><td class="num">8.8×</td></tr>
+  </tbody>
+</table>
+<p class="cap">Council housing alone — £328.3m of net book value across 2,382 dwellings and sheltered units — is worth more than every other authority's total net assets combined, built or not.</p>
+
+<div class="warn">
+  <p><b>Douglas hosts a shared board — and now it's confirmed from both sides.</b> Douglas operates the Eastern District Civic Amenity Site at Middle Park, and <b>Onchan, Braddan, Santon and Garff</b> all pay Douglas a cost-apportioned share to use it (Douglas ~62%, Onchan ~18%, Braddan ~13%, Garff ~5%, Santon ~2%). Onchan's own accounts independently name Douglas as the site's administrator and quote its own payments — the first time on this site a joint-board finding has been confirmed from both the host's and a payer's own published accounts, not just the host's. Santon is separately confirmed paying into a second joint arrangement too — this Eastern site and the Southern Local Authorities Swimming Pool Board — and Douglas isn't the only host: Ramsey and Peel each run an equivalent board for the north and west (see the North, East &amp; West tab).</p>
+</div>
+
+<div class="warn good">
+  <p><b>A pay-settlement liability worth watching.</b> A "Single Status" creditor line — the cost of implementing a public-sector pay and grading agreement — grew from £395k to £3,285k across the four years in Douglas's accounts, roughly an eight-fold increase. The 2024-25 accounts say the financial impact has now been fully recognised, but it's the fastest-growing single line on the balance sheet and worth a resident asking about directly.</p>
+</div>
+
+</div><!-- /tab-douglas -->
+
+<div class="banner">
+  <div>
+    <div class="t">All 21 authorities, together</div>
+    <div class="d">The full island roster, a pick-any-four comparison tool, every confirmed joint board, and — new — a consolidated view of local government spending across the whole island.</div>
+  </div>
+  <a class="tbtn accent" href="benchmarking.html">Open benchmarking →</a>
+</div>
+
+<h3>Coverage: complete</h3>
+<p class="body">All 21 of the Isle of Man's current local authorities are now built — every Town, District, Village and Parish Commissioners on the island, from Santon's £110,912 to Douglas's £15.4m. See the full roster and a pick-any-four comparison tool on the benchmarking page, and the island-wide totals on the <a class="inline" href="consolidated.html">consolidated accounts page</a>.</p>
+
 <h3>How these were made</h3>
-<p class="body">Braddan publishes its estimates as machine-readable PDFs, so those figures were read directly. Every other document — every set of statutory accounts from every Isle of Man local authority — is published only as a scanned image with no text layer, so Marown's and Santon's figures were recovered by optical character recognition and then <i>verified rather than trusted</i>.</p>
-<p class="body">Three checks were applied to each. Every subtotal must re-add to the published total. The overlapping year must read identically from two separate documents — the 2022-23 column appears in both the 2023 and the 2024 accounts. And income less expenditure must equal the published surplus or deficit exactly. Where the scan was ambiguous, the published subtotal fixed the digit: Marown's 2022-23 dog bins line resolves to £3,881 and repairs to £68 because no other pair reaches £289,848. Anything that failed these checks has been left out and is flagged in the notes of the relevant diagram.</p>
+<p class="body">Braddan publishes its estimates as machine-readable PDFs, so those figures were read directly. Every other document — every set of statutory accounts from every Isle of Man local authority checked so far — is published only as a scanned image with no text layer, so every other authority's figures were recovered by optical character recognition and then <i>verified rather than trusted</i>.</p>
+<p class="body">Three checks were applied to each. Every subtotal must re-add to the published total. The overlapping year must read identically from two separate documents — the 2022-23 column appears in both the 2023 and the 2024 accounts. And income less expenditure must equal the published surplus or deficit exactly. Where a scan was ambiguous, the published subtotal fixed the digit — this is how, for example, Arbory &amp; Rushen's 2022-23 street lighting figure was resolved to £52,032, Castletown's 2022-23 "Contract staff" line to £1,080 rather than £1,680, Port Erin's 2021-22 Rowany Golf net cost to £58,337 rather than £38,337, Andreas's 2022-23 Northern Civic Amenity Site line to £30,308 rather than £36,308, and Bride's 2022-23 "Toilet block cleaning and maintenance" to £3,221 rather than £4,221. Port St Mary's page uses its audited Comprehensive Income and Expenditure Statement rather than its unaudited detailed schedule, because two pages of the source scan were genuine duplicates and one schedule line didn't reconcile against the audited figure — both flagged in its Notes panel rather than patched over. Malew's expenditure lines come from a detailed General Fund reconciliation schedule that Malew's own accounts mark as not forming part of the reviewed financial statements — flagged on its page rather than left implicit. Castletown's most recent year is still in draft, unaudited, at time of retrieval; Lezayre's 2023-24 accounts weren't in the archive at time of retrieval, so its page shows only two years instead of the usual three; Andreas's own 2023 accounts contain a printed income subtotal (£203,506) that doesn't match its own components (£211,577) — the reconciled figure is used, flagged on its page. Garff's page needed a genuine six-year unification story untangled rather than a single misread digit — it was still charging three separate legacy rate poundages from its 2016 predecessor bodies as late as 2021/22. Douglas's 48-to-50-page accounts were split across two independent OCR passes — one for the revenue account, one for the balance sheet — each cross-checked against the other's headline totals before the page was built; both passed cleanly with only a handful of digit-level corrections, listed in its own Notes panel. Ramsey's and Michael's pages each show only two years rather than the usual three or four — Ramsey because only one source PDF was ever in the archive, Michael because its second PDF turned out to be a genuinely corrupted download (confirmed via `qpdf --check`, not repaired). Onchan's 2023-24 accounts carried a real £12,675,241 prior-year restatement of a 2020 social-housing undervaluation — reconciled and explained on its own Balance sheet tab rather than silently absorbed. Anything that failed these checks has been left out and is flagged in the notes of the relevant diagram.</p>
 
 <h3>The underlying data</h3>
 <p class="body">Every figure in these diagrams is downloadable as CSV, with the reconciliations built in.</p>
@@ -135,10 +466,46 @@ a.inline{color:var(--accent)}
   <a href="data/marown-balance-sheet-2024.csv">marown-balance-sheet-2024.csv</a>
   <a href="data/santon-income-expenditure-2022-24.csv">santon-income-expenditure-2022-24.csv</a>
   <a href="data/santon-balance-sheet-2024.csv">santon-balance-sheet-2024.csv</a>
+  <a href="data/arbory-rushen-income-expenditure.csv">arbory-rushen-income-expenditure.csv</a>
+  <a href="data/arbory-rushen-balance-sheet.csv">arbory-rushen-balance-sheet.csv</a>
+  <a href="data/malew-income-expenditure.csv">malew-income-expenditure.csv</a>
+  <a href="data/malew-balance-sheet.csv">malew-balance-sheet.csv</a>
+  <a href="data/port-erin-income-expenditure.csv">port-erin-income-expenditure.csv</a>
+  <a href="data/port-erin-balance-sheet.csv">port-erin-balance-sheet.csv</a>
+  <a href="data/port-st-mary-income-expenditure.csv">port-st-mary-income-expenditure.csv</a>
+  <a href="data/port-st-mary-balance-sheet.csv">port-st-mary-balance-sheet.csv</a>
+  <a href="data/castletown-income-expenditure.csv">castletown-income-expenditure.csv</a>
+  <a href="data/castletown-balance-sheet.csv">castletown-balance-sheet.csv</a>
+  <a href="data/andreas-income-expenditure.csv">andreas-income-expenditure.csv</a>
+  <a href="data/andreas-balance-sheet.csv">andreas-balance-sheet.csv</a>
+  <a href="data/ballaugh-income-expenditure.csv">ballaugh-income-expenditure.csv</a>
+  <a href="data/ballaugh-balance-sheet.csv">ballaugh-balance-sheet.csv</a>
+  <a href="data/bride-income-expenditure.csv">bride-income-expenditure.csv</a>
+  <a href="data/bride-balance-sheet.csv">bride-balance-sheet.csv</a>
+  <a href="data/german-income-expenditure.csv">german-income-expenditure.csv</a>
+  <a href="data/german-balance-sheet.csv">german-balance-sheet.csv</a>
+  <a href="data/jurby-income-expenditure.csv">jurby-income-expenditure.csv</a>
+  <a href="data/jurby-balance-sheet.csv">jurby-balance-sheet.csv</a>
+  <a href="data/lezayre-income-expenditure.csv">lezayre-income-expenditure.csv</a>
+  <a href="data/lezayre-balance-sheet.csv">lezayre-balance-sheet.csv</a>
+  <a href="data/patrick-income-expenditure.csv">patrick-income-expenditure.csv</a>
+  <a href="data/patrick-balance-sheet.csv">patrick-balance-sheet.csv</a>
+  <a href="data/garff-income-expenditure.csv">garff-income-expenditure.csv</a>
+  <a href="data/garff-balance-sheet.csv">garff-balance-sheet.csv</a>
+  <a href="data/douglas-income-expenditure.csv">douglas-income-expenditure.csv</a>
+  <a href="data/douglas-balance-sheet.csv">douglas-balance-sheet.csv</a>
+  <a href="data/ramsey-income-expenditure.csv">ramsey-income-expenditure.csv</a>
+  <a href="data/ramsey-balance-sheet.csv">ramsey-balance-sheet.csv</a>
+  <a href="data/peel-income-expenditure.csv">peel-income-expenditure.csv</a>
+  <a href="data/peel-balance-sheet.csv">peel-balance-sheet.csv</a>
+  <a href="data/onchan-income-expenditure.csv">onchan-income-expenditure.csv</a>
+  <a href="data/onchan-balance-sheet.csv">onchan-balance-sheet.csv</a>
+  <a href="data/michael-income-expenditure.csv">michael-income-expenditure.csv</a>
+  <a href="data/michael-balance-sheet.csv">michael-balance-sheet.csv</a>
 </div>
 
 <footer>
-  Sources: Braddan Parish Commissioners estimates explanations (braddan.im); Statements of Accounts for Braddan, Marown and Santon Parish Commissioners, laid before Tynwald by the Department of Infrastructure and published at gov.im; Accounts and Audit Regulations 2018. All figures retrieved 4 August 2026. Local authority accounts in the Isle of Man are prepared under FRS 102 Section 1A.<br><br>
+  Sources: Braddan Parish Commissioners estimates explanations (braddan.im); Castletown Town Commissioners accounts (castletown.gov.im); Statements of Accounts for all 21 authorities, laid before Tynwald by the Department of Infrastructure and published at gov.im; Accounts and Audit Regulations 2018. Figures retrieved 4–6 August 2026. Local authority accounts in the Isle of Man are prepared under FRS 102 Section 1A.<br><br>
   Crown Dependencies Observatory. Figures are reproduced from published sources; errors of transcription remain possible and corrections are welcome.
 </footer>
 
@@ -150,6 +517,16 @@ a.inline{color:var(--accent)}
     try{localStorage.setItem('observatory-theme',l?'light':'dark');}catch(e){}}
   try{var s=localStorage.getItem('observatory-theme');if(s)set(s==='light'||s==='health');}catch(e){}
   b.addEventListener('click',function(){set(!document.body.classList.contains('light'));});
+}());
+(function(){
+  var btns=document.querySelectorAll('.tabbtn');
+  function show(name){
+    btns.forEach(function(x){x.classList.toggle('active',x.dataset.tab===name);});
+    document.querySelectorAll('.tabpanel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);});
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab);history.replaceState(null,'','#'+b.dataset.tab);});});
+  var h=(location.hash||'').replace('#','');
+  if(h==='south'||h==='middle'||h==='north'||h==='douglas')show(h);
 }());
 </script>
 </body>

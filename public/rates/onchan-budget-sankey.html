@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Onchan District Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Onchan District Commissioners — where the money goes</div>
+    <div class="chart-sub">General Fund revenue account (rate-funded services), years ended 31 March 2022, 2023 and 2024 · Housing Revenue Account shown separately — self-funded by rents, not rates · recovered by OCR and cross-checked between the 2023 and 2024 Statements of Accounts · source: Onchan's own published accounts</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#douglas">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-housing" aria-pressed="false">Housing</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Income from General Rate Fund</div><div class="stat-val" id="s-inc">—</div><div class="stat-dlt" id="s-inc-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Net rateable value</div><div class="stat-val" id="s-rv">—</div><div class="stat-dlt" id="s-rv-d">—</div></div>
+  <div class="stat"><div class="stat-lab">(Deficit) on provision of services</div><div class="stat-val" id="s-def">—</div><div class="stat-dlt" id="s-def-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table">
+    <h3>Onchan District Commissioners — General Fund income and expenditure by service (£)</h3>
+    <div id="tbl"></div>
+  </div>
+
+  <div class="panel" id="p-housing">
+    <h3>Onchan District Commissioners — Housing Revenue Account, 2021-22 to 2023-24</h3>
+    <p>Onchan is a landlord as well as a rate authority: it holds <b>406 houses, flats and bungalows plus 100 sheltered units — 506 dwellings in total</b>, unchanged across all three years shown. The Housing Revenue Account (HRA) is a ring-fenced note funded by rents, service charges and (when reserves run low) an Isle of Man Government housing deficiency grant — it does <b>not</b> draw on the general rate, and is deliberately kept out of the Sankey above, exactly as Douglas's and Braddan's much larger and smaller equivalents are kept out of theirs elsewhere on this site. It is, however, folded into Onchan's own "Net cost of services" figure on the way to the published headline (see Notes), so it is summarised in full here.</p>
+    <div id="housetbl"></div>
+    <p class="foot" id="housefoot"></p>
+  </div>
+
+  <div class="panel" id="p-bs">
+    <h3>Onchan District Commissioners — Balance Sheet as at 31 March 2024, 2023 (restated) and 2022</h3>
+    <p>Onchan's net worth jumps from £49.55m (2022) to £66.25m (2023, <b>restated</b>) then holds broadly flat at £66.22m (2024) — but most of that jump is <b>not</b> a real financial movement. Onchan's own audited 2022-23 accounts (signed 11 December 2023) originally showed net assets of only <b>£53,573,306</b> at 31 March 2023; a subsequent 2025 revaluation of Onchan's social housing found it had been undervalued since 2020, and a prior-year adjustment (note 21 of the 2023-24 accounts) added <b>£12,675,241</b> to the 2023 comparative shown here. See the note below the table for the full bridge.</p>
+    <div id="bstbl"></div>
+    <div id="bsfoot"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Onchan's General Fund Comprehensive Income and Expenditure Statement (CIES), broken down using Onchan's own unaudited "Detailed Income and Expenditure Account" (every page of it stamped "This page does not form part of the audited financial statements"), for the three years ended 31 March 2022, 2023 and 2024. The Sankey diagram is General Fund only — rate-funded services grouped under Onchan's own four CIES headings: Finance &amp; General Purposes, Works &amp; Cleansing (split here into "Highways, lighting &amp; properties" and "Refuse collection" so the site's refuse colour can be used, matching Castletown's convention for splitting a single committee into coloured sub-flows), Leisure &amp; Amenities, and Government Assisted. Onchan's Housing Revenue Account is a separate, ring-fenced account (rents and, when needed, government grant — not rates) and is deliberately <b>excluded</b> from the diagram; see the Housing tab.</p>
+    <p><b>The headline figure is the operating deficit, not the accounting bottom line.</b> Onchan's accounts publish two very different "bottom lines" each year, exactly as Douglas's do. This page uses <b>"(Deficit) on provision of services"</b> — £(115,005), £(318,277) and £(377,447) in 2021-22, 2022-23 and 2023-24 — as the headline, because it reflects the year's actual operating position before non-cash items. The alternative, "Total comprehensive income and expenditure", swings the other way entirely: a surplus of £753,995 (2021-22), £4,020,723 (2022-23) and a small deficit of £(25,447) (2023-24) — dominated by pension remeasurement gains of £869,000, £4,339,000 and £352,000 in those years (large favourable actuarial swings that cut Onchan's net pension liability from £4,542,000 to £532,000 to £123,000 over the period) plus, in 2023-24 only, the £12,675,241 one-off prior-year revaluation correction described below. Using that figure as a headline would make Onchan look like it was making millions a year, which is not what is happening operationally — so it is not used here, and is shown only for context.</p>
+    <p><b>A further, smaller headline: the statutory General Fund movement.</b> Onchan's own foreword reports a third number — the "overall movement in the General Fund" used as the basis for rate-setting — of £(49,116) deficit (2021-22), £101,309 surplus (2022-23) and £(11,936) deficit (2023-24). This differs from the CIES deficit above because it adjusts out non-cash depreciation and pension remeasurement and adjusts in loan-principal repayments and capital spend funded from revenue, per the Statement of Movement on Reserves. It is Onchan's own rate-setting number, not this page's headline, but it is included in the detailed table for completeness.</p>
+    <p><b>Onchan pays into Douglas's shared waste site — confirmed from both sides.</b> Douglas's own accounts, built elsewhere on this site, disclose the <b>Eastern District Civic Amenity Site Joint Committee</b> at Middle Park and name Onchan as a paying participant at roughly an 18% cost share. Onchan's own accounts confirm this independently, in its own words. Note 10 (Related Party Transactions) of the 2022-23 accounts states: <i>"The Authority, along with other participating authorities, is represented on the Eastern District Civic Amenity Site Joint Committee. Douglas Borough Council is responsible for administering the site; and recharges administration, maintenance and disposal costs incurred onto participating authorities. The Authority paid £479,181 (2022:£122,626) to Douglas Borough Council in respect of Eastern Civic Amenity Site costs with an amount of £10,769 (2022:£11,508) owed as at 31 March 2023."</i> The 2023-24 accounts confirm the relationship again in near-identical wording and add a cost breakdown: <i>"The Authority paid £135,259 (2023: £135,834) to Douglas Borough Council in respect of Eastern Civic Amenity Site disposal costs, £903 in respect of street lighting, £66,436 (2023: £439,944) in respect of Eastern Civic Amenity Site construction costs and £608 (2023: £Nil) of other expenses, with an amount of £14,559 (2023: £10,769) owed as at 31 March 2024."</i> This is a genuine two-sided confirmation — host (Douglas) and payer (Onchan) both independently disclose the same joint arrangement, the same counterparty, and (for the amount owed at each year-end) the same figure to the pound. <b>One further Onchan-specific wrinkle:</b> unlike the other paying authorities, Onchan capitalises its share of the site's construction cost as a fixed asset in its own balance sheet — Note 1 records "Land and buildings includes a share of the jointly controlled Eastern Civic Amenity Site, which is included at a cost of £506,380" (2024), built up from £439,944 (2023) plus £66,436 added in the year — rather than treating the whole payment as a running cost, which is the basis Douglas uses to calculate the ~18% apportionment. <b>A genuine inconsistency in Onchan's own figures, not an OCR error:</b> the 2022-23 accounts report one combined total of £479,181 paid to Douglas that year, but the 2023-24 accounts' own comparative breakdown for the same 2022-23 year (disposal £135,834 + construction £439,944) sums to £575,778 — £96,597 higher. The two years appear to categorise "Eastern Civic Amenity Site costs" on a different basis (construction-year cash paid vs. cumulative asset balance), the same kind of running-costs-vs-capital-costs mismatch flagged on Douglas's own page for this identical arrangement. Both figures are reported here exactly as published, not reconciled to each other.</p>
+    <p><b>No other joint service specifically shared with Douglas was found.</b> Onchan is Douglas's immediate northern neighbour, so its accounts were searched specifically for other shared arrangements — library, leisure, refuse — beyond the Eastern Civic Amenity Site. None were found: Onchan runs its own Harvey Briggs Onchan Library and its own refuse collection service in-house, with no joint-board notes for either. The only other Douglas connection in Onchan's accounts is administrative rather than a cost-sharing joint board: Douglas Borough Council is the Administering Authority for the Isle of Man Local Government Superannuation Scheme, in which Onchan (like every other authority on this site) participates — this is common to all Manx local authorities, not a bilateral Onchan-Douglas arrangement, and is not counted as a second joint-service finding.</p>
+    <p><b>Prior-year restatement: a £12,675,241 correction to social housing.</b> Onchan's 2023-24 accounts include a prior-year adjustment (note 21) after a formal property valuation as at 31 March 2025 found that social housing had been undervalued since the last full revaluation in 2020. The correction — a £9,795,871 uplift in valuation plus a £2,879,370 write-back of depreciation that should not have been charged — added £12,675,241 to net assets, split £1,092,099 to the capital adjustment account and £11,583,142 to the revaluation reserve, and was applied to the 31 March 2023 comparative shown in the 2023-24 accounts. Onchan's own, separately signed 31 March 2023 balance sheet (approved 11 December 2023) is therefore <b>not directly comparable</b> to the "2023 (restated)" column used on the Balance sheet tab of this page — see that tab for the full bridge. The 31 March 2022 balance sheet has not been restated in any document reviewed and almost certainly carries the same undervaluation, unquantified.</p>
+    <p><b>Rates levied is not quite the same figure as rate income recognised — the same gap Douglas shows.</b> Onchan's general rate rose from 326p (2021-22) to 346p (2022-23) to 373p (2023-24), a 14% rise in two years, on a broadly flat net rateable value of about £800,000-£802,000. Note 6 (General Rate Account) shows "General rates levied for the year" of £2,450,775 (sic — restated from the prior year comparative; see Note 6 wording) rising to £2,873,097 and £2,986,162, before discounts, exemptions and refunds of £160,623, £165,289 and £193,699 are deducted to reach the figure credited to the CIES (£2,450,775 shown net of the prior period's discounts is not separately itemised for 2021-22 in the material reviewed). Onchan's own notes do not reconcile "rate in the pound × rateable value" arithmetic to the levied figure line-by-line, the same flagged gap noted on Douglas's page for the same reason — most likely mid-year rateable value changes, discounts and collection adjustments — so it is reported here as published rather than force-reconciled.</p>
+    <p><b>Refuse is not charged separately, unlike Castletown.</b> Onchan operates one combined general rate — there is no separate refuse rate or refuse account of the kind Castletown levies. Refuse collection appears here as a coloured sub-flow of "Works and cleansing" purely for legibility and colour-palette consistency with the rest of this site; it is funded from the same general rate as every other General Fund service.</p>
+    <p><b>Credits shown as inflows.</b> Several lines — administrative recoveries and Building Regulation/search fees netted against Finance &amp; General Purposes; commercial and garage rents and (in 2022-23 only) small street-lighting income netted against Highways; refuse collection trade income; library, parks/attractions and Onchan Hub income; and the Sewers &amp; Pumping Station government reimbursement, which has no offsetting cost line in Onchan's own schedule — are credits rather than charges. A Sankey cannot draw a negative flow, so each is drawn as its own small inflow; gross service cost therefore reads higher than the net committee totals in the published account, and the two reconcile exactly in every year (see Reconciliation, below the table).</p>
+    <p><b>Provenance and confidence.</b> Every figure on this page was OCR-recovered from Onchan's scanned, signed Statements of Accounts (no text layer, 300-400dpi renders, Tesseract 5) and cross-checked in two independent ways: (1) the 2022-23 comparative year was read from <em>both</em> the 2023 accounts (as its own audited year) and the 2023-24 accounts (as the prior-year column) — every income and expenditure line in the detailed schedule agrees to the pound between the two documents; and (2) every committee subtotal re-adds to Onchan's own published CIES Income/Expenditure/Net columns, and income minus expenditure (including the Housing Revenue Account net result) equals the published "(Deficit) on provision of services" exactly in 2022-23 and 2023-24. <b>One OCR misread was caught and corrected</b> this way: the Housing Revenue Account's "Depreciation &amp; impairment charges" for 2022-23 first read as £986,269, which does not let the four expenditure components re-add to the published £2,380,182 total; the correct figure, £980,269, does — and independently matches the £980,269 "Depreciation and impairment of fixed assets" entry for the Housing maintenance reserve column of Onchan's own Statement of Movement on Reserves. <b>One minor discrepancy survives in Onchan's own source figures, not the OCR:</b> the 2021-22 "Works and cleansing" net cost re-adds to £758,992 from the itemised lines in the detailed schedule, one pound different from the £758,991 shown in the audited CIES net column for that year; this £1 rounding is carried through to that year's overall net cost of General Fund services and its "(Deficit) on provision of services" reconciliation (both computed values land exactly £1 away from Onchan's own published figures for 2021-22 only), and is reported here as published rather than silently smoothed over.</p>
+    <p><b>Comparability.</b> This diagram uses the same General-Fund-only convention, with Housing Revenue Account shown separately, as Douglas's and Braddan's diagrams elsewhere on this site, and the same "operating headline vs. statutory total" distinction as Douglas's. Onchan is a District-tier authority comparable in scale to Douglas's Borough tier — its General Fund spends roughly £3.6-3.9m gross a year (excluding Housing), around a fifth of Douglas's, but its social housing stock (506 dwellings) and its £15m of long-term borrowing make it far closer in scale and structure to Douglas and Braddan than to the parish authorities also on this site.</p>
+    <p><b>Source.</b> Onchan District Commissioners, Statement of Accounts for the years ended 31 March 2023 (signed 11 December 2023) and 31 March 2024 (signed 17 November 2025), Comprehensive Income and Expenditure Statement, Statement of Movement on Reserves, Balance Sheet, Detailed Income and Expenditure Account, and Notes 1, 5, 6, 7, 10, 17 and 21. Both documents supplied as scanned PDFs with no text layer; OCR-recovered and cross-checked as described above, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Onchan's own accounts confirm, independently and in its own words, the Eastern District Civic Amenity Site joint waste committee Douglas hosts — <b>Onchan paid Douglas £479,181</b> in 2022-23 alone — a rare joint-board match confirmed from <b>both</b> the host's and the payer's own published accounts.</span>
+  <a id="lnk-notes">Read the note →</a>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — General Fund detailed schedule, OCR-recovered / cross-checked and reconciled ══════════
+   The 2022-23 comparative was read independently from both the 2022-23 accounts (own audited year) and the
+   2023-24 accounts (prior-year column) — every line agrees to the pound between the two documents. */
+const YEARS = ['2021-22','2022-23','2023-24'];
+
+const GRP = [
+  {k:'fgp',      l:'Finance & General Purposes',            c:'--c-fgp'},
+  {k:'highways', l:'Highways, lighting & properties',        c:'--c-works'},
+  {k:'refuse',   l:'Refuse collection',                      c:'--c-refuse'},
+  {k:'leisure',  l:'Leisure & Amenities',                    c:'--c-parks'},
+  {k:'govt',     l:'Government Assisted',                    c:'--c-disc'}
+];
+
+const D = {
+'2021-22':{
+  income:{'General rate income':2450775,'Profit on disposal of fixed assets':30000},
+  fgp:{'Employment costs':1003263,'Establishment costs':71440,'Operating costs':145794,'Legal, professional and bank costs':91278,'Vehicle costs':1645,'Policy and general costs':33007,'Administrative recoveries':-127754,'Building Regulation fees, Search fees, commissions & other income':-105326},
+  highways:{'Street lighting, seats and signs – establishment costs':41129,'Street lighting, seats and signs – operating costs':137096,'Miscellaneous land and properties – establishment costs':40399,'Commercial rents':-204293,'Garage rents':-113673},
+  refuse:{'Employment costs':302417,'Establishment costs':15891,'Operating costs':485406,'Vehicle costs':173217,'Refuse collection income':-118597},
+  leisure:{'Library – employment costs':104611,'Library – establishment costs':21329,'Library – operating costs':22308,'Library income':-1413,
+    'Parks, glens & open spaces – employment costs':297508,'Parks, glens & open spaces – establishment costs':174674,'Parks, glens & open spaces – operating costs':109280,'Parks, glens & open spaces – vehicle costs':8119,'Income from attractions and events':-80056,'Parks sundry income':-3701,
+    'Onchan Hub – employment costs':11916,'Onchan Hub – establishment costs':43518,'Onchan Hub income':-40323},
+  govt:{'Sewers & Pumping Station – Government reimbursement':-42732,'Road sweeping – employment costs':31125,'Road sweeping – operating costs':37161},
+  intPayable:615487, pensionInterestCost:99000,
+  netCostGFPublished:-2565662, totalCompInc:753995, headlineDeficit:-115005, statutoryGFMovement:-49116,
+  hra:{income:2814829, expenditure:2130460, netResult:684369, repairs:539596, supervision:254790, ratesCharges:373279, depreciation:962795},
+  rate:{pound:326, nrv:801051}
+},
+'2022-23':{
+  income:{'General rate income':2707808,'Interest receivable and other income':8263,'Profit on disposal of fixed assets':9803},
+  fgp:{'Employment costs':999126,'Establishment costs':71893,'Operating costs':136131,'Legal, professional and bank costs':51007,'Vehicle costs':3321,'Policy and general costs':41372,'Administrative recoveries':-139177,'Building Regulation fees, Search fees, commissions & other income':-175782},
+  highways:{'Street lighting, seats and signs – establishment costs':46802,'Street lighting, seats and signs – operating costs':203406,'Street lighting income':-717,'Miscellaneous land and properties – establishment costs':46556,'Commercial rents':-196020,'Garage rents':-115433},
+  refuse:{'Employment costs':342307,'Establishment costs':14209,'Operating costs':487421,'Vehicle costs':222551,'Refuse collection income':-102405},
+  leisure:{'Library – employment costs':124955,'Library – establishment costs':14958,'Library – operating costs':30680,'Library income':-4455,
+    'Parks, glens & open spaces – employment costs':313620,'Parks, glens & open spaces – establishment costs':183391,'Parks, glens & open spaces – operating costs':118533,'Parks, glens & open spaces – vehicle costs':22855,'Income from attractions and events':-93966,'Parks sundry income':-726,
+    'Onchan Hub – employment costs':20510,'Onchan Hub – establishment costs':39214,'Onchan Hub – operating costs':120,'Onchan Hub income':-38352},
+  govt:{'Sewers & Pumping Station – Government reimbursement':-37267,'Road sweeping – employment costs':33705,'Road sweeping – operating costs':32885},
+  intPayable:716488, pensionInterestCost:114000,
+  netCostGFPublished:-2697228, totalCompInc:4020723, headlineDeficit:-318277, statutoryGFMovement:101309,
+  hra:{income:2863747, expenditure:2380182, netResult:483565, repairs:760126, supervision:246963, ratesCharges:392824, depreciation:980269},
+  rate:{pound:346, nrv:801708}
+},
+'2023-24':{
+  income:{'General rate income':2792463,'Interest receivable and other income':44362,'Profit on disposal of fixed assets':7991},
+  fgp:{'Employment costs':835623,'Establishment costs':71191,'Operating costs':128592,'Legal, professional and bank costs':61672,'Vehicle costs':2780,'Policy and general costs':24236,'Administrative recoveries':-149266,'Building Regulation fees, Search fees, commissions & other income':-114225},
+  highways:{'Street lighting, seats and signs – establishment costs':57939,'Street lighting, seats and signs – operating costs':139754,'Miscellaneous land and properties – establishment costs':65982,'Commercial rents':-219658,'Garage rents':-136257},
+  refuse:{'Employment costs':367884,'Establishment costs':16699,'Operating costs':556262,'Vehicle costs':235056,'Refuse collection income':-105647},
+  leisure:{'Library – employment costs':141609,'Library – establishment costs':25323,'Library – operating costs':24847,'Library income':-2144,
+    'Parks, glens & open spaces – employment costs':354488,'Parks, glens & open spaces – establishment costs':178392,'Parks, glens & open spaces – operating costs':118163,'Parks, glens & open spaces – vehicle costs':30904,'Income from attractions and events':-79539,'Parks sundry income':-592,
+    'Onchan Hub – employment costs':21827,'Onchan Hub – establishment costs':48918,'Onchan Hub income':-35359},
+  govt:{'Sewers & Pumping Station – Government reimbursement':-34091,'Road sweeping – employment costs':37612,'Road sweeping – operating costs':32146},
+  intPayable:875709, pensionInterestCost:18000,
+  netCostGFPublished:-2701121, totalCompInc:-25447, headlineDeficit:-377447, statutoryGFMovement:-11936,
+  hra:{income:3114643, expenditure:2742076, netResult:372567, repairs:806790, supervision:311400, ratesCharges:428402, depreciation:1195484},
+  rate:{pound:373, nrv:800910}
+}
+};
+
+const cssv = v => getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum = o => Object.values(o).reduce((a,b)=>a+b,0);
+const pos = o => Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits = o => { const c={}; Object.entries(o).forEach(([k,v])=>{ if(v<0) c[k+' (credit)']=-v; }); return c; };
+
+/* ── reconciliation self-check ──
+   Group nets are computed from the itemised detailed schedule and compared with Onchan's own published
+   CIES net figures. A single known £1 rounding survives in Onchan's own 2021-22 published accounts
+   (Works & cleansing net cost: £758,992 from the itemised lines vs £758,991 published) and is tolerated,
+   not corrected — flagged explicitly rather than silently smoothed over. */
+const TOL = {'2021-22':1, '2022-23':0, '2023-24':0};
+const AUDIT = YEARS.map(y=>{
+  const d=D[y];
+  const groupNets = GRP.reduce((a,g)=>a - sum(d[g.k]), 0); // cost items positive, credits negative -> net cost is -(sum)
+  const netCostDiff = groupNets - d.netCostGFPublished;
+  const headlineCalc = groupNets + d.hra.netResult + sum(d.income) - d.intPayable - d.pensionInterestCost;
+  const headlineDiff = headlineCalc - d.headlineDeficit;
+  const hraCheck = (d.hra.income - d.hra.expenditure) - d.hra.netResult;
+  return { y, netCostDiff, headlineDiff, hraCheck, tol: TOL[y] };
+});
+const AUDIT_BAD = AUDIT.filter(a => Math.abs(a.netCostDiff) > a.tol || Math.abs(a.headlineDiff) > a.tol || a.hraCheck !== 0);
+if (AUDIT_BAD.length) console.error('RECONCILIATION FAILED', AUDIT_BAD);
+else console.log('✓ Onchan reconciles in all years: committee subtotals re-add to the published CIES totals, the Housing Revenue Account nets to its own published result, and income − expenditure (General Fund + Housing) equals the published "(Deficit) on provision of services" exactly in 2022-23 and 2023-24 — with one known £1 rounding, carried from Onchan\'s own 2021-22 published accounts, tolerated and flagged rather than corrected.', AUDIT);
+
+/* ══════════ FORMATTING ══════════ */
+const fmt = v => Math.abs(v)>=1000000 ? (v<0?'−':'')+'£'+(Math.abs(v)/1000000).toFixed(2)+'m' : Math.abs(v)>=1000 ? (v<0?'−':'')+'£'+Math.round(Math.abs(v)/1000)+'k' : (v<0?'−':'')+'£'+Math.round(Math.abs(v));
+const fmtFull = v => (v<0?'−':'')+'£'+Math.round(Math.abs(v)).toLocaleString();
+const pctOf = (v,t) => t>0 ? (v/t*100).toFixed(1)+'%' : '—';
+
+/* ══════════ BUILD GRAPH (General Fund only — Housing Revenue Account is not part of this flow) ══════════ */
+function graph(y){
+  const d = D[y], N=[], L=[], idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{ if(idx[id]==null){ idx[id]=N.length; N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch}); } return idx[id]; };
+
+  const hub = add('hub','Onchan General Fund (rate-funded)','--accent','hub',0);
+
+  Object.entries(d.income).forEach(([k,v],i)=>{
+    const id='inc|'+k; add(id,k,'--c-income','src',i);
+    L.push({source:idx[id],target:hub,value:v,col:'--c-income'});
+  });
+
+  GRP.forEach((g,gi)=>{
+    Object.entries(credits(d[g.k])).forEach(([k,v])=>{
+      const id='cr|'+g.k+'|'+k;
+      add(id,k,'--c-income','src',20+gi);
+      L.push({source:idx[id],target:hub,value:v,col:'--c-income'});
+    });
+    const tot = pos(d[g.k]);
+    if(tot<=0) return;
+    const ci = add(g.k,g.l,g.c,'com',gi+1);
+    L.push({source:hub,target:ci,value:tot,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{
+      if(v<=0) return;
+      const li = add(g.k+'|'+k,k,g.c,'item',gi+1);
+      L.push({source:ci,target:li,value:v,col:g.c});
+    });
+  });
+
+  const ip = add('intpay','Interest payable & similar charges','--c-bal','end',90);
+  L.push({source:hub,target:ip,value:d.intPayable,col:'--c-bal'});
+  const pc = add('pension','Pension interest cost','--c-bal','end',91);
+  L.push({source:hub,target:pc,value:d.pensionInterestCost,col:'--c-bal'});
+
+  const groupNets = GRP.reduce((a,g)=>a - sum(d[g.k]), 0);
+  const gfDeficit = -(groupNets + sum(d.income) - d.intPayable - d.pensionInterestCost);
+  if (gfDeficit > 0) {
+    const b = add('bal','Drawn from General Fund balance','--c-bal','src',99,true);
+    L.push({source:idx['bal'],target:hub,value:gfDeficit,col:'--c-bal',hatch:true});
+  } else if (gfDeficit < 0) {
+    const b = add('bal','Carried to General Fund balance','--c-bal','end',99);
+    L.push({source:hub,target:idx['bal'],value:-gfDeficit,col:'--c-bal'});
+  }
+
+  return {nodes:N, links:L};
+}
+
+/* ══════════ PER-NODE TIME SERIES (hover popout) ══════════ */
+function seriesFor(id){
+  return YEARS.map(y=>{
+    const d=D[y];
+    if(id==='hub'){
+      const giSum = GRP.reduce((a,g)=>a+(-Object.values(credits(d[g.k])).reduce((x,v)=>x-v,0)),0);
+      return sum(d.income) + GRP.reduce((a,g)=>a+sum(credits(d[g.k])),0);
+    }
+    if(id==='intpay') return d.intPayable;
+    if(id==='pension') return d.pensionInterestCost;
+    if(id==='bal'){
+      const groupNets = GRP.reduce((a,g)=>a - sum(d[g.k]), 0);
+      return Math.abs(groupNets + sum(d.income) - d.intPayable - d.pensionInterestCost);
+    }
+    if(id.indexOf('inc|')===0){ const k=id.slice(4); return d.income[k]||0; }
+    if(id.indexOf('cr|')===0){
+      const rest=id.slice(3); const parts=rest.split('|');
+      if(parts.length===2){ const [gk,k]=parts; const v=(d[gk]&&d[gk][k])||0; return v<0?-v:0; }
+      return 0;
+    }
+    if(id.indexOf('|')>-1){ const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0); }
+    return d[id] ? pos(d[id]) : 0;
+  });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id), W=232, H=46, P=5, BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1])), mn=0;
+  const X=i=>P+i*(W-2*P)/(s.length-1);
+  const Y=v=>BOT-((v-mn)/((mx-mn)||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col), sf=cssv('--surface'), mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+    + '<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak ' + fmt(mx) + '</div>'
+    + '<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+    + '<path d="'+area+'" fill="'+c+'" opacity="0.14"/>'
+    + '<path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + dots + marks + '</svg></div>';
+}
+
+/* ══════════ RENDER ══════════ */
+const svg = d3.select('#chart'), tt = d3.select('#tt');
+let cur = 2, timer=null;
+
+function draw(y, animate){
+  const el = document.getElementById('chart');
+  const W = el.clientWidth, H = el.clientHeight;
+  if(W<10||H<10) return;
+  svg.attr('viewBox',`0 0 ${W} ${H}`);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g = graph(y);
+  const LPAD=250, RPAD=290, TPAD=14, BPAD=14;
+  const sk = d3.sankey().nodeWidth(14).nodePadding(7).nodeAlign(d3.sankeyLeft).nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links} = sk({nodes:g.nodes.map(d=>({...d})), links:g.links.map(d=>({...d}))});
+
+  let root = svg.select('g.root');
+  if (root.empty()) root = svg.append('g').attr('class','root');
+  const hubNode = nodes.find(n=>n.id==='hub');
+  const total = hubNode ? hubNode.value : 1;
+
+  const lk = root.selectAll('path.link').data(links, d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE = lk.enter().append('path').attr('class','link')
+      .attr('d', d3.sankeyLinkHorizontal())
+      .attr('stroke-width', d=>Math.max(1,d.width))
+      .style('stroke', d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+      .attr('d', d3.sankeyLinkHorizontal())
+      .attr('stroke-width', d=>Math.max(1,d.width))
+      .style('stroke', d=>d.hatch?'url(#hatch)':cssv(d.col))
+      .style('stroke-opacity', d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove', function(ev,d){
+      root.selectAll('path.link').classed('dim', x=>x!==d);
+      tt.style('opacity',1)
+        .style('left', Math.min(ev.offsetX+16, W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html(`<div class="tt-t">${d.source.label} → ${d.target.label}</div>
+               <div class="tt-r"><span>Amount</span><span class="tt-v">${fmtFull(d.value)}</span></div>
+               <div class="tt-r"><span>Share of General Fund</span><span class="tt-v">${pctOf(d.value,total)}</span></div>`
+             + spark(d.target.id==='hub'?d.source.id:d.target.id, d.col, YEARS.indexOf(y)));
+    })
+    .on('mouseleave', function(){ root.selectAll('path.link').classed('dim',false); tt.style('opacity',0); });
+
+  const nd = root.selectAll('g.node').data(nodes, d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE = nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect');
+  ndE.append('text').attr('class','nlab');
+  ndE.append('text').attr('class','nval');
+
+  const ndA = ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).ease(d3.easeCubicInOut).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0)
+    .attr('width',d=>d.x1-d.x0).attr('height',d=>Math.max(1,d.y1-d.y0))
+    .attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=> d.kind==='src' ? d.x0-9 : d.x1+9)
+    .attr('y',d=>(d.y0+d.y1)/2 - ((d.y1-d.y0)>22?6:0))
+    .attr('text-anchor',d=> d.kind==='src' ? 'end':'start')
+    .attr('dominant-baseline','middle')
+    .text(d=>d.label);
+
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=> d.kind==='src' ? d.x0-9 : d.x1+9)
+    .attr('y',d=>(d.y0+d.y1)/2 + 7)
+    .attr('text-anchor',d=> d.kind==='src' ? 'end':'start')
+    .attr('dominant-baseline','middle')
+    .text(d=> (d.y1-d.y0)>22 ? fmt(d.value)+'  ·  '+pctOf(d.value,total) : '');
+
+  ndA.on('mousemove', function(ev,d){
+      root.selectAll('path.link').classed('dim', l=>l.source.id!==d.id && l.target.id!==d.id);
+      tt.style('opacity',1)
+        .style('left', Math.min(ev.offsetX+16, W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html(`<div class="tt-t">${d.label}</div>
+               <div class="tt-r"><span>Amount</span><span class="tt-v">${fmtFull(d.value)}</span></div>
+               <div class="tt-r"><span>Share of General Fund</span><span class="tt-v">${pctOf(d.value,total)}</span></div>`
+             + spark(d.id, d.col, YEARS.indexOf(y)));
+    })
+    .on('mouseleave', function(){ root.selectAll('path.link').classed('dim',false); tt.style('opacity',0); });
+
+  /* stats */
+  const d=D[y], prevY = YEARS[YEARS.indexOf(y)-1], prev = prevY ? D[prevY] : null;
+  const arrow=(a,b,fmtFn)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmtFn(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent = d.rate.pound+'p';
+  document.getElementById('s-rate-d').textContent = prev?arrow(d.rate.pound,prev.rate.pound,v=>v+'p'):'first year shown';
+  document.getElementById('s-inc').textContent = fmt(d.income['General rate income']);
+  document.getElementById('s-inc-d').textContent = prev?arrow(d.income['General rate income'],prev.income['General rate income'],fmt):'first year shown';
+  document.getElementById('s-rv').textContent = fmt(d.rate.nrv);
+  document.getElementById('s-rv-d').textContent = prev?(d.rate.nrv===prev.rate.nrv?'no change':arrow(d.rate.nrv,prev.rate.nrv,fmt)):'first year shown';
+  document.getElementById('s-def').textContent = '−'+fmt(Math.abs(d.headlineDeficit));
+  document.getElementById('s-def-d').textContent = prev?arrow(d.headlineDeficit,prev.headlineDeficit,fmt).replace('▲','▲ worse').replace('▼','▼ better'):'first year shown';
+  document.getElementById('fy').textContent = y;
+}
+window._msRedraw = ()=>draw(YEARS[cur], false);
+
+/* legend */
+const LEG=[{l:'Income',c:'--c-income'},...GRP.map(g=>({l:g.l,c:g.c})),{l:'Interest / pension cost / General Fund balancing flow (hatched = drawn from balance)',c:'--c-bal'}];
+document.getElementById('legend').innerHTML = LEG.map(x=>`<div class="lg"><div class="sw" style="background:var(${x.c})"></div>${x.l}</div>`).join('')
+  + `<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path and share of the General Fund</div>`;
+
+/* ══════════ TABLE VIEW ══════════ */
+function buildTable(){
+  const rows=[];
+  const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(lab,get,cls)=>rows.push(`<tr class="${cls||''}"><td>${lab}</td>`+YEARS.map(y=>`<td class="num">${get(D[y])}</td>`).join('')+'</tr>');
+  R('Rate in the pound (general rate)', d=>d.rate.pound+'p','grp');
+  R('Net rateable value', d=>d.rate.nrv.toLocaleString(),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('INCOME — General rate income (credited to CIES)', d=>m(d.income['General rate income']),'grp');
+  R('INCOME — Interest receivable and other income', d=>m(d.income['Interest receivable and other income']||0),'grp');
+  R('INCOME — Profit on disposal of fixed assets', d=>m(d.income['Profit on disposal of fixed assets']||0),'grp');
+  GRP.forEach(g=>{
+    R('INCOME — '+g.l.toUpperCase(), d=>m(sum(credits(d[g.k]))),'grp');
+    const keys=new Set(); YEARS.forEach(y=>Object.keys(credits(D[y][g.k])).forEach(k=>keys.add(k)));
+    [...keys].forEach(k=>R(k, d=>m(credits(d[g.k])[k]||0),'sub'));
+  });
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{
+    R('EXPENDITURE — '+g.l.toUpperCase(), d=>m(pos(d[g.k])),'grp');
+    const keys=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).filter(k=>D[y][g.k][k]>0).forEach(k=>keys.add(k)));
+    [...keys].forEach(k=>R(k, d=>m(Math.max(0,d[g.k][k]||0)),'sub'));
+  });
+  R('EXPENDITURE — Interest payable and similar charges', d=>m(d.intPayable),'grp');
+  R('EXPENDITURE — Pension interest cost', d=>m(d.pensionInterestCost),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('NET COST OF GENERAL FUND SERVICES (published)', d=>{ const v=d.netCostGFPublished; return (v>=0?'':'(')+Math.abs(v).toLocaleString()+(v>=0?'':')'); },'grp');
+  R('Housing Revenue Account net result (self-funded surplus, see Housing tab)', d=>d.hra.netResult.toLocaleString(),'sub');
+  R('"(DEFICIT) ON PROVISION OF SERVICES" (published headline, GF + Housing)', d=>'('+Math.abs(d.headlineDeficit).toLocaleString()+')','grp');
+  R('Total comprehensive income and expenditure (published, swamped by pension remeasurement — not the headline used here)', d=>(d.totalCompInc>=0?'':'(')+Math.abs(d.totalCompInc).toLocaleString()+(d.totalCompInc>=0?'':')'),'sub');
+  R('Statutory movement in the General Fund balance (Onchan\'s own rate-setting basis)', d=>(d.statutoryGFMovement>=0?'':'(')+Math.abs(d.statutoryGFMovement).toLocaleString()+(d.statutoryGFMovement>=0?'':')'),'sub');
+  document.getElementById('tbl').innerHTML =
+   `<table><thead><tr><th>Line</th>${YEARS.map(y=>`<th>y/e 31 Mar ${y.slice(-2)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
+    <p class="foot"><b>Reconciliation.</b> In 2022-23 and 2023-24, committee income and expenditure both re-add exactly to Onchan's own published CIES Income/Expenditure/Net columns, and Net cost of General Fund services plus the Housing Revenue Account's net result, plus rate income, interest and profit on disposal, less interest payable and pension interest cost, equals the published "(Deficit) on provision of services" exactly. In 2021-22 the same chain reconciles to within £1 — a known rounding that survives in Onchan's own published accounts for that year only (see Notes). Verified in code (see console), not merely asserted. <b>Source.</b> Onchan District Commissioners, Comprehensive Income and Expenditure Statement and Detailed Income and Expenditure Account, years ended 31 March 2022, 2023 and 2024, cross-checked between the 2023 and 2024 Statements of Accounts.</p>`;
+}
+buildTable();
+
+/* ══════════ HOUSING REVENUE ACCOUNT PANEL ══════════ */
+function buildHousing(){
+  const rows=[];
+  const m=v=>v==null?'—':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const R=(lab,get,cls)=>rows.push(`<tr class="${cls||''}"><td>${lab}</td>`+YEARS.map(y=>`<td class="num">${get(D[y])}</td>`).join('')+'</tr>');
+  R('HRA income (dwelling rents including rates, charges for services & facilities)', d=>m(d.hra.income),'grp');
+  R('HRA expenditure', d=>m(d.hra.expenditure),'grp');
+  R('...of which repairs and maintenance', d=>m(d.hra.repairs),'sub');
+  R('...of which supervision and management', d=>m(d.hra.supervision),'sub');
+  R('...of which rents, rates, taxes and other charges', d=>m(d.hra.ratesCharges),'sub');
+  R('...of which depreciation & impairment charges', d=>m(d.hra.depreciation),'sub');
+  R('HRA net result for the year (surplus, retained in housing maintenance reserve)', d=>d.hra.netResult.toLocaleString(),'grp');
+  document.getElementById('housetbl').innerHTML =
+   `<table><thead><tr><th>Line (£)</th>${YEARS.map(y=>`<th>y/e 31 Mar ${y.slice(-2)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  document.getElementById('housefoot').innerHTML =
+   `<b>What jumps out.</b> Unlike Douglas's and Braddan's Housing Revenue Accounts, Onchan's HRA has run a <b>surplus</b> in all three years shown — £684,369 (2021-22), £483,565 (2022-23) and £372,567 (2023-24), a shrinking but still positive margin as repairs &amp; maintenance costs nearly doubled (£539,596 to £806,790) and depreciation charges (which include the impact of the 2020 valuation) rose from £962,795 to £1,195,484. Onchan's own foreword for 2023-24 records that the Authority "required deficiency funding of £121,138 (2023: £Nil) to fund social housing once finance charges are taken into account but as excess housing maintenance reserves are held, these reserves have been utilised instead" — i.e. Onchan is now drawing down its housing reserve rather than yet needing the Isle of Man Government's deficiency grant, which stood at £Nil in all three years reviewed. The housing maintenance reserve itself grew from £406,407 to £588,853 to £599,379 over the period. Rent arrears rose sharply in 2023-24: £81,989 (2.86% of gross rent income) in 2022-23 to £116,067 (4.75%) in 2023-24 — a trend worth watching given the reserve drawdown already under way. Dwelling numbers were unchanged across all three years: <b>406 houses, flats and bungalows plus 100 sheltered units (506 total)</b>. None of this HRA activity draws on the general rate: it is funded by rents and service charges, with its own surplus retained in the housing maintenance reserve, separate from the General Fund shown in the main Sankey. <b>Source.</b> Onchan District Commissioners, Statement of Accounts, Housing Revenue Income and Expenditure note (note 7) and Explanatory Foreword, years ended 31 March 2022, 2023 and 2024.`;
+}
+buildHousing();
+
+/* ══════════ BALANCE SHEET ══════════
+   £, most recent year first (2024 / 2023 restated / 2022 as originally published — see Notes and the
+   panel intro for why 2023 and 2022 are not directly comparable). OCR'd from the scanned statutory
+   accounts and arithmetically verified: reserves re-add to total net worth exactly in all three years. */
+const BS = {
+ rows:[
+  ['h','Fixed assets',null,null,null],
+  ['r','Tangible fixed assets — operational',74458281,75461873,63035658],
+  ['r','Tangible fixed assets — non-operational',4551697,4485261,4035898],
+  ['s','',79009978,79947134,67071556],
+  ['r','Long-term debtor (Manx Utilities drainage loan)',478271,529569,578296],
+  ['h','Current assets',null,null,null],
+  ['r','Debtors',493206,413225,486329],
+  ['r','Cash at bank',2184312,2108053,2528836],
+  ['s','',2677518,2521278,3015165],
+  ['h','Current liabilities',null,null,null],
+  ['r','Short-term borrowing',-1117165,-1087562,-1031548],
+  ['r','Creditors',-738360,-718771,-534019],
+  ['t','Net current assets',821993,714945,1449598],
+  ['t','Total before long-term liabilities',80310242,81191648,69099450],
+  ['h','Long-term liabilities',null,null,null],
+  ['r','Long-term borrowing',-13964142,-14411101,-15006263],
+  ['r','Net pension liabilities',-123000,-532000,-4542000],
+  ['T','Total assets less liabilities (net worth)',66223100,66248547,49551187],
+  ['h','Reserves',null,null,null],
+  ['r','General fund',1192462,1204398,1103089],
+  ['r','Capital adjustment account',6458282,5796619,4063892],
+  ['r','Revaluation reserve',58154575,59105553,48259973],
+  ['r','Housing maintenance reserves',599379,588853,406407],
+  ['r','Pension reserve',-123000,-532000,-4542000],
+  ['r','Earmarked and other reserves',-199466,-55744,118958],
+  ['r','Capital receipts reserve',140868,140868,140868],
+  ['T','Total reserves',66223100,66248547,49551187]
+ ]
+};
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BS.rows.map(r=>{
+    const st = r[0]==='T' ? ' style="border-top:2px solid var(--border2);font-weight:700"' :
+               r[0]==='t' ? ' style="border-top:1px solid var(--border2)"' : '';
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';
+  }).join('');
+  document.getElementById('bstbl').innerHTML =
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023 (restated)</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>';
+  document.getElementById('bsfoot').innerHTML =
+   '<p class="foot"><b>The 2023 restatement bridge, in full.</b> Onchan\'s own audited balance sheet as at 31 March 2023, signed 11 December 2023, showed net worth of <b>£53,573,306</b> — tangible fixed assets of £67,271,893 (operational £62,786,632 + non-operational £4,485,261), against the £79,947,134 shown in the "2023 (restated)" column above. Every other line on the 2023 balance sheet is <b>identical</b> between the original and restated versions (debtors £413,225, cash £2,108,053, short-term borrowing £1,087,562, creditors £718,771, long-term borrowing £14,411,101, net pension liabilities £532,000 — all unchanged) except Dwellings (fixed assets), Capital adjustment account (£4,704,520 → £5,796,619, +£1,092,099) and Revaluation reserve (£47,522,411 → £59,105,553, +£11,583,142). The whole £12,675,241 gap is the 2025 social-housing valuation correction described in the Notes tab, applied retrospectively to the 2023 comparative — it is an accounting correction, not a real change in Onchan\'s financial position that occurred during 2023-24. The 31 March 2022 column in this table has <b>not</b> been restated on the same basis in any document reviewed, so the apparent £16.7m jump from 2022 to 2023 (restated) overstates the true year-on-year movement; the true, like-for-like movement from the originally-published 2022 and 2023 balance sheets was a much smaller £4,022,119 increase in net worth, consistent with 2022-23\'s own £4,020,723 "Total comprehensive income and expenditure" figure.</p>'
+   + '<p class="foot"><b>What else jumps out.</b> Total loan borrowing (short-term plus long-term commercial bank loans) has fallen gently every year: £16,037,311 (2022) to £15,498,663 (2023) to £15,081,307 (2024) — Onchan borrows from Isle of Man Bank and HSBC, secured by Isle of Man Treasury letters of comfort, at rates between 1.25% and 6.56%. Net pension liabilities fell sharply and steadily: £4,542,000 (2022) to £532,000 (2023) to £123,000 (2024), almost entirely favourable actuarial remeasurement gains recognised outside the operating account (see Notes) rather than cash contributions. Earmarked and other reserves turned negative — £118,958 positive (2022) to £(55,744) (2023) to £(199,466) (2024) — driven mainly by a growing EPC Reserve deficit (£(87,222) in 2023 to £(208,266) in 2024, per note 18), a modest area worth watching alongside the housing maintenance reserve drawdown flagged on the Housing tab.</p>'
+   + '<p class="foot"><b>Provenance and confidence.</b> These figures were recovered by OCR from Onchan\'s scanned Statements of Accounts (2023 and 2024, both signed, no text layer) and verified: reserves re-add to total net worth exactly in all three columns shown, and the 2023 restatement bridge above re-adds to the published £12,675,241 prior-year adjustment (note 21) to the pound. Onchan\'s own note 21 states the adjustment as "a write back of depreciation of £2,879,370 and an uplift in valuation of £9,795,871" (summing to £12,675,241); the supporting fixed-asset note (note 1) records the same restatement as a £9,795,871 valuation addition and a £(2,879,369) depreciation reversal — a £1 rounding between the two which is Onchan\'s own, not introduced by OCR, and is reported here as published.</p>'
+   + '<p class="foot"><b>Source.</b> Onchan District Commissioners, Balance Sheet as at 31 March 2023 (signed 11 December 2023) and as at 31 March 2024 (signed 17 November 2025, with restated 2023 comparative), and Notes 1, 5, 17, 18 and 21.</p>';
+}
+buildBS();
+
+/* controls */
+const slider=document.getElementById('slider'), play=document.getElementById('play');
+slider.addEventListener('input',e=>{ cur=+e.target.value; stop(); draw(YEARS[cur],true); });
+function stop(){ if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';} }
+play.addEventListener('click',()=>{
+  if(timer){ stop(); return; }
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){ cur=0; slider.value=0; draw(YEARS[0],true); }
+  timer=setInterval(()=>{
+    if(cur>=YEARS.length-1){ stop(); return; }
+    cur++; slider.value=cur; draw(YEARS[cur],true);
+  },1700);
+});
+const PANELS={'p-table':'btn-table','p-housing':'btn-housing','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on = x===panel && !document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);
+  });
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>show('p-bs'));
+document.getElementById('lnk-notes').addEventListener('click',()=>show('p-notes'));
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent = light?'Dark':'Light';
+  try{ localStorage.setItem('observatory-theme', light?'light':'dark'); }catch(e){}
+  draw(YEARS[cur],false);
+});
+
+draw(YEARS[cur], false);
+let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>draw(YEARS[cur],false),140); });
+</script>
+</body>
+</html>

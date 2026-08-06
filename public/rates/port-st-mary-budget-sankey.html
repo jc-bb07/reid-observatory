@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Port St Mary Village Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Port St Mary Village Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#south">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rate income</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total income</div><div class="stat-val" id="s-inc">—</div><div class="stat-dlt" id="s-inc-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Net cost of services</div><div class="stat-val" id="s-cost">—</div><div class="stat-dlt" id="s-cost-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Deficit for the year</div><div class="stat-val" id="s-def">—</div><div class="stat-dlt" id="s-def-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Port St Mary Village Commissioners — Comprehensive Income and Expenditure Statement (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Port St Mary Village Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>Port St Mary is the largest balance sheet of any authority in this set by a wide margin — <b>£17.2m</b> of net assets, most of it the council housing stock, against <b>£4.49m</b> of commercial bank borrowing. That is more debt than Malew, Marown, Santon and Arbory &amp; Rushen combined, but it also sits behind 122 local-authority houses and a village infrastructure base none of the parish authorities carry.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Port St Mary's audited Comprehensive Income and Expenditure Statement — actual outturn, not budget — reorganised as a Sankey. Every figure on this diagram is the <b>Net</b> column of that statement (Expenditure minus Income for each of the thirteen lines the Authority itself uses), not the unaudited, more granular "Detailed Income and Expenditure Account" pages that follow it in Port St Mary's own PDF. That detailed schedule is explicitly marked "does not form part of the audited financial statements", and for 2023-24 its own "Recharges" sub-total does not reconcile with the audited statement's net Recharges figure for the same year (see below) — so this diagram is built one level up, from the numbers that are actually audited and that are guaranteed to reconcile.</p>
+    <p><b>Port St Mary's council housing turns an operating surplus.</b> Unlike every other line on this diagram, Housing services and Housing deficiency funding are drawn as <em>inflows</em>, coloured separately in purple rather than the standard income teal. Rental income from the Authority's 122 local-authority houses (£707,413 in 2022-23, £752,253 in 2023-24) comfortably exceeds the direct running costs of the housing service, so — net of a Housing Revenue Account this diagram does not otherwise break out — council housing is a net contributor to the general fund in all three years shown: +£150,466, +£131,451 and +£157,673. On top of that, central government pays a separate "housing deficiency" grant (£11,371 → £43,592 → £93,447, rising fast) which is also drawn as an inflow. Both figures come straight off the face of the audited statement; this diagram does not attempt to split housing rental income from housing running costs, because the statement itself does not either.</p>
+    <p><b>A rate rise of nearly a tenth in one year.</b> The rate in the pound was 349p (2021-22), 354p (2022-23, up 1.4%) and then <b>386p</b> for 2023-24 — a 9.0% increase in a single year, against a net rateable value that barely moved (£144,825 → £145,007 → £145,066). Port St Mary's own foreword to the 2023-24 accounts records a further increase to 395.65p from 1 April 2024 (2.5%, for the following year, 2024-25 — not shown on this diagram). The deficit widened in the same period the rate rose fastest: £104,191 (2021-22) → £186,412 (2022-23) → £124,936 (2023-24), so the 2023-24 rate rise did narrow the shortfall, but the Authority remains in deficit throughout the period shown, financed by drawing down the general revenue reserve — which fell from £251,528 to £2,160 over the three years.</p>
+    <p><b>Long-term borrowing, and what it is for.</b> Port St Mary carries <b>£4.49m</b> of total borrowing at 31 March 2024 (down from £5.04m two years earlier) — Isle of Man Bank fixed-rate loans (4.95%–5.60%) taken out in prior years, now being refinanced onto HSBC variable-rate facilities (0.65% above SONIA in the current year), all unsecured and sanctioned loan-by-loan by Treasury and the Department of Infrastructure. Loan <em>interest</em> is drawn on this diagram as "Financing costs" — it more than doubled over the period, from £129,824 to £258,286, as rates rose — but loan <em>capital repayments</em> are a balance-sheet movement, not a charge to this income and expenditure account, so they do not appear as a flow here (see the cash flow statement in Port St Mary's own accounts, note 13).</p>
+    <p><b>Financing costs also include a swinging pension charge.</b> "Pension current service cost" was a genuine cost in 2021-22 and 2022-23 (£56,000, then £69,000) but flipped to a <em>credit</em> of £22,000 in 2023-24 on actuarial remeasurement — drawn here as an inflow marked "(credit)", exactly like the small net credit on 2023-24's internal SSHJB recharge account (£7,255) and the "Parks and leisure" line, which swung from a small net income (rents from allotments and the golf course exceeding maintenance) in 2021-22 and 2022-23 to a net cost in 2023-24 once golf course rental income dropped to nil.</p>
+    <p><b>Provenance and confidence.</b> Port St Mary's accounts are published only as scanned images with no text layer, so every figure was recovered by OCR and then verified rather than trusted. Three independent checks were applied in every year: the thirteen Net-column lines re-add to the published "Net cost of General Fund services"; that figure, combined with the two Housing lines, re-adds to the published "Net cost of services"; and that figure, combined with rate income, interest and financing costs, equals the published deficit exactly — in all three years. The 2022-23 column was read independently from both the 2023 and 2024 accounts and the two readings agree to the pound, as do the rate poundage and net rateable value notes and the balance sheet. <b>One genuine scan gap:</b> the 2023 PDF's physical page 42 is a duplicate scan of page 41, so the printed page carrying 2021-22's line-item detail for Public Works, Street Cleaning, Public Conveniences, Parks &amp; Leisure and Maintenance of Public Areas was never captured — those five lines are shown here only at the Net-column total available from the audited statement itself, not broken into their own sub-items as the 2022-23 and 2023-24 equivalents are (in the underlying unaudited schedule, which is not what this diagram is built from regardless). No published total anywhere on this diagram rests on a figure that could not be independently reconciled.</p>
+    <p><b>Not the same body as Rushen or Port Erin.</b> Port St Mary Village Commissioners is one of two Village-tier authorities in the south of the Island — the other being Port Erin — each with its own separate Commissioners. Neither is part of Arbory &amp; Rushen, the parish body shown elsewhere on this site, despite sharing the Rushen sheepdip; the "Southern Sheltered Housing Joint Board" and "Southern Civic Amenity Site" referenced throughout these accounts are shared arrangements with neighbouring southern authorities, administered by Port St Mary, but the accounts themselves are Port St Mary's alone.</p>
+    <p><b>Comparability.</b> Port St Mary reports on the same audited, accruals-basis outturn as Arbory &amp; Rushen and Malew, for an overlapping set of years, so a genuine read-across on rate poundage and net cost of services is possible. It is a materially larger, more indebted authority than any of the parish Commissioners shown elsewhere on this site — its £4.49m of borrowing and 122-house social housing stock have no equivalent at Marown, Santon or Braddan, and exceed Malew's £263,423.</p>
+    <p><b>Source.</b> Port St Mary Village Commissioners, Financial Statements for the years ended 31 March 2023 and 31 March 2024 — Comprehensive Income and Expenditure Statement, Balance Sheet, and Notes 6, 7 and 16. Certified by the Tynwald Auditor General, reviewed by the Authority's independent auditor. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Port St Mary's rate rose <b>9.0%</b> in 2023-24 alone — 354p to 386p — while its general revenue reserve fell from £251,528 to £2,160 in three years.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — audited Comprehensive Income and Expenditure Statement, OCR-recovered and reconciled ══════════ */
+const YEARS=['2021-22','2022-23','2023-24'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const RATE={'2021-22':{pound:349,rv:144825},'2022-23':{pound:354,rv:145007},'2023-24':{pound:386,rv:145066}};
+const D={
+'2021-22':{
+ income:{'Income from the General Rate Fund':478156,'Interest and other income':58,'Profit on disposal of fixed assets':25892},
+ housing:{'Housing services (net surplus)':150466,'Housing deficiency funding (central govt)':11371},
+ admin:{'Administration and general purposes':188585,'Direct labour — central costs':60793,'Pension current service cost':56000,'Bad debt':5084,'Recharges (net, SSHJB)':0},
+ works:{'Property':53325,'Public works — street lighting':34612,'Street cleaning and car parks':37458,'Public conveniences':6432},
+ parks:{'Parks and leisure':-11906,'Maintenance of public areas':42252,'Public amenities':23216,'Guides and general advertising':2978},
+ refuse:{'Refuse collection':121481},
+ debt:{'Interest payable and similar charges':129824,'Net pension interest cost':20000},
+ deficit:104191, netCostGF:594418, netCostServices:432581},
+'2022-23':{
+ income:{'Income from the General Rate Fund':487106,'Interest and other income':3218,'Profit on disposal of fixed assets':1990},
+ housing:{'Housing services (net surplus)':131451,'Housing deficiency funding (central govt)':43592},
+ admin:{'Administration and general purposes':175150,'Direct labour — central costs':72815,'Pension current service cost':69000,'Bad debt':979,'Recharges (net, SSHJB)':0},
+ works:{'Property':47281,'Public works — street lighting':33385,'Street cleaning and car parks':39079,'Public conveniences':6375},
+ parks:{'Parks and leisure':-12999,'Maintenance of public areas':38658,'Public amenities':34233,'Guides and general advertising':3174},
+ refuse:{'Refuse collection':132461},
+ debt:{'Interest payable and similar charges':190178,'Net pension interest cost':24000},
+ deficit:186412, netCostGF:637601, netCostServices:462558},
+'2023-24':{
+ income:{'Income from the General Rate Fund':532169,'Interest and other income':8261,'Profit on disposal of fixed assets':4455},
+ housing:{'Housing services (net surplus)':157673,'Housing deficiency funding (central govt)':93447},
+ admin:{'Administration and general purposes':192255,'Direct labour — central costs':110975,'Pension current service cost':-22000,'Bad debt':9288,'Recharges (net, SSHJB)':-7255},
+ works:{'Property':62959,'Public works — street lighting':41266,'Street cleaning and car parks':36294,'Public conveniences':6762},
+ parks:{'Parks and leisure':19424,'Maintenance of public areas':31932,'Public amenities':34543,'Guides and general advertising':2653},
+ refuse:{'Refuse collection':141559},
+ debt:{'Interest payable and similar charges':258286,'Net pension interest cost':2000},
+ deficit:124936, netCostGF:656200, netCostServices:405080}
+};
+const GRP=[{k:'admin', l:'Administration & central costs',           c:'--c-fgp'},
+           {k:'works', l:'Property, public works & street cleaning', c:'--c-works'},
+           {k:'parks', l:'Parks, amenities & leisure',               c:'--c-parks'},
+           {k:'refuse',l:'Refuse collection',                        c:'--c-refuse'},
+           {k:'debt',  l:'Financing costs',                          c:'--c-bal'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={}; GRP.forEach(g=>{Object.entries(d[g.k]).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});}); return c;};
+
+/* integrity, three independent checks per year:
+   (a) the five group Net totals, less the Profit-on-disposal credit, re-add to the published Net cost of General Fund services;
+   (b) that figure, combined with the two Housing lines, re-adds to the published Net cost of services;
+   (c) that figure, combined with rate income, interest and financing costs, equals the published deficit exactly */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const gfCheck=GRP.filter(g=>g.k!=='debt').reduce((a,g)=>a+sum(d[g.k]),0) - d.income['Profit on disposal of fixed assets'];
+  const nsCheck=gfCheck - sum(d.housing);
+  const defCheck=nsCheck - d.income['Income from the General Rate Fund'] - d.income['Interest and other income'] + sum(d.debt);
+  const inflow=sum(d.income)+sum(d.housing)+sum(credits(d))+d.deficit;
+  const outflow=GRP.reduce((a,g)=>a+pos(d[g.k]),0);
+  return {y, gfDiff:gfCheck-d.netCostGF, nsDiff:nsCheck-d.netCostServices, defDiff:defCheck-d.deficit, flowDiff:inflow-outflow};
+});
+const bad=AUDIT.filter(a=>a.gfDiff!==0||a.nsDiff!==0||a.defDiff!==0||a.flowDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Port St Mary reconciles in all years: the five Net-column groups match the published Net cost of General Fund services, that plus Housing matches the published Net cost of services, and that plus rate income, interest and financing costs equals the published deficit exactly');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','Rate fund revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(d.housing).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('hou|'+k,k,'--c-disc','src',20+i); L.push({source:s,target:hub,value:v,col:'--c-disc'}); });
+  Object.entries(credits(d)).forEach(([k,v],i)=>{
+    const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  if(d.deficit>0){ const s=add('res','Drawn from general revenue reserve','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:d.deficit,col:'--c-bal',hatch:true}); }
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(d.housing)+sum(credits(d))+d.deficit;
+    if(id==='res')  return d.deficit;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('hou|')===0) return d.housing[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=250,RPAD=270,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(11).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const d0=D[y], total=sum(d0.income)+sum(d0.housing)+sum(credits(d0))+d0.deficit;
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent=fmt(d.income['Income from the General Rate Fund']);
+  document.getElementById('s-rate-d').textContent=arrow(d.income['Income from the General Rate Fund'],pv&&pv.income['Income from the General Rate Fund']);
+  document.getElementById('s-inc').textContent=fmt(sum(d.income)+sum(d.housing)+sum(credits(d)));
+  document.getElementById('s-inc-d').textContent=arrow(sum(d.income)+sum(d.housing)+sum(credits(d)),pv&&(sum(pv.income)+sum(pv.housing)+sum(credits(pv))));
+  document.getElementById('s-cost').textContent=fmt(d.netCostServices);
+  document.getElementById('s-cost-d').textContent=arrow(d.netCostServices,pv&&pv.netCostServices);
+  document.getElementById('s-def').textContent='−'+fmt(d.deficit);
+  document.getElementById('s-def-d').textContent=pv?(d.deficit>pv.deficit?'▲ deficit widened':'▼ deficit narrowed'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +'<div class="lg"><div class="sw" style="background:var(--c-disc)"></div>Housing (net contribution)</div>'
+ +GRP.filter(g=>g.k!=='debt').map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal)"></div>Financing costs / drawn from reserves (hatched)</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('HOUSING (net contribution)',()=>'','grp');
+  const hk=new Set(); YEARS.forEach(y=>Object.keys(D[y].housing).forEach(k=>hk.add(k)));
+  [...hk].forEach(k=>R(k,d=>m(d.housing[k]||0),'sub'));
+  R('Total housing contribution',d=>m(sum(d.housing)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(sum(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Net cost of General Fund services',d=>m(d.netCostGF),'grp');
+  R('Net cost of services',d=>m(d.netCostServices),'grp');
+  R('Deficit for the year',d=>'('+d.deficit.toLocaleString()+')','grp');
+  rows.push('<tr class="sub"><td>Rate in the pound</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].pound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Net rateable value</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].rv.toLocaleString()+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year the five group Net totals, less the Profit-on-disposal credit, re-add to the published Net cost of General Fund services; that figure combined with the two Housing lines re-adds to the published Net cost of services; and that figure combined with rate income, interest and financing costs equals the published deficit exactly. The 2022-23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree, as do the rate poundage and net rateable value notes. Public Works, Street Cleaning and Car Parks, Public Conveniences, Parks &amp; Leisure and Maintenance of Public Areas are shown for 2021-22 at their published Net-column total only — the source page carrying that year\'s further line-item detail was not captured in Port St Mary\'s own scan (see Notes). <b>Source.</b> Port St Mary Village Commissioners, Financial Statements y/e 31 March 2023 and 2024, Comprehensive Income and Expenditure Statement, and Notes 7 and 16. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null,null],
+ ['r','Tangible fixed assets',21672183,16973832,17212328],
+ ['h','Current assets',null,null,null],
+ ['r','Debtors',118529,113546,184002],
+ ['r','Cash at bank',180577,352470,462996],
+ ['s','',299106,466016,646998],
+ ['h','Current liabilities',null,null,null],
+ ['r','Short-term borrowing',-271858,-281795,-304455],
+ ['r','Creditors',-230453,-244917,-290199],
+ ['t','Net current assets',-203205,-60696,52344],
+ ['t','Total assets less current liabilities',21468978,16913136,17264672],
+ ['h','Long-term liabilities',null,null,null],
+ ['r','Long-term borrowing',-4217272,-4474173,-4732297],
+ ['r','Net pension liabilities',-25000,-91000,-952000],
+ ['T','Net assets',17226706,12347963,11580375],
+ ['h','Reserves',null,null,null],
+ ['r','General revenue reserve',2160,139020,251528],
+ ['r','Housing maintenance reserve',-58030,-54988,-29807],
+ ['r','Capital adjustment account',4123925,3996651,3820065],
+ ['r','Revaluation reserve',13178240,8352869,8485178],
+ ['r','Pension reserve',-25000,-91000,-952000],
+ ['r','Capital receipts reserve',5411,5411,5411],
+ ['T','',17226706,12347963,11580375]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Net current assets went negative for the first time in 2023-24, at (£203,205) — short-term borrowing plus creditors now exceed debtors and cash — as cash at bank fell from £352,470 to £180,577 while the general revenue reserve was drawn down to almost nothing (£139,020 to £2,160). Tangible fixed assets jumped from £16.97m to £21.67m mainly on a £4.96m revaluation gain (see the Comprehensive Income and Expenditure Statement\'s "Other comprehensive income"), which is why net assets rose sharply even in a year the general fund itself was under pressure. Total borrowing fell from £4.76m to £4.49m, continuing a steady paydown from £5.04m two years earlier.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from scanned originals, then verified: current assets and current liabilities re-add, net current assets reconcile to total assets less current liabilities, long-term liabilities re-add, and total reserves equal net assets exactly in all three years. Net assets at 31 March 2023 (£12,347,963) and all its component lines read identically whether taken from the 2023 accounts or from the 2024 accounts\' comparative column.</p>'
+   +'<p class="foot"><b>Source.</b> Port St Mary Village Commissioners, Financial Statements for the years ended 31 March 2023 and 31 March 2024, Balance Sheet (page 18) and Note 6 (Long term borrowing, page 31). Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

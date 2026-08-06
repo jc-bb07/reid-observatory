@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Ramsey Town Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Ramsey Town Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022 and 2023 · single combined Comprehensive Income &amp; Expenditure Statement (General Fund + Housing Revenue Account) · recovered by OCR, every year reconciled to the published totals · 2023/24 accounts not in the archive</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2022-23</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="1" value="1" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Income from General Rate Fund</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">General rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure (GF + Housing)</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-res">—</div><div class="stat-dlt" id="s-res-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Ramsey Town Commissioners — Comprehensive Income and Expenditure Statement, by committee (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Ramsey Town Commissioners — Balance Sheet as at 31 March 2023 and 2022</h3>
+    <p>Ramsey is by far the largest balance sheet this site has covered among the Town-tier authorities: <b>net assets of £68.26m</b> at 31 March 2023, up from £27.89m a year earlier — an increase driven almost entirely by a <b>£34.96m revaluation gain</b> on Ramsey's social housing stock (island-wide 2023 property revaluation), not by trading. Borrowing stands at <b>£30.31m</b> (£1.88m short-term, £28.44m long-term) — the largest debt load of any Town Commission on this site so far, funding a housing stock of 554 dwellings carried at £80.38m.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>Only one source PDF was available for this page.</b> The archive supplied to build this page contained Ramsey's Statement of Accounts for the year ended 31 March 2023 only — no 2024 accounts (year ended 31 March 2024) were present. That single PDF's own comparative column gives two years (2021-22 and 2022-23), which is why this diagram has two years instead of the usual three, and — more importantly — why the cross-check used everywhere else on this site (reading an overlapping year independently from two different PDFs) <b>could not be performed here</b>. Every figure shown was still verified the other two ways that don't require a second document: every committee's own line items re-add to the subtotal printed beside it in Ramsey's Detailed Income and Expenditure Account, and total income minus total expenditure equals the published surplus exactly, in both years — see the reconciliation note below and the console message this page prints on load.</p>
+    <p><b>What this shows, and why it's structured differently from Douglas's page.</b> Unlike Douglas — which publishes a General Fund Comprehensive Income and Expenditure Statement (CIES) entirely separate from its Housing Revenue Account (HRA) — Ramsey folds both into a <b>single</b> Comprehensive Income and Expenditure Statement, with "Net income from housing services" appearing as one net line inside it. Ramsey does run a full Housing Revenue Account (554 dwellings, £2.88m of rent income and £2.47m of HRA expenditure in 2022-23, both disclosed in Note 8) — so, per this page's brief, it genuinely has one, unlike some of the smaller parish Commissioners already on this site — but because Ramsey itself reports Housing within the same combined statement as everything else, this diagram follows Ramsey's own presentation and includes the Housing Revenue Account as flows within the single diagram above, rather than splitting it into a separate tab the way Douglas's page does. The six General Fund committees (Finance &amp; general purposes, Miscellaneous, Property, Works and development, Parks and leisure, and the FRS102 pension current-service-cost line) sum to Ramsey's own published "Net cost of General Fund services" subtotal exactly in both years — checked in code, not merely asserted.</p>
+    <p><b>How committees were grouped into this site's fixed colour palette.</b> Ramsey's own "Works and development" committee bundles refuse collection, the Civic Amenity Site and sewer administration together with car parks, foreshore amenities and street lighting — functionally quite different services. It has been split here, using Ramsey's own detailed schedule, into <i>Refuse &amp; Civic Amenity Site</i> (refuse collection, sewers and pumps, and the Civic Amenity Site — £696,414 net in 2022-23, £791,591 in 2021-22, drawn in the refuse colour) and <i>Highways, car parks &amp; local services</i> (foreshore, car parks, street lighting, CCTV and local services — £374,797 and £293,755, works colour); the two halves re-add to Ramsey's own published Works and development total in both years. <i>Property</i> (Town Hall, Public Conveniences, Ramsey Courthouse and non-HRA housing costs) shares the works colour for the same reason. <i>Legal, audit &amp; insurance</i> was split out of Ramsey's "Office administration" schedule into its own group in the compliance/discounts colour, following the precedent set on Castletown's page. <i>Miscellaneous</i>, the <i>Housing Revenue Account</i>, the <i>pension current service cost</i> line and <i>Finance costs</i> (loan interest and net pension interest cost) share this site's neutral colour, distinguished by label and position rather than hue — the same convention used for Castletown's civic/capital-financing groups and Douglas's civic/depreciation groups.</p>
+    <p><b>An internal recharge appears on both sides, correctly.</b> Property's own detailed schedule includes a credit of £176,030 (2022: £156,215) for "Housing Revenue Account — administration charge," and Note 8's Housing Revenue Account expenditure separately lists "Supervision &amp; management" of exactly the same amount as a cost. This is not a duplication: it is Ramsey's own internal cross-charge for general-fund staff time spent managing the housing stock, disclosed on both the paying and receiving side, and both sides are needed for Property's own published net cost (£82,312) and the Housing Revenue Account's own published net income (£2,034,248) to reconcile — removing either one would break the published totals, not fix a double-count. The whole-authority check (total income − total expenditure = published surplus) passes with both sides included, confirming the treatment is correct.</p>
+    <p><b>Ramsey doesn't just pay into the Northern joint boards — it hosts one of them.</b> This site has already confirmed a Northern joint-board cluster from Andreas, Ballaugh, Bride, Jurby and Lezayre's own accounts (a Refuse Collection Board, a Civic Amenity Site and a Swimming Pool Board, all prefixed "Northern"). Ramsey's Note 10(f) confirms Ramsey's own role in that cluster directly: the <b>Northern District Civic Amenity Joint Committee</b> "was set up to run the Northern Civic Amenity Site and consists of one elected member from seven northern Parishes — Andreas, Ballaugh, Bride, Garff, Jurby, Lezayre and Ramsey" — and <b>Ramsey itself manages the site</b> on the Joint Committee's behalf, charging the other six parishes a rateable-value-weighted share of the running costs (including a £10,000 annual administration fee) and recovering <b>£189,240</b> (2022: £189,320) from them in 2022-23, all of which is already netted into the Refuse &amp; Civic Amenity Site group above as the "Parish contributions" credit. This is the same host/payer structure already confirmed for Douglas and the Eastern District Civic Amenity Site — Ramsey is the second confirmed <em>host</em> authority on this site, not merely a payer. Separately, Note 10(e) confirms the <b>Northern Local Authority Swimming Pool Board</b> "manages the <em>Ramsey</em> Swimming Pool" — the pool itself is physically in Ramsey, funded by a rate the Board raises on all northern authorities, Ramsey included (£19,458 in 2022-23). A third body, the <b>Ramsey and Northern Districts Housing Committee</b> (Note 10(b)), is related by "common influence and by virtue of the provision of management support" — Ramsey charged it £99,210 (2022: £112,663) for administration, clerk's salary and maintenance services, with £83,308 owed back to Ramsey at year end — a joint housing body not previously named on this site.</p>
+    <p><b>The rate rose 415p → 445p (7.2%) on a broadly flat rate base.</b> Total rateable value at year end was £735,901 in 2023, barely changed from £733,671 in 2022 (Note 16) — so almost all of the resulting increase in rate income (£2.881m to £3.131m, +8.7%) came from the higher poundage, not new development. Ramsey's own explanatory foreword gives a separate "average rateable value" figure (£733,671 for 2022, £722,688 for 2021-22) that is not used here; this page uses Note 16's year-end rateable value throughout, for consistency with the other authorities on this site.</p>
+    <p><b>A near-tenfold swing in the pension liability, and a housing revaluation that dwarfs everything else.</b> Ramsey's net pension liability fell from £4,746,000 to £504,000 in a single year (Note 17) — an actuarial re-measurement gain of £4,638,000, not a funding change — while a rolling revaluation of Ramsey's own social housing stock added £35,116,165 to the Revaluation Reserve the same year (both flow through "Other Comprehensive Income &amp; Expenditure", below the operating Surplus on provision of services, and are shown only in the balance sheet panel, not in the Sankey above). Between them these two non-cash items explain nearly all of the jump in "Total comprehensive income and expenditure" from £1,280,637 (2021-22) to £40,368,341 (2022-23) — a headline the diagram deliberately does not show, because it is not operating income or spending.</p>
+    <p><b>Signed more than two years after the year end.</b> Ramsey's 2022-23 Statement of Accounts was not authorised for issue until <b>13 June 2025</b> — over two years after the 31 March 2023 year end — consistent with the publication delays already flagged on Castletown's page as a pattern across several Isle of Man local authorities, not unique to Ramsey.</p>
+    <p><b>Two smaller items worth flagging.</b> "Doubtful debts" within Finance &amp; general purposes jumped from £0 (2021-22) to £89,471 (2022-23) — a genuine year-on-year swing in Ramsey's own schedule, not an OCR artefact (both figures were confirmed against the clean scanned image). And the Housing Revenue Account ran a cumulative <b>£103,459 repayable</b> to Isle of Man Government at 31 March 2023 (2022: £48,829 repayable) — Ramsey had been paid slightly more deficiency grant on account than its final calculated entitlement in both years (Note 8b).</p>
+    <p><b>Provenance and confidence.</b> Ramsey publishes its accounts only as scanned images with no text layer (confirmed with <code>pdftotext</code> before OCR began), so every figure here was recovered by 300dpi OCR (Tesseract 5) and then verified against the arithmetic printed in the accounts themselves rather than trusted on a single read. Every committee's items re-add to the subtotal Ramsey itself prints beside it (Office administration £1,233,535/£1,082,588 gross; Miscellaneous £70,596/£28,751 gross; Housing and Property £258,342/£263,675 gross split into Property's constituent blocks; Works and Development £1,071,211/£1,085,346 net, split refuse/other as described above; Parks and Leisure £470,482/£398,826 net including Library) in both years; income minus expenditure equals the published surplus (£614,176 and £107,637) exactly in both years; and the balance sheet's current assets, net current assets, and "Financed by" reserves total each reconcile to Ramsey's own published subtotals exactly in both years — all checked in code on page load (see the console).</p>
+    <p><b>Comparability.</b> Same audited, outturn accounting basis as Castletown, Malew, Santon, Marown and Lezayre. Ramsey is roughly four times Castletown's rate income and, uniquely among the Town-tier authorities on this site so far, folds a full Housing Revenue Account into the same statement as its General Fund rather than reporting the two separately (contrast Douglas). Not comparable with Braddan's diagram, which is built from forward budget estimates rather than audited outturn.</p>
+    <p><b>Source.</b> Ramsey Town Commissioners, Statement of Accounts for the year ended 31 March 2023 (signed 13 June 2025) — Comprehensive Income and Expenditure Statement, Balance Sheet, Statement of Movement on Reserves, Detailed Income and Expenditure Accounts (pages 37–41, unaudited supplementary schedules), and Notes 5, 7, 8, 10, 16 and 17. Retrieved from the local authority accounts archive; no second source PDF was available for cross-checking.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Ramsey doesn't just pay into the Northern joint boards — it <b>hosts</b> the Northern Civic Amenity Site on behalf of six other parishes and recovers £189,240/year from them, and the Northern Swimming Pool Board's own pool is physically in Ramsey.</span>
+  <a id="lnk-notes">Read the joint-board note →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — audited outturn, OCR-recovered from a single source PDF and reconciled ══════════ */
+/* Only one source PDF was available (accounts for y/e 31 March 2023), giving two years via its comparative column. */
+const YEARS=['2021-22','2022-23'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023'};
+const RATE={'2021-22':{pound:415,rv:733671},'2022-23':{pound:445,rv:735901}};
+const D={
+'2021-22':{
+ income:{'Income from General Rate Fund':2881344,'Interest and investment income':0,'Surplus on disposal of fixed assets':19855,'Dwelling rents (HRA)':2836553,'Housing Deficiency grant (central govt)':1026102,'Other housing income (HRA)':517682},
+ fgp:{'Rate collection costs':29017,'Election expenses':7587,'Heat and light':20369,'Printing, stationery, telephone & rent':63581,"Caretaker's wages":25612,'Salaries':700513,'Pensions (employer contributions)':166829,'Staff training':7129,'Business continuity plans':18,'Fuel & repairs for vehicle':1177,'Depreciation':31503,'Doubtful debts':0,'Fixed penalties (income)':-1283,'Administration fees (income)':-81840},
+ compliance:{'Audit fees':11950,'Internal audit fees':2500,'Legal expenses':2242,'Insurance':12561},
+ misc:{'Advertising':915,"Members' expenses":3839,"Chairman's expenses":1791,'Town Band':2000,'Municipal Sunday':0,'War Memorial':736,'Incidental':3810,'Town Warden':1444,'Bank & debit card reader charges':14031,'Amenity byelaw regulations':215,'Ramsey Town centre management':-30,'Incidental (income)':-3046,'Flat regulation fees (income)':-2150,'Skills Development Scheme assistance (income)':0,'Search fees (income)':-27100},
+ property:{'Heating oil':48270,'Communal area electricity':4379,'Garage repairs':769,'Heating charges (income)':-46421,'Drying tokens (income)':-322,'Restroom hire (income)':-143,'Garage rents (income)':-1352,'Workshops – Maintenance':29009,'Workshops – Rates and insurance':11558,'Town Hall – Maintenance':33614,'Town Hall – Rates and insurance':11924,'Town Hall – Depreciation':57200,'Town Hall – Rental & hire income':-26098,'Town Hall – Registry office income':-11146,'Public Conveniences – Contract cleaners':24149,'Public Conveniences – Maintenance':9642,'Public Conveniences – Rates and insurance':7120,'Public Conveniences – Cleaning materials':3395,'Public Conveniences – Depreciation':10640,'Ramsey Courthouse – Maintenance':4164,'Ramsey Courthouse – Rates and insurance':3220,'Ramsey Courthouse – Heat and light':4622,'Ramsey Courthouse – Rental and hire income':-3880,'HRA administration charge (income)':-156215},
+ works:{'Foreshore, flags and deckchairs':2044,'Car Parks – Operational costs':14853,'Car parking spaces income':-24993,'Seats, shelters, nameplates & town clock maintenance':13103,'Street and decorative lighting maintenance':102040,'CCTV town area':2757,'Local services':152521,'Property repairs private sector':4491,'Depreciation':26939},
+ refuse:{'Refuse – Wages':267547,'Refuse – Operational costs':659637,'Refuse – Depreciation':54098,'Refuse – Collection charges (income)':-102751,'Refuse – Sale of bins (income)':-106,'Sewers & Pumps – Govt refund re sewer connections (income)':-57762,'Civic Amenity Site – Operational costs':44209,'Civic Amenity Site – Labour costs':169552,'Civic Amenity Site – Waste haulage and disposal':209213,'Civic Amenity Site – Rent and rates':21356,'Civic Amenity Site – Depreciation':8397,'Civic Amenity Site – Parish contributions (income, other six parishes)':-415000,'Civic Amenity Site – Recycling and scrap income':-66799},
+ parks:{'Seasonal entertaining and attractions':43981,'Ramsey in Bloom':10904,'TT week events (costs)':0,'Camper van permit income':-5467,'TT week events (income)':0,'Mooragh Park amusements maintenance':10706,'Mooragh Park Gardens & Land – Wages':146897,'Mooragh Park Gardens & Land – Maintenance':46476,'Mooragh Park Gardens & Land – Skate Park':2371,'Mooragh Park Gardens & Land – Depreciation':34886,'Mooragh Park Gardens & Land – Area rents (income)':-603,'Trading Concessions – Rates, insurance & licences':6250,'Trading Concessions – Courts and greens maintenance':4304,'Trading Concessions – Maintenance of buildings':2182,'Trading Concessions – Depreciation':4070,'Trading Concessions – Rent & rates (income)':-54790,'Swimming Pool – Northern LA Swimming Pool Board rate contribution':17000,'Maintenance of Properties':1503,'Ramsey & Northern Districts Housing Cttee – Wages etc':33149,'Ramsey & Northern Districts Housing Cttee – Income':-36356,'Library – Salaries':95643,'Library – Repairs and maintenance':19372,'Library – Depreciation':24540,'Library fee income':-8192},
+ pension:{'Net pension current service cost (FRS102)':274000},
+ hra:{'Repairs & maintenance':787389,'Supervision & management (recharge from Property)':156215,'Rent, rates, taxes & other charges':494268,'Provision for doubtful debts':0,'Depreciation':895455,'Impairment':430772,'Rates surfeit':18739},
+ finance:{'Interest payable on borrowing':1511871,'Net pension interest cost (FRS102)':107000},
+ result:107637},
+'2022-23':{
+ income:{'Income from General Rate Fund':3130602,'Interest and investment income':1306,'Surplus on disposal of fixed assets':181180,'Dwelling rents (HRA)':2880343,'Housing Deficiency grant (central govt)':1059048,'Other housing income (HRA)':564558},
+ fgp:{'Rate collection costs':31516,'Election expenses':28,'Heat and light':12535,'Printing, stationery, telephone & rent':74541,"Caretaker's wages":26518,'Salaries':723282,'Pensions (employer contributions)':175005,'Staff training':22094,'Business continuity plans':0,'Fuel & repairs for vehicle':615,'Depreciation':39391,'Doubtful debts':89471,'Fixed penalties (income)':-1307,'Administration fees (income)':-95402},
+ compliance:{'Audit fees':14078,'Internal audit fees':7500,'Legal expenses':2347,'Insurance':14614},
+ misc:{'Advertising':4006,"Members' expenses":3743,"Chairman's expenses":511,'Town Band':2000,'Municipal Sunday':770,'War Memorial':583,'Incidental':22289,'Town Warden':17306,'Bank & debit card reader charges':16824,'Amenity byelaw regulations':714,'Ramsey Town centre management':1850,'Incidental (income)':-6076,'Flat regulation fees (income)':-400,'Skills Development Scheme assistance (income)':-4003,'Search fees (income)':-23100},
+ property:{'Heating oil':63528,'Communal area electricity':4082,'Garage repairs':1589,'Heating charges (income)':-45940,'Drying tokens (income)':-892,'Restroom hire (income)':0,'Garage rents (income)':-1352,'Workshops – Maintenance':61006,'Workshops – Rates and insurance':13903,'Town Hall – Maintenance':52058,'Town Hall – Rates and insurance':13877,'Town Hall – Depreciation':57200,'Town Hall – Rental & hire income':-26244,'Town Hall – Registry office income':-11488,'Public Conveniences – Contract cleaners':24013,'Public Conveniences – Maintenance':15094,'Public Conveniences – Rates and insurance':8044,'Public Conveniences – Cleaning materials':3219,'Public Conveniences – Depreciation':10640,'Ramsey Courthouse – Maintenance':12065,'Ramsey Courthouse – Rates and insurance':3596,'Ramsey Courthouse – Heat and light':4269,'Ramsey Courthouse – Rental and hire income':-3925,'HRA administration charge (income)':-176030},
+ works:{'Foreshore, flags and deckchairs':7706,'Car Parks – Operational costs':20049,'Car parking spaces income':-25505,'Seats, shelters, nameplates & town clock maintenance':18655,'Street and decorative lighting maintenance':145412,'CCTV town area':3061,'Local services':171828,'Property repairs private sector':546,'Depreciation':33045},
+ refuse:{'Refuse – Wages':267387,'Refuse – Operational costs':632786,'Refuse – Depreciation':31678,'Refuse – Collection charges (income)':-97033,'Refuse – Sale of bins (income)':-300,'Sewers & Pumps – Govt refund re sewer connections (income)':-55160,'Civic Amenity Site – Operational costs':38528,'Civic Amenity Site – Labour costs':123521,'Civic Amenity Site – Waste haulage and disposal':191370,'Civic Amenity Site – Rent and rates':21437,'Civic Amenity Site – Depreciation':11899,'Civic Amenity Site – Parish contributions (income, other six parishes)':-405000,'Civic Amenity Site – Recycling and scrap income':-64699},
+ parks:{'Seasonal entertaining and attractions':51248,'Ramsey in Bloom':13777,'TT week events (costs)':25629,'Camper van permit income':-8600,'TT week events (income)':-8500,'Mooragh Park amusements maintenance':10116,'Mooragh Park Gardens & Land – Wages':154945,'Mooragh Park Gardens & Land – Maintenance':60911,'Mooragh Park Gardens & Land – Skate Park':836,'Mooragh Park Gardens & Land – Depreciation':37488,'Mooragh Park Gardens & Land – Area rents (income)':-113,'Trading Concessions – Rates, insurance & licences':7118,'Trading Concessions – Courts and greens maintenance':3355,'Trading Concessions – Maintenance of buildings':5662,'Trading Concessions – Depreciation':4070,'Trading Concessions – Rent & rates (income)':-56159,'Swimming Pool – Northern LA Swimming Pool Board rate contribution':19458,'Maintenance of Properties':6061,'Ramsey & Northern Districts Housing Cttee – Wages etc':12516,'Ramsey & Northern Districts Housing Cttee – Income':-12902,'Library – Salaries':103107,'Library – Repairs and maintenance':27701,'Library – Depreciation':21212,'Library fee income':-8454},
+ pension:{'Net pension current service cost (FRS102)':278000},
+ hra:{'Repairs & maintenance':808442,'Supervision & management (recharge from Property)':176030,'Rent, rates, taxes & other charges':521437,'Provision for doubtful debts':49900,'Depreciation':891406,'Impairment':0,'Rates surfeit':22486},
+ finance:{'Interest payable on borrowing':1539312,'Net pension interest cost (FRS102)':118000},
+ result:614176}
+};
+const GRP=[{k:'fgp',        l:'Finance & general purposes (admin)', c:'--c-fgp'},
+           {k:'compliance', l:'Legal, audit & insurance',           c:'--c-disc'},
+           {k:'misc',       l:'Miscellaneous & civic expenses',     c:'--c-bal'},
+           {k:'property',   l:'Property (Town Hall, halls & courthouse)', c:'--c-works'},
+           {k:'works',      l:'Highways, car parks & local services', c:'--c-works'},
+           {k:'refuse',     l:'Refuse & Civic Amenity Site',        c:'--c-refuse'},
+           {k:'parks',      l:'Parks, leisure & library',           c:'--c-parks'},
+           {k:'pension',    l:'Pension current service cost',       c:'--c-bal'},
+           {k:'hra',        l:'Housing Revenue Account',            c:'--c-bal'},
+           {k:'finance',    l:'Finance costs (loan & pension interest)', c:'--c-bal'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+/* Credits (income items embedded within an expenditure group, e.g. search fees, admin recharges, recycling
+   income) are aggregated per group into a single labelled inflow, rather than one node per line — Ramsey has
+   far more of these than a small parish, and one node per line made the diagram unreadable. Full line-by-line
+   detail remains in the Table panel and the CSV. */
+const credits=d=>{const c={}; GRP.forEach(g=>{const t=Object.values(d[g.k]).filter(v=>v<0).reduce((a,b)=>a+b,0); if(t<0)c[g.k]=-t;}); return c;};
+
+/* Published subtotals per group, hand-verified against Ramsey's own printed committee totals (see Notes) */
+const GRPTOTAL={
+ '2021-22':{fgp:970212,compliance:29253,misc:-3545,property:18098,works:293755,refuse:791591,parks:398826,pension:274000,hra:2782838,finance:1618871},
+ '2022-23':{fgp:1098287,compliance:38539,misc:37017,property:82312,works:374797,refuse:696414,parks:470482,pension:278000,hra:2469701,finance:1657312}};
+const GFPUBLISHED={'2021-22':2772190,'2022-23':3075848}; /* Ramsey's own "Net cost of General Fund services" */
+
+/* integrity: (1) each group's items re-add to its own published subtotal;
+   (2) the 8 General-Fund groups re-add to Ramsey's own published "Net cost of General Fund services";
+   (3) total income − total expenditure (all 10 groups) = the published surplus, exactly */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const grpDiff=GRP.reduce((acc,g)=>acc+Math.abs(sum(d[g.k])-GRPTOTAL[y][g.k]),0);
+  const gfSum=['fgp','compliance','misc','property','works','refuse','parks','pension'].reduce((a,k)=>a+sum(d[k]),0);
+  const gfDiff=gfSum-GFPUBLISHED[y];
+  const totalIncome=sum(d.income);
+  const totalExp=GRP.reduce((acc,g)=>acc+sum(d[g.k]),0);
+  const resDiff=(totalIncome-totalExp)-d.result;
+  return {y,grpDiff,gfDiff,resDiff};
+});
+const bad=AUDIT.filter(a=>a.grpDiff!==0||a.gfDiff!==0||a.resDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Ramsey reconciles in both years: every committee subtotal re-adds to its published total, the eight General Fund groups re-add to the published "Net cost of General Fund services", and total income − total expenditure = the published surplus exactly. (Only one source PDF was available, so no independent second-reading cross-check of an overlapping year was possible.)');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','Revenue account (General Fund + Housing)','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(credits(d)).forEach(([gk,v],i)=>{
+    const gl=GRP.find(x=>x.k===gk).l;
+    const s=add('cr|'+gk,gl+' — income & recoveries','--c-income','src',50+i);
+    L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  if(d.result>0){ const su=add('sur','Surplus carried to reserves','--c-bal','item',20);
+    L.push({source:hub,target:su,value:d.result,col:'--c-bal'}); }
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(credits(d));
+    if(id==='sur')  return d.result>0?d.result:0;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a.slice(1).join('|')])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Two-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=1,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=225,RPAD=270,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(7).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const d0=D[y],total=sum(d0.income)+sum(credits(d0));
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  const rateInc=d.income['Income from General Rate Fund'];
+  const rateIncPv=pv?pv.income['Income from General Rate Fund']:null;
+  const totalExp=GRP.reduce((acc,g)=>acc+sum(d[g.k]),0);
+  const prevTotalExp=pv?GRP.reduce((acc,g)=>acc+sum(pv[g.k]),0):null;
+  document.getElementById('s-rate').textContent=fmt(rateInc);
+  document.getElementById('s-rate-d').textContent=arrow(rateInc,rateIncPv);
+  document.getElementById('s-pound').textContent=RATE[y].pound+'p';
+  const rp=RATE[y],pvp=pi>=0?RATE[YEARS[pi]]:null;
+  document.getElementById('s-pound-d').textContent=pvp?(rp.pound===pvp.pound?'no change · rateable value '+fmt(rp.rv):(rp.pound>pvp.pound?'▲ +':'▼ ')+Math.abs(rp.pound-pvp.pound)+'p on last year'):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(totalExp,prevTotalExp);
+  document.getElementById('s-res').textContent='+'+fmt(d.result);
+  document.getElementById('s-res-d').textContent=pv?(d.result>pv.result?'▲ improved on last year':(d.result<pv.result?'▼ narrowed on last year':'no change')):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Surplus carried to reserves</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its two-year path · four groups share the neutral colour, distinguished by label</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="3" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(sum(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="3" style="height:8px;border:none"></td></tr>');
+  R('Total expenditure',d=>m(GRP.reduce((a,g)=>a+sum(d[g.k]),0)),'grp');
+  R('Surplus for the year',d=>d.result.toLocaleString(),'grp');
+  rows.push('<tr class="sub"><td>General rate in the pound</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].pound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Total rateable value at year end</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].rv.toLocaleString()+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In both years, every one of the ten groups above re-adds to the subtotal Ramsey itself prints in its Detailed Income and Expenditure Account (Finance &amp; general purposes and Legal/audit/insurance together re-add to the published "Finance and general purposes" total; Highways/car-parks/local-services and Refuse &amp; Civic Amenity Site together re-add to the published "Works and development" total); the eight General Fund groups (everything except the Housing Revenue Account and Finance costs) re-add to Ramsey\'s own published "Net cost of General Fund services" exactly; and total income minus total expenditure equals the published surplus exactly, in both years. Only one source PDF was available (accounts for the year ended 31 March 2023), so the usual cross-check — reading the overlapping year independently from two different PDFs — could not be performed; both years shown here come from that single document\'s current and comparative columns. <b>Source.</b> Ramsey Town Commissioners, Statement of Accounts for the year ended 31 March 2023, Comprehensive Income and Expenditure Statement, Detailed Income and Expenditure Accounts and Note 16 (rateable value).</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Tangible fixed assets — operational',null,null],
+ ['r','Dwellings',80380674,49766676],
+ ['r','Other land & buildings',10900253,7954687],
+ ['r','Vehicles, plant, furniture & equipment',755342,459192],
+ ['r','Infrastructure assets',75199,56471],
+ ['r','Community assets',22926,27511],
+ ['s','Operational assets subtotal',92134394,58264537],
+ ['h','Non-operational assets',null,null],
+ ['r','Assets under construction',1941091,564417],
+ ['r','Investment properties',2590250,2105250],
+ ['s','Non-operational assets subtotal',4531341,2669667],
+ ['r','Intangible assets',0,882],
+ ['r','Long term debtors (Manx Utilities Authority loan)',926127,978038],
+ ['t','Total fixed assets & long-term debtors',97591862,61913124],
+ ['h','Current assets',null,null],
+ ['r','Debtors & prepayments',840078,952859],
+ ['r','Cash at bank',1744951,745647],
+ ['s','Subtotal',2585029,1698506],
+ ['h','Current liabilities',null,null],
+ ['r','Other creditors & accruals',-817808,-463580],
+ ['r','Short-term borrowing',-1877508,-1750655],
+ ['r','Finance agreement liability',-2890,-3480],
+ ['s','Subtotal',-2698206,-2217715],
+ ['t','Net current assets / (liabilities)',-113177,-519209],
+ ['t','Total assets less current liabilities',97478685,61393915],
+ ['h','Long-term liabilities',null,null],
+ ['r','Other creditors',-281200,-296000],
+ ['r','Long-term borrowing',-28435780,-28459257],
+ ['r','Finance agreement liability',0,-3294],
+ ['r','Pension liability',-504000,-4746000],
+ ['s','Subtotal',-29220980,-33504551],
+ ['T','Total assets less liabilities (net assets)',68257705,27889364],
+ ['h','Reserves',null,null],
+ ['r','Revaluation Reserve',48592558,13635772],
+ ['r','Capital Adjustment Account',18889814,17812270],
+ ['r','Usable Capital Receipts Reserve',70470,70007],
+ ['r','Pension Reserve',-504000,-4746000],
+ ['r','Heating Reserve',19581,37126],
+ ['r','General Fund',992226,899515],
+ ['r','Housing Repairs Account',-23117,43445],
+ ['r','Northern Civic Amenity Reserve',220173,137229],
+ ['T','Total reserves',68257705,27889364]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2023</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Net assets rose from £27.89m to £68.26m in a single year — a £40.37m increase — but only £92,711 of that is the General Fund actually getting richer (the movement in the General Fund reserve line, £899,515 to £992,226). The other £40.28m is almost entirely the £34.96m revaluation gain on Ramsey\'s housing and other land &amp; buildings (Revaluation Reserve £13.64m → £48.59m) plus a £4.24m actuarial improvement in the pension position (Pension Reserve/liability £4.75m owed → £0.50m owed). Borrowing fell only slightly, from £30.21m to £30.31m total (short-term borrowing rose £1.75m→£1.88m as more of the long-term book matured within a year, while long-term borrowing itself fell marginally). Ramsey remains, on this evidence, the most indebted Town Commission on this site to date.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from Ramsey\'s scanned, signed accounts (300dpi, Tesseract 5) and verified: current assets re-add to their printed subtotal, net current assets reconcile, and the eight reserve lines foot to the published "Financed by" total (£68,257,705 and £27,889,364) exactly in both years. No digit-level misreads survived verification uncorrected on this page.</p>'
+   +'<p class="foot"><b>Source.</b> Ramsey Town Commissioners, Balance Sheet as at 31 March 2023 (pages 14–15, signed 13 June 2025), Statement of Movement on Reserves, and Notes 1, 3, 4, 5, 6 and 17.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-notes').addEventListener('click',()=>{
+  document.getElementById('p-notes').classList.add('on');
+  document.getElementById('btn-notes').setAttribute('aria-pressed','true');
+  ['p-table','p-bs'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

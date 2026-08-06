@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Andreas Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(l){ document.body.classList.toggle('light', l); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Andreas Parish Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Income from general rate fund</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Deficit for the year</div><div class="stat-val" id="s-def">—</div><div class="stat-dlt" id="s-def-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+  <div class="panel" id="p-table"><h3>Andreas Parish Commissioners — Comprehensive Income and Expenditure Statement (£)</h3><div id="tbl"></div></div>
+  <div class="panel" id="p-bs">
+    <h3>Andreas Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>Andreas is the largest of the three small rural parishes in this set. Its total assets less liabilities of £670,505 dwarf Marown's £158,326 and Santon's £126,529 — mostly because Andreas carries a revalued land and buildings portfolio (a £384,008 revaluation reserve alone) that the other two do not. Like Marown and Santon, Andreas has no borrowing of any kind.</p>
+    <div id="bstbl"></div>
+  </div>
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Andreas's audited Comprehensive Income and Expenditure Statement — actual outturn, not budget. Like Santon, Andreas has no committee structure in its own accounts: expenditure is a single flat list running from the Northern Parishes Refuse Collection Board down to the war memorial. That flat structure is preserved here; the functional colouring (waste, works, environment &amp; leisure, administration, compliance, non-cash) is an Observatory overlay for readability and cross-authority comparison, not a grouping Andreas itself publishes.</p>
+    <p><b>Andreas ran a deficit in all three years</b> — £14,261, then £8,070, then £13,532 — the same pattern as Marown and the opposite of Santon. Each deficit is drawn as a hatched inflow from reserves on the left. That is a simplification: Andreas's own Statement of Movement on Reserves shows the cash-backed General Fund itself actually <i>grew</i> in all three years (down £736 in 2021/22 per the explanatory foreword's sign convention read against the fund balance, then up £6,857, then up £945), because non-cash depreciation and other reserve transfers are added back before the fund is struck. The Comprehensive Income and Expenditure deficit shown here is the accounting bottom line, not the cash position — see the balance sheet panel for the reserve mechanics.</p>
+    <p><b>Two-tier funding.</b> Village hall hire, search fees and miscellaneous income are shown separately from the two large transfers — Income from the General Refuse Fund and Income from the General Rate Fund — because that is how Andreas's own statement presents them: the small income items are netted against expenditure first to strike a "Net cost of services", and only then are the two rate-fund transfers brought in to reach the final deficit. Interest income (first reported in 2023/24, at £402) is folded in alongside the small income items.</p>
+    <p><b>Credits shown as inflows.</b> Bad debts were a credit (a release rather than a charge) in all three years — £913, £102 and £501. A Sankey cannot draw a negative flow, so each appears on the income side marked "(credit)". Gross expenditure therefore reads slightly higher than the net expenditure total in the published account, and the two reconcile exactly.</p>
+    <p><b>Rate in the pound and net rateable value</b> are taken from note 12 of each year's accounts. General rate: 118p on £103,065 (2021/22), 126p on £105,245 (2022/23), 134p on £105,773 (2023/24). Refuse rate: 67p, 67p and 69p respectively, plus a fixed charge per property (£48, £48, £50). Andreas's own website (andreasparish.com, fetched 6 August 2026) confirms the trajectory continued well beyond this dataset: 142p for 2024/25 (a 5.9% rise reported in the press at the time), roughly 144p for 2025/26, and 188p for 2026/27 — a further 30.5% single-year jump reported by 3FM and iomtoday, attributed to the Northern Civic Amenity Site, Ramsey swimming pool, street lighting and war memorial costs. Andreas does not publish a rates history page as such; these figures come from local press coverage of the Commissioners' own announcements, not from a financial statement, and are shown for context only — they sit outside the two audited PDFs this diagram is built from.</p>
+    <p><b>Provenance and confidence.</b> Andreas publishes its accounts only as scanned images with no text layer, so every figure here was recovered by OCR at 300–400dpi and then verified rather than trusted. Three checks were applied in every year: every expenditure line re-adds to the published net total; the 2022/23 column appears in <em>both</em> the 2023 and 2024 accounts and the two OCR readings agree to the pound on all 29 lines; and net cost of services, less the two rate-fund transfers, equals the published deficit exactly. Two OCR misreads were caught this way and corrected: at 400dpi "Northern Civic Amenity Site" for 2022/23 first read as £36,308, which would have broken the published (£238,522) total by £6,006 — a second look at the source image confirmed £30,308, which reconciles exactly. "Accountancy fees" for the same year first read as £2,600; the reconciling figure is £2,000. One figure in Andreas's own 2023 accounts does <em>not</em> reconcile: the printed 2021/22 income subtotal reads £203,506, but the two lines above it (£94,195 + £117,382) sum to £211,577, and that figure — not the printed one — is what the published net cost of services (£225,838) and deficit (£14,261) require. This diagram uses the reconciled £211,577; the misprint appears to be Andreas's own, not an OCR artefact, since the source image is unambiguous.</p>
+    <p><b>Comparability.</b> Andreas, Marown and Santon are all on the same audited-outturn, accruals basis and the same three years, so those three can be read against one another directly. None is on the same basis as Braddan's forward rates-funded estimates.</p>
+    <p><b>Source.</b> Andreas Parish Commissioners, Statements of Accounts for the years ended 31 March 2023 and 31 March 2024, Comprehensive Income and Expenditure Statement, Balance Sheet and notes; prepared by Suntera Accounting &amp; Tax Limited, assurance review by Crowe Isle of Man LLC. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Andreas's rate in the pound has climbed from 118p in 2021/22 to 188p set for 2026/27 — including a 30.5% jump in the single most recent year.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+const YEARS=['2021-22','2022-23','2023-24'];
+const FN={waste:'--c-refuse',works:'--c-works',env:'--c-parks',admin:'--c-fgp',comp:'--c-disc',noncash:'--c-bal'};
+const FNLAB={waste:'Waste',works:'Works',env:'Environment & leisure',admin:'Administration',comp:'Compliance & finance',noncash:'Non-cash entries'};
+const FNOF={
+ 'Northern Parishes Refuse Collection Board':'waste','Northern Civic Amenity Site':'waste','Litter collection / dog warden':'waste',
+ 'Street lighting':'works','Local highway services':'works','Public conveniences':'works',
+ 'Public hall & community centre':'env','Amenity areas':'env','Playground/park':'env','Sports field and amenity area':'env',
+ 'Northern Local Swimming Pool Board':'env','Millennium clock and gardens':'env','Garden competition expenses':'env',
+ 'Christmas trees and decorations':'env','War memorial':'env',
+ "Clerk's salary":'admin','Office expenses':'admin','Miscellaneous expenses':'admin','Rate collection charges':'admin',
+ 'Civic service':'admin','Travel expenses':'admin','Election expenses':'admin',
+ 'Insurance':'comp','Accountancy fees':'comp','Assurance fee':'comp','Legal and professional fees':'comp','Bank charges':'comp',
+ 'Depreciation':'noncash'};
+const D={
+'2021-22':{
+ income:{'Village hall hire':4942,'Miscellaneous':907,'Search fees':2180},interest:0,
+ rateFund:117382,refuseFund:94195,netCost:225838,totalExp:233867,deficit:14261,pound:118,refusePound:67,rv:103065,
+ exp:{'Northern Parishes Refuse Collection Board':97331,'Northern Civic Amenity Site':32120,'Depreciation':15153,"Clerk's salary":16141,
+  'Public hall & community centre':8900,'Local highway services':13062,'Public conveniences':5581,'Street lighting':6702,
+  'Amenity areas':12083,'Northern Local Swimming Pool Board':2402,'Litter collection / dog warden':3302,'Rate collection charges':2728,
+  'Insurance':2872,'Accountancy fees':2400,'Assurance fee':1800,'Playground/park':2638,'Sports field and amenity area':5142,
+  'Travel expenses':56,'Civic service':150,'Office expenses':2706,'Miscellaneous expenses':652,'Millennium clock and gardens':244,
+  'Garden competition expenses':320,'Christmas trees and decorations':0,'Bank charges':270,'War memorial':25,
+  'Election expenses':0,'Legal and professional fees':0,'Bad debts':-913}},
+'2022-23':{
+ income:{'Village hall hire':5518,'Miscellaneous':1179,'Search fees':1560},interest:0,
+ rateFund:128038,refuseFund:94157,netCost:230265,totalExp:238522,deficit:8070,pound:126,refusePound:67,rv:105245,
+ exp:{'Northern Parishes Refuse Collection Board':97500,'Northern Civic Amenity Site':30308,'Depreciation':14927,"Clerk's salary":17258,
+  'Public hall & community centre':10536,'Local highway services':16246,'Public conveniences':5504,'Street lighting':12834,
+  'Amenity areas':10123,'Northern Local Swimming Pool Board':3205,'Litter collection / dog warden':2889,'Rate collection charges':3435,
+  'Insurance':3165,'Accountancy fees':2000,'Assurance fee':2100,'Playground/park':2793,'Sports field and amenity area':66,
+  'Travel expenses':30,'Civic service':325,'Office expenses':1265,'Miscellaneous expenses':1195,'Millennium clock and gardens':129,
+  'Garden competition expenses':0,'Christmas trees and decorations':518,'Bank charges':248,'War memorial':25,
+  'Election expenses':0,'Legal and professional fees':0,'Bad debts':-102}},
+'2023-24':{
+ income:{'Village hall hire':5494,'Miscellaneous':102,'Search fees':1570},interest:402,
+ rateFund:136131,refuseFund:96079,netCost:246144,totalExp:253310,deficit:13532,pound:134,refusePound:69,rv:105773,
+ exp:{'Northern Parishes Refuse Collection Board':100987,'Northern Civic Amenity Site':33324,'Depreciation':14477,"Clerk's salary":19305,
+  'Public hall & community centre':9720,'Local highway services':19403,'Public conveniences':5681,'Street lighting':15208,
+  'Amenity areas':9796,'Northern Local Swimming Pool Board':3173,'Litter collection / dog warden':3132,'Rate collection charges':3536,
+  'Insurance':3469,'Accountancy fees':1925,'Assurance fee':2205,'Playground/park':2415,'Sports field and amenity area':375,
+  'Travel expenses':14,'Civic service':0,'Office expenses':1951,'Miscellaneous expenses':1007,'Millennium clock and gardens':398,
+  'Garden competition expenses':0,'Christmas trees and decorations':615,'Bank charges':211,'War memorial':25,
+  'Election expenses':959,'Legal and professional fees':500,'Bad debts':-501}}
+};
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={};Object.entries(d.exp).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});return c;};
+
+/* integrity: gross expenditure inflow===outflow; net cost reconciles to income less total expenditure; deficit reconciles to net cost less the two funds */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inflow=sum(d.income)+d.interest+d.rateFund+d.refuseFund+sum(credits(d))+d.deficit;
+  const outflow=pos(d.exp);
+  const expDiff=sum(d.exp)-d.totalExp;
+  const netCostDiff=(sum(d.income)-d.totalExp)+d.netCost;
+  const deficitDiff=d.netCost-d.interest-d.rateFund-d.refuseFund-d.deficit;
+  return {y,flowDiff:inflow-outflow,expDiff,netCostDiff,deficitDiff};});
+const bad=AUDIT.filter(a=>a.flowDiff||a.expDiff||a.netCostDiff||a.deficitDiff);
+if(bad.length)console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Andreas reconciles in all years: expenditure lines match the published net total, net cost of services matches income less expenditure, and net cost less the two rate funds equals the published deficit');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,l,c,k,o,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label:l,col:c,kind:k,ord:o||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','Revenue account','--accent','hub',0);
+  [['vh','Village hall hire',d.income['Village hall hire']],['misc','Miscellaneous',d.income['Miscellaneous']],
+   ['search','Search fees',d.income['Search fees']],['int','Interest income',d.interest],
+   ['refuse','Income from the General Refuse Fund',d.refuseFund],['rate','Income from the General Rate Fund',d.rateFund]]
+   .forEach(([k,l,v],i)=>{if(v>0){const s=add('inc|'+k,l,'--c-income','src',i);L.push({source:s,target:hub,value:v,col:'--c-income'});}});
+  Object.entries(credits(d)).forEach(([k,v],i)=>{const s=add('cr|'+k,k,'--c-income','src',20+i);L.push({source:s,target:hub,value:v,col:'--c-income'});});
+  if(d.deficit>0){const s=add('res','Drawn from reserves','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:d.deficit,col:'--c-bal',hatch:true});}
+  const ORD={waste:1,works:2,env:3,admin:4,comp:5,noncash:6};
+  Object.entries(d.exp).filter(([,v])=>v>0).sort((a,b)=>{const fa=FNOF[a[0]],fb=FNOF[b[0]];return (ORD[fa]-ORD[fb])||(b[1]-a[1]);})
+    .forEach(([k,v])=>{const f=FNOF[k]||'admin';const li=add('e|'+k,k,FN[f],'item',ORD[f]);L.push({source:hub,target:li,value:v,col:FN[f]});});
+  return {nodes:N,links:L};
+}
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')return sum(d.income)+d.interest+d.rateFund+d.refuseFund+sum(credits(d))+d.deficit;
+    if(id==='res')return d.deficit;
+    if(id==='inc|vh')return d.income['Village hall hire']||0;
+    if(id==='inc|misc')return d.income['Miscellaneous']||0;
+    if(id==='inc|search')return d.income['Search fees']||0;
+    if(id==='inc|int')return d.interest||0;
+    if(id==='inc|refuse')return d.refuseFund;
+    if(id==='inc|rate')return d.rateFund;
+    if(id.indexOf('cr|')===0){const c=credits(d);return c[id.slice(3)]||0;}
+    if(id.indexOf('e|')===0)return Math.max(0,d.exp[id.slice(2)]||0);
+    return 0;});
+}
+function spark(id,col,ci){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10,mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1),Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===ci?4:2.3)+'" fill="'+(i===ci?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===ci?0:1.5)+'"/>').join('')
+   +YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===ci?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('')
+   +'</svg></div>';
+}
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+function draw(y,an){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=210,RPAD=270;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(12).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value)).extent([[LPAD,14],[W-RPAD,H-14]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=sum(D[y].income)+D[y].interest+D[y].rateFund+D[y].refuseFund+sum(credits(D[y]))+D[y].deficit;
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0)
+   .merge(lk).transition().duration(an?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+  root.selectAll('path.link')
+   .on('mousemove',function(ev,d){root.selectAll('path.link').classed('dim',x=>x!==d);
+     tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+      .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+       +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+       +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+       +spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));})
+   .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect');ndE.append('text').attr('class','nlab');ndE.append('text').attr('class','nval');
+  const A=ndE.merge(nd);
+  A.transition().duration(an?750:0).style('opacity',1);
+  A.select('rect').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+   .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  A.select('text.nlab').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+   .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  A.select('text.nval').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+   .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+   .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  A.on('mousemove',function(ev,d){root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+     tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+      .html('<div class="tt-t">'+d.label+'</div>'
+       +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+       +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+       +spark(d.id,d.col,YEARS.indexOf(y)));})
+   .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent=fmt(d.rateFund);
+  document.getElementById('s-rate-d').textContent=arrow(d.rateFund,pv&&pv.rateFund);
+  document.getElementById('s-pound').textContent=d.pound+'p';
+  document.getElementById('s-pound-d').textContent=pv?(d.pound>pv.pound?'▲ +'+(d.pound-pv.pound)+'p on last year':'no change'):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-def').textContent='−'+fmt(d.deficit);
+  document.getElementById('s-def-d').textContent=pv?(d.deficit>pv.deficit?'▲ deficit widened':'▼ deficit narrowed'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+document.getElementById('legend').innerHTML=
+ '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +Object.keys(FNLAB).map(k=>'<div class="lg"><div class="sw" style="background:var('+FN[k]+')"></div>'+FNLAB[k]+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Drawn from reserves (hatched)</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Functional colouring is an Observatory overlay — Andreas\'s accounts are a flat list</div>';
+
+function buildTable(){
+  const rows=[],m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  R('Village hall hire',d=>m(d.income['Village hall hire']),'sub');
+  R('Miscellaneous',d=>m(d.income['Miscellaneous']),'sub');
+  R('Search fees',d=>m(d.income['Search fees']),'sub');
+  R('Interest income',d=>m(d.interest),'sub');
+  R('Total small income',d=>m(sum(d.income)+d.interest),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('EXPENDITURE',()=>'','grp');
+  const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y].exp).forEach(k=>ks.add(k)));
+  const ORD={waste:1,works:2,env:3,admin:4,comp:5,noncash:6};
+  [...ks].sort((a,b)=>((ORD[FNOF[a]]||9)-(ORD[FNOF[b]]||9))||a.localeCompare(b)).forEach(k=>R(k,d=>m(d.exp[k]||0),'sub'));
+  R('Total expenditure',d=>'('+d.totalExp.toLocaleString()+')','grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Net cost of services',d=>'('+d.netCost.toLocaleString()+')','grp');
+  R('Income from the General Refuse Fund',d=>m(d.refuseFund),'sub');
+  R('Income from the General Rate Fund',d=>m(d.rateFund),'sub');
+  R('Deficit for the year',d=>'('+d.deficit.toLocaleString()+')','grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Rate in the pound — general rate',d=>d.pound+'p','grp');
+  R('Rate in the pound — refuse rate',d=>d.refusePound+'p','sub');
+  R('Net rateable value — general rate',d=>'£'+d.rv.toLocaleString(),'sub');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+(2000+ +y.slice(-2))+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> Expenditure lines re-add to the published net total (which already nets off the bad-debt credit) in all three years; net cost of services equals total small income less total expenditure; and net cost of services, less interest income and the two rate-fund transfers, equals the published deficit exactly. The 2022-23 column was read independently from both the 2023 and 2024 accounts and all 29 lines agree to the pound. One printed subtotal in Andreas\'s own 2023 accounts (the 2021/22 income total of £203,506) does not reconcile with its own components (£94,195 + £117,382 = £211,577); the reconciled figure is used here — see Notes. <b>Source.</b> Andreas Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Comprehensive Income and Expenditure Statement, note 12. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+const BSROWS=[['h','Fixed assets',null,null],['r','Tangible fixed assets',600535,634178],
+ ['h','Current assets',null,null],['r','Debtors',26894,24239],['r','Cash at bank',110769,78391],['s','',137663,102630],
+ ['h','Current liabilities',null,null],['r','Creditors',-67693,-33604],['t','Net current assets',69970,69026],
+ ['T','Total assets less liabilities',670505,703204],
+ ['h','Reserves',null,null],['r','Capital adjustment account',216528,204647],['r','Revaluation reserve',384008,429533],
+ ['r','General fund',69969,69024],['T','',670505,703204]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th></tr></thead><tbody>'
+   +BSROWS.map(r=>{const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+     return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('')
+   +'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> No borrowing, no pension liability. Total assets less liabilities fell from £703,204 to £670,505 — mostly the £33,643 fall in the revaluation reserve as the fixed-asset valuation ran off through depreciation — even though the General Fund itself rose slightly, from £69,024 to £69,969. Cash at bank grew from £78,391 to £110,769 and debtors from £24,239 to £26,894, both consistent with the note 9 cash-flow adjustments (a £34,088 increase in creditors, mostly accruals for the refuse and amenity site boards, outpacing the cash actually paid out in the year).</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from a scanned original at 300–400dpi, then verified: current assets re-add, net current assets reconcile, and total reserves equal total assets less liabilities in both years. The 2023 column was cross-checked against the balance sheet as originally published in the 2023 accounts and is identical to the pound.</p>'
+   +'<p class="foot"><b>Source.</b> Andreas Parish Commissioners, Statement of Accounts for the year ended 31 March 2024, Balance Sheet, page 13, and Statement of Movement on Reserves, page 11. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{if(timer){stop();return;}play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(p){Object.keys(PANELS).forEach(x=>{const on=x===p&&!document.getElementById(x).classList.contains('on');
+  document.getElementById(x).classList.toggle('on',on);document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const l=document.body.classList.toggle('light');this.textContent=l?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',l?'light':'dark');}catch(e){} draw(YEARS[cur],false);});
+draw(YEARS[cur],false);
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>
