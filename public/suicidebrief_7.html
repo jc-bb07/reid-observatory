@@ -50,8 +50,7 @@ p.body strong{color:var(--text)}
 .hl-grid{display:flex;flex-direction:column;gap:1.15rem;margin:1.4rem auto;max-width:600px}
 .clip{position:relative;background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;display:flex;flex-direction:column}
 .clip:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 14px 30px rgba(0,0,0,.28)}
-.isle-mark{position:absolute;right:-20px;bottom:-16px;width:132px;height:132px;pointer-events:none;z-index:0}
-.clip-top{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:.55rem .85rem;background:linear-gradient(90deg,rgba(248,113,113,.14),transparent);border-bottom:1px solid var(--border2)}
+.clip-top{display:flex;justify-content:space-between;align-items:center;padding:.55rem .85rem;background:linear-gradient(90deg,rgba(248,113,113,.14),transparent);border-bottom:1px solid var(--border2)}
 .clip[data-isle="iom"] .clip-top{background:linear-gradient(90deg,rgba(248,113,113,.16),transparent)}
 .clip[data-isle="gsy"] .clip-top{background:linear-gradient(90deg,rgba(52,211,153,.16),transparent)}
 .clip[data-isle="shet"] .clip-top{background:linear-gradient(90deg,rgba(251,146,60,.16),transparent)}
@@ -156,6 +155,42 @@ details.drop>summary:hover{color:var(--text)}
 .drop-body .pillar:first-of-type{margin-top:.9rem}
 footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);font-size:10.5px;color:var(--muted);line-height:1.65}
 .lede,p.body,.big,.recur,.thesis-body,.coda p,blockquote{max-width:none}
+
+/* ---------- view toggle: Public / Technical ---------- */
+.viewbar{display:flex;justify-content:center;align-items:center;gap:.7rem;padding:.1rem 0 1.15rem;flex-wrap:wrap}
+.viewbar-lab{font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.viewpill{display:inline-flex;border:1px solid var(--border2);border-radius:7px;overflow:hidden;background:var(--surface)}
+.viewpill button{appearance:none;background:transparent;border:0;border-right:1px solid var(--border2);color:var(--muted);font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:8px 22px;cursor:pointer;transition:background .18s,color .18s}
+.viewpill button:last-child{border-right:0}
+.viewpill button:hover{color:var(--text)}
+.viewpill button[aria-pressed="true"]{background:var(--green);color:var(--bg)}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- public view ---------- */
+.p-hero{padding:1.1rem 0 1.2rem;border-bottom:1px solid var(--border2);margin-bottom:1.2rem}
+.p-hero h1{margin-bottom:.8rem}
+.p-lede{font-size:16.5px;color:var(--muted2);line-height:1.7}
+.p-lede strong{color:var(--text)}
+.p-h{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:2.1rem 0 .7rem}
+.p-card{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--amber);border-radius:9px;padding:.95rem 1.15rem;margin:.75rem 0}
+.p-card h3{font-size:14.5px;font-weight:800;margin-bottom:.3rem;letter-spacing:-0.01em}
+.p-card p{font-size:13.5px;color:var(--muted2);line-height:1.72}
+.p-card p strong{color:var(--text)}
+.p-card.c2{border-left-color:var(--red)}
+.p-card.c3{border-left-color:var(--cyan)}
+.p-say{background:var(--surface);border:1px solid var(--border2);border-top:2px solid var(--red);border-radius:9px;padding:1rem 1.2rem;margin:1.3rem 0;font-size:13.5px;color:var(--muted2);line-height:1.75}
+.p-say strong{color:var(--text)}
+.p-do{list-style:none;margin:.6rem 0 0;padding:0}
+.p-do li{position:relative;padding-left:1.4rem;margin:.55rem 0;font-size:13.5px;color:var(--muted2);line-height:1.68}
+.p-do li:before{content:"→";position:absolute;left:0;color:var(--green);font-weight:800}
+.p-do li strong{color:var(--text)}
+.p-kicker{font-size:19px;font-weight:800;line-height:1.4;letter-spacing:-0.01em;color:var(--text);margin:1.5rem 0 .3rem}
+.p-kicker .pop{color:var(--amber)}
+.p-more{background:var(--surface2);border:1px dashed var(--border2);border-radius:9px;padding:1rem 1.15rem;margin:1.6rem 0 .4rem;font-size:13px;color:var(--muted2);line-height:1.7}
+.p-more a{color:var(--blue)}
+.p-btn{display:inline-block;margin-top:.7rem;background:var(--green);color:var(--bg);border:0;border-radius:7px;font-family:var(--font);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;cursor:pointer}
+@media(max-width:720px){.p-lede{font-size:15px}.viewpill button{padding:8px 15px}}
 </style>
 </head>
 <body>
@@ -166,10 +201,124 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
 
   <div class="narrative reveal"><strong>Every life matters.</strong> This is about how suicide statistics are calculated and read, not whether the issue is serious. It is. It uses only population-level figures, no individual is identifiable, and it follows Samaritans media guidelines throughout. If you or someone you know is struggling, the support lines are at the foot of this page.</div>
 
+  <div class="viewbar">
+    <span class="viewbar-lab">Reading level</span>
+    <div class="viewpill" role="group" aria-label="Choose a version of this briefing">
+      <button type="button" id="btn-public" data-view="public" aria-pressed="true">Public</button>
+      <button type="button" id="btn-technical" data-view="technical" aria-pressed="false">Technical</button>
+    </div>
+  </div>
+
+
+  <!-- ============================ PUBLIC VIEW ============================ -->
+  <div class="view on" id="view-public">
+
+    <div class="p-hero">
+      <h1>The island suicide rate<br/>has a critical <em>data</em> problem.</h1>
+      <p class="p-lede">These last few years, the Isle of Man's suicide rate has felt personally alarming — friends, friends-of-friends, people you know; in a community this size, every loss is felt. The same alarm has gone up in Guernsey, in Jersey, in Orkney and Shetland. <strong>So I tested it,</strong> across ten island territories, using a method registered publicly before I looked at the answer.</p>
+      <p class="p-lede" style="margin-top:.8rem"><strong>The islands do not have a suicide problem the rate can prove. They have a measurement problem.</strong></p>
+    </div>
+
+    <div class="p-h">First, what we have all been told</div>
+    <p class="p-lede" style="font-size:14px">Five years, three island jurisdictions, hundreds of miles apart. The same alarm, over and over. Scroll through them.</p>
+
+    <div class="scrolly" id="hlScrollyPub">
+      <div class="scrolly-stage">
+        <div class="scrolly-count">Headline <b>1</b> of 6</div>
+        <div class="scrolly-cards">
+          <div class="clip sclip" data-i="0" data-isle="shet"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">20 Aug 2021</span></div><div class="clip-head">"NHS reminds anyone struggling to seek help after probable suicide figures released"</div><a class="clip-link" href="https://www.shetnews.co.uk/2021/08/20/nhs-reminds-anyone-who-is-struggling-to-seek-help-and-support-after-probable-suicide-figures-released/" target="_blank" rel="noopener">read the article &rarr;</a></div>
+          <div class="clip sclip" data-i="1" data-isle="gsy"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">14 Oct 2022</span></div><div class="clip-head">"Suicide accounts for a tenth of Guernsey's sudden deaths"</div><a class="clip-link" href="https://www.itv.com/news/channel/2022-10-14/suicide-accounts-for-a-tenth-of-guernseys-sudden-deaths" target="_blank" rel="noopener">read the article &rarr;</a></div>
+          <div class="clip sclip" data-i="2" data-isle="gsy"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">7 Mar 2024</span></div><div class="clip-head">"Guernsey suicide figures soar over both Jersey and the UK"</div><a class="clip-link" href="https://www.itv.com/news/channel/2024-03-07/guernsey-suicide-figures-soar-over-both-jersey-and-the-uk" target="_blank" rel="noopener">read the article &rarr;</a></div>
+          <div class="clip sclip" data-i="3" data-isle="shet"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">10 Mar 2025</span></div><div class="clip-head">"Just come and ask: charities plea for anyone struggling to seek help"</div><a class="clip-link" href="https://www.shetnews.co.uk/2025/03/10/just-come-ask-charities-plea/" target="_blank" rel="noopener">read the article &rarr;</a></div>
+          <div class="clip sclip" data-i="4" data-isle="iom"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Sep 2025</span></div><div class="clip-head">"We need to talk about the suicide rate on the Isle of Man"</div><a class="clip-link" href="https://www.manxradio.com/news/isle-of-man-news/we-need-to-talk-about-the-suicide-rate-on-the-isle-of-man/" target="_blank" rel="noopener">read the article &rarr;</a></div>
+          <div class="clip sclip" data-i="5" data-isle="iom"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Feb 2026</span></div><div class="clip-head">"ManxPACT raises concerns over suicide rates and mental-health provision"</div><a class="clip-link" href="https://gold.manxradio.com/news/isle-of-man-news/manxpact-raises-concerns-over-suicide-rates-and-mental-health-provision-on-the-isle-of-man/" target="_blank" rel="noopener">read the article &rarr;</a></div>
+        </div>
+        <div class="scrolly-hint">keep scrolling &darr;</div>
+      </div>
+    </div>
+    <p class="recur">Small close-knit communities, isolation, service access, stigma. Different islands, different years, the same story every time. So is it real?</p>
+
+    <div class="p-h">What the analysis found</div>
+
+    <div class="p-card">
+      <h3>1. No island stands out, in either direction</h3>
+      <p>The method was written down and registered publicly before I saw any answer, then run across eleven territories from 2001 to 2024 and cross-checked in a second statistical package. It came back flat: <strong>a rate ratio of 1.004</strong>. No island is measurably worse than its mainland comparator, and none is measurably better. These deaths are, thankfully, rare enough that a place the size of the Isle of Man cannot produce a rate precise enough to settle the question either way.</p>
+    </div>
+
+    <div class="p-card c2">
+      <h3>2. So why does every island look like an emergency?</h3>
+      <p>Because of how the number is built. <strong>The headline rate is not a count of deaths.</strong> It is a three-year rolling average, the standard way to steady a rare figure in a small population, and none of this is the islands' fault. But put one extraordinary year through that smoother and it does not stay one year.</p>
+    </div>
+
+    <div class="p-h">Watch the number being built</div>
+    <p class="p-lede" style="font-size:14px">Scroll slowly through the chart below and it will assemble itself. Three things to watch for:</p>
+    <ul class="p-do" style="margin-bottom:1rem">
+      <li><strong>The grey bars are the real thing:</strong> the deaths registered on the Island in each single year.</li>
+      <li><strong>The amber dots are the published figure:</strong> each one is simply that bar plus the two either side of it, divided by three. The sum is shown on screen as it happens.</li>
+      <li><strong>Watch 2020.</strong> One hard year, counted three separate times: once as part of 2019, once as 2020, once as 2021. Then the whole line turns into a rate per 100,000 and climbs past England and Wales.</li>
+    </ul>
+
+    <div class="scrolly" id="animScrollyPub">
+      <div class="scrolly-stage">
+        <div class="chart-panel anim-panel">
+          <div class="panel-header"><div class="panel-title">Isle of Man: how the "3-year rolling" headline is made</div><div class="panel-sub">Grey bars, deaths registered per year. Amber line, the published figure, each point the average of three bars. (IoM Public Health Directorate / FOI.)</div></div>
+          <div class="anim-wrap"><canvas id="rollanimPub"></canvas></div>
+        </div>
+        <div class="scrolly-hint">scroll to build the line &darr;</div>
+      </div>
+    </div>
+
+    <p class="fnote"><strong>The upshot.</strong> The Island's "crisis" is one year, 2020, and even that year is inflated by inquest timing: 24 deaths were registered, 19 actually occurred. Strip 2020 out and the Island averages about 11.6 per 100,000, effectively the England and Wales level. As 2020 leaves the rolling window, the "record" rate falls back on its own. It also explains a puzzle that has troubled the committee looking into this: because a three-year average is plotted at its middle year, a 2020 event genuinely does appear to start <em>before</em> the pandemic. 2019 itself was an unremarkable year.</p>
+
+    <div class="p-card c3">
+      <h3>3. It works in reverse, too</h3>
+      <p>The same smoother manufactures good news as readily as bad. Shetland's rate looks like a flat four-year success story. Its decline is real, raw deaths there roughly halved. But the flat floor in the published chart is largely <strong>two ordinary quiet years counted four times over</strong>.</p>
+    </div>
+
+    <p class="p-lede" style="font-size:14px">Same exercise, five-year window this time. Watch 2016 and 2017, both of which registered <strong>zero</strong> deaths, land inside four separate published figures at once.</p>
+
+    <div class="scrolly" id="animScrollyShetPub">
+      <div class="scrolly-stage">
+        <div class="chart-panel anim-panel">
+          <div class="panel-header"><div class="panel-title">Shetland: the same trick, running the other way</div><div class="panel-sub">Each orange point is the average of five bars, plotted at the middle year. (National Records of Scotland, <em>Probable Suicides, Scotland 2024</em>.)</div></div>
+          <div class="anim-wrap"><canvas id="rollanimShetPub"></canvas></div>
+        </div>
+        <div class="scrolly-hint">scroll to build the line &darr;</div>
+      </div>
+    </div>
+
+    <p class="fnote"><strong>Zero is not an error.</strong> Shetland has around 23,000 people. Two quiet years running is a routine outcome at that size, not a miracle and not a mistake. Nothing here says the decline is not real. What the flat floor adds is a shape the raw counts do not support: four published points built from the same two years.</p>
+
+    <div class="p-say">
+      <strong>What this does not say.</strong> It does not say the numbers are small so it does not matter. Every one of these deaths warrants review, and the risks named in the evidence are real: a third of the sixty-five people who died between 2016 and 2021 were unemployed or unable to work; debt, loneliness, living alone, long-term disability and relationship breakdown run through the record; 44% had previously self-harmed and over half had a significant physical health condition; and the adult mental-health waiting list still has not moved. <strong>None of that needs a rate to justify acting on it, and nothing here should delay that support by a single day.</strong>
+    </div>
+
+    <div class="p-h">What should change</div>
+    <ul class="p-do">
+      <li><strong>Publish honest annual counts,</strong> as National Records of Scotland already does, instead of a rolling headline that turns one year into a decade-long trend.</li>
+      <li><strong>Show the uncertainty</strong> on any smoothed figure that is published, as the ONS does.</li>
+      <li><strong>Fix the adult mental-health wait,</strong> and publish who leads, who commissions and who delivers each part of the Strategy. No data reform matters more.</li>
+      <li><strong>Compare islands to islands.</strong> Holding 85,000 people against 60 million mostly measures the arithmetic, not the health service.</li>
+      <li><strong>Act on the risk factors already known</strong> — unemployment and financial exclusion, relationship breakdown, prior self-harm, physical illness, alcohol — rather than waiting on a rate that cannot settle anything.</li>
+    </ul>
+
+    <p class="p-kicker">No island is cursed with suicide. <span class="pop">The methodology is the curse.</span></p>
+    <p class="p-lede" style="font-size:14px">Handled carelessly, statistics frighten communities, stigmatise islands, and send scarce help chasing a problem that may not be there, while every real death still matters just as much. The honest numbers turn out to be kinder than the smoothed ones.</p>
+
+    <div class="p-more">
+      <strong>Want the workings?</strong> The technical version carries the full argument: every chart, the pre-registered model and its robustness checks, the committee evidence, the sources, and the complete set of policy recommendations. The pre-registration is public at <a href="https://osf.io/nrf4s" target="_blank" rel="noopener">osf.io/nrf4s</a>.<br/>
+      <button type="button" class="p-btn" data-view="technical">Read the technical version</button>
+    </div>
+
+  </div>
+  <!-- ========================== END PUBLIC VIEW ========================== -->
+
+  <!-- ========================== TECHNICAL VIEW =========================== -->
+  <div class="view" id="view-technical">
   <div class="hero">
     <svg class="hero-spark" viewBox="0 0 170 80" fill="none"><polyline points="0,62 22,58 44,60 66,54 88,56 110,20 132,32 170,36" stroke="#f87171" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="110" cy="20" r="4.2" fill="#f87171"/><polyline points="0,64 170,64" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/></svg>
     <h1>The island suicide rate<br/>has a critical <em>data</em> problem.</h1>
-    <p class="lede"><span class="open">Sometimes I hate statistics. I mean, <em>really</em> hate statistics.</span> These last few years, the Isle of Man has been told its suicide rate is soaring: "highest in a decade," "the only place in the British Isles to rise in the pandemic." You don't hear that about home and let it go. So, as is my way, I went looking wider: at Jersey, at Guernsey, at the Scottish islands and the rest. And I quickly found a pattern. Had I found an <em>Island</em> problem?</p>
+    <p class="lede"><span class="open">These last few years, the Isle of Man's suicide rate has felt personally alarming. Friends, friends-of-friends, people you know — in a community this size, <em>every loss is felt</em>.</span> You don't just let that go, not about home, and you shouldn't. So, as is my way, I went looking wider: at Jersey, at Guernsey, at the Scottish islands and the rest. And the pattern everyone assumed was ours alone turned out to run wider than the Isle of Man. Had we found an <em>Island</em> problem?</p>
   </div>
   <div class="scroll-cue">scroll ↓</div>
 
@@ -178,12 +327,12 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
       <div class="section-label" style="margin:0;align-self:stretch"><span class="act">Act I</span>The alarm</div>
       <div class="scrolly-count">Headline <b id="hlNum">1</b> of 6</div>
       <div class="scrolly-cards">
-        <div class="clip sclip" data-i="0" data-isle="shet"><svg class="isle-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="rgba(251,146,60,.16)" d="M52 4C58 8 56 16 50 20C60 24 64 34 56 40C66 46 68 58 58 64C66 70 62 82 52 84C44 86 40 78 44 72C34 68 30 58 38 52C28 48 26 36 36 32C28 28 30 16 42 10C45 6 49 4 52 4Z"/><circle fill="rgba(251,146,60,.16)" cx="72" cy="14" r="7"/><circle fill="rgba(251,146,60,.16)" cx="78" cy="46" r="5"/></svg><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">20 Aug 2021</span></div><div class="clip-head">"NHS reminds anyone struggling to seek help after probable suicide figures released"</div><a class="clip-link" href="https://www.shetnews.co.uk/2021/08/20/nhs-reminds-anyone-who-is-struggling-to-seek-help-and-support-after-probable-suicide-figures-released/" target="_blank" rel="noopener">read the article →</a></div>
-        <div class="clip sclip" data-i="1" data-isle="gsy"><svg class="isle-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="rgba(52,211,153,.16)" d="M50 8C66 6 82 20 80 38C86 50 78 64 64 68C58 82 40 88 30 76C16 72 10 56 18 42C14 28 26 14 40 12C44 10 47 9 50 8Z"/></svg><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">14 Oct 2022</span></div><div class="clip-head">"Suicide accounts for a tenth of Guernsey's sudden deaths"</div><a class="clip-link" href="https://www.itv.com/news/channel/2022-10-14/suicide-accounts-for-a-tenth-of-guernseys-sudden-deaths" target="_blank" rel="noopener">read the article →</a></div>
-        <div class="clip sclip" data-i="2" data-isle="gsy"><svg class="isle-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="rgba(52,211,153,.16)" d="M50 8C66 6 82 20 80 38C86 50 78 64 64 68C58 82 40 88 30 76C16 72 10 56 18 42C14 28 26 14 40 12C44 10 47 9 50 8Z"/></svg><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">7 Mar 2024</span></div><div class="clip-head">"Guernsey suicide figures soar over both Jersey and the UK"</div><a class="clip-link" href="https://www.itv.com/news/channel/2024-03-07/guernsey-suicide-figures-soar-over-both-jersey-and-the-uk" target="_blank" rel="noopener">read the article →</a></div>
-        <div class="clip sclip" data-i="3" data-isle="shet"><svg class="isle-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="rgba(251,146,60,.16)" d="M52 4C58 8 56 16 50 20C60 24 64 34 56 40C66 46 68 58 58 64C66 70 62 82 52 84C44 86 40 78 44 72C34 68 30 58 38 52C28 48 26 36 36 32C28 28 30 16 42 10C45 6 49 4 52 4Z"/><circle fill="rgba(251,146,60,.16)" cx="72" cy="14" r="7"/><circle fill="rgba(251,146,60,.16)" cx="78" cy="46" r="5"/></svg><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">10 Mar 2025</span></div><div class="clip-head">"Just come and ask: charities plea for anyone struggling to seek help"</div><a class="clip-link" href="https://www.shetnews.co.uk/2025/03/10/just-come-ask-charities-plea/" target="_blank" rel="noopener">read the article →</a></div>
-        <div class="clip sclip" data-i="4" data-isle="iom"><svg class="isle-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="rgba(248,113,113,.16)" d="M50 4C64 4 78 16 80 34C82 50 74 64 60 72C66 82 58 96 44 92C30 88 26 74 34 64C20 58 14 42 22 28C28 14 40 4 50 4Z"/></svg><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Sep 2025</span></div><div class="clip-head">"We need to talk about the suicide rate on the Isle of Man"</div><a class="clip-link" href="https://www.manxradio.com/news/isle-of-man-news/we-need-to-talk-about-the-suicide-rate-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
-        <div class="clip sclip" data-i="5" data-isle="iom"><svg class="isle-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="rgba(248,113,113,.16)" d="M50 4C64 4 78 16 80 34C82 50 74 64 60 72C66 82 58 96 44 92C30 88 26 74 34 64C20 58 14 42 22 28C28 14 40 4 50 4Z"/></svg><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Feb 2026</span></div><div class="clip-head">"ManxPACT raises concerns over suicide rates and mental-health provision"</div><a class="clip-link" href="https://gold.manxradio.com/news/isle-of-man-news/manxpact-raises-concerns-over-suicide-rates-and-mental-health-provision-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
+        <div class="clip sclip" data-i="0" data-isle="shet"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">20 Aug 2021</span></div><div class="clip-head">"NHS reminds anyone struggling to seek help after probable suicide figures released"</div><a class="clip-link" href="https://www.shetnews.co.uk/2021/08/20/nhs-reminds-anyone-who-is-struggling-to-seek-help-and-support-after-probable-suicide-figures-released/" target="_blank" rel="noopener">read the article →</a></div>
+        <div class="clip sclip" data-i="1" data-isle="gsy"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">14 Oct 2022</span></div><div class="clip-head">"Suicide accounts for a tenth of Guernsey's sudden deaths"</div><a class="clip-link" href="https://www.itv.com/news/channel/2022-10-14/suicide-accounts-for-a-tenth-of-guernseys-sudden-deaths" target="_blank" rel="noopener">read the article →</a></div>
+        <div class="clip sclip" data-i="2" data-isle="gsy"><div class="clip-top"><span class="clip-outlet">ITV News Channel</span><span class="clip-date">7 Mar 2024</span></div><div class="clip-head">"Guernsey suicide figures soar over both Jersey and the UK"</div><a class="clip-link" href="https://www.itv.com/news/channel/2024-03-07/guernsey-suicide-figures-soar-over-both-jersey-and-the-uk" target="_blank" rel="noopener">read the article →</a></div>
+        <div class="clip sclip" data-i="3" data-isle="shet"><div class="clip-top"><span class="clip-outlet">Shetland News</span><span class="clip-date">10 Mar 2025</span></div><div class="clip-head">"Just come and ask: charities plea for anyone struggling to seek help"</div><a class="clip-link" href="https://www.shetnews.co.uk/2025/03/10/just-come-ask-charities-plea/" target="_blank" rel="noopener">read the article →</a></div>
+        <div class="clip sclip" data-i="4" data-isle="iom"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Sep 2025</span></div><div class="clip-head">"We need to talk about the suicide rate on the Isle of Man"</div><a class="clip-link" href="https://www.manxradio.com/news/isle-of-man-news/we-need-to-talk-about-the-suicide-rate-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
+        <div class="clip sclip" data-i="5" data-isle="iom"><div class="clip-top"><span class="clip-outlet">Manx Radio</span><span class="clip-date">13 Feb 2026</span></div><div class="clip-head">"ManxPACT raises concerns over suicide rates and mental-health provision"</div><a class="clip-link" href="https://gold.manxradio.com/news/isle-of-man-news/manxpact-raises-concerns-over-suicide-rates-and-mental-health-provision-on-the-isle-of-man/" target="_blank" rel="noopener">read the article →</a></div>
       </div>
       <div class="scrolly-hint">keep scrolling ↓</div>
     </div>
@@ -219,7 +368,7 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
   <div class="section-label reveal"><span class="act">Act III</span>The test</div>
   <p class="body reveal">Before I could talk myself into an answer, I wrote the study down and registered it publicly (<a href="https://osf.io/nrf4s" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:underline;text-underline-offset:2px">OSF</a>), so the method was fixed before I saw the result. The registered question was the sharpest version of my own theory of why islands might differ: <strong>within each territory, do suicide deaths rise and fall with labour-market exclusion, once the shocks every territory shares are stripped out?</strong> And beneath it, the question everyone actually asks: <strong>are the islands' rates genuinely higher than Great Britain's at all?</strong></p>
   <p class="body reveal">I built a panel from 2001 to 2024: the small islands, with England &amp; Wales, Scotland and Prince Edward Island as comparison anchors. (I wanted the Faroe Islands in too, but they keep no comparable annual series; Gotland scraped in with only three usable years: the harmonisation problem, before I had even begun.) I benchmarked correctly, because there is no single "UK" rate to beat. England &amp; Wales sits near 11, Scotland near 14. Then I tested it several ways: a fixed-effects Poisson model with a wild cluster bootstrap; empirical-Bayes shrinkage; the pre-registered panel; a synthetic control for Shetland with placebo inference; and a year-by-year analysis of the Isle of Man. I cross-checked the whole thing in a second statistical engine (R).</p>
-  <p class="body reveal">Here is what stopped me. Tested several ways, no island stands out from its comparator. And the pre-registered panel, pooled across eleven territories and cross-checked in a second engine, came back a clean null on its registered question: a rate ratio of <strong>1.004</strong>, meaning suicide deaths do not detectably move with labour-market exclusion once the shocks every territory shares are stripped out. The reason it had to be pooled at all is the point that matters most. Any single island, on its own, is far too sparse to detect even a large difference. The Isle of Man alone is sixteen years of data and a single cluster; its headline rate cannot settle the question in either direction.</p>
+  <p class="body reveal">Here is what stopped me. Tested several ways, no island stands out from its comparator. And the pre-registered panel, pooled across eleven territories and cross-checked in a second engine, came back a clean null: a rate ratio of <strong>1.004</strong>. The reason it had to be pooled at all is the point that matters most. Any single island, on its own, is far too sparse to detect even a large difference. The Isle of Man alone is sixteen years of data and a single cluster; its headline rate cannot settle the question in either direction.</p>
   <p class="big reveal">That is the data problem in one line: <span class="pop">the number everyone quotes is the one number that can never answer it.</span></p>
   <div class="cmp-table reveal"><div class="cmp-scroll">
     <div class="cmp-head"><div>Island</div><div>Comparator</div><div>Verdict</div></div>
@@ -283,50 +432,51 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
   <div class="section-label reveal"><span class="act">Act V</span>The verdict: a glimmer of light</div>
   <div class="thesis reveal">
     <div class="thesis-q">So, do the islands have a suicide problem?</div>
-    <div class="thesis-a"><span class="no">No.</span> None of the Islands are measurably worse off than Great Britain. Or at least, not to a standard any statistics body would accept.</div>
+    <div class="thesis-a"><span class="no">Not one the rate can prove.</span> No island is measurably worse off than Great Britain, and none measurably better; at these numbers the rate simply cannot tell.</div>
     <div class="thesis-body">
       <p class="lead">They have a <em style="color:var(--amber);font-style:normal">data</em> problem.</p>
-      <p>The numbers are too sparse to rule out a modest difference either way. Which <em>is</em> the point. The rate cannot answer the question it is being asked.</p>
-      <p>This is <strong>not</strong> "small numbers, so it does not matter." Every death warrants review, exactly as Public Health argues.</p>
+      <p>The numbers are too sparse to rule out a modest difference either way. That's the point: the rate cannot answer the question it is being asked.</p>
+      <p>Not <strong>"small numbers, so it does not matter."</strong> Every death warrants review, exactly as Public Health argues.</p>
       <p>The rate should inform, not alarm.</p>
-      <p>The conclusion is unglamorous: <strong>follow the UK's own guidance and best practice.</strong></p>
-      <p>Publish honest annual counts as National Records of Scotland already does. Present any smoothed figure with its uncertainty, as the ONS does.</p>
-      <p>Spend the energy on the risk factors documented in mainstream literature, which the committee itself has already documented.</p>
+      <p>The fix is unglamorous: <strong>publish honest annual counts</strong>, as National Records of Scotland already does; <strong>present any smoothed figure with its uncertainty</strong>, as the ONS does.</p>
+      <p>Spend the energy on the risk factors this committee's own evidence already names.</p>
     </div>
   </div>
 
   <div class="close reveal">
     <p><span style="display:block;font-size:22px;font-weight:800;line-height:1.25;letter-spacing:-0.01em;color:var(--red);margin-bottom:.4rem">Statistics can be dangerous.</span>Handled carelessly, they frighten communities, stigmatise islands, and send scarce help chasing a problem that may not be there, while every real death still matters just as much.</p>
-    <p>And none of this makes the suffering statistical. The evidence running through the committee's 684 pages names the real risks, and none of them is a rate: a third of the 65 people who died between 2016 and 2021 were unemployed or unable to work, on an Island whose registered unemployment is close to zero; Public Health adds debt, loneliness, living alone, long-term disability; the Chief Constable adds marital breakdown; the then Health Minister adds poverty itself. Behind it all, an adult mental-health waiting list the committee's own conclusion says has not yet moved. <strong>Those are not artefacts.</strong> They need no rate to justify acting on them, and nothing in this analysis should delay that support by a single day.</p>
-    <p>I can hate the days when the statistics turn on my own hypothesis. It is hard, even so, not to find a glimmer of light in this one. If the null holds, being wrong was worth it: these islands can stop chasing a difference that was never there, record the real figures plainly, with caveats, and put scarce help where it truly saves lives: the waits, the welfare, the work. The honest numbers turn out to be kinder than the smoothed ones.</p>
+    <p>None of this makes the suffering any less real. The evidence running through the committee's 684 pages names the real risks, and none of them is a rate: a third of the 65 people who died between 2016 and 2021 were unemployed or unable to work, on an Island whose registered unemployment is close to zero; Public Health adds debt, loneliness, living alone, long-term disability; the Chief Constable adds marital breakdown; the then Health Minister adds poverty itself. Behind it all sits an adult mental-health waiting list that, by the committee's own admission, still has not moved. <strong>Those are not artefacts.</strong> They need no rate to justify acting on them, and nothing in this analysis should delay that support by a single day.</p>
+    <p>I hate being wrong about my own hypothesis. But there is a glimmer of light in this one: if the null holds, being wrong was worth it. These islands can stop chasing a difference the numbers were never able to show, record the real figures plainly, with caveats, and put scarce help where it truly saves lives: the waits, the welfare, the work. The honest numbers turn out to be kinder than the smoothed ones.</p>
     <p>Island after island, in small communities the world over, the picture is the same: no place is the tragic outlier its rolling rate, and its headlines, have made it seem.</p>
-    <p style="font-size:22px;font-weight:800;line-height:1.3;letter-spacing:-0.01em;color:var(--text)">No island is cursed with suicide; <span style="color:var(--amber)">the methodology is the curse</span>.<br/>Not on Prince Edward Island. Not in the Scottish islands. Not in the Channel Islands.<br/><br/>And not here, in the Isle of Man.</p>
+    <p style="font-size:22px;font-weight:800;line-height:1.3;letter-spacing:-0.01em;color:var(--text)">No island is cursed with suicide; <span style="color:var(--amber)">the methodology is the curse</span>.<br/>On Prince Edward Island. In the Scottish Islands. In the Channel Islands.<br/><br/>And here, in the Isle of Man.</p>
     <p class="close-cta" style="font-size:15px;font-weight:700">The policy recommendations are <strong>below</strong>.</p>
   </div>
 
   <details class="drop reveal" open><summary>Policy recommendations: what to do instead</summary>
   <div class="drop-body">
-  <p class="body" style="margin-top:.9rem">In 684 pages the committee describes itself as "not experts", reaches eleven conclusions, makes no recommendations, and signs off by quoting a textbook. Someone has to go first.</p>
+  <p class="body" style="margin-top:.9rem">The committee's 684 pages, careful as they are, stop at eleven conclusions and make no formal recommendations; its members are explicit that they are "not experts". These are offered in that spirit, as concrete next steps for others to test and improve.</p>
 
   <div class="pillar reveal">
-    <div class="pillar-head"><div class="pillar-ico p1"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5 L11 11 L8.5 15.5 L13 13 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div><div><div class="pillar-title">Redirect the effort to action</div><div class="pillar-sub">Stop explaining a difference that isn't there</div></div></div>
+    <div class="pillar-head"><div class="pillar-ico p1"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M15.5 8.5 L11 11 L8.5 15.5 L13 13 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div><div><div class="pillar-title">Redirect the effort to action</div><div class="pillar-sub">Stop explaining a difference the rate can't show</div></div></div>
     <div class="lever"><div class="lever-title">Stop hunting a special island cause</div><div class="lever-body">"Why is our rate higher?" cannot be answered from the rate, not for want of effort, but because the numbers cannot carry it. The committee asked it, more than once, and Public Health's honest answer was that nobody knows. That inconclusive search is not a failure. It is the correct answer, arriving. The 684-page interim report it produced is roughly ninety pages of analysis atop nearly six hundred of annexes, transcripts and attached policies. Put that effort into case-level review of every death, and into the actions below.</div><div class="lever-tags"><span class="tag ev">Formalises the Committee's own evidence</span></div></div>
     <div class="lever"><div class="lever-title">What happened in Shetland?</div><div class="lever-body">Shetland's rate ran high through the 2000s, then fell after 2013 and has sat below the Scottish rate since — that part is real: raw annual deaths roughly halved, from about 5.25/yr before 2013 to about 2/yr after. But the published shape — a sharp drop to ~7, then a flat floor there for four straight points (2015-2018) — overstates itself. Two ordinary years, 2016 and 2017, both registered zero deaths, and sit inside all four of those windows at once (see Act IV). Shetland isn't magical; it's small, and small populations have 0-years from time to time. Did sustained local prevention work cause the underlying decline? No one can prove that either way at this scale. But don't reach for the flat trough as if it were four years of independent confirmation — it's largely two years, counted four times.</div><div class="lever-tags"><span class="tag win">Act, don't wait for proof</span></div></div>
     <div class="lever"><div class="lever-title">Monitor what's sensitive, not what's blunt</div><div class="lever-body">Public Health itself asked for richer measures than the headline rate: a "suicide prevention profile," and the reach of interventions (people trained, people supported, waits shortened). Track those. They change in months, not the decade the rate needs.</div><div class="lever-tags"><span class="tag ev">Public Health's own ask</span></div></div>
-    <div class="lever"><div class="lever-title">Clear leadership and delivery</div><div class="lever-body">In February 2024 the committee recognised "a frustration with the pace of change, a perception of a lack of clear leadership for the Strategy and Government's apparent inability to work more closely with the third sector", and by 2026 it recorded that engagement had improved. But still nobody owns this: the Cabinet Office Minister rejects a single political figurehead, DHSC holds exactly one Strategy action, Public Health calls itself the facilitator "not the deliverer", and accountability "does come down to lead agencies". Name an accountable owner. Work with the charities that are already doing the work.</div><div class="lever-tags"><span class="tag care">Governance</span></div></div>
+    <div class="lever"><div class="lever-title">Publish the map of who leads, who commissions, who delivers</div><div class="lever-body">In February 2024 the committee recognised "a frustration with the pace of change, a perception of a lack of clear leadership for the Strategy and Government's apparent inability to work more closely with the third sector", and by 2026 it recorded that engagement had improved. Public Health is the Strategy's strategic lead: it coordinates implementation, monitors progress, holds partner agencies to account, and has itself delivered the Suspected Suicide Rapid Response group, suicide audit and intelligence work, postvention support and QPR training. What it is not, and could not reasonably be, is the operational deliverer of every action: it neither runs nor holds the budget for Manx Care's clinical mental-health services, so actions needing clinical staffing, capacity or crisis pathways sit with Manx Care as provider and DHSC as commissioner. The gap the committee's evidence points to is not an absent owner but an unpublished map of that division. Publish it.</div><div class="lever-tags"><span class="tag care">Governance</span></div></div>
   </div>
 
   <div class="pillar reveal">
     <div class="pillar-head"><div class="pillar-ico p2"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="pillar-title">Do what works, whether or not any island differs</div><div class="pillar-sub">Prevention that stands on its own</div></div></div>
-    <div class="lever"><div class="lever-title">Measure labour-market exclusion properly, then act on it</div><div class="lever-body">It is the strongest risk signal in the whole picture, and on the Isle of Man it hides behind the Island's proudest statistic. Registered unemployment is close to zero: "hardly anyone unemployed," the Chief Constable told the committee, against 746 Jobcentre vacancies. Yet the Island's own audit (GD2023/0019) found a third of those who died were unemployed or unable to work, a 4.1x overrepresentation. Both are true, because the headline number counts people signing on, not the economically inactive, the long-term sick, the "unable to work", which is where the risk actually lives. The measured rate undercuts the real rate of exclusion: the same curse as the suicide rate, wearing a different statistic. And across the islands it is measured inconsistently anyway (JSA here, claimant count there, different denominators everywhere), so it cannot even be compared. Measure exclusion on a common basis, publish it beside the mortality data, and treat employment and financial security as frontline suicide prevention. (Our own territory-level panel finds no detectable co-movement once shared shocks are stripped out; that is an ecological result, and it neither tests nor overturns the individual-level audit signal, which stands.)</div><div class="lever-tags"><span class="tag ev">GD2023/0019 · 4.1x</span><span class="tag win">Strongest known signal</span></div></div>
+    <div class="lever"><div class="lever-title">Measure labour-market exclusion properly, then act on it</div><div class="lever-body">It is the strongest risk signal in the whole picture, and on the Isle of Man it hides behind the Island's proudest statistic. Registered unemployment is close to zero: "hardly anyone unemployed," the Chief Constable told the committee, against 746 Jobcentre vacancies. Yet the Island's own audit (GD2023/0019) found a third of those who died were unemployed or unable to work, a 4.1x overrepresentation — well above the roughly 2.5x higher odds of suicide the wider international literature finds among unemployed people generally, which suggests the local signal is not an artefact of definitions alone. Both figures are true at once, because the headline number counts people signing on, not the economically inactive, the long-term sick, the "unable to work", which is where the risk actually lives. The measured rate undercuts the real rate of exclusion: the same curse as the suicide rate, wearing a different statistic. And across the islands it is measured inconsistently anyway (JSA here, claimant count there, different denominators everywhere), so it cannot even be compared. Measure exclusion on a common basis, publish it beside the mortality data, and treat employment and financial security as frontline suicide prevention. (Our own territory-level panel finds no detectable co-movement once shared shocks are stripped out; that is an ecological result, and it neither tests nor overturns the individual-level audit signal, which stands.)</div><div class="lever-tags"><span class="tag ev">GD2023/0019 · 4.1x</span><span class="tag win">Strongest known signal</span></div></div>
+    <div class="lever"><div class="lever-title">Treat separation and relationship breakdown as a crisis window</div><div class="lever-body">Marital breakdown is already in the committee's evidence, named by the Chief Constable among the risks running through the cases. The wider literature gives that a sharper edge: separated men die by suicide at several times the rate of married men, with risk concentrated in the weeks immediately after separation, and meta-analyses put the odds of suicidal ideation, attempts or completed suicide at roughly 1.6–2.8 times higher for the separated or divorced than the married. That is a short, identifiable window, and one the Island already has contact points for: family courts, GPs, and relationship-support and advice services all see people at the point of separation, before any crisis service does. A simple, time-limited signposting step at each of those points — in the weeks after separation, not the months — costs little and targets exactly where the risk concentrates.</div><div class="lever-tags"><span class="tag ev">Wider literature, ~2–6x</span><span class="tag win">Short, identifiable window</span></div></div>
     <div class="lever"><div class="lever-title">Fix the adult mental-health wait</div><div class="lever-body">ManxPACT exists because its founder, feeling suicidal, went to his GP and was told there was a two-year waiting list. Three years on, the children's picture has genuinely improved: the CAMHS list fell from over 1,200 to around 420, and the new TALK service assesses within days. The adult picture has not. The committee's own conclusion: the new therapists, hubs and practitioners have "not had an impact on waiting lists for adults yet". No data reform matters more than that.</div><div class="lever-tags"><span class="tag care">Access first</span><span class="tag ev">Committee Conclusion 6</span></div></div>
-    <div class="lever"><div class="lever-title">Back the peer support that already works, as a bridge, not a substitute</div><div class="lever-body">The Island's peer-led groups, Ed Space's men's and women's evenings and ManxPACT's Saturday meet-ups among them, reach exactly the people the audit says carry the risk and the clinical routes say they cannot find. The committee agrees: it concluded such a community facility "could have links to statutory service provision, with the ability to signpost or refer those in need". Yet ManxPACT's founder was cancelled from presenting his referral-based bridge proposal to the Manx Care Board, never rescheduled, and told by DHSC it could not support GP referrals into a group it "did not know about". Meanwhile the prison wrote a formal peer-support policy and implemented it within six months. Formalise the bridge <em>while</em> people wait, alongside treatment, never as a way to move them off the list instead of treating them.</div><div class="lever-tags"><span class="tag win">Local, low-cost</span><span class="tag ev">Committee's own conclusion, p. 87</span></div></div>
+    <div class="lever"><div class="lever-title">Recognise peer support, and build any bridge to services with care</div><div class="lever-body">Public Health already works with a wide range of suicide-prevention, bereavement and community organisations, and produced a formal multi-agency response after the ManxPACT report in January 2026. Peer-led groups — ManxPACT's Saturday meet-ups, Ed Space's men's and women's evenings, Women's Talk and others — provide valued, accessible support and may reach people who don't readily approach statutory services. That is not the same as being formally evaluated or resourced to take clinical referrals: the committee's evidence supports only the general principle that a community facility "could have links to statutory service provision, with the ability to signpost or refer those in need," not an endorsement of any named provider or referral model. Separately, ManxPACT's founder has said his referral-based proposal was cancelled from presentation to the Manx Care Board and never rescheduled, and that DHSC told him it could not support GP referrals into a group it "did not know about" — decisions for the Manx Care Board and DHSC to account for, not a verdict on Public Health. Any formal link should be developed collaboratively, with proportionate governance, safeguarding, evaluation and agreed escalation pathways, alongside treatment — never as a way to move people off a waiting list instead of treating them.</div><div class="lever-tags"><span class="tag win">Local, low-cost</span><span class="tag ev">Committee's evidence, p. 87</span></div></div>
+    <div class="lever"><div class="lever-title">Follow up on prior self-harm, physical illness and alcohol, not just diagnosis</div><div class="lever-body">The Island's own mid-life-men audit found that 44% of those who died had previously self-harmed — 7% of them in the week before death — and that more than half had a significant physical health condition: both stronger local signals than the headline rate can ever be. Nationally, alcohol runs through a large share of suicides too: present at post-mortem in roughly a fifth to two-thirds of cases depending on the series, with alcohol use disorder alone associated with a roughly five- to six-fold increase in risk. None of this needs a rate to justify acting on it: systematic follow-up after every self-harm presentation, closer working between physical-health teams and mental-health services, and routine alcohol screening in primary and emergency care are all deliverable now, on the evidence already in hand.</div><div class="lever-tags"><span class="tag ev">Manx audit: 44% prior self-harm</span><span class="tag win">Deliverable now</span></div></div>
     <div class="lever"><div class="lever-title">Adopt BS 30480, the workplace suicide standard</div><div class="lever-body">The UK's first workplace suicide standard (BSI, 2025) is free and adoptable across Government and major employers. Given the GD2023/0019 unemployment finding above, it is a direct and immediate local mandate.</div><div class="lever-tags"><span class="tag win">Free, off-the-shelf</span><span class="tag ev">GD2023/0019</span></div></div>
   </div>
 
   <div class="pillar reveal">
     <div class="pillar-head"><div class="pillar-ico p3"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3" stroke="currentColor" stroke-width="2"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5" stroke="currentColor" stroke-width="2"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" stroke="currentColor" stroke-width="2"/></svg></div><div><div class="pillar-title">Fix the data</div><div class="pillar-sub">So the number stops manufacturing crises</div></div></div>
-    <div class="lever"><div class="lever-title">A published, occurrence-based database, on the Scotland (ScotSID) model</div><div class="lever-body">The Island already has the tool: Strategy action 2.3.2, a real-time suspected-suicide database, was marked complete in September 2025, "populated by Health Intelligence analyst live during SSRR meetings". Evolve it into a transparent, occurrence-based, comparable record, and start collecting attempted-suicide data, which as of May 2026 is not collected at all. Registration lag is structural here: under a memorandum of understanding the coroner pauses while safeguarding reviews run, so occurrence-based counting matters more, not less. Figures published as standard, not prised out by FOI.</div><div class="lever-tags"><span class="tag win">Builds on existing work</span><span class="tag ev">ScotSID precedent</span></div></div>
+    <div class="lever"><div class="lever-title">Publish more, by occurrence-year — safely, and separately from SSRR</div><div class="lever-body">Strategy action 2.3.2, the Suspected Suicide Rapid Response (SSRR) dataset, was marked complete in September 2025, "populated by Health Intelligence analyst live during SSRR meetings". SSRR is, rightly, a confidential operational tool for rapid response, safeguarding, postvention and cluster identification: it can hold live, unverified information, including about people still living, and it should stay that way. The ask here is narrower and separate: additional aggregate statistics by year of occurrence, drawn from data once it clears coronial validation, published on a regular schedule. Public Health already publishes suicide statistics through the Isle of Man Mortality Reports; this would extend that record, not replace it, and any change needs coronial input, disclosure control and engagement with bereaved families and people with lived experience before it moves. Scotland's ScotSID is a useful reference for how a secure, person-level linked dataset can feed aggregate statistical reporting, subject to the same legal and governance tests here — not a case for publishing person-level records, in Scotland or here. And "not collected" overstates the attempted-suicide gap: individual services may hold relevant information, but Public Health has no consolidated Island-wide dataset for population-level surveillance of attempted suicide.</div><div class="lever-tags"><span class="tag win">Builds on existing work</span><span class="tag ev">ScotSID: aggregate reporting model</span></div></div>
     <div class="lever"><div class="lever-title">Publish annual counts. Retire the rolling headline</div><div class="lever-body">National Records of Scotland already publishes annual council-area counts, including years of 0, 1 or 2. And the ask is in the committee's own evidence: the Samaritans branch director, wishing for statistics ("Is the trend up or down? … We do not see those stats"), was asked by a committee member whether suicide should be reported like road deaths, published annually, and answered "I do not see why not." Honest annual counts, presented with care, are more transparent than 3-year smoothing, not less safe. The rolling-average headline is what turns one year into a trend. If a single smoothed figure is genuinely needed, use one that carries its uncertainty, an empirical-Bayes estimate or an annual count with its confidence interval, not a moving average, which manufactures trends out of noise.</div><div class="lever-tags"><span class="tag ev">Scotland already does this</span></div></div>
     <div class="lever"><div class="lever-title">Harmonise measurement across the islands</div><div class="lever-body">Crown Dependencies use a 3-year window, the Scottish islands a 5-year one, England &amp; Wales an annual one. Some count by registration, others differ (see the charts above, they are not even on the same ruler). A common basis is needed before any cross-island comparison means anything.</div><div class="lever-tags"><span class="tag ev">Comparability</span></div></div>
     <div class="lever"><div class="lever-title">Compare like with like: islands to islands</div><div class="lever-body">The Island's rate is habitually set against the UK. That has its uses, but for a rare event in a population of 85,000 it mostly measures the arithmetic, not the health system: you learn little by holding 85,000 people against 60 million. Small jurisdictions are better read against each other, or against scale-matched comparators, than against a national average. Scale is the malfunction, not the island.</div><div class="lever-tags"><span class="tag ev">Scale-matched comparison</span></div></div>
@@ -341,6 +491,9 @@ footer{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--border2);fo
     <p class="body"><strong>Honest limits.</strong> The numbers are small. For any single island the rate has almost no power to detect even a large difference; pooled across territories the study is adequately powered, and finds no association in either direction. Registration-year and occurrence-year counting differ. Nothing here licenses individual-level inference about who dies, or why.</p>
     <p class="body"><strong>The full work.</strong> The pre-registration is public: <a href="https://osf.io/nrf4s" target="_blank" rel="noopener" style="color:var(--blue)">osf.io/nrf4s</a> (OSF Registries, Secondary Data Preregistration, registered 29 July 2026). The data, the code, and two short-report papers, one on the measurement artefact and one on the pre-registered panel null, will be released in full. <em>Preprint links to follow.</em></p>
   </div></details>
+
+  </div>
+  <!-- ======================== END TECHNICAL VIEW ========================= -->
 
   <div class="narrative reveal"><strong>If you or someone you know is struggling, support is available.</strong><br>
   <strong>Samaritans</strong> 116 123 (free, 24/7) · <strong>SHOUT</strong> text 85258 (free, 24/7) · <strong>Isle Stand Up To Suicide</strong> 803040 (2pm to 10pm) · <strong>Papyrus HOPELINE</strong> 0800 068 4141 (for anyone under 35, or worried about a young person).<br>
@@ -419,8 +572,8 @@ const tbtn=document.getElementById('theme-btn');
 tbtn.onclick=()=>{document.body.classList.toggle('light');tbtn.textContent=document.body.classList.contains('light')?'Dark mode':'Light mode';if(drawn)draw();};
 window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.theme==='light';if(l!==document.body.classList.contains('light')){document.body.classList.toggle('light');tbtn.textContent=l?'Dark mode':'Light mode';if(drawn)draw();}}});
 // ---- Act IV: animated "how the 3-year rolling number is built" ----
-(function(){
-  const cv=document.getElementById('rollanim'); if(!cv||!cv.getContext) return;
+function initRollIOM(cvId,scId){
+  const cv=document.getElementById(cvId); if(!cv||!cv.getContext) return;
   const YR=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023];
   const C =[9,15,7,9,9,11,2,8,6,8,12,8,24,9,12,14];
   const ctx=cv.getContext('2d'); let W,H=330,DPR=1;
@@ -435,7 +588,7 @@ window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.
     const show=slow?800:360, hold=big?1900:(slow?1300:230);
     S.push({i,t0:t,ts:t+show,t1:t+show+hold,slow,big}); t+=show+hold;
   }
-  const END=t+900, END2=END+4600; const sc=document.getElementById('animScrolly'); let fitted=false;
+  const END=t+900, END2=END+4600; const sc=document.getElementById(scId); let fitted=false;
   const isL=()=>document.body.classList.contains('light');
   function render(e){
     const mut=isL()?'#5b6b80':'#93a3b8', grid=isL()?'rgba(0,0,0,.07)':'rgba(255,255,255,.08)', am=isL()?'#c77b06':'#fbbf24';
@@ -502,10 +655,12 @@ window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.
   window.addEventListener('scroll',onScroll,{passive:true});
   let rz; window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){fitted=false;draw();},150);});
   draw();
-})();
+}
+initRollIOM('rollanim','animScrolly');
+initRollIOM('rollanimPub','animScrollyPub');
 // ---- Act IV (counter-example): animated "how the 5-year rolling number is built" — Shetland ----
-(function(){
-  const cv=document.getElementById('rollanimShet'); if(!cv||!cv.getContext) return;
+function initRollSHET(cvId,scId){
+  const cv=document.getElementById(cvId); if(!cv||!cv.getContext) return;
   const YR=[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
   const C =[5,4,5,7,7,5,1,3,0,0,3,2,4,3,2,1,2]; // NRS Table 4A, Shetland, single-year counts
   const POP=23000, K=100000/POP;
@@ -522,7 +677,7 @@ window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.
     const show=slow?800:360, hold=big?1900:(slow?1300:230);
     S.push({i,t0:t,ts:t+show,t1:t+show+hold,slow,big}); t+=show+hold;
   }
-  const END=t+900, END2=END+4600; const sc=document.getElementById('animScrollyShet'); let fitted=false;
+  const END=t+900, END2=END+4600; const sc=document.getElementById(scId); let fitted=false;
   const isL=()=>document.body.classList.contains('light');
   // Scotland (national) own raw annual rate — flat comparator, same array used elsewhere on this page
   const SCOT_R_LOCAL=[15.4,13.6,14.3,16.2,15.1,14.5,12.7,12.3,13.3,12.4,14.3,15.2,14.7,13.7,13.9,14.4,12.8];
@@ -592,12 +747,14 @@ window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.
   window.addEventListener('scroll',onScroll,{passive:true});
   let rz; window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){fitted=false;draw();},150);});
   draw();
-})();
+}
+initRollSHET('rollanimShet','animScrollyShet');
+initRollSHET('rollanimShetPub','animScrollyShetPub');
 // ---- Act II: scroll-driven headline scrollytelling ----
-(function(){
-  const sc=document.getElementById('hlScrolly'); if(!sc) return;
+function initHl(scId){
+  const sc=document.getElementById(scId); if(!sc) return;
   const cards=Array.prototype.slice.call(sc.querySelectorAll('.sclip')); const N=cards.length;
-  const num=document.getElementById('hlNum'); let last=-1, tick=false;
+  const num=sc.querySelector('.scrolly-count b'); let last=-1, tick=false;
   function upd(){
     tick=false;
     const total=sc.offsetHeight-window.innerHeight; if(total<=0) return;
@@ -609,6 +766,41 @@ window.addEventListener('message',(e)=>{if(e.data&&e.data.theme){const l=e.data.
   window.addEventListener('scroll',onScroll,{passive:true});
   window.addEventListener('resize',onScroll);
   upd();
+}
+initHl('hlScrolly');
+initHl('hlScrollyPub');
+
+// ---- Public / Technical view toggle ----
+(function(){
+  var views={public:document.getElementById('view-public'),technical:document.getElementById('view-technical')};
+  var btns=Array.prototype.slice.call(document.querySelectorAll('.viewpill button'));
+  var current='public';
+  function nudge(){
+    // canvases and charts sized while hidden need re-fitting once visible
+    if(window.draw){ try{ draw(); }catch(e){} }
+    window.dispatchEvent(new Event('resize'));
+    window.dispatchEvent(new Event('scroll'));
+  }
+  function set(v,scroll){
+    if(!views[v]||v===current) { if(scroll) window.scrollTo({top:0,behavior:'smooth'}); return; }
+    current=v;
+    views.public.classList.toggle('on',v==='public');
+    views.technical.classList.toggle('on',v==='technical');
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view===v));});
+    try{history.replaceState(null,'','#'+v);}catch(e){}
+    if(scroll) window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(nudge,60);
+    setTimeout(nudge,400);
+  }
+  document.addEventListener('click',function(e){
+    var t=(e.target&&e.target.closest)?e.target.closest('[data-view]'):null; if(!t) return;
+    set(t.dataset.view,true);
+  });
+  var tb=document.getElementById('theme-btn');
+  if(tb) tb.addEventListener('click',function(){ setTimeout(nudge,50); });
+  window.addEventListener('message',function(e){ if(e.data&&e.data.theme) setTimeout(nudge,80); });
+  if(location.hash==='#technical'){ views.public.classList.remove('on'); views.technical.classList.add('on'); current='technical'; btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view==='technical'));}); }
+  window.addEventListener('load',function(){ setTimeout(nudge,500); });
 })();
 </script>
 </body>

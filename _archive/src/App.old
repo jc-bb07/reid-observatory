@@ -63,6 +63,7 @@ const TAB_GROUPS = [
       { id: "mybudget",      label: "My Budget"            },
       { id: "div-briefs",    label: "Policy Briefs", divider: true },
       { id: "housingApprenticeshipsBrief", label: "Brief: Housing & Apprenticeships" },
+      { id: "poweringMannBrief", label: "Brief: Powering Mann" },
     ]
   },
   { id: "health-group",    label: "Health & Care",       color: "#5ea99a", homeTab: "healthHome",
@@ -1203,6 +1204,19 @@ function HouseholdHomeTab({ C, onNavigate }) {
         )}
       </div>
 
+      <div onClick={() => onNavigate("poweringMannBrief")} style={{ cursor: "pointer" }}>
+        {card(
+          "Brief: Powering Mann",
+          `The island's next energy decision is already made for us: the power station that
+          supplies ~90% of our electricity retires around 2033, the single cable to England
+          around 2035, and households pay 29.5p a unit while import-led Jersey pays 22.20p.
+          A recommendation built on rooftop solar, batteries, flexibility and two
+          interconnectors — with a portfolio explorer to build your own mix and stress-test
+          it against a cold, still January night, N-1 fault and all. No turbines required.`,
+          "#fb923c"
+        )}
+      </div>
+
       <div style={{
         background: C.surface2, border: `1px solid ${C.border2}`,
         borderRadius: 8, padding: "14px 16px", marginBottom: 24,
@@ -1541,7 +1555,7 @@ function AppContent() {
     "islandStory",
     "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
-    "overview","wages","affordability","mybudget","housingApprenticeshipsBrief",
+    "overview","wages","affordability","mybudget","housingApprenticeshipsBrief","poweringMannBrief",
     "mcWhenWho","yourHealth","nobles-flow","nobles-v15",
     "islandsHub","islandsPH","islandsGov","islandsFin","islandsPrimary","islandsSecondary","islandsTertiary","islandsRoadmap","mcBudgetFlows",
   ]);
@@ -1612,6 +1626,9 @@ function AppContent() {
     householdHome:  <HouseholdHomeTab C={C} onNavigate={setTab} />,
     housingApprenticeshipsBrief: (
       <AutoIframe src="/housing-solution.html" title="Brief: Housing & Apprenticeships" theme={themeName} />
+    ),
+    poweringMannBrief: (
+      <AutoIframe src="/powering-mann.html" title="Brief: Powering Mann" theme={themeName} autoResize={false} />
     ),
 
     reid: (

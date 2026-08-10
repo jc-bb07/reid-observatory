@@ -1169,7 +1169,7 @@ function HouseholdHomeTab({ C, onNavigate }) {
           "Affordability",
           `House prices, price-to-earnings ratios, real earnings change, and below-living-wage
           rates across all four jurisdictions. The IoM median earner faces a house price
-          8.6 times annual earnings — above the UK's already-stretched 8.2× and more than
+          9.1 times annual earnings — above the UK's already-stretched 8.2× and more than
           double the international affordability threshold of 4×. Three illustrative household
           Sankeys show what take-home pay actually covers after essential costs.`,
           "#fb923c"
