@@ -1,0 +1,203 @@
+{
+  "topic": {
+    "id": "cancer",
+    "title": "Cancer Care",
+    "citizenQuestion": "If I'm referred with a suspected cancer, how quickly will I be seen and treated?",
+    "lastUpdated": "2026-06-30",
+    "schemaVersion": "1.0"
+  },
+
+  "jurisdictions": {
+    "iom": {
+      "id": "iom",
+      "name": "Isle of Man",
+      "shortName": "IoM",
+      "provider": "Manx Care",
+      "population": 84000,
+      "populationLabel": "~84,000",
+      "color": "--iom",
+      "fiscalYear": "April–March",
+      "type": "crown-dependency"
+    },
+    "jsy": {
+      "id": "jsy",
+      "name": "Jersey",
+      "shortName": "Jersey",
+      "provider": "Health and Care Jersey (HCJ)",
+      "population": 104540,
+      "populationLabel": "104,540",
+      "color": "--jsy",
+      "fiscalYear": "Calendar year",
+      "type": "crown-dependency"
+    },
+    "gsy": {
+      "id": "gsy",
+      "name": "Guernsey",
+      "shortName": "Guernsey",
+      "provider": "Guernsey HSC / MSG",
+      "population": 64781,
+      "populationLabel": "64,781",
+      "color": "--gsy",
+      "fiscalYear": "Calendar year",
+      "type": "crown-dependency",
+      "dataNote": "Guernsey does not publish cancer waiting time KPIs in a comparable format. Shown as a data gap, not a zero."
+    },
+    "wal": {
+      "id": "wal",
+      "name": "NHS Wales",
+      "shortName": "Wales",
+      "provider": "NHS Wales",
+      "population": 3170000,
+      "populationLabel": "~3.17m",
+      "color": "--wal",
+      "fiscalYear": "April–March",
+      "type": "uk-nation",
+      "benchmarkOnly": true
+    },
+    "eng": {
+      "id": "eng",
+      "name": "NHS England",
+      "shortName": "England",
+      "provider": "NHS England",
+      "population": 56000000,
+      "populationLabel": "~56m",
+      "color": "--eng",
+      "fiscalYear": "April–March",
+      "type": "uk-nation",
+      "benchmarkOnly": true
+    }
+  },
+
+  "metricFamilies": [
+    {
+      "id": "fds28",
+      "name": "Seen and diagnosed within 28 days",
+      "citizenLabel": "Time to find out if you have cancer",
+      "explainer": "From an urgent referral (e.g. by your GP), how many people are told whether they have cancer, or it's been ruled out, within 28 days. This is sometimes called the 'Faster Diagnosis Standard'.",
+      "unit": "%",
+      "higherIsBetter": true,
+      "comparability": "high",
+      "comparabilityNote": "This standard is defined consistently across IoM and NHS England. Jersey and Guernsey do not publish an equivalent metric.",
+      "series": {
+        "iom": {
+          "target": 75,
+          "targetNote": "Local Mandate KPI target",
+          "points": [
+            { "period": "2022-23", "value": 63.8 },
+            { "period": "2023-24", "value": 66.9 },
+            { "period": "2024-25", "value": 62.5, "latest": true }
+          ],
+          "source": "Manx Care Annual Report 2024-25",
+          "sourceType": "official"
+        },
+        "jsy": { "status": "not-published" },
+        "gsy": { "status": "not-published" },
+        "eng": {
+          "target": 77,
+          "targetNote": "NHS Constitutional standard",
+          "points": [
+            { "period": "2024-25 (Mar 2025)", "value": 78.9, "latest": true }
+          ],
+          "source": "NHS England Performance Report 2024-25",
+          "sourceType": "official"
+        },
+        "wal": { "status": "not-published" }
+      }
+    },
+    {
+      "id": "days62",
+      "name": "Referral to treatment within 62 days",
+      "citizenLabel": "Time from referral to starting treatment",
+      "explainer": "From an urgent cancer referral to actually starting treatment (surgery, chemotherapy, radiotherapy etc). This is the standard most clinicians consider the most clinically important.",
+      "unit": "%",
+      "higherIsBetter": true,
+      "comparability": "medium",
+      "comparabilityNote": "The Isle of Man's target for this standard was lowered from 85% to 70% for 2024-25 — figures from before and after this change are not on a like-for-like pass/fail basis. NHS England and NHS Wales both use a 70-75% target. Jersey and Guernsey do not publish an equivalent metric.",
+      "series": {
+        "iom": {
+          "target": 70,
+          "targetNote": "Reduced from 85% prior to 2024-25 — see comparability note",
+          "targetChangedAt": "2024-25",
+          "points": [
+            { "period": "2022-23", "value": null, "targetAtTime": 85 },
+            { "period": "2023-24", "value": 51.5, "targetAtTime": 85 },
+            { "period": "2024-25", "value": 52.1, "targetAtTime": 70, "latest": true }
+          ],
+          "source": "Manx Care Annual Report 2024-25 / DHSC Assessment 2024-25",
+          "sourceType": "official",
+          "attributionGap": "DHSC Assessment 2024-25 states current reporting cannot show whether 62-day breaches are mainly due to on-Island or off-Island delays."
+        },
+        "jsy": { "status": "not-published" },
+        "gsy": { "status": "not-published" },
+        "eng": {
+          "target": 70,
+          "points": [
+            { "period": "2024-25 (Mar 2025)", "value": 71.4, "latest": true }
+          ],
+          "source": "NHS England Performance Report 2024-25",
+          "sourceType": "official"
+        },
+        "wal": {
+          "target": 75,
+          "points": [
+            { "period": "2025-26 (Feb 2026)", "value": 57.0, "latest": true }
+          ],
+          "source": "NHS Wales Activity and Performance Summary",
+          "sourceType": "official"
+        }
+      }
+    },
+    {
+      "id": "days31",
+      "name": "Decision to treat within 31 days",
+      "citizenLabel": "Time from the decision to treat you, to starting treatment",
+      "explainer": "Once a clinician has decided what treatment you need, how long until you actually start it. This is the final stage of the pathway and is usually the fastest to meet.",
+      "unit": "%",
+      "higherIsBetter": true,
+      "comparability": "low",
+      "comparabilityNote": "Only published by Manx Care among these jurisdictions in this exact form.",
+      "series": {
+        "iom": {
+          "target": 96,
+          "points": [
+            { "period": "2023-24", "value": 79.6 },
+            { "period": "2024-25", "value": 85.5, "latest": true }
+          ],
+          "source": "Manx Care Annual Report 2024-25",
+          "sourceType": "official"
+        },
+        "jsy": { "status": "not-published" },
+        "gsy": { "status": "not-published" },
+        "eng": { "status": "not-published" },
+        "wal": { "status": "not-published" }
+      }
+    }
+  ],
+
+  "citizenContext": [
+    {
+      "id": "what-this-means",
+      "heading": "What these numbers mean for you",
+      "body": "If your GP refers you with a suspected cancer, there are two separate clocks. The first is how quickly you're told whether you have cancer or not (28-day standard). The second is how quickly treatment actually starts once cancer is confirmed and a plan is agreed (62-day standard, with a final 31-day stage once a treatment decision is made). On the Isle of Man in 2024-25, around 6 in 10 people had a diagnosis confirmed within 28 days, and around 5 in 10 started treatment within 62 days of an urgent referral."
+    },
+    {
+      "id": "off-island",
+      "heading": "Why off-island care matters here",
+      "body": "Some cancer treatments — particularly specialist surgery, proton beam therapy, and some chemotherapy regimens — aren't available locally on the Isle of Man and require travel to UK hospitals such as The Christie in Manchester. Manx Care does not currently publish data showing how much of the delay in the 62-day pathway happens on-island versus off-island, which makes it hard to know where improvement is most needed.",
+      "linkTopic": "off-island"
+    }
+  ],
+
+  "dataGaps": [
+    "Jersey does not publish cancer waiting time metrics in a format comparable to IoM or NHS England.",
+    "Guernsey does not publish cancer waiting time KPIs in a comparable format.",
+    "No jurisdiction in this dataset publishes a breakdown of 62-day breaches by on-island vs off-island cause."
+  ],
+
+  "sources": [
+    { "id": "manx-ar-2425", "title": "Manx Care Annual Report 2024-25", "jurisdiction": "iom" },
+    { "id": "dhsc-2425", "title": "DHSC Assessment of Manx Care 2024-25", "jurisdiction": "iom" },
+    { "id": "nhse-perf-2425", "title": "NHS England Performance Report 2024-25", "jurisdiction": "eng" },
+    { "id": "nhsw-activity", "title": "NHS Wales Activity and Performance Summary (Feb 2026)", "jurisdiction": "wal" }
+  ]
+}

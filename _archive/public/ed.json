@@ -1,0 +1,254 @@
+{
+  "topic": {
+    "id": "ed",
+    "title": "Emergency Department",
+    "citizenQuestion": "If I go to A&E, how long will I wait — and how does that compare to last year?",
+    "lastUpdated": "2026-06-30",
+    "schemaVersion": "1.0"
+  },
+
+  "jurisdictions": {
+    "iom": {
+      "id": "iom",
+      "name": "Isle of Man",
+      "shortName": "IoM",
+      "provider": "Manx Care",
+      "population": 84000,
+      "populationLabel": "~84,000",
+      "color": "--iom",
+      "fiscalYear": "April–March",
+      "type": "crown-dependency"
+    },
+    "jsy": {
+      "id": "jsy",
+      "name": "Jersey",
+      "shortName": "Jersey",
+      "provider": "Health and Care Jersey (HCJ)",
+      "population": 104540,
+      "populationLabel": "104,540",
+      "color": "--jsy",
+      "fiscalYear": "Calendar year",
+      "type": "crown-dependency",
+      "dataNote": "Jersey does not publish an ED 4-hour performance figure in a format comparable to IoM/Guernsey/NHS. Ambulance response time is published separately and is included here."
+    },
+    "gsy": {
+      "id": "gsy",
+      "name": "Guernsey",
+      "shortName": "Guernsey",
+      "provider": "Guernsey HSC / MSG",
+      "population": 64781,
+      "populationLabel": "64,781",
+      "color": "--gsy",
+      "fiscalYear": "Calendar year",
+      "type": "crown-dependency"
+    },
+    "wal": {
+      "id": "wal",
+      "name": "NHS Wales",
+      "shortName": "Wales",
+      "provider": "NHS Wales",
+      "population": 3170000,
+      "populationLabel": "~3.17m",
+      "color": "--wal",
+      "fiscalYear": "April–March",
+      "type": "uk-nation",
+      "benchmarkOnly": true
+    },
+    "eng": {
+      "id": "eng",
+      "name": "NHS England",
+      "shortName": "England",
+      "provider": "NHS England",
+      "population": 56000000,
+      "populationLabel": "~56m",
+      "color": "--eng",
+      "fiscalYear": "April–March",
+      "type": "uk-nation",
+      "benchmarkOnly": true
+    }
+  },
+
+  "metricFamilies": [
+    {
+      "id": "fourhr",
+      "name": "Seen, admitted, transferred or discharged within 4 hours",
+      "citizenLabel": "Time to be seen and dealt with in A&E",
+      "explainer": "The proportion of A&E attendances where the patient is admitted to hospital, transferred elsewhere, or discharged within 4 hours of arrival. This is the headline emergency department measure used across the UK and Crown Dependencies — but the target each jurisdiction is held to differs.",
+      "unit": "%",
+      "higherIsBetter": true,
+      "comparability": "medium",
+      "comparabilityNote": "Targets differ by jurisdiction: IoM's local target is 76% (not the NHS 95% constitutional standard); Guernsey's target is 95%; NHS Wales and England both use 95%. Compliance is shown against each jurisdiction's own target, not a shared scale. Jersey does not publish this measure in comparable form.",
+      "series": {
+        "iom": {
+          "target": 76,
+          "targetNote": "Local Mandate KPI target, not the NHS 95% standard",
+          "points": [
+            { "period": "2021-22", "value": 74.5 },
+            { "period": "2022-23", "value": 69.9 },
+            { "period": "2023-24", "value": 69.7 },
+            { "period": "2024-25", "value": 66.5, "latest": true }
+          ],
+          "source": "Manx Care Annual Report 2024-25",
+          "sourceType": "official",
+          "note": "Combined system figure (Noble's + Ramsey Cottage Hospital). Noble's alone: 57.8%. Ramsey (RDCH) alone: 99.8% — the combined figure is dominated by Noble's, the main acute site."
+        },
+        "jsy": { "status": "not-published" },
+        "gsy": {
+          "target": 95,
+          "points": [
+            { "period": "2024", "value": 89, "latest": true }
+          ],
+          "source": "Guernsey Secondary Healthcare Contract KPIs 2024",
+          "sourceType": "official",
+          "note": "Median annual figure. Best ED performance among Crown Dependencies, though still below Guernsey's own 95% target."
+        },
+        "wal": {
+          "target": 95,
+          "points": [
+            { "period": "2025-26 (Mar 2026)", "value": 64.2, "latest": true }
+          ],
+          "source": "NHS Wales Activity and Performance Summary",
+          "sourceType": "official"
+        },
+        "eng": {
+          "target": 95,
+          "targetNote": "Operational ambition for 2024-25 was 78%",
+          "points": [
+            { "period": "2024-25 (Mar 2025)", "value": 75.0, "latest": true }
+          ],
+          "source": "NHS England Performance Report 2024-25",
+          "sourceType": "official",
+          "note": "The 95% constitutional standard has not been met in England since July 2015."
+        }
+      }
+    },
+    {
+      "id": "twelvehr",
+      "name": "12-hour waits from arrival",
+      "citizenLabel": "Risk of a very long wait (12+ hours)",
+      "explainer": "How often patients wait 12 hours or more in A&E, measured from time of arrival. This is the most serious wait-time breach and is associated with worse outcomes for patients, particularly older or frailer patients.",
+      "unit": "%",
+      "higherIsBetter": false,
+      "comparability": "low",
+      "comparabilityNote": "IoM reports this as a percentage of attendances. NHS Wales reports a raw monthly count rather than a rate, so the two are not directly comparable as numbers — both are shown to indicate direction of travel only.",
+      "series": {
+        "iom": {
+          "target": 0,
+          "targetNote": "No target breach is acceptable, but no formal ceiling is published",
+          "points": [
+            { "period": "2023-24", "value": 2.8 },
+            { "period": "2024-25", "value": 4.4, "latest": true }
+          ],
+          "source": "Manx Care Annual Report 2024-25",
+          "sourceType": "official"
+        },
+        "jsy": { "status": "not-published" },
+        "gsy": { "status": "not-published" },
+        "wal": {
+          "status": "count-not-rate",
+          "points": [
+            { "period": "2025-26 (Mar 2026)", "value": 10939, "latest": true, "unit": "count" }
+          ],
+          "source": "NHS Wales Activity and Performance Summary",
+          "sourceType": "official",
+          "note": "Monthly count, up 11.5% versus the prior month. Not a percentage — shown as a raw figure for trend awareness only."
+        },
+        "eng": { "status": "not-published" }
+      }
+    },
+    {
+      "id": "ambulance",
+      "citizenLabel": "Ambulance response time for the most urgent calls",
+      "name": "Category 1 mean ambulance response time",
+      "explainer": "For the most time-critical 999 calls — cardiac arrest, not breathing — how many minutes on average an ambulance takes to arrive.",
+      "unit": "min",
+      "higherIsBetter": false,
+      "comparability": "medium",
+      "comparabilityNote": "Jersey switched from a Red 1/Red 2 classification to the ARP Cat 1/Cat 2 system in October 2022; figures from before and after that change are not comparable. NHS Wales changed ambulance categories from July 2025. IoM and Jersey figures shown here are both post-2022 ARP-based and are broadly comparable to each other.",
+      "series": {
+        "iom": {
+          "target": 7,
+          "targetNote": "Target ≤7 minutes mean",
+          "points": [
+            { "period": "2024-25", "value": 9.45, "latest": true }
+          ],
+          "source": "Manx Care Annual Report 2024-25",
+          "sourceType": "official"
+        },
+        "jsy": {
+          "target": 7,
+          "points": [
+            { "period": "2025", "value": 6.67, "latest": true }
+          ],
+          "source": "HCJ/States of Jersey Annual Report and Accounts 2024-25",
+          "sourceType": "official"
+        },
+        "gsy": { "status": "not-published" },
+        "wal": {
+          "target": 7,
+          "points": [
+            { "period": "2025-26", "value": 9.42, "latest": true }
+          ],
+          "source": "NHS Wales Activity and Performance Summary",
+          "sourceType": "official"
+        },
+        "eng": { "status": "not-published" }
+      }
+    },
+    {
+      "id": "avgtime",
+      "citizenLabel": "Average time spent in the department",
+      "name": "Average time in ED (all attendances)",
+      "explainer": "The average length of time a patient spends in the emergency department from arrival to leaving, across all attendances — not just the 4-hour breach measure.",
+      "unit": "min",
+      "higherIsBetter": false,
+      "comparability": "low",
+      "comparabilityNote": "Only published by Manx Care among these jurisdictions in this exact form, drawn from in-year operational reporting rather than the annual KPI set.",
+      "series": {
+        "iom": {
+          "target": 360,
+          "targetNote": "Target ≤360 minutes (6 hours)",
+          "points": [
+            { "period": "March 2024", "value": 265, "latest": true }
+          ],
+          "source": "Manx Care Integrated Performance Report, March 2024",
+          "sourceType": "estimated",
+          "sourceNote": "In-year IPR figure, not from the annual report. Single-month snapshot, not a 12-month average."
+        },
+        "jsy": { "status": "not-published" },
+        "gsy": { "status": "not-published" },
+        "wal": { "status": "not-published" },
+        "eng": { "status": "not-published" }
+      }
+    }
+  ],
+
+  "citizenContext": [
+    {
+      "id": "what-this-means",
+      "heading": "What these numbers mean for you",
+      "body": "The 4-hour standard is the figure you'll see quoted most often, but it covers everyone from a minor injury to a major trauma, so it can hide a lot. On the Isle of Man, the system-wide figure (66.5% in 2024-25) is pulled down heavily by Noble's Hospital, the main acute site (57.8% there alone) — Ramsey Cottage Hospital, which handles less complex cases, meets the standard almost every time (99.8%). If you're taken to Noble's with something serious, the 4-hour figure on its own won't tell you much about how quickly the most urgent care actually happens."
+    },
+    {
+      "id": "stroke",
+      "heading": "Stroke and the most time-critical emergencies",
+      "body": "For some emergencies, minutes matter more than the standard 4-hour measure can capture. In-year reporting from March 2024 showed only 36% of suspected stroke patients arrived at hospital within 60 minutes of the emergency call, against a target of 100% — a year-to-date average of 49%. This is a narrower and more clinically specific measure than the headline 4-hour figure, and it isn't tracked in the annual KPI set, so it's easy to miss if you only look at headline reporting."
+    }
+  ],
+
+  "dataGaps": [
+    "Jersey does not publish an ED 4-hour performance figure in a format comparable to IoM, Guernsey, or NHS Wales/England.",
+    "12-hour wait data is reported inconsistently — IoM as a percentage of attendances, NHS Wales as a raw monthly count — so direct comparison of the two isn't meaningful as numbers, only as a direction of travel.",
+    "Average time in ED is only available for the Isle of Man, and only as a single-month in-year snapshot (March 2024) rather than a full-year figure.",
+    "Stroke response time (within 60 minutes) is not published in the IoM annual KPI set and has no equivalent published figure in Jersey, Guernsey, NHS Wales, or NHS England in this dataset."
+  ],
+
+  "sources": [
+    { "id": "manx-ar-2425", "title": "Manx Care Annual Report 2024-25", "jurisdiction": "iom" },
+    { "id": "manx-ipr-mar24", "title": "Manx Care Integrated Performance Report, March 2024 (Final v3.0)", "jurisdiction": "iom" },
+    { "id": "gsy-kpi-2024", "title": "Guernsey Secondary Healthcare Contract KPIs 2024", "jurisdiction": "gsy" },
+    { "id": "jsy-ara-2425", "title": "HCJ/States of Jersey Annual Report and Accounts 2024-25", "jurisdiction": "jsy" },
+    { "id": "nhsw-activity", "title": "NHS Wales Activity and Performance Summary", "jurisdiction": "wal" },
+    { "id": "nhse-perf-2425", "title": "NHS England Performance Report 2024-25", "jurisdiction": "eng" }
+  ]
+}

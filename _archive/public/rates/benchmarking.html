@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Benchmarking — Isle of Man local authorities · Crown Dependencies Observatory</title>
+<meta name="description" content="All 21 Isle of Man local authorities side by side, the full joint-board network, and a pick-any-four comparison tool.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c1620;--surface:#12222a;--surface2:#0e1b23;--border:#18262f;--border2:#2b4049;
+  --text:#e2ecea;--muted:#7e9a94;--muted2:#a9c1bb;--accent:#4fb39c;--on-accent:#0c1620;
+  --c-fgp:#936d24;--c-works:#1c7ce5;--c-parks:#2ea957;--c-refuse:#cb4601;--c-disc:#ac65db;--c-income:#2ca2a2;--c-bal:#7e9a94;
+  --measure:880px;
+}
+body.light{
+  --bg:#f0f9f8;--surface:#ffffff;--surface2:#e6f4f1;--border:#cce8e4;--border2:#99d5cc;
+  --text:#0f172a;--muted:#33625b;--muted2:#1e4a44;--accent:#2f7d6c;--on-accent:#ffffff;--c-bal:#33625b;
+}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
+.wrap{max-width:calc(var(--measure) + 48px);margin:0 auto;padding:34px 24px 60px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:10px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.2}
+.sub{color:var(--muted);font-size:13px;margin-top:6px}
+.navrow{display:flex;gap:8px;flex-shrink:0}
+.tbtn{background:none;border:1px solid var(--border2);color:var(--muted2);border-radius:6px;height:30px;padding:0 12px;font-size:11.5px;font-family:"Inter",sans-serif;cursor:pointer;font-weight:600;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center}
+.tbtn:hover{color:var(--text);border-color:var(--accent)}
+.back{font-size:12px;color:var(--muted);text-decoration:none;display:inline-block;margin:18px 0 24px}
+.back:hover{color:var(--accent)}
+.lede{font-size:15px;color:var(--muted2);line-height:1.65;margin-bottom:26px}
+.lede b{color:var(--text)}
+h3{font-size:15px;font-weight:700;margin:34px 0 10px;letter-spacing:-.01em}
+h4.sub3{font-size:12px;font-weight:700;margin:18px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+p.body{font-size:13.5px;color:var(--muted2);line-height:1.68;margin-bottom:12px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0 8px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-bottom:1px solid var(--border2)}
+td.num{font-family:"JetBrains Mono",monospace}
+tr.tier-hdr td{background:var(--surface2);font-weight:700;color:var(--text);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px}
+tr.built td{color:var(--text)}
+tr.notbuilt td{color:var(--muted)}
+.cap{font-size:11.5px;color:var(--muted);line-height:1.55}
+.warn{border-left:3px solid var(--c-fgp);background:var(--surface);padding:14px 16px;border-radius:0 8px 8px 0;margin:18px 0}
+.warn p{font-size:12.5px;color:var(--muted2);margin:0;line-height:1.62}
+.warn b{color:var(--text)}
+.warn.good{border-left-color:var(--c-parks)}
+.warn.info{border-left-color:var(--c-works)}
+.peer{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0 8px}
+.peercard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 16px 14px}
+.peercard h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.peercard .names{font-size:14.5px;font-weight:700;margin-bottom:6px}
+.peercard .d{font-size:12px;color:var(--muted2);line-height:1.55}
+.collab{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.crow{display:flex;gap:12px;align-items:baseline;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.crow .who{font-weight:700;font-size:12.5px;min-width:130px;flex-shrink:0}
+.crow .what{font-size:12.5px;color:var(--muted2);flex:1}
+.crow .amt{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--text);flex-shrink:0}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.badge.named{background:var(--c-parks);color:#06251a}
+.badge.unconfirmed{background:var(--border2);color:var(--text)}
+.roster{display:flex;flex-direction:column;gap:2px;margin:14px 0}
+.rgroup{margin-bottom:10px}
+.rgroup .rtitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:6px 4px 4px}
+.ritem{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:12.5px}
+.ritem .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ritem .dot.on{background:var(--accent)}
+.ritem .dot.off{background:var(--border2)}
+.ritem .rname{flex:1;font-weight:600}
+.ritem.off .rname{color:var(--muted);font-weight:400}
+.ritem .rlink{font-size:11px;color:var(--accent);text-decoration:none;font-weight:700}
+.ritem .rstatus{font-size:10.5px;color:var(--muted);font-family:"JetBrains Mono",monospace}
+.picker{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:18px 20px;margin:16px 0}
+.picker .ph{font-size:12px;color:var(--muted);margin-bottom:10px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;margin-bottom:14px}
+.pitem{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer;padding:3px 0}
+.pitem input{accent-color:var(--accent);cursor:pointer}
+.pitem.disabled{opacity:.35;cursor:not-allowed}
+.pcount{font-size:11px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-bottom:4px}
+#cmpTable{display:none}
+#cmpTable.show{display:block}
+#cmpEmpty{font-size:12.5px;color:var(--muted);padding:10px 0}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.6}
+a.inline{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>Benchmarking</h1>
+    <div class="sub">All 21 Isle of Man local authorities, side by side — plus a pick-any-four comparison tool and the full joint-board map.</div>
+  </div>
+  <div class="navrow">
+    <a class="tbtn" href="consolidated.html">Consolidated →</a>
+    <button class="tbtn" id="btn-theme">Light</button>
+  </div>
+</header>
+<a class="back" href="index.html">← Back to the diagrams</a>
+
+<p class="lede">This isn't a league table. Braddan and Santon are thirteen times apart in rate income — ranking them against each other tells you about scale, not performance. What's more useful is grouping authorities with genuinely similar ones, being honest about where collaboration already exists versus where it's only plausible, and letting you build your own comparison rather than accepting the one baked into a table.</p>
+
+<h3>All 21, side by side</h3>
+<table>
+  <thead><tr><th>Authority</th><th>Tier</th><th>Basis</th><th>Rate income</th><th>Rate in £</th><th>Result for year</th><th>Borrowing</th><th>Net assets</th><th>Own accounts?</th></tr></thead>
+  <tbody>
+    <tr><td>Douglas</td><td>Town</td><td>outturn 24-25<sup>¶</sup></td><td class="num">£15,382,000</td><td class="num">573p</td><td class="num">−£4,445,000</td><td class="num">£90,963,000</td><td class="num">£289,885,000</td><td class="num">no</td></tr>
+    <tr><td>Ramsey</td><td>Town</td><td>outturn 22-23<sup>§</sup></td><td class="num">£3,130,602</td><td class="num">445p</td><td class="num">+£614,176</td><td class="num">£30,313,288</td><td class="num">£68,257,705</td><td class="num">no</td></tr>
+    <tr><td>Onchan</td><td>District</td><td>outturn 23-24<sup>¶</sup></td><td class="num">£2,792,463</td><td class="num">373p</td><td class="num">−£377,447</td><td class="num">£15,081,307</td><td class="num">£66,223,100</td><td class="num">no</td></tr>
+    <tr><td>Peel</td><td>Town</td><td>outturn 23-24</td><td class="num">£1,661,273<sup>‡</sup></td><td class="num">267p</td><td class="num">+£524,009</td><td class="num">£10,806,253</td><td class="num">£49,546,410</td><td class="num">no</td></tr>
+    <tr><td>Braddan</td><td>Parish</td><td>estimate 23-24</td><td class="num">£1,443,032</td><td class="num">257p</td><td class="num">—</td><td class="num">£18.1m<sup>†</sup></td><td class="num">£15.11m<sup>†</sup></td><td class="num">yes</td></tr>
+    <tr><td>Castletown</td><td>Town</td><td>outturn 23-24 (draft)</td><td class="num">£1,231,242</td><td class="num">356p</td><td class="num">+£174,880</td><td class="num">£10,384,205</td><td class="num">£32,801,341</td><td class="num">yes</td></tr>
+    <tr><td>Port Erin</td><td>Village</td><td>outturn 24-25</td><td class="num">£1,116,967</td><td class="num">378p</td><td class="num">+£351,783</td><td class="num">£5,211,515</td><td class="num">£30,010,664</td><td class="num">no</td></tr>
+    <tr><td>Garff</td><td>Parish</td><td>outturn 24-25</td><td class="num">£1,012,627<sup>‡</sup></td><td class="num">191.5p</td><td class="num">+£92,829</td><td class="num">£984,935</td><td class="num">£4,046,253</td><td class="num">no</td></tr>
+    <tr><td>Malew</td><td>Parish</td><td>outturn 23-24</td><td class="num">£787,588</td><td class="num">199p</td><td class="num">+£63,158</td><td class="num">£263,423</td><td class="num">£3,746,363</td><td class="num">no</td></tr>
+    <tr><td>Port St Mary</td><td>Village</td><td>outturn 23-24</td><td class="num">£532,169</td><td class="num">386p</td><td class="num">−£124,936</td><td class="num">£4,489,130</td><td class="num">£17,226,706</td><td class="num">no</td></tr>
+    <tr><td>Arbory &amp; Rushen</td><td>Parish</td><td>outturn 23-24</td><td class="num">£517,635</td><td class="num">162p</td><td class="num">+£42,885</td><td class="num">£28,450</td><td class="num">£1,075,678</td><td class="num">no</td></tr>
+    <tr><td>Marown</td><td>Parish</td><td>outturn 23-24</td><td class="num">£322,316</td><td class="num">181p</td><td class="num">−£20,469</td><td class="num">none</td><td class="num">£158,326</td><td class="num">2019 only</td></tr>
+    <tr><td>German</td><td>Parish</td><td>outturn 23-24</td><td class="num">£269,620<sup>‡</sup></td><td class="num">94p</td><td class="num">+£27,461</td><td class="num">none</td><td class="num">£443,213</td><td class="num">no</td></tr>
+    <tr><td>Michael</td><td>District</td><td>outturn 22-23<sup>§</sup></td><td class="num">£266,991<sup>‡</sup></td><td class="num">144p</td><td class="num">+£21,321</td><td class="num">none</td><td class="num">£569,174</td><td class="num">no</td></tr>
+    <tr><td>Patrick</td><td>Parish</td><td>outturn 23-24</td><td class="num">£204,253</td><td class="num">221p</td><td class="num">+£19,422</td><td class="num">none</td><td class="num">£76,551</td><td class="num">no</td></tr>
+    <tr><td>Lezayre</td><td>Parish</td><td>outturn 22-23<sup>§</sup></td><td class="num">£199,426<sup>‡</sup></td><td class="num">97p</td><td class="num">−£5,734</td><td class="num">none</td><td class="num">£795,610</td><td class="num">no</td></tr>
+    <tr><td>Ballaugh</td><td>Parish</td><td>outturn 23-24</td><td class="num">£167,006<sup>‡</sup></td><td class="num">125p</td><td class="num">−£38,421</td><td class="num">none</td><td class="num">£141,874</td><td class="num">no</td></tr>
+    <tr><td>Andreas</td><td>Parish</td><td>outturn 23-24</td><td class="num">£136,131</td><td class="num">134p</td><td class="num">−£13,532</td><td class="num">none</td><td class="num">£670,505</td><td class="num">no</td></tr>
+    <tr><td>Bride</td><td>Parish</td><td>outturn 24-25</td><td class="num">£116,730</td><td class="num">70p</td><td class="num">+£6,952</td><td class="num">none</td><td class="num">£173,146</td><td class="num">no</td></tr>
+    <tr><td>Santon</td><td>Parish</td><td>outturn 23-24</td><td class="num">£110,912</td><td class="num">155p</td><td class="num">+£3,491</td><td class="num">none</td><td class="num">£126,529</td><td class="num">no</td></tr>
+    <tr><td>Jurby</td><td>Parish</td><td>outturn 23-24</td><td class="num">£84,459</td><td class="num">149p</td><td class="num">−£6,710</td><td class="num">none</td><td class="num">£452,343</td><td class="num">no</td></tr>
+  </tbody>
+</table>
+<p class="cap"><sup>†</sup>Braddan's borrowing and net assets are at 31 March 2025, not the 2023-24 row this is otherwise built on; it's on an estimates basis, so has no outturn "result for the year" here. Port Erin's, Bride's, Garff's and Douglas's are each authority's most recent year (24-25); most others are year ended 31 March 2024, except Castletown's 2023-24 (still in draft), and Ramsey's/Lezayre's/Michael's 2022-23. <sup>‡</sup>German, Lezayre, Ballaugh, Garff, Peel and Michael run separate general and refuse rate funds; the figure shown combines both, because that's the headline each page itself uses — every other authority's "rate income" here is its general rate fund alone. <sup>§</sup>Ramsey, Lezayre and Michael each show their most recent verified year, not 2023-24 like most of the table, because a second source PDF was either missing from the archive (Ramsey, Lezayre) or corrupted (Michael). <sup>¶</sup>Douglas's and Onchan's rows are General Fund (rate-funded services) only — each runs a Housing Revenue Account self-funded by rents, excluded here exactly as Braddan's housing account is; "Result for the year" for both is the published "Net deficit/(deficit) on provision of services", not the statutory total (which is dominated by non-cash fixed-asset revaluation and pension remeasurement). See each authority's own page and the consolidated accounts page for the full picture.</p>
+
+<h3>The sharper comparison isn't geography, it's official tier</h3>
+<p class="body">Look at borrowing and the pattern is stark: every Village and Town authority here carries millions; every Parish authority carries thousands or none. That's the real dividing line — villages and towns own harbours, halls, promenades and housing stock that sit on their balance sheets; parishes generally don't. Rate income tells a messier story: Port St Mary's rate income is smaller than Malew's despite being a Village against a Parish, and Braddan (officially a Parish) out-earns every Town except Castletown. Scale and official tier don't always move together — which is exactly why the comparison tool below lets you check any combination yourself rather than trust a single ranking.</p>
+<div class="peer">
+  <div class="peercard">
+    <h4>Douglas — off the scale entirely</h4>
+    <div class="names">Douglas alone</div>
+    <div class="d">£15.4m rate income and £91m borrowing — roughly ten times Braddan, the next-biggest authority here. Its £328m council housing stock alone is worth more than every other authority's total net assets combined. Not comparable to anything else on this page; see its own tab on the index page.</div>
+  </div>
+  <div class="peercard">
+    <h4>Ramsey — second only to Douglas</h4>
+    <div class="names">Ramsey alone</div>
+    <div class="d">£3.13m rate income, £68.26m net assets, £30.31m borrowing — the largest debt load of any Town Commission on this site. Most of the recent net-asset jump is a £34.96m revaluation gain on its 554-dwelling housing stock, not trading. Also hosts the Northern District Civic Amenity Joint Committee for six other parishes.</div>
+  </div>
+  <div class="peercard">
+    <h4>Town / Village — infrastructure tier</h4>
+    <div class="names">Peel · Castletown · Port Erin · Port St Mary</div>
+    <div class="d">£4.5m–£10.8m borrowing each, £17m–£49.5m net assets. Own harbours, halls, libraries, or housing. Peel is the newest addition here and, unusually, its housing account runs a structural surplus rather than needing rate support.</div>
+  </div>
+  <div class="peercard">
+    <h4>Braddan — the outlier</h4>
+    <div class="names">Braddan alone</div>
+    <div class="d">Officially a Parish, but £1.4m+ rate income and £18.1m borrowing put it in the infrastructure tier by scale. The clearest sign that official tier and real scale aren't the same thing.</div>
+  </div>
+  <div class="peercard">
+    <h4>Onchan — Douglas's mirror</h4>
+    <div class="names">Onchan alone</div>
+    <div class="d">District tier, £2.79m rate income, £66.22m net assets. The only authority on this site whose own accounts independently confirm a joint-board match Douglas's accounts already made — both sides now name the Eastern District Civic Amenity Site and the exact sum paid.</div>
+  </div>
+  <div class="peercard">
+    <h4>Mid-parish</h4>
+    <div class="names">Malew · Arbory &amp; Rushen</div>
+    <div class="d">£500k–£800k rate income, both audited outturn, both carrying real but small borrowing. The most directly comparable pair in this set.</div>
+  </div>
+  <div class="peercard">
+    <h4>Small parish</h4>
+    <div class="names">Marown · Santon</div>
+    <div class="d">Under £350k rate income, no borrowing, minimal staff. Marown's compliance costs run close to its entire administration budget — worth asking whether Santon, running the same way at a third the size, has found something worth copying.</div>
+  </div>
+  <div class="peercard">
+    <h4>Northern cluster — confirmed shared services</h4>
+    <div class="names">Ramsey (host) · Andreas · Ballaugh · Bride · Jurby · Lezayre</div>
+    <div class="d">Ramsey administers the joint civic amenity site on the other six parishes' behalf and recovers £189,240 a year from them; the six themselves run £84k–£199k rate income with no borrowing anywhere. Four of the six name the same regional boards word-for-word in their own accounts.</div>
+  </div>
+  <div class="peercard">
+    <h4>Western cluster</h4>
+    <div class="names">Peel (host) · Michael · Marown · German · Patrick</div>
+    <div class="d">Peel hosts the Western Civic Amenity Site and swimming pool boards; Marown, Patrick and Michael all pay in, and Michael also names the same board for its own housing committee. German's own accounts don't use the word "Western", so its match is plausible by geography, not confirmed by wording.</div>
+  </div>
+  <div class="peercard">
+    <h4>Garff — the crossing point</h4>
+    <div class="names">Garff alone</div>
+    <div class="d">The only Parish-tier authority on this site carrying real borrowing (£984,935, including a direct Isle of Man Government loan) — closer in that respect to the Village/Town tier than to its own official tier. Also confirmed touching two different joint boards: an Eastern civic amenity site (hosted by Douglas) and, by geography, the Northern cluster to its west.</div>
+  </div>
+  <div class="peercard">
+    <h4>Michael — two clusters at once</h4>
+    <div class="names">Michael alone</div>
+    <div class="d">District tier, £267k rate income, no borrowing at either year end. The only authority on this site confirmed on two clusters simultaneously — Western for civic amenity, swimming and housing, Northern for refuse collection.</div>
+  </div>
+</div>
+<p class="cap">The Northern and Western clusters group by shared-service board membership, not by budget size — Ramsey (£3.13m) and Jurby (£84k) sit in the same Northern cluster despite being close to forty times apart in rate income, because Ramsey is the one administering the shared site rather than just paying into it. That's a genuinely different — and arguably more useful — way to group authorities than sorting them by scale. Douglas, Garff and Michael each sit outside the tidy groupings on this page for different reasons — one by sheer scale, one by being the sole leveraged Parish, one by touching two clusters at once — which is itself worth noting rather than forcing them into a cluster that doesn't fit.</p>
+
+<h3>Compare any four</h3>
+<div class="picker">
+  <div class="ph">Pick up to four built authorities. The table below updates as you choose.</div>
+  <div class="pcount" id="pcount">0 of 4 selected</div>
+  <div class="pgrid" id="pgrid"></div>
+</div>
+<table id="cmpTable">
+  <thead><tr id="cmpHead"><th>Metric</th></tr></thead>
+  <tbody id="cmpBody"></tbody>
+</table>
+<div id="cmpEmpty">Select two or more authorities above to compare them.</div>
+
+<h3>The full roster</h3>
+<p class="body">All 21 Isle of Man local authorities (the 2020 Arbory–Rushen merger and the 2016 Laxey/Lonan/Maughold merger into Garff take the historical count down to 21 overall), grouped by official tier. All 21 are now built — see the <a href="consolidated.html">consolidated accounts page</a> for the island-wide totals.</p>
+<div class="roster" id="roster"></div>
+
+<h3>Already collaborating — what the accounts show</h3>
+<p class="body">Every one of the 21 already pays into at least one shared regional facility. Three don't just pay in — they host: Douglas administers the Eastern District Civic Amenity Site, Ramsey the Northern District Civic Amenity Joint Committee, and Peel the Western Civic Amenity Site and swimming pool. The strongest evidence on this site is now a genuinely mutual confirmation: Onchan's own accounts independently name Douglas and the Eastern site, and give the exact sum paid — the first joint-board finding here confirmed from both the host's side and a payer's own published wording, not just one or the other. Michael is the outlier in a different way: the only authority confirmed touching two clusters at once, Western for civic amenity, swimming and housing, Northern for refuse.</p>
+<div class="collab">
+  <div class="crow"><span class="who">Douglas</span><span class="what">Hosts the Eastern District Civic Amenity Site Joint Committee — Onchan, Braddan, Santon and Garff all named as paying partners, with cost shares and year-end balances given <span class="badge named">host, 4 confirmed partners</span></span><span class="amt">£909,000 total running cost; Douglas's own 62.5% share ≈£568,000 (2024-25)</span></div>
+  <div class="crow"><span class="who">Onchan</span><span class="what">Own accounts independently confirm the Eastern District Civic Amenity Site and name Douglas as administrator — the first two-sided confirmed match on this site <span class="badge named">confirmed both sides</span></span><span class="amt">£479,181 paid to Douglas (2023-24; 2022-23 comparative £122,626)</span></div>
+  <div class="crow"><span class="who">Ramsey</span><span class="what">Hosts the Northern District Civic Amenity Joint Committee for the other six northern parishes <span class="badge named">host, recovers from 6</span></span><span class="amt">£189,240 a year recovered (2022-23)</span></div>
+  <div class="crow"><span class="who">Peel</span><span class="what">Hosts the Western Civic Amenity Site and Western Local Authorities Swimming Pool boards <span class="badge named">host, 2 boards</span></span><span class="amt">£157,408 site charges + £10,532 pool contribution (2023-24, Peel's own share)</span></div>
+  <div class="crow"><span class="who">Michael</span><span class="what">Western Civic Amenity Site · Western Local Authorities Swimming Pool · Peel &amp; Western District Community Housing Committee — AND Northern Parishes Refuse Collection Board, the only authority confirmed on two clusters at once <span class="badge named">named, dual cluster</span></span><span class="amt">£44,985 + £2,898 (2022-23, Western); refuse collection geographically Northern</span></div>
+  <div class="crow"><span class="who">Andreas</span><span class="what">Northern Parishes Refuse Collection Board · Northern Civic Amenity Site · Northern Local Swimming Pool Board <span class="badge named">named, matches 4 others</span></span><span class="amt">£100,987 + £33,324 + £3,173 (2023-24)</span></div>
+  <div class="crow"><span class="who">Ballaugh</span><span class="what">Northern Parishes Refuse Collection Board · Northern Civic Amenity Site <span class="badge named">named, matches 3 others</span></span><span class="amt">£79,060 + £24,900 (2023-24)</span></div>
+  <div class="crow"><span class="who">Bride</span><span class="what">Northern Parish Refuse Collection Board · Northern Local Authority Swimming Pool Board <span class="badge named">named, matches 3 others</span></span><span class="amt">£30,858 + £12,772 (2024-25)</span></div>
+  <div class="crow"><span class="who">Jurby</span><span class="what">Northern Civic Amenity Site Board · Northern Local Authorities Swimming Pool Board <span class="badge named">named, matches 3 others</span></span><span class="amt">£18,876 + £947 (2023-24)</span></div>
+  <div class="crow"><span class="who">Lezayre</span><span class="what">Civic amenity site + refuse collection board contributions, unnamed but geographically the same cluster <span class="badge unconfirmed">board not named</span></span><span class="amt">£33,060 + £99,273 (2022-23)</span></div>
+  <div class="crow"><span class="who">Patrick</span><span class="what">Western Civic Amenity Site Board · Western Local Authorities Swimming Pool <span class="badge named">named, matches 2 others</span></span><span class="amt">£36,858 + £2,423 (2023-24)</span></div>
+  <div class="crow"><span class="who">German</span><span class="what">Civic amenity site + swimming pool contributions, unnamed but geographically western <span class="badge unconfirmed">board not named</span></span><span class="amt">£65,188 + £4,107 (2023-24)</span></div>
+  <div class="crow"><span class="who">Santon</span><span class="what">Southern Local Authority Pool Board contribution, PLUS confirmed partner in Douglas's Eastern Civic Amenity Site (via Douglas's own accounts) <span class="badge named">named, matches — two separate boards</span></span><span class="amt">£1,864 pool board (2023-24); ~1.7% Eastern site cost share</span></div>
+  <div class="crow"><span class="who">Port Erin</span><span class="what">Southern Local Authorities Swimming Pool Board <span class="badge named">named, matches 2 others</span></span><span class="amt">£18,695 (2024-25)</span></div>
+  <div class="crow"><span class="who">Castletown</span><span class="what">Southern Local Authorities Swimming Pool Board contribution <span class="badge named">named, matches 2 others</span></span><span class="amt">£6,490 (2023-24)</span></div>
+  <div class="crow"><span class="who">Marown</span><span class="what">Western Civic Amenity Site Board contribution <span class="badge named">named, matches 2 others</span></span><span class="amt">£70,530 (2023-24)</span></div>
+  <div class="crow"><span class="who">Garff</span><span class="what">Confirmed partner in Douglas's Eastern Civic Amenity Site (~5.4% cost share, via Douglas's own accounts), plus geographically adjacent to the Northern cluster <span class="badge named">named, matches via host</span></span><span class="amt">~£49,000 Eastern site cost share (2024-25)</span></div>
+  <div class="crow"><span class="who">Malew</span><span class="what">Civic amenity site + swimming pool contributions <span class="badge unconfirmed">board not named</span></span><span class="amt">£147,674 + £24,788 (2023-24)</span></div>
+  <div class="crow"><span class="who">Arbory &amp; Rushen</span><span class="what">Civic amenity site + swimming pool contributions <span class="badge unconfirmed">board not named</span></span><span class="amt">£123,722 + £18,641 (2023-24)</span></div>
+  <div class="crow"><span class="who">Braddan</span><span class="what">Eastern District Civic Amenity Site — confirmed partner via Douglas's own accounts (Note 12.4), ~12.8% cost share, even though Braddan's own accounts don't name the board <span class="badge named">named via host, matches 3 others</span></span><span class="amt">£513,000–£568,000-scale total pool; Braddan's own line reads £86,590 (2022-23 estimate)</span></div>
+  <div class="crow"><span class="who">Castletown</span><span class="what">Public Library, run in-house rather than shared <span class="badge unconfirmed">not shared</span></span><span class="amt">£31,596 net (2023-24)</span></div>
+</div>
+<p class="cap">Port St Mary's page doesn't carry a separately-itemised swimming pool or civic amenity line — its underlying detailed schedule had a genuine gap (documented on its page), so its contribution, if any, is folded into a higher-level total rather than missing. Whether Malew's and Arbory &amp; Rushen's civic amenity contributions go to the Western Civic Amenity Site Board or a different one still isn't established. Lezayre and German pay into functionally identical services but don't use the word "Northern"/"Western" in their own accounts, so those two rows are geographic inference, not a confirmed name match — flagged accordingly. The Eastern District Civic Amenity Site figures for Braddan, Santon and Garff, and Onchan's own confirming figure, are each drawn from that authority's own accounts — genuinely independent confirmations rather than a name match between two separate documents.</p>
+
+<h3>Governance timeliness</h3>
+<p class="body">Braddan and Castletown are the only two that publish their own accounts where a resident can find them without going through Tynwald — and Castletown's own site goes back to 2010/11, the deepest self-published record of any authority here. Marown's own site has one set, from 2019. None of the other eighteen, including the four newest additions (Ramsey, Peel, Onchan, Michael), publish independently — their figures are public only because the Department lays every local authority's accounts before Tynwald each year, and the Tynwald report's own foreword says a large number of those arrived late for the 2026 deadline. Scale doesn't predict this: Ramsey has the largest balance sheet of any Town Commission here bar Douglas and still doesn't publish its own accounts, and neither Ramsey's nor Michael's second year's source PDF was even available in the archive — Ramsey's most recent published year here is 2022-23, Michael's 2022-23 (a 2023-24 PDF exists for Michael but is corrupted beyond recovery).</p>
+
+<div class="warn info">
+  <p><b>What this page is not.</b> It doesn't attempt a cost-per-resident or cost-per-household comparison. An earlier pass at that showed it mixes domestic and non-domestic ratepayers in ways that overstate the picture for authorities with a bigger commercial base, and no published source gives a clean per-property breakdown to fix it. Rate-in-the-pound is the safer comparison and is used above instead.</p>
+</div>
+
+<h3>What would make this genuinely useful</h3>
+<p class="body">All 21 are built, so the next steps shift from coverage to depth. First, the <a href="consolidated.html">consolidated accounts page</a> now gives the island-wide totals this page's per-authority rows can't — total rate income, borrowing and net assets, and what share of each is Douglas alone. Second, a genuine cost-per-service comparison (refuse per tonne, not per resident) would sidestep the domestic/non-domestic rate problem entirely, because service volumes are measurable independent of who's on the rate roll — the joint-board network above, now with three confirmed hosts and one two-cluster authority, is exactly the shared-cost data that comparison would need. Third, revisiting Ramsey and Michael once (if) their missing or corrupted second-year PDFs surface would bring both fully onto the same 2023-24 basis as the rest of the site.</p>
+
+<footer>
+  Sources: Statements of Accounts for all 21 built authorities, laid before Tynwald by the Department of Infrastructure and published at gov.im; Braddan Parish Commissioners estimates explanations (braddan.im); Castletown Town Commissioners accounts (castletown.gov.im); Andreas Parish Commissioners website (andreasparish.com), context only. Figures retrieved 4–6 August 2026. See each authority's own page, and the <a href="consolidated.html">consolidated accounts page</a>, for full sourcing, OCR verification notes and balance sheets.<br><br>
+  Crown Dependencies Observatory. Figures are reproduced from published sources; errors of transcription remain possible and corrections are welcome.
+</footer>
+
+</div>
+<script>
+var AUTH = [
+  {id:'braddan', name:'Braddan', tier:'Parish', built:true, href:'braddan-budget-sankey.html', basis:'estimate 23-24', rate:1443032, ratePound:257, nrv:561491, result:null, resultLabel:'—', borrowing:18100000, borrowingLabel:'£18.1m†', netAssets:15110000, netAssetsLabel:'£15.11m†', ownAccounts:'yes'},
+  {id:'marown', name:'Marown', tier:'Parish', built:true, href:'marown-budget-sankey.html', basis:'outturn 23-24', rate:322316, ratePound:181, nrv:188608, result:-20469, resultLabel:'−£20,469', borrowing:0, borrowingLabel:'none', netAssets:158326, netAssetsLabel:'£158,326', ownAccounts:'2019 only'},
+  {id:'santon', name:'Santon', tier:'Parish', built:true, href:'santon-budget-sankey.html', basis:'outturn 23-24', rate:110912, ratePound:155, nrv:74781, result:3491, resultLabel:'+£3,491', borrowing:0, borrowingLabel:'none', netAssets:126529, netAssetsLabel:'£126,529', ownAccounts:'no'},
+  {id:'arbory-rushen', name:'Arbory & Rushen', tier:'Parish', built:true, href:'arbory-rushen-budget-sankey.html', basis:'outturn 23-24', rate:517635, ratePound:162, nrv:333847, result:42885, resultLabel:'+£42,885', borrowing:28450, borrowingLabel:'£28,450', netAssets:1075678, netAssetsLabel:'£1,075,678', ownAccounts:'no'},
+  {id:'malew', name:'Malew', tier:'Parish', built:true, href:'malew-budget-sankey.html', basis:'outturn 23-24', rate:787588, ratePound:199, nrv:419720, result:63158, resultLabel:'+£63,158', borrowing:263423, borrowingLabel:'£263,423', netAssets:3746363, netAssetsLabel:'£3,746,363', ownAccounts:'no'},
+  {id:'port-erin', name:'Port Erin', tier:'Village', built:true, href:'port-erin-budget-sankey.html', basis:'outturn 24-25', rate:1116967, ratePound:378, nrv:310240, result:351783, resultLabel:'+£351,783', borrowing:5211515, borrowingLabel:'£5,211,515', netAssets:30010664, netAssetsLabel:'£30,010,664', ownAccounts:'no'},
+  {id:'port-st-mary', name:'Port St Mary', tier:'Village', built:true, href:'port-st-mary-budget-sankey.html', basis:'outturn 23-24', rate:532169, ratePound:386, nrv:145066, result:-124936, resultLabel:'−£124,936', borrowing:4489130, borrowingLabel:'£4,489,130', netAssets:17226706, netAssetsLabel:'£17,226,706', ownAccounts:'no'},
+  {id:'castletown', name:'Castletown', tier:'Town', built:true, href:'castletown-budget-sankey.html', basis:'outturn 23-24 (draft)', rate:1231242, ratePound:356, nrv:267024, result:174880, resultLabel:'+£174,880', borrowing:10384205, borrowingLabel:'£10,384,205', netAssets:32801341, netAssetsLabel:'£32,801,341', ownAccounts:'yes'},
+  {id:'german', name:'German', tier:'Parish', built:true, href:'german-budget-sankey.html', basis:'outturn 23-24', rate:269620, ratePound:94, nrv:164186, result:27461, resultLabel:'+£27,461', borrowing:0, borrowingLabel:'none', netAssets:443213, netAssetsLabel:'£443,213', ownAccounts:'no'},
+  {id:'patrick', name:'Patrick', tier:'Parish', built:true, href:'patrick-budget-sankey.html', basis:'outturn 23-24', rate:204253, ratePound:221, nrv:96899, result:19422, resultLabel:'+£19,422', borrowing:0, borrowingLabel:'none', netAssets:76551, netAssetsLabel:'£76,551', ownAccounts:'no'},
+  {id:'lezayre', name:'Lezayre', tier:'Parish', built:true, href:'lezayre-budget-sankey.html', basis:'outturn 22-23', rate:199426, ratePound:97, nrv:112762, result:-5734, resultLabel:'−£5,734', borrowing:0, borrowingLabel:'none', netAssets:795610, netAssetsLabel:'£795,610', ownAccounts:'no'},
+  {id:'ballaugh', name:'Ballaugh', tier:'Parish', built:true, href:'ballaugh-budget-sankey.html', basis:'outturn 23-24', rate:167006, ratePound:125, nrv:78831, result:-38421, resultLabel:'−£38,421', borrowing:0, borrowingLabel:'none', netAssets:141874, netAssetsLabel:'£141,874', ownAccounts:'no'},
+  {id:'andreas', name:'Andreas', tier:'Parish', built:true, href:'andreas-budget-sankey.html', basis:'outturn 23-24', rate:136131, ratePound:134, nrv:105773, result:-13532, resultLabel:'−£13,532', borrowing:0, borrowingLabel:'none', netAssets:670505, netAssetsLabel:'£670,505', ownAccounts:'no'},
+  {id:'bride', name:'Bride', tier:'Parish', built:true, href:'bride-budget-sankey.html', basis:'outturn 24-25', rate:116730, ratePound:70, nrv:201354, result:6952, resultLabel:'+£6,952', borrowing:0, borrowingLabel:'none', netAssets:173146, netAssetsLabel:'£173,146', ownAccounts:'no'},
+  {id:'jurby', name:'Jurby', tier:'Parish', built:true, href:'jurby-budget-sankey.html', basis:'outturn 23-24', rate:84459, ratePound:149, nrv:59766, result:-6710, resultLabel:'−£6,710', borrowing:0, borrowingLabel:'none', netAssets:452343, netAssetsLabel:'£452,343', ownAccounts:'no'},
+  {id:'douglas', name:'Douglas', tier:'Town', built:true, href:'douglas-budget-sankey.html', basis:'outturn 24-25 (Gen Fund)', rate:15382000, ratePound:573, nrv:2757000, result:-4445000, resultLabel:'−£4,445,000', borrowing:90963000, borrowingLabel:'£90,963,000', netAssets:289885000, netAssetsLabel:'£289,885,000', ownAccounts:'no'},
+  {id:'garff', name:'Garff', tier:'Parish', built:true, href:'garff-budget-sankey.html', basis:'outturn 24-25', rate:1012627, ratePound:191.5, nrv:326137, result:92829, resultLabel:'+£92,829', borrowing:984935, borrowingLabel:'£984,935', netAssets:4046253, netAssetsLabel:'£4,046,253', ownAccounts:'no'},
+  {id:'ramsey', name:'Ramsey', tier:'Town', built:true, href:'ramsey-budget-sankey.html', basis:'outturn 22-23 (single PDF on file)', rate:3130602, ratePound:445, nrv:735901, result:614176, resultLabel:'+£614,176', borrowing:30313288, borrowingLabel:'£30,313,288', netAssets:68257705, netAssetsLabel:'£68,257,705', ownAccounts:'no'},
+  {id:'peel', name:'Peel', tier:'Town', built:true, href:'peel-budget-sankey.html', basis:'outturn 23-24', rate:1661273, ratePound:267, nrv:421378, result:524009, resultLabel:'+£524,009', borrowing:10806253, borrowingLabel:'£10,806,253', netAssets:49546410, netAssetsLabel:'£49,546,410', ownAccounts:'no'},
+  {id:'onchan', name:'Onchan', tier:'District', built:true, href:'onchan-budget-sankey.html', basis:'outturn 23-24 (Gen Fund)', rate:2792463, ratePound:373, nrv:800910, result:-377447, resultLabel:'−£377,447', borrowing:15081307, borrowingLabel:'£15,081,307', netAssets:66223100, netAssetsLabel:'£66,223,100', ownAccounts:'no'},
+  {id:'michael', name:'Michael', tier:'District', built:true, href:'michael-budget-sankey.html', basis:'outturn 22-23 (single PDF on file)', rate:266991, ratePound:144, nrv:115796, result:21321, resultLabel:'+£21,321', borrowing:0, borrowingLabel:'none', netAssets:569174, netAssetsLabel:'£569,174', ownAccounts:'no'}
+];
+var TIER_ORDER = ['Town','District','Village','Parish'];
+
+(function(){
+  var b=document.getElementById('btn-theme');
+  function set(l){document.body.classList.toggle('light',l);b.textContent=l?'Dark':'Light';
+    try{localStorage.setItem('observatory-theme',l?'light':'dark');}catch(e){}}
+  try{var s=localStorage.getItem('observatory-theme');if(s)set(s==='light'||s==='health');}catch(e){}
+  b.addEventListener('click',function(){set(!document.body.classList.contains('light'));});
+}());
+
+// --- Roster ---
+(function(){
+  var el = document.getElementById('roster');
+  var html = '';
+  TIER_ORDER.forEach(function(tier){
+    var items = AUTH.filter(function(a){return a.tier===tier;});
+    html += '<div class="rgroup"><div class="rtitle">'+tier+' ('+items.length+')</div>';
+    items.forEach(function(a){
+      html += '<div class="ritem '+(a.built?'':'off')+'">';
+      html += '<span class="dot '+(a.built?'on':'off')+'"></span>';
+      html += '<span class="rname">'+a.name+'</span>';
+      if(a.built){
+        html += '<span class="rstatus">built</span>';
+        html += '<a class="rlink" href="'+a.href+'">open →</a>';
+      } else {
+        html += '<span class="rstatus">not yet built</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}());
+
+// --- Compare picker ---
+(function(){
+  var built = AUTH.filter(function(a){return a.built;});
+  var pgrid = document.getElementById('pgrid');
+  var pcount = document.getElementById('pcount');
+  var cmpTable = document.getElementById('cmpTable');
+  var cmpHead = document.getElementById('cmpHead');
+  var cmpBody = document.getElementById('cmpBody');
+  var cmpEmpty = document.getElementById('cmpEmpty');
+  var selected = [];
+
+  built.forEach(function(a){
+    var label = document.createElement('label');
+    label.className = 'pitem';
+    label.innerHTML = '<input type="checkbox" value="'+a.id+'"> '+a.name+' <span style="color:var(--muted);font-size:10.5px">('+a.tier+')</span>';
+    pgrid.appendChild(label);
+  });
+
+  function metrics(){
+    return [
+      {label:'Tier', get:function(a){return a.tier;}},
+      {label:'Basis', get:function(a){return a.basis;}},
+      {label:'Rate income', get:function(a){return '£'+a.rate.toLocaleString();}},
+      {label:'Rate in the £', get:function(a){return a.ratePound+'p';}},
+      {label:'Net rateable value', get:function(a){return '£'+a.nrv.toLocaleString();}},
+      {label:'Result for year', get:function(a){return a.resultLabel;}},
+      {label:'Borrowing', get:function(a){return a.borrowingLabel;}},
+      {label:'Net assets', get:function(a){return a.netAssetsLabel;}},
+      {label:'Publishes own accounts?', get:function(a){return a.ownAccounts;}}
+    ];
+  }
+
+  function render(){
+    pcount.textContent = selected.length + ' of 4 selected';
+    pgrid.querySelectorAll('.pitem').forEach(function(el){
+      var cb = el.querySelector('input');
+      var isChecked = selected.indexOf(cb.value) !== -1;
+      cb.checked = isChecked;
+      el.classList.toggle('disabled', !isChecked && selected.length>=4);
+      cb.disabled = !isChecked && selected.length>=4;
+    });
+    if(selected.length < 2){
+      cmpTable.classList.remove('show');
+      cmpEmpty.style.display = 'block';
+      return;
+    }
+    cmpEmpty.style.display = 'none';
+    cmpTable.classList.add('show');
+    var chosen = selected.map(function(id){return built.filter(function(a){return a.id===id;})[0];});
+    var headHtml = '<th>Metric</th>';
+    chosen.forEach(function(a){ headHtml += '<th>'+a.name+'</th>'; });
+    cmpHead.innerHTML = headHtml;
+    var bodyHtml = '';
+    metrics().forEach(function(m){
+      bodyHtml += '<tr><td>'+m.label+'</td>';
+      chosen.forEach(function(a){ bodyHtml += '<td class="num">'+m.get(a)+'</td>'; });
+      bodyHtml += '</tr>';
+    });
+    cmpBody.innerHTML = bodyHtml;
+  }
+
+  pgrid.addEventListener('change', function(e){
+    if(e.target.tagName !== 'INPUT') return;
+    var id = e.target.value;
+    var idx = selected.indexOf(id);
+    if(e.target.checked){
+      if(selected.length>=4){ e.target.checked=false; return; }
+      selected.push(id);
+    } else {
+      if(idx!==-1) selected.splice(idx,1);
+    }
+    render();
+  });
+
+  // Default: pick Braddan, Malew, Port Erin, Castletown to show the tool populated
+  selected = ['braddan','malew','port-erin','castletown'];
+  render();
+}());
+</script>
+</body>
+</html>

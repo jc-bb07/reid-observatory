@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Jurby Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(l){ document.body.classList.toggle('light', l); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Jurby Parish Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Income from General Rate Fund</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">General rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Deficit for the year</div><div class="stat-val" id="s-def">—</div><div class="stat-dlt" id="s-def-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Jurby Parish Commissioners — Comprehensive Income and Expenditure Statement (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Jurby Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>Jurby has no borrowing of any kind. Its balance sheet is dominated by a large tangible fixed-asset base — parish hall, playground, recreation ground and BMX track — carried at £397,137, backed mostly by a revaluation reserve rather than cash. Net assets fell from £519,053 to £452,343 in the latest year, driven chiefly by a £60,000 downward revaluation of those assets rather than by operating losses.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Jurby's audited Comprehensive Income and Expenditure Statement — actual outturn, not budget. Like Santon, Jurby's accounts present a single flat list of expenditure lines with no committee structure; that flat structure is preserved here rather than invented into groups.</p>
+    <p><b>The colouring is ours, not Jurby's.</b> Expenditure lines are tinted by function — waste, works, environment &amp; leisure, administration, compliance, and non-cash entries — purely as a reading aid and to foreshadow a like-for-like comparison across authorities. <em>Jurby's accounts contain no such classification</em>; every flow runs from the revenue account to a line exactly as published.</p>
+    <p><b>Two rate funds, not one.</b> Uniquely among the small parishes benchmarked so far, Jurby levies its rates through two separate funds — a General Rate Fund (119p in 2021/22, rising to 125p and then 149p in 2023/24, on a net rateable value of £58,910 then £59,766) and a separate Refuse Rate Fund (67p, 67p, then 69p in the £, on a fixed rateable value of £37,878, plus a fixed charge per property of £48, £48 and £50). Both funds' income is shown here as separate inflows to the revenue account, matching how Jurby's own accounts present them in notes 4 and 5.</p>
+    <p><b>Jurby does not balance — every year shown ran a deficit</b>, met from the General Fund reserve: £22,391 in 2021/22, £18,350 in 2022/23, and £6,710 in 2023/24 on an operating basis. That shortfall is drawn as a hatched inflow on the left, because it is financing rather than income. According to Jurby's own explanatory foreword, the 2022/23 deficit reduced the General Fund balance by only £7,436 once the non-cash depreciation charge (£10,914, added back to reserves) is taken into account — the accounting deficit and the cash movement are not the same thing, and only the former is shown in this diagram.</p>
+    <p><b>2023/24 also carried a one-off £60,000 downward revaluation</b> of fixed assets, recognised as other comprehensive income and expenditure outside the operating account. Added to the £6,710 operating deficit, Jurby's total comprehensive deficit for 2023/24 was £66,710 — but because a revaluation loss is a non-cash restatement of asset values rather than a spending decision, it is excluded from the Sankey itself and shown only in the stats, table and balance-sheet panels, to keep the operating trend comparable across all three years.</p>
+    <p><b>Provenance and confidence.</b> Jurby publishes its accounts only as scanned images with no text layer, so every figure here was recovered by OCR and then verified rather than trusted. Three independent checks were applied: every year's expenditure lines re-add to the published total; the 2022/23 column appears in <em>both</em> the 2023 and 2024 accounts and the two readings agree exactly; and income minus expenditure equals the published deficit on provision of services in all three years. Where OCR was ambiguous, the published subtotal fixed the digit: 2021/22 depreciation resolves to £10,914 (not the initially-read £16,914) because it is the only value consistent with both the published expenditure total of £132,329 and the £10,914 depreciation figure independently confirmed in the cash-flow note for both 2021/22 and 2022/23; 2022/23 rates written off resolves to £822 (not £522) because only that figure reconciles the £130,351 total, and it is confirmed identically in the following year's comparative column; and 2023/24 public conveniences resolves to £5,848 (not £5,348) and legal and professional fees to £500 (not £560), the pair being the only combination that reconciles the published £136,656 total.</p>
+    <p><b>Comparability.</b> Santon and Jurby both present a flat expenditure list on an audited-outturn basis over the same three years, so those two can be read against each other directly. Marown groups its expenditure under three headings of its own choosing. None of the three parishes is on the same basis as Braddan, which is built from forward estimates.</p>
+    <p><b>Source.</b> Jurby Parish Commissioners, Statement of Accounts for the years ended 31 March 2023 and 31 March 2024, Comprehensive Income and Expenditure Statement, Balance Sheet and Notes 4, 5 and 12. Retrieved from gov.im, 6 August 2026. Rate poundage for 2025/26 (171p) and 2026/27 (177p) from Manx Radio reporting on Tynwald-approved local authority rates, not from the audited accounts, and shown here for context only.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Jurby runs two separate rate funds — General and Refuse — and drew down its General Fund reserve in all three years shown.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — audited outturn, OCR-recovered and reconciled ══════════ */
+const YEARS=['2021-22','2022-23','2023-24'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const FN={waste:'--c-refuse',works:'--c-works',env:'--c-parks',admin:'--c-fgp',comp:'--c-disc',noncash:'--c-bal'};
+const FNLAB={waste:'Waste',works:'Works',env:'Environment & leisure',admin:'Administration',comp:'Compliance & finance',noncash:'Non-cash entries'};
+const FNOF={
+ 'Refuse collection':'waste','Northern Civic Amenity Site Board contribution':'waste','Litter collection expenses':'waste',
+ 'Local highway services':'works','Street lighting':'works','Public conveniences':'works',
+ 'Parish hall expenses':'env','Community recreational facilities':'env','Northern Local Authorities Swimming Pool Board contribution':'env','Public Christmas trees and decorations':'env',
+ "Clerk's salary":'admin','Rate collection charges':'admin','Office expenses':'admin','Miscellaneous':'admin','Travel expenses':'admin','Election expenses':'admin',
+ 'Accountancy fee':'comp','Legal and professional fees':'comp','Insurance':'comp','Independent review fee':'comp','Bank charges':'comp',
+ 'Depreciation':'noncash','Rates write off':'noncash'};
+const ORD={waste:1,works:2,env:3,admin:4,comp:5,noncash:6};
+
+const D={
+'2021-22':{rateFund:67244, refuseFund:38921, villageHall:2520, search:1250, interest:3,
+ pound:119, refusePound:67, rv:58910, rvRefuse:37878, deficit:22391, totalExp:132329, revaluation:0,
+ exp:{'Refuse collection':39788,'Northern Civic Amenity Site Board contribution':18348,"Clerk's salary":11209,'Depreciation':10914,'Street lighting':9939,'Parish hall expenses':9502,'Public conveniences':5296,'Local highway services':7146,'Office expenses':3120,'Community recreational facilities':2930,'Election expenses':2632,'Accountancy fee':2250,'Independent review fee':1842,'Rate collection charges':1724,'Northern Local Authorities Swimming Pool Board contribution':1469,'Insurance':1910,'Litter collection expenses':704,'Public Christmas trees and decorations':297,'Miscellaneous':721,'Rates write off':317,'Bank charges':184,'Travel expenses':87,'Legal and professional fees':0}},
+'2022-23':{rateFund:70593, refuseFund:38161, villageHall:2123, search:650, interest:474,
+ pound:125, refusePound:67, rv:59766, rvRefuse:37878, deficit:18350, totalExp:130351, revaluation:0,
+ exp:{'Refuse collection':38236,'Northern Civic Amenity Site Board contribution':17304,"Clerk's salary":9992,'Depreciation':10914,'Local highway services':10436,'Parish hall expenses':9531,'Community recreational facilities':5975,'Street lighting':5691,'Public conveniences':6605,'Accountancy fee':2305,'Legal and professional fees':1660,'Insurance':1933,'Independent review fee':2100,'Rate collection charges':1928,'Northern Local Authorities Swimming Pool Board contribution':1482,'Office expenses':816,'Litter collection expenses':1280,'Bank charges':237,'Public Christmas trees and decorations':616,'Miscellaneous':488,'Rates write off':822,'Travel expenses':0,'Election expenses':0}},
+'2023-24':{rateFund:84459, refuseFund:39452, villageHall:3966, search:530, interest:1539,
+ pound:149, refusePound:69, rv:59766, rvRefuse:37878, deficit:6710, totalExp:136656, revaluation:60000,
+ exp:{'Refuse collection':41236,'Northern Civic Amenity Site Board contribution':18876,"Clerk's salary":11185,'Depreciation':10914,'Local highway services':10907,'Parish hall expenses':9587,'Street lighting':9280,'Public conveniences':5848,'Community recreational facilities':5161,'Rate collection charges':2228,'Insurance':2244,'Independent review fee':2100,'Accountancy fee':1690,'Miscellaneous':1262,'Northern Local Authorities Swimming Pool Board contribution':947,'Rates write off':971,'Office expenses':640,'Legal and professional fees':500,'Litter collection expenses':602,'Bank charges':248,'Public Christmas trees and decorations':230,'Travel expenses':0,'Election expenses':0}}
+};
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const totalIncome=d=>d.rateFund+d.refuseFund+d.villageHall+d.search+d.interest;
+
+/* integrity: income + reserves drawdown === gross expenditure; income - expenditure === published deficit */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inflow=totalIncome(d)+d.deficit, outflow=pos(d.exp);
+  return {y,expDiff:sum(d.exp)-d.totalExp,defDiff:(totalIncome(d)-d.totalExp)-(-d.deficit),flowDiff:inflow-outflow};});
+const bad=AUDIT.filter(a=>a.expDiff||a.defDiff||a.flowDiff);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Jurby reconciles in all years: expenditure lines match the published total, income − expenditure = the published deficit on provision of services, and the diagram balances');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,l,c,k,o,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label:l,col:c,kind:k,ord:o||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','Revenue account','--accent','hub',0);
+  [['villageHall','Village hall hire',d.villageHall],['search','Search fees',d.search],['interest','Interest income',d.interest],
+   ['refuseFund','Income from the General Refuse Fund',d.refuseFund],['rateFund','Income from the General Rate Fund',d.rateFund]]
+    .forEach(([k,l,v],i)=>{if(v>0){const s=add('inc|'+k,l,'--c-income','src',i);L.push({source:s,target:hub,value:v,col:'--c-income'});}});
+  if(d.deficit>0){ const s=add('res','Drawn from the General Fund','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:d.deficit,col:'--c-bal',hatch:true}); }
+  Object.entries(d.exp).filter(([,v])=>v>0).sort((a,b)=>{const fa=FNOF[a[0]],fb=FNOF[b[0]];return (ORD[fa]-ORD[fb])||(b[1]-a[1]);})
+    .forEach(([k,v])=>{const f=FNOF[k]||'admin';const li=add('e|'+k,k,FN[f],'item',ORD[f]);L.push({source:hub,target:li,value:v,col:FN[f]});});
+  return {nodes:N,links:L};
+}
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')return totalIncome(d)+d.deficit;
+    if(id==='res')return d.deficit;
+    if(id==='inc|villageHall')return d.villageHall;
+    if(id==='inc|search')return d.search;
+    if(id==='inc|interest')return d.interest;
+    if(id==='inc|refuseFund')return d.refuseFund;
+    if(id==='inc|rateFund')return d.rateFund;
+    if(id.indexOf('e|')===0)return Math.max(0,d.exp[id.slice(2)]||0);
+    return 0;});
+}
+function spark(id,col,ci){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10,mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1),Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===ci?4:2.3)+'" fill="'+(i===ci?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===ci?0:1.5)+'"/>').join('')
+   +YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===ci?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('')
+   +'</svg></div>';
+}
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+function draw(y,an){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=220,RPAD=250;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(14).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value)).extent([[LPAD,14],[W-RPAD,H-14]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=totalIncome(D[y])+D[y].deficit;
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(an?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+  root.selectAll('path.link')
+   .on('mousemove',function(ev,d){root.selectAll('path.link').classed('dim',x=>x!==d);
+     tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+      .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+       +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+       +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+       +spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));})
+   .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect');ndE.append('text').attr('class','nlab');ndE.append('text').attr('class','nval');
+  const A=ndE.merge(nd);
+  A.transition().duration(an?750:0).style('opacity',1);
+  A.select('rect').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+   .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  A.select('text.nlab').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+   .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  A.select('text.nval').transition().duration(an?750:0).ease(d3.easeCubicInOut)
+   .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+   .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+   .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  A.on('mousemove',function(ev,d){root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+     tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+      .html('<div class="tt-t">'+d.label+'</div>'
+       +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+       +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+       +spark(d.id,d.col,YEARS.indexOf(y)));})
+   .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent=fmt(d.rateFund);
+  document.getElementById('s-rate-d').textContent=arrow(d.rateFund,pv&&pv.rateFund);
+  document.getElementById('s-pound').textContent=d.pound+'p';
+  document.getElementById('s-pound-d').textContent=pv?((d.pound>pv.pound?'▲ +':d.pound<pv.pound?'▼ ':'')+(d.pound===pv.pound?'no change':Math.abs(d.pound-pv.pound)+'p')+(d.pound!==pv.pound?' on last year':'')):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-def').textContent='−'+fmt(d.deficit)+(d.revaluation>0?'*':'');
+  document.getElementById('s-def-d').textContent=pv?(d.deficit>pv.deficit?'▲ deficit widened':'▼ deficit narrowed'):(d.revaluation>0?'*plus £60,000 one-off revaluation loss':'first year shown');
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+document.getElementById('legend').innerHTML=
+ '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +Object.keys(FNLAB).map(k=>'<div class="lg"><div class="sw" style="background:var('+FN[k]+')"></div>'+FNLAB[k]+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Drawn from the General Fund (hatched)</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Functional colouring is an Observatory overlay — Jurby\'s accounts are a flat list</div>';
+
+function buildTable(){
+  const rows=[],m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  R('Income from the General Rate Fund',d=>m(d.rateFund),'sub');
+  R('Income from the General Refuse Fund',d=>m(d.refuseFund),'sub');
+  R('Village hall hire',d=>m(d.villageHall),'sub');
+  R('Search fees',d=>m(d.search),'sub');
+  R('Interest income',d=>m(d.interest),'sub');
+  R('Total income',d=>m(totalIncome(d)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('EXPENDITURE',()=>'','grp');
+  const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y].exp).forEach(k=>ks.add(k)));
+  [...ks].sort((a,b)=>(ORD[FNOF[a]]-ORD[FNOF[b]])||a.localeCompare(b)).forEach(k=>R(k,d=>m(d.exp[k]||0),'sub'));
+  R('Total expenditure',d=>m(d.totalExp),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Deficit on provision of services',d=>'('+d.deficit.toLocaleString()+')','grp');
+  R('Other comprehensive income and expenditure (revaluation)',d=>d.revaluation>0?'('+d.revaluation.toLocaleString()+')':'—','sub');
+  R('Total comprehensive income and expenditure',d=>'('+(d.deficit+d.revaluation).toLocaleString()+')','grp');
+  R('General rate in the pound',d=>d.pound+'p','sub');
+  R('Refuse rate in the pound',d=>d.refusePound+'p','sub');
+  R('Net rateable value — general rate',d=>'£'+d.rv.toLocaleString(),'sub');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> Expenditure lines re-add to the published total in all three years; total income less expenditure equals the published deficit on provision of services exactly; and the 2022-23 column was read independently from both the 2023 and 2024 accounts with identical results. The 2023-24 total comprehensive deficit of £66,710 includes a one-off £60,000 downward revaluation of fixed assets, excluded from the Sankey diagram itself but shown here in full. <b>Source.</b> Jurby Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Comprehensive Income and Expenditure Statement and Note 12. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null,null],
+ ['r','Tangible fixed assets',397137,468051,478965],
+ ['h','Current assets',null,null,null],
+ ['r','Debtors',26293,19110,32051],
+ ['r','Cash at bank',47301,51914,49043],
+ ['s','',73594,71024,81094],
+ ['r','Creditors',-18388,-20022,-22656],
+ ['T','Net current assets / Total assets less liabilities',452343,519053,537403],
+ ['h','Reserves',null,null,null],
+ ['r','General fund',55206,51002,58438],
+ ['r','Capital adjustment account',112884,101346,105373],
+ ['r','Revaluation reserve',284253,366705,373592],
+ ['T','',452343,519053,537403]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> No borrowing at all — Jurby\'s asset base of £397,137 to £478,965 is entirely reserve-backed. The revaluation reserve did almost all the moving: £373,592 → £366,705 → £284,253, including the £60,000 downward revaluation booked in 2023-24 plus routine depreciation transfers. The General Fund itself — the cash-relevant reserve — actually rose from £51,002 to £55,206 in 2023-24, despite the accounting deficit, because depreciation and the revaluation transfer are non-cash and are added back through the Statement of Movement on Reserves.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from scanned originals, then verified: current assets re-add, net current assets reconcile, and total reserves equal net assets in all three years shown (2022, 2023 and 2024). One OCR ambiguity was resolved by that check — 2023 net current assets read initially as £51,602 in the 2024 account\'s comparative column, but only £51,002 reconciles against both £71,024 − £20,022 in the 2023 account and the £519,053 total reserves in both accounts.</p>'
+   +'<p class="foot"><b>Source.</b> Jurby Parish Commissioners, Statement of Accounts for the years ended 31 March 2023 and 31 March 2024, Balance Sheet and Statement of Movement on Reserves. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{if(timer){stop();return;}play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(p){Object.keys(PANELS).forEach(x=>{const on=x===p&&!document.getElementById(x).classList.contains('on');
+  document.getElementById(x).classList.toggle('on',on);document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const l=document.body.classList.toggle('light');this.textContent=l?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',l?'light':'dark');}catch(e){} draw(YEARS[cur],false);});
+draw(YEARS[cur],false);
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

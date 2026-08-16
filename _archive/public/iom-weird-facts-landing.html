@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weird &amp; Wonderful — Isle of Man Observatory</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1: #2a78d6; --series-2: #008300; --series-3: #e87ba4; --series-4: #eda100;
+    --series-5: #1baf7a; --series-6: #eb6834; --series-7: #4a3aa7; --series-8: #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1: #1a1a19; --page: #0d0d0d; --text-primary: #ffffff; --text-secondary: #c3c2b7;
+      --text-muted: #898781; --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+      --series-1: #3987e5; --series-2: #008300; --series-3: #d55181; --series-4: #c98500;
+      --series-5: #199e70; --series-6: #d95926; --series-7: #9085e9; --series-8: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d; --text-primary: #ffffff; --text-secondary: #c3c2b7;
+    --text-muted: #898781; --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5; --series-2: #008300; --series-3: #d55181; --series-4: #c98500;
+    --series-5: #199e70; --series-6: #d95926; --series-7: #9085e9; --series-8: #e66767;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--page); color: var(--text-primary); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 24px 90px; }
+  .theme-toggle {
+    position: fixed; top: 20px; right: 20px; font-size: 12px; color: var(--text-secondary);
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 12px; cursor: pointer; z-index: 10;
+  }
+  header.hero { margin-bottom: 20px; max-width: 700px; }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--series-6); margin-bottom: 10px; display: block;
+  }
+  header.hero h1 { font-size: 40px; line-height: 1.1; margin: 0 0 14px; letter-spacing: -0.02em; }
+  header.hero p { font-size: 16px; color: var(--text-secondary); line-height: 1.55; margin: 0; }
+
+  .randomizer {
+    margin: 28px 0 40px; padding: 20px 24px; border-radius: 14px; background: var(--surface-1);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  }
+  .randomizer .fact { font-size: 16px; line-height: 1.5; max-width: 640px; }
+  .randomizer .fact b { font-variant-numeric: tabular-nums; }
+  .randomizer button {
+    font: inherit; font-size: 13px; font-weight: 600; color: var(--surface-1); background: var(--text-primary);
+    border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; white-space: nowrap;
+  }
+  .randomizer button:hover { opacity: 0.85; }
+
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .filter-chip {
+    font-size: 12.5px; padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-secondary); cursor: pointer; user-select: none;
+  }
+  .filter-chip.active { background: var(--text-primary); color: var(--surface-1); border-color: var(--text-primary); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 22px 18px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.12s;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .card .tag {
+    align-self: flex-start; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 3px 9px; border-radius: 10px; color: #fff;
+  }
+  .card .headline { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .card .headline small { font-size: 14px; font-weight: 500; color: var(--text-secondary); display: block; margin-top: 2px; }
+  .card p.body { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin: 0; flex-grow: 1; }
+  .card .spark { margin: 2px 0 -4px; }
+  .card .source { font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 4px; }
+
+  .card[data-cat="population"] .tag { background: var(--series-1); }
+  .card[data-cat="crime"] .tag { background: var(--series-8); }
+  .card[data-cat="agriculture"] .tag { background: var(--series-2); }
+  .card[data-cat="communications"] .tag { background: var(--series-7); }
+  .card[data-cat="language"] .tag { background: var(--series-5); }
+  .card[data-cat="geopolitics"] .tag { background: var(--series-6); }
+  .card[data-cat="work"] .tag { background: var(--series-4); }
+  .card[data-cat="archive"] .tag { background: var(--series-3); }
+  .card[data-cat="archive"] { border-style: dashed; }
+  .card[data-cat="archive"] .headline { font-size: 20px; font-style: italic; }
+  .card[data-cat="archive"] .clip { font-size: 13px; line-height: 1.5; color: var(--text-primary); background: var(--grid); border-radius: 8px; padding: 10px 12px; margin: 2px 0; }
+
+  footer { margin-top: 48px; font-size: 12.5px; color: var(--text-muted); line-height: 1.7; max-width: 700px; }
+  footer code { background: var(--grid); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="theme-toggle" id="themeToggle">Toggle theme</div>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">Isle of Man Observatory — Curiosities Desk</span>
+    <h1>Weird &amp; wonderful, but true</h1>
+    <p>Numbers straight out of official Manx statistics — census reports, economic digests, Hansard
+    footnotes and annual "In Numbers" tables — plus real headlines dug out of the newspaper archive
+    at <a href="https://www.imuseum.im/newspapers/" style="color:inherit">iMuseum</a> (Isle of Man
+    papers, 1792–1960). No embellishment, just the specific, slightly absurd detail that usually
+    gets buried under a GDP chart — or a court report nobody's read since 1960.</p>
+  </header>
+
+  <div class="randomizer">
+    <div class="fact" id="randomFact">Loading a fact worth knowing…</div>
+    <button id="shuffleBtn">Give me another</button>
+  </div>
+
+  <div class="filter-row" id="filterRow">
+    <span class="filter-chip active" data-filter="all">All</span>
+    <span class="filter-chip" data-filter="population">Population</span>
+    <span class="filter-chip" data-filter="crime">Crime &amp; punishment</span>
+    <span class="filter-chip" data-filter="agriculture">Farmyard</span>
+    <span class="filter-chip" data-filter="communications">Post &amp; wires</span>
+    <span class="filter-chip" data-filter="language">Language</span>
+    <span class="filter-chip" data-filter="geopolitics">World events, locally</span>
+    <span class="filter-chip" data-filter="work">Work</span>
+    <span class="filter-chip" data-filter="archive">From the archive, 1937–1960</span>
+  </div>
+
+  <div class="grid" id="cardGrid"></div>
+
+  <footer>
+    Statistical facts sourced from the data catalog's <code>2006 &amp; 2009 Economic Digests</code>,
+    <code>Isle of Man in Numbers 2017–2025</code>, and the <code>2011 &amp; 2021 Census reports</code>.
+    The dashed-border "From the archive" cards are real court reports and news items pulled live from
+    Manx National Heritage's <a href="https://www.imuseum.im/newspapers/">iMuseum newspaper archive</a>
+    (Isle of Man papers, 1792–1960) — headline, paper, date and page all verified against the scanned
+    original. Turns out the real Manx equivalent of "knickers off a washing line" is a 23-year-old
+    fined for exactly that in 1960. There are 927 more clothes-line hits alone, plus the entire
+    Gef the Talking Mongoose saga — this is a first pass, not the bottom of the archive.
+  </footer>
+</div>
+
+<script>
+const FACTS = [
+  {
+    cat: "population", tag: "Population",
+    headline: "40,081", sub: "residents counted in the Island's first census, 1821",
+    body: "By 2021 the population had exactly doubled to 84,069 — two hundred years, four wars, and one offshore finance industry later.",
+    source: "Census Population 1821–2001, Economic Digest 2006",
+    spark: "population"
+  },
+  {
+    cat: "population", tag: "Population",
+    headline: "−18%", sub: "population change, 1921 → 1931",
+    body: "60,284 people in 1921. 49,308 by 1931. Nobody annotated why in the table — just an entire generation that left.",
+    source: "Census Population 1821–2001, Economic Digest 2006"
+  },
+  {
+    cat: "population", tag: "Population",
+    headline: "−334", sub: "natural population change, 2024/25",
+    body: "563 births against 897 deaths. For the first time in the modern statistics, more Manx residents died than were born in a single year.",
+    source: "Isle of Man in Numbers 2025"
+  },
+  {
+    cat: "population", tag: "Population",
+    headline: "+150%", sub: "Onchan's population growth since 1961, vs. Douglas's +42%",
+    body: "The capital barely grew. Its suburb next door did. Ramsey (+119%) tells the same story — a 33-mile island quietly sprawling.",
+    source: "Population by Town, Village &amp; Parish, Economic Digest 2009 / In Numbers 2025"
+  },
+  {
+    cat: "crime", tag: "Crime &amp; punishment",
+    headline: "2,457", sub: "crimes recorded in 2024 — but two opposite trends inside it",
+    body: "Burglary is down 87% since 1996 (544 → 68). “Offences against the person” has nearly tripled (213 → 560). Break-ins are rarer; people are recorded fighting each other more.",
+    source: "Offences by Category, Economic Digests 2006/2009 &amp; In Numbers 2017–2025",
+    spark: "crime"
+  },
+  {
+    cat: "crime", tag: "Crime &amp; punishment",
+    headline: "12×", sub: "rise in the value of drugs seized, 2014/15 → 2023/24",
+    body: "£171,515 to £2,095,432 in a decade. Cannabis still dominates by weight — 58kg of herbal cannabis seized in 2023/24 alone. Ecstasy, tellingly, is tracked in “units”: 8 of them, total, that year.",
+    source: "Value of Drugs Seized, In Numbers 2025"
+  },
+  {
+    cat: "crime", tag: "Crime &amp; punishment",
+    headline: "140 vs 92", sub: "average prison population vs. stated capacity, 2024",
+    body: "The prison has been running at roughly 50% over its own official capacity, which the Department attributes to longer sentences for drug offences.",
+    source: "Average Prison Population, In Numbers 2025"
+  },
+  {
+    cat: "agriculture", tag: "Farmyard",
+    headline: "6,628 → 634", sub: "the Isle of Man's pig population, 1998 to 2004",
+    body: "A 90% collapse in six years, itemised down to “boars used for service” and “other pigs, under 2 months.” Someone, somewhere, simply stopped keeping pigs.",
+    source: "Pigs and Poultry 1996–2005, Economic Digest 2006",
+    spark: "pigs"
+  },
+  {
+    cat: "agriculture", tag: "Farmyard",
+    headline: "0", sub: "value of crab and lobster landed in 2002 and 2003",
+    body: "The fisheries table records it plainly: nothing landed, two years running, right next to a column for “weight and value of fish landed by species.”",
+    source: "Weight and Value of Fish Landed, Economic Digest 2006"
+  },
+  {
+    cat: "communications", tag: "Post &amp; wires",
+    headline: "23.9 million", sub: "letters received on the Island in 2005",
+    body: "About 306 for every resident that year — in a population of 78,000, the year before the first iPhone existed.",
+    source: "Postal Traffic 1995/96–2005, Economic Digest 2006"
+  },
+  {
+    cat: "work", tag: "Work",
+    headline: "0", sub: "strikes recorded, in any industry, in any year, 1996–2005",
+    body: "Every sector from agriculture to public administration, logged year by year for a decade — and every single cell in the table reads zero.",
+    source: "Strikes and Lockouts by Economic Activity, Economic Digest 2006"
+  },
+  {
+    cat: "work", tag: "Work",
+    headline: "370 → 9,143", sub: "people employed in insurance, banking &amp; finance, 1961 vs. 2021",
+    body: "A 24-fold rise. In 1961 more people worked in agriculture (1,911) than finance. By 2021 finance employed nearly 14 times as many people as farming did.",
+    source: "Employment by Sector 1961 to 2021, In Numbers 2025"
+  },
+  {
+    cat: "language", tag: "Language",
+    headline: "0 → 2,000+", sub: "native Manx Gaelic speakers, 1974 vs. self-reported speakers, 2021",
+    body: "Ned Maddrell, the last native speaker, died in December 1974 — officially making Manx extinct. The 2021 census counted over 2,000 people who can speak it, thanks to Manx-medium schooling that began in 2001.",
+    source: "Manx Language Ability, 2011 &amp; 2021 Census Reports"
+  },
+  {
+    cat: "geopolitics", tag: "World events, locally",
+    headline: "24", sub: "private aircraft deregistered from the Isle of Man in 2022",
+    body: "A government directive to exit all business connected to Russia and Belarus after the invasion of Ukraine — quietly logged as a footnote under the aircraft registry statistics.",
+    source: "Aircraft Registries, In Numbers 2025"
+  },
+  {
+    cat: "archive", tag: "From the archive",
+    headline: "&ldquo;Stole &lsquo;Panties&rsquo; From Clothes Line&rdquo;", sub: "Isle of Man Times, Friday 17 June 1960, p.8",
+    body: "&ldquo;A 23-Year-Old Man Had &lsquo;Irresistible&rsquo; Impulse Says Lawyer.&rdquo; Bound over for a year at Douglas High-Bailiff's Court for stealing a pair of &ldquo;panties&rdquo; from a clothes line, and attempting to steal another pair from the same line eighteen months earlier.",
+    source: "iMuseum newspaper archive (search: “clothes line”)"
+  },
+  {
+    cat: "archive", tag: "From the archive",
+    headline: "&ldquo;Thefts From Clothes Lines&rdquo;", sub: "Isle of Man Times, Friday 18 December 1959, p.4",
+    body: "&ldquo;Complaints about various articles of women's clothing missing from clothes lines at different houses in Upper Douglas during the past few months, had a sequel at a Juvenile Court.&rdquo;",
+    source: "iMuseum newspaper archive (search: “clothes line”)"
+  },
+  {
+    cat: "archive", tag: "From the archive",
+    headline: "&ldquo;Drunk In Charge Of A Bicycle&rdquo;", sub: "Mona's Herald, Tuesday 5 August 1958, p.4",
+    body: "John Caleb Creer, &ldquo;of no fixed address,&rdquo; was fined &pound;2 at Douglas for being unlawfully drunk while in charge of a bicycle in King Edward Road &mdash; plus a further &pound;5 for being drunk and disorderly. Three different papers ran the identical headline that week.",
+    source: "iMuseum newspaper archive (search: “drunk in charge of a bicycle”)"
+  },
+  {
+    cat: "archive", tag: "From the archive",
+    headline: "&ldquo;Police Warn Of Escaped Monkey&rdquo;", sub: "Mona's Herald, Tuesday 1 &amp; 8 July 1958",
+    body: "Rosita, a small Rhesus monkey, went missing from her cage at the Laxey circus. She was recaptured by staff the following day &mdash; but not before the constabulary put out a public warning.",
+    source: "iMuseum newspaper archive (search: “escaped monkey”)"
+  },
+  {
+    cat: "archive", tag: "From the archive",
+    headline: "&ldquo;Talking Mongoose&rdquo; Killed!", sub: "Isle of Man Examiner, Friday 21 February 1947, p.1",
+    body: "A decade after the world-famous &ldquo;Gef the Talking Mongoose&rdquo; haunting at Cashen's Gap, Dalby, the farmstead's new owner snared &ldquo;an animal of a type entirely foreign to the Isle of Man&rdquo; within ten yards of the house &mdash; one which &ldquo;answers strikingly to the descriptions of the celebrated talking mongoose.&rdquo; The story had made front pages as far as America (&ldquo;How &lsquo;Geff&rsquo; Strikes U.S.&rdquo;, Mona's Herald, 1937).",
+    source: "iMuseum newspaper archive (search: “talking mongoose”)"
+  },
+  {
+    cat: "archive", tag: "From the archive",
+    headline: "&ldquo;Haunted House Scare&rdquo;", sub: "Ramsey Courier, Friday 31 July 1942, p.4",
+    body: "In the middle of the Second World War, a Ramsey household reported nightly knocking, a coin-counting sound &ldquo;from the lower regions,&rdquo; and the ghost of a little old woman &mdash; reported perfectly straight-faced as a rival to &ldquo;the Dalby Mongoose.&rdquo;",
+    source: "iMuseum newspaper archive (search: “haunted house”)"
+  }
+];
+
+function sparkSVG(kind) {
+  const datasets = {
+    population: { points: [40081,41000,47975,52387,54042,53558,55608,54752,52016,60284,49308,55253,48133,54581,66101,71267,78266,84069], color: 'var(--series-1)' },
+    crime: { points: [213,388,468,587,692,540,358,457,592,622,712,560], color: 'var(--series-8)' },
+    pigs: { points: [4687,6271,6628,6006,4227,3053,3178,760,817,634], color: 'var(--series-2)' }
+  };
+  const d = datasets[kind];
+  if (!d) return "";
+  const w = 240, h = 44, pad = 3;
+  const min = Math.min(...d.points), max = Math.max(...d.points);
+  const x = i => pad + (i / (d.points.length - 1)) * (w - pad * 2);
+  const y = v => h - pad - ((v - min) / (max - min || 1)) * (h - pad * 2);
+  const path = d.points.map((v, i) => `${x(i)},${y(v)}`).join(" L ");
+  const lastX = x(d.points.length - 1), lastY = y(d.points[d.points.length - 1]);
+  return `<svg class="spark" width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible">
+    <path d="M ${path}" fill="none" stroke="${d.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${lastX}" cy="${lastY}" r="3" fill="${d.color}" />
+  </svg>`;
+}
+
+const grid = document.getElementById('cardGrid');
+function render(filter) {
+  grid.innerHTML = "";
+  FACTS.filter(f => filter === "all" || f.cat === filter).forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-cat', f.cat);
+    card.innerHTML = `
+      <span class="tag">${f.tag}</span>
+      <div class="headline">${f.headline}<small>${f.sub}</small></div>
+      ${f.spark ? sparkSVG(f.spark) : ""}
+      <p class="body">${f.body}</p>
+      <div class="source">Source: ${f.source}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+render("all");
+
+document.getElementById('filterRow').addEventListener('click', (e) => {
+  if (!e.target.classList.contains('filter-chip')) return;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  e.target.classList.add('active');
+  render(e.target.getAttribute('data-filter'));
+});
+
+const randomFactEl = document.getElementById('randomFact');
+function showRandomFact() {
+  const f = FACTS[Math.floor(Math.random() * FACTS.length)];
+  randomFactEl.innerHTML = `<b>${f.headline}</b> — ${f.sub}. ${f.body}`;
+}
+showRandomFact();
+document.getElementById('shuffleBtn').addEventListener('click', showRandomFact);
+
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+});
+</script>
+</body>
+</html>

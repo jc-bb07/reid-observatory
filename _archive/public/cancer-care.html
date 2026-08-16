@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cancer Care — Crown Dependencies · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
+  --border:#1e293b;--border2:#334155;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+  --blue:#60a5fa;--blue-dim:#1d4ed8;
+  --green:#34d399;--amber:#fbbf24;--red:#f87171;
+  --purple:#a78bfa;--orange:#fb923c;
+  --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--wal:#94a3b8;--eng:#a78bfa;
+  /* Health & Care sub-brand — additive, see OBSERVATORY_DEV_BRIEF */
+  --hc-serif:'Fraunces',Georgia,serif;
+  --hc-accent:#5ea99a;--hc-accent-dim:#16302b;--hc-accent-soft:rgba(94,169,154,.12);
+}
+body.light{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--muted2:#334155;
+  --blue:#2563eb;--blue-dim:#1d4ed8;
+  --green:#059669;--amber:#d97706;--red:#dc2626;
+  --purple:#7c3aed;--orange:#ea580c;
+  --iom:#2563eb;--gsy:#059669;--jsy:#d97706;--wal:#475569;--eng:#7c3aed;
+  --hc-accent:#2f7d6c;--hc-accent-dim:#d9efe9;--hc-accent-soft:rgba(47,125,108,.08);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:14px;-webkit-font-smoothing:antialiased}
+.shell{max-width:960px;margin:0 auto;padding:20px 20px 40px}
+h1{font-family:var(--hc-serif);font-size:26px;font-weight:600;color:var(--text);letter-spacing:-.01em;line-height:1.2;margin-bottom:8px}
+.subtitle{font-size:13.5px;color:var(--muted2);line-height:1.7;margin-bottom:20px}
+.subtitle strong{color:var(--text)}
+
+/* ── jurisdiction picker (pill group, id-scoped per brief convention) ── */
+.controls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;align-items:center}
+.ctrl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:2px;width:100%}
+.pill{background:none;border:1px solid var(--border2);border-radius:20px;color:#94a3b8;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;padding:6px 14px;transition:color .15s,border-color .15s,background .15s}
+.pill.active{background:var(--hc-accent-soft);border-color:var(--hc-accent);color:var(--hc-accent)}
+.pill:hover:not(.active){border-color:var(--muted);color:#cbd5e1}
+.picker-note{font-size:11px;color:var(--muted);margin:8px 0 22px;line-height:1.6}
+
+/* ── audience toggle (approved pattern) ── */
+.audience-bar{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.aud-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.toggle{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden}
+.toggle-btn{background:none;border:none;color:#94a3b8;cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;padding:5px 14px;transition:background .15s,color .15s}
+.toggle-btn.active{background:var(--hc-accent-soft);color:var(--hc-accent)}
+.toggle-btn:hover:not(.active){color:#cbd5e1}
+
+/* ── plain language framing box ── */
+.plain-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;margin-bottom:20px;font-size:13.5px;color:var(--muted2);line-height:1.75}
+.plain-box strong{color:var(--text)}
+.plain-box.hidden{display:none}
+
+/* ── the two clocks: plain stat cards with CSS-only progress, no canvas ── */
+.clocks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+@media(max-width:560px){.clocks{grid-template-columns:1fr}}
+.clock-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:16px}
+.clock-q{font-size:12px;color:var(--muted2);line-height:1.55;margin-bottom:12px;min-height:34px}
+.clock-value{font-size:30px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em}
+.clock-value.dim{font-size:15px;font-weight:600;color:var(--muted)}
+.clock-meta{font-size:11px;color:var(--muted);margin-top:8px}
+.clock-bar-track{height:8px;background:var(--surface2);border-radius:4px;margin-top:12px;overflow:hidden}
+.clock-bar-fill{height:100%;border-radius:4px}
+.clock-trend{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:5px}
+.trend-up{color:var(--red)}
+.trend-down{color:var(--green)}
+.trend-flat{color:var(--muted2)}
+
+/* ── narrative ── */
+.narrative{margin-bottom:6px}
+.narrative h2{font-family:var(--hc-serif);font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
+.narrative p{font-size:13px;color:var(--muted2);line-height:1.75}
+.narrative + .narrative{margin-top:18px}
+
+.section-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border2)}
+
+/* ── benchmark — plain bars, no chart.js ── */
+.bench-explainer{font-size:12.5px;color:var(--muted2);line-height:1.7;margin-bottom:14px}
+.bars{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+.bar-row{display:grid;grid-template-columns:92px 1fr 52px;gap:10px;align-items:center;font-size:12.5px}
+.bar-row.you .bar-jname{color:var(--text);font-weight:700}
+.bar-jname{color:var(--muted2);text-align:right;font-size:12px}
+.bar-track{background:var(--surface2);border-radius:4px;height:16px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-val{font-variant-numeric:tabular-nums;color:var(--text);font-weight:500;font-size:12.5px}
+.bar-gap{color:var(--muted);font-size:11px;font-style:italic}
+.flag-note{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-left:3px solid var(--amber);border-radius:6px;padding:9px 12px;margin-top:10px;font-size:11.5px;color:var(--muted2);line-height:1.65}
+.flag-note strong{color:var(--amber)}
+.gap-note{background:rgba(148,163,184,.06);border:1px solid var(--border2);border-left:3px solid var(--muted);border-radius:6px;padding:9px 12px;margin-bottom:10px;font-size:11.5px;color:var(--muted);line-height:1.65}
+.gap-note strong{color:var(--muted2)}
+.gap-note:last-child{margin-bottom:0}
+
+/* ── related ── */
+.related{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.related-link{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--muted2);text-decoration:none;flex:1;min-width:160px}
+.related-link strong{display:block;color:var(--text);font-weight:700;font-size:13px;margin-bottom:2px}
+.related-link:hover{border-color:var(--hc-accent)}
+
+.page-footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--border2);font-size:10px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.page-footer a{color:var(--muted);text-decoration:none}
+.page-footer a:hover{color:var(--text)}
+
+.loading{padding:60px 0;text-align:center;color:var(--muted);font-size:13px}
+
+@media(max-width:600px){
+  .shell{padding:12px 14px 32px}
+  body{font-size:15px}
+  h1{font-size:17px!important}
+  .controls{flex-wrap:wrap;gap:8px}
+  .pill{font-size:12px;padding:5px 10px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="shell" id="app">
+  <div class="loading">Loading…</div>
+</div>
+
+<script>
+const DATA_URL = 'cancer.json';
+let DATA = null;
+let selectedJurisdiction = 'iom';
+let selectedMetric = null;
+let audience = 'plain';
+
+async function init() {
+  try {
+    const res = await fetch(DATA_URL);
+    DATA = await res.json();
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      '<div class="loading">Could not load cancer.json. This page needs to be served alongside its data file, not opened directly from disk.</div>';
+    return;
+  }
+  selectedMetric = DATA.metricFamilies[0].id;
+  render();
+  reportHeight();
+}
+
+function latestPoint(series) {
+  if (!series || !series.points) return null;
+  return series.points.find(p => p.latest) || series.points[series.points.length - 1];
+}
+
+function trendArrow(series, higherIsBetter) {
+  if (!series || !series.points || series.points.length < 2) return null;
+  const pts = series.points.filter(p => p.value !== null && p.value !== undefined);
+  if (pts.length < 2) return null;
+  const lastPt = pts[pts.length - 1];
+  const prevPt = pts[pts.length - 2];
+  // If the target itself changed between these two points, a raw comparison is misleading
+  // (e.g. IoM's 62-day cancer target dropped from 85% to 70% in 2024-25). Flag, don't compare.
+  if (lastPt.targetAtTime !== undefined && prevPt.targetAtTime !== undefined && lastPt.targetAtTime !== prevPt.targetAtTime) {
+    return { dir: 'target-changed', diff: lastPt.value - prevPt.value };
+  }
+  const diff = lastPt.value - prevPt.value;
+  if (Math.abs(diff) < 0.15) return { dir: 'flat', diff };
+  const improving = higherIsBetter ? diff > 0 : diff < 0;
+  return { dir: improving ? 'down' : 'up', diff };
+}
+
+function fmtVal(v, unit) {
+  if (v === null || v === undefined) return '—';
+  return v + (unit === '%' ? '%' : ' ' + unit);
+}
+
+function cssVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim() || '#888';
+}
+
+function render() {
+  const j = DATA.jurisdictions[selectedJurisdiction];
+  const topic = DATA.topic;
+  const families = DATA.metricFamilies;
+  const selectable = Object.values(DATA.jurisdictions).filter(x => !x.benchmarkOnly);
+
+  const pickerHtml = selectable.map(x => `
+    <button class="pill ${x.id===selectedJurisdiction?'active':''}" onclick="selectJurisdiction('${x.id}')">${x.name}</button>
+  `).join('');
+
+  const fds = families.find(f => f.id === 'fds28');
+  const days62 = families.find(f => f.id === 'days62');
+
+  const clockCard = (fam, jId) => {
+    const s = fam.series[jId];
+    if (!s || s.status === 'not-published') {
+      return `<div class="clock-card">
+        <div class="clock-q">${fam.citizenLabel}</div>
+        <div class="clock-value dim">Not published</div>
+        <div class="clock-meta">${j.name} doesn't publish this measure.</div>
+      </div>`;
+    }
+    const lp = latestPoint(s);
+    const trend = trendArrow(s, fam.higherIsBetter);
+    const pct = lp.value != null ? Math.min(100, lp.value) : 0;
+    const color = cssVar('--' + jId);
+    let trendHtml = '';
+    if (trend) {
+      if (trend.dir === 'target-changed') {
+        trendHtml = `<div class="clock-trend trend-flat">⚠ target changed since last year — not directly comparable</div>`;
+      } else {
+        const cls = trend.dir === 'flat' ? 'trend-flat' : (trend.dir === 'down' ? 'trend-down' : 'trend-up');
+        const arrow = trend.dir === 'flat' ? '→' : (trend.diff > 0 ? '▲' : '▼');
+        trendHtml = `<div class="clock-trend ${cls}">${arrow} vs ${s.points[s.points.length-2].period}</div>`;
+      }
+    }
+    return `<div class="clock-card">
+      <div class="clock-q">${fam.citizenLabel}</div>
+      <div class="clock-value">${fmtVal(lp.value, fam.unit)}</div>
+      <div class="clock-bar-track"><div class="clock-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="clock-meta">Target: ${s.target ? s.target+'%' : '—'} · ${lp.period}</div>
+      ${trendHtml}
+    </div>`;
+  };
+
+  const audienceBar = `
+    <div class="audience-bar">
+      <span class="aud-label">View</span>
+      <div class="toggle">
+        <button class="toggle-btn ${audience==='plain'?'active':''}" onclick="setAudience('plain')">Plain language</button>
+        <button class="toggle-btn ${audience==='tech'?'active':''}" onclick="setAudience('tech')">Technical</button>
+      </div>
+    </div>
+  `;
+
+  const plainIntro = `<div class="plain-box ${audience==='tech'?'hidden':''}">
+    <strong>The two waits that matter most.</strong> If you're referred urgently with suspected cancer, there are two separate clocks: how quickly you're told whether you have cancer (within 28 days), and how quickly treatment actually starts once it's confirmed (within 62 days). The figures below are ${j.name}'s most recent results against both.
+  </div>`;
+  const techIntro = `<div class="plain-box ${audience==='plain'?'hidden':''}">
+    <strong>Methodology.</strong> 28-day Faster Diagnosis Standard and 62-day referral-to-treatment standard, as reported by each jurisdiction's health body. IoM's 62-day target was reduced from 85% to 70% for 2024-25 — figures before and after are not on a like-for-like pass/fail basis. Jersey and Guernsey do not publish equivalent cancer waiting time metrics. NHS Wales and NHS England use 70-75% targets. Data extracted from official annual reports and assessments; see footer for full source list.
+  </div>`;
+
+  const narrativeHtml = audience === 'plain'
+    ? DATA.citizenContext.map(c => `
+      <div class="narrative">
+        <h2>${c.heading}</h2>
+        <p>${c.body}</p>
+      </div>
+    `).join('')
+    : '';
+
+  const metricPillsHtml = families.map(f => `
+    <button class="pill ${f.id===selectedMetric?'active':''}" onclick="selectMetric('${f.id}')">${f.citizenLabel}</button>
+  `).join('');
+
+  const activeMetric = families.find(f => f.id === selectedMetric);
+  const allJ = Object.values(DATA.jurisdictions);
+  const maxVal = Math.max(...allJ.map(x => {
+    const s = activeMetric.series[x.id];
+    const lp = s && s.points ? latestPoint(s) : null;
+    return lp && lp.value ? lp.value : 0;
+  }), 1);
+
+  const barsHtml = allJ.map(x => {
+    const s = activeMetric.series[x.id];
+    const isYou = x.id === selectedJurisdiction;
+    if (!s || s.status === 'not-published') {
+      return `<div class="bar-row ${isYou?'you':''}">
+        <div class="bar-jname">${x.shortName}</div>
+        <div class="bar-track"></div>
+        <div class="bar-gap">no data</div>
+      </div>`;
+    }
+    const lp = latestPoint(s);
+    if (lp.value === null || lp.value === undefined) {
+      return `<div class="bar-row ${isYou?'you':''}">
+        <div class="bar-jname">${x.shortName}</div>
+        <div class="bar-track"></div>
+        <div class="bar-gap">no data yet</div>
+      </div>`;
+    }
+    const pct = Math.min(100, (lp.value / maxVal) * 100);
+    const color = cssVar('--' + x.id);
+    return `<div class="bar-row ${isYou?'you':''}">
+      <div class="bar-jname">${x.shortName}${isYou?' (you)':''}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-val">${fmtVal(lp.value, activeMetric.unit)}</div>
+    </div>`;
+  }).join('');
+
+  const comparabilityHtml = activeMetric.comparability !== 'high'
+    ? `<div class="flag-note"><strong>⚠ Worth knowing:</strong> ${activeMetric.comparabilityNote}</div>`
+    : '';
+
+  const gapsHtml = audience === 'tech' && DATA.dataGaps.length
+    ? DATA.dataGaps.map(g => `<div class="gap-note">— ${g}</div>`).join('')
+    : '';
+
+  const sourcesHtml = DATA.sources.map(s => s.title).join(' · ');
+
+  document.getElementById('app').innerHTML = `
+    <h1>Cancer Care — Crown Dependencies</h1>
+    <p class="subtitle">How quickly people are diagnosed and treated after an urgent cancer referral, compared across the Isle of Man, Jersey, and Guernsey.</p>
+
+    <div class="controls" id="juris-controls">
+      <span class="ctrl-label">My jurisdiction</span>
+      ${pickerHtml}
+    </div>
+    <div class="picker-note">NHS Wales and NHS England appear below as benchmarks — much larger health systems, not selectable as "my jurisdiction."</div>
+
+    ${audienceBar}
+    ${plainIntro}
+    ${techIntro}
+
+    <div class="clocks">
+      ${clockCard(fds, selectedJurisdiction)}
+      ${clockCard(days62, selectedJurisdiction)}
+    </div>
+
+    ${narrativeHtml}
+
+    <div class="section-head">How does ${j.name} compare?</div>
+    <div class="controls" id="metric-controls">${metricPillsHtml}</div>
+    <div class="bench-explainer">${activeMetric.explainer}</div>
+    <div class="bars">${barsHtml}</div>
+    ${comparabilityHtml}
+
+    ${gapsHtml}
+
+    <div class="related">
+      <a class="related-link" href="ed-care.html"><strong>Emergency Department →</strong>A&amp;E waits across Crown Dependencies</a>
+      <a class="related-link" href="manx-care-benchmark.html"><strong>Full technical benchmark →</strong>All KPI groups, cross-jurisdiction detail</a>
+    </div>
+
+    <div class="page-footer">
+      <span>observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+      <span>${sourcesHtml} · <a href="https://coalfinch.com">Coalfinch</a></span>
+    </div>
+  `;
+}
+
+function selectJurisdiction(id) {
+  selectedJurisdiction = id;
+  render();
+  reportHeight();
+}
+function selectMetric(id) {
+  selectedMetric = id;
+  render();
+  reportHeight();
+}
+function setAudience(a) {
+  audience = a;
+  render();
+  reportHeight();
+}
+
+// ── Theme listener — v3 pattern ──
+(function() {
+  var stored = localStorage.getItem('observatory-theme');
+  if (stored !== 'dark') document.body.classList.add('light'); // H&C default: light
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+})();
+
+// ── Height reporting ──
+function reportHeight() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+window.addEventListener('resize', reportHeight);
+setTimeout(reportHeight, 300);
+setTimeout(reportHeight, 800);
+
+init();
+</script>
+</body>
+</html>

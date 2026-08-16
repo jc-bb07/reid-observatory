@@ -1,0 +1,1058 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Household Budget · Coalfinch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;--border2:#334155;
+  --text:#e2e8f0;--muted:#94a3b8;--muted2:#cbd5e1;
+  --blue:#60a5fa;--green:#34d399;--amber:#fbbf24;--red:#f87171;
+  --iom:#3b82f6;--font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html[data-theme="light"] body,body.light{--bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--border2:#cbd5e1;--text:#0f172a;--muted:#64748b;--muted2:#334155;--blue:#2563eb;--iom:#2563eb;}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--surface2:#f8fafc;--border2:#cbd5e1;--text:#0f172a;--muted:#64748b;--muted2:#334155;}
+  .no-print{display:none!important}.print-only{display:block!important}
+  #sections{display:none!important}.action-bar{display:none!important}
+  .print-table{display:table!important}.print-footer{display:flex!important}
+  html,body{overflow:visible!important}#app{padding:12px}
+  .page-footer{display:none!important}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow:hidden}
+body{overflow-y:auto;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+#app{max-width:960px;margin:0 auto;padding:16px 16px 40px}
+.print-only{display:none}
+
+/* HERO */
+.hero{margin-bottom:1rem}
+h1{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-0.02em;color:var(--text);margin-bottom:.3rem}
+h1 em{font-style:normal;color:var(--red)}
+.lede{font-size:12px;line-height:1.7;color:var(--muted);max-width:700px}
+.lede strong{color:var(--muted2)}
+.lede a{color:var(--blue);text-decoration:none}
+.lede a:hover{text-decoration:underline}
+
+/* SANKEY PANEL */
+#sankey-panel{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:1rem;}
+.sp-head{padding:.75rem 1rem;border-bottom:1px solid var(--border2);display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.6rem;}
+.sp-title{font-size:13px;font-weight:700;color:var(--text)}
+.sp-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.summary-nums{display:flex;gap:1rem;flex-wrap:wrap}
+.sn .v{font-size:14px;font-weight:700;font-family:var(--mono);letter-spacing:-.01em}
+.sn .l{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sn .v.green{color:var(--green)}.sn .v.red{color:var(--red)}
+.canvas-wrap{padding:.6rem .9rem .7rem;overflow:hidden}
+canvas{display:block;max-width:100%}
+.leg{display:flex;flex-wrap:wrap;gap:6px 12px;padding:.5rem 1rem;border-top:1px solid var(--border2);font-size:10px;color:var(--muted2)}
+.leg-item{display:flex;align-items:center;gap:4px}
+.leg-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* RESULT BANNER */
+.result-banner{border-radius:7px;padding:.65rem .9rem;font-size:12px;line-height:1.65;border:1px solid;margin-bottom:.9rem}
+.result-banner.surplus{background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25);color:var(--green)}
+.result-banner.deficit{background:rgba(244,63,94,.07);border-color:rgba(244,63,94,.25);color:var(--red)}
+.result-banner strong{font-weight:700}
+
+/* ACTION BAR */
+.action-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.btn{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .12s;border:1px solid;display:flex;align-items:center;gap:5px}
+.btn-share{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-share:hover{opacity:.88}
+.btn-print{background:transparent;border-color:var(--border2);color:var(--muted2)}
+.btn-print:hover{border-color:var(--amber);color:var(--amber)}
+.share-box{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:.65rem .9rem;display:none;margin-bottom:.8rem}
+.share-box.open{display:block}
+.share-lbl{font-size:10px;color:var(--muted);margin-bottom:.3rem}
+.share-row{display:flex;gap:6px}
+.share-row input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:4px 7px;font-size:10px;font-family:var(--mono);color:var(--muted2);outline:none}
+.copy-btn{padding:4px 11px;background:var(--blue);border:none;border-radius:4px;color:#fff;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap}
+.share-note{font-size:10px;color:var(--muted);margin-top:.35rem;line-height:1.5}
+
+/* ACCORDION */
+#sections{display:flex;flex-direction:column;gap:7px}
+.acc{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:opacity .15s}
+.acc.locked{opacity:.4;pointer-events:none}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;cursor:pointer;user-select:none;transition:background .1s}
+.acc-head:hover{background:rgba(255,255,255,.03)}
+.acc-left{display:flex;align-items:center;gap:.55rem}
+.acc-num{width:20px;height:20px;border-radius:50%;background:var(--border2);font-size:9px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s}
+.acc.active .acc-num{background:var(--blue);color:#fff}
+.acc.done .acc-num{background:var(--green);color:#0f172a}
+.acc-title{font-size:12px;font-weight:600;color:var(--text)}
+.acc-summary{font-size:10px;color:var(--muted);margin-left:.25rem}
+.acc-chevron{width:15px;height:15px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.acc.open .acc-chevron{transform:rotate(180deg)}
+.acc-body{display:none;padding:.75rem 1rem .9rem;border-top:1px solid var(--border2)}
+.acc.open .acc-body{display:block}
+
+/* FIELDS */
+.field{margin-bottom:.48rem}
+.field:last-of-type{margin-bottom:0}
+.field label{display:block;font-size:10px;font-weight:500;color:var(--muted);margin-bottom:2px}
+.field-row{display:flex;align-items:center;gap:5px}
+.pound{font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0}
+input[type=number],input[type=text],select{background:var(--surface);border:1px solid var(--border2);border-radius:5px;padding:5px 7px;font-size:11px;color:var(--text);outline:none;transition:border-color .12s}
+input[type=number]{font-family:var(--mono);text-align:right;width:90px;flex-shrink:0}
+input[type=text]{font-family:var(--font);flex:1}
+select{font-family:var(--font);cursor:pointer;flex-shrink:0}
+input:focus,select:focus{border-color:var(--blue)}
+.hint{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.45}
+
+/* HOUSEHOLD COMPOSITION (step 0) */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem}
+@media(max-width:500px){.comp-grid{grid-template-columns:1fr}}
+@media(max-width:480px){
+  .summary-nums{gap:.5rem}
+  .sn .v{font-size:12px}
+  .sn .l{font-size:8px}
+  .sp-head{padding:.6rem .75rem;gap:.4rem}
+  .canvas-wrap{padding:.4rem .5rem .5rem}
+  .leg{padding:.4rem .75rem;gap:4px 8px;font-size:9px}
+  #app{padding:12px 10px 32px}
+}
+.comp-card{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:.6rem .75rem}
+.comp-card label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em}
+.stepper{display:flex;align-items:center;gap:8px}
+.step-btn{width:26px;height:26px;border-radius:50%;background:var(--border2);border:none;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s;flex-shrink:0}
+.step-btn:hover{background:var(--blue);color:#fff}
+.step-val{font-size:16px;font-weight:700;font-family:var(--mono);color:var(--text);min-width:20px;text-align:center}
+.child-ages{margin-top:.6rem}
+.child-age-row{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--muted2);padding:3px 0;border-bottom:1px solid var(--border2)}
+.child-age-row:last-child{border-bottom:none}
+.child-age-row select{font-size:10px;padding:3px 5px;width:auto}
+.mis-note{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:5px;padding:.5rem .75rem;font-size:10px;color:var(--muted);line-height:1.6;margin-top:.5rem}
+.mis-note strong{color:var(--amber)}
+
+/* TAX BOX */
+.tax-box{background:var(--surface);border:1px solid var(--border2);border-radius:5px;padding:.4rem .65rem;margin:.4rem 0}
+.tx-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:1px 0}
+.tx-row span:last-child{font-family:var(--mono);color:var(--muted2)}
+.tx-row.net{color:var(--text);font-weight:600;border-top:1px solid var(--border2);margin-top:3px;padding-top:3px}
+.tx-row.net span:last-child{color:var(--blue)}
+.override-row{display:flex;align-items:center;gap:5px;margin-top:.35rem}
+.override-row label{font-size:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px}
+input[type=checkbox]{width:12px;height:12px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+
+/* CUSTOM LINES */
+.custom-line{display:grid;grid-template-columns:1fr 90px 20px;gap:5px;align-items:center;margin-bottom:.35rem}
+.rm-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;line-height:1;transition:color .1s}
+.rm-btn:hover{color:var(--red)}
+.add-btn{background:none;border:1px dashed var(--border2);border-radius:5px;color:var(--muted);cursor:pointer;font-size:10px;font-family:var(--font);padding:4px 10px;width:100%;transition:all .12s;margin-top:.3rem}
+.add-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* DONE BUTTON */
+.done-btn{margin-top:.8rem;width:100%;padding:7px;border-radius:6px;background:var(--blue);border:none;color:#fff;font-size:11px;font-weight:700;font-family:var(--font);cursor:pointer;transition:opacity .12s}
+.done-btn:hover{opacity:.88}
+
+/* PRINT TABLE */
+.print-table{display:none;width:100%;border-collapse:collapse;margin-top:14px;font-size:11px}
+.print-table th{text-align:left;padding:5px 8px;border-bottom:2px solid #cbd5e1;color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.print-table td{padding:5px 8px;border-bottom:1px solid #e2e8f0;color:#0f172a}
+.print-table td:last-child{text-align:right;font-family:var(--mono);font-weight:600}
+.print-table tr.total td{border-top:2px solid #cbd5e1;font-weight:700;border-bottom:none}
+.print-table tr.disp td{color:#059669}
+.print-table tr.deficit td{color:#e11d48}
+
+/* PRINT FOOTER */
+.print-footer{display:none;margin-top:16px;padding-top:10px;border-top:1px solid #cbd5e1;align-items:center;justify-content:space-between;font-size:9px;color:#94a3b8;line-height:1.5}
+.pf-brand{font-weight:700;color:#64748b;font-size:10px;letter-spacing:.04em}
+
+/* PAGE FOOTER */
+.page-footer{margin-top:2.5rem;padding-top:1.25rem;border-top:1px solid var(--border2);display:flex;flex-direction:column;gap:.5rem}
+.pf-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:.4rem .75rem;font-size:11px;color:var(--muted)}
+.pf-row a{color:var(--blue);text-decoration:none}
+.pf-row a:hover{text-decoration:underline}
+.pf-brand-line{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pf-contact{font-size:11px;color:var(--muted2);line-height:1.65;max-width:560px}
+.pf-contact a{color:var(--blue);text-decoration:none}
+.pf-contact a:hover{text-decoration:underline}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hero no-print">
+    <h1>My household budget — <em>what's actually left?</em></h1>
+    <p class="lede">Start by telling us who's in your household. We'll pre-fill costs based on the Minimum Income Standard — adjust them to match your reality. Share a link or print a copy to show your representative exactly what life costs.
+    <strong>Nothing is stored. Your data never leaves your computer.</strong>
+    <a href="privacy4budget.html" target="_blank">Privacy policy →</a></p>
+  </div>
+
+  <!-- SANKEY -->
+  <div id="sankey-panel">
+    <div class="sp-head">
+      <div>
+        <div class="sp-title" id="sp-title">My household budget</div>
+        <div class="sp-sub">Isle of Man · 2024/25 tax rates · weekly equivalent</div>
+      </div>
+      <div class="summary-nums" id="summary-nums"></div>
+    </div>
+    <div class="canvas-wrap"><canvas id="sankey" height="360"></canvas></div>
+    <div class="leg" id="legend"></div>
+  </div>
+
+  <div id="result-banner" class="result-banner surplus" style="display:none"></div>
+
+  <!-- ACTIONS -->
+  <div class="action-bar no-print">
+    <button class="btn btn-share" id="share-btn">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><circle cx="9.5" cy="2" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="9.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="2.5" cy="6" r="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.3l4-2.6M4 6.7l4 2.6" stroke="currentColor" stroke-width="1.2"/></svg>
+      Share link
+    </button>
+    <button class="btn btn-print" id="print-btn">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="4.5" width="9" height="5.5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 4.5V2.5a.5.5 0 01.5-.5h4a.5.5 0 01.5.5v2" stroke="currentColor" stroke-width="1.2"/><rect x="3.5" y="7" width="5" height="1" rx=".5" fill="currentColor"/></svg>
+      Print / save PDF
+    </button>
+  </div>
+  <div class="share-box no-print" id="share-box">
+    <div class="share-lbl">Your figures are encoded in the URL only — nothing is stored anywhere.</div>
+    <div class="share-row"><input type="text" id="share-url" readonly/><button class="copy-btn" id="copy-btn">Copy</button></div>
+    <div class="share-note">Send this to your MHK or candidate. Opening the link shows exactly your Sankey, pre-filled with your figures.</div>
+  </div>
+
+  <!-- PRINT TABLE -->
+  <table class="print-table" id="print-table">
+    <thead><tr><th>Category</th><th style="text-align:right">Weekly</th></tr></thead>
+    <tbody id="print-tbody"></tbody>
+  </table>
+  <div class="print-footer" id="print-footer">
+    <div><div class="pf-brand">Coalfinch Analytics · coalfinch.com</div>
+    <div>Crown Dependencies Re-Identification Observatory · Household Budget Tool</div>
+    <div>IoM 2024/25 tax rates. Nothing stored — figures encoded in URL only.</div></div>
+    <div style="text-align:right"><div style="font-family:monospace;font-size:9px" id="print-url"></div>
+    <div style="margin-top:2px">Printed <span id="print-date"></span></div></div>
+  </div>
+
+  <!-- SECTIONS -->
+  <div id="sections" class="no-print">
+
+    <!-- STEP 0: HOUSEHOLD -->
+    <div class="acc active open" data-section="household">
+      <div class="acc-head">
+        <div class="acc-left">
+          <div class="acc-num">1</div>
+          <div class="acc-title">Who's in your household?</div>
+          <div class="acc-summary" id="sum-household"></div>
+        </div>
+        <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="acc-body">
+        <div class="comp-grid">
+          <div class="comp-card">
+            <label>Adults</label>
+            <div class="stepper">
+              <button class="step-btn" data-target="n-adults" data-delta="-1">−</button>
+              <span class="step-val" id="n-adults-val">1</span>
+              <button class="step-btn" data-target="n-adults" data-delta="1">+</button>
+              <input type="hidden" id="n-adults" value="1"/>
+            </div>
+          </div>
+          <div class="comp-card">
+            <label>Children</label>
+            <div class="stepper">
+              <button class="step-btn" data-target="n-children" data-delta="-1">−</button>
+              <span class="step-val" id="n-children-val">0</span>
+              <button class="step-btn" data-target="n-children" data-delta="1">+</button>
+              <input type="hidden" id="n-children" value="0"/>
+            </div>
+            <div class="child-ages" id="child-ages"></div>
+          </div>
+        </div>
+        <div class="mis-note">
+          <strong>About these figures.</strong>
+          The Minimum Income Standard (MIS) is defined by the Isle of Man Government as part of the annual Living Wage calculation — it represents what a household is estimated to need for an adequate standard of living. We have used it here as a starting point because it is the only published basket of costs for IoM household types. However, we think it is, to put it diplomatically, <em>challenging</em> — in our view it understates what many households actually spend, particularly on housing, childcare, and utilities. Adjust every figure to match your real situation. The MIS is a floor, and for many people it is not a realistic one.
+        </div>
+        <button class="done-btn" data-next="income">Household set — next: Income →</button>
+      </div>
+    </div>
+
+    <!-- STEP 1: INCOME -->
+    <div class="acc locked" data-section="income">
+      <div class="acc-head">
+        <div class="acc-left">
+          <div class="acc-num">2</div>
+          <div class="acc-title">Income</div>
+          <div class="acc-summary" id="sum-income"></div>
+        </div>
+        <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="acc-body">
+        <div id="adult-incomes"></div>
+        <div class="hint" style="margin:.2rem 0 .6rem">Leave an adult's income at £0 if they aren't earning — retired, unable to work, a full-time carer, or a student. Pensions and benefits go in the field below.</div>
+        <div class="field">
+          <label>Benefits / Child Benefit / other income</label>
+          <div class="field-row"><span class="pound">£</span>
+            <input type="number" id="benefits" value="0" min="0"/>
+            <select id="freqb"><option value="52">/ week</option><option value="12">/ month</option><option value="1">/ year</option></select>
+          </div>
+          <div class="hint">Child Benefit 2024/25: £25.60/wk first child · £16.95 each subsequent child</div>
+        </div>
+        <div class="tax-box">
+          <div class="tx-row"><span>Income tax</span><span id="td-tax">—</span></div>
+          <div class="tx-row"><span>National Insurance (employee)</span><span id="td-ni">—</span></div>
+          <div class="tx-row net"><span>Net take-home / week</span><span id="td-net">—</span></div>
+        </div>
+        <div class="override-row">
+          <input type="checkbox" id="override-chk"/>
+          <label for="override-chk">I know my actual take-home — enter it instead</label>
+        </div>
+        <div class="field" id="override-field" style="display:none;margin-top:.4rem">
+          <label>Actual weekly take-home (after all deductions)</label>
+          <div class="field-row"><span class="pound">£</span>
+            <input type="number" id="net-override" value="0" min="0"/>
+            <span style="font-size:10px;color:var(--muted);white-space:nowrap">per week</span>
+          </div>
+        </div>
+        <button class="done-btn" data-next="housing">Income done — next: Housing →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: HOUSING -->
+    <div class="acc locked" data-section="housing">
+      <div class="acc-head">
+        <div class="acc-left">
+          <div class="acc-num">3</div>
+          <div class="acc-title">Housing</div>
+          <div class="acc-summary" id="sum-housing"></div>
+        </div>
+        <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="acc-body">
+        <div class="field">
+          <label>Tenure</label>
+          <select id="tenure"><option value="rent">Private renting</option><option value="social">Social renting</option><option value="mortgage">Mortgaged</option><option value="owned">Own outright</option></select>
+        </div>
+        <div class="field">
+          <label>Rent / mortgage payment</label>
+          <div class="field-row"><span class="pound">£</span>
+            <input type="number" id="housing" value="750" min="0"/>
+            <select id="freqh"><option value="52">/ week</option><option value="12" selected>/ month</option><option value="1">/ year</option></select>
+          </div>
+        </div>
+        <div class="field" id="rates-field" style="display:none">
+          <label>Domestic rates (if mortgaged or owned)</label>
+          <div class="field-row"><span class="pound">£</span>
+            <input type="number" id="rates" value="48" min="0"/>
+            <select id="freqr"><option value="52">/ week</option><option value="12" selected>/ month</option><option value="1">/ year</option></select>
+          </div>
+          <div class="hint">Douglas 2024/25: 573p/£ × rateable value. Landlord pays rates if renting.</div>
+        </div>
+        <button class="done-btn" data-next="utilities">Housing done — next: Utilities →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: UTILITIES -->
+    <div class="acc locked" data-section="utilities">
+      <div class="acc-head">
+        <div class="acc-left">
+          <div class="acc-num">4</div>
+          <div class="acc-title">Utilities &amp; telecoms</div>
+          <div class="acc-summary" id="sum-utilities"></div>
+        </div>
+        <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="acc-body">
+        <div class="field"><label>Electricity (Manx Utilities)</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="electricity" value="120" min="0"/><select id="freqe"><option value="52">/ week</option><option value="12" selected>/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <div class="field"><label>Gas (Manx Gas)</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="gas" value="100" min="0"/><select id="freqg"><option value="52">/ week</option><option value="12" selected>/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <div class="field"><label>Broadband &amp; phone</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="telecoms" value="60" min="0"/><select id="freqt"><option value="52">/ week</option><option value="12" selected>/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <button class="done-btn" data-next="essentials">Utilities done — next: Essentials →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: ESSENTIALS -->
+    <div class="acc locked" data-section="essentials">
+      <div class="acc-head">
+        <div class="acc-left">
+          <div class="acc-num">5</div>
+          <div class="acc-title">Essentials</div>
+          <div class="acc-summary" id="sum-essentials"></div>
+        </div>
+        <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="acc-body">
+        <div class="field"><label>Food &amp; household goods</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="food" value="92" min="0"/><select id="freqfood"><option value="52" selected>/ week</option><option value="12">/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <div class="field"><label>Transport</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="transport" value="55" min="0"/><select id="freqtr"><option value="52" selected>/ week</option><option value="12">/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <div class="field" id="childcare-field" style="display:none"><label>Childcare</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="childcare" value="0" min="0"/><select id="freqcc"><option value="52" selected>/ week</option><option value="12">/ month</option><option value="1">/ year</option></select></div>
+          <div class="hint">IoM holiday clubs ~£250/wk · after-school ~£80/wk term-time · full-time nursery (under 2) ~£270/wk</div>
+        </div>
+        <div class="field"><label>Personal &amp; clothing</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="personal" value="28" min="0"/><select id="freqp"><option value="52" selected>/ week</option><option value="12">/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <div class="field"><label>Leisure &amp; social</label>
+          <div class="field-row"><span class="pound">£</span><input type="number" id="leisure" value="35" min="0"/><select id="freql"><option value="52" selected>/ week</option><option value="12">/ month</option><option value="1">/ year</option></select></div>
+        </div>
+        <button class="done-btn" data-next="other">Essentials done — next: Other costs →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: OTHER -->
+    <div class="acc locked" data-section="other">
+      <div class="acc-head">
+        <div class="acc-left">
+          <div class="acc-num">6</div>
+          <div class="acc-title">Other regular costs</div>
+          <div class="acc-summary" id="sum-other"></div>
+        </div>
+        <svg class="acc-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="acc-body">
+        <div class="hint" style="margin-bottom:.5rem">Loan repayments, insurance, school fees, ferry trips, anything that comes out regularly.</div>
+        <div id="custom-lines"></div>
+        <button class="add-btn" id="add-custom-btn">+ Add a cost</button>
+        <button class="done-btn" style="margin-top:.8rem;background:var(--green);color:#0f172a" data-next="done">All done — see my results ✓</button>
+      </div>
+    </div>
+
+  </div><!-- /sections -->
+
+  <!-- PAGE FOOTER -->
+  <div class="page-footer no-print" id="page-footer">
+    <div class="pf-brand-line">Coalfinch Analytics · coalfinch.com</div>
+    <div class="pf-row">
+      <a href="privacy4budget.html" target="_blank">Privacy policy</a>
+      <span>·</span>
+      <span>Crown Dependencies Re-Identification Observatory</span>
+      <span>·</span>
+      <span>IoM 2024/25 tax rates</span>
+    </div>
+    <div class="pf-contact">
+      Any problems with the tool, drop us an email at <a href="mailto:hello@coalfinch.com">hello@coalfinch.com</a>.
+      Unless you're skint and looking for a fiver — we're genuinely not in great financial shape either,
+      which is partly why we built this.
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+
+// ── COLOURS ──────────────────────────────────────────────────────────────────
+const COLS={iom:'#3b82f6',tax:'#818cf8',ni:'#6366f1',house:'#f87171',
+  utils:'#fb923c',food:'#34d399',trans:'#60a5fa',child:'#f59e0b',
+  person:'#a78bfa',leisure:'#22d3ee',disp:'#4ade80',deficit:'#f43f5e',
+  custom:['#e879f9','#fb7185','#a3e635','#38bdf8','#fcd34d','#c084fc','#fb923c','#4ade80','#22d3ee','#f472b6']};
+
+// ── TAX 2024/25 ───────────────────────────────────────────────────────────────
+function calcTax(yr){
+  const pa=14500,tx=Math.max(0,yr-pa);
+  const it=Math.min(tx,6500)*.1+Math.max(0,tx-6500)*.2;
+  const lel=8736,uel=53664;
+  let ni=0;
+  if(yr>lel){ni=(Math.min(yr,uel)-lel)*.11;if(yr>uel)ni+=(yr-uel)*.01;}
+  return{it,ni,net:yr-it-ni};
+}
+
+// ── MIS BASKETS (£/week) ──────────────────────────────────────────────────────
+// Keyed by adults_children. Children contribute to food/personal/leisure.
+function bedroomsFor(adults,children){
+  // Preserves the original small-household figures exactly, then extends
+  // sensibly for household shapes the MIS basket never covered (3+ adults,
+  // 3+ children): a bedroom per pair of adults, a bedroom per pair of children.
+  const a=Math.max(1,adults||1), c=Math.max(0,children||0);
+  if(a===1&&c===0) return 1;
+  if(a===1&&c===1) return 1;
+  if(a===2&&c<=2) return 2;
+  if(a<=2&&c<=2) return 3;
+  const adultBeds=Math.ceil(a/2), childBeds=Math.ceil(c/2);
+  return Math.min(6, Math.max(3, adultBeds+childBeds));
+}
+
+function getMIS(adults, children, childAges){
+  const a=Math.max(1,adults||1);
+  // Base per adult — first adult sets the baseline; each additional adult adds
+  // a smaller marginal amount, a rough economies-of-scale assumption for shared
+  // households (the published MIS basket only covers 1 and 2 adults, so 3+ is
+  // a linear extrapolation from the same per-adult increments — adjust below
+  // if your real costs differ).
+  const baseFood=92+Math.max(0,a-1)*56;
+  const baseTrans=55+Math.max(0,a-1)*25;
+  const basePerson=28+Math.max(0,a-1)*17;
+  const baseLeisure=35+Math.max(0,a-1)*20;
+  // Per child additions (rough MIS scaling)
+  let childFood=0,childPerson=0,childLeisure=0,childCare=0;
+  (childAges||[]).forEach(age=>{
+    if(age==='under2'){childFood+=30;childPerson+=15;childCare+=270;} // full-time nursery
+    else if(age==='2to4'){childFood+=28;childPerson+=14;childCare+=100;} // some childcare
+    else if(age==='5to11'){childFood+=28;childPerson+=14;childCare+=40;} // after-school
+    else if(age==='12to15'){childFood+=32;childPerson+=20;childLeisure+=15;}
+    else if(age==='16to18'){childFood+=40;childPerson+=22;childLeisure+=18;}
+    else if(age==='19plus'){childFood+=50;childPerson+=18;childLeisure+=15;}
+  });
+  // Utilities scale by household size
+  const hSize=a+(children||0);
+  const utils=hSize<=1?47:hSize<=2?58:hSize<=3?72:87+Math.max(0,hSize-4)*10;
+  // Housing defaults
+  const bedrooms=bedroomsFor(a,children||0);
+  const rentDefault=bedrooms<=2?(bedrooms===1?750:1150):1450+(bedrooms-3)*300; // monthly
+  return{
+    food:Math.round(baseFood+childFood),
+    trans:Math.round(baseTrans),
+    person:Math.round(basePerson+childPerson),
+    leisure:Math.round(baseLeisure+childLeisure),
+    childcare:Math.round(childCare),
+    utils,
+    housing:rentDefault,
+    bedrooms,
+  };
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+function toWk(val,freq){return(parseFloat(val)||0)*freq/52;}
+function fv(id){return parseFloat($(id).value)||0;}
+function fs(id){return parseFloat($(id).value)||52;}
+function fmt(v){return'£'+Math.round(Math.abs(v)).toLocaleString();}
+function h2r(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return`rgba(${r},${g},${b},${a})`;
+}
+
+// ── HOUSEHOLD STATE ───────────────────────────────────────────────────────────
+let nAdults=1, nChildren=0, childAgeArr=[];
+let adultIncomes=[{gross:765,freq:52}];
+
+function renderAdultIncomes(){
+  const el=$('adult-incomes'); el.innerHTML='';
+  while(adultIncomes.length<nAdults) adultIncomes.push({gross:0,freq:52});
+  adultIncomes=adultIncomes.slice(0,nAdults);
+  adultIncomes.forEach((a,i)=>{
+    const row=document.createElement('div');
+    row.className='field';
+    row.innerHTML=`<label>Gross income — adult ${i+1}${i===0?' (before tax & NI)':''}</label>
+      <div class="field-row"><span class="pound">£</span>
+        <input type="number" min="0" value="${a.gross}" data-ai="${i}" data-f="gross"/>
+        <select data-ai="${i}" data-f="freq">
+          <option value="52"${a.freq==52?' selected':''}>/ week</option>
+          <option value="12"${a.freq==12?' selected':''}>/ month</option>
+          <option value="1"${a.freq==1?' selected':''}>/ year</option>
+        </select>
+      </div>`;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('input,select').forEach(inp=>{
+    const handler=e=>{
+      const i=parseInt(e.target.dataset.ai), f=e.target.dataset.f;
+      adultIncomes[i][f]=f==='gross'?(parseFloat(e.target.value)||0):(parseInt(e.target.value)||52);
+      update();
+    };
+    inp.addEventListener('input',handler);
+    inp.addEventListener('change',handler);
+  });
+}
+
+function renderChildAges(){
+  const el=$('child-ages'); el.innerHTML='';
+  childAgeArr=childAgeArr.slice(0,nChildren);
+  while(childAgeArr.length<nChildren) childAgeArr.push('5to11');
+  for(let i=0;i<nChildren;i++){
+    const row=document.createElement('div');
+    row.className='child-age-row';
+    row.innerHTML=`<span>Child ${i+1}</span>
+      <select data-ci="${i}">
+        <option value="under2"${childAgeArr[i]==='under2'?' selected':''}>Under 2</option>
+        <option value="2to4"${childAgeArr[i]==='2to4'?' selected':''}>2–4</option>
+        <option value="5to11"${childAgeArr[i]==='5to11'?' selected':''}>5–11</option>
+        <option value="12to15"${childAgeArr[i]==='12to15'?' selected':''}>12–15</option>
+        <option value="16to18"${childAgeArr[i]==='16to18'?' selected':''}>16–18</option>
+        <option value="19plus"${childAgeArr[i]==='19plus'?' selected':''}>19+ (dependent)</option>
+      </select>`;
+    el.appendChild(row);
+    row.querySelector('select').onchange=e=>{childAgeArr[parseInt(e.target.dataset.ci)]=e.target.value;applyMIS();update();};
+  }
+  $('child-ages').style.display=nChildren>0?'block':'none';
+}
+
+function applyMIS(){
+  const mis=getMIS(nAdults,nChildren,childAgeArr);
+  $('food').value=mis.food;
+  $('transport').value=mis.trans;
+  $('personal').value=mis.person;
+  $('leisure').value=mis.leisure;
+  $('childcare').value=mis.childcare;
+  // Utilities split (monthly): electricity ~40%, gas ~32%, telecoms ~28%
+  // Rates component excluded here — handled separately in housing
+  const utilsNoRates=mis.utils - (mis.utils*0.17|0); // rough rates share
+  $('electricity').value=Math.round(mis.utils*0.40*12);
+  $('gas').value=Math.round(mis.utils*0.32*12);
+  $('telecoms').value=Math.round(mis.utils*0.28*12);
+  // Housing (monthly)
+  $('housing').value=mis.housing;
+  // Show/hide childcare
+  $('childcare-field').style.display=nChildren>0?'':'none';
+  // Household summary
+  const parts=[nAdults===1?'1 adult':nAdults+' adults'];
+  if(nChildren>0) parts.push(nChildren===1?'1 child':nChildren+' children');
+  $('sum-household').textContent=parts.join(', ');
+  // Sankey title
+  $('sp-title').textContent=nAdults===1&&nChildren===0?'Single person budget'
+    :nAdults===2&&nChildren===0?'Couple budget'
+    :nAdults===1?'Lone parent budget'
+    :'Household budget';
+}
+
+// Stepper buttons
+document.querySelectorAll('.step-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    const id=btn.dataset.target;
+    const delta=parseInt(btn.dataset.delta);
+    const el=$(id);
+    const min=id==='n-adults'?1:0,max=6;
+    const val=Math.max(min,Math.min(max,(parseInt(el.value)||0)+delta));
+    el.value=val;
+    $(id+'-val').textContent=val;
+    if(id==='n-adults'){nAdults=val;renderAdultIncomes();}
+    else{nChildren=val;renderChildAges();}
+    applyMIS();update();
+  };
+});
+
+// ── TENURE ────────────────────────────────────────────────────────────────────
+$('tenure').onchange=()=>{
+  const renting=['rent','social'].includes($('tenure').value);
+  $('rates-field').style.display=renting?'none':'';
+  update();
+};
+
+// ── OVERRIDE ─────────────────────────────────────────────────────────────────
+$('override-chk').onchange=function(){$('override-field').style.display=this.checked?'':'none';update();};
+
+// ── CUSTOM LINES ──────────────────────────────────────────────────────────────
+let customLines=[];
+function renderCustomLines(){
+  const el=$('custom-lines');el.innerHTML='';
+  customLines.forEach((cl,i)=>{
+    const d=document.createElement('div');d.className='custom-line';
+    d.innerHTML=`<input type="text" placeholder="e.g. Loan repayment" value="${cl.label}" data-ci="${i}" data-f="label"/>
+      <input type="number" min="0" value="${cl.amount}" data-ci="${i}" data-f="amount" style="text-align:right;width:100%"/>
+      <button class="rm-btn" data-rm="${i}">×</button>`;
+    el.appendChild(d);
+  });
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+    const i=parseInt(e.target.dataset.ci);
+    if(e.target.dataset.f==='label')customLines[i].label=e.target.value;
+    else customLines[i].amount=parseFloat(e.target.value)||0;
+    update();
+  }));
+  el.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',e=>{
+    customLines.splice(parseInt(e.target.dataset.rm),1);renderCustomLines();update();
+  }));
+}
+$('add-custom-btn').onclick=()=>{if(customLines.length<12){customLines.push({label:'',amount:0});renderCustomLines();update();}};
+
+// ── ACCORDION ─────────────────────────────────────────────────────────────────
+const ORDER=['household','income','housing','utilities','essentials','other'];
+let unlockedUpto=0;
+
+document.querySelectorAll('.acc-head').forEach(h=>{
+  h.addEventListener('click',()=>{
+    const acc=h.closest('.acc');
+    if(acc.classList.contains('locked'))return;
+    const wasOpen=acc.classList.contains('open');
+    document.querySelectorAll('.acc').forEach(a=>a.classList.remove('open'));
+    if(!wasOpen)acc.classList.add('open');
+  });
+});
+
+document.querySelectorAll('.done-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const acc=btn.closest('.acc');
+    const nextName=btn.dataset.next;
+    acc.classList.add('done');acc.classList.remove('active','open');
+    if(nextName==='done'){
+      document.querySelectorAll('.acc').forEach(a=>a.classList.remove('locked'));
+      unlockedUpto=ORDER.length-1;return;
+    }
+    const nextIdx=ORDER.indexOf(nextName);
+    if(nextIdx>unlockedUpto)unlockedUpto=nextIdx;
+    document.querySelectorAll('.acc').forEach(a=>{
+      if(a.dataset.section===nextName){
+        a.classList.remove('locked');a.classList.add('open','active');
+        setTimeout(()=>a.scrollIntoView({behavior:'smooth',block:'start'}),80);
+      }
+    });
+  });
+});
+
+// ── COMPUTE ───────────────────────────────────────────────────────────────────
+function compute(){
+  let taxWk=0,niWk=0,grossWk=0;
+  adultIncomes.forEach(ad=>{
+    const yr=toWk(ad.gross,ad.freq)*52;
+    const t=calcTax(yr);
+    taxWk+=t.it/52;niWk+=t.ni/52;grossWk+=yr/52;
+  });
+  const benefitWk=toWk(fv('benefits'),fs('freqb'));
+  const useOvr=$('override-chk').checked;
+  const netWk=useOvr?(fv('net-override')+benefitWk):(grossWk-taxWk-niWk+benefitWk);
+
+  $('td-tax').textContent=useOvr?'(overridden)':fmt(taxWk)+'/wk';
+  $('td-ni').textContent=useOvr?'(overridden)':fmt(niWk)+'/wk';
+  $('td-net').textContent=fmt(useOvr?fv('net-override'):(grossWk-taxWk-niWk))+'/wk';
+
+  const renting=['rent','social'].includes($('tenure').value);
+  const houseWk=toWk(fv('housing'),fs('freqh'));
+  const ratesWk=renting?0:toWk(fv('rates'),fs('freqr'));
+  const elecWk=toWk(fv('electricity'),fs('freqe'));
+  const gasWk=toWk(fv('gas'),fs('freqg'));
+  const teleWk=toWk(fv('telecoms'),fs('freqt'));
+  const utilsWk=elecWk+gasWk+teleWk+ratesWk;
+  const foodWk=toWk(fv('food'),fs('freqfood'));
+  const transWk=toWk(fv('transport'),fs('freqtr'));
+  const childWk=toWk(fv('childcare'),fs('freqcc'));
+  const personWk=toWk(fv('personal'),fs('freqp'));
+  const leisureWk=toWk(fv('leisure'),fs('freql'));
+  const customTotal=customLines.reduce((s,c)=>s+(c.amount||0),0);
+  const spendWk=houseWk+utilsWk+foodWk+transWk+childWk+personWk+leisureWk+customTotal;
+  const dispWk=netWk-spendWk;
+
+  return{grossWk,taxWk,niWk,benefitWk,netWk,useOvr,
+    houseWk,utilsWk,foodWk,transWk,childWk,personWk,leisureWk,
+    customTotal,spendWk,dispWk,renting};
+}
+
+// ── SANKEY (FIXED ALIGNMENT) ──────────────────────────────────────────────────
+function drawSankey(d){
+  const canvas=$('sankey');
+  const wrap=canvas.parentElement;
+  const dpr=window.devicePixelRatio||1;
+  const availW=wrap.clientWidth||window.innerWidth;
+  const W=Math.max(200, availW - 26);
+  const narrow=W<420; // mobile breakpoint
+
+  // Dynamic height: base + extra per category present
+  const nCats=5+(d.childWk>0?1:0)+customLines.filter(c=>c.amount>0).length;
+  const H=Math.max(narrow?260:300,Math.min(narrow?400:480,(narrow?240:280)+nCats*(narrow?15:18)));
+  // Set both width and height together to prevent aspect-ratio stretching on mobile
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.cssText=`width:${W}px;height:${H}px;display:block;max-width:100%`;
+
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+
+  const light=document.body.classList.contains('light');
+  const tc=light?'#0f172a':'#e2e8f0',mc=light?'#64748b':'#94a3b8';
+  ctx.clearRect(0,0,W,H);
+
+  const grossIn=d.netWk+(d.useOvr?0:d.taxWk+d.niWk);
+  const total=Math.max(grossIn,d.spendWk,1);
+  const SCALE=H-50;
+
+  // On narrow screens: 3 columns (drop C4, merge disposable into C3 label only)
+  // On wide screens: 4 columns as before
+  const C1=0;
+  const C2=narrow?W*.30:W*.26;
+  const C3=narrow?W*.65:W*.56;
+  const C4=narrow?null:W*.84;
+  const BW=narrow?16:22;
+  const PAD=3,TOP=narrow?18:22;
+  const LBLSZ=narrow?9:10;
+  const VALSZ=narrow?10:11;
+  const HDRSZ=narrow?10:11;
+
+  function ph(v){return Math.max(2,(Math.abs(v)/total)*SCALE);}
+  function bar(x,y,w,h,col){ctx.fillStyle=col;ctx.fillRect(x,y,w,Math.max(2,h));}
+  function flow(x1,y1t,y1b,x2,y2t,y2b,col){
+    if(y1b<=y1t||y2b<=y2t)return;
+    const a=light?.18:.25;
+    const gr=ctx.createLinearGradient(x1+BW,0,x2,0);
+    gr.addColorStop(0,h2r(col,a+.08));gr.addColorStop(1,h2r(col,a));
+    ctx.fillStyle=gr;ctx.beginPath();
+    const cx=(x1+BW+x2)/2;
+    ctx.moveTo(x1+BW,y1t);ctx.bezierCurveTo(cx,y1t,cx,y2t,x2,y2t);
+    ctx.lineTo(x2,y2b);ctx.bezierCurveTo(cx,y2b,cx,y1b,x1+BW,y1b);
+    ctx.closePath();ctx.fill();
+  }
+  function lbl(t,x,y,col,bold,sz){
+    ctx.fillStyle=col||mc;
+    ctx.font=`${bold?'600':'400'} ${sz||LBLSZ}px Inter,system-ui`;
+    ctx.textAlign='left';ctx.fillText(t,x,y);
+  }
+  // Truncate label text if it would overflow into next column
+  function lblClip(t,x,y,col,bold,sz,maxW){
+    ctx.fillStyle=col||mc;
+    const fsz=sz||LBLSZ;
+    ctx.font=`${bold?'600':'400'} ${fsz}px Inter,system-ui`;
+    ctx.textAlign='left';
+    // Measure and clip with ellipsis
+    let text=t;
+    if(maxW){
+      while(text.length>3&&ctx.measureText(text).width>maxW){
+        text=text.slice(0,-1);
+      }
+      if(text!==t)text=text.slice(0,-1)+'…';
+    }
+    ctx.fillText(text,x,y);
+  }
+
+  // Available label width between columns
+  const lw12=C2-BW-8;           // C1 label space (left of C2)
+  const lw23=C3-(C2+BW)-6;      // C2→C3 gap
+  const lw34=C4!=null?(C4-(C3+BW)-6):(W-(C3+BW)-6); // after C3
+
+  // ── COL1: GROSS ──
+  const gH=ph(grossIn),gY=TOP;
+  bar(C1,gY,BW,gH,COLS.iom);
+  lbl('Gross',C1+BW+3,gY+10,tc,true,HDRSZ);
+  lbl(fmt(grossIn)+'/wk',C1+BW+3,gY+21,tc,true,VALSZ);
+  if(d.benefitWk>0&&!narrow)lbl('+'+fmt(d.benefitWk)+' benefit',C1+BW+5,gY+35,COLS.disp,false,9);
+
+  // ── COL2: TAX+NI+NET ──
+  const txH=d.useOvr?0:ph(d.taxWk);
+  const niH=d.useOvr?0:ph(d.niWk);
+  const ntH=ph(d.netWk);
+  const txY=gY,niY=txY+txH+PAD,ntY=niY+niH+PAD;
+
+  if(!d.useOvr){
+    flow(C1,gY,gY+txH,C2,txY,txY+txH,COLS.tax);
+    flow(C1,gY+txH,gY+txH+niH,C2,niY,niY+niH,COLS.ni);
+    bar(C2,txY,BW,txH,COLS.tax);bar(C2,niY,BW,niH,COLS.ni);
+    if(txH>=13){
+      lblClip(narrow?'Tax':'Income tax',C2+BW+3,txY+9,COLS.tax,false,LBLSZ,lw23);
+      if(txH>=22)lbl(fmt(d.taxWk),C2+BW+3,txY+20,COLS.tax,true,LBLSZ);
+    }
+    if(niH>=13){
+      lbl('NI',C2+BW+3,niY+9,mc,false,LBLSZ);
+      if(niH>=22)lbl(fmt(d.niWk),C2+BW+3,niY+20,mc,true,LBLSZ);
+    }
+  }
+  flow(C1,gY+(d.useOvr?0:txH+niH+PAD*2),gY+gH,C2,ntY,ntY+ntH,COLS.iom);
+  bar(C2,ntY,BW,ntH,COLS.iom);
+  lbl(narrow?'Net':'Take-home',C2+BW+3,ntY+10,tc,true,HDRSZ);
+  lbl(fmt(d.netWk)+'/wk',C2+BW+3,ntY+21,tc,true,VALSZ);
+
+  // ── COL3: SPEND CATEGORIES ──
+  const cats=[
+    {v:d.houseWk,c:COLS.house,lb:'Housing',lbs:'House'},
+    {v:d.utilsWk,c:COLS.utils,lb:'Utilities & telecoms',lbs:'Utilities'},
+    {v:d.foodWk,c:COLS.food,lb:'Food & household',lbs:'Food'},
+    {v:d.transWk,c:COLS.trans,lb:'Transport',lbs:'Travel'},
+  ];
+  if(d.childWk>0)cats.push({v:d.childWk,c:COLS.child,lb:'Childcare',lbs:'Childcare'});
+  cats.push(
+    {v:d.personWk,c:COLS.person,lb:'Personal & clothing',lbs:'Personal'},
+    {v:d.leisureWk,c:COLS.leisure,lb:'Leisure & social',lbs:'Leisure'}
+  );
+  customLines.forEach((cl,i)=>{if(cl.amount>0)cats.push({v:cl.amount,c:COLS.custom[i%COLS.custom.length],lb:cl.label||'Other',lbs:cl.label||'Other'});});
+
+  let nc2=ntY,cc=ntY;
+  cats.forEach(ct=>{
+    if(ct.v<=0)return;
+    const h=ph(ct.v);
+    flow(C2,nc2,nc2+h,C3,cc,cc+h,ct.c);
+    bar(C3,cc,BW,h,ct.c);
+    if(h>=12)lblClip(narrow?(ct.lbs||ct.lb):ct.lb,C3+BW+3,cc+Math.min(10,h/2+4),tc,false,LBLSZ,lw34);
+    if(h>=22&&!narrow)lbl(fmt(ct.v),C3+BW+4,cc+Math.min(21,h/2+15),mc,true);
+    nc2+=h;
+    cc+=h+PAD;
+  });
+
+  // ── DISPOSABLE / SHORTFALL ──
+  const isDef=d.dispWk<0,dH=ph(d.dispWk);
+  if(!isDef){
+    const dispC2top=nc2,dispC2bot=ntY+ntH;
+    const dispC3top=cc,dispC3bot=cc+dH;
+    if(dispC2bot>dispC2top){
+      flow(C2,dispC2top,dispC2bot,C3,dispC3top,dispC3bot,COLS.disp);
+      if(C4!=null){
+        // Wide: flow through C3 to C4
+        bar(C3,dispC3top,BW,dH,h2r(COLS.disp,.3));
+        flow(C3,dispC3top,dispC3bot,C4,dispC3top,dispC3bot,COLS.disp);
+        bar(C4,dispC3top,BW,dH,COLS.disp);
+        lbl('Disposable',C4+BW+5,dispC3top+12,COLS.disp,true,HDRSZ);
+        lbl(fmt(d.dispWk)+'/wk',C4+BW+5,dispC3top+24,COLS.disp,true,VALSZ);
+        lbl(fmt(d.dispWk*52)+'/yr',C4+BW+5,dispC3top+36,mc,false,9);
+      } else {
+        // Narrow: terminate at C3, label to the right
+        bar(C3,dispC3top,BW,dH,COLS.disp);
+        lbl(narrow?'Free':'Disposable',C3+BW+3,dispC3top+10,COLS.disp,true,HDRSZ);
+        lbl(fmt(d.dispWk)+'/wk',C3+BW+3,dispC3top+21,COLS.disp,true,VALSZ);
+      }
+    }
+  } else {
+    const sfTop=cc+PAD*2;
+    bar(C3,sfTop,BW,dH,COLS.deficit);
+    lbl('Shortfall',C3+BW+3,sfTop+12,COLS.deficit,true,HDRSZ);
+    lbl('−'+fmt(d.dispWk)+'/wk',C3+BW+3,sfTop+24,COLS.deficit,true,VALSZ);
+    if(!narrow)lbl('−'+fmt(d.dispWk*52)+'/yr',C3+BW+4,sfTop+36,mc,false,9);
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle=h2r(COLS.deficit,.4);
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(C3+BW/2,ntY+ntH);
+    ctx.lineTo(C3+BW/2,sfTop);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ── LEGEND ──
+  const li=[{c:COLS.tax,lb:'Income tax'},{c:COLS.ni,lb:'National Insurance'},
+    {c:COLS.house,lb:'Housing'},{c:COLS.utils,lb:'Utilities & telecoms'},
+    {c:COLS.food,lb:'Food & household'},{c:COLS.trans,lb:'Transport'}];
+  if(d.childWk>0)li.push({c:COLS.child,lb:'Childcare'});
+  li.push({c:COLS.person,lb:'Personal & clothing'},{c:COLS.leisure,lb:'Leisure & social'});
+  customLines.forEach((cl,i)=>{if(cl.amount>0)li.push({c:COLS.custom[i%COLS.custom.length],lb:cl.label||'Other'});});
+  li.push({c:d.dispWk<0?COLS.deficit:COLS.disp,lb:d.dispWk<0?'Shortfall':'Disposable income'});
+  $('legend').innerHTML=li.map(l=>`<div class="leg-item"><span class="leg-sw" style="background:${l.c}"></span>${l.lb}</div>`).join('');
+}
+
+// ── UPDATE ────────────────────────────────────────────────────────────────────
+function updateSummaries(d){
+  $('sum-income').textContent=d.netWk>0?fmt(d.netWk)+'/wk net':'';
+  $('sum-housing').textContent=d.houseWk>0?fmt(d.houseWk)+'/wk':'';
+  $('sum-utilities').textContent=d.utilsWk>0?fmt(d.utilsWk)+'/wk':'';
+  $('sum-essentials').textContent=(d.foodWk+d.transWk+d.childWk+d.personWk+d.leisureWk)>0
+    ?fmt(d.foodWk+d.transWk+d.childWk+d.personWk+d.leisureWk)+'/wk':'';
+  $('sum-other').textContent=d.customTotal>0?fmt(d.customTotal)+'/wk':'';
+}
+
+function updatePrintTable(d){
+  const isDef=d.dispWk<0;
+  const rows=[
+    {l:'Gross income',v:d.grossWk},
+    {l:'Income tax',v:-d.taxWk,hide:d.useOvr},
+    {l:'National Insurance',v:-d.niWk,hide:d.useOvr},
+    {l:'Benefits / other',v:d.benefitWk,hide:d.benefitWk===0},
+    {l:'Net take-home',v:d.netWk,bold:true},
+    {l:'— Housing',v:-d.houseWk},
+    {l:'— Utilities & telecoms',v:-d.utilsWk},
+    {l:'— Food & household',v:-d.foodWk},
+    {l:'— Transport',v:-d.transWk},
+    {l:'— Childcare',v:-d.childWk,hide:d.childWk===0},
+    {l:'— Personal & clothing',v:-d.personWk},
+    {l:'— Leisure & social',v:-d.leisureWk},
+    ...customLines.filter(c=>c.amount>0).map(c=>({l:'— '+(c.label||'Other'),v:-c.amount})),
+    {l:'Total costs',v:-d.spendWk,bold:true},
+    {l:isDef?'Shortfall':'Disposable income',v:d.dispWk,bold:true,cls:isDef?'deficit':'disp'},
+  ];
+  $('print-tbody').innerHTML=rows.filter(r=>!r.hide).map(r=>`
+    <tr class="${r.cls||''} ${r.bold?'total':''}">
+      <td>${r.l}</td><td>${r.v<0&&r.cls!=='deficit'?'−':''}${fmt(r.v)}/wk</td>
+    </tr>`).join('');
+}
+
+function update(){
+  const d=compute();
+  const isDef=d.dispWk<0;
+
+  $('summary-nums').innerHTML=`
+    <div class="sn"><div class="l">Gross</div><div class="v">${fmt(d.grossWk)}/wk</div></div>
+    <div class="sn"><div class="l">Tax & NI</div><div class="v">${d.useOvr?'—':fmt(d.taxWk+d.niWk)}</div></div>
+    <div class="sn"><div class="l">Net</div><div class="v">${fmt(d.netWk)}/wk</div></div>
+    <div class="sn"><div class="l">Costs</div><div class="v">${fmt(d.spendWk)}/wk</div></div>
+    <div class="sn"><div class="l">${isDef?'Shortfall':'Disposable'}</div>
+      <div class="v ${isDef?'red':'green'}">${isDef?'−':'+'}${fmt(d.dispWk)}/wk</div></div>`;
+
+  const rb=$('result-banner');rb.style.display='';
+  if(isDef){
+    rb.className='result-banner deficit';
+    rb.innerHTML=`<strong>This household cannot cover its costs.</strong> There is a shortfall of <strong>${fmt(d.dispWk)} a week</strong> — <strong>${fmt(d.dispWk*52)} a year</strong>. Essential costs exceed take-home pay.`;
+  } else {
+    rb.className='result-banner surplus';
+    const note=d.dispWk<100?' That is a very thin margin.'
+      :d.dispWk<250?' That covers some savings and unexpected costs, but not much more.':'';
+    rb.innerHTML=`After all costs, this household has <strong>${fmt(d.dispWk)} a week</strong> left — <strong>${fmt(d.dispWk*52)} a year</strong>.${note}`;
+  }
+  updateSummaries(d);updatePrintTable(d);drawSankey(d);reportHeight();
+}
+
+// ── URL ENCODE / DECODE ───────────────────────────────────────────────────────
+const SFS=['benefits','freqb','housing','freqh',
+  'rates','freqr','tenure','electricity','freqe','gas','freqg','telecoms','freqt',
+  'food','freqfood','transport','freqtr','childcare','freqcc','personal','freqp','leisure','freql'];
+
+function encodeState(){
+  const s={};
+  SFS.forEach(id=>{const el=$(id);if(el)s[id]=el.value;});
+  s.ovr=$('override-chk').checked;s.netovr=$('net-override').value;
+  s.custom=customLines;s.nAdults=nAdults;s.nChildren=nChildren;s.childAges=childAgeArr;s.adultIncomes=adultIncomes;
+  return btoa(encodeURIComponent(JSON.stringify(s)));
+}
+function decodeState(enc){
+  try{
+    const s=JSON.parse(decodeURIComponent(atob(enc)));
+    SFS.forEach(id=>{const el=$(id);if(el&&s[id]!==undefined)el.value=s[id];});
+    if(s.nAdults){nAdults=s.nAdults;$('n-adults').value=nAdults;$('n-adults-val').textContent=nAdults;}
+    if(s.nChildren!==undefined){nChildren=s.nChildren;$('n-children').value=nChildren;$('n-children-val').textContent=nChildren;}
+    if(s.childAges)childAgeArr=s.childAges;
+    if(s.adultIncomes)adultIncomes=s.adultIncomes;
+    renderAdultIncomes();
+    renderChildAges();
+    if(s.ovr){$('override-chk').checked=true;$('override-field').style.display='';}
+    if(s.netovr)$('net-override').value=s.netovr;
+    if(s.custom){customLines=s.custom;renderCustomLines();}
+    $('tenure').dispatchEvent(new Event('change'));
+    $('childcare-field').style.display=nChildren>0?'':'none';
+    document.querySelectorAll('.acc').forEach(a=>{a.classList.remove('locked','active');a.classList.add('done');});
+    unlockedUpto=ORDER.length-1;
+  }catch(e){console.warn('Decode error',e);}
+}
+
+// ── SHARE & PRINT ─────────────────────────────────────────────────────────────
+$('share-btn').onclick=()=>{
+  const url=location.href.split('?')[0]+'?d='+encodeState();
+  $('share-url').value=url;$('print-url').textContent=url;
+  $('share-box').classList.toggle('open');
+};
+$('copy-btn').onclick=()=>{
+  navigator.clipboard.writeText($('share-url').value).then(()=>{
+    $('copy-btn').textContent='Copied!';setTimeout(()=>$('copy-btn').textContent='Copy',2000);
+  });
+};
+$('print-btn').onclick=()=>{
+  const url=location.href.split('?')[0]+'?d='+encodeState();
+  $('print-url').textContent=url;
+  $('print-date').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  window.print();
+};
+
+// ── WIRE INPUTS ───────────────────────────────────────────────────────────────
+document.querySelectorAll('input[type=number],input[type=text],select').forEach(el=>{
+  if(el.id==='share-url')return;
+  el.addEventListener('input',update);el.addEventListener('change',update);
+});
+
+// ── HEIGHT ────────────────────────────────────────────────────────────────────
+let _lH=0;
+function reportHeight(){const h=document.body.scrollHeight;if(Math.abs(h-_lH)>=4){_lH=h;window.parent.postMessage({type:'resize',height:h},'*');}}
+window.addEventListener('resize',()=>update());
+window.addEventListener('message',e=>{
+  if(!e.data)return;
+  const t=e.data.theme||(e.data.type==='setTheme'?e.data.theme:null);
+  if(t){document.body.classList.toggle('light',t==='light');update();}
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// Apply stored theme before first draw
+try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+// Hide page footer when running inside the App iframe
+if(window!==window.parent){const f=document.getElementById('page-footer');if(f)f.style.display='none';}
+const params=new URLSearchParams(location.search);
+if(params.get('d'))decodeState(params.get('d'));
+$('tenure').dispatchEvent(new Event('change'));
+// Use requestAnimationFrame to ensure canvas has laid out before first draw
+requestAnimationFrame(()=>{
+  if(!params.get('d'))renderAdultIncomes();
+  applyMIS();
+  update();
+  setTimeout(reportHeight,300);
+  setTimeout(reportHeight,800);
+});
+</script>
+</body>
+</html>

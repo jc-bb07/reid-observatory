@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Port Erin Village Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Port Erin Village Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022–2025 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#south">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2024-25</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="3" value="3" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span><span>2024-25</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rate income</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Result for the year</div><div class="stat-val" id="s-sur">—</div><div class="stat-dlt" id="s-sur-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Port Erin Village Commissioners — Detailed Income and Expenditure Account (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Port Erin Village Commissioners — Balance Sheet as at 31 March 2025</h3>
+    <p>Port Erin's balance sheet is dominated by its housing stock — <b>£31.8m</b> of operational fixed assets, mostly public sector rented housing — and by the borrowing that built it. Total borrowing was <b>£5.21m</b> at 31 March 2025 (£749,231 short-term, £4,462,284 long-term), down from £5.84m a year earlier. That is far larger than any other small authority in this set: Malew's £263,423 looks tiny by comparison.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Port Erin's own supplementary schedule, headed "Detailed Income and Expenditure Account" — the Authority states this page "does not form part of the audited financial statements", but every figure in it is Port Erin's own published number, cross-checked line by line against the audited Comprehensive Income and Expenditure Statement it feeds. Income (the general rate fund, investment income, and the central-government housing deficiency grant) flows into a combined General Fund and Housing Revenue Account hub, then out across seven groupings built from Port Erin's own committee headings: administration, glens/shore/Rowany golf, roads/lighting/public conveniences, refuse collection, public amenities, the Housing Revenue Account, and debt &amp; pension financing.</p>
+    <p><b>Port Erin is a village, not a parish — and it runs its own housing.</b> Unlike Marown, Santon, Malew or Arbory &amp; Rushen, Port Erin is one of only two Village Commissioners on the island (with Port St Mary) rather than a parish body, and it sits inside — but is legally distinct from — the parish of Rushen. Its Housing Revenue Account is the largest single item in these accounts: <b>£1.16m</b> of dwelling rent income and <b>£405,528</b> of depreciation on the housing stock in 2024-25 alone, funded in part by a central-government "housing deficiency" grant that ran from £150,760 in 2023-24 down to £32,009 in 2024-25 as the account's own finances improved.</p>
+    <p><b>2021-22 was a deficit year; every year since has been a surplus.</b> Port Erin ran a deficit of £20,063 in 2021-22, financed from reserves (shown as a hatched inflow on the diagram), then swung to surpluses of £138,597, £191,326 and £351,783 in the three years that followed. The rate poundage rose every year across the period — 316p, 331p, 361p, 378p — a 62-pence, near-20% increase in four years, well above Malew's flat 199p over the same broad period.</p>
+    <p><b>Rowany Golf Course and the Glens are net income generators, not costs.</b> Port Erin owns the Rowany Golf Course land and leases it out, along with garages and other rented property; rental and loan-charge income here exceeded the small repair costs in every year, most sharply in 2024-25 when net income from this line reached £110,424 — more than double the prior year. Both this and the Glens/shore management group are drawn on this diagram as a single "committee" flow, but where the group nets to income rather than cost, that net flow is shown reversed, as a credit into the hub, exactly as a genuine negative line is handled elsewhere on this site.</p>
+    <p><b>The refuse collection and "works" committee were split apart.</b> Port Erin's own account combines "Roads, public conveniences, street lighting, refuse collection and sewers" into one £600k+ line. This diagram splits it into two — roads/lighting/conveniences ("works") and refuse collection/disposal — using the sub-headings Port Erin's own schedule already provides, so the combined total is unchanged and still reconciles exactly to the published figure; only the visual grouping differs from the source document.</p>
+    <p><b>Debt servicing is large relative to Port Erin's size.</b> Interest payable and similar charges ran from £204,741 in 2021-22 to £339,579 in 2023-24 before easing to £306,632 in 2024-25, as the housing-linked borrowing amortises. A separate, small pension interest cost/credit line flips sign across the period — a cost in three years, a small credit of £2,000 in 2024-25 — reflecting actuarial assumptions on the Local Government Superannuation Scheme rather than any operating decision.</p>
+    <p><b>Credits shown as inflows.</b> Search fees, the Housing administration recharge, the Southern civic administration recharge, tourist information income, disposal-charge recoveries and similar fee income are all collected in Port Erin's own account as deductions ("Less:") from gross departmental costs. This diagram draws them instead as their own income flows into the hub — a fully gross presentation, consistent with how Marown's and Santon's accounts already work — so gross expenditure here reads higher than Port Erin's own net committee figures, and the two reconcile exactly. A handful of lines flip sign in a single year only — the rate collection commission was a net £1,000 cost in 2021-22 rather than the usual small credit, and the Sewers sub-heading was a net £23,408 cost in 2023-24 rather than the usual small credit — both are carried through unchanged from the source.</p>
+    <p><b>Provenance and confidence.</b> Two of the three source PDFs (year ended 31 March 2023 and 31 March 2024) are scanned images with no text layer; the third (year ended 31 March 2025) carries a partial, garbled text layer that was not trusted and was re-derived by OCR in the same way. Because the three PDFs overlap — each one's comparative column repeats the prior year's account — four distinct financial years were recovered and cross-checked: 2021-22 only as the comparative in the 2023 PDF, 2022-23 confirmed independently from both the 2023 and 2024 PDFs, 2023-24 confirmed independently from both the 2024 and 2025 PDFs, and 2024-25 from the 2025 PDF alone. Every group subtotal re-adds to its published total, every rate poundage and rateable-value note matches between overlapping PDFs, and income minus expenditure equals the published surplus or deficit exactly, in all four years. Several OCR misreads were caught and corrected this way: the 2021-22 Rowany Golf net was resolved from an ambiguous "(38,337)" to the arithmetically exact £(58,337); a 2022-23 "vehicle expenses" line was resolved from £14,380 to £14,880 using the 2024 PDF's independent re-reading of the same column; 2021-22 balance-sheet cash at bank resolved from an ambiguous read to £774,666, and 2021-22 Housing income total was corrected from a misread £1,216,953 to the arithmetically exact £1,210,953. A residual £2 gap in the 2024-25 Public amenities sub-total and a residual £1 gap in the 2024-25 Housing bad-debts line — both far too small for a scan artefact to hide a real error — were closed against the audited subtotal and are noted here rather than silently absorbed.</p>
+    <p><b>Comparability.</b> Port Erin is on the same audited, outturn accounting basis as Marown, Santon, Malew and Arbory &amp; Rushen, but at a different scale and with a housing revenue account none of the four parishes carry in the same form (Arbory &amp; Rushen has a smaller one). A genuine read-across on rate poundage and result-for-the-year is reasonable; a read-across on absolute borrowing or balance-sheet size is not, given the housing stock Port Erin alone holds among the smaller authorities.</p>
+    <p><b>Source.</b> Port Erin Village Commissioners, Financial Statements for the years ended 31 March 2023, 31 March 2024 and 31 March 2025 — Comprehensive Income and Expenditure Statement, Balance Sheet, Detailed Income and Expenditure Account, and Notes 7, 8 and 15 (rate fund income, Housing Revenue Income and Expenditure, and total rateable value). Independent auditor Baker Tilly (Isle of Man) LLC. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Port Erin's rate rose every year shown — 316p to 378p, +62p in four years — while a 2021-22 deficit gave way to a £351,783 surplus by 2024-25.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — Detailed Income and Expenditure Account, OCR-recovered and reconciled ══════════ */
+const YEARS=['2021-22','2022-23','2023-24','2024-25'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024','2024-25':'31 March 2025'};
+const RATE={'2021-22':{pound:316,rv:300608},'2022-23':{pound:331,rv:306769},'2023-24':{pound:361,rv:306254},'2024-25':{pound:378,rv:310240}};
+const D={
+'2021-22':{
+ income:{'Income from the General Rate Fund':908632,'Interest and investment income':91,'Housing deficiency receivable':67065},
+ admin:{'Salaries':174741,'Audit and accountancy fees':19336,'Professional fees':8931,'Postage and office expenses':6595,'Information technology':18792,'Telephone':2202,'Press notices':1381,'Stationery':1028,'Rates':1650,'Heat and light':2052,'Repairs and renewals':2961,'Insurance':17658,'Election expenses':97,'Cleaning materials and wages':0,'Entertainment of visitors':12149,'Rate collection fee':9698,'Depreciation':9190,'Attendance allowance':499,'Miscellaneous':519,'Provision for doubtful debts':4433,'Donations':3280,'Net current service cost of pensions':78000,'Search fees':-14080,'Housing administration charge':-56684,'Southern civic administration charge':-22522,'Rate collection commission':1000,'Tourist information and other incidentals':-4345},
+ glens:{'Glens general operating costs':824,'Breagle Glen (net of rents received)':-3143,'Athol Park Glen':2755,'Shore management':11586,'Plants and flowers':744,'Rowany Golf Course and misc rents (net)':-58337},
+ works:{'Roads (net of government grant)':-2170,'Public conveniences':35215,'Street and decorative lighting':72285,'General department costs (net)':193665,'Sewers (net)':-21785},
+ refuse:{'General materials':930,'Wages and administration':40973,'Vehicle expenses':34609,'Amenity site':86333,'Disposal charges':136681,'Depreciation':38136,'Disposal charges recovered':-50553,'Recharge of expenses':-25622},
+ amenities:{'Library (net)':57706,'Other amenities (net)':41584,'Southern Local Authorities Swimming Pool Board':7511},
+ housing:{'Repairs and maintenance':376755,'Insurance':16212,'Supervision and management':56684,'Rents, rates, taxes and other charges':173841,'Depreciation':396125,'Legal and admin fees':5975,'Bad debts':-82,'Dwelling rents excluding rates':-979438,'Other income':-164450},
+ debt:{'Interest payable and similar charges':204741,'Pension interest cost and expected return on pension assets':31000},
+ result:-20063},
+'2022-23':{
+ income:{'Income from the General Rate Fund':967820,'Interest and investment income':2625,'Housing deficiency receivable':125480},
+ admin:{'Salaries':246526,'Audit and accountancy fees':18797,'Professional fees':5304,'Postage and office expenses':4908,'Information technology':21273,'Telephone':2204,'Press notices':491,'Stationery':1117,'Rates':1791,'Heat and light':3579,'Repairs and renewals':10276,'Insurance':17633,'Election expenses':5614,'Cleaning materials and wages':255,'Entertainment of visitors':9899,'Rate collection fee':10124,'Depreciation':9190,'Attendance allowance':864,'Miscellaneous':516,'Provision for doubtful debts':8792,'Donations':2967,'Net current service cost of pensions':70000,'Search fees':-12960,'Housing administration charge':-63087,'Southern civic administration charge':-28350,'Rate collection commission':-4229,'Tourist information and other incidentals':-43743},
+ glens:{'Glens general operating costs':996,'Breagle Glen (net of rents received)':-2060,'Athol Park Glen':1289,'Shore management':12960,'Plants and flowers':1869,'Rowany Golf Course and misc rents (net)':-66334},
+ works:{'Roads (net of government grant)':-2205,'Public conveniences':32523,'Street and decorative lighting':86965,'General department costs (net)':195048,'Sewers (net)':-11104},
+ refuse:{'General materials':1757,'Wages and administration':44251,'Vehicle expenses':36236,'Amenity site':100020,'Disposal charges':136811,'Depreciation':38137,'Disposal charges recovered':-49570,'Recharge of expenses':-23116},
+ amenities:{'Library (net)':61262,'Other amenities (net)':50669,'Southern Local Authorities Swimming Pool Board':7517},
+ housing:{'Repairs and maintenance':214704,'Insurance':17520,'Supervision and management':63087,'Rents, rates, taxes and other charges':182103,'Depreciation':395073,'Legal and admin fees':5756,'Bad debts':-1984,'Dwelling rents excluding rates':-1001337,'Other income':-169313},
+ debt:{'Interest payable and similar charges':263047,'Pension interest cost and expected return on pension assets':35000},
+ result:138597},
+'2023-24':{
+ income:{'Income from the General Rate Fund':1062602,'Interest and investment income':9910,'Housing deficiency receivable':150760},
+ admin:{'Salaries':264628,'Audit and accountancy fees':19581,'Professional fees':23345,'Postage and office expenses':5308,'Information technology':13031,'Telephone':1010,'Press notices':0,'Stationery':1163,'Rates':2027,'Heat and light':2762,'Repairs and renewals':1982,'Insurance':20579,'Election expenses':0,'Cleaning materials and wages':70,'Entertainment of visitors':17240,'Rate collection fee':11061,'Depreciation':7602,'Attendance allowance':2089,'Miscellaneous':949,'Provision for doubtful debts':18934,'Donations':3635,'Net current service cost of pensions':-21000,'Search fees':-15035,'Housing administration charge':-67426,'Southern civic administration charge':-29556,'Rate collection commission':0,'Tourist information and other incidentals':-9251},
+ glens:{'Glens general operating costs':2008,'Breagle Glen (net of rents received)':-6366,'Athol Park Glen':3100,'Shore management':11145,'Plants and flowers':3643,'Rowany Golf Course and misc rents (net)':-55720},
+ works:{'Roads (net of government grant)':-2205,'Public conveniences':43620,'Street and decorative lighting':86162,'General department costs (net)':168515,'Sewers (net)':23408},
+ refuse:{'General materials':508,'Wages and administration':46420,'Vehicle expenses':64061,'Amenity site':113387,'Disposal charges':145539,'Depreciation':38137,'Disposal charges recovered':-56588,'Recharge of expenses':-33170},
+ amenities:{'Library (net)':67696,'Other amenities (net)':45064,'Southern Local Authorities Swimming Pool Board':7660},
+ housing:{'Repairs and maintenance':223334,'Insurance':20579,'Supervision and management':67426,'Rents, rates, taxes and other charges':199228,'Depreciation':395073,'Legal and admin fees':19606,'Bad debts':38980,'Dwelling rents excluding rates':-1077265,'Other income':-188346},
+ debt:{'Interest payable and similar charges':339579,'Pension interest cost and expected return on pension assets':3000},
+ result:191326},
+'2024-25':{
+ income:{'Income from the General Rate Fund':1116967,'Interest and investment income':10039,'Housing deficiency receivable':32009},
+ admin:{'Salaries':272458,'Audit and accountancy fees':22235,'Professional fees':10748,'Postage and office expenses':3286,'Information technology':18476,'Telephone':2221,'Press notices':1377,'Stationery':498,'Rates':2130,'Heat and light':3480,'Repairs and renewals':605,'Insurance':22804,'Election expenses':112,'Cleaning materials and wages':133,'Entertainment of visitors':11894,'Rate collection fee':11842,'Depreciation':5818,'Attendance allowance':2065,'Miscellaneous':493,'Provision for doubtful debts':-4750,'Donations':3233,'Net current service cost of pensions':-22000,'Search fees':-15725,'Housing administration charge':-71718,'Southern civic administration charge':-25544,'Tourist information and other incidentals':-4580},
+ glens:{'Glens general operating costs':2707,'Breagle Glen (net of rents received)':-5864,'Athol Park Glen':3118,'Shore management':9154,'Plants and flowers':1288,'Rowany Golf Course and misc rents (net)':-110424},
+ works:{'Roads (net of government grant)':5619,'Public conveniences':36765,'Street and decorative lighting':88510,'General department costs (net)':192924,'Sewers (net)':19},
+ refuse:{'General materials':1754,'Wages and administration':44779,'Vehicle expenses':26118,'Amenity site':121819,'Disposal charges':154495,'Recharged costs':33800,'Disposal charges recovered':-55268,'Recharge of expenses':-20429},
+ amenities:{'Library (net)':54653,'Other amenities (net)':22800,'Southern Local Authorities Swimming Pool Board':18695},
+ housing:{'Repairs and maintenance':246327,'Insurance':22804,'Supervision and management':71718,'Rents, rates, taxes and other charges':209495,'Depreciation':405528,'Legal and admin fees':8751,'Bad debts':25259,'Dwelling rents excluding rates':-1158551,'Other income':-207354},
+ debt:{'Interest payable and similar charges':306632,'Pension interest cost and expected return on pension assets':-2000},
+ result:351783}
+};
+const GRP=[{k:'admin',    l:'Administration & general office', c:'--c-fgp'},
+           {k:'glens',    l:'Glens, shore & Rowany golf',       c:'--c-parks'},
+           {k:'works',    l:'Roads, lighting & conveniences',   c:'--c-works'},
+           {k:'refuse',   l:'Refuse collection & disposal',     c:'--c-refuse'},
+           {k:'amenities',l:'Public amenities',                 c:'--c-parks'},
+           {k:'housing',  l:'Housing Revenue Account',          c:'--c-disc'},
+           {k:'debt',     l:'Debt & pension financing',         c:'--c-bal'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={}; GRP.forEach(g=>{Object.entries(d[g.k]).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});}); return c;};
+
+/* integrity: income + credits (+ reserves drawdown) === gross outflow (groups) (+ surplus carried);
+   and income − gross-expenditure = published result exactly, in every year */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inflow=sum(d.income)+sum(credits(d))+(d.result<0?-d.result:0);
+  const outflow=GRP.reduce((a,g)=>a+pos(d[g.k]),0)+(d.result>0?d.result:0);
+  const totalExp=GRP.reduce((a,g)=>a+pos(d[g.k]),0);
+  const totalInc=sum(d.income)+sum(credits(d));
+  return {y,flowDiff:inflow-outflow,resultDiff:(totalInc-totalExp)-d.result};
+});
+const bad=AUDIT.filter(a=>a.flowDiff!==0||a.resultDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Port Erin reconciles in all four years: flows balance, and gross income − gross expenditure = the published result for the year, exactly');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','General Fund & Housing revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(credits(d)).forEach(([k,v],i)=>{
+    const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  if(d.result<0){ const s=add('res','Drawn from reserves','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:-d.result,col:'--c-bal',hatch:true}); }
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  if(d.result>0){ const su=add('sur','Surplus carried to reserves','--c-bal','item',9);
+    L.push({source:hub,target:su,value:d.result,col:'--c-bal'}); }
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(credits(d))+(d.result<0?-d.result:0);
+    if(id==='res')  return d.result<0?-d.result:0;
+    if(id==='sur')  return d.result>0?d.result:0;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Four-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=3,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=210,RPAD=260,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(8).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=sum(D[y].income)+sum(credits(D[y]))+(D[y].result<0?-D[y].result:0);
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>22?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>22?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  const totalExp=y=>GRP.reduce((a,g)=>a+pos(D[y][g.k]),0);
+  document.getElementById('s-rate').textContent=fmt(d.income['Income from the General Rate Fund']);
+  document.getElementById('s-rate-d').textContent=arrow(d.income['Income from the General Rate Fund'],pv&&pv.income['Income from the General Rate Fund']);
+  document.getElementById('s-pound').textContent=RATE[y].pound+'p';
+  const rp=RATE[y],pvp=pi>=0?RATE[YEARS[pi]]:null;
+  document.getElementById('s-pound-d').textContent=pvp?(rp.pound===pvp.pound?'no change · rateable value '+fmt(rp.rv):(rp.pound>pvp.pound?'▲ +':'▼ ')+Math.abs(rp.pound-pvp.pound)+'p on last year'):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(totalExp(y));
+  document.getElementById('s-exp-d').textContent=arrow(totalExp(y),pv&&totalExp(YEARS[pi]));
+  document.getElementById('s-sur').textContent=(d.result>=0?'+':'−')+fmt(Math.abs(d.result));
+  document.getElementById('s-sur-d').textContent=pv?(d.result>pv.result?'▲ improved on last year':'▼ worse than last year'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Drawn from / carried to reserves (hatched = drawn)</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its four-year path</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income (excl. credits below)',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="5" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase()+' (gross cost, credits shown negative)',d=>m(sum(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="5" style="height:8px;border:none"></td></tr>');
+  R('Total gross expenditure',d=>m(GRP.reduce((a,g)=>a+pos(d[g.k]),0)),'grp');
+  R('Total gross income (incl. credits)',d=>m(sum(d.income)+sum(credits(d))),'grp');
+  R('Result for the year',d=>(d.result>=0?'':'(')+Math.abs(d.result).toLocaleString()+(d.result>=0?'':')'),'grp');
+  rows.push('<tr class="sub"><td>Rate in the pound</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].pound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Net rateable value</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].rv.toLocaleString()+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year, total gross income (rate fund, investment income, housing deficiency grant, plus every "Less:" fee and recharge shown here as its own income line) minus total gross expenditure across all seven groups equals the published result for the year exactly — a deficit of £20,063 in 2021-22, financed from reserves, and surpluses of £138,597, £191,326 and £351,783 in the three years after. The 2022-23 column was read independently from both the 2023 and 2024 accounts, and 2023-24 independently from both the 2024 and 2025 accounts; all readings agree. <b>Source.</b> Port Erin Village Commissioners, Financial Statements y/e 31 March 2023, 2024 and 2025, Detailed Income and Expenditure Account and Note 15 (rateable value). Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null,null,null],
+ ['r','Operational assets',31796958,32213019,26424566,26108740],
+ ['r','Non-operational assets',3014002,3014002,2124321,2124321],
+ ['s','',34810960,35227021,28548887,28233061],
+ ['r','Long-term debtors',0,26394,51547,75540],
+ ['t','',34810960,35253415,28600434,28308601],
+ ['h','Current assets',null,null,null,null],
+ ['r','Debtors',297732,276034,348408,329210],
+ ['r','Cash at bank',524118,297206,253847,774666],
+ ['s','',821850,573240,602255,1103876],
+ ['r','Short-term borrowing',-749231,-717046,-680850,-672687],
+ ['r','Creditors: amounts falling due within one year',-410631,-300553,-226171,-167261],
+ ['t','Net current assets/(liabilities)',-338012,-444359,-304766,263928],
+ ['t','Total assets less current liabilities',34472948,34809056,28295668,28572529],
+ ['r','Long-term borrowing',-4462284,-5126175,-5825713,-6346171],
+ ['r','Pension liabilities',0,-18000,-108000,-1377000],
+ ['T','Net assets',30010664,29664881,22361955,20849358],
+ ['h','Reserves',null,null,null,null],
+ ['r','Revaluation reserve',24072442,24366618,17543976,17760933],
+ ['r','Capital adjustment account',5584964,5096239,4705479,4330047],
+ ['r','Pensions reserve',0,-18000,-108000,-1377000],
+ ['r','General revenue reserve',468871,384888,409114,353181],
+ ['r','Housing maintenance reserve',-133237,-182487,-201732,-230921],
+ ['r','Housing revenue reserve',0,0,-4506,-4506],
+ ['r','Capital receipts reserve',17624,17624,17624,17624],
+ ['T','',30010664,29664881,22361955,20849358]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td><td class="num">'+m(r[5])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2025</th><th>2024</th><th>2023</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Total borrowing (short + long-term) fell from £5.84m at 31 March 2024 to £5.21m at 31 March 2025, and from £7.03m at 31 March 2022 — Port Erin has been paying its housing-linked debt down steadily across all four years, even as short-term borrowing (loans due within a year) rose from £672,687 to £749,231 as more of the book matures. Net assets rose sharply from £20.85m (2022) to £30.01m (2025), driven mostly by a large revaluation gain recognised in 2023-24 (+£7.04m, visible in the jump in the revaluation reserve that year) rather than by operating surpluses alone. Net current liabilities widened in 2023-24 to £444,359 before narrowing to £338,012 in 2024-25.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from scanned originals (2023 and 2024) and a garbled partial text layer (2025), then verified: current assets re-add, net current liabilities reconcile, long-term borrowing plus pension liabilities re-add to the deduction shown, and total reserves equal net assets in all four years. The 31 March 2023 balance sheet reads identically whether taken from the 2023 accounts or from the 2024 accounts\' comparative column, as does 31 March 2024 read against the 2025 accounts\' comparative column — both full cross-checks pass exactly, including the individually-unpromising long-term borrowing figure of £5,825,713 at 31 March 2023, confirmed both by direct OCR and by arithmetic against the published subtotal.</p>'
+   +'<p class="foot"><b>Source.</b> Port Erin Village Commissioners, Financial Statements for the years ended 31 March 2023, 2024 and 2025, Balance Sheet. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

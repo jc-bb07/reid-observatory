@@ -920,7 +920,7 @@ function EconHomeTab({ C, onNavigate }) {
           "Economy Explorer",
           `GDP and GVA per head, real growth rates, and output relative to the UK across the
           Isle of Man, Jersey, and Guernsey, plus which industries actually drive that output —
-          sector-by-sector contribution to GDP, GVA per worker, and how the balance between
+          sector-by-sector contribution to GDP, output per worker, and how the balance between
           finance, the public sector and the local economy has shifted since 1997/98.
           Sources: IoM National Income reports, Statistics Jersey, States of Guernsey Statistics,
           ONS ABML/EBAQ/ABMI/GDP(O)/JOBS02.`,

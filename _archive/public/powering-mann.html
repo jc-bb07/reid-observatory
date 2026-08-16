@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Powering Mann · Coalfinch Observatory</title>
+<meta name="description" content="An energy strategy for the Isle of Man built on solar, storage, flexibility and two interconnectors. Interactive portfolio explorer, costs, resilience and a 20-year phased path.">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  color-scheme: light dark;
+  --surface-1:#fff; --page:#f8fafc;
+  --ink-1:#0f172a; --ink-2:#334155; --ink-3:#64748b;
+  --grid:#cbd5e1; --axis:#64748b; --ring:rgba(15,23,42,.10);
+  --s1:#2563eb; --s2:#ea580c; --s3:#059669; --s4:#d97706; --s5:#db2777; --s6:#16a34a; --s7:#7c3aed; --s8:#dc2626;
+  --good:#059669; --warn:#d97706; --serious:#ea580c; --crit:#dc2626;
+  --accent:#2563eb;
+  --font:'Inter',system-ui,-apple-system,"Segoe UI",sans-serif; --mono:'JetBrains Mono',monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    --surface-1:#162032; --page:#0f172a;
+    --ink-1:#e2e8f0; --ink-2:#cbd5e1; --ink-3:#94a3b8;
+    --grid:#334155; --axis:#94a3b8; --ring:rgba(255,255,255,.10);
+    --s1:#60a5fa; --s2:#fb923c; --s3:#34d399; --s4:#fbbf24; --s5:#f472b6; --s6:#4ade80; --s7:#a78bfa; --s8:#f87171;
+    --good:#34d399; --warn:#fbbf24; --serious:#fb923c; --crit:#f87171;
+    --accent:#60a5fa;
+  }
+}
+:root[data-theme="dark"]{
+  --surface-1:#162032; --page:#0f172a;
+  --ink-1:#e2e8f0; --ink-2:#cbd5e1; --ink-3:#94a3b8;
+  --grid:#334155; --axis:#94a3b8; --ring:rgba(255,255,255,.10);
+  --s1:#60a5fa; --s2:#fb923c; --s3:#34d399; --s4:#fbbf24; --s5:#f472b6; --s6:#4ade80; --s7:#a78bfa; --s8:#f87171;
+  --good:#34d399; --warn:#fbbf24; --serious:#fb923c; --crit:#f87171;
+  --accent:#60a5fa;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink-1);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--grid)}
+header.site .bar{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1080px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:.01em}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.brand small{color:var(--ink-3);font-weight:500}
+nav.toc{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+nav.toc a{color:var(--ink-2)}
+#themeBtn{margin-left:8px;border:1px solid var(--grid);background:var(--surface-1);color:var(--ink-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+.hero{padding:56px 0 28px}
+.kicker{color:var(--accent);font-size:13px;font-weight:650;text-transform:uppercase;letter-spacing:.12em}
+h1{font-size:clamp(30px,5vw,44px);line-height:1.12;margin:.35em 0 .3em;letter-spacing:-.015em}
+.standfirst{font-size:18px;color:var(--ink-2)}
+.meta-line{color:var(--ink-3);font-size:13px;margin-top:14px}
+section{padding:34px 0}
+h2{font-size:26px;letter-spacing:-.01em;margin:0 0 6px;scroll-margin-top:70px}
+h3{font-size:18px;margin:26px 0 6px}
+.lede{color:var(--ink-2);margin-top:0}
+p,ul{max-width:none}
+.card{background:var(--surface-1);border:1px solid var(--ring);border-radius:8px;padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 6px}
+.kpi{background:var(--surface-1);border:1px solid var(--ring);border-radius:8px;padding:14px 16px}
+.kpi .v{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:-.01em}
+.kpi .l{font-size:12.5px;color:var(--ink-3);margin-top:2px;line-height:1.35}
+.kpi .d{font-size:12px;margin-top:4px;color:var(--ink-2)}
+.badge{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 8px;border-radius:99px;border:1px solid var(--ring)}
+.badge.ok{color:var(--good)} .badge.risk{color:var(--serious)} .badge.crit{color:var(--crit)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);text-align:left;font-weight:650}
+th,td{padding:9px 10px;border-bottom:1px solid var(--grid);vertical-align:top}
+td:first-child{font-weight:600}
+tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.table-scroll{overflow-x:auto}
+.pill{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+figure{margin:22px 0;background:var(--surface-1);border:1px solid var(--ring);border-radius:10px;padding:16px 18px 10px}
+figcaption{font-size:15px;font-weight:650;margin-bottom:2px}
+.fig-sub{font-size:12.5px;color:var(--ink-3);margin-bottom:10px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--ink-2);margin:6px 0 4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+svg{display:block;width:100%;height:auto}
+.axis-t{font-size:11px;fill:var(--ink-3)}
+.dl{font-size:11.5px;font-weight:650;fill:var(--ink-2)}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);border:1px solid var(--ring);border-radius:8px;padding:7px 10px;font-size:12.5px;color:var(--ink-1);box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:0;transition:opacity .08s;z-index:99;max-width:260px}
+.tip b{display:block}
+/* explorer */
+.explorer{background:var(--surface-1);border:1px solid var(--ring);border-radius:10px;padding:20px;margin:20px 0}
+.explorer h3{margin-top:0}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px 22px;margin:14px 0 4px}
+.ctl label{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-2);font-weight:600}
+.ctl label output{color:var(--ink-1);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0 0}
+.ctl .hint{font-size:11.5px;color:var(--ink-3);line-height:1.35}
+.seg{display:inline-flex;border:1px solid var(--grid);border-radius:10px;overflow:hidden;margin:4px 0}
+.resetBtn{border:1px solid var(--grid);background:var(--surface-1);color:var(--ink-2);border-radius:8px;padding:4px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.resetBtn:hover{border-color:var(--accent);color:var(--accent)}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;font-weight:600;padding:6px 14px;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);font-weight:600;margin-top:8px}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.outs{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:16px 0 4px}
+.xgrid{display:grid;grid-template-columns:1fr;gap:8px 26px}
+.xgrid>*{min-width:0}
+@media (min-width:900px){
+  .xgrid{grid-template-columns:11fr 9fr}
+  .xout{position:sticky;top:64px;align-self:start}
+  .xout .outs{grid-template-columns:repeat(2,1fr)}
+}
+.out{border:1px solid var(--grid);border-radius:8px;padding:12px 14px}
+.out .v{font-family:var(--mono);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums}
+.out .l{font-size:12px;color:var(--ink-3);line-height:1.3;margin-top:2px}
+.out .s{font-size:12px;font-weight:650;margin-top:4px;display:flex;align-items:center;gap:5px}
+.note{font-size:12.5px;color:var(--ink-3);margin-top:12px;max-width:none}
+.verdict-band{border-left:4px solid var(--accent);padding:4px 0 4px 18px;margin:18px 0}
+.verdict-band p{font-size:17px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+ul{max-width:76ch}
+li{margin:6px 0}
+.phase{border-left:3px solid var(--grid);padding:2px 0 18px 20px;position:relative}
+.phase::before{content:"";position:absolute;left:-8px;top:6px;width:13px;height:13px;border-radius:50%;background:var(--accent);border:3px solid var(--page)}
+.phase h3{margin-top:0}
+.phase .when{font-size:12.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+footer{border-top:1px solid var(--grid);padding:30px 0 50px;color:var(--ink-3);font-size:13px}
+/* reading modes */
+.modeBar{position:sticky;top:48px;z-index:40;display:flex;align-items:center;gap:12px;background:color-mix(in srgb,var(--page) 92%,transparent);backdrop-filter:blur(6px);padding:8px 0;margin-top:6px}
+.modeBar .hint{font-size:12px;color:var(--ink-3)}
+body.quick .deep{display:none}
+body.quick #assumptions .grid2{display:none}
+body.quick #sources .src-list{display:none}
+body.quick .quick-hidden-note{display:block}
+.quick-hidden-note{display:none;font-size:12.5px;color:var(--ink-3)}
+@media (max-width:720px){
+  .wrap{padding:0 14px}
+  .kpi .v{font-size:22px}
+  .out .v{font-size:20px}
+  figure{overflow-x:auto}
+  figure svg{min-width:640px}
+  #firmChart{min-width:560px}
+  .modeBar{top:0}
+  h1{font-size:30px}
+  .standfirst{font-size:16px}
+}
+.src-list{font-size:13px;color:var(--ink-2);columns:2;column-gap:34px}
+.src-list li{break-inside:avoid;margin:4px 0}
+@media (max-width:720px){.src-list{columns:1}nav.toc{display:none}}
+@media print{header.site{position:static}.tip{display:none}}
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <div class="brand"><span class="dot"></span>Coalfinch <small>Observatory</small></div>
+  <nav class="toc">
+    <a href="#summary">Summary</a><a href="#today">Today</a><a href="#explorer">Explorer</a>
+    <a href="#assessment">Assessment</a><a href="#politics">Politics</a><a href="#portfolio">Portfolio</a>
+    <a href="#phasing">Phasing</a><a href="#next">Next</a><a href="#verdict">Verdict</a><a href="#sources">Sources</a>
+  </nav>
+  <button id="themeBtn" aria-label="Toggle colour theme">◐ Theme</button>
+</div></header>
+
+<div class="wrap">
+<div class="hero">
+  <div class="kicker">Data Library · 11 · Electrification</div>
+  <h1>Powering Mann</h1>
+  <p class="standfirst">Reliable, affordable, sovereign and clean. A proposed direction for Isle of Man electricity: solar, storage, household flexibility, two interconnectors. High optionality, no single bet, tested against the island's asset clock, debt and planning politics. A proposition to argue with, not a plan to obey.</p>
+  <p class="meta-line">Coalfinch Observatory · July 2026 · Independent analysis. All figures sourced or flagged as assumptions; nothing here is Manx Utilities or Isle of Man Government policy.</p>
+  <div class="modeBar">
+    <div class="seg" id="modeSeg">
+      <button data-mode="quick">Quick read</button><button data-mode="full" class="on">Full brief</button>
+    </div>
+    <span class="hint" id="modeHint">Quick read keeps the argument; Full brief shows the working.</span>
+  </div>
+</div>
+
+<section id="summary">
+  <h2>Executive summary</h2>
+  <div class="card">
+    <p><strong>The decision is forced either way.</strong> The island's two keystone assets retire within a decade of each other: the Pulrose gas plant, roughly 90% of our electricity, around 2033; the single subsea cable to England, in service since 2000, around 2035. Doing nothing is not on the table. The question is what replaces them.</p>
+    <p><strong>The proposal is a portfolio, not a monument.</strong> Two interconnectors of around 100 MW, diversified in route and ideally counterparty. A grid-forming utility battery of 30 to 40 MW for frequency support, fast reserve and black-start. 45 to 60 MW of solar across rooftops, businesses and a few well-sited ground arrays, with community batteries and, later, bidirectional EV charging. Efficiency first, because the cheapest unit is the one never bought. Gas stays as standby until the new kit has proven itself, then retires. Every element is independently useful. High optionality, no single bet.</p>
+    <p><strong>On the planning record, this is the buildable path.</strong> Rooftops, substations, industrial land, seabed. None of it needs the turbines the island has organised against for three years. Wind stays an option; nothing here depends on winning that fight.</p>
+    <p><strong>And it is financially grounded.</strong> Manx Utilities carries a £185m bond to 2034 on 85,000 people paying 29.5p a unit. The proposal phases £320&#8211;420m over 15 years, mostly bankable infrastructure, and avoids the El Hierro trap of chasing total self-sufficiency at any cost. Jersey lands power at 22.20p by importing most of it. Sovereignty comes from redundancy, not from generating every electron at home.</p><p><strong>One caveat before anything else.</strong> This was put together by an engineer and an AI, not a power systems consultancy. Treat it as a costed direction with the homework shown, and treat commissioning real grid engineering as the first action inside it.</p>
+  </div>
+</section>
+<section id="today">
+  <h2>The island's system today</h2>
+  <p class="lede">Everything below is the measured starting point, not a scenario.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v">~75 MW</div><div class="l">winter peak demand (summer minimum ~23 MW; average ~40 MW)</div></div>
+    <div class="kpi"><div class="v">~360 GWh</div><div class="l">electricity used per year, ~27% of total island energy</div></div>
+    <div class="kpi"><div class="v">~84%</div><div class="l">of generation from imported fossil fuel, mostly gas at Pulrose</div></div>
+    <div class="kpi"><div class="v">1 cable</div><div class="l">40&#8211;60 MW link to Blackpool, in service since 2000</div><div class="d"><span class="badge risk">end of life ~2035</span></div></div>
+    <div class="kpi"><div class="v">29.5p</div><div class="l">per kWh standard domestic rate, April 2026 (+25.5p/day standing charge)</div></div>
+    <div class="kpi"><div class="v">£185m</div><div class="l">Manx Utilities electricity bond, repayable by 2034 at ~5.4%</div></div>
+    <div class="kpi"><div class="v">0 MWh</div><div class="l">grid-scale storage installed on the island</div></div>
+    <div class="kpi"><div class="v">~7 MW</div><div class="l">private rooftop renewables across ~1,000 customers</div></div>
+  </div>
+  <figure>
+    <figcaption>The asset clock</figcaption>
+    <div class="fig-sub">Remaining life of the assets the island depends on. Hover any bar for detail.</div>
+    <svg id="clockChart" viewBox="0 0 960 300" role="img" aria-label="Timeline of asset end-of-life dates from 2026 to 2036"></svg>
+  </figure>
+  <p>The Pulrose CCGT (25&#8211;85 MW) supplies about 90% of island electricity, end of life ~2033. The sole interconnector, a 104 km AC cable rated 40&#8211;60 MW, follows ~2035 on the independent system guide's estimate; Manx Utilities suggests it could run longer, but a 1990s cable carrying the island's future deserves a funded decision, not optimism. Behind them: a ~38 MW diesel station at Peel, ~50 MW of reserve diesels at Douglas, 1.2 MW of hydro and the 5.5 MW Energy from Waste plant. Storm &#201;owyn cut power across the island in January 2025 and damaged Peel station on its way through.</p>
+  <p class="deep">Policy already points this way: Tynwald adopted 100% decarbonised electricity by 2030 back in 2022, and Manx Utilities' roadmap pairs local renewables with a new interconnector. Delivery has not followed: the 2030 pledge is officially "at risk", the 30 MW renewables target has produced ~7 MW of private rooftops, the wind farm is still pre-application, and the second interconnector is a £200m estimate with earliest commissioning ~2031. The proposal below is about closing that gap with tools the island will actually consent to.</p>
+</section>
+
+<section id="explorer">
+  <h2>Portfolio explorer</h2>
+  <p class="lede">Build your own mix and see what it does to energy balance, winter security, carbon and indicative cost. The model is deliberately simple and every assumption is listed below it; treat outputs as directional, not as a system study.</p>
+  <div class="explorer">
+    <h3>1 · Choose a horizon</h3>
+    <div class="seg" id="horizonSeg" role="tablist">
+      <button data-h="2030" class="on">2030</button><button data-h="2035">2035</button><button data-h="2045">2045</button>
+    </div>
+    <span class="hint" id="horizonHint" style="font-size:12px;color:var(--ink-3);margin-left:12px"></span>
+    <div class="xgrid">
+    <div class="xleft">
+    <h3 style="display:flex;align-items:center;gap:14px">2 · Set the portfolio <button id="resetBtn" class="resetBtn" title="Restore default portfolio">&#8635; Reset</button></h3>
+    <div class="controls">
+      <div class="ctl"><label>Rooftop + commercial solar <output id="o_roof">15 MW</output></label>
+        <input type="range" id="r_roof" min="0" max="50" step="1" value="15">
+        <div class="hint">Homes (3&#8211;4 kW) and business rooftops (50&#8211;250 kW). No landscape footprint.</div></div>
+      <div class="ctl"><label>Ground-mount solar <output id="o_ground">20 MW</output></label>
+        <input type="range" id="r_ground" min="0" max="60" step="1" value="20">
+        <div class="hint">Billown-class farms (~26 MW consented scale). Cheapest solar per kW.</div></div>
+      <div class="ctl"><label>Utility BESS (grid-forming) <output id="o_bess">30 MW</output></label>
+        <input type="range" id="r_bess" min="0" max="80" step="5" value="30">
+        <div class="hint">2-hour duration assumed. Carries frequency response, fast reserve, black-start.</div></div>
+      <div class="ctl"><label>Community batteries <output id="o_comm">10 MWh</output></label>
+        <input type="range" id="r_comm" min="0" max="40" step="2" value="10">
+        <div class="hint">Neighbourhood-scale storage soaking up local rooftop surplus.</div></div>
+      <div class="ctl"><label>V2G-enabled vehicles <output id="o_v2g">1,000</output></label>
+        <input type="range" id="r_v2g" min="0" max="10000" step="250" value="1000">
+        <div class="hint">Bidirectional EVs at 7 kW; 30% assumed plugged in and willing at peak.</div></div>
+      <div class="ctl"><label>Demand flexibility &amp; efficiency <output id="o_flex">8%</output></label>
+        <input type="range" id="r_flex" min="0" max="15" step="1" value="8">
+        <div class="hint">Peak reduction from insulation, smart heat and time-of-use. UK trials support 8&#8211;15%.</div></div>
+      <div class="ctl"><label>Retained gas / diesel standby <output id="o_gas">40 MW</output></label>
+        <input type="range" id="r_gas" min="0" max="85" step="5" value="40">
+        <div class="hint">Rarely-run resilience plant. Pulrose itself is unavailable after 2033.</div></div>
+      <div class="ctl"><label>Large new load (e.g. AI datacentre) <output id="o_dc">0 MW</output></label>
+        <input type="range" id="r_dc" min="0" max="100" step="5" value="0">
+        <div class="hint">Runs near-flat, day and night. Even 30 MW rewrites the island's demand arithmetic.</div></div>
+      <div class="ctl">
+        <label>Interconnectors</label>
+        <div class="toggle"><input type="checkbox" id="t_ic1" checked><span>Link 1: UK (100 MW replacement of the 2000 cable)</span></div>
+        <div class="toggle"><input type="checkbox" id="t_ic2" checked><span>Link 2: second route (UK or Ireland, 100 MW)</span></div>
+        <div class="hint" style="margin-top:6px">At 2030 the existing 60 MW cable still counts if Link 1 is unbuilt.</div>
+      </div>
+    </div>
+    </div>
+    <div class="xout">
+    <h3>3 · What it delivers</h3>
+    <figure style="border:none;padding:0;margin:6px 0 10px">
+      <figcaption>Winter evening stress test</figcaption>
+      <div class="fig-sub">A dark, still, cold January teatime: solar contributes nothing. Firm capacity vs peak after flexibility, with the largest single asset removed (N-1).</div>
+      <div class="legend" id="firmLegend"></div>
+      <svg id="firmChart" viewBox="0 0 960 240" role="img" aria-label="Firm capacity stack versus winter peak demand"></svg>
+    </figure>
+    <div class="outs">
+      <div class="out"><div class="v" id="x_clean">&#8211;</div><div class="l">low-carbon share of annual energy (solar + hydro + imports)</div></div>
+      <div class="out"><div class="v" id="x_solar">&#8211;</div><div class="l">of annual demand met by island solar</div></div>
+      <div class="out"><div class="v" id="x_margin">&#8211;</div><div class="l">winter peak margin after losing the single largest asset (N-1)</div><div class="s" id="x_marginBadge"></div></div>
+      <div class="out"><div class="v" id="x_carbon">&#8211;</div><div class="l">indicative carbon intensity (g CO&#8322;/kWh)</div></div>
+      <div class="out"><div class="v" id="x_capex">&#8211;</div><div class="l">indicative capital cost of the chosen build</div></div>
+      <div class="out"><div class="v" id="x_bill">&#8211;</div><div class="l">indicative unit-cost delta vs replacing gas plant and cable like-for-like</div></div>
+    </div>
+    </div>
+    </div>
+    <figure style="border:none;padding:0;margin:18px 0 4px">
+      <figcaption>Monthly energy balance</figcaption>
+      <div class="fig-sub">Where each month's energy comes from under your portfolio. Solar peaks in summer exactly when demand is lowest; winter is carried by imports, storage cycling and any retained gas.</div>
+      <div class="legend" id="mixLegend"></div>
+      <svg id="mixChart" viewBox="0 0 960 320" role="img" aria-label="Stacked monthly energy balance by source"></svg>
+    </figure>
+    <p class="note" id="modelNote"></p>
+  </div>
+</section>
+<section id="assessment">
+  <h2>The proposal, assessed</h2>
+  <p class="lede">Eight questions any serious energy plan must answer, taken in turn.</p>
+
+  <h3>1 · Technical feasibility</h3>
+  <p>Every element runs today on a grid this size. Kauai (~82 MW peak against our 75) operates at up to 90% inverter-based generation and rode through the trip of a 26 MW unit in hundredths of a second. Su&#240;uroy ran ten days on 100% inverter-based wind with a 6.3 MW battery and a synchronous condenser. Shetland hangs an archipelago off one HVDC link with a 68 MW bridging battery. Nothing here makes the island a guinea pig.</p>
+  <p class="deep">The caveat is solar physics. At this latitude solar manages a 10&#8211;11% capacity factor and near-nothing on a January evening; 50 MW yields roughly an eighth of annual demand, mostly in summer when demand bottoms at 23 MW. Solar plus storage cannot run a Manx winter, which is why the interconnectors and gas standby are load-bearing parts of the design, not accessories.</p>
+
+  <h3>2 · Grid stability and black-start</h3>
+  <p>Today the grid's stability is Pulrose: spinning steel providing inertia, fault current and a frequency reference. Retire it without a plan and protection relays stop tripping, because inverters deliver only 1.1&#8211;1.5 times rated current into a fault. The field-proven 2030s architecture: two or three separated grid-forming battery stations (30&#8211;40 MW) as the fast backbone, one or two flywheel-boosted synchronous condensers for fault level and voltage, and protection reset to a higher rate-of-change-of-frequency standard, as Ireland did. Exactly the territory where this proposal needs real power-systems engineering, not an explorer widget.</p>
+  <p class="deep">Black-start precedents exist: Hawaii's Kapolei battery is contracted to restart thermal plant after a blackout, and Kauai's battery powered an intentional island including hospital loads in 2024. Grid-forming BESS plus retained gas as the diverse second path beats today's position, where restoration hangs on one thermal site and one cable. The unforgiving rule: fast reserve must always cover the largest single infeed. Two links plus batteries keep that number manageable; one big link without storage does not.</p>
+
+  <h3>3 · Capital and operating cost trade-offs</h3>
+  <p>On 2025&#8211;26 UK benchmarks: ground solar ~£0.65&#8211;0.8m per MW, utility BESS ~£650k per MW plus 3&#8211;8% for grid-forming, and Manx Utilities' own £200m estimate per interconnector. The whole portfolio lands indicatively at £320&#8211;420m over 15 years. Reference points the island already knows: £40&#8211;46.5m for one 20 MW wind farm, £30m for the consented Billown solar farm, £660m for Shetland's single cable.</p>
+  <p class="deep">Operating costs run the other way and pay for the capital: every imported or solar kWh displaces gas bought on the market that handed Manx Utilities a £42m loss in 2022&#8211;23 and customers a near-60% price shock. Jersey, importing ~95%, charges 22.20p against our 29.5p. Interconnector systems trade fuel risk for financing risk, and financing risk can be fixed for 25 years at signing.</p>
+
+  <h3>4 · Resilience: cable faults, fuel disruption, peak demand</h3>
+  <p><strong>Cable fault:</strong> Jersey's EDF1 failed permanently in 2012 (weeks of diesel, a 9.5% tariff rise); Guernsey's single link failed in 2018 and hurt its finances badly. Two Manx links on separate routes leave 100 MW plus batteries plus standby; today the same fault leaves one gas plant that retires in 2033. <strong>Fuel disruption:</strong> the island's gas arrives through one 11.7 km subsea spur; every megawatt of solar, storage and interconnection shrinks that exposure. <strong>Peak demand:</strong> electrification pushes peak toward ~130 MW by 2050; UK trials show 8&#8211;15% peak reduction from flexibility, and V2G turns the car fleet into distributed capacity.</p>
+  <p class="deep">A bonus the island's network engineers will recognise: subsea power cables can bundle fibre, as today's link already does (operated by e-llan within Manx Utilities). Fibre pairs in both new links buy resilient connectivity alongside resilient power.</p>
+  <p class="deep">Counterparty diversity is not hypothetical: France threatened to cut Jersey's power in the 2021 fishing dispute. One link to Britain and one to Ireland is the strongest sovereignty position available; two separated British routes still solve the engineering. The Irish option earns a feasibility study, not an assumption. The bolder configuration, a GB&#8211;Mann&#8211;Ireland route, could in principle sell spare transit capacity between the two power markets, the way commercial interconnectors earn their keep; that belongs in the study's scope.</p>
+
+  <h3>5 · Customer bills and the retail model</h3>
+  <p>Manx households pay 29.5p; import-led Jersey pays 22.20p. The gap is mostly fuel exposure, debt service and subscale thermal generation. The realistic ambition is a decade of below-inflation rises, then genuine cuts as the bond rolls off in 2034 and fuel purchases shrink.</p>
+  <p class="deep">On standing charges: the island already runs a low 25.5p/day charge that Manx Utilities admits under-recovers connection costs. A mostly-fixed model would blunt every incentive this proposal depends on. The coherent design is the opposite: low honest fixed charge, meaningful unit rate, visible credits for flexibility. An export rate pegged to avoided import cost (Jersey recalculates its 9.53p buy-back annually on exactly that basis), cheap EV windows, paid peak events, a social tariff. The smart meter fleet, due complete end-2026, makes all of it cheap to run.</p>
+
+  <h3>6 · Regulation and market design</h3>
+  <p>One government-owned utility with Tynwald-approved pricing can capture the whole value of flexibility without Britain's supplier-versus-network coordination mess. What is missing is the rulebook: a formula-based export tariff instead of a unilateral one; time-of-use as the smart-meter default with an EV/V2G window; a standing flexibility register with posted prices; connection standards for home batteries and bidirectional chargers; and independent economic oversight of electricity, most simply by extending CURA's existing gas remit. Most of this is tariff policy Tynwald already approves annually.</p>
+
+  <h3>7 · Demand reduction and efficiency</h3>
+  <p>The cheapest megawatt is the one never generated. The Energy Efficiency Scheme has reached ~4,500 households; full uptake saves ~£700 a year per home. UK evidence puts 8&#8211;15% peak reduction in reach from time-of-use and smart heating. Heat Wise and the new-build boiler ban will electrify heating and raise winter peak, so every insulated loft shrinks the cables, batteries and standby the island must finance. Efficiency is infrastructure. Fund it first.</p>
+
+  <h3>8 · The 5, 10 and 20 year path</h3>
+  <p>Set out in full in the <a href="#phasing">phased plan</a> below: prove and prepare to 2031, replace and switch to 2036, optimise and retire thereafter. The sequencing rule throughout is that no legacy asset is withdrawn until its replacement has operated through a winter.</p>
+</section>
+
+<section id="politics">
+  <h2>The politics: why this portfolio is buildable</h2>
+  <p class="lede">Opposition to wind on the island is a fact of the planning record, not a prejudice to be lectured away. This strategy treats it as a design constraint.</p>
+  <p>The record is specific. The publicly-owned Earystane/Scard wind farm ("Cair Vie", turbines to 185 m, £40&#8211;46.5m) was meant to be running by end-2026; in July 2026 it had not yet filed a planning application, against an organised community campaign, a defeated Tynwald motion and a Tynwald Day petition. Offshore, &#216;rsted's 1.4 GW Mooir Vannin faces a 5,000-signature opposition petition and an MoD radar objection, with a Council of Ministers decision expected 2027. Yet consultations show support for renewables in principle: 80% backed onshore wind in 2019. The pattern: support in the abstract, contention at every specific site.</p>
+  <p class="deep">Compare the alternatives. Rooftop solar sits on buildings; ~1,000 households already have it. Batteries live in containers on industrial land. Interconnectors are invisible once laid. Flexibility is a tariff. Efficiency is money in pockets. Only ground solar touches the landscape debate at all, and Billown drew nothing like wind's resistance. None of this says wind is bad; Manx wind above 10.5 m/s is a superb resource. It says energy security should not queue behind the island's most contested planning fight, and a plan that works without wind can always add it later.</p>
+  <p class="deep">Mooir Vannin, honestly: an export project in Manx waters, its value to the island fiscal rather than electrical, its fate with the examination panel and Council of Ministers in 2027. Under Attorney General guidance, election candidates are constrained from campaigning on it. This page treats it as a scenario: if consented, negotiate hard on option fees and a future island connection; if refused, nothing here changes.</p>
+  <div class="table-scroll">
+  <table>
+    <caption style="caption-side:top;text-align:left;font-size:12.5px;color:var(--ink-3);padding:0 0 6px">Acceptability comparison, from the Manx planning record</caption>
+    <thead><tr><th>Option</th><th>Visible footprint</th><th>Organised opposition to date</th><th>Consent path</th><th>Political risk</th></tr></thead>
+    <tbody>
+      <tr><td>Rooftop / commercial solar</td><td>None beyond the building</td><td>None recorded</td><td>Largely permitted development</td><td><span class="badge ok">Low</span></td></tr>
+      <tr><td>Community &amp; utility batteries</td><td>Containers on industrial land</td><td>None recorded</td><td>Standard planning</td><td><span class="badge ok">Low</span></td></tr>
+      <tr><td>Interconnectors</td><td>Landfall works, then none</td><td>None recorded; broad support in MU consultation</td><td>Marine consent + landfall planning</td><td><span class="badge ok">Low&#8211;medium</span></td></tr>
+      <tr><td>Flexible demand / V2G / efficiency</td><td>None</td><td>None; standing-charge politics only</td><td>Tariff policy via Tynwald</td><td><span class="badge ok">Low</span></td></tr>
+      <tr><td>Ground-mount solar</td><td>Fenced lowland arrays</td><td>Minimal (Billown)</td><td>Standard planning; consented precedent</td><td><span class="badge ok">Low&#8211;medium</span></td></tr>
+      <tr><td>Onshore wind</td><td>Turbines to 185 m on uplands</td><td>Organised (Earystane/Scard CAG); Tynwald motion; petitions</td><td>Contested; still pre-application after 3+ years</td><td><span class="badge crit">High</span></td></tr>
+      <tr><td>Offshore wind (Mooir Vannin)</td><td>87 turbines, 6&#8211;12 nm offshore</td><td>Organised (NOT4IOM, 5,000+ signatures); MoD objection</td><td>MIMA examination; CoMin decision 2027</td><td><span class="badge risk">High, and outside island control</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+<section id="options">
+  <h2>Options on the table</h2>
+  <p class="lede">The main building blocks compared honestly, including the ones this strategy does not lead with.</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Option</th><th>For</th><th>Against</th><th>Role here</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill" style="background:var(--s4)"></span>Rooftop &amp; commercial solar</td>
+        <td>Zero landscape cost; builds public ownership of the transition; displaces daytime imports; ~1,000 households already in</td>
+        <td>10&#8211;11% capacity factor; near-zero in winter; island install costs above UK mainland; needs storage or export headroom to be useful at scale</td>
+        <td>Core, 25&#8211;30 MW by 2035</td></tr>
+      <tr><td><span class="pill" style="background:var(--s4)"></span>Ground-mount solar</td>
+        <td>Cheapest solar per kW (~£0.65&#8211;0.8m/MW); Billown proves consentability; fast to build</td>
+        <td>Land take on a small island; same winter problem; grid connection depth at 33 kV (~25 MW sections)</td>
+        <td>Core, 20&#8211;30 MW across 2&#8211;3 sites</td></tr>
+      <tr><td><span class="pill" style="background:var(--s3)"></span>Community batteries</td>
+        <td>Soaks up local rooftop surplus; defers network reinforcement; visible neighbourhood benefit</td>
+        <td>~£290/kWh installed; small individually; needs a tariff structure that rewards them (does not exist yet)</td>
+        <td>Supporting, 10&#8211;20 MWh</td></tr>
+      <tr><td><span class="pill" style="background:var(--s3)"></span>Utility grid-forming BESS</td>
+        <td>Frequency response, virtual inertia, black-start, islanding, all field-proven at this grid size; ~£650k/MW plus 3&#8211;8% grid-forming premium; the keystone stability asset once Pulrose retires</td>
+        <td>Two-hour duration is power security, not winter energy; revenues need a designed island market, not GB merchant assumptions; fire-safety siting diligence</td>
+        <td>Core, 30&#8211;40 MW / 60&#8211;80 MWh in 2&#8211;3 stations</td></tr>
+      <tr><td><span class="pill" style="background:var(--s3)"></span>V2G / bidirectional charging</td>
+        <td>Turns the car fleet into distributed storage; UK trials show £360&#8211;620/yr value per vehicle; AC hardware costs falling toward £1&#8211;2k</td>
+        <td>Only ~1,377 EVs on-island (2024); vehicle/charger compatibility still narrow; a late-2020s scaling play, not a near-term firm resource</td>
+        <td>Supporting, scale from ~2029</td></tr>
+      <tr><td><span class="pill" style="background:var(--s1)"></span>Two interconnectors</td>
+        <td>Decarbonised imports at Jersey-grade cost; N-1 security against cable fault; export route for surplus solar; can bundle dark fibre as today's cable does; ~£200m each on MU's estimate</td>
+        <td>Biggest single capital items; delivery risk (cable ships are booked years out); import dependence needs managing via contracts and diversity</td>
+        <td>Core, replace by ~2032 + second link by ~2035</td></tr>
+      <tr><td><span class="pill" style="background:var(--s2)"></span>Transitional gas / diesel standby</td>
+        <td>Cheapest firm winter capacity the island already owns; fuel-diverse black-start second path; Jersey and Shetland both keep standby thermal behind their links</td>
+        <td>Fuel price volatility caused the 2022&#8211;23 shock; carbon; Pulrose itself expires ~2033 so standby needs its own plan</td>
+        <td>Transitional, shrinking to ~40 MW standby, retire when proven redundant</td></tr>
+      <tr><td><span class="pill" style="background:var(--s7)"></span>Onshore wind</td>
+        <td>Superb resource (&gt;10.5 m/s); 20 MW would cut winter imports meaningfully; complements solar seasonally</td>
+        <td>The one option with organised, sustained opposition; still pre-application after 3+ years; £40&#8211;46.5m for 20 MW; strategy must not depend on it</td>
+        <td>Option, not a dependency</td></tr>
+      <tr><td><span class="pill" style="background:var(--s7)"></span>Offshore wind (Mooir Vannin)</td>
+        <td>£2bn claimed economic value over 35 years; no island capital at risk; potential future connection option</td>
+        <td>An export project: island keeps rent, not power; contested; decision (2027) outside island control and constrained for election candidates</td>
+        <td>Scenario; negotiate value hard if consented</td></tr>
+      <tr><td><span class="pill" style="background:var(--s6)"></span>Efficiency &amp; demand reduction</td>
+        <td>Cheapest option per MW; £700/yr savings per fully-treated home; shrinks every other asset; UK trials show 8&#8211;15% peak reduction</td>
+        <td>Retrofit delivery capacity on-island is thin; benefits diffuse and slow to aggregate; needs sustained funding, not pilots</td>
+        <td>Core, first money spent</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <figure>
+    <figcaption>Capital cost per firm winter megawatt</figcaption>
+    <div class="fig-sub">Indicative £m per MW of dependable winter-evening capacity. Solar divides by its ~7% firm winter contribution; that is the point of the chart, not a trick. Hover for the arithmetic.</div>
+    <svg id="firmCostChart" viewBox="0 0 960 300" role="img" aria-label="Bar chart of cost per firm megawatt by technology"></svg>
+  </figure>
+</section>
+
+<section id="portfolio">
+  <h2>Proposed portfolio</h2>
+  <p class="lede">Sized for the 2035 system: ~95 MW winter peak after efficiency, ~430 GWh, Pulrose retired, both links live.</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Asset</th><th>Size</th><th>Indicative capital</th><th>Phase</th><th>What it buys</th></tr></thead>
+    <tbody>
+      <tr><td>Efficiency &amp; flexibility programme</td><td>8&#8211;12% peak reduction</td><td>£25&#8211;40m</td><td>2026&#8211;2031</td><td>Shrinks every asset below; bills fall first</td></tr>
+      <tr><td>Interconnector 1 (UK, replacement)</td><td>100 MW</td><td>~£200m</td><td>order by 2028, live ~2032</td><td>Replaces the 2000 cable before end of life</td></tr>
+      <tr><td>Utility grid-forming BESS</td><td>30&#8211;40 MW / 60&#8211;80 MWh, 2&#8211;3 sites</td><td>£25&#8211;35m</td><td>first station by 2029</td><td>Frequency, fast reserve, black-start, islanding</td></tr>
+      <tr><td>Synchronous condensers</td><td>2 &#215; 10&#8211;20 MVA, flywheel-boosted</td><td>£15&#8211;25m</td><td>with Pulrose retirement</td><td>Fault level and protection security</td></tr>
+      <tr><td>Rooftop + commercial solar</td><td>25&#8211;30 MW</td><td>£25&#8211;35m (mostly private capital)</td><td>continuous</td><td>Citizen-owned daytime energy</td></tr>
+      <tr><td>Ground-mount solar</td><td>20&#8211;30 MW, 2&#8211;3 sites</td><td>£15&#8211;25m (private/PPA)</td><td>2027&#8211;2032</td><td>Cheapest island generation</td></tr>
+      <tr><td>Community batteries</td><td>10&#8211;20 MWh</td><td>£3&#8211;6m</td><td>from 2028</td><td>Local absorption, network deferral</td></tr>
+      <tr><td>V2G enablement</td><td>3,000&#8211;5,000 vehicles by 2036</td><td>£5&#8211;10m (chargers, mostly private)</td><td>scale from 2029</td><td>Distributed peak capacity</td></tr>
+      <tr><td>Interconnector 2 (Ireland preferred, UK fallback)</td><td>100 MW</td><td>~£200m</td><td>FID by 2030, live ~2035</td><td>N-1 security; counterparty diversity; export headroom; second fibre route</td></tr>
+      <tr><td>Gas/diesel standby</td><td>~40 MW retained</td><td>£10&#8211;20m (life-extension)</td><td>until both links + BESS proven</td><td>Resilience of last resort; retire ~2040</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">Total programme: indicatively £320&#8211;420m of which roughly £120&#8211;160m is private or householder capital. For scale: Shetland's single new link alone cost £660m, and Manx Utilities' 2017 debt restructuring wrote off £95m. Financing via long-dated utility borrowing against regulated revenues, UK/Ireland interconnector frameworks where applicable, and PPAs for solar. No unlimited public funding is assumed anywhere in this plan.</p>
+</section>
+
+<section id="risks">
+  <h2>Key risks and mitigations</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Risk</th><th>Likelihood / impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Interconnector delay (cable ships, consents, converter lead times)</td><td>High / High</td><td>Order Link 1 by 2028; keep Pulrose maintainable to 2033+; stage BESS early so the island can ride N-1 during the gap</td></tr>
+      <tr><td>Cable fault once import-led</td><td>Medium / High</td><td>Two links on separated routes and landfalls; BESS sized to largest infeed; 40 MW standby thermal held through the 2030s; spares and repair contracts pre-agreed (Jersey's playbook)</td></tr>
+      <tr><td>Import price exposure replaces gas price exposure</td><td>Medium / Medium</td><td>Long-term contracts on the Jersey/EDF model; fixed-price solar PPAs on-island (Kauai's hedge); retain export revenue from summer surplus</td></tr>
+      <tr><td>Financing strain on a small utility already carrying £185m</td><td>Medium / High</td><td>Phase capital; recycle the bond roll-off from 2034; private capital for solar and chargers; do not gold-plate (one BESS fleet, not one of everything)</td></tr>
+      <tr><td>Stability shortfall as Pulrose retires (inertia, fault level, protection)</td><td>Medium / High</td><td>Grid-forming spec mandatory in BESS procurement; synchronous condensers commissioned before retirement; RoCoF protection programme; islanding trials each year</td></tr>
+      <tr><td>Public backlash if bills rise to fund the build</td><td>Medium / High</td><td>Efficiency first so bills fall before capital lands; transparent formula-based tariffs; social tariff; publish the avoided-fuel arithmetic annually</td></tr>
+      <tr><td>V2G / flexibility underdelivers</td><td>Medium / Low</td><td>Treat V2G as upside, not baseline; the N-1 math above never counts more than 30% of enrolled vehicles</td></tr>
+      <tr><td>Solar consenting friction at ground-mount sites</td><td>Low / Medium</td><td>Site selection on previously-developed and low-grade land; community benefit sharing; Billown precedent</td></tr>
+      <tr><td>Gas spur or fuel logistics failure during transition</td><td>Low / High</td><td>Dual-fuel standby capability; strategic fuel storage at Peel maintained until Link 2 is live</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+<section id="phasing">
+  <h2>The phased path</h2>
+  <div class="phase">
+    <div class="when">Years 0&#8211;5 · 2026&#8211;2031 · Prove and prepare</div>
+    <h3>Spend small money well before spending big money at all</h3>
+    <ul>
+      <li>Efficiency at scale: extend the Energy Efficiency Scheme from pilot (£1.7m, 4,500 homes) to an island-wide retrofit programme aimed at the oldest stock, alongside Heat Wise. Target 8%+ peak reduction by 2031.</li>
+      <li>Finish the smart meter rollout (due substantially complete end-2026) and launch the retail rulebook: formula-based export tariff, default time-of-use, EV window, paid peak events, social tariff.</li>
+      <li>Commission the first grid-forming BESS station (10&#8211;15 MW) by 2029 and run annual islanding and black-start trials with it.</li>
+      <li>Open formal connection discussions with National Grid on the GB side, and EirGrid on the Irish side, in 2026. Then take the interconnector decisions this Tynwald cannot dodge: route survey and procurement for the 100 MW UK replacement (order by 2028), and a genuine UK-vs-Ireland feasibility study for Link 2 with a decision gate by 2030, including whether a GB&#8211;Mann&#8211;Ireland configuration could trade transit capacity between the two markets. Specify fibre pairs in both.</li>
+      <li>Consent 20&#8211;30 MW of ground solar (get Billown built) and remove friction from rooftop installs; connect community batteries where rooftop clusters justify them.</li>
+      <li>Keep Pulrose fully maintained. Nothing retires in this phase.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="when">Years 5&#8211;10 · 2031&#8211;2036 · Replace and switch</div>
+    <h3>The heavy lift, sequenced so no winter ever depends on an unproven asset</h3>
+    <ul>
+      <li>Link 1 (100 MW, UK) live ~2032, a year through winter before Pulrose's ~2033 end of life.</li>
+      <li>BESS fleet completed to 30&#8211;40 MW across 2&#8211;3 sites; synchronous condensers commissioned as Pulrose winds down; protection reset to the higher RoCoF standard.</li>
+      <li>Link 2 (100 MW, Ireland preferred, UK-second-route fallback) live ~2035, replacing the 2000 cable's security role at its end of life.</li>
+      <li>Solar reaches 45&#8211;60 MW combined; V2G scales with the EV fleet (3,000&#8211;5,000 bidirectional vehicles by 2036); summer surplus exports through whichever link has headroom.</li>
+      <li>Pulrose retires on schedule; ~40 MW of standby thermal (life-extended Peel plus retained units) is kept tested and fuelled.</li>
+      <li>Electricity is now largely decarbonised: imports (GB grid heading under 50 g/kWh, or Irish wind) plus island solar. The 2030 pledge is missed, as it already will be; the honest reframe is decarbonised by ~2035 with receipts.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="when">Years 10&#8211;20 · 2036&#8211;2046 · Optimise and retire</div>
+    <h3>From transition to steady state</h3>
+    <ul>
+      <li>Retire standby thermal once both links plus the BESS fleet have demonstrated N-1 through consecutive winters; black-start rests on the battery fleet with a small dual-fuel reserve as the diverse second path.</li>
+      <li>Bond roll-off from 2034 recycled into tariff reduction and asset renewal, not new spending commitments.</li>
+      <li>Expand storage duration (4-hour and beyond) as heat electrification deepens winter peaks toward ~130 MW by 2050; revisit onshore wind on the island's own terms if, and only if, consent politics have genuinely shifted.</li>
+      <li>If Mooir Vannin was consented and built, negotiate the island connection option and benefit-sharing from a position of an already-secure grid, not dependence.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="next">
+  <h2>Next steps and open scenarios</h2>
+  <p class="lede">A strategy is only as good as its first phone call. Here is what has to happen now, and the futures the plan must be able to absorb.</p>
+  <h3>Do now, meaning 2026, not three years out</h3>
+  <p>The most time-critical action costs almost nothing: <strong>open formal connection discussions with National Grid.</strong> A 100 MW link needs a GB-side connection agreement, and connections, converters and cable ships are queued years deep. "Earliest ~2031" is only true if the conversation starts now; every year of delay stretches the exposure window when Pulrose is gone and one 35-year-old cable is doing the work. The parallel call to EirGrid buys the island's strongest sovereignty option for the price of a feasibility study. Alongside: commission an independent power-systems study to kick the tyres on everything on this page, issue the grid-forming BESS specification, publish the flexibility rulebook, and get consented ground solar moving. None of this waits for an election.</p>
+  <h3>Scenario: a mega AI datacentre pitches up</h3>
+  <p class="deep">A hyperscale AI campus runs near-flat: 30 MW adds ~40% to average demand, 100 MW more than doubles it. Try the slider above. The opportunity is real: an anchor tenant could underwrite the second interconnector the way Viking underwrote Shetland's £660m link, and a datacentre plus two fibre-equipped cables is an economic strategy, not just an energy one. The sequencing is unforgiving: operators shop on time-to-power, and an island that has not opened its National Grid conversation has nothing to sell. Decide in advance what to ask of such a tenant: heat reuse, flexibility commitments, a contribution to firm capacity.</p>
+  <h3>Other futures the plan absorbs</h3>
+  <p class="deep">If Mooir Vannin is consented, the island's negotiating position changes and nothing else. If gas prices spike early, efficiency, the first battery and the existing cable are the cushion, which is why they come first. If the old cable fails before replacement, the island runs on Pulrose and diesels while a repair mobilises: survivable today, catastrophic after 2033, and the strongest argument for ordering Link 1 by 2028. If a future Tynwald wins genuine consent for wind, 20 MW slots straight in and the plan improves.</p>
+</section>
+
+<section id="verdict">
+  <h2>The proposition</h2>
+  <div class="verdict-band">
+    <p><strong>Distributed flexibility plus strong interconnectors looks stronger than a generation-heavy model, and not by a little.</strong> Generation-heavy self-sufficiency at 85,000 people means either the wind fight the island has spent three years not winning, or El Hierro economics: bespoke kit at €6,000&#8211;7,000 per kW that peaked at 54% of annual supply. Pure import dependence fails the other way, as Jersey's 2012 cable failure and the 2021 French threat showed. The portfolio sits between: interconnection for cost and carbon, distributed solar and storage for sovereignty, flexibility because it is the cheapest capacity, standby thermal until redundancy is proven. Kauai runs this model at our scale. Jersey prices it. Shetland financed it. But this is a proposition, not a verdict: it needs the power-systems engineering the Observatory does not have, the explorer exists so you can build the counter-case, and the best counter-cases get published.</p>
+  </div>
+</section>
+
+<section id="assumptions">
+  <h2>Model assumptions</h2>
+  <p class="lede">Everything the explorer computes, stated plainly so it can be argued with.</p>
+  <p class="quick-hidden-note">Hidden in Quick read. Switch to Full brief for the assumption cards.</p>
+  <div class="grid2">
+    <div class="card"><h3 style="margin-top:0">Demand</h3>
+      <p style="font-size:14px">2026 baseline 360 GWh / 75 MW winter peak / 23 MW summer minimum (Manx system guide). Horizons: 2030 &#8776;385 GWh, 82 MW; 2035 &#8776;430 GWh, 95 MW; 2045 &#8776;500 GWh, 115 MW, an Observatory interpolation toward the ~130 MW by 2050 projection as heat and transport electrify. Monthly demand shape winter-weighted. Flexibility slider reduces peak only, plus a small energy saving. The large-load slider adds a near-flat demand block (90% utilisation, 95% coincident with peak) that flexibility does not touch.</p></div>
+    <div class="card"><h3 style="margin-top:0">Supply</h3>
+      <p style="font-size:14px">Solar: 10.5% annual capacity factor, UK monthly profile, so 1 MW &#8776; 0.92 GWh/yr, heavily summer-weighted. Hydro 4 GWh. Energy from Waste (the incinerator) 5.5 MW / ~32 GWh, assumed continuing. Existing cable 40 MW firm (60 MW sustained) to 2035. New links 100 MW each. BESS shifts energy within days; it is counted as firm capacity, not annual energy. V2G firm contribution = vehicles &#215; 7 kW &#215; 30%. Gas standby is firm capacity and the residual energy supplier when imports and solar fall short.</p></div>
+    <div class="card"><h3 style="margin-top:0">Costs</h3>
+      <p style="font-size:14px">Capex: ground solar £0.75m/MW; rooftop blend £1.2m/MW; utility BESS £0.68m/MW (2h, grid-forming); community storage £290/kWh; V2G charger £1,500; interconnector £200m per 100 MW link (MU estimate); syncons £20m; efficiency £3,000 per treated home. Indicative unit-cost delta: annuitised capex (6%, 25y cables/solar, 15y batteries) plus fuel/import costs (imports 9p/kWh delivered, gas 8p/kWh fuel, solar 0 marginal) divided by units sold, compared against a counterfactual that keeps the gas model, which after 2033&#8211;35 still means replacing the CCGT (~£80m) and the cable (~£200m). Fuel price volatility, the thing that produced the 2023 shock, is not priced in on either side. Directional only.</p></div>
+    <div class="card"><h3 style="margin-top:0">Asset lives</h3>
+      <p style="font-size:14px">Typical design lives: subsea cables ~40 years (the existing link will have done ~35), HVDC converter electronics ~20 before refresh, solar panels 25&#8211;35 with inverter swaps every 10&#8211;15, grid batteries 15&#8211;20 with mid-life augmentation as capacity fades, synchronous condensers 30&#8211;40, V2G chargers 10&#8211;15, insulation 40+, CCGTs ~30 (hence Pulrose's 2033). The model annuitises in two buckets: 25 years at 6% (cables, solar, syncons, efficiency) and 15 years (batteries, chargers, gas life-extension). That treats cables conservatively (25-year money on a 40-year asset) and batteries slightly generously (no augmentation line); the errors pull opposite ways, and a real financing case would replace both with actual tenors.</p></div>
+    <div class="card"><h3 style="margin-top:0">Carbon &amp; security</h3>
+      <p style="font-size:14px">Grid intensity: gas generation 400 g/kWh; imports 100 g (2030), 50 g (2035), 25 g (2045) reflecting GB/Irish decarbonisation trajectories; solar and hydro 0 (lifecycle emissions excluded consistently); Energy from Waste treated as carbon-neutral here since it exists for waste disposal regardless, a simplification worth arguing about. N-1 test: firm capacity minus the largest single asset must exceed peak after flexibility. Largest asset is whichever is biggest of: one link, the BESS fleet's largest station (assumed half the fleet), or gas standby.</p></div>
+  </div>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <p class="lede">Primary and secondary sources behind the figures. Where sources conflict (the existing cable is quoted at 40 MW continuous and up to 60 MW sustained), the text says so.</p>
+  <p class="quick-hidden-note">Hidden in Quick read. Switch to Full brief for the full source list.</p>
+  <ul class="src-list">
+    <li><a href="https://static1.squarespace.com/static/60100bdc6bd4ef04d018437a/t/67e6dfb1d75f7b6ecc6f24a0/1743183806844/Guide+to+IoM's+power+system+-+final+(RK,+dgq)+28+Mar+25.pdf">Guide to the Power System of the Isle of Man (Kennaugh, March 2025)</a></li>
+    <li><a href="https://www.manxutilities.im/latest-news-and-events/2026/manx-utilities-confirms-april-2026-tariff-update/">Manx Utilities: April 2026 tariff update</a></li>
+    <li><a href="https://www.manxutilities.im/energy-transition/transition-programme/">Manx Utilities: Transition Programme</a></li>
+    <li><a href="https://manxutilities.im/energy-transition/cair-vie-onshore-windfarm-project/">Manx Utilities: Cair Vie onshore wind project</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/key-climate-targets-at-risk-says-government-progress-report/">Manx Radio: climate targets "at risk" progress report (June 2025)</a></li>
+    <li><a href="https://www.manx.news/second-interconnector-could-cost-200m/">Manx.News: second interconnector £200m Tynwald answer (July 2026)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/onshore-wind-farm-remains-at-pre-application-stage/">Manx Radio: wind farm pre-application status (July 2026)</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/onshore-windfarm-planning-application-delayed-as-manx-utilities-says-more-work-needed-929460">IoM Today: Cair Vie delay and £40&#8211;46.5m FOI cost</a></li>
+    <li><a href="https://feeds.bbci.co.uk/news/world-europe-isle-of-man-41664303">BBC: Manx Utilities £95m debt write-off (2017)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/manx-utilities-millions-of-debt-outlined/">Manx Radio: MU bond schedule (£185m/2034, £75m/2030)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/manx-utilities-reports-717k-loss-for-23-24-financial-year/">Manx Radio: MU 2022&#8211;24 financial results</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/electricity-prices-to-jump-by-up-to-60-this-year/">Manx Radio: 2023 price rises</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/smart-meter-rollout-due-to-be-complete-next-year-despite-22000-yet-to-be-installed/">Manx Radio: smart meter rollout status (2025)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/around-seven-megawatts-of-renewable-energy-currently-generated-privately-on-island/">Manx Radio: ~7 MW private renewables</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Isle_of_Man_to_England_Interconnector">Isle of Man to England Interconnector</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/United_Kingdom%E2%80%93Ireland_natural_gas_interconnectors">UK&#8211;Ireland gas interconnectors (IoM spur)</a></li>
+    <li><a href="https://feeds.bbci.co.uk/news/world-europe-isle-of-man-66313782">BBC: Earystane/Scard community action group</a></li>
+    <li><a href="https://feeds.bbci.co.uk/news/world-europe-isle-of-man-67497853">BBC: Tynwald motion to stop wind farm defeated (Nov 2023)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/campaigners-against-offshore-windfarm-proposals-hit-out-at-undemocratic-process/">Manx Radio: NOT4IOM campaign</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/offshore-wind-farm-will-deliver-2billion-for-the-isle-of-man-claims-orsted/">Manx Radio: &#216;rsted £2bn claim</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/what-happens-next-as-offshore-windfarm-examination-enters-final-stage-923294">IoM Today: Mooir Vannin examination timeline</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/windfarm-projects-clash-with-general-election-described-as-unfortunate-timing/">Manx Radio: election / recusal clash</a></li>
+    <li><a href="https://renews.biz/105566/mod-objects-to-14gw-mooir-vannin/">reNews: MoD objection to Mooir Vannin</a></li>
+    <li><a href="https://cdn.orsted.com/-/media/www/docs/corp/uk/im/post-consultation/mooirvannin_community-consultation-summary-report_20250124.pdf">&#216;rsted: Mooir Vannin consultation summary (Jan 2025)</a></li>
+    <li><a href="https://feeds.bbci.co.uk/news/world-europe-isle-of-man-49598527">BBC: 2019 climate consultation (80% backed onshore wind)</a></li>
+    <li><a href="https://www.gem.wiki/Billown_solar_farm_(Isle_of_Man)">Global Energy Monitor: Billown solar farm</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Jersey_Electricity">Jersey Electricity (import model)</a></li>
+    <li><a href="https://www.jec.co.uk/for-home/tariffs/general-domestic/">Jersey Electricity: domestic tariff (22.20p from March 2026)</a></li>
+    <li><a href="https://www.goronadelviento.es/en/renewables-principal-source-oelectricity-generation-elhierro/">Gorona del Viento: El Hierro renewable share</a></li>
+    <li><a href="https://www.jec.co.uk/the-energy-blog/contract-signing/">Jersey Electricity: Normandie 3 contract; EDF1 failure</a></li>
+    <li><a href="https://www.jec.co.uk/your-home/tariffs/buy-back-domestic/">Jersey Electricity: Green Export Guarantee (9.53p)</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Guernsey_Electricity">Guernsey Electricity (single-link cautionary case)</a></li>
+    <li><a href="https://www.electricity.gg/about/news-blog/2026/guernsey-s-power-couple/">Guernsey Electricity: GF1 France link proposal (~£96m)</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Shetland_HVDC_Connection">Shetland HVDC link (600 MW, £600&#8211;660m)</a></li>
+    <li><a href="https://www.shetnews.co.uk/2026/07/25/good-progress-battery-storage-system/">Shetland News: 68 MW Zenobe standby battery</a></li>
+    <li><a href="https://www.oref.co.uk/grid-version-2/">Orkney Renewable Energy Forum: curtailment data</a></li>
+    <li><a href="https://docs.nlr.gov/docs/fy26osti/98555.pdf">NREL: field verification of grid-forming plants on Kauai</a></li>
+    <li><a href="https://spectrum.ieee.org/electric-inverter">IEEE Spectrum: Kauai April 2023 event</a></li>
+    <li><a href="https://cse.cigre.org/cse-n030/experiences-with-100-wind-power-generation-in-an-isolated-power-system-suduroy-faroe-islands.html">CIGRE: Su&#240;uroy 100% inverter operation</a></li>
+    <li><a href="https://www.pv-magazine-australia.com/2022/07/27/hornsdale-big-battery-begins-providing-inertia-grid-services-at-scale-in-world-first/">Hornsdale: approved virtual inertia</a></li>
+    <li><a href="https://theenergyst.com/zenobe-powers-up-a-world-first-solution-and-europes-biggest-battery-at-blackhillock-scotland/">Blackhillock: contracted inertia and short-circuit level</a></li>
+    <li><a href="https://www.prnewswire.com/news-releases/worlds-most-advanced-battery-energy-storage-system-comes-online-speeding-hawaiis-transition-to-100-renewable-energy-302032803.html">Kapolei: black-start contracted BESS</a></li>
+    <li><a href="https://renewablesnow.com/news/scottishpower-completes-black-start-project-using-69-mw-wind-farm-719904/">Dersalloch: wind black-start (2020)</a></li>
+    <li><a href="https://www.neso.energy/news/world-first-trial-brings-renewables-one-step-closer-restarting-gbs-electricity-grid">NESO Distributed ReStart trial</a></li>
+    <li><a href="https://cms.eirgrid.ie/sites/default/files/publications/Annual-Renewable-Constraint-and-Curtailment-Report-2024-V1.0.pdf">EirGrid: SNSP limit and inertia floor</a></li>
+    <li><a href="https://www.aemo.com.au/-/media/files/electricity/nem/security_and_reliability/congestion-information/related-resources/reduction-of-minimum-synchronous-generators-in-south-australia.pdf">AEMO: minimum synchronous units, South Australia</a></li>
+    <li><a href="https://modoenergy.com/research/en/battery-energy-storage-capex-containerised-bess-development-costs-oem-balance-plant-bop-grid-connections-survey-2024">Modo Energy: GB BESS capex survey</a></li>
+    <li><a href="https://www.nationalwealthfund.org.uk/news-and-publications/news/fidra-energy-reaches-financial-close-on-the-uks-largest-battery-energy-storage-project-backed-by-eig-and-the-national-wealth-fund/">Fidra Thorpe Marsh financial close</a></li>
+    <li><a href="https://solarenergyuk.org/news/large-scale-solar-provides-cheapest-power-says-government-report/">DESNZ generation costs: large solar</a></li>
+    <li><a href="https://assets.publishing.service.gov.uk/media/688a193f6478525675739024/DUKES_2025_Chapter_6.pdf">DUKES 2025: UK solar load factors</a></li>
+    <li><a href="https://www.chademo.com/sciurus-v2g-energy-bill-savings">Sciurus V2G trial results</a></li>
+    <li><a href="https://octopus.energy/power-pack/">Octopus Power Pack V2G tariff</a></li>
+    <li><a href="https://www.neso.energy/nearly-2-million-households-and-businesses-registered-demand-flexibility-service-dfs-last-winter">NESO Demand Flexibility Service, winter 2024/25</a></li>
+    <li><a href="https://www.ofgem.gov.uk/press-release/ofgem-confirms-plans-introduce-lower-standing-charge-tariffs">Ofgem: lower standing charge tariffs</a></li>
+    <li><a href="https://www.cura.im/about-us/">CURA remit (gas tariffs, not electricity)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/more-taxpayers-cash-could-be-spent-on-cleaner-heating/">Manx Radio: Heat Wise £16m scheme (July 2026)</a></li>
+    <li><a href="https://www.spglobal.com/commodityinsights/en/market-insights/latest-news/oil/050521-france-threatens-to-cut-electricity-supply-to-jersey-in-fishing-row">S&amp;P Global: France threatens Jersey supply (2021)</a></li>
+    <li><a href="https://www.wind-watch.org/news/2026/01/05/wind-pumped-hydro-on-el-hierro-a-failed-experiment/">El Hierro: performance record</a></li>
+    <li><a href="https://kauainownews.com/2026/05/25/kauai-island-utility-cooperative-among-the-highest-in-state-for-renewable-energy-generation-in-2025/">KIUC: 52.8% renewable, rate performance</a></li>
+    <li><a href="https://arena.gov.au/projects/king-island-renewable-energy-integration-project/">ARENA: King Island hybrid project</a></li>
+  </ul>
+</section>
+
+<footer>
+  <p><strong>Coalfinch Observatory</strong> · Powering Mann · Independent analysis, July 2026. Written and modelled by James Cochrane with AI research assistance; neither is a power systems consultancy, which is why commissioning one is the first action proposed. Every headline figure carries a source above and modelling assumptions are stated in full. This page is analysis, not advice, and it is not a statement for or against any application currently before the island's consenting processes. Corrections welcome: the Observatory publishes them.</p>
+</footer>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+(function(){
+"use strict";
+/* ---------- reading mode ---------- */
+function setMode(m){
+  document.body.classList.toggle('quick',m==='quick');
+  document.querySelectorAll('#modeSeg button').forEach(function(b){
+    b.classList.toggle('on',b.dataset.mode===m);});
+}
+document.querySelectorAll('#modeSeg button').forEach(function(b){
+  b.addEventListener('click',function(){setMode(b.dataset.mode);});});
+if(window.innerWidth<720)setMode('quick');
+
+/* ---------- theme ---------- */
+var themeBtn=document.getElementById('themeBtn');
+var order=['auto','dark','light'];var ti=0;
+themeBtn.addEventListener('click',function(){ti=(ti+1)%3;var t=order[ti];
+  if(t==='auto'){document.documentElement.removeAttribute('data-theme');themeBtn.textContent='◐ Theme';}
+  else{document.documentElement.setAttribute('data-theme',t);themeBtn.textContent=(t==='dark'?'● Dark':'○ Light');}
+  renderAll();});
+
+/* ---------- helpers ---------- */
+var tip=document.getElementById('tip');
+function showTip(html,x,y){tip.innerHTML=html;tip.style.opacity=1;
+  var w=tip.offsetWidth,h=tip.offsetHeight;
+  var px=Math.min(x+14,window.innerWidth-w-10),py=y-h-12;if(py<8)py=y+16;
+  tip.style.left=px+'px';tip.style.top=py+'px';}
+function hideTip(){tip.style.opacity=0;}
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function el(tag,attrs){var e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+function fmt(n,d){return n.toLocaleString('en-GB',{maximumFractionDigits:d==null?0:d,minimumFractionDigits:0});}
+function hover(node,html){
+  node.style.cursor='default';
+  node.addEventListener('mousemove',function(ev){showTip(html,ev.clientX,ev.clientY);});
+  node.addEventListener('mouseleave',hideTip);}
+
+/* ---------- constants ---------- */
+var MONTHS=['J','F','M','A','M','J','J','A','S','O','N','D'];
+var DSH=[0.105,0.095,0.09,0.08,0.072,0.065,0.062,0.065,0.075,0.088,0.098,0.105];
+var SSH=[0.03,0.05,0.085,0.115,0.13,0.135,0.13,0.11,0.085,0.055,0.04,0.035];
+var HOURS=[744,672,744,720,744,720,744,744,720,744,720,744];
+var HORIZONS={
+  '2030':{gwh:385,peak:82,impG:100,icNew:false,hint:'Existing 60 MW cable still in service; new links arrive next phase. Pulrose still available.'},
+  '2035':{gwh:430,peak:95,impG:50,icNew:true,hint:'Pulrose retired (~2033). Old cable at end of life (~2035). New links carry the system.'},
+  '2045':{gwh:500,peak:115,impG:25,icNew:true,hint:'Deep heat and transport electrification. Peak heading toward the ~130 MW 2050 projection.'}};
+var state={h:'2030'};
+
+/* ---------- model ---------- */
+function readState(){
+  state.roof=+document.getElementById('r_roof').value;
+  state.ground=+document.getElementById('r_ground').value;
+  state.bess=+document.getElementById('r_bess').value;
+  state.comm=+document.getElementById('r_comm').value;
+  state.v2g=+document.getElementById('r_v2g').value;
+  state.flex=+document.getElementById('r_flex').value;
+  state.gas=+document.getElementById('r_gas').value;
+  state.dc=+document.getElementById('r_dc').value;
+  state.ic1=document.getElementById('t_ic1').checked;
+  state.ic2=document.getElementById('t_ic2').checked;
+}
+function compute(){
+  var H=HORIZONS[state.h];
+  var isNew=H.icNew;
+  var ic1Cap=state.ic1?(isNew?100:60):0;      /* import capability MW */
+  var ic1Firm=state.ic1?(isNew?100:40):0;     /* firm continuous MW  */
+  var ic2Cap=(state.ic2&&isNew)?100:0;
+  var ic2Firm=ic2Cap;
+  var solarMW=state.roof+state.ground;
+  var solarG=solarMW*8.76*0.105;
+  var dcEnergy=state.dc*8.76*0.9;             /* near-flat load at 90% utilisation */
+  var energy=H.gwh*(1-state.flex*0.004)+dcEnergy;
+  var months=[],imports=0,gasG=0,solUsed=0,exportG=0,curtG=0;
+  var efwG=32,hydG=4;
+  for(var m=0;m<12;m++){
+    var dem=energy*DSH[m];
+    var sol=solarG*SSH[m];
+    var base=(efwG+hydG)/12;
+    var net=dem-base-sol;
+    var row={dem:dem,base:base};
+    if(net>=0){
+      row.sol=sol;solUsed+=sol;
+      var impCap=(ic1Cap+ic2Cap)*HOURS[m]*0.85/1000;
+      row.imp=Math.min(net,impCap);imports+=row.imp;
+      row.gas=Math.max(0,net-row.imp);gasG+=row.gas;
+    }else{
+      row.sol=dem-base;solUsed+=row.sol;
+      var spare=sol-row.sol;
+      var expCap=(ic1Cap+ic2Cap)*HOURS[m]*0.3/1000;
+      var ex=Math.min(spare,expCap);exportG+=ex;curtG+=spare-ex;
+      row.imp=0;row.gas=0;
+    }
+    months.push(row);
+  }
+  /* winter security */
+  var peak=H.peak*(1-state.flex/100)+state.dc*0.95;  /* flexibility trims native load, not the datacentre */
+  var v2gMW=state.v2g*7*0.3/1000;
+  var commMW=state.comm/2;
+  var pulrose=(!isNew)?0:0; /* Pulrose folded into gas slider at 2030 via max 85 */
+  var firmParts={
+    'Interconnectors':ic1Firm+ic2Firm,
+    'Utility + community batteries':state.bess+commMW,
+    'V2G fleet':v2gMW,
+    'Gas / diesel standby':state.gas,
+    'EfW + hydro':6.7};
+  var firmTotal=0;for(var k in firmParts)firmTotal+=firmParts[k];
+  var largestName='',largest=0;
+  var cands={'Interconnector link':Math.max(ic1Firm,ic2Firm),
+             'largest battery station':state.bess*0.5,
+             'largest gas station':state.gas*0.5};
+  for(var c in cands){if(cands[c]>largest){largest=cands[c];largestName=c;}}
+  var margin=firmTotal-largest-peak;
+  /* carbon */
+  var totalG=solUsed+efwG+hydG+imports+gasG;
+  var carbon=totalG>0?(gasG*400+imports*H.impG)/totalG:0;
+  var cleanShare=(solUsed+hydG+imports)/(totalG)*100;
+  var solShare=solUsed/totalG*100;
+  /* capex */
+  var capex=0;
+  capex+=state.roof*1.2+state.ground*0.75;
+  capex+=state.bess*0.68+state.comm*0.29;
+  capex+=state.v2g*1500/1e6;
+  capex+=state.flex*3.2;
+  if(isNew&&state.ic1)capex+=200;
+  if(isNew&&state.ic2)capex+=200;
+  if(isNew)capex+=20;                     /* syncons */
+  if(isNew&&state.gas>0)capex+=15;        /* standby life-extension */
+  /* indicative unit-cost delta vs today's fuel stack (~7.2p fuel within 29.5p) */
+  var annCharge=(state.roof*1.2+state.ground*0.75+state.flex*3.2+((isNew&&state.ic1)?200:0)+((isNew&&state.ic2)?200:0)+(isNew?20:0))*0.0782
+               +(state.bess*0.68+state.comm*0.29+state.v2g*1500/1e6+((isNew&&state.gas>0)?15:0))*0.103;
+  var fuel=imports*0.09+gasG*0.08;
+  var scenP=(annCharge+fuel)/totalG*100;
+  /* counterfactual: keep the gas model. Post-2033/35 that still means replacing the
+     cable (~£200m) and the CCGT (~£80m); before then it is just fuel. */
+  var cfCapex=isNew?(280*0.0782):0;
+  var baseP=(cfCapex+H.gwh*0.9*0.08)/H.gwh*100;
+  var deltaP=scenP-baseP;
+  return {months:months,imports:imports,gas:gasG,solUsed:solUsed,efwG:efwG,hydG:hydG,
+    exportG:exportG,curtG:curtG,peak:peak,firmParts:firmParts,firmTotal:firmTotal,
+    largest:largest,largestName:largestName,margin:margin,carbon:carbon,
+    cleanShare:cleanShare,solShare:solShare,capex:capex,deltaP:deltaP,H:H};
+}
+
+/* ---------- outputs ---------- */
+function renderOuts(r){
+  document.getElementById('x_clean').textContent=fmt(r.cleanShare,0)+'%';
+  document.getElementById('x_solar').textContent=fmt(r.solShare,0)+'%';
+  document.getElementById('x_margin').textContent=(r.margin>=0?'+':'')+fmt(r.margin,0)+' MW';
+  var b=document.getElementById('x_marginBadge');
+  var pct=r.margin/r.peak*100;
+  if(r.margin<0){b.innerHTML='<span style="color:var(--crit)">&#9632; shortfall: load shedding risk</span>';}
+  else if(pct<10){b.innerHTML='<span style="color:var(--serious)">&#9632; tight: little room for error</span>';}
+  else{b.innerHTML='<span style="color:var(--good)">&#9632; secure under N-1</span>';}
+  document.getElementById('x_carbon').textContent=fmt(r.carbon,0)+' g';
+  document.getElementById('x_capex').textContent='£'+fmt(r.capex,0)+'m';
+  var d=r.deltaP;
+  document.getElementById('x_bill').textContent=(d>=0?'+':'−')+fmt(Math.abs(d),1)+'p/kWh';
+  var noteBits='Exports '+fmt(r.exportG,0)+' GWh · curtailed '+fmt(r.curtG,1)+' GWh · imports '+fmt(r.imports,0)+' GWh · gas '+fmt(r.gas,0)+' GWh. '
+    +'N-1 removes the '+r.largestName+' ('+fmt(r.largest,0)+' MW). '
+    +'The cost figure compares fuel plus new-asset financing against a counterfactual that replaces the gas plant and cable like-for-like; neither side prices fuel volatility or carbon.';
+  document.getElementById('modelNote').textContent=noteBits;
+}
+
+/* ---------- mix chart ---------- */
+function renderMix(r){
+  var svg=document.getElementById('mixChart');svg.innerHTML='';
+  var W=960,Hh=320,pl=46,pr=10,pt=14,pb=30;
+  var iw=W-pl-pr,ih=Hh-pt-pb;
+  var series=[
+    {k:'imp',n:'Imports',c:cssVar('--s1')},
+    {k:'gas',n:'Gas',c:cssVar('--s2')},
+    {k:'base',n:'EfW + hydro',c:cssVar('--s6')},
+    {k:'sol',n:'Island solar',c:cssVar('--s4')}];
+  var max=0;r.months.forEach(function(mo){max=Math.max(max,mo.imp+mo.gas+mo.base+mo.sol);});
+  max=Math.ceil(max/10)*10||10;
+  for(var g=0;g<=4;g++){var y=pt+ih-ih*g/4;
+    svg.appendChild(el('line',{x1:pl,x2:W-pr,y1:y,y2:y,stroke:cssVar('--grid'),'stroke-width':1}));
+    var t=el('text',{x:pl-8,y:y+4,'text-anchor':'end','class':'axis-t'});t.textContent=fmt(max*g/4,0);svg.appendChild(t);}
+  var bw=iw/12*0.62;
+  r.months.forEach(function(mo,i){
+    var x=pl+iw*(i+0.5)/12-bw/2;var y0=pt+ih;
+    var tot=mo.imp+mo.gas+mo.base+mo.sol;
+    series.forEach(function(s,si){
+      var v=mo[s.k];if(v<=0.01)return;
+      var h=ih*v/max;y0-=h;
+      var isTop=(function(){for(var j=si+1;j<series.length;j++){if(mo[series[j].k]>0.01)return false;}return true;})();
+      var rect=el('rect',{x:x,y:y0+1,width:bw,height:Math.max(0,h-2),fill:s.c,rx:isTop?4:0});
+      hover(rect,'<b>'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]+'</b>'
+        +s.n+': '+fmt(v,1)+' GWh<br>Month total: '+fmt(tot,1)+' GWh');
+      svg.appendChild(rect);});
+    var t=el('text',{x:x+bw/2,y:Hh-10,'text-anchor':'middle','class':'axis-t'});t.textContent=MONTHS[i];svg.appendChild(t);});
+  svg.appendChild(el('line',{x1:pl,x2:W-pr,y1:pt+ih,y2:pt+ih,stroke:cssVar('--axis'),'stroke-width':1}));
+  var lg=document.getElementById('mixLegend');lg.innerHTML='';
+  series.slice().reverse().forEach(function(s){var sp=document.createElement('span');
+    sp.innerHTML='<i style="background:'+s.c+'"></i>'+s.n;lg.appendChild(sp);});
+  var u=el('text',{x:pl-8,y:pt-2,'text-anchor':'end','class':'axis-t'});u.textContent='GWh';svg.appendChild(u);
+}
+
+/* ---------- firm chart ---------- */
+function renderFirm(r){
+  var svg=document.getElementById('firmChart');svg.innerHTML='';
+  var cw=(svg.parentElement&&svg.parentElement.clientWidth)||960;
+  var compact=cw<640;
+  var W=compact?560:960,Hh=240,pl=compact?100:150,pr=compact?66:90,pt=16,pb=34;
+  svg.setAttribute('viewBox','0 0 '+W+' '+Hh);
+  var iw=W-pl-pr;
+  var colors={'Interconnectors':cssVar('--s1'),'Utility + community batteries':cssVar('--s3'),
+    'V2G fleet':cssVar('--s5'),'Gas / diesel standby':cssVar('--s2'),'EfW + hydro':cssVar('--s6')};
+  var max=Math.max(r.firmTotal,r.peak)*1.15||10;
+  var rows=compact
+    ?[{label:'All assets',scale:1,drop:null},{label:'After N-1',scale:1,drop:r.largestName}]
+    :[{label:'All firm assets',scale:1,drop:null},{label:'After N-1 loss',scale:1,drop:r.largestName}];
+  var bh=44,gap=36;
+  rows.forEach(function(row,ri){
+    var y=pt+ri*(bh+gap);var x=pl;
+    var t=el('text',{x:pl-10,y:y+bh/2+4,'text-anchor':'end','class':'dl'});t.textContent=row.label;svg.appendChild(t);
+    var remaining=row.drop?r.largest:0;
+    var total=0;
+    Object.keys(r.firmParts).forEach(function(k){
+      var v=r.firmParts[k];
+      if(row.drop){
+        /* remove the largest asset from its own category */
+        if(row.drop==='Interconnector link'&&k==='Interconnectors')v=Math.max(0,v-r.largest);
+        if(row.drop==='largest battery station'&&k==='Utility + community batteries')v=Math.max(0,v-r.largest);
+        if(row.drop==='largest gas station'&&k==='Gas / diesel standby')v=Math.max(0,v-r.largest);
+      }
+      if(v<=0.05)return;
+      var w=iw*v/max;total+=v;
+      var rect=el('rect',{x:x+1,y:y,width:Math.max(0,w-2),height:bh,fill:colors[k],rx:3});
+      hover(rect,'<b>'+k+'</b>'+fmt(v,1)+' MW firm'+(row.drop?'<br>(after losing the '+row.drop+')':''));
+      svg.appendChild(rect);x+=w;});
+    var tl=el('text',{x:x+8,y:y+bh/2+4,'class':'dl'});tl.textContent=fmt(total,0)+' MW';svg.appendChild(tl);});
+  var px=pl+iw*r.peak/max;
+  svg.appendChild(el('line',{x1:px,x2:px,y1:pt-6,y2:pt+2*bh+gap+8,stroke:cssVar('--ink-1'),'stroke-width':1.5,'stroke-dasharray':'5 4'}));
+  var pt1=el('text',{x:px,y:pt+2*bh+gap+26,'text-anchor':'middle','class':'dl'});
+  pt1.textContent=(compact?'peak: ':'winter peak after flexibility: ')+fmt(r.peak,0)+' MW';svg.appendChild(pt1);
+  var lg=document.getElementById('firmLegend');lg.innerHTML='';
+  Object.keys(colors).forEach(function(k){if(r.firmParts[k]>0.05){var sp=document.createElement('span');
+    sp.innerHTML='<i style="background:'+colors[k]+'"></i>'+k;lg.appendChild(sp);}});
+}
+
+/* ---------- asset clock ---------- */
+function renderClock(){
+  var svg=document.getElementById('clockChart');svg.innerHTML='';
+  var W=960,Hh=250,pl=220,pr=30,pt=14,pb=30;
+  svg.setAttribute('viewBox','0 0 960 250');
+  var iw=W-pl-pr;
+  var y0=2026,y1=2036.5;
+  function X(yr){return pl+iw*(yr-y0)/(y1-y0);}
+  var items=[
+    {n:'Water bond £75m',end:2030,note:'Repayable by March 2030'},
+    {n:'Pulrose CCGT (~90% of supply)',end:2033,note:'Commissioned 2003 · end of life ~2033',crit:true},
+    {n:'Electricity bond £185m',end:2034,note:'Repayable by August 2034 at ~5.4%'},
+    {n:'Interconnector (2000)',end:2035,note:'104 km AC cable, commissioned Nov 2000 · end of life ~2035',crit:true}];
+  for(var yr=2026;yr<=2036;yr+=2){var x=X(yr);
+    svg.appendChild(el('line',{x1:x,x2:x,y1:pt,y2:Hh-pb,stroke:cssVar('--grid'),'stroke-width':1}));
+    var t=el('text',{x:x,y:Hh-10,'text-anchor':'middle','class':'axis-t'});t.textContent=yr;svg.appendChild(t);}
+  var bh=30,gap=16;
+  items.forEach(function(it,i){
+    var y=pt+10+i*(bh+gap);
+    var t=el('text',{x:pl-12,y:y+bh/2+4,'text-anchor':'end','class':'dl'});t.textContent=it.n;svg.appendChild(t);
+    var w=X(it.end)-X(2026);
+    var seq=['#93c5fd','#7dabf7','#60a5fa','#3b82f6','#2563eb'];
+    var rect=el('rect',{x:X(2026),y:y,width:w,height:bh,fill:it.crit?cssVar('--s2'):seq[i],rx:4});
+    hover(rect,'<b>'+it.n+'</b>'+it.note);
+    svg.appendChild(rect);
+    var tl=el('text',{x:X(it.end)+8,y:y+bh/2+4,'class':'dl'});tl.textContent=it.end;svg.appendChild(tl);});
+  var nx=X(2026.58);
+  svg.appendChild(el('line',{x1:nx,x2:nx,y1:pt,y2:Hh-pb,stroke:cssVar('--ink-1'),'stroke-width':1.5,'stroke-dasharray':'5 4'}));
+  var nt=el('text',{x:nx+6,y:pt+10,'class':'dl'});nt.textContent='today';svg.appendChild(nt);
+}
+
+/* ---------- firm-cost chart ---------- */
+function renderFirmCost(){
+  var svg=document.getElementById('firmCostChart');svg.innerHTML='';
+  var W=960,Hh=300,pl=250,pr=110,pt=14,pb=16;
+  var iw=W-pl-pr;
+  var items=[
+    {n:'Gas / diesel life-extension',v:0.4,note:'~£15–20m keeps ~40 MW of existing standby plant alive'},
+    {n:'Utility BESS (grid-forming, 2h)',v:0.7,note:'GB median ~£650k/MW plus 3–8% grid-forming premium'},
+    {n:'Interconnector (100 MW)',v:2.0,note:'MU planning estimate £200m per link'},
+    {n:'Efficiency & flexibility*',v:3.4,note:'~£3.2m per % of peak removed; repays through permanent energy savings too'},
+    {n:'Onshore wind (winter-firm basis)*',v:7.2,note:'£43m for 20 MW; ~30% dependable on a winter evening'},
+    {n:'Solar (winter-firm basis)*',v:10.7,note:'~£0.75m/MW; ~7% dependable on a winter evening. Solar is bought for energy and summer value, never for winter firmness'}];
+  var max=11;
+  var seq=['#93c5fd','#7dabf7','#60a5fa','#3b82f6','#2563eb','#1d4ed8'];
+  var bh=32,gap=12;
+  items.forEach(function(it,i){
+    var y=pt+i*(bh+gap);
+    var t=el('text',{x:pl-12,y:y+bh/2+4,'text-anchor':'end','class':'dl'});t.textContent=it.n;svg.appendChild(t);
+    var w=iw*it.v/max;
+    var rect=el('rect',{x:pl,y:y,width:w,height:bh,fill:seq[i],rx:4});
+    hover(rect,'<b>'+it.n+'</b>£'+it.v.toFixed(1)+'m per firm winter MW<br>'+it.note);
+    svg.appendChild(rect);
+    var tl=el('text',{x:pl+w+8,y:y+bh/2+4,'class':'dl'});tl.textContent='£'+it.v.toFixed(1)+'m';svg.appendChild(tl);});
+  var foot=el('text',{x:pl,y:Hh-2,'class':'axis-t'});
+  foot.textContent='* repays through energy savings or revenue as well; this chart prices dependable winter capacity only.';
+  svg.appendChild(foot);
+}
+
+/* ---------- wiring ---------- */
+function renderAll(){
+  readState();
+  document.getElementById('o_roof').textContent=state.roof+' MW';
+  document.getElementById('o_ground').textContent=state.ground+' MW';
+  document.getElementById('o_bess').textContent=state.bess+' MW';
+  document.getElementById('o_comm').textContent=state.comm+' MWh';
+  document.getElementById('o_v2g').textContent=fmt(state.v2g,0);
+  document.getElementById('o_flex').textContent=state.flex+'%';
+  document.getElementById('o_gas').textContent=state.gas+' MW';
+  document.getElementById('o_dc').textContent=state.dc+' MW';
+  document.getElementById('horizonHint').textContent=HORIZONS[state.h].hint;
+  var r=compute();
+  renderOuts(r);renderMix(r);renderFirm(r);renderClock();renderFirmCost();
+}
+['r_roof','r_ground','r_bess','r_comm','r_v2g','r_flex','r_gas','r_dc'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',renderAll);});
+['t_ic1','t_ic2'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',renderAll);});
+document.getElementById('resetBtn').addEventListener('click',function(){
+  var DEF={r_roof:15,r_ground:20,r_bess:30,r_comm:10,r_v2g:1000,r_flex:8,r_gas:40,r_dc:0};
+  for(var k in DEF)document.getElementById(k).value=DEF[k];
+  document.getElementById('t_ic1').checked=true;
+  document.getElementById('t_ic2').checked=true;
+  state.h='2030';
+  document.querySelectorAll('#horizonSeg button').forEach(function(x){
+    x.classList.toggle('on',x.dataset.h==='2030');});
+  renderAll();
+});
+document.querySelectorAll('#horizonSeg button').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#horizonSeg button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');state.h=b.dataset.h;renderAll();});});
+if(matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',renderAll);
+var rsz;window.addEventListener('resize',function(){clearTimeout(rsz);rsz=setTimeout(renderAll,150);});
+renderAll();
+
+/* ---------- Observatory embed bridge ----------
+   When loaded inside the Crown Dependencies Observatory shell (AutoIframe),
+   hide this page's own header, report content height to the parent, and
+   follow the parent's theme messages. Standalone behaviour is unchanged. */
+var embedded=false;
+try{embedded=window.self!==window.top;}catch(e){embedded=true;}
+if(embedded){
+  /* Keep the section nav (it is the reader's map inside the scrolling iframe),
+     drop the duplicate branding and theme control — the shell provides both. */
+  var st=document.createElement('style');
+  st.textContent='header.site .brand,#themeBtn{display:none!important}@media(max-width:720px){header.site{display:none}}';
+  document.head.appendChild(st);
+  document.documentElement.style.scrollBehavior='auto';
+  var postH=function(){try{parent.postMessage({type:'resize',height:document.documentElement.scrollHeight+40},'*');}catch(e){}};
+  window.addEventListener('message',function(ev){
+    var d=ev.data||{};
+    if((d.type==='setTheme'||d.type==='theme')&&d.theme){
+      var t=(d.theme==='dark')?'dark':'light';
+      document.documentElement.setAttribute('data-theme',t);
+      renderAll();
+      setTimeout(postH,80);
+    }
+  });
+  if('ResizeObserver' in window){new ResizeObserver(function(){postH();}).observe(document.body);}
+  window.addEventListener('load',postH);
+  setTimeout(postH,300);setTimeout(postH,1200);
+}
+})();
+</script>
+</body>
+</html>

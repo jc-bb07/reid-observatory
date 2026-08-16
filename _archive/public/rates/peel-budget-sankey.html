@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Peel Town Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Peel Town Commissioners — where the money goes</div>
+    <div class="chart-sub">Comprehensive Income and Expenditure Statement, years ended 31 March 2022, 2023 and 2024 · recovered by OCR from Peel's own scanned Statement of Accounts and arithmetically verified · includes Housing services, which sit inside Peel's single combined statement rather than a separate ring-fenced account</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub" id="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Rates income (general + refuse)</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">General rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure (all services)</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-res">—</div><div class="stat-dlt" id="s-res-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Peel Town Commissioners — Comprehensive Income and Expenditure Statement, regrouped by service (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Peel Town Commissioners — Balance Sheet as at 31 March (2024 / 2023 / 2022)</h3>
+    <p>Net assets stood at <b>£49.5m</b> at 31 March 2024, up from £48.1m (2023) and £30.9m (2022) — the jump between 2022 and 2023 is overwhelmingly a revaluation gain (£14.8m in 2022/23 alone) rather than trading surplus. Long-term borrowing was <b>£9.84m</b> at 31 March 2024, down from £10.81m (2023) and £11.88m (2022) as scheduled repayments continued — though a post-balance-sheet event discloses a new HSBC loan being arranged to fund a further £1.75m social housing purchase, which will not appear until the 2024/25 accounts.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Peel's own audited Comprehensive Income and Expenditure Statement (CIES) — unlike several parishes and Castletown, Peel does not publish a separate unaudited "Detailed Income and Expenditure Account" broken down by committee; its published schedule of that name (pages 40-42 of each Statement of Accounts) is a General Ledger-style listing by cost type (employee costs, premises, agency and contracted services, recharges, central and technical, vehicle costs), each itself broken down by function. That functional detail has been regrouped here into seven service groups for readability and cross-authority comparison, using the same convention as Castletown's and Douglas's diagrams — the regrouping does not change any published figure, only how the same verified numbers are bundled. Every figure ultimately traces back to Peel's own audited CIES cost-type totals, which are shown in full in the Table view.</p>
+    <p><b>Housing is folded into the same statement as everything else — this is different from Douglas.</b> Douglas Borough Council publishes a legally separate, self-funding Housing Revenue Account with its own statutory statement, deliberately excluded from Douglas's General Fund Sankey on this site. Peel's accounts were checked specifically for the same structure and do <b>not</b> have one: Peel's contents page lists a single Comprehensive Income and Expenditure Statement, a single Statement of Movement on Reserves and a single Balance Sheet — "Housing services" is simply one line within the same CIES as refuse, parks and administration, with Note 8 ("Housing Revenue Income and Expenditure") providing supplementary detail rather than a separate audited statement. Because Peel does not disclose how its interest payable is split between General Fund and Housing borrowing, artificially separating the two here (as Douglas's structure allows) would risk misattributing shared financing costs — so Housing is included as its own group in the diagram above, exactly as Peel's own single statement presents it, and is clearly labelled throughout.</p>
+    <p><b>Housing runs a large structural surplus that subsidises the rest of the Commissioners' spending.</b> Across all three years, income from the 357 social housing dwellings — dwelling rents (which include an internal rates recharge) plus a Housing Deficiency Grant from the Department of Infrastructure — comfortably exceeds Housing's own repairs, management, internal rates charge and a heavy depreciation/impairment charge: a net surplus of £698,810→£929,352→£975,112 is <em>not</em> what Housing itself makes (that surplus figure is coincidentally close to but not the same as the whole-authority result); Housing's own net surplus before interest and loan repayments was £834,826 (2022), £929,352 (2023) and £975,112 (2024) — see the Table view for the full income/expenditure split. This is the reverse of Douglas, whose Housing Revenue Account ran a deficit in all three of its own comparable years.</p>
+    <p><b>The Housing Deficiency Grant is central government money, not general rates.</b> It is paid by the Department of Infrastructure to meet any shortfall between Peel's housing income and expenditure under the Isle of Man's housing deficiency scheme (Note 8/Note 9 in Peel's accounts) — it is drawn here as its own income flow into the fund, separate from General rate income and Refuse rate income, and should not be read as part of the rates take.</p>
+    <p><b>No harbour on this balance sheet — checked, not assumed.</b> Peel was historically the Island's principal fishing port and still has a working harbour, so its Statement of Accounts was checked specifically for harbour infrastructure (breakwaters, quays, slipways) on the Commissioners' own asset register. None appears: Note 2 ("Assets held") lists Social Housing Dwellings, car parks, depots, public conveniences, public offices, recreational properties, miscellaneous properties, vehicles, parks and open spaces, commercial/retail properties and garages — no harbour or marine asset of any kind. This matches the pattern already found for Douglas, whose harbour also turned out to be managed by the Department of Infrastructure rather than sitting on the local authority's own books; Peel's harbour appears to be the same, DoI-managed rather than Commissioners'-managed, though this diagram reports only what Peel's own accounts show and does not attempt to trace DoI's separate harbour accounts.</p>
+    <p><b>Two genuine joint boards confirmed by name — both "Western".</b> Peel's Members and Officers page and Explanatory Foreword both state that "the Commissioners work with the neighbouring authorities in the West of the Island to provide a Western civic amenity site, Western swimming pool and Western sheltered housing complex," each of which "individually prepare and publish their own statement of accounts which are separate to Peel Town Commissioners." Note 10 (Related Party Transactions) confirms both financially: Peel was charged <b>£120,908 (2022) → £126,934 (2023) → £157,408 (2024)</b> by the <b>Western Civic Amenity Site</b>, and paid <b>£10,382 → £10,455 → £10,532</b> in swimming pool contributions to the <b>Western Swimming Pool Joint Board</b> (also styled "Western Local Authority Swimming Pool Board" in the same note), while separately invoicing that board £1,362→£673→£466 for refuse collection. A third, non-financial joint arrangement is also named: Note 10 discloses recharges to and from a "Peel & Western District Housing Committee" (£21,422→£14,924→£17,457), and the Explanatory Foreword states an objective "to establish the western housing authority committee for all social housing in the West" — evidently a developing joint body for social housing, distinct from the two established joint boards. All three are drawn from Peel's own wording, not inferred.</p>
+    <p><b>Wheelie bin purchase — genuinely absent, not just OCR-blank.</b> "Wheelie bin purchase" appears as its own line in the Detailed Income and Expenditure Account in all three years but is £20,999 in 2021/22 only; it is £0 (blank in the source) in both 2022/23 and 2023/24, consistent with a one-off bulk purchase rather than an annual cost.</p>
+    <p><b>Provenance and confidence — verify, don't trust.</b> Both Statement of Accounts (year ended 31 March 2023 and year ended 31 March 2024, each scanned with no text layer) were OCR-recovered at 300dpi and re-verified at 400dpi with Tesseract 5, then checked line by line: every group total re-adds to Peel's own published cost-type totals in the CIES; the overlapping 31 March 2023 comparative column was read independently from <em>both</em> documents and found identical to the pound on every note checked (rates account, refuse rate account, balance sheet, related-party disclosures, employee costs, central and technical costs); and income minus expenditure reproduces the published Surplus on provision of services to within £1-2 in every year (the sole residual gap is Peel's own rounding between Notes 6/7's rates-collection figures and the CIES's combined "Rates income" line, the same immaterial pattern already documented on other authorities in this set). <b>Six genuine OCR misreads were caught this way and corrected:</b> Housing dwelling rents 2022/23, first read as £2,165,098, corrected to £2,163,098 (confirmed against the 2023/24 accounts' own comparative column); "Wheelie bin purchase" 2021/22, read as £18,999 then £13,999 across two passes, corrected to £20,999 (the only value that makes the Agency and Contracted Services total re-add to £603,713); "Attendants" employee cost 2021/22, read as £31,307 at high resolution, corrected to £31,507 (matching both the original lower-resolution pass and the total); "Grass cutting" and "Works" employee costs 2022/23, misread at high resolution as £71,370/£22,348, corrected to £71,870/£22,848 (confirmed against the 2023/24 accounts' comparative column); "Swimming pool contributions" 2023/24, misread as £19,532, corrected to £10,532 (confirmed visually and arithmetically); "Rents, rates, taxes and other charges" (Housing, Note 8) 2023/24, misread as £376,698, corrected to £370,698 (the only value that makes Housing expenditure re-add to £1,639,391); "Drainage recharge costs" 2022/23, misread at high resolution as £4,393, corrected to £4,893; and the Surplus on provision of services for 2021/22, printed clearly enough in the CIES to read as £698,310, corrected to £698,810 — confirmed independently by the Statement of Movement on Reserves, which carries the identical figure into the General Revenue Reserve column, and by a full arithmetic rebuild from rates income, interest, one-off gains and net cost of services.</p>
+    <p><b>Comparability.</b> This diagram is built from Peel's own audited CIES, on the same "audited outturn" basis as most other authorities in this set (not Braddan's budget estimates). Because Peel keeps Housing inside its main statement rather than ring-fencing it, direct income/expenditure totals are not perfectly comparable with Douglas, whose headline figures are General Fund only.</p>
+    <p><b>Source.</b> Peel Town Commissioners, Statement of Accounts for the years ended 31 March 2023 and 31 March 2024 (Crowe Isle of Man Audit LLC), Comprehensive Income and Expenditure Statement, Statement of Movement on Reserves, Balance Sheet, Notes 1-10 and 15-17, and the Detailed Income and Expenditure Account (pages 40-42, unaudited supplementary schedule). Both documents scanned, OCR-recovered 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Peel confirms two "Western" joint boards by name — the Western Civic Amenity Site (£157,408 charged in 2023/24) and the Western Swimming Pool Joint Board — and, unlike Douglas, keeps Housing inside its single combined statement rather than a separate ring-fenced account.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — Comprehensive Income and Expenditure Statement, regrouped by function, OCR-recovered / arithmetically verified ══════════ */
+const YEARS=['2021-22','2022-23','2023-24'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const RATE={'2021-22':{pound:257,rv:415285,refuse:196},'2022-23':{pound:264,rv:421292,refuse:198},'2023-24':{pound:267,rv:421378,refuse:223}};
+
+const D={
+'2021-22':{
+ income:{'General rate income':1019266,'Refuse rate income':507776,'Interest and investment income':4,'Profit on sale of asset':542,'Write back of liability':87170,'Dwelling rents (housing, incl. rates)':2167352,'Housing Deficiency Grant (Central Government)':136350},
+ sanitation:{'Refuse collection wages':0,'Refuse disposal':260876,'Refuse contract':173233,'Wheelie bin purchase':20999,'Western Civic Amenity Site charges':120908,'Street cleaning':27697,'Commercial refuse income':-55229},
+ works:{'Works (employee costs)':10063,'Commercial properties (employee costs)':26016,'General properties (employee costs)':46735,'Admin - Foreman (employee costs)':266,'Attendants (employee costs)':31507,'Street lighting costs':71534,'Commercial property costs':5104,'Mill Road yard costs':7239,'Seats, bins, flags, signs, clocks etc':3114,'Shelters, CCTV, road repairs':1697,'Repairs to toilets':20952,'Clothing':2770,'Replacement equipment':576,'Vehicle running costs (tax, fuel, repairs)':19732,'Drainage recharge costs':11,'Westlands recharge costs':18959,'Housing pilot scheme recharge costs':981,'Other recharge costs':3733,'Westlands recharge income':-21489,'Grass cutting recharge income':-1000,'Housing pilot scheme recharge income':-10417,'Commercial rents':-51189,'Garage rents':-50696,'Car park fees':-5654},
+ parks:{'Grass cutting (employee costs)':64134,'Gardening (employee costs)':4939,'Cleaning (employee costs)':13167,'Playground costs':1968,'Amenity areas':21878,'Skateboard/BMX costs':3097,'Beach costs':5839,'Bowls and tennis costs':3157,'Peel Hill rents':-5757,'Shell tipping fees':-3000},
+ civic:{'Public functions (employee costs)':13725,'Ward library (employee costs)':14805,'Leece Museum (employee costs)':2539,'Ward library running costs':13372,'Leece Museum running costs':12517,'Campsite costs':21183,'Phillip Christian Centre costs':785,'Western Swimming Pool Joint Board contribution':10382,'Public function fireworks':6655,'Peel Day':8615,'Carnival Day':5057,'Christmas costs':18197,'Other public function costs':21082,'Campsite fees':-97053,'Leece Museum income':-456,'Public function income':-104},
+ admin:{'Office salaries (employee costs)':233617,'Unallocated re covid, illness etc (employee costs)':58037,'Rates payable':-1119,'Website costs':7930,'Printing, stationery, photocopier etc':1646,'Postage':2132,'Election expenses':6634,"Commissioners' attendance allowances":1250,'Town Hall maintenance':253,'Computer costs':25977,'Telephone':5893,'Staff training':1785,'Miscellaneous':4944,'Registrars costs':47,'Rate collection costs':16239,'Rates provision for bad debts':-36803,'Other bad debt provisions':6276,'Admin allowance':-98087,'Search fees':-14777,'Hire of Boardroom':-300,'Registrars fees':-3447,'Other income':-1255,'Miscellaneous income':-25},
+ compliance:{'Audit fees':8850,'Accountancy fees':13629,'Legal and professional fees':7780,'Insurance':18394},
+ housing:{'Repairs and maintenance':393708,'Supervision and management':98088,'Rents, rates, taxes and other charges':335861,'Depreciation and impairment charges (housing)':641219},
+ capdebt:{'Depreciation (General Fund)':133135,'Net current service cost of pensions':57000,'Interest payable and finance charges':411388,'Net pension interest cost':44000},
+ result:698810, totalExp:3919570 /* = grp signed total + result offset check placeholder, recomputed live */},
+'2022-23':{
+ income:{'General rate income':1049552,'Refuse rate income':510883,'Interest and investment income':10831,'Profit on sale of asset':0,'Write back of liability':0,'Dwelling rents (housing, incl. rates)':2163098,'Housing Deficiency Grant (Central Government)':267757},
+ sanitation:{'Refuse collection wages':449,'Refuse disposal':255883,'Refuse contract':185747,'Wheelie bin purchase':0,'Western Civic Amenity Site charges':126934,'Street cleaning':98,'Commercial refuse income':-49361},
+ works:{'Works (employee costs)':22848,'Commercial properties (employee costs)':3233,'General properties (employee costs)':39536,'Admin - Foreman (employee costs)':695,'Attendants (employee costs)':49838,'Street lighting costs':62045,'Commercial property costs':6478,'Mill Road yard costs':7638,'Seats, bins, flags, signs, clocks etc':4585,'Shelters, CCTV, road repairs':289,'Repairs to toilets':22596,'Clothing':3581,'Replacement equipment':139,'Vehicle running costs (tax, fuel, repairs)':38117,'Drainage recharge costs':4893,'Westlands recharge costs':13929,'Housing pilot scheme recharge costs':0,'Other recharge costs':0,'Westlands recharge income':-14924,'Grass cutting recharge income':-1000,'Housing pilot scheme recharge income':0,'Commercial rents':-44032,'Garage rents':-56111,'Car park fees':-5726},
+ parks:{'Grass cutting (employee costs)':71870,'Gardening (employee costs)':22138,'Cleaning (employee costs)':27721,'Playground costs':1690,'Amenity areas':26928,'Skateboard/BMX costs':4206,'Beach costs':5295,'Bowls and tennis costs':4996,'Peel Hill rents':-5757,'Shell tipping fees':-3000},
+ civic:{'Public functions (employee costs)':13675,'Ward library (employee costs)':14203,'Leece Museum (employee costs)':0,'Ward library running costs':7814,'Leece Museum running costs':2004,'Campsite costs':32186,'Phillip Christian Centre costs':4567,'Western Swimming Pool Joint Board contribution':10455,'Public function fireworks':7121,'Peel Day':11428,'Carnival Day':5000,'Christmas costs':14695,'Other public function costs':17013,'Campsite fees':-169930,'Leece Museum income':-5096,'Public function income':-11384},
+ admin:{'Office salaries (employee costs)':251509,'Unallocated re covid, illness etc (employee costs)':57612,'Rates payable':-8653,'Website costs':5370,'Printing, stationery, photocopier etc':3827,'Postage':1889,'Election expenses':1026,"Commissioners' attendance allowances":1300,'Town Hall maintenance':9080,'Computer costs':28011,'Telephone':6419,'Staff training':0,'Miscellaneous':4060,'Registrars costs':0,'Rate collection costs':16699,'Rates provision for bad debts':10573,'Other bad debt provisions':30557,'Admin allowance':-109219,'Search fees':-13083,'Hire of Boardroom':-212,'Registrars fees':-2656,'Other income':0,'Miscellaneous income':-1726},
+ compliance:{'Audit fees':11800,'Accountancy fees':18229,'Legal and professional fees':18474,'Insurance':29825},
+ housing:{'Repairs and maintenance':396304,'Supervision and management':109219,'Rents, rates, taxes and other charges':349379,'Depreciation and impairment charges (housing)':646601},
+ capdebt:{'Depreciation (General Fund)':133772,'Net current service cost of pensions':48000,'Interest payable and finance charges':500634,'Net pension interest cost':48000},
+ result:611265, totalExp:0},
+'2023-24':{
+ income:{'General rate income':1079325,'Refuse rate income':581948,'Interest and investment income':28960,'Profit on sale of asset':0,'Write back of liability':0,'Dwelling rents (housing, incl. rates)':2276420,'Housing Deficiency Grant (Central Government)':338083},
+ sanitation:{'Refuse collection wages':1500,'Refuse disposal':301101,'Refuse contract':204321,'Wheelie bin purchase':0,'Western Civic Amenity Site charges':157408,'Street cleaning':10742,'Commercial refuse income':-48966},
+ works:{'Works (employee costs)':20326,'Commercial properties (employee costs)':5622,'General properties (employee costs)':15036,'Admin - Foreman (employee costs)':160,'Attendants (employee costs)':71940,'Street lighting costs':124788,'Commercial property costs':10550,'Mill Road yard costs':25242,'Seats, bins, flags, signs, clocks etc':859,'Shelters, CCTV, road repairs':351,'Repairs to toilets':13326,'Clothing':2845,'Replacement equipment':2473,'Vehicle running costs (tax, fuel, repairs)':46062,'Drainage recharge costs':0,'Westlands recharge costs':12652,'Housing pilot scheme recharge costs':0,'Other recharge costs':0,'Westlands recharge income':-17457,'Grass cutting recharge income':0,'Housing pilot scheme recharge income':0,'Commercial rents':-48273,'Garage rents':-53589,'Car park fees':-5608},
+ parks:{'Grass cutting (employee costs)':77416,'Gardening (employee costs)':25104,'Cleaning (employee costs)':25962,'Playground costs':3695,'Amenity areas':25284,'Skateboard/BMX costs':126,'Beach costs':20659,'Bowls and tennis costs':4149,'Peel Hill rents':-5757,'Shell tipping fees':0},
+ civic:{'Public functions (employee costs)':6967,'Ward library (employee costs)':16482,'Leece Museum (employee costs)':0,'Ward library running costs':12413,'Leece Museum running costs':9370,'Campsite costs':36471,'Phillip Christian Centre costs':6052,'Western Swimming Pool Joint Board contribution':10532,'Public function fireworks':6744,'Peel Day':11977,'Carnival Day':5000,'Christmas costs':36883,'Other public function costs':16364,'Campsite fees':-140459,'Leece Museum income':-150,'Public function income':-18890},
+ admin:{'Office salaries (employee costs)':267658,'Unallocated re covid, illness etc (employee costs)':56678,'Rates payable':5076,'Website costs':3881,'Printing, stationery, photocopier etc':1827,'Postage':1654,'Election expenses':0,"Commissioners' attendance allowances":1625,'Town Hall maintenance':5380,'Computer costs':32800,'Telephone':5829,'Staff training':0,'Miscellaneous':8503,'Registrars costs':0,'Rate collection costs':17784,'Rates provision for bad debts':3028,'Other bad debt provisions':-8125,'Admin allowance':-114689,'Search fees':-9700,'Hire of Boardroom':-400,'Registrars fees':-3858,'Other income':-250,'Miscellaneous income':-1502},
+ compliance:{'Audit fees':12036,'Accountancy fees':11230,'Legal and professional fees':7092,'Insurance':34242},
+ housing:{'Repairs and maintenance':436914,'Supervision and management':114689,'Rents, rates, taxes and other charges':370698,'Depreciation and impairment charges (housing)':717090},
+ capdebt:{'Depreciation (General Fund)':138411,'Net current service cost of pensions':-10000,'Interest payable and finance charges':623323,'Net pension interest cost':6000},
+ result:524009, totalExp:0}
+};
+const GRP=[{k:'sanitation', l:'Sanitation & refuse',                 c:'--c-refuse'},
+           {k:'works',      l:'Highways, property, plant & vehicles',c:'--c-works'},
+           {k:'parks',      l:'Parks, amenity & open spaces',        c:'--c-parks'},
+           {k:'civic',      l:'Civic, cultural & visitor services',  c:'--c-bal'},
+           {k:'admin',      l:'Administration & corporate governance', c:'--c-fgp'},
+           {k:'compliance', l:'Legal, professional & compliance',    c:'--c-disc'},
+           {k:'housing',    l:'Housing services (357 dwellings)',    c:'--c-bal'},
+           {k:'capdebt',    l:'Depreciation, pensions & debt financing', c:'--c-bal'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={}; GRP.forEach(g=>{Object.entries(d[g.k]).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});}); return c;};
+
+/* Each year's own true totalExp = sum of positive group items (the outflow side) */
+YEARS.forEach(y=>{ D[y].totalExp = GRP.reduce((a,g)=>a+pos(D[y][g.k]),0); });
+
+/* integrity: income + credits === gross outflow (groups) (+/- surplus/deficit); income - totalExp(net, all groups) = published result, to the pound (±£2 = Peel's own rounding between Notes 6/7 and the CIES combined rates figure, documented in Notes) */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inflow=sum(d.income)+sum(credits(d))+(d.result<0?-d.result:0);
+  const outflow=GRP.reduce((a,g)=>a+pos(d[g.k]),0)+(d.result>0?d.result:0);
+  const netExpAll=GRP.reduce((a,g)=>a+sum(d[g.k]),0);
+  const resDiff=(sum(d.income)-netExpAll)-d.result;
+  return {y,flowDiff:inflow-outflow,resDiff};
+});
+const bad=AUDIT.filter(a=>Math.abs(a.flowDiff)>2||Math.abs(a.resDiff)>2);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Peel reconciles in all years: flows balance, and income − expenditure = the published Surplus on provision of services to within £1-2 (Peel\'s own Notes 6/7 rounding, documented on the page)');
+
+const fmt=v=>Math.abs(v)>=1000000?(v<0?'−':'')+'£'+(Math.abs(v)/1000000).toFixed(2)+'m':Math.abs(v)>=1000?(v<0?'−':'')+'£'+Math.round(Math.abs(v)/1000)+'k':(v<0?'−':'')+'£'+Math.round(Math.abs(v));
+const fmtFull=v=>(v<0?'−':'')+'£'+Math.round(Math.abs(v)).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord,hatch)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0,hatch:!!hatch});}return idx[id];};
+  const hub=add('hub','Peel combined revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(credits(d)).forEach(([k,v],i)=>{
+    const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  if(d.result<0){ const s=add('res','Drawn from reserves','--c-bal','src',99,true);
+    L.push({source:s,target:hub,value:-d.result,col:'--c-bal',hatch:true}); }
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  if(d.result>0){ const su=add('sur','Surplus carried to reserves','--c-bal','item',9);
+    L.push({source:hub,target:su,value:d.result,col:'--c-bal'}); }
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(credits(d))+(d.result<0?-d.result:0);
+    if(id==='sur')  return d.result>0?d.result:0;
+    if(id==='res')  return d.result<0?-d.result:0;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+  let defs=svg.select('defs'); if(defs.empty()){ defs=svg.append('defs');
+    defs.append('pattern').attr('id','hatch').attr('patternUnits','userSpaceOnUse').attr('width',7).attr('height',7)
+      .attr('patternTransform','rotate(45)').append('line')
+      .attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',7).attr('stroke-width',3.5).attr('class','hatchline'); }
+  svg.select('.hatchline').attr('stroke',cssv('--c-bal'));
+
+  const g=graph(y),LPAD=230,RPAD=280,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(8).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const d0=D[y],total=sum(d0.income)+sum(credits(d0))+(d0.result<0?-d0.result:0);
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>d.hatch?'url(#hatch)':cssv(d.col))
+    .style('stroke-opacity',d=>d.hatch?0.85:(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>d.hatch?'url(#hatch)':cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  const rateInc=d.income['General rate income']+d.income['Refuse rate income'];
+  const rateIncPv=pv?(pv.income['General rate income']+pv.income['Refuse rate income']):null;
+  document.getElementById('s-rate').textContent=fmt(rateInc);
+  document.getElementById('s-rate-d').textContent=arrow(rateInc,rateIncPv);
+  document.getElementById('s-pound').textContent=RATE[y].pound+'p';
+  const rp=RATE[y],pvp=pi>=0?RATE[YEARS[pi]]:null;
+  document.getElementById('s-pound-d').textContent=pvp?(rp.pound===pvp.pound?'no change · rateable value '+fmt(rp.rv):(rp.pound>pvp.pound?'▲ +':'▼ ')+Math.abs(rp.pound-pvp.pound)+'p on last year'):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-res').textContent=(d.result>=0?'+':'−')+fmt(Math.abs(d.result));
+  document.getElementById('s-res-d').textContent=pv?(d.result>pv.result?'▲ improved on last year':(d.result<pv.result?'▼ worsened on last year':'no change')):'first year shown';
+  document.getElementById('fy').textContent=y;
+  document.getElementById('fy-sub').textContent='year ended 31 March';
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal);opacity:.6"></div>Drawn from reserves (hatched) / surplus carried to reserves</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path · civic, housing &amp; capital-financing groups share one neutral colour, distinguished by label</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(sum(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Net expenditure (all groups, after credits)',d=>m(GRP.reduce((a,g)=>a+sum(d[g.k]),0)),'grp');
+  R('Surplus for the year (Surplus on provision of services)',d=>(d.result>=0?'':'(')+Math.abs(d.result).toLocaleString()+(d.result>=0?'':')'),'grp');
+  rows.push('<tr class="sub"><td>General rate in the pound</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].pound+'p</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Net rateable value</td>'+YEARS.map(y=>'<td class="num">'+RATE[y].rv.toLocaleString()+'</td>').join('')+'</tr>');
+  rows.push('<tr class="sub"><td>Refuse fixed charge per household</td>'+YEARS.map(y=>'<td class="num">£'+RATE[y].refuse+'</td>').join('')+'</tr>');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(9,13)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year the eight group totals (net of credits) re-add so that income minus expenditure reproduces the published Surplus on provision of services to within £1-2 — the sole residual gap is Peel\'s own rounding between the rates-account Notes (6 and 7) and the CIES\'s combined "Rates income" line, present in Peel\'s own source figures, not an OCR artefact. The 31 March 2023 comparative column was read independently from both the 2023 and 2024 Statement of Accounts and found identical on every note checked. <b>Source.</b> Peel Town Commissioners, Comprehensive Income and Expenditure Statement, Statement of Movement on Reserves and Detailed Income and Expenditure Account, y/e 31 March 2022, 2023 and 2024. Retrieved and OCR-recovered 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null,null],
+ ['r','Tangible fixed assets',58944809,58892836,44633102],
+ ['h','Current assets',null,null,null],
+ ['r','Debtors',665186,390194,535584],
+ ['r','Cash at bank and short term investments',1340240,1254944,1114315],
+ ['s','',2005426,1645138,1649899],
+ ['h','Current liabilities',null,null,null],
+ ['r','Short-term borrowing',-965108,-1071901,-1052101],
+ ['r','Creditors',-567572,-359969,-582700],
+ ['t','Net current assets',472746,213268,15098],
+ ['t','Total assets less current liabilities',59417555,59106104,44648200],
+ ['h','Long-term liabilities',null,null,null],
+ ['r','Liability relating to defined benefit pension scheme',-30000,-159000,-1889000],
+ ['r','Long-term borrowing',-9841145,-10806253,-11878155],
+ ['T','Total assets less liabilities (net assets)',49546410,48140851,30881045],
+ ['h','Reserves',null,null,null],
+ ['r','Revaluation reserve',33754272,33754271,19387905],
+ ['r','Accumulated surpluses (general revenue + housing maintenance + earmarked)',1340348,1387666,1169695],
+ ['r','Pensions reserve',-30000,-159000,-1889000],
+ ['r','Capital adjustment account',14236878,13113002,12167533],
+ ['r','Usable capital receipts',44912,44912,44912],
+ ['T','Total reserves',49546410,48140851,30881045]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td><td class="num">'+m(r[4])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th><th>2022</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Peel\'s fixed assets nearly doubled between 2022 and 2023 (£44.6m → £58.9m) purely on a fixed-asset revaluation exercise (Note 1: a £12.1m revaluation uplift in 2022/23 alone, applied to Land and Property values); the pension liability fell sharply over the same three years, from £1,889,000 (2022) to £159,000 (2023) to just £30,000 (2024), reflecting favourable actuarial experience on the Isle of Man Local Government Superannuation Scheme (administered by Douglas Borough Council) rather than any change in benefits. "Accumulated surpluses" combines Peel\'s general revenue reserve, housing maintenance reserve and earmarked reserves, following the same convention documented on Castletown\'s balance sheet, because Peel\'s own balance sheet presents them as one combined line — the split is available in the Statement of Movement on Reserves and is shown in full in the income &amp; expenditure table above.</p>'
+   +'<p class="foot"><b>No harbour asset.</b> Peel\'s Note 2 (Assets held) was checked specifically for harbour, quay or marine infrastructure, given Peel\'s history as the Island\'s principal fishing port. None is listed — the Commissioners\' own balance sheet holds housing, car parks, depots, public conveniences, offices, recreational and commercial property, vehicles, parks and garages only. This matches the pattern already found for Douglas, whose harbour is Department of Infrastructure-managed rather than sitting on the local authority\'s own accounts.</p>'
+   +'<p class="foot"><b>Provenance.</b> All three years were OCR-recovered from Peel\'s scanned, signed accounts (2022 and 2023 from the 2023 Statement of Accounts; 2024 from the 2024 Statement of Accounts, whose 2023 comparative column was cross-checked against the 2023 Statement of Accounts\' own figures and found identical to the pound on every line). In every year: current assets re-add, net current assets reconcile, total assets less liabilities equals total reserves exactly, and total assets less current liabilities minus long-term liabilities equals net assets exactly.</p>'
+   +'<p class="foot"><b>Source.</b> Peel Town Commissioners, Balance Sheet as at 31 March 2022, 2023 and 2024, and Notes 1, 2, 4, 5 and 17. Retrieved and OCR-recovered 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

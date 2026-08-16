@@ -1,0 +1,890 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Economic Overview · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#162032;
+  --border:#1e293b; --border2:#334155;
+  --text:#e2e8f0; --muted:#94a3b8; --muted2:#cbd5e1;
+  --blue:#60a5fa; --blue-dim:rgba(96,165,250,0.12);
+  --green:#34d399; --amber:#fbbf24; --red:#f87171;
+  --iom:#3b82f6; --gsy:#10b981; --jsy:#f59e0b; --uk:#94a3b8;
+  --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+html[data-theme="light"]{
+  --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#0f172a; --muted:#64748b; --muted2:#334155;
+  --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+  --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+}
+@media(prefers-color-scheme:light){
+  :root{
+    --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+    --border:#e2e8f0; --border2:#cbd5e1;
+    --text:#0f172a; --muted:#64748b; --muted2:#334155;
+    --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+    --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow:hidden}body{overflow-y:auto;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+#app{max-width:960px;margin:0 auto;padding:20px 20px 60px}
+
+/* ── HERO ── */
+.hero{margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border2)}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+h1{font-size:24px;font-weight:900;line-height:1.2;letter-spacing:-0.025em;color:var(--text);margin-bottom:.75rem}
+h1 em{font-style:normal;color:var(--red)}
+.lede{font-size:13px;line-height:1.8;color:var(--muted2)}
+.narrative .lede{max-width:none}
+.lede strong{color:var(--text)}
+
+/* ── VIEW TOGGLE ── */
+.view-row{display:flex;align-items:center;gap:10px;margin-top:.9rem}
+.view-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.view-pills{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:2px;gap:2px}
+.view-pill{padding:4px 14px;border-radius:18px;border:none;background:transparent;font-size:12px;font-weight:500;font-family:var(--font);color:var(--muted);cursor:pointer;transition:all .15s}
+.view-pill.active{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+
+/* ── SECTION DIVIDERS ── */
+.section-label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:1.5rem 0 .75rem;display:flex;align-items:center;gap:10px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* ── COMPARISON TABLES ── */
+.cmp-table{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:8px;margin-bottom:1.25rem;
+}
+.cmp-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+@media(max-width:700px){
+  .cmp-table-scroll::after{
+    content:'← scroll for more jurisdictions';
+    display:block;font-size:10px;color:var(--muted);
+    padding:.35rem .75rem .5rem;letter-spacing:.03em;
+  }
+}
+.cmp-head{
+  display:grid;grid-template-columns:150px repeat(4,1fr);
+  border-bottom:2px solid var(--border2);
+  min-width:580px;
+}
+.cmp-head .ch-stub{
+  padding:.7rem 1rem;border-right:1px solid var(--border2);
+}
+.cmp-head .ch-jur{
+  padding:.6rem .75rem .55rem;text-align:center;position:relative;
+  border-right:1px solid var(--border2);
+}
+.cmp-head .ch-jur:last-child{border-right:none}
+.cmp-head .ch-jur::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.cmp-head .ch-jur.iom::before{background:var(--iom)}
+.cmp-head .ch-jur.jsy::before{background:var(--jsy)}
+.cmp-head .ch-jur.gsy::before{background:var(--gsy)}
+.cmp-head .ch-jur.uk::before {background:var(--uk)}
+.ch-name{font-size:12px;font-weight:700;color:var(--text);display:block}
+.ch-sub{font-size:10px;color:var(--muted);margin-top:1px;display:block}
+.cmp-row{
+  display:grid;grid-template-columns:150px repeat(4,1fr);
+  border-bottom:1px solid var(--border2);
+  min-width:580px;
+}
+.cmp-row:last-child{border-bottom:none}
+.cmp-row.gap-row{background:rgba(248,113,113,0.04)}
+.cr-label{
+  padding:.6rem 1rem;font-size:10px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted);
+  border-right:1px solid var(--border2);
+  display:flex;align-items:center;line-height:1.35;
+}
+.cmp-row.gap-row .cr-label{color:var(--red)}
+.cr-cell{
+  padding:.5rem .75rem;text-align:center;
+  border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.cr-cell:last-child{border-right:none}
+.cv{font-size:17px;font-weight:700;font-family:var(--mono);letter-spacing:-0.01em;line-height:1.1}
+.cv.iom{color:var(--iom)} .cv.jsy{color:var(--jsy)}
+.cv.gsy{color:var(--gsy)} .cv.uk{color:var(--uk)}
+.cv.red{color:var(--red)} .cv.grn{color:var(--green)}
+.cv.amb{color:var(--amber)} .cv.mut{color:var(--muted2)} .cv.dim{color:var(--muted)}
+.cs{font-size:10px;color:var(--muted);line-height:1.3;text-align:center}
+.cmp-note{
+  padding:.55rem 1rem;font-size:10px;color:var(--muted);line-height:1.6;
+  border-top:1px solid var(--border2);background:rgba(0,0,0,.06);
+}
+
+/* ── CHART PANELS ── */
+.chart-panel{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.1rem 1rem 1rem;margin-bottom:1rem}
+.panel-header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:.9rem;flex-wrap:wrap}
+.panel-title{font-size:13px;font-weight:700;color:var(--text)}
+.panel-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.chart-wrap{position:relative;height:300px}
+.chart-canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+
+/* ── NARRATIVE ── */
+.narrative{background:var(--surface2);border:1px solid var(--border2);border-top:2px solid var(--blue);border-radius:8px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:13px;color:var(--muted2);line-height:1.8}
+.narrative strong{color:var(--text)}
+.narrative .hl-iom{color:var(--iom);font-weight:600}
+.narrative .hl-jsy{color:var(--jsy);font-weight:600}
+.narrative .hl-gsy{color:var(--gsy);font-weight:600}
+.narrative .hl-uk{color:var(--uk);font-weight:600}
+.caveat{margin-top:.75rem;padding:.6rem .85rem;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:5px;font-size:12px;color:var(--muted);line-height:1.7}
+
+/* ── CONTROLS ── */
+.controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ctrl-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pill-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-size:11px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--font)}
+.pill-btn:hover{border-color:var(--blue);color:var(--text)}
+.pill-btn.active{background:var(--blue-dim);border-color:rgba(96,165,250,.45);color:var(--blue)}
+.pill-btn.iom-p.active{background:rgba(59,130,246,.12);border-color:var(--iom);color:var(--iom)}
+.pill-btn.jsy-p.active{background:rgba(245,158,11,.12);border-color:var(--jsy);color:var(--jsy)}
+.pill-btn.gsy-p.active{background:rgba(16,185,129,.12);border-color:var(--gsy);color:var(--gsy)}
+.pill-btn.uk-p.active{background:rgba(148,163,184,.12);border-color:var(--uk);color:var(--uk)}
+
+/* ── LEGEND ── */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:11px;color:var(--muted2)}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-sw{width:20px;height:3px;border-radius:1px;flex-shrink:0}
+.leg-dash{width:20px;height:0;border-top:2px dashed currentColor;flex-shrink:0}
+
+/* ── GOV TOGGLE ── */
+.gov-toggle{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:5px;padding:0;margin-top:.5rem}
+.gov-toggle svg{transition:transform .15s}
+.gov-toggle.open svg{transform:rotate(90deg)}
+.gov-box{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:1rem 1.25rem;font-size:12px;line-height:1.75;color:var(--muted2);display:none;margin-top:.5rem}
+.gov-box.visible{display:block}
+.gov-box h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;margin-top:.65rem}
+.gov-box h4:first-child{margin-top:0}
+.gov-box p{margin-bottom:.4rem}
+.src{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+/* ── MOBILE ── */
+@media(max-width:800px){
+  #app{padding:12px 12px 40px}
+  h1{font-size:19px}
+  .lede{font-size:12px}
+  .panel-title{font-size:12px}
+  .chart-wrap{height:220px}
+  .cmp-head,.cmp-row{grid-template-columns:80px repeat(4,1fr)}
+  .ch-sub{display:none}
+  .cr-label{font-size:9px;padding:.4rem .5rem}
+  .cv{font-size:13px}
+  .cs{font-size:9px}
+  .cr-cell{padding:.4rem .35rem}
+}
+body.light {
+  --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#0f172a; --muted:#64748b; --muted2:#334155;
+  --blue:#2563eb; --blue-dim:rgba(37,99,235,0.08);
+  --iom:#2563eb; --gsy:#059669; --jsy:#d97706; --uk:#64748b;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hero">
+    <h1>Economic Overview — Isle of Man</h1>
+
+    <div class="narrative narrative-plain" style="margin-top:.75rem">
+      <p class="lede">
+        According to official statistics, the Isle of Man is one of the richest places on
+        earth. But the figures used to make that claim — GDP, GVA, GNI — measure what is
+        produced here, not what residents earn. In reality, half the workforce takes home
+        less than £765 a week. That is only marginally above the UK median, and once the
+        higher cost of living on the island is accounted for, the gap largely disappears.
+        The mean wage is higher than the median because a relatively small number of very
+        high earners pull the average up. For most people, those figures are not their reality.
+      </p>
+    </div>
+
+    <div class="narrative narrative-technical" style="display:none;margin-top:.75rem">
+      <p class="lede">
+        <strong>Output vs income.</strong> GDP and GVA per head are output measures, not
+        income measures. In jurisdictions with large financial sectors the two diverge
+        significantly: value added accrues to capital — retained corporate profits, fund
+        returns, and above-median labour income — rather than to median resident workers.
+        The IoM median wage (£765/wk, 2024 Earnings Survey) represents 58% of nominal GDP
+        per head, against approximately 98% in the UK.
+      </p>
+      <p class="lede" style="margin-top:.65rem">
+        <strong>Labour share.</strong> This proxy has been declining over the past decade
+        as financial sector output grew faster than wages. The gap is not measurement
+        error; it is the structural consequence of hosting activity whose returns flow to
+        capital owners resident elsewhere.
+      </p>
+      <p class="lede" style="margin-top:.65rem">
+        <strong>Why GNI does not help.</strong> On the IoM, GNI per head exceeds GDP per
+        head because high-net-worth residents attribute global income to the island,
+        inflating the headline further. Neither measure is a useful proxy for median
+        household welfare. The very high GNI per head figure does, however, draw
+        multilateral attention: rankings of this kind inform OECD, EU, and FATF scrutiny
+        of jurisdictions perceived as facilitating tax-advantaged capital flows — scrutiny
+        that has material consequences for the island's access to international markets
+        regardless of what residents actually earn.
+      </p>
+      <p class="lede" style="margin-top:.65rem">
+        <strong>What follows.</strong> The tables and charts below disaggregate output,
+        wages, real purchasing power, and approximate labour share across the Crown
+        Dependencies and the UK. Cost of living and affordability data are on the
+        dedicated Affordability page.
+      </p>
+    </div>
+
+    <div class="view-row">
+      <span class="view-label">View</span>
+      <div class="view-pills">
+        <button class="view-pill active" data-view="plain">Plain language</button>
+        <button class="view-pill" data-view="technical">Technical</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE 1: OUTPUT vs EARNINGS -->
+  <div class="section-label">Output vs earnings — latest available</div>
+
+  <div class="cmp-table">
+    <div class="cmp-table-scroll">
+    <div class="cmp-head">
+      <div class="ch-stub"></div>
+      <div class="ch-jur iom">
+        <span class="ch-name">Isle of Man</span>
+        <span class="ch-sub">2023 / 2024</span>
+      </div>
+      <div class="ch-jur jsy">
+        <span class="ch-name">Jersey</span>
+        <span class="ch-sub">2023 / 2024</span>
+      </div>
+      <div class="ch-jur gsy">
+        <span class="ch-name">Guernsey</span>
+        <span class="ch-sub">2023 / 2024</span>
+      </div>
+      <div class="ch-jur uk">
+        <span class="ch-name">United Kingdom</span>
+        <span class="ch-sub">2023 / 2024</span>
+      </div>
+    </div>
+
+    <div class="cmp-row">
+      <div class="cr-label">GDP / GVA per head per week</div>
+      <div class="cr-cell"><span class="cv iom">£1,325</span><span class="cs">£69,031/yr · 2023</span></div>
+      <div class="cr-cell"><span class="cv jsy">£1,258</span><span class="cs">£65,515/yr · 2023</span></div>
+      <div class="cr-cell"><span class="cv gsy">£1,046</span><span class="cs">£54,463/yr · 2023</span></div>
+      <div class="cr-cell"><span class="cv uk">£700</span><span class="cs">£36,444/yr · 2023</span></div>
+    </div>
+
+    <div class="cmp-row">
+      <div class="cr-label">Mean wage per week</div>
+      <div class="cr-cell"><span class="cv">£929</span><span class="cs">£48,390/yr · FT employees · Jun 2024</span></div>
+      <div class="cr-cell"><span class="cv">£990</span><span class="cs">£51,578/yr · FTE basis · Jun 2024</span></div>
+      <div class="cr-cell"><span class="cv">~£1,033</span><span class="cs">~£53,840/yr · estimated</span></div>
+      <div class="cr-cell"><span class="cv">£850</span><span class="cs">£44,278/yr · FT employees · Apr 2024</span></div>
+    </div>
+
+    <div class="cmp-row">
+      <div class="cr-label">Median wage per week</div>
+      <div class="cr-cell"><span class="cv">£765</span><span class="cs">£39,858/yr · FT employees · Jun 2024</span></div>
+      <div class="cr-cell"><span class="cv">£850</span><span class="cs">£44,278/yr · estimated · Jun 2024</span></div>
+      <div class="cr-cell"><span class="cv">£818</span><span class="cs">£42,672/yr · all workers · yr to Jun 2024</span></div>
+      <div class="cr-cell"><span class="cv">£709</span><span class="cs">£36,929/yr · FT employees · Apr 2024</span></div>
+    </div>
+
+    <div class="cmp-row gap-row">
+      <div class="cr-label">Median wage as % of GDP/head</div>
+      <div class="cr-cell"><span class="cv red">58%</span><span class="cs">42p in £1 not reaching median worker</span></div>
+      <div class="cr-cell"><span class="cv red">68%</span><span class="cs">32p in £1 not reaching median worker</span></div>
+      <div class="cr-cell"><span class="cv red">78%</span><span class="cs">22p in £1 not reaching median worker</span></div>
+      <div class="cr-cell"><span class="cv dim">~98%</span><span class="cs">Wages and output broadly aligned</span></div>
+    </div>
+
+    <div class="cmp-note">
+      GDP/GVA per head converted to weekly (÷52.18). IoM GDP: NI Reports (ESA10, derived 2013–2023). Jersey GVA: Statistics Jersey opendata. Guernsey GDP: States of Guernsey. UK GVA: ONS ABML÷EBAQ.
+      Wages: IoM Annual Earnings Survey (Jun); Statistics Jersey IAE (Jun, FTE basis); States of Guernsey rolling census (annual, all workers); ONS ASHE (Apr).
+      Methodology differences mean cross-jurisdiction wage comparisons are directionally informative only — see Wages page for full governance notes.
+    </div>
+    </div>
+  </div>
+
+  <!-- TABLE 2: Cost of living moved to dedicated Affordability page -->
+
+  <!-- CHART 1: THE GAP -->
+  <div class="section-label">The output–income gap over time</div>
+
+  <div class="narrative narrative-plain">
+    The red line is what the IoM economy produces per person. The purple and green lines
+    are what employees actually earn — mean and median wages. The gap between them is money
+    that does not reach resident workers: corporate profits, returns on capital, and income
+    flowing to owners who live elsewhere.
+    <br><br>
+    That gap has been <strong>widening</strong>. GDP per head rose sharply after 2012 as
+    financial services expanded. Wages grew, but more slowly. The island got richer on paper
+    while the median worker's share of that wealth quietly shrank. This is not a story the
+    official prosperity figures tell — because they are not designed to.
+  </div>
+  <div class="narrative narrative-technical" style="display:none">
+    <strong>GDP/head weekly equivalent.</strong> IoM nominal GDP (ESA10) ÷ population estimates ÷ 52.18.
+    2007–2012 from NI Accounts Table 4; 2013–2023 derived from rounded NI report headlines (uncertainty ±£1–2k/yr).
+    Hard ESA10 break at 2007/08 means pre-2007 is excluded.
+    <strong>Wages.</strong> IoM Annual Earnings Survey, June. Full-time employees, adult rates, pay unaffected by absence.
+    Method change at 2012 (trimming removed, restated from 2012); pre-2012 shown dashed.
+    <div class="caveat">The gap between GDP/head and wages is not a formal measure of profits or inequality. It encompasses corporate profits, depreciation, taxes on production, and all above-median labour income. Treat as a directional illustration of the output–income divergence.</div>
+  </div>
+
+  <div class="chart-panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">GDP per head vs mean vs median wage — Isle of Man</div>
+        <div class="panel-sub">Weekly equivalent, nominal £ · 2009–2024</div>
+      </div>
+      <div class="controls">
+        <span class="ctrl-label">Scale</span>
+        <button class="pill-btn active" data-gap-scale="weekly">Weekly £</button>
+        <button class="pill-btn" data-gap-scale="annual">Annual £</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="gap-chart" class="chart-canvas"></canvas></div>
+    <div class="legend" id="gap-legend"></div>
+  </div>
+  <button class="gov-toggle" id="gap-gov-btn">
+    <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Data governance &amp; methodology notes
+  </button>
+  <div class="gov-box" id="gap-gov">
+    <h4>GDP/head weekly equivalent</h4>
+    <p>IoM nominal GDP ÷ population estimates ÷ 52.18. GDP from NI reports (ESA10 from 2007/08); 2007–2012 from Table 4; 2013–2023 derived. Hard ESA10 break at 2007/08; pre-2007 excluded from this chart.</p>
+    <h4>Wages series</h4>
+    <p>IoM Annual Earnings Survey, June reference. Full-time employees on adult rates, pay unaffected by absence. Methodology change at 2012 (trimming of top earners removed); pre-2012 dashed. Sources: gov.im earnings survey reports 2009–2024.</p>
+    <p class="src">Sources: IoM NI Reports 2007–2023; IoM Earnings Survey 2009–2024; IoM population estimates.</p>
+  </div>
+
+  <!-- CHART 2: REAL EARNINGS -->
+  <div class="section-label">Purchasing power: what the numbers don't show</div>
+
+  <div class="narrative narrative-plain">
+    Standard "real earnings" deflate wages by the Retail Prices Index — a basket that captures
+    everyday costs but <strong>not the price of buying a home</strong>.
+    The chart shows three versions of what Isle of Man earnings have done since 2009:
+    nominal (what payslips say), RPI-adjusted (what economists usually report), and an
+    adjusted series that replaces the housing component of RPI with actual IoM house price growth.
+    For existing owners with low mortgages, the standard real line is a reasonable guide.
+    For a first-time buyer or market-rate renter, it significantly overstates how far wages have kept pace.
+    <div class="caveat">
+      The house-price-adjusted series is illustrative, not an official statistic.
+      It substitutes IoM Land Registry average house price growth for Division 4 (housing)
+      of the IoM RPI, weighted at approximately 18%. Read as indicating direction and rough
+      magnitude, not as a precise measure.
+    </div>
+  </div>
+  <div class="narrative narrative-technical" style="display:none">
+    <strong>Construction.</strong> Three series, indexed 2009=100. (1) Nominal: IoM mean weekly earnings. (2) RPI-adjusted: deflated by IoM RPI (March each year). (3) House-price-adjusted: deflated by a modified index where the Division 04 housing component (~18% weight) is replaced by IoM Land Registry average house price growth. Modified deflator = RPI×0.82 + house_price_index×0.18, both chain-linked from 2009=100. House price data from IoM Housing Market Review 2023 and Land Registry open data. This series is a Coalfinch Observatory construction; no equivalent official series exists.
+    <div class="caveat">House prices: IoM Land Registry (propertyprices.im / gov.im open data). RPI: Statistics IoM. Earnings: IoM Annual Earnings Survey.</div>
+  </div>
+
+  <div class="chart-panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">Real earnings — three measures compared</div>
+        <div class="panel-sub">Index 2009 = 100 · Isle of Man mean weekly wage</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="real-chart" class="chart-canvas"></canvas></div>
+    <div class="legend" id="real-legend"></div>
+  </div>
+  <button class="gov-toggle" id="real-gov-btn">
+    <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Data governance &amp; methodology notes
+  </button>
+  <div class="gov-box" id="real-gov">
+    <h4>Nominal series</h4><p>IoM Earnings Survey mean weekly earnings, June. 2009=100.</p>
+    <h4>RPI-adjusted</h4><p>Deflated by IoM RPI (March of survey year). Source: Statistics IoM Historic Data Sets.</p>
+    <h4>House-price-adjusted (Coalfinch construction)</h4>
+    <p>Nominal series deflated by a modified price index: RPI with Division 04 (housing, ~18% weight) replaced by IoM Land Registry average house price growth. Not an official statistic.</p>
+    <p class="src">House prices: IoM Land Registry. RPI: Statistics IoM. Earnings: IoM Annual Earnings Survey.</p>
+  </div>
+
+  <!-- CHART 3: LABOUR SHARE -->
+  <div class="section-label">Labour share: what fraction of output reaches workers</div>
+
+  <div class="narrative narrative-plain">
+    This chart divides median annual wages by GDP or GVA per head, expressed as a percentage.
+    In the <span class="hl-uk">UK</span>, median wages and GDP per head sit within a few percent
+    of each other — the ratio stays near 95–100%.
+    In the Crown Dependencies it sits at 58–78% and, on the
+    <span class="hl-iom">Isle of Man</span>, has been <strong>declining</strong> over the past
+    decade as GDP per head rose faster than wages.
+    The gap is not a flaw in the data. It is the structural consequence of hosting financial
+    activity whose returns belong to capital, not to resident workers.
+  </div>
+  <div class="narrative narrative-technical" style="display:none">
+    <strong>Construction.</strong> (Median annual wage ÷ nominal GDP/GVA per head) × 100.
+    IoM: Earnings Survey median weekly × 52.18 ÷ derived nominal GDP/head.
+    Jersey: uprated LCHIS median × 52.18 ÷ JSY_GVA_PC_NOMINAL.
+    Guernsey: median annual earnings ÷ GSY_GDP_PC_NOMINAL.
+    UK: ONS ASHE median weekly × 52.18 ÷ ONS ABML÷EBAQ.
+    <div class="caveat">This is an approximation. A falling ratio indicates GDP growing faster than median wages — the most policy-relevant signal, regardless of the absolute level.</div>
+  </div>
+
+  <div class="chart-panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">Median wage as % of GDP/GVA per head</div>
+        <div class="panel-sub">Approximate labour share proxy · 2009–2024</div>
+      </div>
+      <div class="controls">
+        <button class="pill-btn iom-p active" data-ls="iom">Isle of Man</button>
+        <button class="pill-btn jsy-p active" data-ls="jsy">Jersey</button>
+        <button class="pill-btn gsy-p active" data-ls="gsy">Guernsey</button>
+        <button class="pill-btn uk-p  active" data-ls="uk">UK</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="ls-chart" class="chart-canvas"></canvas></div>
+    <div class="legend" id="ls-legend"></div>
+  </div>
+  <button class="gov-toggle" id="ls-gov-btn">
+    <svg width="8" height="8" viewBox="0 0 8 8"><path d="M2 1l4 3-4 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Data governance &amp; methodology notes
+  </button>
+  <div class="gov-box" id="ls-gov">
+    <h4>What this measures</h4>
+    <p>Median annual wage ÷ nominal GDP or GVA per head × 100. An approximation — not a formal national accounts labour share statistic. The meaningful signal is the level and trend relative to other jurisdictions, and whether it is rising or falling over time.</p>
+    <h4>Why the ratio is below 100%</h4>
+    <p>GDP/head includes taxes on production, depreciation, above-median wages, and profits. Even in a fully egalitarian economy the median worker's wage would be below GDP/head. The UK ratio near 95–100% reflects a more evenly distributed economy, not an impossibly high benchmark.</p>
+    <h4>Data limitations</h4>
+    <p>IoM median 2009–2011: pre-methodological break (dashed). Jersey median: uprated estimate, not directly surveyed. Guernsey: annual median covering all workers, not FT-only.</p>
+  </div>
+
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+// IoM nominal GDP/head (£/year), weekly equivalent (÷52.18)
+// Sources: NI Accounts Table 4 (2007–2012); derived 2013–2023; ESA10 basis throughout
+const IOM_GDP_PC = {
+  2007:34954, 2008:38638, 2009:39276, 2010:41761, 2011:44662, 2012:47536,
+  2013:50766, 2014:53690, 2015:53293, 2016:58574, 2017:63221,
+  2018:64489, 2019:64830, 2020:60071, 2021:66297, 2022:69048, 2023:69031
+};
+
+// IoM Earnings Survey — median weekly FT, June. Pre-2012 dashed (method break)
+const IOM_MED = {
+  2009:468, 2010:481, 2011:491,  // pre-break
+  2012:538, 2013:546, 2014:563, 2015:571, 2016:584, 2017:587,
+  2018:604, 2019:619, 2020:611, 2021:613, 2022:660, 2023:732, 2024:765
+};
+
+// IoM Earnings Survey — mean weekly FT, June. Pre-2012 dashed
+const IOM_MEAN = {
+  2009:583, 2010:601, 2011:614,  // pre-break
+  2012:671, 2013:685, 2014:710, 2015:721, 2016:740, 2017:745,
+  2018:763, 2019:790, 2020:762, 2021:762, 2022:826, 2023:902, 2024:929
+};
+
+// IoM RPI annual index values (March), rebased to 2009=100
+// Source: Statistics IoM Historic Data Sets; base Jan 2008=100 in original
+// These approximate values reconstruct the chain from published CPI annual %
+const IOM_RPI = {
+  2009:100, 2010:103.5, 2011:108.7, 2012:112.1, 2013:115.0, 2014:117.1,
+  2015:117.8, 2016:119.1, 2017:123.8, 2018:127.0, 2019:129.7,
+  2020:130.1, 2021:133.8, 2022:146.7, 2023:158.3, 2024:162.5
+};
+
+// IoM average house price (£000s), annual, from Land Registry / Housing Market Reviews
+// Sources: IoM Housing Market Review 2023; propertyprices.im Land Registry data
+const IOM_HP = {
+  2009:228, 2010:236, 2011:245, 2012:248, 2013:249, 2014:262,
+  2015:280, 2016:275, 2017:278, 2018:283, 2019:278,
+  2020:289, 2021:331, 2022:342, 2023:329, 2024:343
+};
+
+// Jersey GVA per head nominal (£/year) — from economic-performance data
+const JSY_GDP_PC = {
+  2000:34385, 2001:34421, 2002:34653, 2003:34794, 2004:35323, 2005:36220,
+  2006:38368, 2007:40728, 2008:40376, 2009:39064, 2010:37974, 2011:38693,
+  2012:38224, 2013:38463, 2014:40653, 2015:41289, 2016:42031, 2017:43450,
+  2018:45839, 2019:48495, 2020:44457, 2021:50687, 2022:58011, 2023:65515, 2024:66403
+};
+
+// Jersey median weekly (£) — uprated LCHIS estimate
+const JSY_MED_WK = {
+  2009:490, 2010:500, 2011:515, 2012:520, 2013:525, 2014:540,
+  2015:560, 2016:572, 2017:590, 2018:620, 2019:640,
+  2020:640, 2021:665, 2022:750, 2023:820, 2024:850, 2025:890
+};
+
+// Guernsey GDP/head nominal (£/year)
+const GSY_GDP_PC = {
+  2009:35616, 2010:35424, 2011:37792, 2012:37628, 2013:39104, 2014:40105,
+  2015:40347, 2016:41888, 2017:44185, 2018:45089, 2019:46057,
+  2020:43333, 2021:47289, 2022:52413, 2023:54463
+};
+
+// Guernsey median annual earnings (£) — Revenue Service data
+const GSY_MED_ANN = {
+  2015:32420, 2016:33560, 2017:34824, 2018:36036,
+  2019:37752, 2020:37480, 2021:38740, 2022:40516,
+  2023:40516, 2024:42672
+};
+
+// UK GVA per head nominal (£/year) — ONS ABML÷EBAQ
+const UK_GDP_PC = {
+  2009:22820, 2010:23204, 2011:23570, 2012:24165, 2013:24908, 2014:25895,
+  2015:26435, 2016:27250, 2017:28372, 2018:29260, 2019:30239,
+  2020:28744, 2021:31148, 2022:34338, 2023:36444, 2024:37658
+};
+
+// UK ASHE median weekly FT earnings (£) — April each year
+const UK_MED_WK = {
+  2009:479, 2010:491, 2011:500, 2012:506, 2013:517, 2014:524,
+  2015:539, 2016:550, 2017:567, 2018:585, 2019:612,
+  2020:586, 2021:611, 2022:640, 2023:682, 2024:709
+};
+
+// ── CHART HELPERS ──────────────────────────────────────────────────────────────
+const C = {
+  iom:'#3b82f6', jsy:'#f59e0b', gsy:'#10b981', uk:'#94a3b8',
+  gdp:'#f87171', mean:'#a78bfa', med:'#34d399'
+};
+
+const isLight = () =>
+  document.documentElement.getAttribute('data-theme') === 'light' ||
+  (!document.documentElement.getAttribute('data-theme') &&
+   window.matchMedia('(prefers-color-scheme:light)').matches);
+
+function gridCol() { return isLight() ? 'rgba(203,213,225,0.7)' : 'rgba(51,65,85,0.5)'; }
+function tickCol() { return isLight() ? '#64748b' : '#94a3b8'; }
+
+function baseOpts(yFmt) {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index', intersect:false},
+    layout:{padding:{right:8}},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor: isLight() ? '#fff' : '#1e293b',
+        borderColor: isLight() ? '#e2e8f0' : '#334155',
+        borderWidth:1,
+        titleColor: isLight() ? '#0f172a' : '#e2e8f0',
+        bodyColor: isLight() ? '#475569' : '#94a3b8',
+        padding:10, titleFont:{size:11,weight:'600'},
+        callbacks:{label: ctx => ` ${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`}
+      }
+    },
+    scales:{
+      x:{type:'linear', grid:{color:gridCol()}, ticks:{color:tickCol(), stepSize:1, callback:v=>v}},
+      y:{grid:{color:gridCol()}, ticks:{color:tickCol(), callback:yFmt}}
+    }
+  };
+}
+
+function toPoints(obj, divisor=1) {
+  return Object.entries(obj).map(([k,v])=>({x:+k, y:+(v/divisor).toFixed(0)}));
+}
+
+function mkDs(label, data, color, opts={}) {
+  return {
+    label, data,
+    borderColor:color,
+    backgroundColor: opts.fill || 'transparent',
+    fill: opts.fillTarget !== undefined ? opts.fillTarget : false,
+    borderWidth: opts.w || 2,
+    borderDash: opts.dash || [],
+    pointRadius:0, pointHoverRadius:4,
+    tension:0.2,
+    order: opts.order || 0
+  };
+}
+
+function fmtGbp(v) { return '£'+Math.round(v).toLocaleString(); }
+function fmtPct(v) { return v.toFixed(1)+'%'; }
+function fmtIdx(v) { return v.toFixed(1); }
+
+function makeLegend(containerId, items) {
+  document.getElementById(containerId).innerHTML = items.map(i =>
+    `<div class="leg-item">
+      ${i.dash
+        ? `<span class="leg-dash" style="color:${i.color}"></span>`
+        : `<span class="leg-sw" style="background:${i.color}${i.opacity?';opacity:'+i.opacity:''}"></span>`}
+      <span>${i.label}</span>
+    </div>`
+  ).join('');
+}
+
+// ── CHART 1: THE GAP ──────────────────────────────────────────────────────────
+let gapChart, gapScale = 'weekly';
+
+function buildGapChart() {
+  const div = gapScale === 'weekly' ? 52.18 : 1;
+  const fmt = gapScale === 'weekly' ? fmtGbp : v => '£'+Math.round(v/1000)+'k';
+  const yLabel = gapScale === 'weekly' ? '£ per week' : '£ per year';
+
+  const gdpPts  = toPoints(IOM_GDP_PC, div);
+  // pre-break wages (dashed)
+  const medPre  = toPoints({2009:468,2010:481,2011:491}, 1);
+  const meanPre = toPoints({2009:583,2010:601,2011:614}, 1);
+  const medPost = toPoints({2012:538,2013:546,2014:563,2015:571,2016:584,2017:587,
+                             2018:604,2019:619,2020:611,2021:613,2022:660,2023:732,2024:765}, 1);
+  const meanPost= toPoints({2012:671,2013:685,2014:710,2015:721,2016:740,2017:745,
+                             2018:763,2019:790,2020:762,2021:762,2022:826,2023:902,2024:929}, 1);
+
+  // scale wages if annual
+  const scaleW = pts => gapScale === 'annual'
+    ? pts.map(p=>({x:p.x, y:Math.round(p.y*52.18)}))
+    : pts;
+
+  const ctx = document.getElementById('gap-chart').getContext('2d');
+  if (gapChart) gapChart.destroy();
+
+  const datasets = [
+    // GDP/head fill area (top reference)
+    mkDs('GDP/head (weekly equiv.)', gdpPts, C.gdp, {w:2.5, order:4}),
+    // fill between GDP and median (the gap)
+    {...mkDs('', scaleW(medPost), 'transparent', {fill:'+2', order:3}),
+      backgroundColor:'rgba(248,113,113,0.08)'},
+    // median solid
+    mkDs('Median wage', scaleW(medPost), C.med, {w:2, order:1}),
+    mkDs('', scaleW(medPre), C.med, {w:1.5, dash:[4,3], order:1}),
+    // mean solid
+    mkDs('Mean wage', scaleW(meanPost), C.mean, {w:2, order:2}),
+    mkDs('', scaleW(meanPre), C.mean, {w:1.5, dash:[4,3], order:2}),
+  ];
+
+  const opts = baseOpts(fmt);
+  opts.scales.x.min = 2009; opts.scales.x.max = 2024;
+  opts.scales.y.title = {display:true, text:yLabel, color:'#475569', font:{size:10}};
+
+  gapChart = new Chart(ctx, {type:'line', data:{datasets}, options:opts});
+
+  makeLegend('gap-legend', [
+    {color:C.gdp, label:'GDP/head (÷52.18 for weekly)'},
+    {color:C.mean, label:'Mean wage (full-time employees)'},
+    {color:C.med, label:'Median wage (full-time employees)'},
+    {color:C.mean, label:'Pre-2012 (method break)', dash:true},
+    {color:'rgba(248,113,113,0.4)', label:'Gap — not reaching median worker', opacity:0.5},
+  ]);
+}
+
+document.querySelectorAll('[data-gap-scale]').forEach(btn => {
+  btn.onclick = () => {
+    gapScale = btn.dataset.gapScale;
+    document.querySelectorAll('[data-gap-scale]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    buildGapChart();
+  };
+});
+
+// ── CHART 2: REAL EARNINGS — THREE MEASURES ───────────────────────────────────
+let realChart;
+
+function buildRealChart() {
+  // All indexed to 2009=100
+  const years = [2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+  const base09Mean = IOM_MEAN[2009]; // 583
+
+  // Series 1: nominal index
+  const nomPts = years.map(y => ({x:y, y:+(IOM_MEAN[y]/base09Mean*100).toFixed(2)}));
+
+  // Series 2: RPI-adjusted
+  const rpiPts = years.map(y => ({
+    x:y,
+    y:+((IOM_MEAN[y]/base09Mean) / (IOM_RPI[y]/IOM_RPI[2009]) * 100).toFixed(2)
+  }));
+
+  // Series 3: house-price-adjusted
+  // Modified deflator: 82% RPI + 18% house price index (both 2009=100)
+  const hp09 = IOM_HP[2009]; // £228k
+  const hpAdjPts = years.filter(y=>IOM_HP[y]).map(y => {
+    const hpIdx = IOM_HP[y] / hp09;
+    const rpiIdx = IOM_RPI[y] / IOM_RPI[2009];
+    const modDefl = 0.82 * rpiIdx + 0.18 * hpIdx;
+    return {x:y, y:+((IOM_MEAN[y]/base09Mean) / modDefl * 100).toFixed(2)};
+  });
+
+  const ctx = document.getElementById('real-chart').getContext('2d');
+  if (realChart) realChart.destroy();
+
+  const opts = baseOpts(fmtIdx);
+  opts.scales.x.min = 2009; opts.scales.x.max = 2024;
+  opts.scales.y.title = {display:true, text:'Index (2009 = 100)', color:'#475569', font:{size:10}};
+  opts.scales.y.grid = {
+    color: ctx2 => ctx2.tick.value === 100
+      ? (isLight() ? 'rgba(100,116,139,0.5)' : 'rgba(148,163,184,0.45)')
+      : gridCol()
+  };
+
+  realChart = new Chart(ctx, {type:'line', data:{datasets:[
+    mkDs('Nominal (no adjustment)', nomPts, '#a78bfa', {w:2}),
+    mkDs('RPI-adjusted (standard real)', rpiPts, C.iom, {w:2.5}),
+    mkDs('House-price-adjusted (illustrative)', hpAdjPts, C.gdp, {w:2, dash:[5,3]}),
+  ]}, options:opts});
+
+  makeLegend('real-legend', [
+    {color:'#a78bfa', label:'Nominal earnings (2009=100)'},
+    {color:C.iom, label:'RPI-adjusted — standard real earnings'},
+    {color:C.gdp, label:'House-price-adjusted — illustrative only', dash:true},
+  ]);
+}
+
+// ── CHART 3: LABOUR SHARE ─────────────────────────────────────────────────────
+let lsChart;
+const lsActive = new Set(['iom','jsy','gsy','uk']);
+
+function buildLsChart() {
+  const ctx = document.getElementById('ls-chart').getContext('2d');
+  if (lsChart) lsChart.destroy();
+
+  const datasets = [];
+
+  if (lsActive.has('iom')) {
+    // pre-break dashed
+    const pre = [2009,2010,2011].filter(y=>IOM_GDP_PC[y]&&IOM_MED[y])
+      .map(y=>({x:y, y:+((IOM_MED[y]*52.18/IOM_GDP_PC[y])*100).toFixed(1)}));
+    const post = [2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023]
+      .filter(y=>IOM_GDP_PC[y]&&IOM_MED[y])
+      .map(y=>({x:y, y:+((IOM_MED[y]*52.18/IOM_GDP_PC[y])*100).toFixed(1)}));
+    datasets.push(mkDs('IoM', post, C.iom, {w:2.5}));
+    datasets.push(mkDs('', pre, C.iom, {w:1.5, dash:[4,3]}));
+  }
+
+  if (lsActive.has('jsy')) {
+    const pts = Object.keys(JSY_MED_WK).filter(y=>JSY_GDP_PC[+y])
+      .map(y=>({x:+y, y:+((JSY_MED_WK[+y]*52.18/JSY_GDP_PC[+y])*100).toFixed(1)}));
+    datasets.push(mkDs('Jersey', pts, C.jsy, {w:2}));
+  }
+
+  if (lsActive.has('gsy')) {
+    const pts = Object.keys(GSY_MED_ANN).filter(y=>GSY_GDP_PC[+y])
+      .map(y=>({x:+y, y:+((GSY_MED_ANN[+y]/GSY_GDP_PC[+y])*100).toFixed(1)}));
+    datasets.push(mkDs('Guernsey', pts, C.gsy, {w:2}));
+  }
+
+  if (lsActive.has('uk')) {
+    const pts = Object.keys(UK_MED_WK).filter(y=>UK_GDP_PC[+y])
+      .map(y=>({x:+y, y:+((UK_MED_WK[+y]*52.18/UK_GDP_PC[+y])*100).toFixed(1)}));
+    datasets.push(mkDs('UK', pts, C.uk, {w:1.5}));
+  }
+
+  const opts = baseOpts(fmtPct);
+  opts.scales.x.min = 2009; opts.scales.x.max = 2024;
+  opts.scales.y.title = {display:true, text:'Median annual wage ÷ GDP/head (%)', color:'#475569', font:{size:10}};
+  opts.scales.y.min = 40;
+
+  lsChart = new Chart(ctx, {type:'line', data:{datasets}, options:opts});
+
+  makeLegend('ls-legend', [
+    {color:C.iom, label:'Isle of Man'},
+    {color:C.jsy, label:'Jersey (median estimated)'},
+    {color:C.gsy, label:'Guernsey (all workers, annual)'},
+    {color:C.uk,  label:'UK'},
+    {color:C.iom, label:'IoM pre-2012 (method break)', dash:true},
+  ]);
+}
+
+document.querySelectorAll('[data-ls]').forEach(btn => {
+  btn.onclick = () => {
+    const k = btn.dataset.ls;
+    if (lsActive.has(k)) { if (lsActive.size===1) return; lsActive.delete(k); btn.classList.remove('active'); }
+    else { lsActive.add(k); btn.classList.add('active'); }
+    buildLsChart();
+  };
+});
+
+// ── GOV TOGGLES ───────────────────────────────────────────────────────────────
+['gap','real','ls'].forEach(id => {
+  const btn = document.getElementById(`${id}-gov-btn`);
+  const box = document.getElementById(`${id}-gov`);
+  if (btn&&box) btn.onclick = () => {
+    const open = box.classList.toggle('visible');
+    btn.classList.toggle('open', open);
+    reportHeight();
+  };
+});
+
+// ── VIEW TOGGLE ───────────────────────────────────────────────────────────────
+function applyView(v) {
+  document.querySelectorAll('.narrative-plain').forEach(el => el.style.display = v==='plain' ? '' : 'none');
+  document.querySelectorAll('.narrative-technical').forEach(el => el.style.display = v==='technical' ? '' : 'none');
+  reportHeight();
+}
+document.querySelectorAll('.view-pill').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.view-pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    applyView(btn.dataset.view);
+  };
+});
+
+// ── RESIZE ────────────────────────────────────────────────────────────────────
+let _lastH = 0;
+function reportHeight() {
+  const h = document.body.scrollHeight;
+  if (Math.abs(h-_lastH) >= 4) { _lastH = h; window.parent.postMessage({type:'resize',height:h},'*'); }
+}
+
+// ── THEME SYNC ────────────────────────────────────────────────────────────────
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  const theme = e.data.theme || (e.data.type==='setTheme' ? e.data.theme : null);
+  if (!theme) return;
+  document.documentElement.setAttribute('data-theme', theme);
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+buildGapChart();
+buildRealChart();
+buildLsChart();
+applyView('plain');
+// Report height after charts have painted — fire at 300ms and again at 800ms
+// to catch async chart rendering
+setTimeout(reportHeight, 300);
+setTimeout(reportHeight, 800);
+window.addEventListener('resize', reportHeight);
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
+</script>
+</body>
+</html>

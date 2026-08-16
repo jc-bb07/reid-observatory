@@ -1,0 +1,779 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Population Change — Isle of Man · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── DARK TOKENS (default) ── */
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
+  --border:#1e293b;--border2:#334155;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.12);
+  --green:#10b981;--green-dim:rgba(16,185,129,0.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.12);
+  --red:#f87171;--red-dim:rgba(248,113,113,0.12);
+  --purple:#a78bfa;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+/* ── LIGHT TOKENS ── */
+[data-theme="light"]{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--muted:#475569;--muted2:#64748b;
+  --blue:#2563eb;--blue-dim:rgba(37,99,235,0.10);
+  --green:#059669;--green-dim:rgba(5,150,105,0.10);
+  --amber:#d97706;--amber-dim:rgba(217,119,6,0.10);
+  --red:#dc2626;--red-dim:rgba(220,38,38,0.08);
+  --purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+body{padding:2rem 1.5rem 5rem}
+.hidden{display:none!important}
+
+/* ── CENTRED SHELL — keeps content readable on wide screens ── */
+.page-shell{max-width:900px;margin:0 auto}
+
+/* ── HEADER ── */
+.eyebrow{font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+h1{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.01em;line-height:1.3}
+.subtitle{font-size:12px;color:var(--muted);line-height:1.7;max-width:660px;margin-top:.35rem}
+
+/* ── AUDIENCE TOGGLE ── */
+.audience-bar{display:flex;align-items:center;gap:8px;margin:1.2rem 0 0}
+.aud-label{font-size:11px;color:var(--muted);letter-spacing:.02em}
+.toggle{display:flex;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--surface)}
+.toggle-btn{padding:4px 12px;font-size:11px;font-family:var(--font);background:transparent;border:none;color:var(--muted2);cursor:pointer;transition:all .15s}
+.toggle-btn.active{background:var(--blue-dim);color:var(--blue)}
+.toggle-btn:hover:not(.active){color:var(--text)}
+
+/* ── INNER TABS ── */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border2);margin:1.6rem 0 0;overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab{padding:8px 16px;font-size:12px;font-family:var(--font);font-weight:500;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted2);cursor:pointer;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ── PANELS ── */
+.panel{padding:1.6rem 0 2.4rem}
+.panel-head{margin-bottom:1.2rem}
+.panel-kicker{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.panel-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.3}
+
+/* ── TEXT BOX — same width as charts/cards ── */
+.plain-box{font-size:13px;color:var(--muted2);line-height:1.75;margin-bottom:1rem;
+  background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 14px}
+.plain-box strong{color:var(--text);font-weight:500}
+
+/* ── STAT CARDS — 4-col, collapses to 2-col on mobile ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:1rem 0 1.4rem}
+.stat{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 14px}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:700;color:var(--text);line-height:1.1;font-variant-numeric:tabular-nums}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.stat-val.pos{color:var(--green)}
+.stat-val.neg{color:var(--red)}
+.stat-val.warn{color:var(--amber)}
+
+/* ── CHART WRAPPER ── */
+.chart-wrap{position:relative;width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 12px 10px;margin-bottom:10px}
+.chart-wrap canvas{display:block}
+
+/* ── TWO-CHART SIDE-BY-SIDE (panel 5) ── */
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+
+/* ── LEGEND ── */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;font-size:11px;color:var(--muted2)}
+.li{display:flex;align-items:center;gap:5px}
+.sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.sl{width:16px;height:2px;border-radius:1px;flex-shrink:0}
+.sd{width:16px;height:0;border-top:2px dashed;flex-shrink:0}
+
+/* ── DATA NOTES ── */
+.data-note{margin-top:10px;font-size:10.5px;color:var(--muted);line-height:1.6;border-left:2px solid var(--border2);padding-left:10px}
+.data-note.warn{border-left-color:var(--amber);color:var(--muted2)}
+.data-note.gap{border-left-color:var(--red);background:var(--red-dim);padding:8px 10px;border-radius:0 4px 4px 0}
+
+/* ── GAP CHIP ── */
+.gap-chip{display:inline-block;font-size:10px;padding:2px 7px;border-radius:3px;background:var(--red-dim);color:var(--red);margin-left:6px;vertical-align:middle;font-family:var(--mono);letter-spacing:.01em}
+
+/* ── DIVIDER / FOOTER ── */
+.divider{border:none;border-top:1px solid var(--border2);margin:0}
+.page-footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--border2);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  body{padding:1rem 1rem 4rem}
+  h1{font-size:16px}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .stat-val{font-size:18px}
+  .chart-grid-2{grid-template-columns:1fr}
+  .tab{padding:7px 11px;font-size:11px}
+  .plain-box{font-size:12px}
+  .panel-title{font-size:14px}
+}
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
+</style>
+</head>
+<body>
+<div class="page-shell">
+
+<h1>Population Change — Isle of Man</h1>
+<p class="subtitle">Isle of Man resident population, 1951–2025. Births, deaths, migration, and the ageing of the existing population — each component drawn from its primary source, with gaps shown honestly.</p>
+
+<div class="audience-bar">
+  <span class="aud-label">View</span>
+  <div class="toggle">
+    <button class="toggle-btn active" id="btn-plain" onclick="setAudience('plain')">Plain language</button>
+    <button class="toggle-btn" id="btn-tech" onclick="setAudience('tech')">Technical</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('p1')">Population</button>
+  <button class="tab" onclick="showTab('p2')">Births &amp; deaths</button>
+  <button class="tab" onclick="showTab('p3')">Components</button>
+  <button class="tab" onclick="showTab('p4')">Who is moving</button>
+  <button class="tab" onclick="showTab('p5')">Ageing</button>
+  <button class="tab" onclick="showTab('p6')">Services</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 1 — POPULATION STOCK
+══════════════════════════════════════════════════════ -->
+<div id="tab-p1" class="panel">
+  <div class="panel-head">
+    <div class="panel-kicker">Panel 1 of 6</div>
+    <div class="panel-title">Where are we now, and how did we get here</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Population 2024</div><div class="stat-val">84,756</div><div class="stat-sub">Estimate (experimental)</div></div>
+    <div class="stat"><div class="stat-label">Census 2021</div><div class="stat-val">84,069</div><div class="stat-sub">Confirmed, Cabinet Office</div></div>
+    <div class="stat"><div class="stat-label">Change since 2016</div><div class="stat-val pos">+1,442</div><div class="stat-sub">vs −1,183 in 2011–2016</div></div>
+    <div class="stat"><div class="stat-label">Growth per year</div><div class="stat-val warn">+271</div><div class="stat-sub">2022–2024 avg (experimental)</div></div>
+  </div>
+
+  <div class="plain-box" id="plain-p1">
+    The island's population reached <strong>84,756</strong> at the end of 2024 — a record high, though only just above the 2011 census of 84,497. Growth is slow and uneven. Between 2011 and 2016 the population actually <strong>fell</strong> by 1,183 as more people left than arrived. It has grown modestly since, but by less than 300 people a year on average.
+  </div>
+  <div class="plain-box hidden" id="tech-p1">
+    Census anchors are confirmed Cabinet Office figures. Post-2021 annual estimates are experimental (Statistics IoM Population Report 2025, income tax proxy). The 2022–2024 estimates replace all prior estimates and are subject to revision as outward migration data matures. Earlier census dates are decennial or quinquennial counts of resident population; visitors are excluded.
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="sw" style="background:#3b82f6"></span>Census (confirmed)</span>
+    <span class="li"><span class="sw" style="background:rgba(59,130,246,0.35)"></span>Annual estimate (experimental)</span>
+  </div>
+  <div class="chart-wrap" style="height:260px">
+    <canvas id="ch-pop" role="img" aria-label="IoM resident population 1951 to 2024. Rose from 54,024 to a peak of 84,497 in 2011, fell to 83,314 in 2016, recovered to 84,756 by 2024.">Population grew from 54,024 (1951) to 84,756 (2024), with a dip in 2016.</canvas>
+  </div>
+  <div class="data-note">Sources: Cabinet Office census reports 1951–2021 (IoMiN Table 9); Statistics IoM Population Report 2025 Table 1 for 2022–2024 (experimental). Census population = resident population excluding visitors.</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 2 — NATURAL CHANGE
+══════════════════════════════════════════════════════ -->
+<div id="tab-p2" class="panel hidden">
+  <div class="panel-head">
+    <div class="panel-kicker">Panel 2 of 6</div>
+    <div class="panel-title">The island is no longer replacing itself</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Births 2025</div><div class="stat-val neg">567</div><div class="stat-sub">Down from 979 in 2008</div></div>
+    <div class="stat"><div class="stat-label">Deaths 2025</div><div class="stat-val">904</div><div class="stat-sub">Avg age at death: 81</div></div>
+    <div class="stat"><div class="stat-label">Natural change 2025</div><div class="stat-val neg">−337</div><div class="stat-sub">12th consecutive negative year</div></div>
+    <div class="stat"><div class="stat-label">Natural change 2024</div><div class="stat-val neg">−351</div><div class="stat-sub">Largest gap on record</div></div>
+  </div>
+
+  <div class="plain-box" id="plain-p2">
+    Since 2014, more people have died on the island than have been born here. In 2024 the gap was <strong>351</strong> — the largest on record. Births have roughly halved since 2008, falling from 979 to 567 in 2025. Deaths have remained relatively stable around 850–925, but are rising slowly as the population ages.
+    <span class="gap-chip">data gap 2009–2016</span>
+  </div>
+  <div class="plain-box hidden" id="tech-p2">
+    Two event-basis segments: 1999–2008 from Digest of Economic Statistics 2009 (General Registry, predecessor to Civil Registry); 2017–2025 from Douglas Civil Registry (date of event, April 2026 annual review complete). Gap 2009–2016: Civil Registry data requested under IoM Freedom of Information Act 2015 (June 2026). The IoMiN 2017 chart confirms natural change was positive until approximately 2013–14, turning negative thereafter — stated as directional only, not as data. The 2016 IoMiN Key Data table gives 758 births / 852 deaths on a registration basis — not plotted here as it uses a different counting method.
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="sw" style="background:#3b82f6"></span>Births</span>
+    <span class="li"><span class="sw" style="background:#f87171"></span>Deaths</span>
+    <span class="li"><span class="sl" style="background:#10b981"></span>Natural change</span>
+  </div>
+  <div class="chart-wrap" style="height:280px">
+    <canvas id="ch-nat" role="img" aria-label="Births and deaths 1999-2025 with gap 2009-2016. Births peaked at 979 in 2008 and fell to 567 in 2025. Natural change negative since approximately 2014.">Births declined from 979 (2008) to 567 (2025). Natural change negative since ~2014.</canvas>
+  </div>
+  <div class="data-note gap">Data gap 2009–2016: Civil Registry event-basis figures not yet available for this period. An FOI request has been submitted. The gap is shown as a shaded band; no values are interpolated or estimated.</div>
+  <div class="data-note" style="margin-top:8px">Sources: Digest of Economic Statistics 2009, Table 2.7 (General Registry); Douglas Civil Registry births-and-deaths-by-date-of-event (data as at 31 May 2026, April 2026 annual review complete).</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 3 — COMPONENTS OF CHANGE
+══════════════════════════════════════════════════════ -->
+<div id="tab-p3" class="panel hidden">
+  <div class="panel-head">
+    <div class="panel-kicker">Panel 3 of 6</div>
+    <div class="panel-title">Migration is what keeps the number positive</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Natural change 2024</div><div class="stat-val neg">−351</div><div class="stat-sub">Without migration</div></div>
+    <div class="stat"><div class="stat-label">Net migration 2024</div><div class="stat-val pos">+651</div><div class="stat-sub">Inward 2,211 minus outward 1,560</div></div>
+    <div class="stat"><div class="stat-label">Total change 2024</div><div class="stat-val pos">+271</div><div class="stat-sub">Population grew by 271 people</div></div>
+    <div class="stat"><div class="stat-label">Gross inward 2024</div><div class="stat-val">2,211</div><div class="stat-sub">Often cited — but net is 651</div></div>
+  </div>
+
+  <div class="plain-box" id="plain-p3">
+    The island's population is growing — but only because more people are arriving than leaving. Natural change (births minus deaths) <strong>subtracts around 330 people a year</strong>. Net migration adds around 600. Without migration, the island would be shrinking by roughly one person a day.
+    <br><br>
+    Government documents often cite the gross inward figure — around 2,200 people arriving each year. The relevant number for population change is net: around 600 after accounting for those who leave. That distinction matters.
+  </div>
+  <div class="plain-box hidden" id="tech-p3">
+    Net migration 2022–2024: Statistics IoM Population Report 2025, Tables 3 and 7 (income tax proxy, experimental). Outward migration for 2024 is substantially estimated due to reporting lag. The accounting identity (pop change = natural change + net migration + residual) closes to within 20–50 people per year — consistent with data lag. 2017–2021 net migration: inter-censal residual divided equally across five years. This is not annual data — it is an average of the 2016–2021 inter-censal period, shown as a reference band, not as annual bars.
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="sw" style="background:#f87171"></span>Natural change</span>
+    <span class="li"><span class="sw" style="background:#3b82f6"></span>Net migration (confirmed)</span>
+    <span class="li"><span class="sw" style="background:rgba(59,130,246,0.35)"></span>Net migration (inter-censal avg)</span>
+    <span class="li"><span class="sl" style="background:#e2e8f0"></span>Total change</span>
+  </div>
+  <div class="chart-wrap" style="height:260px">
+    <canvas id="ch-comp" role="img" aria-label="Components of population change 2017-2024. Natural change consistently negative -121 to -351. Net migration positive throughout, 344-651. Total change small positive each year.">Natural change negative, net migration positive, total change small positive 2017-2024.</canvas>
+  </div>
+  <div class="data-note warn">Net migration 2022–2024 is experimental — derived from income tax registration data (Statistics IoM Population Report 2025). Subject to revision, particularly 2024 outward figures. 2017–2021 inter-censal average is not annual data.</div>
+  <div class="data-note" style="margin-top:8px">Sources: Civil Registry (natural change); Statistics IoM Population Report 2025 Tables 1, 3, 7 (population estimates, inward and outward migration).</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 4 — AGE STRUCTURE OF FLOWS
+══════════════════════════════════════════════════════ -->
+<div id="tab-p4" class="panel hidden">
+  <div class="panel-head">
+    <div class="panel-kicker">Panel 4 of 6</div>
+    <div class="panel-title">Who is moving — and who is leaving</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Net working age 25–64</div><div class="stat-val pos">+661</div><div class="stat-sub">2024 — nearly all the net gain</div></div>
+    <div class="stat"><div class="stat-label">Net young adults 20–24</div><div class="stat-val neg">−19</div><div class="stat-sub">2024 — more leave than arrive</div></div>
+    <div class="stat"><div class="stat-label">Net over-65</div><div class="stat-val">−6</div><div class="stat-sub">2024 — near-zero</div></div>
+    <div class="stat"><div class="stat-label">Avg age of arrivals</div><div class="stat-val">40</div><div class="stat-sub">vs population avg of 44</div></div>
+  </div>
+
+  <div class="plain-box" id="plain-p4">
+    Net migration is not spread evenly across age groups. <strong>Working-age adults (25–64) account for nearly all of the net gain</strong> — around 660 people in 2024. Young adults aged 20–24 leave faster than they arrive: the island has no university, and this age group consistently emigrates to pursue education and early career opportunities elsewhere.
+    <br><br>
+    Notably, the over-65 net is close to zero. Older people both arrive and leave, roughly cancelling out. <strong>Migration is not driving the growth of the elderly population</strong> — that growth comes from existing residents ageing in place.
+  </div>
+  <div class="plain-box hidden" id="tech-p4">
+    Derived from Statistics IoM Population Report 2025 Tables 4 (inward age distribution) and 8 (outward age distribution), applied to confirmed inward and outward totals (Tables 3 and 7). Under-16s are excluded from Tables 4 and 8 — income tax data cannot capture children; their migration is partially observable via school roll data. Age data available for 2022–2024 only; no historical age-structured migration series exists for earlier years. All figures experimental.
+  </div>
+
+  <div class="legend" style="margin-bottom:10px">
+    <span class="li"><span class="sw" style="background:#3b82f6"></span>Inward (gross)</span>
+    <span class="li"><span class="sw" style="background:#f87171"></span>Outward (gross)</span>
+  </div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px">2024 — inward vs outward by age band</div>
+  <div class="chart-wrap" style="height:300px">
+    <canvas id="ch-age" role="img" aria-label="Inward and outward migration by age band 2024. Working age 25-64 shows large inward flow and smaller outward. Young adults 20-24 show outward exceeding inward.">2024 migration flows by age: large working-age inflow, 20-24 net outflow.</canvas>
+  </div>
+
+  <div class="legend" style="margin-top:1.2rem;margin-bottom:6px">
+    <span class="li"><span class="sw" style="background:#10b981"></span>Working 25–64</span>
+    <span class="li"><span class="sw" style="background:#f87171"></span>Young 16–24</span>
+    <span class="li"><span class="sw" style="background:#94a3b8"></span>65+</span>
+  </div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Net migration by broad band, 2022–2024</div>
+  <div class="chart-wrap" style="height:180px">
+    <canvas id="ch-net-age" role="img" aria-label="Net migration by age band 2022-2024. Working 25-64 net gain around +640. Young 16-24 small drain. 65+ near zero.">Net: working age +640/yr, young adults drain, 65+ near zero.</canvas>
+  </div>
+  <div class="data-note warn">All migration age-band figures are experimental (Statistics IoM Population Report 2025, Tables 4 and 8). Under-16s excluded from migration data. 2022–2024 only — no earlier age breakdown published.</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 5 — AGEING STOCK
+══════════════════════════════════════════════════════ -->
+<div id="tab-p5" class="panel hidden">
+  <div class="panel-head">
+    <div class="panel-kicker">Panel 5 of 6</div>
+    <div class="panel-title">One in five residents is now over 65 — and that share is rising</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Over-65 share 2021</div><div class="stat-val warn">22.1%</div><div class="stat-sub">18,569 people — confirmed census</div></div>
+    <div class="stat"><div class="stat-label">Over-65 share 2016</div><div class="stat-val">20.7%</div><div class="stat-sub">17,205 people — confirmed census</div></div>
+    <div class="stat"><div class="stat-label">OADR 2021</div><div class="stat-val warn">35.0</div><div class="stat-sub">Over-65s per 100 working-age adults</div></div>
+    <div class="stat"><div class="stat-label">OADR 2016</div><div class="stat-val">32.6</div><div class="stat-sub">+2.4 points in 5 years</div></div>
+  </div>
+
+  <div class="plain-box" id="plain-p5">
+    In 2021, <strong>22.1% of the island's population — 18,569 people — were aged 65 or over</strong>. This is confirmed by the 2021 Census. The share has risen from 20.7% in 2016.
+    <br><br>
+    This growth is driven by <strong>existing residents ageing in place</strong>, not by migration. The net flow of people aged 65 and over from migration is close to zero. GP registration data, which tracks this stock annually, confirms the trend has continued since 2021.
+    <br><br>
+    The largest single age cohort in 2021 was the <strong>50–59 year olds: 13,361 people</strong>. They will reach retirement age between 2027 and 2037. This is not a forecast — these people are already here. Their transition into the 65+ group is a demographic certainty, not a risk scenario.
+  </div>
+  <div class="plain-box hidden" id="tech-p5">
+    Census age-band figures: 2016 Census Table 2.2; 2021 Census Table 2.1 (Cabinet Office). OADR = over-65 population divided by 15–64 population × 100. GP over-65 stock 2011–2024: IoMiN Table 16 (Manx Care / Dept of Health, 31 March snapshot). Cross-check: census over-65 (18,569) vs GP list over-65 (18,857 at May 2021) — difference of +288, confirming GP data as a valid annual proxy with minimal inflation in the elderly band. Projection to 2040: linear trend only, using observed +400/yr over-65 growth (2017–2024 GP average). Clearly labelled as illustrative extrapolation — not a cohort model. Language throughout: "if recent trends continue."
+  </div>
+
+  <div class="chart-grid-2">
+    <div>
+      <div class="legend" style="margin-bottom:6px">
+        <span class="li"><span class="sw" style="background:#a78bfa"></span>2016 census</span>
+        <span class="li"><span class="sw" style="background:#3b82f6"></span>2021 census</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Age pyramid comparison — broad bands</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="ch-pyramid" role="img" aria-label="Age pyramid comparison 2016 vs 2021. Large 50-59 cohort in 2021. Children declining. Over-65 growing.">Age pyramids 2016 and 2021: 50-59 bulge prominent, children declining.</canvas>
+      </div>
+    </div>
+    <div>
+      <div class="legend" style="margin-bottom:6px">
+        <span class="li"><span class="sw" style="background:#a78bfa"></span>Over-65 (GP list, observed)</span>
+        <span class="li"><span class="sd" style="border-top-color:#f87171"></span>Trend projection</span>
+        <span class="li"><span class="sd" style="border-top-color:#94a3b8"></span>Zero-migration scenario</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Over-65 share of GP list 2011–2040</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="ch-o65" role="img" aria-label="Over-65 share of GP list 2011-2024 rising from 17.2% to 22.3%, projected to reach 26% by 2034 under current trends.">Over-65 GP share: 17.2% (2011) to 22.3% (2024), projected ~26% by 2034.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-note warn">The 13,361 people aged 50–59 in 2021 will reach 65 between 2027 and 2037. This cohort is larger than the entire 65+ population was in 2011 (14,946). No government document has published projections of the dependency ratio trajectory.</div>
+  <div class="data-note" style="margin-top:8px">Sources: 2016 Census Table 2.2; 2021 Census Table 2.1 (Cabinet Office); IoMiN Table 16 (Manx Care). Projection: linear extrapolation of observed GP trends — not a demographic model. Stated as illustrative throughout.</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 6 — SERVICES
+══════════════════════════════════════════════════════ -->
+<div id="tab-p6" class="panel hidden">
+  <div class="panel-head">
+    <div class="panel-kicker">Panel 6 of 6</div>
+    <div class="panel-title">What this means for services</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-label">Patients per GP 2024</div><div class="stat-val neg">2,689</div><div class="stat-sub">Up 45% from 1,851 in 2011</div></div>
+    <div class="stat"><div class="stat-label">GP FTE 2024</div><div class="stat-val neg">33.2</div><div class="stat-sub">Down from 47.0 in 2011</div></div>
+    <div class="stat"><div class="stat-label">Over-65s on list 2024</div><div class="stat-val warn">19,895</div><div class="stat-sub">Up 33% from 14,946 in 2011</div></div>
+    <div class="stat"><div class="stat-label">Avg age at death 2025</div><div class="stat-val">81</div><div class="stat-sub">Up from 79 in 2017</div></div>
+  </div>
+
+  <div class="plain-box" id="plain-p6">
+    An ageing population means <strong>greater demand on health and care services</strong>. The number of patients per GP has risen 45% since 2011 — from 1,851 to 2,689. Over the same period, the number of GPs has fallen from 47 to 33.
+    <br><br>
+    This is a compound pressure: more patients, and those patients are older. Older patients typically consult more frequently and have more complex needs. The average age at death has risen from 79 in 2017 to 81 in 2025 — people are living longer, meaning the elderly population accumulates faster than deaths clear it.
+  </div>
+  <div class="plain-box hidden" id="tech-p6">
+    GP data: IoMiN Table 16 (Manx Care / Department of Health and Social Care). GP FTE = full-time equivalent, recorded at 31 March each year (2020: June). Average age at death: Civil Registry, event basis. Hospital activity data (Noble's Hospital): IoMiN figures — 71,522 consultant-led outpatient attendances, 44,915 A&amp;E visits, 17,045 admissions in year to March 2025. Age-banded utilisation data not publicly available; would require FOI to Manx Care.
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="sl" style="background:#f87171"></span>Patients per GP FTE (left axis)</span>
+    <span class="li"><span class="sw" style="background:#3b82f6"></span>GP FTE count (right axis)</span>
+  </div>
+  <div class="chart-wrap" style="height:240px">
+    <canvas id="ch-gp" role="img" aria-label="Patients per GP FTE rising from 1851 to 2689 (2011-2024). GP FTE falling from 47 to 33.2 over same period.">Patients per GP up 45%. GP numbers down 29% since 2011.</canvas>
+  </div>
+
+  <div class="legend" style="margin-top:1.2rem">
+    <span class="li"><span class="sl" style="background:#f59e0b"></span>Average age at death</span>
+  </div>
+  <div class="chart-wrap" style="height:160px">
+    <canvas id="ch-death-age" role="img" aria-label="Average age at death 2017-2025, rising from 79 to 81.">Average age at death: 79 (2017) rising to 81 (2025).</canvas>
+  </div>
+  <div class="data-note" style="margin-top:10px">Sources: IoMiN Table 16, Manx Care; Douglas Civil Registry. 2020 GP figure recorded in June not March.</div>
+</div>
+
+<hr class="divider"/>
+<div class="page-footer">
+  <span>observatory.coalfinch.com · Isle of Man population change · Data as at June 2026</span>
+  <span>Sources: Cabinet Office; Civil Registry; Statistics IoM; IoMiN; Manx Care</span>
+</div><!-- /.page-shell -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<script>
+/* ── THEME HELPERS — called at chart-build time ──── */
+function isLight(){ return document.documentElement.getAttribute('data-theme')==='light'; }
+function gc(){ return isLight()?'rgba(0,0,0,0.06)':'rgba(148,163,184,0.10)'; }
+function mc(){ return isLight()?'#475569':'#64748b'; }
+function tc(){ return isLight()?'#0f172a':'#e2e8f0'; }
+function ttBg(){ return isLight()?'rgba(255,255,255,0.98)':'rgba(15,23,42,0.95)'; }
+function ttBorder(){ return isLight()?'#cbd5e1':'#334155'; }
+
+/* ── DATA ─────────────────────────────────────────── */
+
+const POP_CENSUS = {
+  years:[1951,1961,1966,1971,1976,1981,1986,1991,1996,2001,2006,2011,2016,2021],
+  vals: [54024,47166,49312,53228,60496,64679,64282,69788,71714,76315,80058,84497,83314,84069]
+};
+const POP_EST = { years:[2022,2023,2024], vals:[84172,84485,84756] };
+
+const NAT_A = {
+  years:[1999,2000,2001,2002,2003,2004,2005,2006,2007,2008],
+  births:[894,831,863,903,860,862,901,905,919,979],
+  deaths:[983,897,855,877,852,798,775,768,789,843]
+};
+const NAT_B = {
+  years:[2017,2018,2019,2020,2021,2022,2023,2024,2025],
+  births:[729,719,696,648,679,580,609,574,567],
+  deaths:[850,917,856,925,887,919,876,925,904]
+};
+
+const COMP = {
+  years:[2017,2018,2019,2020,2021,2022,2023,2024],
+  nat:  [-121,-198,-160,-277,-208,-339,-267,-351],
+  migConf:[null,null,null,null,null,548,600,651],
+  migAvg: [344,344,344,344,344,null,null,null],
+};
+
+const AGE_BANDS=['0-4','5-9','10-14','15-19','20-24','25-29','30-34','35-39','40-44','45-49','50-54','55-59','60-64','65-69','70-74','75-79','80-84','85+'];
+const C16=[4144,4733,4469,4789,4422,4326,4506,4873,5612,6497,6681,5887,5170,5441,4212,3155,2129,2268];
+const C21=[3483,4245,4786,4448,4309,4364,4741,4954,5242,5798,6648,6713,5769,4898,5156,3671,2489,2355];
+
+// 2024 inward/outward by band (from Tables 4+8 × totals)
+const INWARD_24 = [0,0,0,66,199,332,332,331,221,177,155,133,88,44,44,44,22,0];
+const OUTWARD_24= [0,0,0,31,218,250,172,156,125,109,94,125,78,78,16,31,16,0];
+
+const GP = {
+  years:[2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  total:[86925,87048,87195,87140,87026,86962,87248,87399,87790,88151,88466,88354,88735,89262],
+  o65:  [14946,15484,16244,16692,17132,17486,17758,18015,18314,18592,18857,19084,19506,19895],
+  fte:  [47.0,45.0,45.8,45.4,46.5,46.5,44.6,42.5,40.4,38.6,41.8,40.3,37.6,33.2],
+  ppt:  [1851,1936,1903,1921,1871,1870,1956,2056,2173,2283,2116,2192,2360,2689]
+};
+const DEATH_AGE={years:[2017,2018,2019,2020,2021,2022,2023,2024,2025],vals:[79,78,79,79,78,78,79,80,81]};
+
+/* ── BASE OPTIONS ─────────────────────────────────── */
+function baseOpts(extra){
+  const G=gc(),M=mc(),T=tc();
+  // Deep merge so nested scale overrides in extra don't wipe top-level defaults
+  function deep(a,b){const r={...a};for(const k in b){r[k]=(b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k]))?deep(a[k]||{},b[k]):b[k];}return r;}
+  return deep({
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+      backgroundColor:ttBg(),borderColor:ttBorder(),borderWidth:1,
+      titleColor:T,bodyColor:M,padding:10,titleFont:{size:11},bodyFont:{size:11}
+    }},
+    scales:{
+      x:{ticks:{color:M,font:{size:10}},grid:{color:G}},
+      y:{ticks:{color:M,font:{size:10}},grid:{color:G}}
+    }
+  },extra||{});
+}
+
+let charts={};
+function mkChart(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
+
+/* ── PANEL 1: POPULATION ──────────────────────────── */
+function buildP1(){const G=gc(),M=mc(),T=tc();
+  const allYears=[...POP_CENSUS.years,...POP_EST.years];
+  const censusData=allYears.map(y=>{const i=POP_CENSUS.years.indexOf(y);return i>=0?POP_CENSUS.vals[i]:null});
+  const estData=allYears.map(y=>{const i=POP_EST.years.indexOf(y);return i>=0?POP_EST.vals[i]:null});
+  // Connect census to estimates
+  estData[POP_CENSUS.years.length-1]=POP_CENSUS.vals[POP_CENSUS.vals.length-1];
+
+  mkChart('ch-pop',{type:'line',data:{labels:allYears,datasets:[
+    {label:'Census',data:censusData,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',
+     borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#3b82f6',fill:true,tension:0.2,spanGaps:false},
+    {label:'Estimate',data:estData,borderColor:'rgba(59,130,246,0.5)',backgroundColor:'rgba(59,130,246,0.04)',
+     borderWidth:2,borderDash:[5,3],pointRadius:3,pointStyle:'circle',fill:true,tension:0.2,spanGaps:false}
+  ]},options:baseOpts({scales:{
+    x:{ticks:{color:M,font:{size:10},maxRotation:45,callback:(v,i)=>{const y=allYears[i];return[1951,1961,1971,1981,1991,2001,2006,2011,2016,2021,2024].includes(y)?y:'';}},grid:{color:G}},
+    y:{min:40000,ticks:{color:M,font:{size:10},callback:v=>(v/1000)+'k'},grid:{color:G}}
+  }})});
+}
+
+/* ── PANEL 2: NATURAL CHANGE ──────────────────────── */
+function buildP2(){const G=gc(),M=mc(),T=tc();
+  // Build combined series with null gap for 2009-2016
+  const allYears=[...NAT_A.years,2009,2010,2011,2012,2013,2014,2015,2016,...NAT_B.years];
+  const births=allYears.map((y,i)=>{
+    const ia=NAT_A.years.indexOf(y); if(ia>=0) return NAT_A.births[ia];
+    const ib=NAT_B.years.indexOf(y); if(ib>=0) return NAT_B.births[ib];
+    return null;
+  });
+  const deaths=allYears.map((y,i)=>{
+    const ia=NAT_A.years.indexOf(y); if(ia>=0) return NAT_A.deaths[ia];
+    const ib=NAT_B.years.indexOf(y); if(ib>=0) return NAT_B.deaths[ib];
+    return null;
+  });
+  const nat=births.map((b,i)=>b===null||deaths[i]===null?null:b-deaths[i]);
+
+  const labels=allYears.map(y=>{
+    if([2009,2010,2011,2012,2013,2014,2015,2016].includes(y)) return y===2012?'◀ gap ▶':'';
+    return y;
+  });
+
+  mkChart('ch-nat',{type:'line',data:{labels,datasets:[
+    {label:'Births',data:births,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.06)',
+     borderWidth:2,pointRadius:2,fill:false,tension:0.3,spanGaps:false},
+    {label:'Deaths',data:deaths,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.06)',
+     borderWidth:2,pointRadius:2,fill:false,tension:0.3,spanGaps:false},
+    {label:'Natural change',data:nat,borderColor:'#10b981',borderWidth:1.5,borderDash:[4,3],
+     pointRadius:0,fill:false,tension:0.3,spanGaps:false}
+  ]},options:baseOpts({
+    plugins:{
+      legend:{display:false},
+      tooltip:{mode:'index',intersect:false,
+        backgroundColor:ttBg(),borderColor:ttBorder(),borderWidth:1,
+        titleColor:T,bodyColor:M,padding:10,
+        callbacks:{title:items=>`${items[0].label}`,label:item=>{
+          const v=item.raw; return v===null?null:` ${item.dataset.label}: ${v>0?'+':''}${Math.round(v).toLocaleString()}`;
+        }}
+      },
+      annotation:{} // no annotation plugin needed — gap shown via null
+    },
+    scales:{
+      x:{ticks:{color:M,font:{size:10},maxRotation:45,
+        callback:(v,i)=>{const y=allYears[i];
+          if([2009,2010,2011,2012,2013,2014,2015,2016].includes(y)) return y===2013?'— gap —':'';
+          return [1999,2002,2005,2008,2017,2020,2023,2025].includes(y)?y:'';
+        }},grid:{color:G}},
+      y:{ticks:{color:M,font:{size:10},callback:v=>v>0?'+'+v:v},grid:{color:G}}
+    }
+  })});
+}
+
+/* ── PANEL 3: COMPONENTS ──────────────────────────── */
+function buildP3(){const G=gc(),M=mc();
+  const {years,nat,migConf,migAvg}=COMP;
+  const total=nat.map((n,i)=>{
+    const m=migConf[i]!==null?migConf[i]:migAvg[i]!==null?migAvg[i]:null;
+    return m!==null?n+m:null;
+  });
+  mkChart('ch-comp',{type:'bar',data:{labels:years,datasets:[
+    {label:'Natural change',data:nat,backgroundColor:'rgba(248,113,113,0.7)',stack:'s'},
+    {label:'Net migration (confirmed)',data:migConf,backgroundColor:'rgba(59,130,246,0.8)',stack:'s'},
+    {label:'Net migration (inter-censal avg)',data:migAvg,backgroundColor:'rgba(59,130,246,0.35)',stack:'s'},
+    {label:'Total change',data:total,type:'line',borderColor:'#e2e8f0',borderWidth:2,
+     pointRadius:4,pointBackgroundColor:'#e2e8f0',fill:false,tension:0}
+  ]},options:baseOpts({scales:{
+    x:{stacked:true,ticks:{color:M,font:{size:10}},grid:{color:G}},
+    y:{stacked:true,ticks:{color:M,font:{size:10},callback:v=>v>0?'+'+v:v},grid:{color:G}}
+  }})});
+}
+
+/* ── PANEL 4: AGE FLOWS ───────────────────────────── */
+function buildP4(){const G=gc(),M=mc(),T=tc();
+  // Horizontal bar — inward vs outward 2024, youngest at top
+  const bands=['85+','80-84','75-79','70-74','65-69','60-64','55-59','50-54','45-49','40-44','35-39','30-34','25-29','20-24','15-19'];
+  const bIdx=b=>AGE_BANDS.indexOf(b);
+  const inw=bands.map(b=>INWARD_24[bIdx(b)]);
+  const out=bands.map(b=>-OUTWARD_24[bIdx(b)]);
+
+  mkChart('ch-age',{type:'bar',data:{labels:bands,datasets:[
+    {label:'Inward',data:inw,backgroundColor:'rgba(59,130,246,0.7)',borderRadius:2},
+    {label:'Outward',data:out,backgroundColor:'rgba(248,113,113,0.7)',borderRadius:2}
+  ]},options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:ttBg(),borderColor:ttBorder(),borderWidth:1,
+      titleColor:T,bodyColor:M,padding:10,
+      callbacks:{label:i=>{const v=Math.abs(i.raw);return ` ${i.dataset.label}: ${v}`}}
+    }},
+    scales:{
+      x:{ticks:{color:M,font:{size:10},callback:v=>Math.abs(v)},grid:{color:G},
+         title:{display:true,text:'people',color:M,font:{size:10}}},
+      y:{ticks:{color:M,font:{size:10}},grid:{color:G}}
+    }
+  }});
+
+  // Net by band 2022-2024
+  mkChart('ch-net-age',{type:'bar',data:{labels:['2022','2023','2024'],datasets:[
+    {label:'16–24',data:[-87,-18,16],backgroundColor:'rgba(248,113,113,0.7)',stack:'s'},
+    {label:'25–64',data:[642,614,661],backgroundColor:'rgba(16,185,129,0.75)',stack:'s'},
+    {label:'65+',data:[-47,-12,-6],backgroundColor:'rgba(148,163,184,0.55)',stack:'s'}
+  ]},options:baseOpts({scales:{
+    x:{stacked:true,ticks:{color:M,font:{size:11}},grid:{color:G}},
+    y:{stacked:true,ticks:{color:M,font:{size:10},callback:v=>v>0?'+'+v:v},grid:{color:G}}
+  }})});
+}
+
+/* ── PANEL 5: AGEING ──────────────────────────────── */
+function buildP5(){const G=gc(),M=mc(),T=tc();
+  // Pyramid comparison — horizontal bars
+  const pb=['85+','80-84','75-79','70-74','65-69','60-64','55-59','50-54','45-49','40-44','35-39','30-34','25-29','20-24','15-19','10-14','5-9','0-4'];
+  const v16=pb.map(b=>C16[AGE_BANDS.indexOf(b)]);
+  const v21=pb.map(b=>C21[AGE_BANDS.indexOf(b)]);
+  mkChart('ch-pyramid',{type:'bar',data:{labels:pb,datasets:[
+    {label:'2016',data:v16,backgroundColor:'rgba(167,139,250,0.5)',borderRadius:1},
+    {label:'2021',data:v21,backgroundColor:'rgba(59,130,246,0.65)',borderRadius:1}
+  ]},options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:ttBg(),borderColor:ttBorder(),borderWidth:1,
+      titleColor:T,bodyColor:M,padding:8,
+      callbacks:{label:i=>` ${i.dataset.label}: ${i.raw.toLocaleString()}`}
+    }},
+    scales:{
+      x:{ticks:{color:M,font:{size:9},callback:v=>(v/1000).toFixed(1)+'k'},grid:{color:G}},
+      y:{ticks:{color:M,font:{size:9}},grid:{color:G}}
+    }
+  }});
+
+  // Over-65 share + projection
+  const gpYears=GP.years;
+  const obsShare=gpYears.map((y,i)=>Math.round(GP.o65[i]/GP.total[i]*1000)/10);
+  const projYears=[2024,2026,2028,2030,2032,2034,2036,2038,2040];
+  const projShare=projYears.map(y=>{
+    const n=y-2024; const o65=19895+400*n; const tot=89262+270*n;
+    return Math.round(o65/tot*1000)/10;
+  });
+  const zeroShare=projYears.map(y=>{
+    const n=y-2024; const o65=19895+400*n; return Math.round(o65/89262*1000)/10;
+  });
+
+  const allYrs=[...gpYears,...projYears.slice(1)];
+  const obsD=[...obsShare,...projYears.slice(1).map(()=>null)];
+  const projD=[...gpYears.slice(0,-1).map(()=>null),obsShare[obsShare.length-1],...projShare.slice(1)];
+  const zeroD=[...gpYears.slice(0,-1).map(()=>null),obsShare[obsShare.length-1],...zeroShare.slice(1)];
+
+  mkChart('ch-o65',{type:'line',data:{labels:allYrs,datasets:[
+    {label:'Observed',data:obsD,borderColor:'#a78bfa',borderWidth:2.5,pointRadius:3,
+     pointBackgroundColor:'#a78bfa',fill:false,tension:0.3,spanGaps:false},
+    {label:'Current trend projection',data:projD,borderColor:'#f87171',borderWidth:2,
+     borderDash:[6,3],pointRadius:0,fill:false,tension:0.3,spanGaps:false},
+    {label:'Zero migration',data:zeroD,borderColor:'#94a3b8',borderWidth:1.5,
+     borderDash:[3,3],pointRadius:0,fill:false,tension:0.3,spanGaps:false}
+  ]},options:baseOpts({scales:{
+    x:{ticks:{color:M,font:{size:9},maxRotation:45,callback:(v,i)=>{
+      const y=allYrs[i];return[2011,2014,2017,2020,2024,2030,2036,2040].includes(y)?y:'';
+    }},grid:{color:G}},
+    y:{min:15,max:36,ticks:{color:M,font:{size:10},callback:v=>v+'%'},grid:{color:G}}
+  }})});
+}
+
+/* ── PANEL 6: SERVICES ────────────────────────────── */
+function buildP6(){const G=gc(),M=mc(),T=tc();
+  mkChart('ch-gp',{type:'bar',data:{labels:GP.years,datasets:[
+    {label:'GP FTE',data:GP.fte,backgroundColor:'rgba(59,130,246,0.6)',borderRadius:2,yAxisID:'y2'},
+    {label:'Patients per GP',data:GP.ppt,type:'line',borderColor:'#f87171',borderWidth:2.5,
+     pointRadius:3,pointBackgroundColor:'#f87171',fill:false,tension:0.3,yAxisID:'y'}
+  ]},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+      backgroundColor:ttBg(),borderColor:ttBorder(),borderWidth:1,
+      titleColor:T,bodyColor:M,padding:10}},
+    scales:{
+      x:{ticks:{color:M,font:{size:10}},grid:{color:G}},
+      y:{min:1500,ticks:{color:'#f87171',font:{size:10}},grid:{color:G},
+         title:{display:true,text:'Patients/GP',color:'#f87171',font:{size:10}}},
+      y2:{position:'right',min:25,max:55,ticks:{color:'#3b82f6',font:{size:10}},
+          grid:{display:false},title:{display:true,text:'GP FTE',color:'#3b82f6',font:{size:10}}}
+    }
+  }});
+
+  mkChart('ch-death-age',{type:'line',data:{labels:DEATH_AGE.years,datasets:[
+    {label:'Avg age at death',data:DEATH_AGE.vals,borderColor:'#f59e0b',borderWidth:2.5,
+     pointRadius:4,pointBackgroundColor:'#f59e0b',fill:false,tension:0.2,
+     backgroundColor:'rgba(245,158,11,0.06)'}
+  ]},options:baseOpts({scales:{
+    x:{ticks:{color:M,font:{size:10}},grid:{color:G}},
+    y:{min:76,max:84,ticks:{color:M,font:{size:10}},grid:{color:G}}
+  }})});
+}
+
+/* ── TAB SWITCHING ────────────────────────────────── */
+const builders={p1:buildP1,p2:buildP2,p3:buildP3,p4:buildP4,p5:buildP5,p6:buildP6};
+const built=new Set();
+
+function showTab(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  event.target.classList.add('active');
+  if(!built.has(id)){ builders[id](); built.add(id); }
+  setTimeout(notifyHeight,300);
+}
+
+/* ── AUDIENCE TOGGLE ──────────────────────────────── */
+function setAudience(a){
+  document.getElementById('btn-plain').classList.toggle('active',a==='plain');
+  document.getElementById('btn-tech').classList.toggle('active',a==='tech');
+  document.querySelectorAll('.plain-box[id^="plain-"]').forEach(el=>el.classList.toggle('hidden',a==='tech'));
+  document.querySelectorAll('.plain-box[id^="tech-"]').forEach(el=>el.classList.toggle('hidden',a==='plain'));
+}
+
+/* ── IFRAME HEIGHT ────────────────────────────────── */
+let _lastH=0;
+function notifyHeight(){
+  const h=document.body.scrollHeight;
+  if(Math.abs(h-_lastH)<4)return;
+  _lastH=h;
+  window.parent.postMessage({type:'resize',height:h},'*');
+}
+
+/* ── THEME ────────────────────────────────────────── */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  // Rebuild every chart that's already been drawn so colours update
+  const prev=[...built];
+  built.clear();
+  prev.forEach(id=>{ builders[id](); built.add(id); });
+  setTimeout(notifyHeight,100);
+}
+
+window.addEventListener('message',e=>{
+  if(e.data?.type==='tabVisible') setTimeout(notifyHeight,50);
+  if(e.data?.type==='setTheme')   applyTheme(e.data.theme);
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  buildP1(); built.add('p1');
+  setTimeout(notifyHeight,500);
+});
+</script>
+
+<!-- Plausible analytics -->
+<script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
+<script>window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
+</script>
+</body>
+</html>

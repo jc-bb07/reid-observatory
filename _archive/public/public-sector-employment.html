@@ -1,0 +1,601 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Public Sector Employment · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#162032;
+  --border:#1e293b;--border2:#334155;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#475569;
+  --blue:#60a5fa;--blue-dim:rgba(96,165,250,0.15);
+  --green:#34d399;--amber:#fbbf24;--red:#f87171;
+  --iom:#3b82f6;--gsy:#10b981;--jsy:#f59e0b;--uk:#94a3b8;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:960px;margin:0 auto;padding:20px 20px 48px}
+h1{font-size:19px;font-weight:800;letter-spacing:-0.01em;color:var(--text);margin-bottom:4px}
+.subtitle{font-size:12px;color:var(--muted);line-height:1.7;max-width:680px;margin-bottom:16px}
+.caveat-box{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--amber);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--muted);line-height:1.7}
+.caveat-box strong{color:var(--amber)}
+.tab-nav{display:flex;gap:0;border-bottom:1px solid var(--border2);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{padding:8px 16px;font-family:var(--font);font-size:12px;font-weight:500;color:#94a3b8;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
+.tab-btn:hover:not(.active){color:#cbd5e1}
+.tab-btn.active{color:#93c5fd;font-weight:600;border-bottom-color:#93c5fd}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.controls-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:20px}
+.ctrl-group{display:flex;flex-direction:column;gap:5px}
+.ctrl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.pill{padding:5px 11px;border-radius:5px;border:1px solid var(--border2);background:var(--surface2);color:#94a3b8;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.pill:hover{color:var(--text)}
+.pill.on-iom{background:rgba(59,130,246,.15);border-color:var(--iom);color:var(--iom)}
+.pill.on-jsy{background:rgba(245,158,11,.15);border-color:var(--jsy);color:var(--jsy)}
+.pill.on-gsy{background:rgba(16,185,129,.15);border-color:var(--gsy);color:var(--gsy)}
+.pill.on-uk{background:rgba(148,163,184,.15);border-color:var(--uk);color:var(--uk)}
+.pill.on-upper{background:rgba(167,139,250,.15);border-color:#a78bfa;color:#a78bfa}
+.ctrl-divider{width:1px;background:var(--border2);height:36px;align-self:flex-end;margin:0 2px}
+.chart-wrap{position:relative;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:16px}
+.chart-canvas-wrap{position:relative;width:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:10px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:5px}
+.ldash{width:22px;height:2px;flex-shrink:0}
+.ldot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:2px solid transparent}
+.chart-note{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;border-top:3px solid var(--border2)}
+.stat-card.iom{border-top-color:var(--iom)}.stat-card.jsy{border-top-color:var(--jsy)}.stat-card.gsy{border-top-color:var(--gsy)}.stat-card.uk{border-top-color:var(--uk)}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.stat-val{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--text)}
+.stat-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.share-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:20px}
+.share-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+.share-card-head{padding:9px 14px;border-bottom:1px solid var(--border2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.share-card-body{padding:12px 14px}
+.share-pct{font-size:30px;font-weight:800;font-family:var(--mono)}
+.share-meta{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.6}
+.notes-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:10px 0;border:none;background:none;font-family:var(--font)}
+.notes-toggle:hover{color:var(--text)}
+.notes-body{display:none;font-size:11px;color:var(--muted);line-height:1.8;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.notes-body.open{display:block}
+.notes-body h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text);margin:10px 0 4px}
+.notes-body h4:first-child{margin-top:0}
+.notes-body p{margin-bottom:6px}
+.page-footer{margin-top:32px;padding-top:16px;border-top:1px solid var(--border2);font-size:10px;color:var(--muted2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.page-footer a{color:var(--muted);text-decoration:none}.page-footer a:hover{color:var(--text)}
+body.light {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --text: #0f172a; --muted: #64748b; --muted2: #475569;
+  --blue: #2563eb; --blue-dim: rgba(37,99,235,0.08);
+  --iom: #2563eb; --gsy: #059669; --jsy: #d97706; --uk: #64748b;
+  --green: #059669; --amber: #d97706; --red: #dc2626;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<h1>Public Sector Employment — Crown Dependencies</h1>
+<p class="subtitle">Government workforce size across the Isle of Man, Jersey, Guernsey and the United Kingdom — employment by sector from the census (1961–2021), OHR payroll FTE (2015–2024), and share of total employment.</p>
+
+<div class="caveat-box">
+  <strong>Definition break — IoM series:</strong> Before 2007 the source is the IoM census "public administration" sector (dots only at each census year — 1961 to 2021). From 2015 the source is IOMG OHR payroll FTE, which includes health, education, police and fire and is therefore a substantially wider measure. The two series are <strong>not comparable</strong> and are not joined. The gap 2007–2014 reflects the absence of a published continuous FTE series for that period. The optional upper-bound series adds "professional, educational, medical and scientific services" to public administration — this is a ceiling that includes private sector employment in those fields.
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('absolute')">Absolute</button>
+  <button class="tab-btn" onclick="switchTab('indexed')">Indexed</button>
+  <button class="tab-btn" onclick="switchTab('share')">Share of Workforce</button>
+</div>
+
+<!-- ══ TAB 1: ABSOLUTE ══ -->
+<div class="tab-panel active" id="panel-absolute">
+  <div class="controls-row">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Series</span>
+      <div class="pills">
+        <button class="pill on-iom" id="pill-abs-iom" onclick="tog('abs','iom',this)">Isle of Man</button>
+        <button class="pill on-jsy" id="pill-abs-jsy" onclick="tog('abs','jsy',this)">Jersey</button>
+        <button class="pill on-gsy" id="pill-abs-gsy" onclick="tog('abs','gsy',this)">Guernsey</button>
+        <button class="pill on-upper" id="pill-abs-upper" onclick="tog('abs','upper',this)">IoM upper bound</button>
+      </div>
+    </div>
+  </div>
+  <div class="stat-grid" id="stats-abs"></div>
+  <div class="chart-wrap">
+    <div class="legend" id="legend-abs"></div>
+    <div class="chart-canvas-wrap" style="height:380px"><canvas id="chart-abs"></canvas></div>
+    <p class="chart-note">IoM census dots: public administration sector only (1961–2021, Statistics IoM). IoM FTE line: OHR payroll (2015–2024), includes health, education, police, fire — not comparable with census dots. Upper bound (optional): public admin + professional/educational/medical/scientific sector combined — ceiling that includes private sector. Jersey: core GOJ jobs (Statistics Jersey, Dec 2002–2023). Guernsey: States FTE (Annual Accounts, 2021–22 only). UK excluded from absolute view — see Indexed tab.</p>
+  </div>
+</div>
+
+<!-- ══ TAB 2: INDEXED ══ -->
+<div class="tab-panel" id="panel-indexed">
+  <div class="controls-row">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Show</span>
+      <div class="pills">
+        <button class="pill on-iom" id="pill-idx-iom" onclick="tog('idx','iom',this)">Isle of Man FTE</button>
+        <button class="pill on-jsy" id="pill-idx-jsy" onclick="tog('idx','jsy',this)">Jersey</button>
+        <button class="pill on-gsy" id="pill-idx-gsy" onclick="tog('idx','gsy',this)">Guernsey</button>
+        <button class="pill on-uk"  id="pill-idx-uk"  onclick="tog('idx','uk',this)">UK</button>
+      </div>
+    </div>
+    <div class="ctrl-divider"></div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Base year = 100</span>
+      <div class="pills" id="base-pills">
+        <button class="pill on-iom" onclick="setBase(2015,this)">2015</button>
+        <button class="pill" onclick="setBase(2019,this)">2019</button>
+        <button class="pill" onclick="setBase(2021,this)">2021</button>
+      </div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="legend" id="legend-idx"></div>
+    <div class="chart-canvas-wrap" style="height:380px"><canvas id="chart-idx"></canvas></div>
+    <p class="chart-note">Indexed: each series = 100 at the selected base year. IoM uses OHR FTE (2015+). Jersey = core GOJ jobs (Dec). Guernsey = States FTE (2021–22, two points). UK = ONS G7G3 total public sector FTE. Base year must fall within each series' date range — Guernsey and Jersey unavailable for 2015 base.</p>
+  </div>
+</div>
+
+<!-- ══ TAB 3: SHARE ══ -->
+<div class="tab-panel" id="panel-share">
+
+  <div class="share-grid">
+    <div class="share-card" style="border-top:3px solid var(--iom)">
+      <div class="share-card-head" style="color:var(--iom)">Isle of Man</div>
+      <div class="share-card-body">
+        <div class="share-pct" style="color:var(--iom)">7.3%</div>
+        <div class="share-meta">Public administration sector / total employed<br>3,188 of 43,519 · Census 2021</div>
+      </div>
+    </div>
+    <div class="share-card" style="border-top:3px solid #a78bfa">
+      <div class="share-card-head" style="color:#a78bfa">Isle of Man (upper)</div>
+      <div class="share-card-body">
+        <div class="share-pct" style="color:#a78bfa">22.1%</div>
+        <div class="share-meta">Public admin + prof/educ/med/sci / total<br>9,604+3,188 = 12,792 of 43,519 · Census 2021<br><em>Includes private sector — ceiling only</em></div>
+      </div>
+    </div>
+    <div class="share-card" style="border-top:3px solid var(--iom)">
+      <div class="share-card-head" style="color:var(--iom)">Isle of Man (OHR FTE)</div>
+      <div class="share-card-body">
+        <div class="share-pct" style="color:var(--iom)">~16%</div>
+        <div class="share-meta">OHR FTE / total employed<br>7,049 FTE of ~43,519 employees · 2021<br><em>Best single-year estimate for govt employment</em></div>
+      </div>
+    </div>
+    <div class="share-card" style="border-top:3px solid var(--jsy)">
+      <div class="share-card-head" style="color:var(--jsy)">Jersey</div>
+      <div class="share-card-body">
+        <div class="share-pct" style="color:var(--jsy)">12–13%</div>
+        <div class="share-meta">Core GOJ jobs / total jobs<br>7,870 of 63,500 · Dec 2022</div>
+      </div>
+    </div>
+    <div class="share-card" style="border-top:3px solid var(--gsy)">
+      <div class="share-card-head" style="color:var(--gsy)">Guernsey</div>
+      <div class="share-card-body">
+        <div class="share-pct" style="color:var(--gsy)">~15%</div>
+        <div class="share-meta">States FTE / total employed<br>4,896 FTE · 2022</div>
+      </div>
+    </div>
+    <div class="share-card" style="border-top:3px solid var(--uk)">
+      <div class="share-card-head" style="color:var(--uk)">United Kingdom</div>
+      <div class="share-card-body">
+        <div class="share-pct" style="color:var(--uk)">17%</div>
+        <div class="share-meta">Public sector headcount / LFS employed<br>5.5m of 32.2m · 2021 · ONS</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="caveat-box">
+    <strong>Comparability:</strong> The IoM census figure (7.3%) counts only the public administration <em>sector</em> — it excludes government employees working in health, education, police etc. The OHR FTE (~16%) covers all government employees but is FTE not headcount. The Stats Jersey 2024 international comparison gives census headcount %: IoM 19.6%, Guernsey 16.7%, Jersey 15.4%, UK 16.9% — a different and broader measure than any figure above.
+  </div>
+
+  <div class="chart-wrap">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px">IoM: public administration sector as % of total employed (census 1961–2021)</div>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-share-iom"></canvas></div>
+    <p class="chart-note">Source: IoM in Numbers 2025, Table 3. Public administration sector only — excludes govt employees in health, education, police. True government share is substantially higher (see OHR FTE ~16% in 2021). The dip in 1971 reflects census classification rather than a real contraction. Denominator is total employed from the same table.</p>
+  </div>
+
+  <div class="chart-wrap">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px">Jersey: core GOJ jobs as % of total jobs (Dec 2002–2023)</div>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-share-jsy"></canvas></div>
+    <p class="chart-note">Source: Statistics Jersey Labour Market report, December snapshot, Appendix 1. Core GOJ = permanent + fixed-term only. Dip 2014–17 partly reflects ~100 jobs reclassified to arms-length bodies (Andium Homes, Visit Jersey).</p>
+  </div>
+
+  <div class="chart-wrap">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px">UK: public sector FTE as % of total employment (1999–2025)</div>
+    <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-share-uk"></canvas></div>
+    <p class="chart-note">Source: ONS G7G3 (public sector FTE, SA) / ONS LFS total employment. 2009–13 peak inflated by inclusion of Lloyds/RBS as public sector. Royal Mail reclassified to private Dec 2013 (~150k). NatWest returned to private Q1 2024 (~15k).</p>
+  </div>
+</div>
+
+<!-- DATA NOTES -->
+<button class="notes-toggle" onclick="toggleNotes()">
+  <span id="narr">▶</span> Data notes &amp; sources
+</button>
+<div class="notes-body" id="notes-body">
+  <h4>Isle of Man — census employment by sector (1961–2021)</h4>
+  <p>Source: <em>IoM in Numbers 2025</em>, Table 3 — Employment by Sector 1961 to 2021 (Statistics Isle of Man, Cabinet Office, September 2025). Census anchor years: 1961, 1971, 1981, 1991, 1996, 2001, 2006, 2011, 2016, 2021. All values are observed census counts — no interpolation. The classification "professional, educational, medical and scientific services" is the IoM's own industrial classification and does not correspond to SIC 2007 sectors. It includes both public and private sector employment in those fields and cannot be used as a government employment proxy without adjustment.</p>
+  <p>The total employed figure from the same table is used as the denominator in the share panel. Note: 2011 and 2016 totals include a small "not stated or inadequately described" residual (146 and 609 respectively) not shown in sector rows.</p>
+
+  <h4>Isle of Man — OHR payroll FTE (2015–2024)</h4>
+  <p>Source: IOMG Office of Human Resources payroll data, released via Tynwald written answers and Freedom of Information requests. Covers all IOMG employees including civil servants, teachers, NHS/Manx Care staff, police, fire service. Excludes: Manx Utilities Authority, IOM Post Office, Crown appointments, judiciary, Tynwald members, agency staff. Points: 2015 (6,702.9), 2016 (6,736.5), 2018 (6,904.5), 2019 (6,930.7), 2020 (6,905.7), 2021 (7,049.4), 2022 (7,243.6), 2023 (7,432.5, Sep), 2024 (7,837, EPRC structural deficit report March 2026).</p>
+
+  <h4>Jersey — core GOJ jobs (2002–2023)</h4>
+  <p>Source: Statistics Jersey Labour Market report, December snapshot, Appendix 1. Core GOJ = permanent and fixed-term contracts only. Excludes zero-hours contracts, trading bodies, Parishes. Total jobs denominator from same report. Reclassification 2014–17: Andium Homes, Visit Jersey, Jersey Sport incorporated, moving ~100 jobs from core GOJ to private sector — the 2015–16 dip is partly definitional not structural.</p>
+
+  <h4>Guernsey — States FTE (2021–22)</h4>
+  <p>Source: States of Guernsey Annual Accounts. Core States only — excludes trading entities (Guernsey Post, Guernsey Water/Waste, Guernsey Dairy). Only two annual points currently available; additional years require extraction from individual Accounts PDFs (2007 onwards). 2024 Annual Accounts reference "over 6,500 FTEs" for the Group (including trading entities) — a different, wider measure.</p>
+
+  <h4>United Kingdom — ONS G7G3 (1999–2025)</h4>
+  <p>Source: ONS Public Sector Employment time series G7G3 — total public sector FTE, seasonally adjusted, thousands. Reclassifications: Lloyds/RBS included as public sector Dec 2008–Dec 2013 (inflates peak); Royal Mail to private Dec 2013 (~150k); NatWest returned to private Q1 2024 (~15k). LFS total employment used as denominator for % panel.</p>
+
+  <h4>Definition break note</h4>
+  <p>The IoM census "public administration" series and the OHR FTE series cannot be joined. The census series is a sector employment count (public administration activities only); the OHR series is a comprehensive government payroll count including health, education, police and fire. The 9-year gap (2007–2014) represents the absence of a published continuous FTE series, not a period of zero growth.</p>
+</div>
+
+<div class="page-footer">
+  <span>observatory.coalfinch.com</span>
+  <span>IoM in Numbers 2025 (Statistics IoM) · Statistics Jersey Labour Market · States of Guernsey Annual Accounts · ONS G7G3 · <a href="https://coalfinch.com">Coalfinch</a></span>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
+
+/* ── OBSERVATORY THEME SYNC ──────────────────────────────────────────────────
+   Receives light/dark instructions from the parent App shell.
+────────────────────────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+  }
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'observatory-theme') {
+      applyTheme(!!e.data.light);
+    }
+  });
+  // Ask parent for current theme as soon as possible
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+  }
+}());
+</script>
+<script>
+// ── COLOURS ──────────────────────────────────────────────────────────────────
+const C = {
+  iom:'#3b82f6', iomA:'rgba(59,130,246,0.15)', iomM:'rgba(59,130,246,0.6)',
+  jsy:'#f59e0b', jsyA:'rgba(245,158,11,0.15)',
+  gsy:'#10b981', gsyA:'rgba(16,185,129,0.15)',
+  uk:'#94a3b8',  ukA:'rgba(148,163,184,0.15)',
+  pur:'#a78bfa', purA:'rgba(167,139,250,0.15)',
+  grid:'rgba(51,65,85,0.5)',
+};
+Chart.defaults.color='#64748b';
+Chart.defaults.borderColor=C.grid;
+Chart.defaults.font.family="'Inter',system-ui,sans-serif";
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+// IoM census: public administration sector (IoM in Numbers 2025, Table 3)
+// All values are observed census counts — NO interpolation
+const IOM_PA = [
+  {y:1961,v:1250},{y:1971,v:1134},{y:1981,v:1625},
+  {y:1991,v:2144},{y:1996,v:2147},{y:2001,v:3105},
+  {y:2006,v:2898},{y:2011,v:3058},{y:2016,v:3027},{y:2021,v:3188},
+];
+
+// IoM census: professional, educational, medical and scientific services
+// Combined sector — includes private sector — ceiling/upper bound only
+const IOM_PEMS = [
+  {y:1961,v:1702},{y:1971,v:2690},{y:1981,v:3737},
+  {y:1991,v:5438},{y:1996,v:6081},{y:2001,v:7296},
+  {y:2006,v:8060},{y:2011,v:8917},{y:2016,v:9430},{y:2021,v:9604},
+];
+
+// IoM combined upper bound (PA + PEMS)
+const IOM_UPPER = IOM_PA.map((d,i)=>({y:d.y, v:d.v+IOM_PEMS[i].v}));
+
+// IoM total employed (denominator, from same Table 3)
+const IOM_TOTAL = [
+  {y:1961,v:17245},{y:1971,v:22133},{y:1981,v:25864},
+  {y:1991,v:31829},{y:1996,v:33577},{y:2001,v:39050},
+  {y:2006,v:40913},{y:2011,v:43134},{y:2016,v:41656},{y:2021,v:43519},
+];
+
+// IoM OHR payroll FTE (2015–2024) — different measure, not joined to census
+const IOM_FTE = [
+  {y:2015,v:6702.9},{y:2016,v:6736.5},
+  {y:2018,v:6904.5},{y:2019,v:6930.7},{y:2020,v:6905.7},
+  {y:2021,v:7049.4},{y:2022,v:7243.6},{y:2023,v:7432.5},{y:2024,v:7837},
+];
+
+// Jersey: core GOJ jobs + total jobs (Statistics Jersey Labour Market, Dec)
+const JSY = [
+  {y:2002,v:6310,t:50270},{y:2003,v:6410,t:49620},{y:2004,v:6510,t:49640},
+  {y:2005,v:6430,t:50280},{y:2006,v:6560,t:51570},{y:2007,v:6630,t:52980},
+  {y:2008,v:6650,t:53560},{y:2009,v:6790,t:53570},{y:2010,v:6780,t:53530},
+  {y:2011,v:6730,t:53900},{y:2012,v:6840,t:53850},{y:2013,v:7010,t:55320},
+  {y:2014,v:7080,t:56540},{y:2015,v:6940,t:57820},{y:2016,v:6670,t:58640},
+  {y:2017,v:6710,t:59790},{y:2018,v:6750,t:60850},{y:2019,v:6910,t:61380},
+  {y:2020,v:7240,t:60020},{y:2021,v:7550,t:62160},{y:2022,v:7870,t:63500},
+  {y:2023,v:8070,t:65010},
+];
+
+// Guernsey: States FTE (Annual Accounts, core only)
+const GSY = [{y:2021,v:4865},{y:2022,v:4896}];
+
+// UK: ONS G7G3 public sector FTE (000s, SA) + LFS employment (000s)
+const UK = [
+  {y:1999,v:4311,e:28075},{y:2000,v:4362,e:28389},{y:2001,v:4429,e:28605},
+  {y:2002,v:4531,e:28736},{y:2003,v:4665,e:28905},{y:2004,v:4786,e:29129},
+  {y:2005,v:4871,e:29412},{y:2006,v:4865,e:29668},{y:2007,v:4863,e:30045},
+  {y:2008,v:4866,e:30080},{y:2009,v:5268,e:29296},{y:2010,v:5276,e:29048},
+  {y:2011,v:5117,e:29246},{y:2012,v:5002,e:29577},{y:2013,v:4971,e:29900},
+  {y:2014,v:4713,e:30393},{y:2015,v:4669,e:31007},{y:2016,v:4657,e:31430},
+  {y:2017,v:4656,e:31856},{y:2018,v:4536,e:32160},{y:2019,v:4586,e:32410},
+  {y:2020,v:4751,e:31901},{y:2021,v:4879,e:32176},{y:2022,v:4956,e:32720},
+  {y:2023,v:5086,e:32945},{y:2024,v:5156,e:33110},{y:2025,v:5227,e:33200},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const vis = {
+  abs:{iom:true,jsy:true,gsy:true,upper:true},
+  idx:{iom:true,jsy:true,gsy:true,uk:true},
+};
+let baseYear=2015;
+let charts={};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function idx(arr,base){
+  const b=arr.find(d=>d.y===base); if(!b) return null;
+  return arr.map(d=>({x:d.y,y:+(d.v/b.v*100).toFixed(2)}));
+}
+function pts(arr){return arr.map(d=>({x:d.y,y:d.v}));}
+function pct(arr,tf){return arr.map(d=>({x:d.y,y:+(d.v/tf(d)*100).toFixed(2)}));}
+
+function baseOpts(yLabel,tickFn,xMin,xMax,yMin,yMax){
+  return{
+    responsive:true,maintainAspectRatio:false,animation:false,
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
+      titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
+      titleFont:{size:12,weight:'600'},bodyFont:{size:11},
+      callbacks:{label(c){return ` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString('en-GB',{maximumFractionDigits:1}):'–'}`}}
+    }},
+    scales:{
+      x:{type:'linear',
+         ...(xMin!=null?{min:xMin}:{}), ...(xMax!=null?{max:xMax}:{}),
+         grid:{color:'rgba(51,65,85,.4)',drawTicks:false},
+         ticks:{color:'#64748b',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:14,
+                callback:v=>v}},
+      y:{...(yMin!=null?{min:yMin}:{}), ...(yMax!=null?{max:yMax}:{}),
+         grid:{color:'rgba(51,65,85,.4)',drawTicks:false},
+         ticks:{color:'#64748b',font:{size:10},callback:tickFn||(v=>v.toLocaleString())},
+         title:{display:!!yLabel,text:yLabel,color:'#64748b',font:{size:10}}}
+    }
+  };
+}
+
+function legend(id,items){
+  document.getElementById(id).innerHTML=items.map(it=>{
+    const sty=it.dashed
+      ?`background:repeating-linear-gradient(90deg,${it.c} 0,${it.c} 4px,transparent 4px,transparent 8px)`
+      :`background:${it.c}`;
+    return`<span class="legend-item"><span class="ldash" style="${sty}"></span>${it.label}</span>`;
+  }).join('');
+}
+
+function mk(id,type,datasets,opts){
+  if(charts[id]) charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id).getContext('2d'),{type,data:{datasets},options:opts});
+}
+
+// ── RENDER ABSOLUTE ───────────────────────────────────────────────────────────
+function renderAbs(){
+  const ds=[];
+  const li=[];
+
+  if(vis.abs.iom){
+    // Census dots
+    ds.push({label:'IoM — public admin (census)',data:pts(IOM_PA),
+      borderColor:C.iom,backgroundColor:C.iom,
+      pointRadius:5,pointHoverRadius:7,showLine:false,
+    });
+    // OHR FTE line
+    ds.push({label:'IoM — govt FTE (OHR 2015+)',data:pts(IOM_FTE),
+      borderColor:C.iom,backgroundColor:C.iomA,
+      borderWidth:2,pointRadius:3,pointBackgroundColor:C.iom,
+      showLine:true,tension:0.2,fill:false,
+    });
+    li.push({c:C.iom,label:'IoM census (pub. admin sector, dots)'});
+    li.push({c:C.iom,label:'IoM OHR FTE 2015+ (line)',dashed:false});
+  }
+
+  if(vis.abs.upper){
+    ds.push({label:'IoM upper bound (pub.admin + prof/educ/med/sci)',data:pts(IOM_UPPER),
+      borderColor:C.pur,backgroundColor:'transparent',
+      borderWidth:1.5,borderDash:[5,4],pointRadius:4,pointBackgroundColor:C.pur,
+      showLine:true,tension:0.2,fill:false,
+    });
+    li.push({c:C.pur,label:'IoM upper bound (incl. private sector)',dashed:true});
+  }
+
+  if(vis.abs.jsy){
+    ds.push({label:'Jersey — core GOJ jobs',data:pts(JSY),
+      borderColor:C.jsy,backgroundColor:'transparent',
+      borderWidth:2,pointRadius:3,pointBackgroundColor:C.jsy,
+      showLine:true,tension:0.2,fill:false,
+    });
+    li.push({c:C.jsy,label:'Jersey core GOJ jobs'});
+  }
+
+  if(vis.abs.gsy){
+    ds.push({label:'Guernsey — States FTE',data:pts(GSY),
+      borderColor:C.gsy,backgroundColor:C.gsy,
+      pointRadius:7,pointHoverRadius:9,showLine:false,
+    });
+    li.push({c:C.gsy,label:'Guernsey States FTE (2 points)'});
+  }
+
+  const opts=baseOpts('FTE / jobs / persons',null,1958,2026,0,14000);
+  mk('chart-abs','scatter',ds,opts);
+  legend('legend-abs',li);
+
+  // Stat cards
+  const g=document.getElementById('stats-abs');
+  const cards=[];
+  if(vis.abs.iom) cards.push(
+    {cls:'iom',label:'IoM govt FTE',val:'7,837',meta:'2024 · OHR payroll'},
+    {cls:'iom',label:'IoM public admin (census)',val:'3,188',meta:'2021 · IoM in Numbers 2025'},
+  );
+  if(vis.abs.jsy) cards.push({cls:'jsy',label:'Jersey core GOJ jobs',val:'8,070',meta:'Jun 2023 · Statistics Jersey'});
+  if(vis.abs.gsy) cards.push({cls:'gsy',label:'Guernsey States FTE',val:'4,896',meta:'2022 · Annual Accounts'});
+  g.innerHTML=cards.map(c=>`<div class="stat-card ${c.cls}">
+    <div class="stat-label">${c.label}</div>
+    <div class="stat-val">${c.val}</div>
+    <div class="stat-meta">${c.meta}</div>
+  </div>`).join('');
+}
+
+// ── RENDER INDEXED ────────────────────────────────────────────────────────────
+function renderIdx(){
+  const ds=[]; const li=[];
+
+  if(vis.idx.iom){
+    const d=idx(IOM_FTE,baseYear);
+    if(d) ds.push({label:'IoM OHR FTE',data:d,
+      borderColor:C.iom,backgroundColor:'transparent',
+      borderWidth:2,pointRadius:3,pointBackgroundColor:C.iom,tension:0.2,fill:false});
+    if(d) li.push({c:C.iom,label:'IoM OHR FTE'});
+  }
+  if(vis.idx.jsy){
+    const d=idx(JSY.map(r=>({y:r.y,v:r.v})),baseYear);
+    if(d) ds.push({label:'Jersey core GOJ',data:d,
+      borderColor:C.jsy,backgroundColor:'transparent',
+      borderWidth:2,pointRadius:3,pointBackgroundColor:C.jsy,tension:0.2,fill:false});
+    if(d) li.push({c:C.jsy,label:'Jersey core GOJ jobs'});
+  }
+  if(vis.idx.gsy){
+    const d=idx(GSY,baseYear);
+    if(d) ds.push({label:'Guernsey States FTE',data:d,
+      borderColor:C.gsy,backgroundColor:'transparent',
+      borderWidth:2,pointRadius:7,pointBackgroundColor:C.gsy,showLine:false});
+    if(d) li.push({c:C.gsy,label:'Guernsey States FTE'});
+  }
+  if(vis.idx.uk){
+    const d=idx(UK.map(r=>({y:r.y,v:r.v})),baseYear);
+    if(d) ds.push({label:'UK ONS G7G3',data:d,
+      borderColor:C.uk,backgroundColor:'transparent',
+      borderWidth:2,borderDash:[4,3],pointRadius:2,pointBackgroundColor:C.uk,tension:0.2,fill:false});
+    if(d) li.push({c:C.uk,label:'UK ONS G7G3',dashed:true});
+  }
+
+  const opts=baseOpts(`Index (${baseYear} = 100)`,v=>`${v}`,2014,2026,80,140);
+  mk('chart-idx','line',ds,opts);
+  legend('legend-idx',li);
+}
+
+// ── RENDER SHARE ──────────────────────────────────────────────────────────────
+function renderShare(){
+  // IoM PA %
+  const iomPct=IOM_PA.map((d,i)=>({x:d.y,y:+(d.v/IOM_TOTAL[i].v*100).toFixed(2)}));
+  mk('chart-share-iom','line',[{
+    label:'IoM pub. admin % of total employed',data:iomPct,
+    borderColor:C.iom,backgroundColor:C.iomA,borderWidth:2,
+    pointRadius:5,pointBackgroundColor:C.iom,fill:true,tension:0.2,showLine:true,
+  }],{...baseOpts('% of total employed',v=>`${v}%`,1958,2024,0,12),
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
+      titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
+      callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}}
+  });
+
+  // Jersey %
+  const jsyPct=JSY.map(d=>({x:d.y,y:+(d.v/d.t*100).toFixed(2)}));
+  mk('chart-share-jsy','line',[{
+    label:'Jersey core GOJ %',data:jsyPct,
+    borderColor:C.jsy,backgroundColor:C.jsyA,borderWidth:2,
+    pointRadius:3,pointBackgroundColor:C.jsy,fill:true,tension:0.2,
+  }],{...baseOpts('% of total jobs',v=>`${v}%`,2001,2024,10,15),
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
+      titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
+      callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}}
+  });
+
+  // UK %
+  const ukPct=UK.map(d=>({x:d.y,y:+(d.v/d.e*100).toFixed(2)}));
+  mk('chart-share-uk','line',[{
+    label:'UK public sector FTE %',data:ukPct,
+    borderColor:C.uk,backgroundColor:C.ukA,borderWidth:2,
+    pointRadius:2,pointBackgroundColor:C.uk,fill:true,tension:0.2,
+  }],{...baseOpts('Public sector FTE as % of LFS employment',v=>`${v}%`,1998,2026,12,20),
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.97)',borderColor:'#334155',borderWidth:1,
+      titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10,
+      callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}}
+  });
+}
+
+// ── TAB / CONTROL HANDLERS ────────────────────────────────────────────────────
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['absolute','indexed','share'][i]===name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='absolute') renderAbs();
+  if(name==='indexed')  renderIdx();
+  if(name==='share')    renderShare();
+  setTimeout(h,300);
+}
+
+function tog(tab,key,el){
+  vis[tab][key]=!vis[tab][key];
+  const cls='on-'+key;
+  vis[tab][key]?el.classList.add(cls):el.classList.remove(cls);
+  if(tab==='abs') renderAbs(); else renderIdx();
+}
+
+function setBase(yr,el){
+  baseYear=yr;
+  document.querySelectorAll('#base-pills .pill').forEach(b=>b.classList.remove('on-iom'));
+  el.classList.add('on-iom');
+  renderIdx();
+}
+
+function toggleNotes(){
+  const b=document.getElementById('notes-body');
+  const a=document.getElementById('narr');
+  const open=b.classList.toggle('open');
+  a.textContent=open?'▼':'▶';
+  setTimeout(h,100);
+}
+
+function h(){window.parent.postMessage({type:'resize',height:document.body.scrollHeight},'*');}
+window.addEventListener('resize',h);
+
+renderAbs();
+setTimeout(h,500);
+</script>
+<script>
+/* Observatory theme v3 */
+(function () {
+  try { if (localStorage.getItem('observatory-theme') === 'light') document.body.classList.add('light'); } catch (_) {}
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+    }
+  });
+}());
+</script>
+</body>
+</html>
+

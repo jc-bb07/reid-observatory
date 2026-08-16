@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%23cb4601' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>German Parish Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(l){ document.body.classList.toggle('light', l); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">German Parish Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2022, 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#north">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="2" value="2" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2021-22</span><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Income from rate funds</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">General rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Gross expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-sur">—</div><div class="stat-dlt" id="s-sur-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>German Parish Commissioners — Detailed Income and Expenditure Account (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>German Parish Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>German is a small, unleveraged authority. It has <b>no borrowing at all</b> and owns almost no fixed assets — just the £11,056 net book value of the public conveniences building. Nearly everything else on the balance sheet is accumulated cash: £432,157 of net assets, almost all of it the general rate fund reserve.</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> German's audited Detailed Income and Expenditure Account — actual outturn, not budget. Income comes from two separate levies, the General Rate Fund and the Refuse Rate Fund, each struck at its own poundage. Expenditure is grouped exactly as German's own accounts group it: Finance and general purposes, Property, Works and development, Leisure, Refuse disposal, and Bad debts provision/rates write-off.</p>
+    <p><b>German balances comfortably, every year.</b> Unlike Marown, which ran a deficit and drew on reserves in all three years, German produced a surplus throughout — £56,981, then £48,715, then £27,461 — each one carried into the general rate fund reserve. That reserve has grown every year: £354,402 → £403,906 → £432,157. The surplus is shown here as an outflow to reserves, on the same convention used for Santon.</p>
+    <p><b>Credits shown as inflows.</b> Two lines within Finance and general purposes — bank interest received and miscellaneous income — are credits against that group's costs in the published account, not spending. A Sankey cannot draw a negative flow, so each appears on the income side marked "(credit)". Gross expenditure therefore reads higher than German's own net cost of £242,159 (2023-24) / £227,359 (2022-23) / £213,829 (2021-22); the two reconcile exactly once the credits are added back.</p>
+    <p><b>Two rate funds, two poundages.</b> The General Rate Fund was struck at 93p, 93p and then 94p in the pound across the three years, on a shrinking rateable value (£167,103 → £174,594 → £164,186). The Refuse Rate Fund — a separate levy that also carries £78,000–£79,000 a year of fixed-charge income on top of the poundage — ran 62p, 63p, 64p on a broadly flat rateable value around £80,000–£81,000. Both poundages rose in every year shown.</p>
+    <p><b>Provenance and confidence.</b> German publishes its accounts only as scanned images with no text layer, so these figures were recovered by OCR and then verified rather than trusted. Three independent checks were applied: every group subtotal re-adds to the published gross expenditure of £253,219 (2023-24) / £232,366 (2022-23) / £215,513 (2021-22); the 2022-23 column appears in <em>both</em> the 2023 and 2024 accounts, in both the Comprehensive Income and Expenditure Statement and the Detailed Income and Expenditure Account, and every reading agrees exactly; and total rate income minus net cost of General Fund services equals the published surplus in all three years. The Explanatory Foreword's own prose figures — rate poundages, rateable values and surplus amounts — were checked against the accounts tables and match throughout, which is an unusually strong cross-check for a scanned document.</p>
+    <p><b>Not comparable with the Braddan diagram as it stands.</b> Braddan's Sankey is built from forward <em>estimates</em> on a rates-funded basis; this one is audited <em>outturn</em> on an accruals basis, and the two use different committee structures. German, Marown and Santon are all on the same accruals/outturn basis across the same three years, so those three can be read against each other, though German's own functional groupings differ from both.</p>
+    <p><b>Source.</b> German Parish Commissioners, Statement of Accounts for the years ended 31 March 2023 and 31 March 2024, Comprehensive Income and Expenditure Statement, Detailed Income and Expenditure Account and Balance Sheet. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>German runs two separate rate funds — general and refuse — and produced a surplus in all three years, growing its reserve to £432,157 with no borrowing at all.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — audited outturn, OCR-recovered and reconciled ══════════ */
+const YEARS=['2021-22','2022-23','2023-24'];
+const YEND={'2021-22':'31 March 2022','2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const D={
+'2021-22':{
+ income:{'Income from the General Rate Fund':148052,'Income from the Refuse Rate Fund':122758},
+ fgp:{'Clerks Fees':11397,'Office expenses':3523,'Election expenses':376,'Insurance':1949,'Legal fees':0,'Audit and accountancy fees':4305,'Rate collection costs':3332,'Miscellaneous expenses':4226,'Bank charges':236,'German in Bloom':6070,'Depreciation':789,'Bank interest received':-474,'Miscellaneous income':-1210},
+ property:{'Public conveniences':5879},
+ works:{'Street lighting':7870,'Road maintenance':10393},
+ leisure:{'Swimming pool contributions':4167},
+ refuse:{'Civic amenity site contribution':47357,'Waste disposal charges':103628},
+ baddebt:{'Bad debts provision':16},
+ surplus:56981, netCost:213829, poundGen:93, poundRef:62, rvGen:167103, rvRef:80115, refuseFixed:78133},
+'2022-23':{
+ income:{'Income from the General Rate Fund':153703,'Income from the Refuse Rate Fund':122371},
+ fgp:{'Clerks Fees':11821,'Office expenses':3692,'Election expenses':0,'Insurance':2041,'Legal fees':1800,'Audit and accountancy fees':4055,'Rate collection costs':3932,'Miscellaneous expenses':5234,'Bank charges':249,'German in Bloom':8325,'Depreciation':789,'Bank interest received':-4462,'Miscellaneous income':-545},
+ property:{'Public conveniences':6367},
+ works:{'Street lighting':8727,'Road maintenance':10450},
+ leisure:{'Swimming pool contributions':4356},
+ refuse:{'Civic amenity site contribution':56721,'Waste disposal charges':102612},
+ baddebt:{'Bad debts provision':1195},
+ surplus:48715, netCost:227359, poundGen:93, poundRef:63, rvGen:174594, rvRef:80837, refuseFixed:78613},
+'2023-24':{
+ income:{'Income from the General Rate Fund':146314,'Income from the Refuse Rate Fund':123306},
+ fgp:{'Clerks Fees':12614,'Office expenses':5659,'Election expenses':0,'Insurance':2174,'Legal fees':0,'Audit and accountancy fees':4745,'Rate collection costs':3851,'Miscellaneous expenses':2210,'Bank charges':244,'German in Bloom':9370,'Depreciation':790,'Bank interest received':-10670,'Miscellaneous income':-390},
+ property:{'Public conveniences':6198},
+ works:{'Street lighting':10017,'Road maintenance':11487},
+ leisure:{'Swimming pool contributions':4107},
+ refuse:{'Civic amenity site contribution':65188,'Waste disposal charges':113396},
+ baddebt:{'Bad debts provision':1169},
+ surplus:27461, netCost:242159, poundGen:94, poundRef:64, rvGen:164186, rvRef:80125, refuseFixed:78827}
+};
+const GRP=[{k:'fgp',     l:'Finance and general purposes',           c:'--c-fgp'},
+           {k:'property',l:'Property',                               c:'--c-bal'},
+           {k:'works',   l:'Works and development',                  c:'--c-works'},
+           {k:'leisure', l:'Leisure',                                 c:'--c-parks'},
+           {k:'refuse',  l:'Refuse disposal',                        c:'--c-refuse'},
+           {k:'baddebt', l:'Bad debts provision / rates write-off',  c:'--c-disc'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+const credits=d=>{const c={}; GRP.forEach(g=>{Object.entries(d[g.k]).forEach(([k,v])=>{if(v<0)c[k+' (credit)']=-v;});}); return c;};
+
+/* integrity: income + credits === gross expenditure + surplus; group nets sum to published net cost; income − net cost = published surplus */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inflow=sum(d.income)+sum(credits(d));
+  const outflow=GRP.reduce((a,g)=>a+pos(d[g.k]),0)+d.surplus;
+  const net=GRP.reduce((a,g)=>a+sum(d[g.k]),0);
+  return {y,flowDiff:inflow-outflow,netDiff:net-d.netCost,surDiff:(sum(d.income)-d.netCost)-d.surplus};
+});
+const bad=AUDIT.filter(a=>a.flowDiff!==0||a.netDiff!==0||a.surDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ German reconciles in all years: flows balance, group totals match the published net cost, and rate income − net cost = the published surplus');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0});}return idx[id];};
+  const hub=add('hub','Revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  Object.entries(credits(d)).forEach(([k,v],i)=>{
+    const s=add('cr|'+k,k,'--c-income','src',50+i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  const su=add('sur','Surplus carried to the General Rate Fund','--c-bal','item',99);
+  L.push({source:hub,target:su,value:d.surplus,col:'--c-bal'});
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income)+sum(credits(d));
+    if(id==='sur')  return d.surplus;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('cr|')===0)  {const c=credits(d); return c[id.slice(3)]||0;}
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Three-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=2,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+
+  const g=graph(y),LPAD=210,RPAD=270,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(14).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=sum(D[y].income)+sum(credits(D[y]));
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>cssv(d.col))
+    .style('stroke-opacity',d=>d.target.kind==='item'?0.30:0.42);
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  const totalExp=d=>GRP.reduce((a,g)=>a+pos(d[g.k]),0);
+  document.getElementById('s-rate').textContent=fmt(sum(d.income));
+  document.getElementById('s-rate-d').textContent=arrow(sum(d.income),pv&&sum(pv.income));
+  document.getElementById('s-pound').textContent=d.poundGen+'p';
+  document.getElementById('s-pound-d').textContent=pv?(d.poundGen>pv.poundGen?'▲ +'+(d.poundGen-pv.poundGen)+'p on last year':(d.poundGen<pv.poundGen?'▼ −'+(pv.poundGen-d.poundGen)+'p on last year':'no change')):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(totalExp(d));
+  document.getElementById('s-exp-d').textContent=arrow(totalExp(d),pv&&totalExp(pv));
+  document.getElementById('s-sur').textContent='+'+fmt(d.surplus);
+  document.getElementById('s-sur-d').textContent=pv?(d.surplus>pv.surplus?'▲ surplus grew':'▼ surplus shrank'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal)"></div>Surplus carried to reserves</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its three-year path</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total rate income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(pos(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('Net cost of General Fund services',d=>m(d.netCost),'grp');
+  R('Surplus for the year',d=>'+'+d.surplus.toLocaleString(),'grp');
+  rows.push('<tr><td colspan="4" style="height:8px;border:none"></td></tr>');
+  R('General rate — rate in the pound',d=>d.poundGen+'p','sub');
+  R('General rate — rateable value',d=>'£'+d.rvGen.toLocaleString(),'sub');
+  R('Refuse rate — rate in the pound',d=>d.poundRef+'p','sub');
+  R('Refuse rate — rateable value',d=>'£'+d.rvRef.toLocaleString(),'sub');
+  R('Refuse rate — fixed-charge income',d=>'£'+d.refuseFixed.toLocaleString(),'sub');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In every year the group subtotals re-add to the published gross expenditure, and total rate income minus net cost of General Fund services equals the published surplus exactly. The 2022-23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree. <b>Source.</b> German Parish Commissioners, Statements of Accounts y/e 31 March 2023 and 2024, Detailed Income and Expenditure Account and Explanatory Foreword. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null],
+ ['r','Tangible fixed assets',11056,11846],
+ ['h','Current assets',null,null],
+ ['r','Debtors',34938,35175],
+ ['r','Cash at bank',420531,393276],
+ ['s','',455469,428451],
+ ['r','Creditors',-23312,-24545],
+ ['T','Net current assets',432157,403906],
+ ['T','Total assets less liabilities',443213,415752],
+ ['h','Reserves',null,null],
+ ['r','General rate fund',432157,403906],
+ ['r','Capital adjustment account',11056,11846],
+ ['T','',443213,415752]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> No borrowing of any kind, and virtually no fixed assets — just the £11,056 net book value of the public conveniences, most of which is already fully depreciated. Net assets rose £27,461 in the year — from £415,752 to £443,213 — the surplus working straight through into the general rate fund reserve, which grew from £403,906 to £432,157. Cash at bank rose from £393,276 to £420,531. On that trajectory German is building reserves, the opposite of Marown, which is drawing them down.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from a scanned original, then verified: current assets re-add, net current assets reconcile, and total reserves equal total assets less liabilities in both years. The 2023 column was read independently from both the 2023 and 2024 accounts and the two readings agree exactly.</p>'
+   +'<p class="foot"><b>Source.</b> German Parish Commissioners, Statement of Accounts for the year ended 31 March 2024, Balance Sheet, page 11. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

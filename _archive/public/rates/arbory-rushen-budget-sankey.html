@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1620'/%3E%3Cpath d='M6 9h6c6 0 4 7 10 7h4' stroke='%232ca2a2' stroke-width='3.2' fill='none'/%3E%3Cpath d='M6 20h6c6 0 4 -7 10 -7h4' stroke='%232ea957' stroke-width='3.2' fill='none'/%3E%3C/svg%3E">
+<title>Arbory &amp; Rushen Commissioners — Where the money goes · Crown Dependencies Observatory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="lib/d3.min.js"></script>
+<script src="lib/d3-sankey.min.js"></script>
+<script>
+(function () {
+  if (window.__obsThemeReady) return;
+  window.__obsThemeReady = true;
+  function applyTheme(isLight){ document.body.classList.toggle('light', isLight); if (window._msRedraw) window._msRedraw(); }
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'observatory-theme') applyTheme(!!e.data.light);
+    else if (e.data.type === 'setTheme' || e.data.type === 'theme') applyTheme(e.data.theme === 'light' || e.data.theme === 'health');
+  });
+  try { var s = localStorage.getItem('observatory-theme'); if (s) applyTheme(s === 'light' || s === 'health'); } catch (err) {}
+  if (window.parent !== window) window.parent.postMessage({ type: 'observatory-theme-request' }, '*');
+}());
+</script>
+<link rel="stylesheet" href="lib/observatory.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="chart-title">Arbory &amp; Rushen Commissioners — where the money goes</div>
+    <div class="chart-sub">Audited outturn, years ended 31 March 2023 and 2024 · recovered by OCR, every year reconciled to the published totals</div>
+  </div>
+  <div class="hdr-right">
+    <a class="icon-btn" href="index.html#south">← All authorities</a>
+    <button class="icon-btn" id="btn-table" aria-pressed="false">Table</button>
+    <button class="icon-btn" id="btn-bs" aria-pressed="false">Balance sheet</button>
+    <button class="icon-btn" id="btn-notes" aria-pressed="false">Notes</button>
+    <button class="icon-btn" id="btn-theme">Light</button>
+    <div><div class="fy-label" id="fy">2023-24</div><div class="fy-sub">year ended 31 March</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="play-btn" id="play">▶ Play</button>
+  <div class="yr-wrap">
+    <input type="range" id="slider" min="0" max="1" value="1" step="1" aria-label="Financial year">
+    <div class="yr-marks"><span>2022-23</span><span>2023-24</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-lab">Income from general rate fund</div><div class="stat-val" id="s-rate">—</div><div class="stat-dlt" id="s-rate-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Rate in the pound</div><div class="stat-val" id="s-pound">—</div><div class="stat-dlt" id="s-pound-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Total expenditure</div><div class="stat-val" id="s-exp">—</div><div class="stat-dlt" id="s-exp-d">—</div></div>
+  <div class="stat"><div class="stat-lab">Surplus for the year</div><div class="stat-val" id="s-sur">—</div><div class="stat-dlt" id="s-sur-d">—</div></div>
+</div>
+
+<div class="main">
+  <svg id="chart"></svg>
+  <div class="tt" id="tt"></div>
+
+  <div class="panel" id="p-table"><h3>Arbory &amp; Rushen Commissioners — Comprehensive Income and Expenditure Account (£)</h3><div id="tbl"></div></div>
+
+  <div class="panel" id="p-bs">
+    <h3>Arbory &amp; Rushen Commissioners — Balance Sheet as at 31 March 2024</h3>
+    <p>Arbory &amp; Rushen is the only one of the four small parish authorities in this set that carries any borrowing at all — two small commercial loans, from the Isle of Man Bank and HSBC, secured by a Letter of Comfort from Treasury and inherited from the former Arbory Parish Commissioners. The balance fell from £36,487 to £28,450 across these two years as scheduled repayments were made; against total reserves of £1.08m it is immaterial to the authority's solvency, but it is a genuine structural difference from Braddan (large-scale borrowing), Marown and Santon (no borrowing at all).</p>
+    <div id="bstbl"></div>
+  </div>
+
+  <div class="panel" id="p-notes">
+    <h3>Notes, sources and cautions</h3>
+    <p><b>What this shows.</b> Arbory &amp; Rushen's audited Comprehensive Income and Expenditure Statement, expanded to line-item detail using the authority's own Detailed Income and Expenditure Account. Income (rates, fees, grants and dwelling rents) flows into the revenue account and out across the five headings the authority itself uses: refuse disposal, works and development, finance and general purposes, housing services, and a small "finance costs &amp; provisions" grouping (bad debt provision and loan interest) added here purely as a reading aid.</p>
+    <p><b>A merged authority.</b> Arbory & Rushen Commissioners were created on 1 May 2020 by the Arbory and Rushen (Local Government District) Order 2019, which merged the formerly separate Arbory Parish Commissioners and Rushen Parish Commissioners into a single district authority. Every account used here is post-merger, so there is no pre/post reconciliation to draw — both years shown are the combined authority's own audited figures.</p>
+    <p><b>Housing services, uniquely among the four.</b> Arbory & Rushen is the only authority in this set with its own social housing stock (dwellings valued at £827,000 on the balance sheet, against a vacant-possession value of £1.24m) and a Housing Revenue Account distinct from the general rate fund. Housing ran a modest net surplus in both years — £8,216 in 2022-23, £6,737 in 2023-24 — funded by dwelling rents rather than rates.</p>
+    <p><b>Arbory &amp; Rushen balances comfortably.</b> It ran a surplus of £7,188 in 2022-23 and £42,885 in 2023-24 — the jump driven mainly by the rate poundage rising from 147p to 162p in the pound (up 15p, roughly 10%) while net rateable value held almost flat at £332,665 and £333,847. Street lighting costs also fell sharply (£52,032 to £34,539) as highway works and other capital-adjacent lines moved between years.</p>
+    <p><b>Provenance and confidence.</b> Arbory &amp; Rushen publishes its accounts only as scanned images with no text layer, so every figure here was recovered by OCR and then verified rather than trusted. Three checks were applied throughout: every subtotal re-adds to its published total; the 2022-23 year appears as the current year in the 2023 accounts and as the prior-year comparative in the 2024 accounts, and the two readings agree on every group total; and income minus expenditure equals the published surplus exactly in both years. Several OCR-ambiguous digits were resolved by arithmetic rather than guessed — interest payable in 2023-24 reads as £1,807 because no other figure closes the Comprehensive Income and Expenditure Statement to its published £42,885 surplus; refuse collection charges in 2023-24 resolve to £81,958, not the initially-read £51,958, because only that figure makes the refuse total re-add to the published £325,878; street lighting in 2022-23 resolves to £52,032 because that is the only reading that closes the works and development total to £125,668 <em>and</em> matches the figure independently read from the 2023 accounts' own total. The 2023 accounts as published are missing several pages (the borrowing note and the first page of the Detailed Income and Expenditure Account among them) — those figures were instead sourced from the 2024 accounts' prior-year comparative column, which is exactly what the double-read check is designed to catch if anything were wrong.</p>
+    <p><b>Not built this year: 2021-22.</b> Both PDFs carry a 2021-22 comparison in their headline Comprehensive Income and Expenditure Statement and Balance Sheet — and those totals are used for context in this text — but the underlying Detailed Income and Expenditure Account line items for 2021-22 are not available in either source PDF, so that year is not represented in the diagram or slider. Building it would have meant inventing a split that isn't in the record.</p>
+    <p><b>Rate poundage and net rateable value</b> are taken from note 14 of the 2023-24 accounts: total net rateable value of £333,847 (2023: £332,665) with rates struck at 162p in the £ (2023: 147p).</p>
+    <p><b>Comparability.</b> Not directly comparable with the Braddan diagram, which is built from forward estimates on a rates-funded basis rather than audited outturn. Marown and Santon are on the same audited-outturn, accruals basis as this page and can be read against it, though neither of those authorities has housing services or borrowing to account for.</p>
+    <p><b>Source.</b> Arbory &amp; Rushen Commissioners, Financial Statements for the years ended 31 March 2023 and 31 March 2024, Comprehensive Income and Expenditure Statement, Detailed Income and Expenditure Account and Balance Sheet, external assurance review by an independent chartered accountant. Retrieved from gov.im, 6 August 2026.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <span>Arbory &amp; Rushen is the only authority here with its own housing stock and its own (small, shrinking) borrowing — £28,450 outstanding at 31 March 2024, down from £36,487.</span>
+  <a id="lnk-bs">See the balance sheet →</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script>
+/* ══════════ DATA — audited outturn, OCR-recovered and reconciled ══════════ */
+const YEARS=['2022-23','2023-24'];
+const YEND={'2022-23':'31 March 2023','2023-24':'31 March 2024'};
+const D={
+'2022-23':{
+ income:{'Income from the General Rate Fund':466134,'Search fees':4740,'Other income':4434,'Grants received':3600,'Administration allowance':1317,'Allotments income':1445,'Commercial refuse charges':16190,'Sale of wheelie bins/second bin charge':140,'Dwelling rents (including rates)':24961},
+ refuse:{'Refuse disposal':113667,'Refuse collection charges':75957,'Civic amenity site contribution':112328,'Purchase of wheelie bins & other':723,'Recycling':1958},
+ works:{'Highway works':66537,'Street lighting':52032,'Community assets':2479,'Depreciation — hall improvements':2199,'Depreciation — streetlights':1595,'Allotment costs':363,'Depreciation — community assets':463},
+ fgp:{"Salaries & employers' NI":29778,'Swimming pool contributions':8297,'Rate collection charges':5843,'General & office expenses':6116,'Accountancy':3940,'Assurance review fee':3600,'Jubilee costs':3555,'Insurance':1654,'Library contribution':1500,"Members' attendance allowances":450,'Depreciation':999,'Bank charges':546},
+ housing:{'Depreciation & impairment charges':10290,'Rents, rates, taxes & other charges':3005,'Supervision and management':2121,'Repairs and maintenance':1329},
+ finance:{'Bad debt provision':862,'Interest payable on borrowing':1587},
+ surplus:7188, totalExp:515773, totalInc:522961, pound:147, nrv:332665},
+'2023-24':{
+ income:{'Income from the General Rate Fund':517635,'Search fees':3025,'Other income':5550,'Grants received':1421,'Administration allowance':1417,'Allotments income':1445,'Commercial refuse charges':18130,'Sale of wheelie bins/second bin charge':350,'Dwelling rents (including rates)':26919},
+ refuse:{'Refuse disposal':115783,'Refuse collection charges':81958,'Civic amenity site contribution':123722,'Purchase of wheelie bins & other':1089,'Recycling':3326},
+ works:{'Highway works':61525,'Street lighting':34539,'Community assets':623,'Depreciation — hall improvements':2199,'Depreciation — streetlights':1595,'Allotment costs':362,'Depreciation — community assets':463},
+ fgp:{"Salaries & employers' NI":36972,'Swimming pool contributions':18641,'Rate collection charges':6334,'General & office expenses':6595,'Accountancy':3250,'Assurance review fee':3600,'Jubilee costs':1693,'Insurance':1766,'Library contribution':1500,"Members' attendance allowances":360,'Depreciation':999,'Bank charges':448},
+ housing:{'Depreciation & impairment charges':11580,'Rents, rates, taxes & other charges':3299,'Supervision and management':2607,'Repairs and maintenance':2696},
+ finance:{'Bad debt provision':1676,'Interest payable on borrowing':1807},
+ surplus:42885, totalExp:533007, totalInc:575892, pound:162, nrv:333847}
+};
+const GRP=[{k:'refuse', l:'Refuse disposal',            c:'--c-refuse'},
+           {k:'works',  l:'Works and development',       c:'--c-works'},
+           {k:'fgp',    l:'Finance and general purposes', c:'--c-fgp'},
+           {k:'housing',l:'Housing services',             c:'--c-parks'},
+           {k:'finance',l:'Finance costs & provisions',   c:'--c-disc'}];
+const cssv=v=>getComputedStyle(document.body).getPropertyValue(v).trim();
+const sum=o=>Object.values(o).reduce((a,b)=>a+b,0);
+const pos=o=>Object.values(o).filter(v=>v>0).reduce((a,b)=>a+b,0);
+
+/* integrity: total income == total expenditure + surplus, and every group subtotal matches */
+const AUDIT=YEARS.map(y=>{const d=D[y];
+  const inc=sum(d.income);
+  const exp=pos(d.refuse)+pos(d.works)+pos(d.fgp)+pos(d.housing)+pos(d.finance);
+  return {y,incDiff:inc-d.totalInc,expDiff:exp-d.totalExp,surDiff:(inc-exp)-d.surplus};
+});
+const bad=AUDIT.filter(a=>a.incDiff!==0||a.expDiff!==0||a.surDiff!==0);
+if(bad.length) console.error('RECONCILIATION FAILED',bad);
+else console.log('✓ Arbory & Rushen reconciles in both years: income and expenditure re-add to the published totals, and income − expenditure = the published surplus');
+
+const fmt=v=>v>=1000000?'£'+(v/1000000).toFixed(2)+'m':v>=1000?'£'+Math.round(v/1000)+'k':'£'+Math.round(v);
+const fmtFull=v=>'£'+Math.round(v).toLocaleString();
+const pctOf=(v,t)=>t>0?(v/t*100).toFixed(1)+'%':'—';
+
+function graph(y){
+  const d=D[y],N=[],L=[],idx={};
+  const add=(id,label,col,kind,ord)=>{if(idx[id]==null){idx[id]=N.length;N.push({id,label,col,kind,ord:ord||0});}return idx[id];};
+  const hub=add('hub','Revenue account','--accent','hub',0);
+  Object.entries(d.income).forEach(([k,v],i)=>{ if(v<=0)return;
+    const s=add('inc|'+k,k,'--c-income','src',i); L.push({source:s,target:hub,value:v,col:'--c-income'}); });
+  GRP.forEach((g,gi)=>{ const t=pos(d[g.k]); if(t<=0)return;
+    const ci=add(g.k,g.l,g.c,'com',gi+1); L.push({source:hub,target:ci,value:t,col:g.c});
+    Object.entries(d[g.k]).forEach(([k,v])=>{ if(v<=0)return;
+      const li=add(g.k+'|'+k,k,g.c,'item',gi+1); L.push({source:ci,target:li,value:v,col:g.c}); }); });
+  const su=add('sur','Surplus carried to reserves','--c-bal','item',9);
+  L.push({source:hub,target:su,value:d.surplus,col:'--c-bal'});
+  return {nodes:N,links:L};
+}
+
+function seriesFor(id){
+  return YEARS.map(y=>{const d=D[y];
+    if(id==='hub')  return sum(d.income);
+    if(id==='sur')  return d.surplus;
+    if(id.indexOf('inc|')===0) return d.income[id.slice(4)]||0;
+    if(id.indexOf('|')>-1){const a=id.split('|'); return Math.max(0,(d[a[0]]&&d[a[0]][a[1]])||0);}
+    return d[id]?pos(d[id]):0; });
+}
+function spark(id,col,curIdx){
+  const s=seriesFor(id),W=232,H=46,P=5,BOT=H-P-10;
+  const mx=Math.max.apply(null,s.concat([1]));
+  const X=i=>P+i*(W-2*P)/(s.length-1), Y=v=>BOT-(v/(mx||1))*(BOT-P);
+  const pts=s.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const area=line+' L'+X(s.length-1).toFixed(1)+','+BOT+' L'+X(0).toFixed(1)+','+BOT+' Z';
+  const c=cssv(col),sf=cssv('--surface'),mu=cssv('--muted');
+  const dots=pts.map((q,i)=>'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="'+(i===curIdx?4:2.3)+'" fill="'+(i===curIdx?c:sf)+'" stroke="'+c+'" stroke-width="'+(i===curIdx?0:1.5)+'"/>').join('');
+  const marks=YEARS.map((y,i)=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-1)+'" font-size="7.5" text-anchor="middle" fill="'+(i===curIdx?c:mu)+'" font-family="JetBrains Mono,monospace">'+y.slice(2)+'</text>').join('');
+  return '<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">'
+   +'<div style="font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:2px">Two-year path &nbsp;·&nbsp; peak '+fmt(mx)+'</div>'
+   +'<svg width="'+W+'" height="'+H+'" style="display:block;overflow:visible">'
+   +'<path d="'+area+'" fill="'+c+'" opacity="0.14"/><path d="'+line+'" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+   +dots+marks+'</svg></div>';
+}
+
+const svg=d3.select('#chart'),tt=d3.select('#tt');
+let cur=1,timer=null;
+
+function draw(y,animate){
+  const el=document.getElementById('chart'),W=el.clientWidth,H=el.clientHeight;
+  if(W<10||H<10)return;
+  svg.attr('viewBox','0 0 '+W+' '+H);
+
+  const g=graph(y),LPAD=210,RPAD=260,TPAD=14,BPAD=14;
+  const sk=d3.sankey().nodeWidth(15).nodePadding(12).nodeAlign(d3.sankeyLeft)
+    .nodeSort((a,b)=>(a.ord-b.ord)||(b.value-a.value))
+    .extent([[LPAD,TPAD],[W-RPAD,H-BPAD]]);
+  const {nodes,links}=sk({nodes:g.nodes.map(d=>({...d})),links:g.links.map(d=>({...d}))});
+  let root=svg.select('g.root'); if(root.empty())root=svg.append('g').attr('class','root');
+  const total=sum(D[y].income);
+
+  const lk=root.selectAll('path.link').data(links,d=>d.source.id+'>'+d.target.id);
+  lk.exit().transition().duration(320).style('stroke-opacity',0).remove();
+  const lkE=lk.enter().append('path').attr('class','link').attr('d',d3.sankeyLinkHorizontal())
+    .attr('stroke-width',d=>Math.max(1,d.width)).style('stroke',d=>cssv(d.col)).style('stroke-opacity',0);
+  lkE.merge(lk).transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('d',d3.sankeyLinkHorizontal()).attr('stroke-width',d=>Math.max(1,d.width))
+    .style('stroke',d=>cssv(d.col))
+    .style('stroke-opacity',d=>(d.target.kind==='item'?0.30:0.42));
+
+  root.selectAll('path.link')
+    .on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',x=>x!==d);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.source.label+' → '+d.target.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.target.id==='hub'?d.source.id:d.target.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const nd=root.selectAll('g.node').data(nodes,d=>d.id);
+  nd.exit().transition().duration(320).style('opacity',0).remove();
+  const ndE=nd.enter().append('g').attr('class','node').style('opacity',0);
+  ndE.append('rect'); ndE.append('text').attr('class','nlab'); ndE.append('text').attr('class','nval');
+  const ndA=ndE.merge(nd);
+  ndA.transition().duration(animate?750:0).style('opacity',1);
+  ndA.select('rect').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.x0).attr('y',d=>d.y0).attr('width',d=>d.x1-d.x0)
+    .attr('height',d=>Math.max(1,d.y1-d.y0)).attr('fill',d=>cssv(d.col)).attr('rx',3);
+  ndA.select('text.nlab').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2-((d.y1-d.y0)>26?6:0))
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle').text(d=>d.label);
+  ndA.select('text.nval').transition().duration(animate?750:0).ease(d3.easeCubicInOut)
+    .attr('x',d=>d.kind==='src'?d.x0-9:d.x1+9).attr('y',d=>(d.y0+d.y1)/2+7)
+    .attr('text-anchor',d=>d.kind==='src'?'end':'start').attr('dominant-baseline','middle')
+    .text(d=>(d.y1-d.y0)>26?fmt(d.value)+'  ·  '+pctOf(d.value,total):'');
+  ndA.on('mousemove',function(ev,d){
+      root.selectAll('path.link').classed('dim',l=>l.source.id!==d.id&&l.target.id!==d.id);
+      tt.style('opacity',1).style('left',Math.min(ev.offsetX+16,W-300)+'px').style('top',(ev.offsetY+14)+'px')
+        .html('<div class="tt-t">'+d.label+'</div>'
+         +'<div class="tt-r"><span>Amount</span><span class="tt-v">'+fmtFull(d.value)+'</span></div>'
+         +'<div class="tt-r"><span>Share of the account</span><span class="tt-v">'+pctOf(d.value,total)+'</span></div>'
+         + spark(d.id,d.col,YEARS.indexOf(y)));
+    })
+    .on('mouseleave',function(){root.selectAll('path.link').classed('dim',false);tt.style('opacity',0);});
+
+  const d=D[y],pi=YEARS.indexOf(y)-1,pv=pi>=0?D[YEARS[pi]]:null;
+  const arrow=(a,b)=>b==null?'first year shown':(a>b?'▲ +':a<b?'▼ ':'')+(a===b?'no change':fmt(Math.abs(a-b)))+(a!==b?' on last year':'');
+  document.getElementById('s-rate').textContent=fmt(d.income['Income from the General Rate Fund']);
+  document.getElementById('s-rate-d').textContent=arrow(d.income['Income from the General Rate Fund'],pv&&pv.income['Income from the General Rate Fund']);
+  document.getElementById('s-pound').textContent=d.pound+'p';
+  document.getElementById('s-pound-d').textContent=pv?('▲ +'+(d.pound-pv.pound)+'p on last year'):'first year shown';
+  document.getElementById('s-exp').textContent=fmt(d.totalExp);
+  document.getElementById('s-exp-d').textContent=arrow(d.totalExp,pv&&pv.totalExp);
+  document.getElementById('s-sur').textContent='+'+fmt(d.surplus);
+  document.getElementById('s-sur-d').textContent=pv?(d.surplus>pv.surplus?'▲ surplus grew':'▼ surplus shrank'):'first year shown';
+  document.getElementById('fy').textContent=y;
+}
+window._msRedraw=()=>draw(YEARS[cur],false);
+
+document.getElementById('legend').innerHTML=
+  '<div class="lg"><div class="sw" style="background:var(--c-income)"></div>Income</div>'
+ +GRP.map(g=>'<div class="lg"><div class="sw" style="background:var('+g.c+')"></div>'+g.l+'</div>').join('')
+ +'<div class="lg"><div class="sw" style="background:var(--c-bal)"></div>Surplus carried to reserves</div>'
+ +'<div class="lg" style="margin-left:auto;color:var(--muted)">Hover any node or flow for its two-year path</div>';
+
+function buildTable(){
+  const rows=[]; const m=v=>v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString());
+  const R=(l,f,c)=>rows.push('<tr class="'+(c||'')+'"><td>'+l+'</td>'+YEARS.map(y=>'<td class="num">'+f(D[y])+'</td>').join('')+'</tr>');
+  R('INCOME',()=>'','grp');
+  const ik=new Set(); YEARS.forEach(y=>Object.keys(D[y].income).forEach(k=>ik.add(k)));
+  [...ik].forEach(k=>R(k,d=>m(d.income[k]||0),'sub'));
+  R('Total income',d=>m(sum(d.income)),'grp');
+  rows.push('<tr><td colspan="3" style="height:8px;border:none"></td></tr>');
+  GRP.forEach(g=>{ R(g.l.toUpperCase(),d=>m(pos(d[g.k])),'grp');
+    const ks=new Set(); YEARS.forEach(y=>Object.keys(D[y][g.k]).forEach(k=>ks.add(k)));
+    [...ks].forEach(k=>R(k,d=>m(d[g.k][k]||0),'sub')); });
+  rows.push('<tr><td colspan="3" style="height:8px;border:none"></td></tr>');
+  R('Total expenditure',d=>m(d.totalExp),'grp');
+  R('Surplus for the year',d=>'+'+d.surplus.toLocaleString(),'grp');
+  R('Rate in the pound',d=>d.pound+'p','grp');
+  R('Total net rateable value',d=>m(d.nrv),'grp');
+  document.getElementById('tbl').innerHTML=
+   '<table><thead><tr><th>Line</th>'+YEARS.map(y=>'<th>y/e '+YEND[y].slice(-4)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table>'
+   +'<p class="foot"><b>Reconciliation.</b> In both years total income re-adds from its nine lines, total expenditure re-adds across the five groups, and income minus expenditure equals the published surplus exactly. The 2022-23 column was read independently from both the 2023 and the 2024 accounts and the two readings agree on every group total. <b>Source.</b> Arbory &amp; Rushen Commissioners, Financial Statements y/e 31 March 2023 and 2024, Comprehensive Income and Expenditure Statement and Detailed Income and Expenditure Account. Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildTable();
+
+const BSROWS=[
+ ['h','Fixed assets',null,null],
+ ['r','Tangible fixed assets',925423,942259],
+ ['h','Current assets',null,null],
+ ['r','Debtors',43845,39382],
+ ['r','Cash at bank',177973,233240],
+ ['s','',221818,272622],
+ ['r','Short-term borrowing',-8252,-8037],
+ ['r','Creditors',-43113,-145601],
+ ['t','Net current assets',170453,118984],
+ ['t','',1095876,1061243],
+ ['r','Long-term borrowing',-20198,-28450],
+ ['T','Total assets less liabilities',1075678,1032793],
+ ['h','Reserves',null,null],
+ ['r','Capital adjustment account',365813,366321],
+ ['r','Sinking fund',0,0],
+ ['r','General reserve',100036,76669],
+ ['r','Revaluation reserve',556287,564578],
+ ['r','Ballakilley Recreation Project',14136,4136],
+ ['r','Housing maintenance reserve',6386,4107],
+ ['r','Housing revenue account',33020,16982],
+ ['T','',1075678,1032793]];
+function buildBS(){
+  const m=v=>v==null?'':(v===0?'—':(v<0?'('+Math.abs(v).toLocaleString()+')':v.toLocaleString()));
+  const cls={h:'grp',r:'sub',s:'',t:'grp',T:'grp'};
+  const body=BSROWS.map(r=>{
+    const st=r[0]==='T'?' style="border-top:2px solid var(--border2);font-weight:700"':(r[0]==='s'?' style="border-top:1px solid var(--border2)"':'');
+    return '<tr class="'+cls[r[0]]+'"'+st+'><td>'+r[1]+'</td><td class="num">'+m(r[2])+'</td><td class="num">'+m(r[3])+'</td></tr>';}).join('');
+  document.getElementById('bstbl').innerHTML=
+   '<table><thead><tr><th>Line</th><th>2024</th><th>2023</th></tr></thead><tbody>'+body+'</tbody></table>'
+   +'<p class="foot"><b>What jumps out.</b> Net assets rose from £1,032,793 to £1,075,678 — the £42,885 surplus plus a small revaluation drift. Borrowing fell from £36,487 to £28,450 as scheduled loan repayments were made; the last Sinking Fund bond (£5,000) was repaid in full in March 2023, so the Sinking Fund reserve now stands at nil. Cash at bank fell from £233,240 to £177,973 while creditors fell even further, from £145,601 to £43,113 — a large one-off creditor in the 2023 accounts (mostly "other creditors") unwound during 2023-24.</p>'
+   +'<p class="foot"><b>Provenance.</b> OCR-recovered from scanned originals, then verified: current assets and current liabilities each re-add, net current assets reconcile in both years, and total reserves equal total assets less liabilities exactly in both years — 2024 reserves were misread on first pass as they summed to a figure £500 short of the published total; the correct figure of £1,095,876 for total assets before long-term liabilities is the only reading that closes both that subtotal and the final £1,075,678 net position.</p>'
+   +'<p class="foot"><b>Source.</b> Arbory &amp; Rushen Commissioners, Financial Statements for the year ended 31 March 2024, Balance Sheet, page 12, with note 4 (borrowing) and note 14 (rateable value). Retrieved from gov.im, 6 August 2026.</p>';
+}
+buildBS();
+
+const slider=document.getElementById('slider'),play=document.getElementById('play');
+slider.addEventListener('input',e=>{cur=+e.target.value;stop();draw(YEARS[cur],true);});
+function stop(){if(timer){clearInterval(timer);timer=null;play.textContent='▶ Play';}}
+play.addEventListener('click',()=>{
+  if(timer){stop();return;}
+  play.textContent='❚❚ Pause';
+  if(cur>=YEARS.length-1){cur=0;slider.value=0;draw(YEARS[0],true);}
+  timer=setInterval(()=>{if(cur>=YEARS.length-1){stop();return;}cur++;slider.value=cur;draw(YEARS[cur],true);},1700);
+});
+const PANELS={'p-table':'btn-table','p-bs':'btn-bs','p-notes':'btn-notes'};
+function show(panel){
+  Object.keys(PANELS).forEach(x=>{
+    const on=x===panel&&!document.getElementById(x).classList.contains('on');
+    document.getElementById(x).classList.toggle('on',on);
+    document.getElementById(PANELS[x]).setAttribute('aria-pressed',on);});
+}
+Object.entries(PANELS).forEach(([p,b])=>document.getElementById(b).addEventListener('click',()=>show(p)));
+document.getElementById('lnk-bs').addEventListener('click',()=>{
+  document.getElementById('p-bs').classList.add('on');
+  document.getElementById('btn-bs').setAttribute('aria-pressed','true');
+  ['p-table','p-notes'].forEach(x=>{document.getElementById(x).classList.remove('on');document.getElementById(PANELS[x]).setAttribute('aria-pressed','false');});
+});
+document.getElementById('btn-theme').addEventListener('click',function(){
+  const light=document.body.classList.toggle('light');
+  this.textContent=light?'Dark':'Light';
+  try{localStorage.setItem('observatory-theme',light?'light':'dark');}catch(e){}
+  draw(YEARS[cur],false);
+});
+draw(YEARS[cur],false);
+let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>draw(YEARS[cur],false),140);});
+</script>
+</body>
+</html>

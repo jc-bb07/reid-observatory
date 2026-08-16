@@ -931,7 +931,7 @@ body.light .pb.active {
    via the same --blue/#bfdbfe pair used for the other active-pill styles. */
 .pb.active { background: var(--blue-dim); }
 
-/* Jurisdiction toggle buttons (Sector Mix -> GVA/Worker tab) -- canonical island colours.
+/* Jurisdiction toggle buttons (Sector Mix -> Output/Worker tab) -- canonical island colours.
    Text colour flips per theme: dark-mode island accents are bright pastels (need dark
    text), light-mode accents are deeper/saturated (mixed -- tuned per island below). */
 .jbtn { background:none; border:1px solid var(--border2); color:var(--muted); }
@@ -1023,7 +1023,7 @@ body.light .bplay { color:#ffffff; }
         <button class="sn-sub" data-mode="mix" data-sub="rel" onclick="snSub('mix','rel')">Relative</button>
         <button class="sn-sub" data-mode="mix" data-sub="mix" onclick="snSub('mix','mix')">Mix</button>
         <button class="sn-sub" data-mode="mix" data-sub="compete" onclick="snSub('mix','compete')">Competing Out</button>
-        <button class="sn-sub" data-mode="mix" data-sub="comp" onclick="snSub('mix','comp')">GVA/Worker</button>
+        <button class="sn-sub" data-mode="mix" data-sub="comp" onclick="snSub('mix','comp')">Output/Worker</button>
       </div>
     </div>
     <div class="sn-group" data-mode="structure">
@@ -1380,7 +1380,7 @@ body.light .bplay { color:#ffffff; }
   <button class="tab" data-tab="rel">Relative</button>
   <button class="tab" data-tab="mix">Mix</button>
   <button class="tab" data-tab="compete">Competing Out</button>
-  <button class="tab" data-tab="comp">GVA/Worker</button>
+  <button class="tab" data-tab="comp">Output/Worker</button>
 </div>
   <div><span class="st-xref" onclick="setMode('structure')">Why does the mix churn? → Structure</span></div>
 <div class="ctrl-row" id="main-ctrl">
@@ -1444,15 +1444,25 @@ body.light .bplay { color:#ffffff; }
 <div class="note" id="note"></div>
 </div>
 <div id="mode-structure" style="display:none">
+  <div style="max-width:78ch;margin:0 0 22px;padding:12px 16px;border-left:3px solid var(--amber);background:rgba(255,176,32,.06);font-size:14px;line-height:1.55">
+    <strong style="color:var(--amber)">Correction, 16 August 2026.</strong> An earlier version of this page
+    showed a headline figure of &ldquo;Real GVA growth 1998&ndash;2022: +10%&rdquo; attributed to the Isle of Man.
+    That figure was Jersey&rsquo;s, from a Statistics Jersey series misfiled into the Island&rsquo;s data folder.
+    The Isle of Man&rsquo;s own figures over that period, from the Treasury&rsquo;s National Income Reports, are
+    real GDP +170% and real GNP +92%, against UK real GVA of +52%. The headline stat has been replaced with
+    real GNP growth 2007/08&ndash;2023/24, and three passages describing output as flat against the UK have
+    been rewritten. The charts on the Growth, Mix and Output/Worker tabs were built from Isle of Man sources
+    and are unchanged.
+  </div>
   <div class="narrative narrative-plain">
-    The Growth and Mix views show <strong>what</strong> happened: output roughly flat against the UK for two decades, while the industry mix churned dramatically underneath. This view is about <strong>why</strong>. The short version: the Island's economy runs on three pools that barely grow — people (population has risen 0.3% since 2011, with deaths exceeding births), housing, and capital. When one part of the economy expands, it draws workers, homes and investment away from the rest rather than adding new capacity. Three claimants compete for those pools: the public sector, the established private economy, and whichever new industry is being promoted at the time. The diagrams below map that competition; the charts show it in the data.
+    The Growth and Mix views show <strong>what</strong> happened: headline output that grew strongly to 2019 and has fallen since &mdash; while the income actually <em>earned</em> on the Island grew far more slowly, and the industry mix churned dramatically underneath. This view is about <strong>why</strong>. The short version: the Island's economy runs on three pools that barely grow — people (population has risen 0.3% since 2011, with deaths exceeding births), housing, and capital. When one part of the economy expands, it draws workers, homes and investment away from the rest rather than adding new capacity. Three claimants compete for those pools: the public sector, the established private economy, and whichever new industry is being promoted at the time. The diagrams below map that competition; the charts show it in the data.
   </div>
   <div class="narrative narrative-technical" style="display:none">
-    A qualitative system-dynamics reading of the Manx economy: a factor-constrained small open economy in which sectoral promotion produces reallocation, not growth. Three claimants — the public sector, the existing private sector, and the currently-promoted (&ldquo;ephemeral&rdquo;) sector — compete for quasi-fixed stocks of labour, housing and capital. Reinforcing loops (promotion R1; the VAT revenue engine R2) drive expansion phases; balancing loops (crowding-out B1, the housing brake B2–B3, wage bidding B4, tax-base erosion B5) enforce the ceiling. Population growth is migration-only (natural change negative since 2017) and migration is throttled by housing costs, so labour supply is effectively inelastic; census employment was lower in 2021 than 2001. The observable implication — sectoral GVA shares churn while UK-adjusted total growth ≈ 0 — is what the Growth and Mix views display.
+    A qualitative system-dynamics reading of the Manx economy: a factor-constrained small open economy in which sectoral promotion produces reallocation, not growth. Three claimants — the public sector, the existing private sector, and the currently-promoted (&ldquo;ephemeral&rdquo;) sector — compete for quasi-fixed stocks of labour, housing and capital. Reinforcing loops (promotion R1; the VAT revenue engine R2) drive expansion phases; balancing loops (crowding-out B1, the housing brake B2–B3, wage bidding B4, tax-base erosion B5) enforce the ceiling. Population growth is migration-only (natural change negative since 2017) and migration is throttled by housing costs, so labour supply is effectively inelastic; census employment was lower in 2021 than 2001. The observable implication &mdash; sectoral shares churn while GNP growth lags GDP throughout, and lags the UK from 2007/08 &mdash; is what the Growth and Mix views display.
   </div>
 
   <div class="stat-row">
-    <div class="stat-card iom"><div class="label">Real GVA growth 1998–2022</div><div class="value">+10%</div><div class="sub">UK over the same period: +54%</div></div>
+    <div class="stat-card iom"><div class="label">Real GNP growth 2007/08&ndash;2023/24</div><div class="value">+14%</div><div class="sub">UK real GVA over the same period: +19%</div></div>
     <div class="stat-card"><div class="label">Population 2011 → 2024</div><div class="value">+0.3%</div><div class="sub">84,497 → 84,756 · natural change negative</div></div>
     <div class="stat-card"><div class="label">Employment 2001 → 2021</div><div class="value">−574</div><div class="sub">32,293 → 31,719 (census sectors)</div></div>
     <div class="stat-card"><div class="label">Median house price 2005 → 2025</div><div class="value">+77%</div><div class="sub">£175k → £310k, land registry</div></div>
@@ -1466,7 +1476,7 @@ body.light .bplay { color:#ffffff; }
 
   <div id="st-pane-sectors" class="tab-pane">
     <div class="narrative narrative-plain">
-      Each new promoted industry — finance in the 1980s, then film, space, e-gaming, and now digital — follows the same arc. Promotion works: the sector grows and the headline numbers improve. But because workers, housing and premises are scarce, the same growth raises wages, rents and prices for everyone else, and the established economy shrinks to make room. When the new sector matures, attention moves to the next one. The result over 25 years: the pie barely grew, but the slices changed hands — see <span class="hl-iom">Sector Mix → Competing Out</span> for the year-by-year picture.
+      Each new promoted industry — finance in the 1980s, then film, space, e-gaming, and now digital — follows the same arc. Promotion works: the sector grows and the headline numbers improve. But because workers, housing and premises are scarce, the same growth raises wages, rents and prices for everyone else, and the established economy shrinks to make room. When the new sector matures, attention moves to the next one. The result over 25 years: the slices changed hands repeatedly, and the income actually earned here grew far more slowly than the headline — see <span class="hl-iom">Sector Mix → Competing Out</span> for the year-by-year picture.
       <br><br>
       The public sector plays this game differently: it doesn't sell anything, it taxes the other two — and its workforce has grown through every cycle, up around 2,600 jobs since 2001 in a labour market that shrank.
     </div>
@@ -1630,7 +1640,7 @@ body.light .bplay { color:#ffffff; }
       <div class="st-fig"><h3>Median transaction price, 2000–2025</h3><div class="figcap">Land registry completions; crude median, no mix adjustment.</div><div class="chart-wrap" style="height:240px"><canvas id="st-price-chart" class="chart-canvas"></canvas></div></div>
     </div>
     <div class="st-fig"><h3>Where the workforce went — census employment change, 2001 → 2021</h3><div class="figcap">Within a total that fell by 574. Health, education &amp; public administration combined by the source.</div><div class="chart-wrap" style="height:320px"><canvas id="st-emp-chart" class="chart-canvas"></canvas></div></div>
-    <span class="st-xref" onclick="snSub('mix','comp')">Evidence → Sector Mix: GVA/Worker</span>
+    <span class="st-xref" onclick="snSub('mix','comp')">Evidence &rarr; Sector Mix: Output/Worker</span>
   </div>
 
   <div class="st-prov">The structural analysis in this view was first set out in a 2010 systems-dynamics study of the Manx economy and a discussion paper delivered to the Isle of Man Treasury in 2011. This page updates it with published data to 2026: IoM National Income accounts, census &amp; population reports, land registry transactions, Treasury Pink/Blue Books, ONS national accounts, HMRC–IoM annual accounts and gov.im FERSA statements.</div>
@@ -2373,7 +2383,7 @@ function hookComp(grp){
   if(grp==='Public Administration') return HOOK_PUBADMIN;
   return HOOK_COMP_GENERIC.replace('{{GRP}}', grp);
 }
-const DETAIL_COMP="GVA per worker by industry. Nominal mode: IoM, Guernsey, UK in current prices; Jersey excluded (published in constant 2022\u00a3 only). Real mode: IoM deflated to 2024/25 via IoM CPI; Jersey constant 2022\u00a3 (Statistics Jersey); Guernsey deflated to Q1 2026 via GG RPI (States of Guernsey); UK Finance SIC K synthesised from ONS DJG5 index (Finance output per job, 2023=100) anchored at \u00a3149k/job (\u00a3170.2bn GVA \u00f7 1,140k workforce jobs, 2023) \u2014 approximate 2023 real prices. UK Public Administration (SIC O) and Professional/Education/Health (SIC M+P+Q) computed directly from ONS GDP(O) low-level aggregates (current price and chained volume GVA by SIC section, June 2026 edition) divided by ONS JOBS02 workforce jobs by industry (June 2026 edition); real terms are the chained-volume GVA \u00f7 jobs ratio, denominated in the dataset\u2019s 2023 reference-year prices. Prof/Ed/Health is a combined bucket on both sides of the comparison \u2014 IoM National Income data does not report Professional Services separately from Education &amp; Health, so the UK comparator is built to the same combined scope rather than Professional Services alone. Price bases are not harmonised across jurisdictions \u2014 absolute levels are indicative only; use for trend comparison.";
+const DETAIL_COMP="Output per worker by industry. <strong>The Isle of Man publishes no Gross Value Added series at any level</strong> \u2014 the IoM numerator here is national income at factor cost by economic activity (National Income Reports, Table 1/2), which is conceptually close to GVA but is not GVA and is not labelled as such by Statistics Isle of Man. Jersey, Guernsey and the UK figures are GVA as published. Nominal mode: IoM, Guernsey, UK in current prices; Jersey excluded (published in constant 2022\u00a3 only). Real mode: IoM deflated to 2024/25 via IoM CPI; Jersey constant 2022\u00a3 (Statistics Jersey); Guernsey deflated to Q1 2026 via GG RPI (States of Guernsey); UK Finance SIC K synthesised from ONS DJG5 index (Finance output per job, 2023=100) anchored at \u00a3149k/job (\u00a3170.2bn GVA \u00f7 1,140k workforce jobs, 2023) \u2014 approximate 2023 real prices. UK Public Administration (SIC O) and Professional/Education/Health (SIC M+P+Q) computed directly from ONS GDP(O) low-level aggregates (current price and chained volume GVA by SIC section, June 2026 edition) divided by ONS JOBS02 workforce jobs by industry (June 2026 edition); real terms are the chained-volume GVA \u00f7 jobs ratio, denominated in the dataset\u2019s 2023 reference-year prices. Prof/Ed/Health is a combined bucket on both sides of the comparison \u2014 IoM National Income data does not report Professional Services separately from Education &amp; Health, so the UK comparator is built to the same combined scope rather than Professional Services alone. Price bases are not harmonised across jurisdictions \u2014 absolute levels are indicative only; use for trend comparison.";
 const HOOK_COMPETE="<em>Not just the Isle of Man: this tab works per island &mdash; switch between IoM, Jersey and Guernsey above.</em><br><br><strong>Watch the top band, not the bottom one.</strong> It's tempting to read this chart as “finance vs everyone else” — but on the Isle of Man that top band is Finance <em>and</em> digital services (eGaming, ICT) combined, and pinning a King-Gaming-shaped scandal on ‘Finance’ alone misses where the actual problem sits. The real contest here is between the public sector and the local economy for whatever share that combined band leaves behind. When it falls, that space doesn't automatically go back to shops and trades; more often than not, over the long run, it's gone to government.";
 const DETAIL_COMPETE="IoM 'Public Sector' = Public Administration + Education &amp; Health. Prior to 2007/08, Education &amp; Health was not reported separately in IoM National Accounts — the pre-2007 band shows Public Administration only, understating the public sector share and making it not directly comparable with Jersey/Guernsey (which include Education &amp; Health throughout). Jersey: dashed line shows 1998–2020 under old SIC classification (Finance includes legal &amp; accounting; Public = administration only, excluding Education &amp; Health). From 2021: SIC2007 (Finance = SIC K; Public = O+P+Q). Source: Statistics Jersey National Accounts. Guernsey: 2009–2023; 2009–2018 back-calculated from 2019 revision (dashed).";
 const HOOK_STD="<strong>Isle of Man only. Local businesses — shops, trades, everyday services — made up 55% of everything the Isle of Man produced in 1997/98.</strong> By 2023/24 that’s down to 33%, having bottomed out even lower, at 26%, in 2016/17. The natural assumption is that finance did this — and it’s part of the story: financial and digital services grew from 39% of the economy to a peak of 63% in 2016/17, before easing back to 54% today. But that retreat since 2016 hasn’t given the local economy its ground back — the public sector has absorbed more of it, more than doubling its own share from 5% to 13% over the same 27 years. The ‘local economy’ band on the Mix tab has never really recovered from either of its rivals; it just occasionally loses ground to one instead of the other. Next time someone says the Island is ‘de-risking’ its finance &amp; digital-services dependency, check which band is actually growing before you agree. <strong>Press play.</strong>";
@@ -2629,7 +2639,7 @@ function buildChart(){
     ds=mixDS();type='line';stacked=true;yMax=100;yTitle='Share of GVA %';yfmt=v=>v+'%';
   }else{
     type='line';ds=compDS();
-    yTitle=compR==='real'?'GVA per worker \u2014 real terms (IoM: 2024/25\u00a3; Jersey: const.2022\u00a3; GG: Q1 2026\u00a3; UK: \u223c2023\u00a3)':'GVA per worker \u00a3 (current prices \u2014 IoM, Guernsey, UK)';
+    yTitle=compR==='real'?'Output per worker \u2014 real terms (IoM: 2024/25\u00a3; Jersey: const.2022\u00a3; GG: Q1 2026\u00a3; UK: \u223c2023\u00a3)':'GVA per worker \u00a3 (current prices \u2014 IoM, Guernsey, UK)';
     yfmt=v=>v===null?'':'\u00a3'+v.toLocaleString();
   }
   const cfg={
@@ -2691,7 +2701,7 @@ function updateNote(){
     if(narEl) narEl.style.display=unlocked?'':'none';
     if(unlocked){
       noteEl.innerHTML=DETAIL_COMP;
-      if(narEl) narEl.innerHTML="<em>Not just the Isle of Man: GVA per worker compared across IoM, Jersey, Guernsey and the UK.</em><br><br>"+hookComp(compGrp);
+      if(narEl) narEl.innerHTML="<em>Not just the Isle of Man: output per worker compared across IoM, Jersey, Guernsey and the UK.</em><br><br>"+hookComp(compGrp);
     }
     return;
   }

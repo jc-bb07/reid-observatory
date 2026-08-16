@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isle of Man — Fun Facts to Timeline</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page:           #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6; /* blue */
+    --series-2:       #008300; /* green */
+    --series-3:       #e87ba4; /* magenta */
+    --series-4:       #eda100; /* yellow */
+    --series-5:       #1baf7a; /* aqua */
+    --series-6:       #eb6834; /* orange */
+    --series-7:       #4a3aa7; /* violet */
+    --series-8:       #e34948; /* red */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page:           #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --series-2:       #008300;
+      --series-3:       #d55181;
+      --series-4:       #c98500;
+      --series-5:       #199e70;
+      --series-6:       #d95926;
+      --series-7:       #9085e9;
+      --series-8:       #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --series-2:       #008300;
+    --series-3:       #d55181;
+    --series-4:       #c98500;
+    --series-5:       #199e70;
+    --series-6:       #d95926;
+    --series-7:       #9085e9;
+    --series-8:       #e66767;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--text-primary);
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.page-head { margin-bottom: 36px; }
+  header.page-head h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.02em; }
+  header.page-head p { font-size: 15px; color: var(--text-secondary); margin: 0; max-width: 640px; line-height: 1.5; }
+  .theme-toggle {
+    position: fixed; top: 20px; right: 20px; font-size: 12px; color: var(--text-secondary);
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 12px; cursor: pointer; z-index: 10;
+  }
+  section.card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 24px 20px;
+    margin-bottom: 24px;
+  }
+  .card h2 { font-size: 17px; margin: 0 0 4px; }
+  .card .stat {
+    font-size: 15px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5;
+  }
+  .card .stat b { color: var(--text-primary); font-weight: 600; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); }
+  .legend .item { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .chart-box { position: relative; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--baseline); stroke-width: 1; }
+  .axis-label { fill: var(--text-muted); font-size: 11px; }
+  .refline { stroke: var(--text-muted); stroke-width: 1.5; stroke-dasharray: 3 3; fill: none; }
+  .reflabel { fill: var(--text-muted); font-size: 10.5px; }
+  .data-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .data-point { stroke: var(--surface-1); stroke-width: 1.5; }
+  .direct-label { font-size: 11.5px; font-weight: 600; }
+  .bar { }
+  .bar-label { fill: var(--text-secondary); font-size: 10.5px; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--text-primary); color: var(--surface-1);
+    font-size: 11.5px; padding: 6px 9px; border-radius: 6px; line-height: 1.5; white-space: nowrap;
+    opacity: 0; transform: translate(-50%, -110%); transition: opacity 0.08s; z-index: 5;
+  }
+  .crosshair { stroke: var(--text-muted); stroke-width: 1; opacity: 0; }
+  .note { font-size: 12px; color: var(--text-muted); margin-top: 12px; line-height: 1.6; }
+  .note a { color: inherit; }
+  .gap-note { font-size: 11.5px; color: var(--text-muted); font-style: italic; }
+  footer { margin-top: 40px; font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+  .badge {
+    display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    background: var(--series-6); color: #fff; margin-left: 8px; vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+<div class="theme-toggle" id="themeToggle">Toggle theme</div>
+<div class="wrap">
+  <header class="page-head">
+    <h1>Fun facts hiding in the data catalog</h1>
+    <p>Pulled from nine years of "Isle of Man in Numbers" (2017–2025), the 2006 &amp; 2009 Economic Digests,
+    and the 2011 &amp; 2021 Census reports in your data library. Four candidate timelines below — real
+    government numbers, genuinely graphable, and each tells a story beyond the GVA/offshore-repositioning work.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Is the Island getting warmer?<span class="badge">climate</span></h2>
+    <p class="stat">Ronaldsway's own met records say yes: <b>2022 was "the warmest and sunniest year since records began in 1947,"</b>
+    then <b>2023 broke it again</b> — the government's own annual report calls out both, back to back. 2024 cooled off again ("disappointing summer"), but the recent run sits clearly above the 30-year (1991–2020) average of 12.9°C.</p>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--series-1)"></span>Annual average daily maximum (°C)</span>
+    </div>
+    <div class="chart-box" id="chart-climate"></div>
+    <p class="note">Source: Statistics Isle of Man / Dept. of Infrastructure, "Meteorological Data" tables, Isle of Man in Numbers 2017–2025 editions (each reports the prior year). 2020's figure in the 2021 edition matches the long-run average exactly and looks like a copy/paste slip in that year's report — worth a footnote if this goes further, or a request to Stats IoM for the real 2020 figure.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Crime is trading places with itself<span class="badge">crime &amp; justice</span></h2>
+    <p class="stat">Violent crime ("Offences Against the Person") has roughly <b>tripled since the mid-1990s</b> — 213 recorded in 1996 vs. 560–712 a year recently — while <b>burglary has collapsed by nearly 90%</b> over the same span. Two crime stories moving in completely opposite directions on the same island.</p>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--series-1)"></span>Offences against the person</span>
+      <span class="item"><span class="swatch" style="background:var(--series-2)"></span>Burglary offences</span>
+    </div>
+    <div class="chart-box" id="chart-crime"></div>
+    <p class="gap-note">Gap: no report in the catalog covers 2009–2015 — only 2006/2009 digests and 2017–2025 "In Numbers" editions were available, so the line jumps across that decade.</p>
+    <p class="note">Source: Dept. of Home Affairs, "Offences by Category," 2006 &amp; 2009 Economic Digests and Isle of Man in Numbers 2017–2025.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. The value of drugs seized went up 12× in a decade<span class="badge">crime &amp; justice</span></h2>
+    <p class="stat">From <b>£171,515</b> in 2014/15 to <b>£2.1 million</b> in 2023/24 — driven mostly by herbal cannabis and a recent cocaine surge. The average prison population (140 in 2024) is now running <b>50% over the prison's stated capacity of 92</b>, which the report attributes to longer sentences for drug offences.</p>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--series-1)"></span>Value of drugs seized (£)</span>
+    </div>
+    <div class="chart-box" id="chart-drugs"></div>
+    <p class="note">Source: Dept. of Home Affairs, "Value of Drugs Seized, by Type," Isle of Man in Numbers 2025 (10-year table already built in, 2014/15–2023/24).</p>
+  </section>
+
+  <section class="card">
+    <h2>4. From farms and finance in 60 years<span class="badge">economy</span></h2>
+    <p class="stat">In 1961, insurance/banking/finance employed <b>370 people</b> — fewer than agriculture's 1,911. By 2021 finance employed <b>9,143</b> (a 24× rise) while agriculture had fallen to 664. The two lines cross around 1981. This is the same structural story your offshore-repositioning work already tells in GVA terms — here it is in headcount, and it reaches back further (1961 vs. the 2007+ GVA series).</p>
+    <div class="legend">
+      <span class="item"><span class="swatch" style="background:var(--series-1)"></span>Insurance, banking, finance &amp; business services</span>
+      <span class="item"><span class="swatch" style="background:var(--series-2)"></span>Agriculture, forestry, fishing</span>
+    </div>
+    <div class="chart-box" id="chart-employment"></div>
+    <p class="note">Source: Cabinet Office / Census, "Employment by Sector 1961 to 2021," Isle of Man in Numbers 2025.</p>
+  </section>
+
+  <section class="card">
+    <h2>Also worth a look</h2>
+    <p class="stat" style="margin-bottom:0">
+    <b>Manx Gaelic, back from the dead:</b> the last native speaker died in 1974, yet the 2011 census counted 1,662 speakers and the 2021 census ~2,000+ — a "dead" language with a growing speaker base, thanks to Manx-medium schooling since 2001.<br><br>
+    <b>Douglas is no longer where the growth is:</b> Onchan grew 150% and Ramsey 119% since 1961, while Douglas itself grew just 42% — the population is suburbanising.<br><br>
+    <b>Population has quietly started shrinking:</b> 2024/25 recorded 563 births against 897 deaths — a natural change of –334, the kind of cross-over usually associated with much older populations.<br><br>
+    <b>Sanctions showed up in the aircraft registry:</b> the 2025 report notes 24 aircraft were deregistered following a directive to exit all business tied to Russia and Belarus after the Ukraine invasion — a geopolitical event visible in a shipping/aviation statistics table.
+    </p>
+  </section>
+
+  <footer>
+    These are drawn from files already in your <code>data-library/40_economy-statistics/iom-in-numbers</code> and
+    <code>10_health-social-care/manx-care/misc</code> folders (2006 &amp; 2009 Economic Digests, In Numbers 2017–2025, Census 2011 &amp; 2021).
+    None of this is checked into the Observatory site yet — happy to build out any of these four as a proper page, extend the
+    crime/climate series back further by pulling the missing 2010–2016 editions if you have them, or chase down more years
+    of Manx Gaelic speaker counts from the 1991/2001/2016 census reports still sitting in the catalog.
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const tooltip = document.getElementById('tooltip');
+
+function getVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+// ---------- generic line chart ----------
+function lineChart(containerId, series, opts) {
+  const container = document.getElementById(containerId);
+  const width = 820, height = opts.height || 220;
+  const margin = { top: 16, right: 16, bottom: 28, left: opts.leftMargin || 46 };
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+
+  const allX = series[0].points.map(p => p.x);
+  const allY = series.flatMap(s => s.points.map(p => p.y)).filter(v => v !== null && v !== undefined);
+  let yMin = opts.yMin !== undefined ? opts.yMin : Math.min(...allY);
+  let yMax = opts.yMax !== undefined ? opts.yMax : Math.max(...allY);
+  const yPad = (yMax - yMin) * 0.12;
+  yMin -= yPad; yMax += yPad;
+
+  const xScale = i => margin.left + (i / (allX.length - 1)) * innerW;
+  const yScale = v => margin.top + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+  // gridlines (4 horizontal)
+  const gridSteps = 4;
+  for (let g = 0; g <= gridSteps; g++) {
+    const v = yMin + (g / gridSteps) * (yMax - yMin);
+    const y = yScale(v);
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", margin.left); line.setAttribute("x2", width - margin.right);
+    line.setAttribute("y1", y); line.setAttribute("y2", y);
+    line.setAttribute("class", "gridline");
+    svg.appendChild(line);
+    const label = document.createElementNS(svgNS, "text");
+    label.setAttribute("x", margin.left - 8); label.setAttribute("y", y + 3);
+    label.setAttribute("text-anchor", "end"); label.setAttribute("class", "axis-label");
+    label.textContent = opts.yFormat ? opts.yFormat(v) : Math.round(v);
+    svg.appendChild(label);
+  }
+
+  // baseline
+  const baseline = document.createElementNS(svgNS, "line");
+  baseline.setAttribute("x1", margin.left); baseline.setAttribute("x2", width - margin.right);
+  baseline.setAttribute("y1", margin.top + innerH); baseline.setAttribute("y2", margin.top + innerH);
+  baseline.setAttribute("class", "baseline");
+  svg.appendChild(baseline);
+
+  // x labels
+  allX.forEach((xVal, i) => {
+    if (opts.xLabelEvery && i % opts.xLabelEvery !== 0 && i !== allX.length - 1) return;
+    const label = document.createElementNS(svgNS, "text");
+    label.setAttribute("x", xScale(i)); label.setAttribute("y", height - 6);
+    label.setAttribute("text-anchor", "middle"); label.setAttribute("class", "axis-label");
+    label.textContent = xVal;
+    svg.appendChild(label);
+  });
+
+  // reference line
+  if (opts.refValue !== undefined) {
+    const ry = yScale(opts.refValue);
+    const rline = document.createElementNS(svgNS, "line");
+    rline.setAttribute("x1", margin.left); rline.setAttribute("x2", width - margin.right);
+    rline.setAttribute("y1", ry); rline.setAttribute("y2", ry);
+    rline.setAttribute("class", "refline");
+    svg.appendChild(rline);
+    const rlabel = document.createElementNS(svgNS, "text");
+    rlabel.setAttribute("x", width - margin.right); rlabel.setAttribute("y", ry - 5);
+    rlabel.setAttribute("text-anchor", "end"); rlabel.setAttribute("class", "reflabel");
+    rlabel.textContent = opts.refLabel || "";
+    svg.appendChild(rlabel);
+  }
+
+  // lines + points (null-aware: breaks the path into segments across gaps)
+  series.forEach((s) => {
+    let segments = [];
+    let current = [];
+    s.points.forEach((p, i) => {
+      if (p.y === null || p.y === undefined) {
+        if (current.length) segments.push(current);
+        current = [];
+      } else {
+        current.push(`${xScale(i)},${yScale(p.y)}`);
+      }
+    });
+    if (current.length) segments.push(current);
+
+    segments.forEach(seg => {
+      const path = document.createElementNS(svgNS, "path");
+      path.setAttribute("d", `M ${seg.join(" L ")}`);
+      path.setAttribute("class", "data-line");
+      path.setAttribute("stroke", s.color);
+      svg.appendChild(path);
+    });
+
+    s.points.forEach((p, i) => {
+      if (p.y === null || p.y === undefined) return;
+      const c = document.createElementNS(svgNS, "circle");
+      c.setAttribute("cx", xScale(i)); c.setAttribute("cy", yScale(p.y));
+      c.setAttribute("r", 4); c.setAttribute("fill", s.color);
+      c.setAttribute("class", "data-point");
+      svg.appendChild(c);
+    });
+
+    // direct label at the last non-null point
+    let lastIdx = -1;
+    for (let i = s.points.length - 1; i >= 0; i--) {
+      if (s.points[i].y !== null && s.points[i].y !== undefined) { lastIdx = i; break; }
+    }
+    if (lastIdx >= 0) {
+      const lx = xScale(lastIdx);
+      const ly = yScale(s.points[lastIdx].y);
+      const dl = document.createElementNS(svgNS, "text");
+      dl.setAttribute("x", Math.min(lx + 8, width - margin.right - 4));
+      dl.setAttribute("y", ly + (s.labelOffset || 4));
+      dl.setAttribute("class", "direct-label");
+      dl.setAttribute("fill", s.color);
+      dl.setAttribute("text-anchor", lx + 60 > width - margin.right ? "end" : "start");
+      dl.textContent = s.label;
+      svg.appendChild(dl);
+    }
+  });
+
+  // hover overlay
+  const crosshair = document.createElementNS(svgNS, "line");
+  crosshair.setAttribute("y1", margin.top); crosshair.setAttribute("y2", margin.top + innerH);
+  crosshair.setAttribute("class", "crosshair");
+  svg.appendChild(crosshair);
+
+  const overlay = document.createElementNS(svgNS, "rect");
+  overlay.setAttribute("x", margin.left); overlay.setAttribute("y", margin.top);
+  overlay.setAttribute("width", innerW); overlay.setAttribute("height", innerH);
+  overlay.setAttribute("fill", "transparent");
+  svg.appendChild(overlay);
+
+  overlay.addEventListener("mousemove", (e) => {
+    const rect = svg.getBoundingClientRect();
+    const scaleX = width / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const i = Math.round(((mx - margin.left) / innerW) * (allX.length - 1));
+    const idx = Math.max(0, Math.min(allX.length - 1, i));
+    const x = xScale(idx);
+    crosshair.setAttribute("x1", x); crosshair.setAttribute("x2", x);
+    crosshair.setAttribute("opacity", 1);
+    const lines = series.map(s => {
+      const v = s.points[idx].y;
+      const shown = (v === null || v === undefined) ? "no data" : (opts.tooltipFormat ? opts.tooltipFormat(v) : v);
+      return `<div><span style="color:${s.color}">●</span> ${s.name}: <b>${shown}</b></div>`;
+    }).join("");
+    tooltip.innerHTML = `<div style="margin-bottom:2px">${allX[idx]}</div>${lines}`;
+    tooltip.style.opacity = 1;
+    const containerRect = container.getBoundingClientRect();
+    tooltip.style.left = (e.clientX - containerRect.left) + "px";
+    tooltip.style.top = (e.clientY - containerRect.top) + "px";
+  });
+  overlay.addEventListener("mouseleave", () => {
+    crosshair.setAttribute("opacity", 0);
+    tooltip.style.opacity = 0;
+  });
+
+  container.style.position = "relative";
+  container.appendChild(svg);
+}
+
+// ---------- generic bar chart ----------
+function barChart(containerId, points, opts) {
+  const container = document.getElementById(containerId);
+  const width = 820, height = opts.height || 220;
+  const margin = { top: 16, right: 16, bottom: 28, left: opts.leftMargin || 60 };
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+
+  const yMax = Math.max(...points.map(p => p.y)) * 1.12;
+  const yScale = v => margin.top + innerH - (v / yMax) * innerH;
+  const bandW = innerW / points.length;
+  const barW = bandW * 0.56;
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+  const gridSteps = 4;
+  for (let g = 0; g <= gridSteps; g++) {
+    const v = (g / gridSteps) * yMax;
+    const y = yScale(v);
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("x1", margin.left); line.setAttribute("x2", width - margin.right);
+    line.setAttribute("y1", y); line.setAttribute("y2", y);
+    line.setAttribute("class", "gridline");
+    svg.appendChild(line);
+    const label = document.createElementNS(svgNS, "text");
+    label.setAttribute("x", margin.left - 8); label.setAttribute("y", y + 3);
+    label.setAttribute("text-anchor", "end"); label.setAttribute("class", "axis-label");
+    label.textContent = opts.yFormat ? opts.yFormat(v) : Math.round(v);
+    svg.appendChild(label);
+  }
+
+  const baseline = document.createElementNS(svgNS, "line");
+  baseline.setAttribute("x1", margin.left); baseline.setAttribute("x2", width - margin.right);
+  baseline.setAttribute("y1", margin.top + innerH); baseline.setAttribute("y2", margin.top + innerH);
+  baseline.setAttribute("class", "baseline");
+  svg.appendChild(baseline);
+
+  points.forEach((p, i) => {
+    const x = margin.left + i * bandW + (bandW - barW) / 2;
+    const y = yScale(p.y);
+    const rect = document.createElementNS(svgNS, "rect");
+    rect.setAttribute("x", x); rect.setAttribute("y", y);
+    rect.setAttribute("width", barW); rect.setAttribute("height", margin.top + innerH - y);
+    rect.setAttribute("rx", 4);
+    rect.setAttribute("fill", opts.color);
+    rect.setAttribute("class", "bar");
+    svg.appendChild(rect);
+
+    const label = document.createElementNS(svgNS, "text");
+    label.setAttribute("x", x + barW / 2); label.setAttribute("y", height - 6);
+    label.setAttribute("text-anchor", "middle"); label.setAttribute("class", "axis-label");
+    label.textContent = p.x;
+    svg.appendChild(label);
+
+    rect.addEventListener("mousemove", (e) => {
+      tooltip.innerHTML = `<div>${p.x}</div><div><b>${opts.tooltipFormat ? opts.tooltipFormat(p.y) : p.y}</b></div>`;
+      tooltip.style.opacity = 1;
+      const containerRect = container.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - containerRect.left) + "px";
+      tooltip.style.top = (e.clientY - containerRect.top) + "px";
+    });
+    rect.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+  });
+
+  container.appendChild(svg);
+}
+
+// ---------- data ----------
+
+// 1. Climate: annual average daily max temperature, Ronaldsway
+lineChart("chart-climate", [{
+  name: "Avg daily max temp",
+  label: "13.3°C (2024)",
+  color: getVar('--series-1'),
+  points: [
+    {x:"2016", y:13.2}, {x:"2017", y:13.2}, {x:"2018", y:13.1}, {x:"2019", y:13.0},
+    {x:"2020", y:12.7}, {x:"2021", y:13.1}, {x:"2022", y:13.7}, {x:"2023", y:13.7}, {x:"2024", y:13.3}
+  ]
+}], { yMin: 12.0, yMax: 14.2, refValue: 12.9, refLabel: "1991–2020 average (12.9°C)", yFormat: v => v.toFixed(1) + "°C", tooltipFormat: v => v.toFixed(1) + "°C" });
+
+// 2. Crime: offences against the person vs burglary, 1996-2024 (gap 2009-2015)
+const crimeYears = ["1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008",
+  "2016","2017","2018","2019","2020","2021","2022","2023","2024"];
+const violentVals = [213,216,166,294,221,388,468,489,468,587,692,634,540, 358,370,457,592,579,622,712,591,560];
+const burglaryVals = [544,509,442,533,401,449,354,399,274,276,240,174,190, null,null,null,null,null,null,null,null,68];
+lineChart("chart-crime", [
+  { name: "Offences against the person", label: "560 (2024)", color: getVar('--series-1'),
+    points: crimeYears.map((y,i)=>({x:y,y:violentVals[i]})) },
+  { name: "Burglary offences", label: "68 (2024)", color: getVar('--series-2'), labelOffset: 14,
+    points: crimeYears.map((y,i)=>({x:y,y:burglaryVals[i]})) }
+], { yMin: 0, xLabelEvery: 3, tooltipFormat: v => v + " crimes" });
+
+// 3. Value of drugs seized, £, 2014/15-2023/24
+barChart("chart-drugs", [
+  {x:"14/15", y:171515}, {x:"15/16", y:308332}, {x:"16/17", y:749742}, {x:"17/18", y:973036},
+  {x:"18/19", y:1025610}, {x:"19/20", y:983631}, {x:"20/21", y:926664}, {x:"21/22", y:612955},
+  {x:"22/23", y:1970571}, {x:"23/24", y:2095432}
+], { color: getVar('--series-1'), yFormat: v => "£" + (v/1e6).toFixed(1) + "m", tooltipFormat: v => "£" + v.toLocaleString() });
+
+// 4. Employment by sector, 1961-2021
+const empYears = ["1961","1971","1981","1991","1996","2001","2006","2011","2016","2021"];
+lineChart("chart-employment", [
+  { name: "Finance & business services", label: "9,143 (2021)", color: getVar('--series-1'),
+    points: [370,760,1515,4353,5941,8959,9395,9444,8703,9143].map((y,i)=>({x:empYears[i], y})) },
+  { name: "Agriculture, forestry, fishing", label: "664 (2021)", color: getVar('--series-2'), labelOffset: 16,
+    points: [1911,1433,1412,1240,938,543,642,850,866,664].map((y,i)=>({x:empYears[i], y})) }
+], { yMin: 0, tooltipFormat: v => v.toLocaleString() + " employed" });
+
+// theme toggle
+const themeToggle = document.getElementById('themeToggle');
+let manualTheme = null;
+themeToggle.addEventListener('click', () => {
+  manualTheme = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', manualTheme);
+});
+</script>
+</body>
+</html>
