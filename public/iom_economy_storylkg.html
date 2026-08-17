@@ -180,11 +180,7 @@ input[type="range"]::-moz-range-thumb {
    scene. Cap the panel at the column height and scroll it internally instead.
    (Portrait phones are unaffected: their .g-col already clips via
    overflow:hidden, and a % max-height against its auto height is ignored.) */
-.g-col > .fig-panel, .g-col > .fig-stack { max-height: 100%; overflow-y: auto;
-  scrollbar-width: none; }  /* keep scrollability (wheel/touch) but hide the bar chrome */
-.g-col > .fig-panel::-webkit-scrollbar, .g-col > .fig-stack::-webkit-scrollbar { display: none; }
-.fig-stack > .fig-panel { scrollbar-width: none; }
-.fig-stack > .fig-panel::-webkit-scrollbar { display: none; }
+.g-col > .fig-panel, .g-col > .fig-stack { max-height: 100%; overflow-y: auto; }
 /* Short viewports (small laptops, OS scaling): shrink the chart rather than
    letting a too-tall panel overflow the pinned column and clip at the top. */
 @media (max-height: 840px) and (min-aspect-ratio: 1/1) {
