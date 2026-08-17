@@ -174,10 +174,22 @@ input[type="range"]::-moz-range-thumb {
   height: calc(100dvh - var(--hh, 104px));
   display: flex; flex-direction: column; justify-content: center; justify-content: safe center; min-width: 0;
 }
+/* A figure panel taller than the pinned column — opened <details>, short
+   viewports — must never overflow the column's fixed height: overflow from a
+   sticky (positioned) box paints OVER the in-flow asides that follow the
+   scene. Cap the panel at the column height and scroll it internally instead.
+   (Portrait phones are unaffected: their .g-col already clips via
+   overflow:hidden, and a % max-height against its auto height is ignored.) */
+.g-col > .fig-panel, .g-col > .fig-stack { max-height: 100%; overflow-y: auto; }
 /* Short viewports (small laptops, OS scaling): shrink the chart rather than
    letting a too-tall panel overflow the pinned column and clip at the top. */
 @media (max-height: 840px) and (min-aspect-ratio: 1/1) {
   .g-col .fig-panel svg { max-height: calc(100vh - 330px); width: auto; max-width: 100%; margin-left: auto; margin-right: auto; }
+}
+/* Very short landscape (phone rotated): shrink charts too, or the panel
+   becomes one long internal scroll with the svg dominating it. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .g-col .fig-panel svg { max-height: calc(100vh - 150px); width: auto; max-width: 100%; margin-left: auto; margin-right: auto; }
 }
 .steps { padding: 4vh 0 10vh; }
 .step { min-height: 78vh; display: flex; align-items: center; }
@@ -412,8 +424,9 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
     an independent, cell-by-cell re-extraction of the underlying National Income tables &mdash; 2,678 cells
     across 18 Isle of Man Government publications &mdash; matched with zero discrepancies.
     Acts 2, 3 and 4 draw on separate sources and are unaffected; Act 5's output line has been
-    rebuilt and the Act 6 simulator is withdrawn pending recalibration. The full account is in Act 1, under
-    &ldquo;What this replaces&rdquo;.
+    rebuilt, and the Act 6 simulator &mdash; withdrawn on 14 August &mdash; was restored on 17 August 2026,
+    running on the model recalibrated against the corrected, independently verified series. The full account
+    is in Act 1, under &ldquo;What this replaces&rdquo;.
   </div>
   <figure class="fig-panel">
     <div class="fig-title">Real output since 1998</div>
@@ -454,7 +467,7 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       By 2024 Manx GNP was below its 2014 level. Measured over the last decade rather than the last quarter-century &mdash; fiscal 2013/14 to 2023/24 &mdash; the Island's real GDP grew <strong>4.1%</strong> against the UK's <strong>15.2%</strong>.
       <div class="aside" style="margin-top:14px"><strong style="color:var(--iom)">Do the Manx feel twice as rich as the UK?</strong> On paper, nearly: nominal output per head runs at roughly &pound;69,000 here (GDP, 2023/24 national income accounts) against about &pound;40,000 in the UK (ONS, 2023). But output per head measures what is booked on the Island, not what islanders take home: the same accounts put company income at 59.5 per cent of the economy, and personal income at about a third. This page is about the take-home number.</div>
       <details class="aside"><summary>For the technically minded</summary>
-      <strong>This section was rebuilt on 14 August 2026.</strong> The Manx lines are chained from the constant-price growth rates published in Table 3 of the Isle of Man National Income Reports (&ldquo;Growth in GDP and GNP at Constant Prices&rdquo;), cross-validated across successive editions; the UK line is ONS chained-volume GVA. Note that the Isle of Man publishes <em>no</em> gross value added series &mdash; its accounts run on GDP and GNP, and on Manx convention product taxes are added at the GNI line, so Manx GDP is already close to what the UK would call GVA. Manx figures are fiscal years (1998/99 onward) plotted against UK calendar years, so alignment is approximate to within a year, and a fiscal-year series for a small economy is volatile because one large sector can move the whole index. Which window you choose matters, and we say so plainly: from 1998 the Island is far ahead of the UK; from 2007 it is still ahead on GDP but behind on GNP; from 2014 GDP has grown at about a quarter of the UK's pace (+4.1% against +15.2%) and GNP has fallen outright. The point of this page is the turn in 2020, not the level.<br><br><strong>What this replaces.</strong> Until 14 August 2026 this chart showed the Island reaching only 110 by 2022 against a UK 154. That series was Statistics Jersey's real GVA, downloaded from opendata.gov.je and misfiled into the Island's data folder without its <code>je-</code> prefix. It was a correctly-built chart of the wrong jurisdiction. Jersey's economy really was flat over this period, which is why nothing about it looked wrong. Acts 2, 3 and 4 draw on separate sources and are unaffected; Act 5's output line has been rebuilt and the Act 6 simulator is withdrawn pending recalibration.</details>
+      <strong>This section was rebuilt on 14 August 2026.</strong> The Manx lines are chained from the constant-price growth rates published in Table 3 of the Isle of Man National Income Reports (&ldquo;Growth in GDP and GNP at Constant Prices&rdquo;), cross-validated across successive editions; the UK line is ONS chained-volume GVA. Note that the Isle of Man publishes <em>no</em> gross value added series &mdash; its accounts run on GDP and GNP, and on Manx convention product taxes are added at the GNI line, so Manx GDP is already close to what the UK would call GVA. Manx figures are fiscal years (1998/99 onward) plotted against UK calendar years, so alignment is approximate to within a year, and a fiscal-year series for a small economy is volatile because one large sector can move the whole index. Which window you choose matters, and we say so plainly: from 1998 the Island is far ahead of the UK; from 2007 it is still ahead on GDP but behind on GNP; from 2014 GDP has grown at about a quarter of the UK's pace (+4.1% against +15.2%) and GNP has fallen outright. The point of this page is the turn in 2020, not the level.<br><br><strong>What this replaces.</strong> Until 14 August 2026 this chart showed the Island reaching only 110 by 2022 against a UK 154. That series was Statistics Jersey's real GVA, downloaded from opendata.gov.je and misfiled into the Island's data folder without its <code>je-</code> prefix. It was a correctly-built chart of the wrong jurisdiction. Jersey's economy really was flat over this period, which is why nothing about it looked wrong. Acts 2, 3 and 4 draw on separate sources and are unaffected; Act 5's output line has been rebuilt, and the Act 6 simulator &mdash; withdrawn while this correction was made &mdash; was restored on 17 August 2026 on a model recalibrated against the corrected, independently verified series (calibration pass 6; its disclosures are in Act 6).</details>
     </div></div>
   </div>
   <div class="g-col"><figure class="fig-panel">
@@ -618,36 +631,51 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
 <div class="scene">
   <div class="steps">
     <div class="step" data-act="a5" data-idx="0"><div class="step-inner">
-      Take 2011 as 100 — the earliest year the official house-price record runs on a consistent basis. <strong>People:</strong> essentially flat. <strong>Output:</strong> plus fourteen. Two nearly flat lines.
+      <strong>Start with the people.</strong> Everything on this chart is indexed to 1998, as in Act 1. Population climbed through the boom years, then hit the plateau of Act 3: <strong>up 15 per cent</strong> over the whole quarter-century &mdash; and almost none of it after 2011.
     </div></div>
     <div class="step" data-act="a5" data-idx="1"><div class="step-inner">
-      Now add houses — in real terms, the same basis as the other two lines. The official median house price is close to flat since 2011: <strong>£346,000</strong> then, <strong>£344,000</strong> now (2024/25 prices) — a one per cent real fall, not the 41 per cent nominal rise the sale-price alone suggests. And yet a median house cost 5.1× median earnings in 1998, and 9.1× by 2025 (HMR 2025, Appendix Four). If real prices barely moved since 2011, the post-2011 part of that affordability slide is not really a house-price story: it is wages falling further behind general prices than housing did.
+      <strong>Add output.</strong> The real GDP line of Act 1, on the same axis: it nearly <strong>triples</strong> by 2019/20, then gives back twelve per cent in four years. Up, then down &mdash; on a population that barely moved.
     </div></div>
     <div class="step" data-act="a5" data-idx="2"><div class="step-inner">
-      Three claimants bid for one fixed pool of workers and homes: the <strong>public sector</strong>, the <strong>existing economy</strong>, and <strong>this year's flavour</strong>. A new sector does not conjure new people. It outbids an old employer for staff, and outbids a neighbour for a house.
-      <p class="keyline" style="margin-top:12px"><strong style="color:var(--iom)">Our competition isn't with the globe. It's internal.</strong></p>
-      <p style="margin-top:12px">And this is the relationship with migration, concluded: <strong style="color:var(--iom)">on a full island, every migrant in is a migrant out.</strong> Attraction policy decides who is swapped — never how many we are. The one lever that adds instead of swaps is supply: homes first, then people, then growth. That is why the supply side is the priority — and the simulator below lets you test it.</p>
-      <p style="margin-top:12px">There is a second lever, on the demand side: stop targeting individual sectors for promotion. On a fixed pool, promotion does not add a bidder to the market — it hands one bidder an advantage over the others, and the gain capitalises into wages and house prices rather than into output. Ending sector-by-sector promotion removes that source of internal competition.</p>
+      <strong>Now houses &mdash; priced not in pounds, but in years of pay.</strong> The amber line is the official affordability ratio &mdash; median house price divided by median full-time earnings &mdash; on its own scale, right. <strong>5.1&times;</strong> earnings in 1998. <strong>10.4&times;</strong> at the 2008 peak. Never below <strong>8&times;</strong> since. <strong style="color:var(--amber)">9.1&times;</strong> in 2025 (Housing Market Report 2025, Appendix Four).
+      <p style="margin-top:12px">The sale price alone hides the sharper truth. After 2011 the nominal median <em>fell</em>, and did not regain its 2011 level until 2018 &mdash; from 2012 to 2013 it dropped from &pound;244,300 to &pound;239,500, yet the ratio <em>worsened</em>, 9.00&times; to 9.12&times;. Prices drifting down while affordability gets worse can mean only one thing: <strong style="color:var(--amber)">earnings fell further behind.</strong> In real terms a median house costs roughly what it did in 2011 &mdash; the deflated median is about 1 per cent <em>lower</em> than in 2011 (see the technical note); the ground lost since is in pay.</p>
+    </div></div>
+    <div class="step" data-act="a5" data-idx="3"><div class="step-inner">
+      Three claimants bid for one fixed pool of workers and homes: the <strong style="color:var(--green)">public sector</strong>, the <strong style="color:var(--blue)">existing economy</strong>, and <strong style="color:var(--amber)">this year&rsquo;s flavour</strong>. A new sector does not conjure new people. It outbids an old employer for staff, and outbids a neighbour for a house.
+      <p class="keyline" style="margin-top:12px"><strong style="color:var(--iom)">Our competition isn&rsquo;t with the globe. It&rsquo;s internal.</strong></p>
+    </div></div>
+    <div class="step" data-act="a5" data-idx="4"><div class="step-inner">
+      And this is the relationship with migration, concluded: <strong style="color:var(--iom)">on a full island, every migrant in is a migrant out.</strong> Attraction policy decides who is swapped &mdash; never how many we are. The one lever that adds instead of swaps is supply: homes first, then people, then growth. That is why the supply side is the priority &mdash; and the simulator below lets you test it.
+      <p style="margin-top:12px">There is a second lever, on the demand side: stop targeting individual sectors for promotion. On a fixed pool, promotion does not add a bidder to the market &mdash; it hands one bidder an advantage over the others, and the gain capitalises into wages and house prices rather than into output. Ending sector-by-sector promotion removes that source of internal competition.</p>
+      <p style="margin-top:12px">And there is a third option: <strong style="color:var(--amber)">keep playing the haven game &mdash; knowingly.</strong> It is the strategy of the last five decades &mdash; the lighter-tax regime, the 1979 Agreement&rsquo;s formula, the e-gaming licence &mdash; and it can keep working, on the condition Act 4 laid bare: every differentiation is eventually closed, capped or copied on somebody else&rsquo;s timetable, so the next one must always be found before the current one goes. That is a treadmill, and running it well is a real skill; the only dishonest version is pretending it is a growth policy. Build capacity, end the internal competition, or keep the treadmill &mdash; but choose knowingly.</p>
       <details class="aside"><summary>For the technically minded</summary>
       <b style="color:var(--iom)">On the public sector as a competing bidder.</b> Until 16 August 2026 this act argued for a further demand-side lever: narrowing the pay and job-security gap that lets government outbid other employers for the same fixed pool. The pay half of that does not survive the published evidence. The Isle of Man Earnings Survey does show public-sector median weekly earnings above private (£828 against £720 in 2025), but Statistics Isle of Man disclaims that comparison in the same table every year: the two workforces &ldquo;are composed quite differently&rdquo; and the difference &ldquo;does not reveal differences in rates of pay for comparable jobs&rdquo;. Cut by industry rather than by ownership, Public Administration averages £936 a week against a whole-economy £920, while Other Finance &amp; Business Services runs at £1,391 and e-gaming at £1,271. On the published numbers the highest bidders for the fixed pool are the promoted sectors themselves. What is genuinely unmeasured is <i>total reward and conditions</i> rather than pay: the employer <i>future service rate</i> &mdash; the actuarial cost of benefits being earned &mdash; is 17.3% of pay across all PSPA schemes (16.9% for the Unified Scheme, 33.5% for Police), against roughly 14.2% of basic pay actually charged to departments in Pink Book Table 14B, with no published private-sector comparator for either, and public-sector turnover is published while no private-sector figure exists at all. Statistics Isle of Man already collects what would settle it &mdash; occupation, grade and contract permanence are on the Earnings Survey questionnaire every year and have never been published. Until they are, this page makes no claim either way.
       <br><br>
-      House prices are the official annual median house price (houses only — flats and land excluded), the average of the four quarterly Appendix One figures published in the Isle of Man Housing Market Reports, deflated to 2024/25 prices via the IoM CPI (Statistics IoM, Jan 2008=100, rebased to 2024/25=100) so this chart's three lines are on a common real basis; the nominal originals are kept in the underlying data. The series is only available on a consistent basis from 2011, so 2011 is used as the common base year here (not 2005). Population between censuses is interpolated linearly. Output is the real GDP index of Act 1, rebased to 2011 (latest year 2024). It was rebuilt on 14 August 2026 &mdash; the previous version used a misfiled Jersey GVA series and understated real output growth over this window. In a supply-constrained labour and housing market, sector promotion largely reallocates inputs and capitalises into prices — the mechanism the systems-dynamics model behind this page makes explicit. An earlier version of this page used a median of all land-registry transactions (flats and land included), which runs ~12% below the houses-only median with a matching trend; a reader's cross-check prompted the switch to the official series. Note the price-to-earnings ratio quoted alongside this chart (5.1&times; in 1998, up to 9.1&times; by 2025) is a separate, deflator-independent measure and is not affected by this real-terms conversion.</details>
+      The affordability line is the &ldquo;Median House Price to Median Earnings&rdquo; column of Appendix Four of the Isle of Man Housing Market Report 2025, re-extracted directly from the published table (37 annual values, 1989&ndash;2025; the chart starts at 1998 to match the page&rsquo;s base year &mdash; the data table carries the full series). It is deflator-independent: numerator and denominator are both nominal, so no price-index choice touches it. The nominal medians quoted in the text are the official houses-only median (Appendix One, annual average of quarters), kept in the data table; deflated by the IoM CPI (Statistics IoM, Jan 2008=100, rebased to 2024/25=100) they show a median house roughly flat in real terms since 2011 &mdash; about a 1 per cent real fall to 2025 &mdash; which is why the post-2011 worsening of the ratio must be an earnings story rather than a house-price one. Population between censuses is interpolated linearly; output is the real GDP index of Act 1 (1998 = 100, latest year 2024, rebuilt 14 August 2026 after the misfiled-Jersey-series correction). In a supply-constrained labour and housing market, sector promotion largely reallocates inputs and capitalises into prices &mdash; the mechanism the systems-dynamics model behind this page makes explicit. An earlier version of this chart plotted the house-price <em>level</em> instead: first a median of all land-registry transactions (flats and land included, running ~12% below the houses-only median &mdash; a reader&rsquo;s cross-check prompted the switch to the official series), then the official median deflated to 2024/25 prices. It was replaced by the affordability ratio on 17 August 2026 so the housing line no longer depends on any deflator and no longer mixes a nominal level into an otherwise real chart.</details>
     </div></div>
   </div>
-  <div class="g-col"><figure class="fig-panel">
-    <div class="fig-title">People, output, house prices</div>
-    <div class="fig-sub">Indexed, 2011 = 100 · all three lines now real, price-adjusted</div>
+  <div class="g-col"><div class="fig-stack">
+    <figure class="fig-panel fig-alt on" id="a5-figA">
+    <div class="fig-title">People, output &mdash; and the price of a home in years of pay</div>
+    <div class="fig-sub">Population &amp; real output, 1998 = 100 (left) &middot; median house price &divide; median earnings (right, amber)</div>
     <div class="mini-stats">
-      <div class="card"><div class="card-label">Population</div><div class="card-value">+0.3%</div><div class="card-sub">2011–2024</div></div>
-      <div class="card c-iom"><div class="card-label">Real output</div><div class="card-value">+14%</div><div class="card-sub">2011–2024</div></div>
-      <div class="card c-amber"><div class="card-label">Median house (real)</div><div class="card-value">−1%</div><div class="card-sub">2011–2025, 2024/25 prices</div></div>
+      <div class="card"><div class="card-label">Population</div><div class="card-value">+15%</div><div class="card-sub">1998&ndash;2024</div></div>
+      <div class="card c-iom"><div class="card-label">Real output</div><div class="card-value">+163%</div><div class="card-sub">1998&ndash;2024</div></div>
+      <div class="card c-amber"><div class="card-label">House &divide; earnings</div><div class="card-value">9.1&times;</div><div class="card-sub">2025 &middot; was 5.1&times; in 1998</div></div>
     </div>
-    <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--amber)"></i>Median house price (houses, real)</span><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Real output</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Population</span></div>
+    <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Population</span><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Real output</span><span class="leg-item"><i class="leg-sw" style="background:var(--amber)"></i>House price &divide; earnings (right axis)</span></div>
     <div id="a5-chart"></div>
-    <div class="fig-src">Sources: Isle of Man Housing Market Reports, Appendix One: median house price (houses), annual average of quarters, deflated to 2024/25 prices via the IoM CPI (Statistics IoM, Jan 2008=100, rebased to 2024/25=100); national income accounts; census reports. All indexed, 2011 = 100.</div>
-    <details class="fig-verify v-part"><summary>Verification</summary><b style="color:var(--green)">Adjusted to real terms, 15 August 2026:</b> this chart has been converted to real (2024/25-price) terms throughout, so all three lines are now on the same basis. The nominal sale price rose 41% (£250,000 &rarr; £353,000, 2011&ndash;2025); once deflated by the IoM CPI, that becomes a 1% real <em>fall</em>. &nbsp;<b style="color:var(--green)">Verified:</b> the affordability shape &mdash; roughly 5&times; earnings in the late 1990s, around 9&times; now &mdash; is supported by a Liberal Vannin freedom-of-information investigation and by Livingstone Surveyors. &nbsp;<b style="color:var(--iom)">Cannot verify independently:</b> the £250,000 and £353,000 nominal endpoints &mdash; these come from the Housing Market Report via press summaries very likely quoting the same release. &nbsp;<b style="color:var(--green)">Corrected 16 August 2026:</b> an earlier version of this note attributed the completions counts to the Housing Market Report. It does not carry them &mdash; all editions from 2016 to 2025 cover prices, affordability, transactions and stock only. Completions are published annually in <i>Isle of Man in Numbers</i>, sourced to the Department of Infrastructure, split into private (all new housing excluding affordable) and public (affordable, including first-time-buyer and public rented). A continuous series exists for 1996&ndash;2008 (Digest of Economic and Social Statistics, Table 12.1) and 2016&ndash;2024; the seven years 2009&ndash;2015 are charted in those publications but never printed, and are not reproduced here rather than estimated from a chart.</details>
+    <div class="fig-src">Sources: Isle of Man Housing Market Report 2025, Appendix Four &mdash; median house price to median earnings ratio (right axis; full series 1989&ndash;2025 in the data table); Isle of Man National Income Reports, Table 3 (real output, as Act 1); census reports and annual estimates (population, interpolated between counts). Left axis 1998 = 100.</div>
+    <details class="fig-verify v-part"><summary>Verification</summary><b style="color:var(--green)">Verified against the primary source:</b> the affordability series is the &ldquo;Median House Price to Median Earnings&rdquo; column of Appendix Four, Housing Market Report 2025 (Isle of Man Government), re-extracted from the published table on 17 August 2026 &mdash; 37 values, 1989&ndash;2025 &mdash; and cross-checked against the report&rsquo;s own body text, which quotes the same closing figure: &ldquo;median house prices were 9.1 times the median full time salary&rdquo;. &nbsp;<b style="color:var(--green)">Corroborated in shape:</b> roughly 5&times; earnings in the late 1990s and around 9&times; now is supported by a Liberal Vannin freedom-of-information investigation and by Livingstone Surveyors. The ratio is deflator-independent &mdash; both sides are nominal &mdash; so it is immune to the price-index choices that complicate other charts on this page. &nbsp;<b style="color:var(--iom)">Cannot verify independently:</b> the underlying median price and median earnings levels &mdash; both are single-sourced from Isle of Man Government statistics, and third-party mentions very likely republish the same release. &nbsp;<b style="color:var(--green)">Corrected 16 August 2026:</b> an earlier version of this note attributed housing-completions counts to the Housing Market Report; it does not carry them &mdash; completions are published annually in <i>Isle of Man in Numbers</i> (sourced to the Department of Infrastructure), with a continuous series for 1996&ndash;2008 and 2016&ndash;2024 and the years 2009&ndash;2015 charted but never printed, so they are not reproduced here.</details>
     <details class="tbl"><summary>Data table</summary><div class="tbl-scroll" id="a5-tbl"></div></details>
-  </figure></div>
+    </figure>
+    <figure class="fig-panel fig-alt" id="a5-figB">
+      <div class="fig-title">Three claimants, one island</div>
+      <div class="fig-sub">One fixed pool &mdash; and the bidders competing for it</div>
+      <div id="a5-claim"></div>
+      <div class="fig-src">Workers: 43,519 residents in employment at the 2021 census (Act 3). Homes are shown qualitatively &mdash; the stock is fixed on any one year&rsquo;s timescale. The door is Act 3&rsquo;s churn: roughly 50% of new migrants leave within 10 years, on a population flat since 2011.</div>
+    </figure>
+  </div></div>
 </div>
   <div class="aside" style="max-width:var(--measure);margin:22px auto 0;border-left:3px solid var(--iom)">
     <strong style="color:var(--iom)">Adding, and swapping.</strong> Look back at what each chart in this story could
@@ -666,88 +694,146 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
   <div class="act-head" style="padding-bottom:0">
     <div class="eyebrow">Act 6</div>
     <h2>Run the Island</h2>
-    <p class="lede">This page rests on a small calibrated model: three private sectors, a public sector,
-    houses, people, and the VAT formula. It normally lets you run the Island forward to 2040 yourself.</p>
+    <p class="lede">This page rests on a small calibrated model: five private-sector blocks, a public
+    sector, houses, people, and the revenue formula in its three historical regimes. Recalibrated on the
+    corrected, independently verified Manx series (16 August 2026), it is back. Run the Island forward
+    to 2035 yourself.</p>
   </div>
+
   <div class="aside" style="border-left:3px solid var(--amber);max-width:var(--measure);margin-top:22px">
-    <strong style="color:var(--amber)">Withdrawn for recalibration, 14 August 2026.</strong>
-    The simulator below was calibrated against the observed output series used in Act 1.
-    <p style="margin-top:10px">Rather than leave it running on numbers we no longer stand behind, it is disabled until it has been refitted.</p>
-    <p style="margin-top:10px">The underlying argument &mdash; that on a supply-constrained island, sector promotion reallocates workers and
-    homes rather than adding them &mdash; rests on Acts 3 and 5, which use separate sources and are unaffected.</p>
-    <p style="margin-top:10px"><strong>Update, 16 August 2026.</strong> The model has now been recalibrated on the corrected,
-    independently verified Manx series. One result is worth reporting before the simulator returns: on the corrected data,
-    the wage-cost drag on the labour-heavy side of finance &mdash; the crowding-out mechanism this page describes &mdash; is
-    statistically identified: the fit actively demands it, and the estimate is a floor rather than a point value (the
-    preferred value sits at the top of the range the calibration allowed, so the data says &ldquo;at least this much&rdquo;,
-    not &ldquo;exactly this much&rdquo;). The simulator will return once the recalibrated model has been re-ported to this
-    page &mdash; with two disclosures made now. Its 2009&ndash;15 Customs &amp; Excise revenue will be shown as historical
-    data, not simulation: those rebasings were imposed from outside on the UK's timetable (Act 4), and no island-side
-    model can generate them, so this one does not pretend to. And the recalibrated model still under-predicts the pace of
-    the pre-2008 boom; that limitation will be disclosed alongside it.</p>
+    <strong style="color:var(--amber)">Read before running.</strong> Three things this simulator does not do,
+    disclosed up front:
+    <p style="margin-top:10px"><strong>1 &middot; 2009&ndash;2015 revenue is historical data, not simulation.</strong>
+    The Customs &amp; Excise rebasings of 2010 and 2012 were negotiated impositions on the UK&rsquo;s timetable
+    (Act 4) &mdash; no island-side model can generate them, so this one does not pretend to. Observed receipts are
+    fed through unchanged for 2009&ndash;2015, drawn as fixed amber dots on the revenue chart. <em>The sliders do
+    not affect that window.</em></p>
+    <p style="margin-top:10px"><strong>2 &middot; The model under-predicts the 1999&ndash;2007 boom.</strong>
+    It cannot yet produce the observed 7&ndash;8%-a-year real growth of that era and runs roughly 20% low
+    through the mid-2000s (endpoints fit; the boom&rsquo;s pace does not). Do not use this simulator to
+    characterise the pre-2008 economy; that era&rsquo;s story is told from primary data in Acts 1&ndash;5.</p>
+    <p style="margin-top:10px"><strong>3 &middot; The wage-cost drag&rsquo;s strength is a floor, not a point
+    estimate.</strong> The crowding-out mechanism this page describes is statistically identified on the
+    corrected data &mdash; the fit actively demands it &mdash; but the preferred estimate sits at the top of the
+    range the calibration allowed. The data says &ldquo;at least this much&rdquo;, not &ldquo;exactly this
+    much&rdquo;: the displacement effects you will see are, if anything, understated.</p>
   </div>
-  <div class="sim-grid" style="display:none" aria-hidden="true">
+
+  <div class="sim-grid">
     <div class="sim-controls">
+      <div class="slider-block">
+        <div class="slider-head"><label for="sel-sector">Sector promotion</label><output id="out-sector">e&#8209;gaming</output></div>
+        <select id="sel-sector" aria-describedby="hint-sector"
+          style="width:100%;padding:6px 8px;margin:4px 0 6px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:6px;font:inherit;font-size:12.5px">
+          <option value="egaming" selected>E-gaming</option>
+          <option value="none">None — stop promotion from 2025</option>
+        </select>
+        <div class="slider-hint" id="hint-sector">Which sector the Island courts from 2025. E-gaming is the
+        only promotion channel the calibrated model has &mdash; it is the sector the Island actually promoted,
+        so it is the only one with a fitted response. &ldquo;None&rdquo; switches active promotion off.</div>
+      </div>
       <div class="slider-block">
         <div class="slider-head"><label for="sl-promo">Promotion intensity</label><output id="out-promo">25%</output></div>
         <input type="range" id="sl-promo" min="0" max="100" value="25" step="5" aria-describedby="hint-promo"/>
-        <div class="slider-hint" id="hint-promo">How hard the Island courts the next sector. 25% is roughly today's tax-capped level; 100% is the 2005–15 push.</div>
+        <div class="slider-hint" id="hint-promo">How hard the courting is, from 2025. 25% is roughly today&rsquo;s
+        level (the baseline assumption); 100% is the 2005&ndash;15 push.</div>
       </div>
       <div class="slider-block">
-        <div class="slider-head"><label for="sl-hire">Public-sector hiring restraint</label><output id="out-hire">0%</output></div>
-        <input type="range" id="sl-hire" min="0" max="100" value="0" step="5" aria-describedby="hint-hire"/>
-        <div class="slider-hint" id="hint-hire">0% hires as revenue allows, as history did. 100% freezes headcount.</div>
-      </div>
-      <div class="slider-block">
-        <div class="slider-head"><label for="sl-house">Housing completions</label><output id="out-house">100%</output></div>
+        <div class="slider-head"><label for="sl-house">Housebuilding</label><output id="out-house">100%</output></div>
         <input type="range" id="sl-house" min="50" max="300" value="100" step="10" aria-describedby="hint-house"/>
-        <div class="slider-hint" id="hint-house">New homes per year, relative to the model's calibrated baseline. Officially recorded completions: 199 (2023), 150 (2024).</div>
+        <div class="slider-hint" id="hint-house">Completions per year from 2025, relative to the model&rsquo;s
+        calibrated baseline. Officially recorded completions: 199 (2023), 150 (2024).</div>
       </div>
       <div class="slider-block">
         <div class="slider-head"><label for="sl-mig">Migration openness</label><output id="out-mig">100%</output></div>
         <input type="range" id="sl-mig" min="0" max="200" value="100" step="10" aria-describedby="hint-mig"/>
-        <div class="slider-hint" id="hint-mig">How freely workers move in response to jobs. 100% matches calibrated history; 0% closes the door.</div>
-      </div>
-      <div class="slider-block">
-        <div class="slider-head"><label for="sl-world">World growth</label><output id="out-world">1.4%/yr</output></div>
-        <input type="range" id="sl-world" min="0" max="3" value="1.4" step="0.1" aria-describedby="hint-world"/>
-        <div class="slider-hint" id="hint-world">The model's demand input is UK growth — the observed path through history. This sets its future from 2025. 1.4%/yr is the baseline assumption.</div>
+        <div class="slider-hint" id="hint-mig">How freely workers move in when jobs pull, from 2025.
+        100% matches calibrated history; 0% closes the door.</div>
       </div>
       <button class="pill" id="sim-reset" type="button">Reset to baseline</button>
-      <div class="sim-caveat">A model, not a forecast. It is the story above made mechanical. Use it to compare policies, not to predict 2040. Controls apply from 2025; history to 2024 is fixed.</div>
+      <div class="sim-caveat">A model, not a forecast. It is the story above made mechanical: use it to compare
+      policies, not to predict 2035. Controls apply from 2025; history to 2024 is the calibrated baseline and
+      does not move. Beyond 2026 the outside world is held steady (UK growth 1.4%/yr, inflation 2%, policy
+      rate 4%).</div>
     </div>
     <div>
       <div class="sim-readouts">
-        <div class="card c-iom"><div class="card-label">Real output 2040</div><div class="card-value" id="ro-gva">–</div><div class="card-sub" id="ro-gva-sub">index, 1998 = 100</div></div>
-        <div class="card"><div class="card-label">Population 2040</div><div class="card-value" id="ro-pop">–</div><div class="card-sub" id="ro-pop-sub">residents</div></div>
-        <div class="card c-amber"><div class="card-label">Median house 2040</div><div class="card-value" id="ro-hp">–</div><div class="card-sub" id="ro-hp-sub">nominal</div></div>
+        <div class="card c-iom"><div class="card-label">Real output 2035</div><div class="card-value" id="ro-gva">–</div><div class="card-sub" id="ro-gva-sub">index, 1998 = 100</div></div>
+        <div class="card"><div class="card-label">Population 2035</div><div class="card-value" id="ro-pop">–</div><div class="card-sub" id="ro-pop-sub">residents</div></div>
+        <div class="card c-amber"><div class="card-label">Median house 2035</div><div class="card-value" id="ro-hp">–</div><div class="card-sub" id="ro-hp-sub">nominal</div></div>
       </div>
       <div class="sim-charts">
         <div class="fig-panel">
           <div class="fig-title">Real output</div>
           <div class="fig-sub">Real output index, 1998 = 100</div>
-          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Your run</span><span class="leg-item"><i class="leg-sw" style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Baseline model</span><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>History (observed)</span></div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--iom)"></i>Your run</span><span class="leg-item"><i class="leg-sw" style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Baseline model</span><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>Observed (Manx GDP)</span></div>
           <div id="sim-gva"></div>
-          <div class="fig-src">Observed: Isle of Man national income accounts to 2022.</div>
+          <div class="fig-src">Observed: verified Manx real GDP index chained from National Income Report
+          Table 3 growth rates, fiscal-year keyed (1998 = 1998/99). The model under-predicts the pre-2008
+          boom &mdash; see the notice above.</div>
         </div>
         <div class="fig-panel">
           <div class="fig-title">House prices</div>
-          <div class="fig-sub">Median house price (houses only), £ thousand, nominal — simulated output rescaled ×1.13 to this basis</div>
+          <div class="fig-sub">Median house price (houses only), £ thousand, nominal</div>
           <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--amber)"></i>Your run</span><span class="leg-item"><i class="leg-sw" style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Baseline model</span><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>History (observed)</span></div>
           <div id="sim-hp"></div>
-          <div class="fig-src">Observed: Isle of Man Housing Market Reports, Appendix One: median house price (houses), annual average of quarters, 2011–2025.</div>
+          <div class="fig-src">Observed: Isle of Man Housing Market Reports, Appendix One: median house price
+          (houses), annual average of quarters, 2011&ndash;2025. The pass-6 model is fitted to this official
+          houses-only basis directly &mdash; no display rescaling.</div>
+        </div>
+        <div class="fig-panel">
+          <div class="fig-title">Customs &amp; Excise revenue</div>
+          <div class="fig-sub">Receipts, £ million, nominal &mdash; <span style="color:var(--amber)">amber dots 2009&ndash;15: historical data, fixed</span></div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Your run</span><span class="leg-item"><i class="leg-sw" style="background:var(--muted);height:0;border-top:2px dashed var(--muted)"></i>Baseline model</span><span class="leg-item"><i class="leg-dot" style="background:var(--amber)"></i>2009&ndash;15 imposed</span><span class="leg-item"><i class="leg-dot" style="background:var(--uk)"></i>Observed</span></div>
+          <div id="sim-cust"></div>
+          <div class="fig-src">Observed: Treasury Customs &amp; Excise outturns, nominal. Three regimes:
+          Common Purse share formula to 2008; 2009&ndash;15 observed receipts imposed (the rebasing window
+          &mdash; sliders cannot move it); FERSA retrospective share formula from 2016.</div>
+        </div>
+        <div class="fig-panel">
+          <div class="fig-title">Why the amber dots do not move</div>
+          <div class="fig-sub">The window the model refuses to simulate</div>
+          <p style="font-size:12.5px;color:var(--muted2);line-height:1.65;margin:10px 0 0">The revenue-sharing
+          rebasings of 2010 and 2012 were renegotiations imposed from outside &mdash; a change in the formula
+          itself, not in island activity. A model of the Island can generate receipts from the economy it
+          simulates; it cannot generate a treaty renegotiation in London. So for 2009&ndash;2015 this simulator
+          plays back the observed receipts unchanged, whatever you do with the sliders, and its endogenous
+          revenue machinery only resumes with the FERSA formula in 2016. Treat those seven amber dots as
+          quotation, not prediction. The fit statistics quoted below exclude them for exactly that reason.</p>
         </div>
         <div class="fig-panel" style="grid-column:1 / -1">
-          <div class="fig-title">Sectors under your run</div>
-          <div class="fig-sub">Real output by sector, £ million, 2022 prices, 1998–2040</div>
-          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--blue)"></i>Finance</span><span class="leg-item"><i class="leg-sw" style="background:var(--purple)"></i>E-gaming</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>Existing economy</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Public sector</span></div>
+          <div class="fig-title">Five sectors under your run</div>
+          <div class="fig-sub">Real output by model block, £ million (2023/24 prices), 1998&ndash;2035</div>
+          <div class="legend"><span class="leg-item"><i class="leg-sw" style="background:var(--blue)"></i>Finance — labour-heavy (banking &amp;c.)</span><span class="leg-item"><i class="leg-sw" style="background:var(--green)"></i>Finance — margin-booked (insurance)</span><span class="leg-item"><i class="leg-sw" style="background:var(--purple)"></i>E-gaming</span><span class="leg-item"><i class="leg-sw" style="background:var(--uk)"></i>Sheltered existing economy</span><span class="leg-item"><i class="leg-sw" style="background:var(--amber)"></i>Exposed tradeables</span></div>
           <div id="sim-sec"></div>
-          <div class="fig-src">Model output; sector definitions as in Act 2. Public sector is the output of government services.</div>
+          <div class="fig-src">Model output. The finance block splits in 2007/08 (first year the accounts split
+          it): the labour-heavy half feels the wage-cost drag; the margin-booked half is nearly immune. The
+          sheltered block (retail, construction, private services) sells into on-island income; the exposed
+          block (agriculture, manufacturing) is world-price-capped.</div>
         </div>
       </div>
       <details class="tbl" style="margin-top:12px"><summary>Data table — your run v baseline</summary><div class="tbl-scroll" id="sim-tbl"></div></details>
       <details class="aside"><summary>For the technically minded</summary>
-      The simulator is a line-for-line JavaScript port of the calibrated pass-2 systems-dynamics model (annual deterministic loop, 1998–2040): sectors for finance, e-gaming and the existing economy; migration responding to vacancy pressure; a relative-cost index that crowds out the existing sector; house prices driven by the people-to-dwellings ratio; and the customs formula in its three historical regimes. Port parity against the Python original is exact to floating-point rounding (see source comment). Beyond 2026, external inputs are held steady: UK growth 1.4%/yr, inflation 2%, interest rates 3.5%. The world-growth lever replaces the UK real-growth input from 2025 onward (history keeps the observed path) and also scales the e-gaming global demand ceiling by 15 per cent per percentage point of growth above or below the 1.4% baseline; at its default the lever reproduces the baseline path exactly. The model's house-price equations were calibrated against the older all-transactions series and have not been re-fitted; simulated house prices shown here are rescaled ×1.13 — the mean official/old ratio over 2011–2025 — to display on the official houses-only basis. This is a display-only correction: the model's internal equations, growth rates and every other output are untouched, and a full recalibration to the houses-only series is scheduled.</details>
+      The simulator is a line-for-line JavaScript port of the <strong>calibration pass 6</strong> systems-dynamics
+      model (16 August 2026; 72 free parameters, staged fit, final cost 7.5654) &mdash; the recalibration on
+      verified Manx data after the Jersey series contamination documented above, fitted against a target set
+      independently verified cell by cell (2,678 of 2,678 cells). Mechanics: an annual deterministic loop,
+      1998&ndash;2035, with five private-sector blocks (labour-heavy finance, margin-booked finance, e-gaming,
+      sheltered and exposed existing economy), migration responding to vacancy pressure, and house prices driven
+      by the people-to-dwellings ratio. The wage-cost mechanism is a <strong>persistence wedge</strong>: sectors
+      are dragged in proportion to the relative-cost index&rsquo;s excess over its own trailing five-year mean
+      &mdash; cost pressure bites while it outruns the adapted norm, fades as contracts and bargains catch up
+      (about a five-year cycle), and a <em>falling</em> cost level yields only a transient, bounded
+      competitiveness gain, never a permanent subsidy (verified by a forced-fall test). Revenue runs in its
+      <strong>three historical regimes</strong>: the Common Purse share formula, endogenous, to 2008; observed
+      receipts imposed for the 2009&ndash;15 rebasing window (see the notice above &mdash; fit statistics are
+      reported excluding those seven years); and the FERSA retrospective rule &mdash; a fitted share of the
+      trailing five-year revenue base &mdash; from 2016. Beyond 2026, external inputs are held steady: UK growth
+      1.4%/yr, UK finance growth 1%/yr, inflation 2%, policy rate 4%, promotion 0.25. Levers replace their
+      baseline paths from 2025 only; at their defaults the run is bit-identical to the calibrated baseline.
+      <strong>Port parity</strong>: sim_p6.js reproduces the Python original (model_p6.py, params_p6.json) over
+      1998&ndash;2024 to a maximum relative deviation of 3&times;10<sup>&minus;12</sup> per cent across all 48
+      output series &mdash; float rounding only (harness: parity.js in the model bundle).</details>
     </div>
   </div>
 </section>
@@ -965,8 +1051,14 @@ function LineChart(el, cfg) {
       }
       if (sr.label !== false) {
         o.lab = E('g', {opacity:0}, gLabels);
+        /* surface-filled backing sized in labelAt(): end labels must fully
+           knock out gridlines and secondary-axis ticks behind them */
+        o.bg = E('rect', {x:7, y:-7, height:14, width:0, rx:3, style:'fill:var(--surface)', opacity:0.9}, o.lab);
         o.dot = E('circle', {r:4.5, style:`fill:${sr.color};stroke:var(--surface)`, 'stroke-width':2}, o.lab);
-        o.txt = E('text', {'font-size':11, 'font-weight':600, fill:'var(--text)', x:9, y:4}, o.lab);
+        /* surface-coloured halo (paint-order stroke) so end labels knock out
+           gridlines, sibling series and secondary-axis ticks behind them */
+        o.txt = E('text', {'font-size':11, 'font-weight':600, fill:'var(--text)', x:9, y:4,
+          stroke:'var(--surface)', 'stroke-width':3.5, 'paint-order':'stroke', 'stroke-linejoin':'round'}, o.lab);
       }
     });
   }
@@ -987,6 +1079,7 @@ function LineChart(el, cfg) {
       o.lab.setAttribute('transform', `translate(${x(i)},${ly})`);
       const nm = (sr.endName != null) ? sr.endName : sr.name;
       o.txt.textContent = (nm ? nm + ' ' : '') + (sr.endFmt ? sr.endFmt(sr.values[i]) : '');
+      if (o.bg) { try { o.bg.setAttribute('width', o.txt.getBBox().width + 5); } catch (_) {} }
     });
   }
 
@@ -1295,6 +1388,101 @@ function LoopDiagram(el) {
   };
 }
 
+/* ═══════════════════ Claimants diagram (Act 5) ═══════════════════ */
+function ClaimantsDiagram(el) {
+  const W = 720, H = 430;
+  const MONO = "'JetBrains Mono', ui-monospace, monospace";
+  const svg = E('svg', {viewBox:`0 0 ${W} ${H}`, role:'img',
+    'aria-label':'Three bidders, the public sector, the existing economy and this year\u2019s flavour, all bid into one fixed pool of about 43,500 workers and a fixed stock of homes; a revolving door on the pool: every migrant in is a migrant out'}, el);
+  const defs = E('defs', {}, svg);
+  const COLS = {green:'var(--green)', blue:'var(--blue)', amber:'var(--amber)', mut:'var(--muted2)'};
+  Object.keys(COLS).forEach(k => {
+    const mk = E('marker', {id:'cd-arr-' + k, viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse'}, defs);
+    E('path', {d:'M0 0L10 5L0 10z', style:`fill:${COLS[k]}`}, mk);
+  });
+
+  /* ── the pool: one island, fixed workers, fixed homes ── */
+  const gPool = E('g', {class:'ann'}, svg);
+  const PX = 120, PY = 252, PW = 480, PH = 122;
+  E('rect', {x:PX, y:PY, width:PW, height:PH, rx:12,
+    style:'fill:var(--surface2);stroke:var(--border2)', 'stroke-width':1.5}, gPool);
+  E('text', {x:PX + PW / 2, y:PY + 22, 'text-anchor':'middle', 'font-size':10.5,
+    fill:'var(--muted)', 'letter-spacing':'0.14em', style:`font-family:${MONO}`}, gPool).textContent = 'ONE ISLAND';
+  E('text', {x:PX + PW / 2, y:PY + 44, 'text-anchor':'middle', 'font-size':14.5,
+    'font-weight':700, fill:'var(--text)'}, gPool).textContent = '\u224843,500 workers \u00b7 a fixed stock of homes';
+  // qualitative pictogram row: worker dots (left) and house glyphs (right)
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 9; c++)
+    E('circle', {cx:PX + 36 + c * 22, cy:PY + 70 + r * 20, r:4,
+      style:'fill:var(--muted2)', opacity:0.55}, gPool);
+  for (let c = 0; c < 5; c++) {
+    const hx = PX + 282 + c * 38, hy = PY + 66;
+    E('path', {d:`M${hx} ${hy + 10}L${hx} ${hy + 26}L${hx + 22} ${hy + 26}L${hx + 22} ${hy + 10}L${hx + 11} ${hy}Z`,
+      style:'fill:none;stroke:var(--muted2)', 'stroke-width':1.5, 'stroke-linejoin':'round', opacity:0.65}, gPool);
+  }
+  E('text', {x:PX + PW / 2, y:PY + PH + 18, 'text-anchor':'middle', 'font-size':10,
+    fill:'var(--muted)', style:`font-family:${MONO}`}, gPool).textContent = 'the pool does not grow \u2014 a new bidder arrives instead of, not alongside';
+
+  /* ── three bidders ── */
+  const BIDDERS = [
+    {cx:140, name:'Public sector',        sub:'hires as revenue allows', col:COLS.green, mk:'green'},
+    {cx:360, name:'Existing economy',     sub:'banking \u00b7 transport \u00b7 retail \u2026', col:COLS.blue,  mk:'blue'},
+    {cx:580, name:'This year\u2019s flavour', sub:'film \u2192 e-gaming \u2192 next?', col:COLS.amber, mk:'amber'}
+  ];
+  const gBid = E('g', {class:'ann'}, svg);
+  BIDDERS.forEach(b => {
+    const bw = 184, bh = 58, bx = b.cx - bw / 2, by = 34;
+    E('rect', {x:bx, y:by, width:bw, height:bh, rx:8,
+      style:'fill:var(--surface2);stroke:var(--border2)', 'stroke-width':1}, gBid);
+    E('rect', {x:bx, y:by, width:bw, height:3, rx:1.5, style:`fill:${b.col}`}, gBid);
+    E('text', {x:b.cx, y:by + 24, 'text-anchor':'middle', 'font-size':12.5, 'font-weight':700,
+      fill:'var(--text)'}, gBid).textContent = b.name;
+    E('text', {x:b.cx, y:by + 42, 'text-anchor':'middle', 'font-size':9.5, fill:'var(--muted2)',
+      style:`font-family:${MONO}`}, gBid).textContent = b.sub;
+    // bid arrow into the pool (dashed; flows when the svg has .spin)
+    const tx = b.cx < 360 ? 240 : (b.cx > 360 ? 480 : 360);
+    E('path', {d:`M${b.cx} ${by + bh + 6} Q${(b.cx + tx) / 2} ${(by + bh + PY) / 2 + 14} ${tx} ${PY - 6}`,
+      fill:'none', style:`stroke:${b.col}`, 'stroke-width':2, class:'loop-flow',
+      'marker-end':`url(#cd-arr-${b.mk})`, opacity:0.85}, gBid);
+  });
+  E('text', {x:360, y:186, 'text-anchor':'middle', 'font-size':10.5, fill:'var(--muted2)',
+    stroke:'var(--surface)', 'stroke-width':3, 'paint-order':'stroke', 'stroke-linejoin':'round',
+    style:`font-family:${MONO}`}, gBid).textContent = 'bids: staff \u00b7 homes';
+
+  /* ── revolving door: every migrant in is a migrant out ── */
+  const gDoor = E('g', {class:'ann'}, svg);
+  const DX = PX + PW, DY = PY + 62;      // on the pool's right wall
+  E('rect', {x:DX - 5, y:DY - 30, width:10, height:60, rx:3,
+    style:'fill:var(--bg);stroke:var(--border2)', 'stroke-width':1}, gDoor);
+  E('circle', {cx:DX, cy:DY, r:5, style:'fill:var(--muted2)'}, gDoor);
+  E('line', {x1:DX - 14, y1:DY, x2:DX + 14, y2:DY, stroke:'var(--muted2)', 'stroke-width':2}, gDoor);
+  E('line', {x1:DX, y1:DY - 14, x2:DX, y2:DY + 14, stroke:'var(--muted2)', 'stroke-width':2}, gDoor);
+  // in above the pivot, out below -- a one-for-one exchange
+  E('path', {d:`M${DX + 92} ${DY - 22} Q${DX + 40} ${DY - 26} ${DX + 8} ${DY - 12}`,
+    fill:'none', stroke:'var(--muted2)', 'stroke-width':2, class:'loop-flow',
+    'marker-end':'url(#cd-arr-mut)'}, gDoor);
+  E('path', {d:`M${DX + 8} ${DY + 12} Q${DX + 40} ${DY + 26} ${DX + 92} ${DY + 22}`,
+    fill:'none', stroke:'var(--muted2)', 'stroke-width':2, class:'loop-flow',
+    'marker-end':'url(#cd-arr-mut)'}, gDoor);
+  const dt = E('text', {x:DX + 50, y:DY + 44, 'font-size':10, fill:'var(--text)', 'font-weight':600,
+    'text-anchor':'middle', stroke:'var(--surface)', 'stroke-width':3, 'paint-order':'stroke',
+    'stroke-linejoin':'round', style:`font-family:${MONO}`}, gDoor);
+  E('tspan', {x:DX + 50, dy:0}, dt).textContent = 'every migrant in';
+  E('tspan', {x:DX + 50, dy:13}, dt).textContent = 'is a migrant out';
+  E('text', {x:DX + 50, y:DY + 72, 'font-size':9, fill:'var(--muted)', 'text-anchor':'middle',
+    stroke:'var(--surface)', 'stroke-width':3, 'paint-order':'stroke', 'stroke-linejoin':'round',
+    style:`font-family:${MONO}`}, gDoor).textContent = '\u224850% leave within 10 yrs';
+
+  function setStage(stage) {   // 'off' | 'bidders' | 'door'
+    const on = stage !== 'off';
+    gPool.classList.toggle('on', on);
+    gBid.classList.toggle('on', on);
+    gDoor.classList.toggle('on', stage === 'door');
+    svg.classList.toggle('spin', on);
+  }
+  setStage('off');
+  return {setStage};
+}
+
 /* ═══════════════════ Data tables ═══════════════════ */
 function fillTable(el, headers, rows) {
   const node = document.getElementById(el);
@@ -1454,15 +1642,18 @@ const a4fte = (function FteOverlay(){
 
 const a4loop = LoopDiagram(document.getElementById('a4-loop'));
 
-/* Act 5 composite: indexed to 2011 = 100 (the earliest year the official
-   houses-only median house price series covers on a consistent, all-four-
-   quarters basis — the quarterly record does not reach back to 2005). */
+/* Act 5 composite: population and real output indexed to 1998 = 100 (left
+   axis, matching Act 1's base), with the official affordability ratio -- the
+   HMR 2025 Appendix Four median-house-price / median-earnings series -- on
+   its OWN right-hand amber axis (4-12x). The ratio is stored in DATA.hp_ratio
+   in published units and pre-mapped into left-axis units for drawing only;
+   R2L/L2R convert between the two so tooltips and end labels read in "x". */
 const A5 = (() => {
-  const years = []; for (let y = 2011; y <= 2025; y++) years.push(y);
-  const hp0 = DATA.hp.values[DATA.hp.years.indexOf(2011)];
-  const hp = years.map(y => { const i = DATA.hp.years.indexOf(y); return i < 0 ? null : DATA.hp.values[i] / hp0 * 100; });
-  const gva0 = DATA.idx.iom[DATA.idx.years.indexOf(2011)];
-  const gva = years.map(y => { const i = DATA.idx.years.indexOf(y); return i < 0 ? null : DATA.idx.iom[i] / gva0 * 100; });
+  const years = []; for (let y = 1998; y <= 2025; y++) years.push(y);
+  const LDOM = [80, 320], RDOM = [4, 12];
+  const R2L = r => LDOM[0] + (r - RDOM[0]) / (RDOM[1] - RDOM[0]) * (LDOM[1] - LDOM[0]);
+  const L2R = v => RDOM[0] + (v - LDOM[0]) / (LDOM[1] - LDOM[0]) * (RDOM[1] - RDOM[0]);
+  const gva = years.map(y => { const i = DATA.idx.years.indexOf(y); return i < 0 ? null : DATA.idx.iom[i]; });
   // population: linear interpolation between census/estimate points
   const py = DATA.pop.years, pv = DATA.pop.values;
   const interp = y => {
@@ -1470,25 +1661,48 @@ const A5 = (() => {
     for (let k = 1; k < py.length; k++) if (y <= py[k]) return pv[k - 1] + (pv[k] - pv[k - 1]) * (y - py[k - 1]) / (py[k] - py[k - 1]);
     return pv[pv.length - 1];
   };
-  const base = interp(2011);
+  const base = interp(1998);
   const pop = years.map(y => y <= 2024 ? interp(y) / base * 100 : null);
-  return {years, hp, gva, pop};
+  const ratio = years.map(y => { const i = DATA.hp_ratio.years.indexOf(y); return i < 0 ? null : DATA.hp_ratio.values[i]; });
+  const ratioDisp = ratio.map(r => r == null ? null : R2L(r));
+  return {years, gva, pop, ratio, ratioDisp, LDOM, R2L, L2R, interp};
 })();
 
 const a5 = LineChart(document.getElementById('a5-chart'), {
-  h: 360, aria: 'Real house prices roughly flat from 2011 while population also stays flat and real output rises 14 per cent',
+  h: 360, aria: 'Population up 15 per cent and real output up 163 per cent since 1998 on the left axis, while the median-house-price to median-earnings ratio on its own right axis climbs from 5.1 times earnings in 1998 to 9.1 times in 2025, never below 8 since 2008',
   years: A5.years,
-  yDom: [85, 150], yTicks: [90, 105, 120, 135, 150],
-  xTicks: [2011, 2015, 2019, 2022, 2025],
-  yLabel: 'Index, 2011 = 100',
+  yDom: A5.LDOM.slice(), yTicks: [100, 150, 200, 250, 300],
+  xTicks: [1998, 2005, 2012, 2019, 2025],
+  yLabel: 'Index, 1998 = 100',
   yFmt: v => v.toFixed(0),
   pad: {r:150},
   series: [
-    {id:'pop', name:'Population', color:'var(--green)', values:A5.pop, endFmt:v => (v - 100 >= 0 ? '+' : '') + (v - 100).toFixed(1) + '%', fmt:v => v.toFixed(1)},
-    {id:'gva', name:'Real output', color:'var(--iom)', values:A5.gva, endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)},
-    {id:'hp', name:'House price (real)', color:'var(--amber)', values:A5.years.map(() => null), width:2.5, endFmt:v => (v - 100 >= 0 ? '+' : '') + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)}
+    {id:'pop', name:'Population', color:'var(--green)', values:A5.pop, endFmt:v => (v - 100 >= 0 ? '+' : '') + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)},
+    {id:'gva', name:'Real output', color:'var(--iom)', values:A5.years.map(() => null), endFmt:v => '+' + (v - 100).toFixed(0) + '%', fmt:v => v.toFixed(1)},
+    {id:'ratio', name:'House \u00f7 earnings', color:'var(--amber)', values:A5.years.map(() => null), width:2.5, endFmt:v => A5.L2R(v).toFixed(1) + '\u00d7', fmt:v => A5.L2R(v).toFixed(2) + '\u00d7'}
   ]
 });
+
+/* right-hand amber axis for the affordability ratio (4-12x), drawn into the
+   a5 chart's own svg -- the same dual-axis pattern as the Act 4 FTE overlay.
+   The ratio series' values are pre-mapped into left-axis units (A5.R2L);
+   this axis is its read-out scale. Never blended with the 1998=100 axis. */
+(function RatioAxis() {
+  const svg = a5.svg, W = 720, H = 360, pad = {l:42, r:150, t:28, b:30};
+  const yOf = v => H - pad.b - (v - A5.LDOM[0]) / (A5.LDOM[1] - A5.LDOM[0]) * (H - pad.t - pad.b);
+  /* inserted as the svg's FIRST child so the series end labels (which carry a
+     surface-coloured halo) paint over these ticks, not under them */
+  const g = E('g', {});
+  svg.insertBefore(g, svg.firstChild);
+  [4, 6, 8, 10, 12].forEach(r => {
+    const yy = yOf(A5.R2L(r));
+    E('line', {x1:W - pad.r + 58, x2:W - pad.r + 64, y1:yy, y2:yy, stroke:'var(--amber)', 'stroke-width':1, opacity:0.7}, g);
+    E('text', {x:W - pad.r + 70, y:yy + 3.5, 'text-anchor':'start', 'font-size':10, fill:'var(--amber)'}, g).textContent = r + '\u00d7';
+  });
+  E('text', {x:W - pad.r + 70, y:12, 'text-anchor':'start', 'font-size':10, fill:'var(--amber)'}, g).textContent = '\u00d7 earnings';
+})();
+
+const a5claim = ClaimantsDiagram(document.getElementById('a5-claim'));
 
 /* tables */
 fillTable('a1-tbl', ['Year', 'IoM GDP', 'IoM GNP', 'UK'],
@@ -1509,11 +1723,15 @@ fillTable('a4-tbl2', ['Year', 'Government FTE', 'Basis'], [
   [2013, '7,093', 'derived (CS Commission ratio)'], [2014, '6,879', 'derived (CS Commission ratio)'],
   [2015, '6,703', 'OHR report'], [2016, '6,737', 'FoI'],
   ['2023 (Sep)', '7,433', 'FoI / Cabinet Office'], ['2024 (Jan)', '7,533', 'Cabinet Office']]);
-fillTable('a5-tbl', ['Year', 'House price (real, index)', 'Real output (index)', 'Population (index)'],
-  A5.years.map((y, i) => [y,
-    A5.hp[i] == null ? '–' : A5.hp[i].toFixed(1),
-    A5.gva[i] == null ? '–' : A5.gva[i].toFixed(1),
-    A5.pop[i] == null ? '–' : A5.pop[i].toFixed(1)]));
+fillTable('a5-tbl', ['Year', 'House \u00f7 earnings (\u00d7)', 'Median sale \u00a3 (nominal)', 'Real output (1998=100)', 'Population (1998=100)'],
+  DATA.hp_ratio.years.map((y, i) => {
+    const gi = DATA.idx.years.indexOf(y);
+    const ni = DATA.hp_nominal.years.indexOf(y);
+    return [y, DATA.hp_ratio.values[i].toFixed(2),
+      ni < 0 ? '\u2013' : '\u00a3' + fmtN(DATA.hp_nominal.values[ni]),
+      gi < 0 ? '\u2013' : DATA.idx.iom[gi].toFixed(1),
+      (y < 1998 || y > 2024) ? '\u2013' : (A5.interp(y) / A5.interp(1998) * 100).toFixed(1)];
+  }));
 
 /* ═══════════════════ Scroll direction (IntersectionObserver) ═══════════════════ */
 const HANDLERS = {
@@ -1558,16 +1776,22 @@ const HANDLERS = {
     a4fte.showAnns([[], ['fte8k'], ['fte8k', 'fteshrink'], ['fte8k', 'fteshrink', 'ftegrow', 'fteend'], ['fte8k', 'fteshrink', 'ftegrow', 'fteend']][i]);
   },
   a5(i) {
-    /* Order matters: setValues() (when curIdx is already ≥0) snaps the shared
-       clip rect straight to the current reveal width as a side effect of
-       repositioning the end-label. Calling it AFTER revealTo() used to race
-       revealTo's own width tween — the clip would jump to full width, then
-       the queued tween frames yanked it back down and re-animated it in,
-       producing a visible flash on first entry. Setting the data first means
-       any width snap lands on the width that was already correct, and
-       revealTo() then does its one smooth animation on top of that. */
-    if (i === 0) a5.setValues('hp', A5.years.map(() => null));
-    else a5.setValues('hp', A5.hp, i === 1);
+    /* Steps 0-2 stage the three lines onto the chart (population -> output ->
+       affordability ratio); steps 3-4 crossfade to the claimants diagram
+       (pool + bidders, then the revolving door at the migration step).
+       Ordering note: setValues() (when curIdx >= 0) snaps the shared clip
+       rect to the current reveal width as a side effect, so the data is set
+       BEFORE revealTo() runs its tween -- calling it after used to race the
+       width animation and flash the chart. */
+    const A = document.getElementById('a5-figA'), B = document.getElementById('a5-figB');
+    const showB = i >= 3;
+    A.classList.toggle('on', !showB); B.classList.toggle('on', showB);
+    if (showB) { a5claim.setStage(i >= 4 ? 'door' : 'bidders'); return; }
+    a5claim.setStage('off');
+    const nulls = A5.years.map(() => null);
+    if (i === 0) { a5.setValues('gva', nulls); a5.setValues('ratio', nulls); }
+    else if (i === 1) { a5.setValues('gva', A5.gva, true); a5.setValues('ratio', nulls); }
+    else { a5.setValues('gva', A5.gva); a5.setValues('ratio', A5.ratioDisp, true); }
     a5.revealTo(A5.years.length - 1, 800);
   }
 };
@@ -1689,316 +1913,151 @@ setTimeout(() => heroChart.revealTo(DATA.idx.years.length - 1, RM ? 0 : 2200), 3
   check();
 })();
 </script>
-<!-- ═══════════════════ ACT 6 — the model ═══════════════════
-     PARITY: JS port verified against model_p2.py (params_p2.json, pass 2) on
-     2026-07-18, default levers, years 2010 and 2022, tolerance 1%:
-       gva_index    2010: py 96.0832   js 96.0832   diff 3.4e-8%  PASS | 2022: py 105.5406  js 105.5406  diff 6.4e-8%  PASS
-       customs      2010: py 312.6410  js 312.6410  diff 1.1e-8%  PASS | 2022: py 432.2783  js 432.2783  diff 5.1e-8%  PASS
-       population   2010: py 82647.484 js 82647.484 diff 4.6e-10% PASS | 2022: py 84639.398 js 84639.398 diff 4.5e-10% PASS
-       house_price  2010: py 218759.98 js 218759.98 diff 1.0e-10% PASS | 2022: py 249910.66 js 249910.66 diff 1.5e-10% PASS
-       public_emp   2010: py 7712.560  js 7712.560  diff 6.0e-9%  PASS | 2022: py 8287.620  js 8287.620  diff 2.5e-9%  PASS
-       employment   2010: py 31213.876 js 31213.876 diff 8.7e-10% PASS | 2022: py 32864.807 js 32864.807 diff 1.0e-9%  PASS
-       reserves     2010: py 2432.127  js 2432.127  diff 6.6e-9%  PASS | 2022: py 2139.664  js 2139.664  diff 2.2e-8%  PASS
-       fin_index    2010: py 84.981    js 84.981    diff 6.7e-8%  PASS | 2022: py 82.388    js 82.388    diff 3.5e-7%  PASS
-       eg_share     2010: py 14.505    js 14.505    diff 1.2e-6%  PASS | 2022: py 21.080    js 21.080    diff 2.0e-6%  PASS
-     All 9 series PASS at both check years (differences are float rounding only). -->
+<script src="sim_p6.js"></script>
 <script>
 'use strict';
-/* JS port of model_p2.py sim() — deterministic annual loop, 1998-2040.
-   Faithful to the Python original: same order of operations, same clips. */
-const MODEL = (function () {
-  const START = 1998, END = 2040;
-  const YEARS = []; for (let y = START; y <= END; y++) YEARS.push(y);
-  const N = YEARS.length;
-  const YI = {}; YEARS.forEach((y, i) => YI[y] = i);
-
-  const CPI_INFL = {1998:0,1999:1.3,2000:0.8,2001:1.2,2002:1.3,2003:1.4,2004:1.3,
-    2005:2.1,2006:2.3,2007:2.3,2008:3.6,2009:2.2,2010:3.3,2011:4.5,2012:2.8,
-    2013:2.6,2014:1.5,2015:0,2016:0.7,2017:2.7,2018:2.5,2019:1.8,2020:0.9,
-    2021:2.6,2022:9.1,2023:7.3,2024:2.5,2025:3.2,2026:2.2};
-  const RATE_T = {1998:7.2,1999:5.5,2000:6,2001:5.1,2002:4,2003:3.7,2004:4.4,
-    2005:4.6,2006:4.6,2007:5.5,2008:4.7,2009:0.6,2010:0.5,2011:0.5,2012:0.5,
-    2013:0.5,2014:0.5,2015:0.5,2016:0.4,2017:0.3,2018:0.6,2019:0.75,2020:0.2,
-    2021:0.1,2022:1.5,2023:4.7,2024:5,2025:4.3,2026:4};
-  const RATE_REF = 3.0;
-  const UK_IDX = DATA.idx.uk, UKF_IDX = [100,98.7,104.3,102.6,107.2,110.7,114.1,
-    130,126.6,158.9,159.2,149.2,146.8,138.9,140.5,133.5,132.6,126.3,135.8,
-    145.8,142.4,138.2,134.8,140.1,138];
-  const G_UK_EXT = {2023:0.004,2024:0.009,2025:0.012,2026:0.014};
-
-  const CPI = YEARS.map(y => (y in CPI_INFL) ? CPI_INFL[y] : 2.0);
-  const RATE = YEARS.map(y => (y in RATE_T) ? RATE_T[y] : 3.5);
-  const P_UK = new Array(N); P_UK[0] = 1;
-  for (let i = 1; i < N; i++) P_UK[i] = P_UK[i - 1] * (1 + CPI[i] / 100);
-  const G_UK = new Array(N).fill(0), G_UKF = new Array(N).fill(0);
-  for (let i = 1; i < N; i++) {
-    const y = YEARS[i];
-    if (y <= 2022) { G_UK[i] = UK_IDX[i] / UK_IDX[i - 1] - 1; G_UKF[i] = UKF_IDX[i] / UKF_IDX[i - 1] - 1; }
-    else if (y in G_UK_EXT) { G_UK[i] = G_UK_EXT[y]; G_UKF[i] = 0.01; }
-    else { G_UK[i] = 0.014; G_UKF[i] = 0.01; }
-  }
-  G_UK[YI[2020]] = 0.015; G_UK[YI[2021]] = 0.015;
-
-  const PROMO_EG = YEARS.map(y => {
-    let p;
-    if (y <= 2003) p = 0.1;
-    else if (y <= 2007) p = 0.1 + 0.9 * (y - 2003) / 4;
-    else if (y <= 2015) p = 1;
-    else if (y <= 2020) p = 1 - 0.6 * (y - 2015) / 5;
-    else p = 0.4;
-    if (y >= 2025) p = Math.min(p, 0.25);
-    return p;
-  });
-  const COVID_OUT = YEARS.map(y => y === 2020 ? 0.08 : 0);
-  const COVID_CUSTOMS = YEARS.map(y => y === 2020 ? 0.88 : 1);
-  const NAT_CHANGE = YEARS.map(y => {
-    if (y <= 2024) return -350 * (y - 1998) / 26;
-    if (y <= 2026) return -350 - 10 * (y - 2024) / 2;
-    return -360;
-  });
-
-  const F = {P0:74000, H0:35000, Lg0:5500, F_OUT0:2710.1, XEG0:1776.6,
-    gov_prod:344.9 / 5500, rent_pd:504.7 / 35000, rent_drift:0.0135,
-    R0:1000, demolitions:60, tau_S:1.5, cut_2010:90, cut_2012:75,
-    vat_share_cap_year:2006, erosion_2007:0.045, ratchet_Lg:0,
-    hire_cap:0.05, phi_w:0.5, draw_start:2012};
-
-  const P = {a_lf:0.38000000000000006, lx:10.963124025932318,
-    prod_x:5.2724207578170916e-24, m0:499.99999999999994, m1:4877.514836516492,
-    m2:737.743460421039, w1:0.05000000000000003, w2:0.33765511436350576,
-    conv:0.08901629244673792, s_exposure:0.273145367225396,
-    g_f0:0.019999999999999997, b_uk:0.16506931005234227, s_f:0.39999999999999997,
-    mrg:0.017461786077090098, lf:2.597229652418765, EG0:89.11207278240285,
-    g_eg:0.17422553684409847, EG_max:1299.9999999999998, decay_eg:0.005000000000000001,
-    cpen_eg:0.0844713695180236, le_eg:1.9991824343021474, kappa:3.9999999999999996,
-    tau_pr:1.5000000000000002, hp0:119999.99999999999, eta_d:5.969746912540876,
-    tau_hp:1.002987406366612, c0:150.00000000000003, c1:2721.96837250294,
-    s1_0:0.03155553834947158, k_vat:0.09390572776390489, s3:0.05145914599460007,
-    tw:0.006067766043968623, alpha:0.8659839214964783, r_down:0.018345022488698265,
-    beta_lg:1.0000000000000002, tau_lg:3.9999999999999996, r_int:0.027228517494755595,
-    d_rate:0.07999999999999999, R_floor:400.00000000000006};
-
-  const clip = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-
-  function sim(opts) {
-    opts = opts || {};
-    const p = P, f = F;
-    const cm = opts.cm || new Array(N).fill(1);
-    const pr = opts.promo || PROMO_EG;
-    const hc = opts.hireCap || new Array(N).fill(f.hire_cap);
-    const mm = opts.migMult || new Array(N).fill(1);
-    // World-growth lever: %/yr replacing the UK real-growth input from 2025.
-    // null = the baseline path (so the default run is bit-identical to the
-    // pre-lever model). It also scales the e-gaming global demand ceiling by
-    // 15% per percentage point of growth above or below the 1.4% baseline.
-    const wg = (opts.worldG == null) ? null : opts.worldG;
-
-    let Pp = f.P0, H = f.H0, Lg = f.Lg0;
-    let Fc = f.F_OUT0, EG = p.EG0, X = f.XEG0 - p.EG0;
-    let R = f.R0, W = 1, HP = p.hp0;
-    const ratio0 = f.P0 / f.H0;
-    let promo_s = pr[0], S = null, S_real0 = null, sigma = p.s1_0;
-    let hp_gr = [0, 0];
-    const out = {gva_index:new Array(N), gva_real:new Array(N), customs:new Array(N),
-      population:new Array(N), house_price:new Array(N), public_emp:new Array(N),
-      employment:new Array(N), reserves:new Array(N), fin_index:new Array(N),
-      eg_share:new Array(N), W:new Array(N), F:new Array(N), EG:new Array(N),
-      X:new Array(N), pub:new Array(N)};
-    const nom_hist = [];
-
-    for (let i = 0; i < N; i++) {
-      const y = YEARS[i];
-      const mf = 1 - p.mrg * Math.max(0, RATE_REF - RATE[i]);
-      const F_out = Fc * mf * (1 - COVID_OUT[i]);
-      const EG_out = EG * (1 - COVID_OUT[i]);
-      const X_out = X * (1 - COVID_OUT[i]);
-      const gva = X_out + F_out + EG_out + f.gov_prod * Lg
-        + f.rent_pd * H * Math.pow(1 + f.rent_drift, y - 1998);
-      const jobs_X = p.lx * X / Math.pow(1 + p.prod_x, y - 1998);
-      const LD = Lg + jobs_X + p.lf * Fc + p.le_eg * EG;
-      const LS = p.a_lf * Pp;
-      const v = clip((LD - LS) / LS, -0.25, 0.25);
-
-      const base_nom = gva * P_UK[i] * W;
-      const nom_eg = EG_out * P_UK[i] * W * (1 + p.kappa * promo_s);
-      const nom_gva = base_nom + (nom_eg - EG_out * P_UK[i] * W);
-      nom_hist.push(base_nom);
-
-      let customs;
-      if (y <= 2009) {
-        customs = sigma * base_nom;
-        if (y < f.vat_share_cap_year) sigma *= (1 + p.k_vat);
-        else if (y >= 2007) sigma *= (1 - f.erosion_2007);
-      } else if (y <= 2015) {
-        customs = sigma * base_nom - (f.cut_2010 + (y >= 2012 ? f.cut_2012 : 0));
-      } else {
-        const lo = Math.max(0, i - 5);
-        let sum = 0; for (let j = lo; j < i; j++) sum += nom_hist[j];
-        customs = p.s3 * (sum / (i - lo));
-      }
-      customs *= COVID_CUSTOMS[i];
-
-      const inc_tax = p.tw * LD * W * P_UK[i];
-      const res_income = p.r_int * R;
-      const rev = customs + inc_tax + res_income;
-      if (S === null) { S = p.alpha * rev; S_real0 = S / P_UK[i]; }
-      const S_real = S / (P_UK[i] * Math.pow(W, f.phi_w));
-      const Lg_target = f.Lg0 * Math.pow(Math.max(S_real / S_real0, 0.05), p.beta_lg);
-      const draw = (y >= f.draw_start) ? p.d_rate * Math.max(R - p.R_floor, 0) : 0;
-
-      const HP_star = p.hp0 * Math.pow((Pp / H) / ratio0, p.eta_d) * W * P_UK[i];
-      const comp = cm[i] * Math.max(0, p.c0 + p.c1 * Math.max(0, hp_gr[0]));
-
-      out.gva_real[i] = gva; out.customs[i] = customs; out.population[i] = Pp;
-      out.house_price[i] = HP; out.public_emp[i] = Lg; out.employment[i] = LD;
-      out.reserves[i] = R; out.fin_index[i] = 100 * F_out / f.F_OUT0;
-      out.eg_share[i] = 100 * nom_eg / nom_gva; out.W[i] = W;
-      out.F[i] = F_out; out.EG[i] = EG_out; out.X[i] = X_out;
-      out.pub[i] = f.gov_prod * Lg;
-
-      const M = clip(mm[i] * (p.m0 + p.m1 * v) - p.m2 * (W - 1), -2500, 2500);
-      Pp = Math.max(Pp + M + NAT_CHANGE[i], 1000);
-      H = H + comp - f.demolitions;
-      const hp_new = HP + (HP_star - HP) / p.tau_hp;
-      const gr_real = clip(hp_new / HP - 1 - CPI[i] / 100, -0.25, 0.30);
-      hp_gr = [hp_gr[1], gr_real];
-      HP = hp_new;
-      W = clip(W * (1 + p.w1 * v + p.w2 * Math.max(0, gr_real) - p.conv * (W - 1)), 0.6, 2.5);
-      Fc = Math.max(Fc * (1 + p.g_f0 + p.b_uk * G_UKF[i] - p.s_f * (W - 1)), 1);
-      const lever = (wg != null && y >= 2025);
-      const guk = lever ? wg / 100 : G_UK[i];
-      const egmax = lever ? p.EG_max * (1 + 0.15 * (wg - 1.4)) : p.EG_max;
-      const dEG = pr[i] * p.g_eg * EG * Math.max(0, 1 - EG / egmax)
-        - p.decay_eg * EG - p.cpen_eg * (W - 1) * EG;
-      EG = Math.max(EG + dEG, 1);
-      X = Math.max(X * (1 + guk - p.s_exposure * (W - 1)), 1);
-      promo_s = promo_s + (pr[i] - promo_s) / p.tau_pr;
-      const gap = p.alpha * rev + draw - S;
-      const dS = gap > 0 ? gap / f.tau_S : Math.max(gap / 8, -p.r_down * S);
-      S = S + dS;
-      R = Math.max(R + rev - (S - dS), 0);
-      Lg = Lg + clip((Lg_target - Lg) / p.tau_lg, -f.ratchet_Lg * Lg, hc[i] * Lg);
-    }
-    for (let i = 0; i < N; i++) out.gva_index[i] = out.gva_real[i] / out.gva_real[0] * 100;
-    return out;
-  }
-
-  return {YEARS, YI, N, sim, PROMO_EG, LEVER_FROM: 2025};
-}());
-
-/* ═══════════════════ Simulator UI ═══════════════════ */
+/* ═══════════════════ Simulator UI (pass 6) ═══════════════════
+   Model: sim_p6.js — line-for-line port of model_p6.py with params_p6.json
+   (pass 6, 16 Aug 2026, final cost 7.5654). Parity vs the Python reference:
+   max relative deviation 2.6e-12 % across all 48 series, 1998-2024 (parity.js).
+   Levers apply from 2025; 2009-15 customs is imposed historical data. */
 (function () {
-  const N = MODEL.N, YEARS = MODEL.YEARS;
-  const baseline = MODEL.sim();
+  const YEARS = simP6.YEARS, N = YEARS.length;
+  const YI = {}; YEARS.forEach((y, i) => YI[y] = i);
+  const MD = simP6.DATA;                 // embedded model data (obs series)
+  const baseline = simP6({});            // default levers = calibrated baseline
+
+  const sel = document.getElementById('sel-sector');
   const sl = {
     promo: document.getElementById('sl-promo'),
-    hire: document.getElementById('sl-hire'),
     house: document.getElementById('sl-house'),
-    mig: document.getElementById('sl-mig'),
-    world: document.getElementById('sl-world')
+    mig: document.getElementById('sl-mig')
   };
   const outs = {
+    sector: document.getElementById('out-sector'),
     promo: document.getElementById('out-promo'),
-    hire: document.getElementById('out-hire'),
     house: document.getElementById('out-house'),
-    mig: document.getElementById('out-mig'),
-    world: document.getElementById('out-world')
+    mig: document.getElementById('out-mig')
   };
 
-  /* The model's house-price equations were calibrated against the old
-     all-transactions series and have not been re-fitted to the official
-     houses-only median now used for the observed dots (see NOTES.md).
-     HP_SCALE is the mean official/old ratio over the 2011-2025 overlap
-     (display-only; the model's internal equations are untouched). */
-  const HP_SCALE = 1.1291;
-  const obsGva = YEARS.map(y => { const i = DATA.idx.years.indexOf(y); return i < 0 ? null : DATA.idx.iom[i]; });
-  const obsHp = YEARS.map(y => { const i = DATA.hp.years.indexOf(y); return i < 0 ? null : DATA.hp.values[i] / 1000; });
+  /* observed overlays, aligned to the sim year axis */
+  const obsGva = YEARS.map(y => {
+    const v = MD.obs.manx_gdp_idx[String(y)]; return v == null ? null : v;
+  });
+  const obsHp = YEARS.map(y => {
+    const v = MD.obs.house_price_official[String(y)];
+    return v == null ? null : v / 1000;
+  });
+  /* customs: grey dots for observed GENERATED years; amber dots for the
+     2009-15 imposed window (historical data — never moves with the sliders) */
+  const obsCust = YEARS.map(y => {
+    const i = MD.obs.customs.years.indexOf(y);
+    if (i < 0 || (y >= 2009 && y <= 2015)) return null;
+    return MD.obs.customs.values[i];
+  });
+  const impCust = YEARS.map(y =>
+    (y >= 2009 && y <= 2015) ? MD.customs_imposed[String(y)] : null);
 
   const gvaChart = LineChart(document.getElementById('sim-gva'), {
-    w: 460, h: 300, aria: 'Simulated real output index 1998 to 2040, your run versus baseline and history',
-    years: YEARS, yDom: [80, 165], yTicks: [80, 100, 120, 140, 160],
-    xTicks: [1998, 2012, 2026, 2040], yLabel: 'Index', yFmt: v => v.toFixed(0),
+    w: 460, h: 300, aria: 'Simulated real output index 1998 to 2035, your run versus baseline and the observed Manx GDP index; baseline reaches about 334 by 2035',
+    years: YEARS, yDom: [80, 440], yTicks: [100, 200, 300, 400],
+    xTicks: [1998, 2010, 2022, 2035], yLabel: 'Index', yFmt: v => v.toFixed(0),
     pad: {r:52, l:36}, startRevealed: true,
     series: [
-      {id:'obs', name:'History', color:'var(--uk)', values:obsGva, dotsOnly:true, label:false, fmt:v => v.toFixed(1)},
+      {id:'obs', name:'Observed', color:'var(--uk)', values:obsGva, dotsOnly:true, label:false, fmt:v => v.toFixed(1)},
       {id:'base', name:'Baseline', color:'var(--muted)', values:baseline.gva_index.slice(), dash:'5 5', label:false, fmt:v => v.toFixed(1)},
       {id:'you', name:'Your run', endName:'', color:'var(--iom)', values:baseline.gva_index.slice(), width:2.5, endFmt:v => v.toFixed(0), fmt:v => v.toFixed(1)}
     ]
   });
   const hpChart = LineChart(document.getElementById('sim-hp'), {
-    w: 460, h: 300, aria: 'Simulated median house price 1998 to 2040, your run versus baseline and history',
-    years: YEARS, yDom: [0, 650], yTicks: [0, 150, 300, 450, 600],
-    xTicks: [1998, 2012, 2026, 2040], yLabel: '£ thousand', yFmt: v => '£' + v + 'k',
-    pad: {r:62, l:44}, startRevealed: true,
+    w: 460, h: 300, aria: 'Simulated median house price 1998 to 2035, nominal, your run versus baseline and the official houses-only median; baseline reaches about 478 thousand pounds by 2035',
+    years: YEARS, yDom: [0, 750], yTicks: [0, 250, 500, 750],
+    xTicks: [1998, 2010, 2022, 2035], yLabel: '£ thousand', yFmt: v => '£' + v + 'k',
+    pad: {r:64, l:44}, startRevealed: true,
     series: [
       {id:'obs', name:'History', color:'var(--uk)', values:obsHp, dotsOnly:true, label:false, fmt:v => '£' + Math.round(v) + 'k'},
-      {id:'base', name:'Baseline', color:'var(--muted)', values:baseline.house_price.map(v => v * HP_SCALE / 1000), dash:'5 5', label:false, fmt:v => '£' + Math.round(v) + 'k'},
-      {id:'you', name:'Your run', endName:'', color:'var(--amber)', values:baseline.house_price.map(v => v * HP_SCALE / 1000), width:2.5, endFmt:v => '£' + Math.round(v) + 'k', fmt:v => '£' + Math.round(v) + 'k'}
+      {id:'base', name:'Baseline', color:'var(--muted)', values:baseline.house_price.map(v => v / 1000), dash:'5 5', label:false, fmt:v => '£' + Math.round(v) + 'k'},
+      {id:'you', name:'Your run', endName:'', color:'var(--amber)', values:baseline.house_price.map(v => v / 1000), width:2.5, endFmt:v => '£' + Math.round(v) + 'k', fmt:v => '£' + Math.round(v) + 'k'}
     ]
   });
-
-  const secChart = LineChart(document.getElementById('sim-sec'), {
-    w: 720, h: 300, aria: 'Sector real output under your run, 1998 to 2040: finance, e-gaming, existing economy and public sector',
-    years: YEARS, yDom: [0, 3000], yTicks: [0, 1000, 2000, 3000],
-    xTicks: [1998, 2005, 2012, 2019, 2026, 2033, 2040],
-    yLabel: '£m (2022 prices)', yFmt: v => fmtN(v),
-    pad: {r:128, l:48}, startRevealed: true,
+  /* right pad 68: end labels reach 4 digits (£1,095m baseline by 2035) and
+     clip against the panel edge at the default 56 */
+  const custChart = LineChart(document.getElementById('sim-cust'), {
+    w: 460, h: 300, aria: 'Customs and Excise receipts 1998 to 2035, nominal, your run versus baseline; the 2009 to 2015 window is fixed amber dots of imposed historical data that sliders cannot move',
+    years: YEARS, yDom: [0, 1300], yTicks: [0, 400, 800, 1200],
+    xTicks: [1998, 2010, 2022, 2035], yLabel: '£m nominal', yFmt: v => fmtN(v),
+    pad: {r:68, l:44}, startRevealed: true,
     series: [
-      {id:'F', name:'Finance', color:'var(--blue)', values:baseline.F.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
-      {id:'X', name:'Existing', color:'var(--uk)', values:baseline.X.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'obs', name:'Observed', color:'var(--uk)', values:obsCust, dotsOnly:true, label:false, fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'imp', name:'2009–15 imposed (historical)', color:'var(--amber)', values:impCust, dotsOnly:true, label:false, fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'base', name:'Baseline', color:'var(--muted)', values:baseline.customs.slice(), dash:'5 5', label:false, fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'you', name:'Your run', endName:'', color:'var(--green)', values:baseline.customs.slice(), width:2.5, endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'}
+    ]
+  });
+  const secChart = LineChart(document.getElementById('sim-sec'), {
+    w: 720, h: 320, aria: 'Real output of the five model sectors under your run, 1998 to 2035: labour-heavy finance, margin-booked finance, e-gaming, sheltered existing economy, exposed tradeables',
+    years: YEARS, yDom: [0, 6500], yTicks: [0, 2000, 4000, 6000],
+    xTicks: [1998, 2005, 2012, 2019, 2026, 2035],
+    yLabel: '£m (2023/24 prices)', yFmt: v => fmtN(v),
+    pad: {r:132, l:48}, startRevealed: true,
+    series: [
+      {id:'XN', name:'Sheltered', color:'var(--uk)', values:baseline.XN.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'Feph', name:'Fin (margin)', color:'var(--green)', values:baseline.F_eph.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
+      {id:'Flab', name:'Fin (labour)', color:'var(--blue)', values:baseline.F_lab.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
       {id:'EG', name:'E-gaming', color:'var(--purple)', values:baseline.EG.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'},
-      {id:'pub', name:'Public', color:'var(--green)', values:baseline.pub.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'}
+      {id:'XS', name:'Exposed', color:'var(--amber)', values:baseline.XS.slice(), endFmt:v => '£' + fmtN(v) + 'm', fmt:v => '£' + fmtN(v) + 'm'}
     ]
   });
 
-  const i40 = MODEL.YI[2040];
+  const i35 = YI[2035];
   function run() {
-    const promo = +sl.promo.value / 100, hire = +sl.hire.value / 100,
-          house = +sl.house.value / 100, mig = +sl.mig.value / 100,
-          world = +sl.world.value;
-    outs.promo.textContent = sl.promo.value + '%';
-    outs.hire.textContent = sl.hire.value + '%';
+    const sector = sel.value;
+    const promo = +sl.promo.value / 100, house = +sl.house.value / 100,
+          mig = +sl.mig.value / 100;
+    outs.sector.textContent = sector === 'none' ? 'none' : 'e‑gaming';
+    outs.promo.textContent = sector === 'none' ? '—' : sl.promo.value + '%';
     outs.house.textContent = sl.house.value + '%';
     outs.mig.textContent = sl.mig.value + '%';
-    outs.world.textContent = world.toFixed(1) + '%/yr';
+    sl.promo.disabled = sector === 'none';
 
-    const pr = MODEL.PROMO_EG.slice(), cm = new Array(N).fill(1),
-          hc = new Array(N).fill(0.05), mm = new Array(N).fill(1);
-    for (let i = 0; i < N; i++) if (YEARS[i] >= MODEL.LEVER_FROM) {
-      pr[i] = promo; cm[i] = house; hc[i] = 0.05 * (1 - hire); mm[i] = mig;
-    }
-    // world lever at its 1.4% default = the baseline path (bit-identical run)
-    const s = MODEL.sim({promo:pr, cm:cm, hireCap:hc, migMult:mm,
-                         worldG: world === 1.4 ? null : world});
+    const s = simP6({sector: sector, promo: promo,
+                     housebuild: house, migration: mig});
 
     gvaChart.setValues('you', s.gva_index);
-    hpChart.setValues('you', s.house_price.map(v => v * HP_SCALE / 1000));
-    secChart.setValues('F', s.F); secChart.setValues('X', s.X);
-    secChart.setValues('EG', s.EG); secChart.setValues('pub', s.pub);
+    hpChart.setValues('you', s.house_price.map(v => v / 1000));
+    custChart.setValues('you', s.customs);     // 2009-15 identical by design
+    secChart.setValues('XN', s.XN); secChart.setValues('Feph', s.F_eph);
+    secChart.setValues('Flab', s.F_lab); secChart.setValues('EG', s.EG);
+    secChart.setValues('XS', s.XS);
 
-    document.getElementById('ro-gva').textContent = s.gva_index[i40].toFixed(0);
-    document.getElementById('ro-gva-sub').textContent = 'baseline ' + baseline.gva_index[i40].toFixed(0) + ' · 1998 = 100';
-    document.getElementById('ro-pop').textContent = fmtN(s.population[i40]);
-    document.getElementById('ro-pop-sub').textContent = 'baseline ' + fmtN(baseline.population[i40]);
-    document.getElementById('ro-hp').textContent = '£' + fmtN(s.house_price[i40] * HP_SCALE / 1000) + 'k';
-    document.getElementById('ro-hp-sub').textContent = 'baseline £' + fmtN(baseline.house_price[i40] * HP_SCALE / 1000) + 'k';
+    document.getElementById('ro-gva').textContent = s.gva_index[i35].toFixed(0);
+    document.getElementById('ro-gva-sub').textContent = 'baseline ' + baseline.gva_index[i35].toFixed(0) + ' · 1998 = 100';
+    document.getElementById('ro-pop').textContent = fmtN(s.population[i35]);
+    document.getElementById('ro-pop-sub').textContent = 'baseline ' + fmtN(baseline.population[i35]);
+    document.getElementById('ro-hp').textContent = '£' + fmtN(s.house_price[i35] / 1000) + 'k';
+    document.getElementById('ro-hp-sub').textContent = 'baseline £' + fmtN(baseline.house_price[i35] / 1000) + 'k';
 
-    fillTable('sim-tbl', ['Year', 'Output (yours)', 'Output (base)', 'Population (yours)', 'Population (base)', 'House £k (yours)', 'House £k (base)', 'Finance £m', 'E-gaming £m', 'Existing £m', 'Public £m'],
-      [2025, 2030, 2035, 2040].map(y => {
-        const i = MODEL.YI[y];
+    fillTable('sim-tbl',
+      ['Year', 'Output (yours)', 'Output (base)', 'Population (yours)', 'Population (base)',
+       'House £k (yours)', 'House £k (base)', 'Customs £m', 'Fin-labour £m', 'Fin-margin £m',
+       'E-gaming £m', 'Sheltered £m', 'Exposed £m'],
+      [2025, 2030, 2035].map(y => {
+        const i = YI[y];
         return [y, s.gva_index[i].toFixed(1), baseline.gva_index[i].toFixed(1),
           fmtN(s.population[i]), fmtN(baseline.population[i]),
-          fmtN(s.house_price[i] * HP_SCALE / 1000), fmtN(baseline.house_price[i] * HP_SCALE / 1000),
-          fmtN(s.F[i]), fmtN(s.EG[i]), fmtN(s.X[i]), fmtN(s.pub[i])];
+          fmtN(s.house_price[i] / 1000), fmtN(baseline.house_price[i] / 1000),
+          fmtN(s.customs[i]),
+          fmtN(s.F_lab[i]), fmtN(s.F_eph[i]), fmtN(s.EG[i]),
+          fmtN(s.XN[i]), fmtN(s.XS[i])];
       }));
   }
 
   let raf = null;
   function queueRun() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; run(); }); }
   Object.keys(sl).forEach(k => sl[k].addEventListener('input', queueRun));
+  sel.addEventListener('change', queueRun);
   document.getElementById('sim-reset').addEventListener('click', () => {
-    sl.promo.value = 25; sl.hire.value = 0; sl.house.value = 100; sl.mig.value = 100;
-    sl.world.value = 1.4;
+    sel.value = 'egaming'; sl.promo.value = 25; sl.house.value = 100; sl.mig.value = 100;
     run();
   });
   run();
