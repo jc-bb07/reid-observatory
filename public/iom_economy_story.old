@@ -180,7 +180,11 @@ input[type="range"]::-moz-range-thumb {
    scene. Cap the panel at the column height and scroll it internally instead.
    (Portrait phones are unaffected: their .g-col already clips via
    overflow:hidden, and a % max-height against its auto height is ignored.) */
-.g-col > .fig-panel, .g-col > .fig-stack { max-height: 100%; overflow-y: auto; }
+.g-col > .fig-panel, .g-col > .fig-stack { max-height: 100%; overflow-y: auto;
+  scrollbar-width: none; }  /* keep scrollability (wheel/touch) but hide the bar chrome */
+.g-col > .fig-panel::-webkit-scrollbar, .g-col > .fig-stack::-webkit-scrollbar { display: none; }
+.fig-stack > .fig-panel { scrollbar-width: none; }
+.fig-stack > .fig-panel::-webkit-scrollbar { display: none; }
 /* Short viewports (small laptops, OS scaling): shrink the chart rather than
    letting a too-tall panel overflow the pinned column and clip at the top. */
 @media (max-height: 840px) and (min-aspect-ratio: 1/1) {
@@ -725,12 +729,14 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
         <div class="slider-head"><label for="sel-sector">Sector promotion</label><output id="out-sector">e&#8209;gaming</output></div>
         <select id="sel-sector" aria-describedby="hint-sector"
           style="width:100%;padding:6px 8px;margin:4px 0 6px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:6px;font:inherit;font-size:12.5px">
-          <option value="egaming" selected>E-gaming</option>
+          <option value="egaming" selected>A promoted sector (generic)</option>
           <option value="none">None — stop promotion from 2025</option>
         </select>
-        <div class="slider-hint" id="hint-sector">Which sector the Island courts from 2025. E-gaming is the
-        only promotion channel the calibrated model has &mdash; it is the sector the Island actually promoted,
-        so it is the only one with a fitted response. &ldquo;None&rdquo; switches active promotion off.</div>
+        <div class="slider-hint" id="hint-sector">Whether the Island actively courts a next sector from 2025.
+        The response is fitted on the one promotion episode the data contains &mdash; e-gaming &mdash; so read
+        this lever as &ldquo;a sector that behaves as e-gaming did&rdquo;. A different sector may respond quite
+        differently, and assuming the next flavour repeats the last one is itself a bet, not a law.
+        &ldquo;None&rdquo; switches active promotion off.</div>
       </div>
       <div class="slider-block">
         <div class="slider-head"><label for="sl-promo">Promotion intensity</label><output id="out-promo">25%</output></div>
@@ -741,8 +747,10 @@ details.tbl .tbl-scroll { max-height: 260px; overflow: auto; }
       <div class="slider-block">
         <div class="slider-head"><label for="sl-house">Housebuilding</label><output id="out-house">100%</output></div>
         <input type="range" id="sl-house" min="50" max="300" value="100" step="10" aria-describedby="hint-house"/>
-        <div class="slider-hint" id="hint-house">Completions per year from 2025, relative to the model&rsquo;s
-        calibrated baseline. Officially recorded completions: 199 (2023), 150 (2024).</div>
+        <div class="slider-hint" id="hint-house">Building rate from 2025, as a percentage of the model&rsquo;s
+        own baseline path &mdash; the readout above converts your setting into net new homes in 2025. The model
+        builds more when real prices rise, so a building surge partly cools its own market. For scale:
+        officially recorded completions were 199 (2023) and 150 (2024).</div>
       </div>
       <div class="slider-block">
         <div class="slider-head"><label for="sl-mig">Migration openness</label><output id="out-mig">100%</output></div>
@@ -2014,14 +2022,18 @@ setTimeout(() => heroChart.revealTo(DATA.idx.years.length - 1, RM ? 0 : 2200), 3
     const sector = sel.value;
     const promo = +sl.promo.value / 100, house = +sl.house.value / 100,
           mig = +sl.mig.value / 100;
-    outs.sector.textContent = sector === 'none' ? 'none' : 'e‑gaming';
+    outs.sector.textContent = sector === 'none' ? 'none' : 'on';
     outs.promo.textContent = sector === 'none' ? '—' : sl.promo.value + '%';
-    outs.house.textContent = sl.house.value + '%';
     outs.mig.textContent = sl.mig.value + '%';
     sl.promo.disabled = sector === 'none';
 
     const s = simP6({sector: sector, promo: promo,
                      housebuild: house, migration: mig});
+
+    /* housebuilding readout in homes: net new dwellings the model adds in
+       2025 under this setting (H is the dwellings stock) */
+    const homes25 = Math.round(s.H[YI[2026]] - s.H[YI[2025]]);
+    outs.house.textContent = sl.house.value + '% · ≈' + fmtN(homes25) + ' homes in 2025';
 
     gvaChart.setValues('you', s.gva_index);
     hpChart.setValues('you', s.house_price.map(v => v / 1000));
