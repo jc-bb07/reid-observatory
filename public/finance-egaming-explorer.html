@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finance & eGaming Unbundled — Isle of Man · Crown Dependencies Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-BgIsm1huogpQ9ffMmmnIF.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #0f172a;
+  --surface:  #1e293b;
+  --surface2: #162032;
+  --border:   #1e293b;
+  --border2:  #334155;
+  --text:     #e2e8f0;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --blue:     #60a5fa;
+  --blue-dim: #1d4ed8;
+  --green:    #34d399;
+  --amber:    #fbbf24;
+  --red:      #f87171;
+  --purple:   #a78bfa;
+  --orange:   #fb923c;
+  --iom:      #3b82f6;
+  --gsy:      #10b981;
+  --jsy:      #f59e0b;
+  --uk:       #94a3b8;
+  /* series aliases — existing tokens only, no new hex values */
+  --s-banking: var(--blue);       /* #60a5fa */
+  --s-insurance: var(--iom);      /* #3b82f6 */
+  --s-ofbs: var(--blue-dim);      /* #1d4ed8 */
+  --s-egaming: var(--purple);     /* #a78bfa */
+  --s-ict: #7c3aed;               /* canonical ICT sector colour (SECTOR_META) */
+  --s-prof: var(--green);         /* #34d399 */
+}
+body.light {
+  --bg:       #f8fafc;
+  --surface:  #ffffff;
+  --surface2: #f1f5f9;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --muted2:   #334155;
+  --blue:     #2563eb;
+  --blue-dim: #1d4ed8;
+  --green:    #059669;
+  --amber:    #d97706;
+  --red:      #dc2626;
+  --purple:   #7c3aed;
+  --orange:   #ea580c;
+  --iom:      #2563eb;
+  --gsy:      #059669;
+  --jsy:      #d97706;
+  --uk:       #64748b;
+  --s-ict:    #6d28d9;            /* darker step of the same canonical ICT hue family for light surface */
+}
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.5; font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+.shell { max-width: 960px; margin: 0 auto; padding: 20px 20px 40px; }
+h1 { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 8px; }
+.subtitle { font-size: 13px; color: var(--muted2); line-height: 1.7; max-width: 680px; margin-bottom: 18px; }
+.intro {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-left: 3px solid var(--iom); border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 22px;
+  font-size: 12px; color: var(--muted2); line-height: 1.7;
+}
+.intro strong { color: var(--text); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 9px; margin-bottom: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border2); border-top: 3px solid var(--border2); border-radius: 8px; padding: 13px 15px; }
+.card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted2); margin-bottom: 5px; }
+.card-value { font-size: 21px; font-variant-numeric: tabular-nums; font-weight: 500; line-height: 1; }
+.card-sub { font-size: 11px; color: var(--muted2); margin-top: 3px; }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border2); overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: #94a3b8; cursor: pointer; font-family: inherit; font-size: 12px;
+  font-weight: 500; letter-spacing: 0.03em; margin-bottom: -1px;
+  padding: 8px 16px; transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+}
+.tab.active { color: #93c5fd; border-bottom-color: #93c5fd; font-weight: 600; }
+.tab:hover:not(.active) { color: #cbd5e1; }
+body.light .tab { color: #475569; }
+body.light .tab.active { color: #1d4ed8; border-bottom-color: #1d4ed8; }
+body.light .tab:hover:not(.active) { color: #0f172a; }
+.controls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; align-items: center; }
+.ctrl-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-right: 2px; }
+.pill {
+  background: none; border: 1px solid var(--border2); border-radius: 20px;
+  color: var(--muted2); cursor: pointer; font-family: inherit; font-size: 11px;
+  font-weight: 500; letter-spacing: 0.03em; padding: 4px 12px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s; white-space: nowrap;
+}
+.pill.active { background: var(--blue-dim); border-color: var(--blue); color: #fff; }
+.pill:hover:not(.active) { border-color: var(--muted); color: var(--text); }
+.chart-wrap { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 18px 14px 12px; margin-bottom: 10px; }
+.chart-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; padding: 0 4px; }
+.chart-basis { font-size: 10.5px; color: var(--muted); margin-bottom: 10px; padding: 0 4px; line-height: 1.6; }
+.chart-canvas-wrap { position: relative; width: 100%; height: 360px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 4px 10px; font-size: 11px; color: var(--muted2); }
+.leg-item { display: flex; align-items: center; gap: 5px; }
+.leg-sw { width: 12px; height: 3px; border-radius: 1px; display: inline-block; flex-shrink: 0; }
+.face-caveat {
+  background: var(--surface2); border: 1px solid var(--amber); border-left: 3px solid var(--amber);
+  border-radius: 8px; padding: 10px 14px; margin: 0 4px 12px;
+  font-size: 11.5px; color: var(--text); line-height: 1.7;
+}
+.face-caveat strong { color: var(--amber); }
+.mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mini { background: var(--surface); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 10px 8px; }
+.mini h3 { font-size: 11px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.mini h3 .leg-sw { width: 10px; }
+.mini .val { font-size: 10px; color: var(--muted); font-weight: 400; margin-left: auto; font-variant-numeric: tabular-nums; }
+.mini-canvas-wrap { position: relative; width: 100%; height: 130px; }
+.plain-box {
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
+  padding: 13px 15px; margin: 14px 0 18px; font-size: 12px; color: var(--muted2); line-height: 1.7;
+}
+.plain-box strong { color: var(--text); }
+details.register {
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
+  padding: 0; margin-bottom: 18px; font-size: 12px; color: var(--muted2);
+}
+details.register summary {
+  cursor: pointer; padding: 12px 15px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+}
+details.register[open] summary { border-bottom: 1px solid var(--border2); }
+details.register .reg-body { padding: 13px 15px; line-height: 1.7; }
+details.register table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 8px 0; }
+details.register th, details.register td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border2); vertical-align: top; }
+details.register th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.06em; }
+details.register td:first-child { white-space: nowrap; color: var(--text); }
+.reg-issue { color: var(--amber); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+.page-footer {
+  margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border2);
+  font-size: 10px; color: var(--muted2);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.page-footer a { color: var(--muted); text-decoration: none; }
+.page-footer a:hover { color: var(--text); }
+/* ── Mobile baseline ── */
+@media (max-width: 600px) {
+  .shell { padding: 12px 14px 32px; }
+  body { font-size: 15px; }
+  h1 { font-size: 17px !important; }
+  .controls { flex-wrap: wrap; gap: 8px; }
+  .pill { font-size: 12px; padding: 5px 10px; }
+  .cards { grid-template-columns: 1fr 1fr !important; }
+  .card { min-width: 0; }
+  canvas { max-width: 100% !important; }
+  .chart-canvas-wrap { height: 280px; }
+  .mini-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .cards { grid-template-columns: 1fr !important; }
+  body { font-size: 16px; }
+  .mini-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <h1>Finance &amp; eGaming unbundled — Isle of Man</h1>
+  <p class="subtitle">The Economic Mix page bundles Banking, Insurance, Other Finance &amp; Business Services and eGaming into one
+  "Finance &amp; eGaming" line. This page takes the bundle apart: which parts of it actually grew after 2007, and how much of
+  the celebrated surge is eGaming rather than finance.</p>
+
+  <div class="intro">
+    <strong>What the unbundling shows.</strong> In real terms the bundle grew ~50% from 2007/08 to 2023/24 — but
+    <strong>eGaming supplied about two-thirds of that growth</strong>, rising from 3.6% to 14.2% of the economy (peak 21.1% in 2017/18).
+    Finance proper grew ~18%, and even that is carried by Insurance (+60%): <strong>Banking shrank ~26%, roughly tracking the
+    UK finance sector's own real decline (−19%)</strong>. The Isle of Man did not out-run the UK at banking; it changed business.
+    Sector detail begins at 2007/08, when the accounts moved to an ESA10 basis and eGaming was first split from ICT.
+  </div>
+
+  <div class="cards">
+    <div class="card" style="border-top-color: var(--s-egaming)">
+      <div class="card-label">eGaming share 2023/24</div>
+      <div class="card-value">14.2%</div>
+      <div class="card-sub">of Manx-sourced income · peak 21.1% (2017/18)</div>
+    </div>
+    <div class="card" style="border-top-color: var(--s-egaming)">
+      <div class="card-label">eGaming real growth 07/08–23/24</div>
+      <div class="card-value">+400%</div>
+      <div class="card-sub">£160m → £801m (2023/24 prices)</div>
+    </div>
+    <div class="card" style="border-top-color: var(--s-insurance)">
+      <div class="card-label">Finance excl. eGaming</div>
+      <div class="card-value">+17.7%</div>
+      <div class="card-sub">real, 07/08–23/24 · Banking −26%, Insurance +60%</div>
+    </div>
+    <div class="card" style="border-top-color: var(--uk)">
+      <div class="card-label">UK finance (SIC K), real</div>
+      <div class="card-value">−18.6%</div>
+      <div class="card-sub">2007–2023, ONS chained volume</div>
+    </div>
+  </div>
+
+  <div class="tabs" id="main-tabs">
+    <button class="tab active" data-tab="shares" onclick="setTab('shares')">Shares of the economy</button>
+    <button class="tab" data-tab="levels" onclick="setTab('levels')">Real levels</button>
+    <button class="tab" data-tab="perworker" onclick="setTab('perworker')">Output per worker</button>
+  </div>
+
+  <!-- ══════════ TAB: SHARES ══════════ -->
+  <div class="tab-pane active" id="pane-shares">
+    <div class="controls" id="share-view-controls">
+      <span class="ctrl-label">View</span>
+      <button class="pill active" data-sv="stack" onclick="setShareView('stack',this)">Inside the bundle</button>
+      <button class="pill" data-sv="multi" onclick="setShareView('multi',this)">Sector by sector</button>
+    </div>
+
+    <div id="share-stack-wrap">
+      <div class="chart-wrap">
+        <div class="chart-title">"Finance &amp; eGaming" decomposed — share of Manx-sourced national income</div>
+        <div class="chart-basis">Shares of Manx-sourced income at factor cost. Constant-price and current-price shares are identical here —
+        Statistics IoM deflates every sector by one economy-wide index, so the deflator cancels in any share. UK reference: Financial &amp;
+        insurance activities (SIC K) share of total UK GVA, current prices.</div>
+        <div class="legend" id="stack-legend"></div>
+        <div class="chart-canvas-wrap"><canvas id="stackChart"></canvas></div>
+      </div>
+    </div>
+
+    <div id="share-multi-wrap" style="display:none">
+      <div class="chart-basis" style="margin:0 4px 10px">Each panel: share of Manx-sourced national income, 2007/08–2023/24, common scale.
+      Constant-price and current-price shares are identical (single economy-wide deflator).</div>
+      <div class="mini-grid" id="share-multis"></div>
+    </div>
+
+    <div class="plain-box"><strong>Reading it.</strong> The purple wedge is the story: eGaming was 3.6% of the economy when it was first
+    split out in the accounts; six years later it was rivalling Banking, and at its 2017/18 peak it was larger than any finance sub-sector.
+    The three blue bands — finance proper — are, in total, roughly where they started as a share of the economy, with Banking's decline
+    offset by Insurance. A chart that bundles all four reports the rise of a gambling-and-games industry as growth in "finance".</div>
+  </div>
+
+  <!-- ══════════ TAB: LEVELS ══════════ -->
+  <div class="tab-pane" id="pane-levels">
+    <div class="chart-basis" style="margin:0 4px 10px">Real sector income, £ million at 2023/24 prices, 2007/08–2023/24, common scale.
+    Deflation uses the single economy-wide index embedded in the source tables — <strong>not</strong> sector-specific prices, so these are
+    real incomes, not output volumes. Series start at 2007/08 (ESA10 basis; eGaming first split from ICT).</div>
+    <div class="mini-grid" id="level-multis"></div>
+    <div class="plain-box"><strong>Why the series starts in 2007/08.</strong> Before then the published accounts carry one combined
+    "Insurance, Banking, Finance and Business Services" line and fold eGaming inside ICT — the bundle this page exists to take apart.
+    The 2008/09 edition restated 2007/08 onto the ESA10 basis, and the 2009/10 edition split eGaming out retroactively to 2007/08.
+    Earlier years exist only at the bundled taxonomy (see the 30-year series in the data library).</div>
+  </div>
+
+  <!-- ══════════ TAB: PER WORKER ══════════ -->
+  <div class="tab-pane" id="pane-perworker">
+    <div class="face-caveat">
+      <strong>Read this before the chart.</strong> ① The IoM line is the <strong>bundle</strong> — Banking + Insurance + Other Finance &amp;
+      Business Services + <strong>eGaming</strong> income over the census headcount of those industries. eGaming books island-scale revenues
+      with a small onshore workforce, so the bundle's £/worker is not what a finance worker produces. No defensible annual eGaming
+      employment series exists (census anchors only: 658 in 2016, 1,086 in 2021), so this page does not attempt eGaming-specific £/worker.
+      ② <strong>Employment is census-anchored</strong> (1996, 2001, 2006, 2011, 2016, 2021 — dotted verticals) and straight-line
+      interpolated between censuses; year-to-year movement between anchors is arithmetic, not observation.
+    </div>
+    <div class="controls" id="pw-mode-controls">
+      <span class="ctrl-label">Prices</span>
+      <button class="pill active" data-pw="real" onclick="setPwMode('real',this)">Real</button>
+      <button class="pill" data-pw="nom" onclick="setPwMode('nom',this)">Nominal</button>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Output per worker — IoM "Finance &amp; eGaming" vs UK Financial &amp; Insurance (SIC K)</div>
+      <div class="chart-basis" id="pw-basis"></div>
+      <div class="legend" id="pw-legend"></div>
+      <div class="chart-canvas-wrap"><canvas id="pwChart"></canvas></div>
+    </div>
+    <div class="plain-box"><strong>The bundling artefact, quantified.</strong> The apparent doubling at 2007/08 is not productivity —
+    it is the ESA10 restatement plus eGaming entering the numerator. From 2008/09 the bundle pulls away from the UK line mostly because
+    eGaming's near-workerless income is divided across a finance-sized workforce that was itself shrinking (census Banking headcount
+    2,927 → 1,851 over 2011–2021). The gap is real money per counted worker; it is not a like-for-like finance productivity comparison.</div>
+  </div>
+
+  <!-- ══════════ METHOD & SOURCES ══════════ -->
+  <details class="register">
+    <summary>Method &amp; sources</summary>
+    <div class="reg-body">
+      <strong>Numerator series (shares, levels).</strong> IoM National Income Reports, editions 2008/09–2023/24, Table 2
+      (National Income by Economic Activity at Constant Prices), chained link-by-link with each edition's later vintage where two
+      editions cover the same year. Chain base: 2007/08 "Modernised" (ESA10) column of the 2008/09 edition; eGaming and ICT base from the
+      2009/10 edition, which introduced the eGaming split retroactively. Full construction and verification record:
+      <code>im-sector-output-real-chained-METHODOLOGY.md</code> in the data library. Independently re-verified against the source PDFs for
+      this page (editions 2009/10, 2013/14, 2018/19, 2023/24 — 100/100 sector-year link checks within 0.005pp, 26 Aug 2026).
+      "Professional Services" here is Legal &amp; Accountancy + Corporate Service Providers + Other Professional Services.
+      <br/><br/>
+      <strong>Output per worker.</strong> Unchanged from the Economic Mix page: IoM national income at factor cost by industry group over
+      census-interpolated employment; UK Finance SIC K synthesised from ONS DJG5 (output per job index) anchored at £149.3k/job
+      (£170.2bn GVA ÷ 1,140k jobs, 2023); real UK series from ONS GDP(O) chained-volume GVA ÷ JOBS02 jobs (~2023£). The Isle of Man
+      publishes no GVA series — its numerator is income at factor cost, conceptually close to GVA but not GVA.
+      <br/><br/>
+      <strong>UK reference share.</strong> ONS GDP(O) low-level aggregates (gdplowlevelaggregates2026q1.xlsx, 30 Jun 2026), worksheet 1
+      (current-price GVA): SIC K ÷ total GVA. Calendar year y is plotted against fiscal year y/y+1.
+    </div>
+  </details>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PRICE-BASIS REGISTER — same discipline as iom_pension_explorer.html.
+       Every series on this page, its price basis, and every known issue.
+       Update this register when any series is added or re-based.
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <details class="register">
+    <summary>Price-basis register</summary>
+    <div class="reg-body">
+      <table>
+        <tr><th>Series</th><th>Price basis</th><th>Deflator</th><th>Known issues</th></tr>
+        <tr><td>IoM sector shares</td><td>Basis-free (ratio)</td><td>Cancels</td>
+          <td>Single economy-wide deflator in the source ⇒ constant-price shares ≡ current-price shares. Denominator is the
+          Manx-sourced income sub-total, excluding imputed rent and the ownership-of-dwellings adjustment.</td></tr>
+        <tr><td>IoM sector levels</td><td>2023/24 £</td><td>One economy-wide CPI factor per edition (implied, Table 1 ÷ Table 2)</td>
+          <td class="reg-issue">Not a volume measure: no sector-specific price information. Say "real income", never "output volume"
+          or "productivity". 2022/23 edition's printed sub-total exceeds its own sector-row sum by £1.47m (0.026%) — source arithmetic,
+          carried as published.</td></tr>
+        <tr><td>IoM £/worker, nominal</td><td>Current prices</td><td>None</td>
+          <td>Numerator is national income at factor cost, not GVA (none is published). Pre-2007/08 segment is on the pre-ESA10 basis —
+          the step at 2007/08 is a measurement break, not growth.</td></tr>
+        <tr><td>IoM £/worker, real</td><td>2024/25 £</td><td>IoM CPI financial-year averages (Statistics IoM Historic Data Sets, Dec 2025)</td>
+          <td class="reg-issue">IoM CPI exists only from 2008/09; earlier deflators are UK CPI linked at the 2008/09 boundary —
+          indicative only.</td></tr>
+        <tr><td>UK £/worker, nominal</td><td>Current prices</td><td>None</td>
+          <td class="reg-issue">Synthesised: ONS DJG5 index × £149.3k 2023 anchor. Shape is ONS; levels are approximate.</td></tr>
+        <tr><td>UK £/worker, real</td><td>~2023 £ (chained-volume reference year)</td><td>ONS chained volume (GDP(O)) ÷ JOBS02</td>
+          <td class="reg-issue">Panel mixes price bases: IoM 2024/25£ vs UK ~2023£. Levels are comparable only to within a few percent —
+          read trajectories, not gaps at a single year.</td></tr>
+        <tr><td>UK finance share</td><td>Basis-free (ratio)</td><td>—</td>
+          <td>Current-price GVA shares. UK GVA shares vs IoM factor-cost income shares: close concepts, not identical accounting.
+          Calendar vs fiscal year offset of up to 12 months.</td></tr>
+        <tr><td>UK finance real growth (−18.6%)</td><td>Chained volume</td><td>ONS sector-specific</td>
+          <td class="reg-issue">Asymmetric deflation: UK figure is a true volume measure, IoM figures are single-deflator real income.
+          The IoM–UK growth comparison is directionally robust (signs differ by >35pp) but the exact gap is not measurable on
+          published data.</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <div class="page-footer">
+    <span>observatory.coalfinch.com · <a href="mailto:observatory@coalfinch.com">observatory@coalfinch.com</a></span>
+    <span>Statistics IoM National Income Reports 2008/09–2023/24 · ONS GDP(O), DJG5, JOBS02 · IoM Census 2011–2021 · <a href="https://coalfinch.com">Coalfinch</a></span>
+  </div>
+
+</div>
+<script>
+const UB={"years": ["2007/08", "2008/09", "2009/10", "2010/11", "2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17", "2017/18", "2018/19", "2019/20", "2020/21", "2021/22", "2022/23", "2023/24"], "shares": {"Banking": [14.48, 15.63, 11.44, 11.03, 10.18, 8.53, 7.71, 7.81, 8.77, 7.6, 5.99, 6.69, 6.88, 5.04, 5.65, 7.57, 8.57], "Insurance": [13.25, 13.32, 12.91, 14.68, 15.18, 15.05, 14.61, 14.93, 17.48, 16.24, 17.56, 19.21, 19.34, 22.41, 18.17, 16.96, 16.93], "Other Finance & Business Services": [10.3, 9.13, 9.34, 9.43, 10.11, 10.54, 10.08, 9.39, 8.94, 10.89, 7.95, 9.39, 8.86, 9.35, 8.4, 8.3, 10.19], "eGaming": [3.56, 5.0, 9.14, 7.91, 9.21, 13.49, 16.75, 19.48, 17.2, 18.42, 21.06, 17.63, 17.08, 11.24, 15.7, 13.59, 14.17], "ICT": [2.97, 4.95, 3.82, 4.4, 4.43, 5.58, 8.39, 8.75, 9.42, 9.99, 9.09, 6.88, 8.71, 6.85, 4.64, 6.98, 4.36], "Professional Services": [9.6, 9.72, 10.05, 10.54, 10.82, 8.92, 8.5, 8.32, 7.77, 7.61, 9.75, 9.84, 10.08, 12.12, 14.31, 15.14, 13.8], "Finance excl. eGaming": [38.03, 38.09, 33.69, 35.14, 35.47, 34.13, 32.41, 32.13, 35.2, 34.73, 31.5, 35.29, 35.08, 36.8, 32.22, 32.82, 35.69], "Finance & eGaming (bundled)": [41.58, 43.09, 42.83, 43.05, 44.68, 47.61, 49.16, 51.61, 52.4, 53.15, 52.55, 52.91, 52.16, 48.04, 47.92, 46.41, 49.87]}, "levels": {"Banking": [652.8, 744.5, 553.4, 549.3, 507.8, 435.4, 413.2, 439.2, 491.6, 457.9, 372.5, 426.4, 438.9, 290.9, 340.0, 435.3, 484.3], "Insurance": [597.1, 634.4, 624.1, 731.1, 757.0, 768.3, 782.8, 839.3, 979.6, 978.7, 1092.4, 1224.6, 1234.0, 1292.2, 1094.0, 975.3, 956.8], "Other Finance & Business Services": [464.1, 434.8, 451.7, 469.7, 504.4, 538.1, 540.0, 528.1, 501.3, 655.8, 494.9, 599.0, 565.0, 539.0, 505.8, 477.3, 575.6], "eGaming": [160.3, 238.2, 441.8, 394.0, 459.2, 688.5, 897.2, 1095.5, 963.9, 1110.0, 1310.4, 1123.9, 1089.4, 648.2, 945.0, 781.5, 800.9], "ICT": [133.9, 236.0, 184.6, 219.0, 221.1, 284.6, 449.5, 492.1, 528.0, 601.7, 565.6, 438.9, 555.6, 394.8, 279.1, 401.7, 246.6], "Professional Services": [432.8, 462.7, 486.1, 525.1, 539.6, 455.5, 455.4, 467.6, 435.3, 458.2, 606.9, 627.7, 643.3, 698.9, 861.3, 871.1, 779.5]}, "uk_fin_share": [8.94, 8.3, 9.65, 9.56, 9.23, 8.9, 8.86, 8.74, 8.15, 8.57, 8.83, 8.43, 8.14, 8.72, 8.91, 8.76, 8.17]};
+const PW={"years": ["1997/98", "1998/99", "1999/00", "2000/01", "2001/02", "2002/03", "2003/04", "2004/05", "2005/06", "2006/07", "2007/08", "2008/09", "2009/10", "2010/11", "2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17", "2017/18", "2018/19", "2019/20", "2020/21", "2021/22", "2022/23", "2023/24"], "iom_nom": [46803, 53261, 58615, 62341, 59689, 64685, 66074, 70559, 77597, 83981, 133847, 169146, 166614, 174368, 192714, 223083, 261408, 291104, 300255, 338221, 351150, 350095, 359421, 289539, 307335, 325476, 335150], "iom_real": [93123, 104854, 114638, 120504, 114194, 122341, 122942, 128405, 137361, 144048, 220458, 263751, 254379, 253987, 266597, 303463, 350371, 387328, 403338, 451165, 450959, 438605, 441365, 356982, 362330, 351853, 343075], "uk_nom": [42000, 46667, 51333, 56000, 61400, 66800, 72200, 77600, 83000, 94000, 105000, 88000, 93000, 98000, 102000, 106000, 110000, 115000, 120000, 123750, 127500, 131250, 135000, 140000, 149000, 158000, 165000], "uk_real": [115000, 111000, 113500, 116300, 112500, 117800, 121600, 134500, 146800, 147900, 179300, 169200, 168700, 168300, 159400, 157800, 153600, 153700, 147800, 162600, 171400, 163600, 158700, 155700, 159200, 160900, 147100]};
+
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+function tc(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+function isLight(){ return document.body.classList.contains('light'); }
+function gridColor(){ return isLight() ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)'; }
+function tooltipOpts(){
+  return isLight()
+    ? { backgroundColor:'#ffffff', borderColor:'#cbd5e1', borderWidth:1, titleColor:'#0f172a', bodyColor:'#0f172a' }
+    : { backgroundColor:'#1e293b', titleColor:'#e2e8f0', bodyColor:'#e2e8f0' };
+}
+const SERIES_COLORS = () => ({
+  'Banking': tc('--s-banking'),
+  'Insurance': tc('--s-insurance'),
+  'Other Finance & Business Services': tc('--s-ofbs'),
+  'eGaming': tc('--s-egaming'),
+  'ICT': tc('--s-ict'),
+  'Professional Services': tc('--s-prof'),
+});
+const CENSUS_FY = ['2001/02','2006/07','2011/12','2016/17','2021/22']; // fiscal year containing census day
+function baseOpts(){
+  return {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: Object.assign({ padding: 10, titleFont: { weight: '600' } }, tooltipOpts()),
+    },
+    scales: {
+      x: { grid: { color: gridColor() }, ticks: { color: tc('--muted'), font: { size: 10 }, maxRotation: 0, autoSkipPadding: 12 } },
+      y: { grid: { color: gridColor() }, ticks: { color: tc('--muted'), font: { size: 10 } } },
+    },
+  };
+}
+function htmlLegend(el, items){
+  el.innerHTML = items.map(i =>
+    '<span class="leg-item"><span class="leg-sw" style="background:'+i.c+(i.dash?';height:0;border-top:2px dashed '+i.c+';background:none':'')+'"></span>'+i.l+'</span>'
+  ).join('');
+}
+
+// vertical marker lines (census years / ESA10 break)
+const vlinePlugin = {
+  id: 'vlines',
+  afterDraw(chart, args, opts) {
+    if (!opts || !opts.lines) return;
+    const xs = chart.scales.x, ctx = chart.ctx, area = chart.chartArea;
+    ctx.save();
+    opts.lines.forEach(L => {
+      const idx = chart.data.labels.indexOf(L.at);
+      if (idx < 0) return;
+      const x = xs.getPixelForValue(idx);
+      ctx.strokeStyle = L.color; ctx.lineWidth = 1; ctx.setLineDash(L.dash || [4,4]);
+      ctx.beginPath(); ctx.moveTo(x, area.top); ctx.lineTo(x, area.bottom); ctx.stroke();
+      if (L.label) {
+        ctx.setLineDash([]);
+        ctx.fillStyle = L.color; ctx.font = '9px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(L.label, x + 3, area.top + (L.dy || 10));
+      }
+    });
+    ctx.restore();
+  }
+};
+Chart.register(vlinePlugin);
+
+// direct end-of-line labels (relief for low-contrast series colours)
+const endLabelPlugin = {
+  id: 'endLabels',
+  afterDraw(chart, args, opts) {
+    if (!opts || !opts.labels) return;
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.font = '600 10px Inter';
+    ctx.textAlign = 'right';
+    opts.labels.forEach(L => {
+      const y = chart.scales.y.getPixelForValue(L.v);
+      ctx.fillStyle = L.c;
+      ctx.fillText(L.t, chart.chartArea.right - 4, y + (L.dy || -4));
+    });
+    ctx.restore();
+  }
+};
+Chart.register(endLabelPlugin);
+
+// ── TAB switching ────────────────────────────────────────────────────────────
+let charts = {};
+function destroy(key){ if (charts[key]) { charts[key].destroy(); delete charts[key]; } }
+function setTab(key){
+  document.querySelectorAll('#main-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === key));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + key).classList.add('active');
+  setTimeout(() => {   // reflow before Chart.js measures
+    if (key === 'shares') buildShares();
+    if (key === 'levels') buildLevels();
+    if (key === 'perworker') buildPw();
+    reportHeight();
+  }, 0);
+}
+
+// ── PANEL 1: shares ──────────────────────────────────────────────────────────
+let shareView = 'stack';
+function setShareView(v, el){
+  shareView = v;
+  document.querySelectorAll('#share-view-controls .pill').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('share-stack-wrap').style.display = v === 'stack' ? '' : 'none';
+  document.getElementById('share-multi-wrap').style.display = v === 'multi' ? '' : 'none';
+  setTimeout(() => { buildShares(); reportHeight(); }, 0);
+}
+function buildShares(){
+  if (shareView === 'stack') buildStack(); else buildShareMultis();
+}
+const STACK_ORDER = ['Banking','Insurance','Other Finance & Business Services','eGaming'];
+function buildStack(){
+  destroy('stack');
+  const C = SERIES_COLORS();
+  const n = UB.years.length;
+  // manual cumulative stacking (per house pattern) — UK reference stays unstacked
+  const cum = new Array(n).fill(0);
+  const bands = STACK_ORDER.map(s => {
+    const raw = UB.shares[s];
+    const lo = cum.slice();
+    for (let i = 0; i < n; i++) cum[i] += raw[i];
+    const hi = cum.slice();
+    return { s, raw, lo, hi };
+  });
+  const datasets = bands.map((b, bi) => ({
+    label: b.s, data: b.hi,
+    borderColor: C[b.s], backgroundColor: C[b.s] + '55',
+    borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25,
+    fill: bi === 0 ? 'origin' : '-1',
+    _raw: b.raw,
+  }));
+  datasets.push({
+    label: 'UK Financial & Insurance (SIC K) — share of UK GVA',
+    data: UB.uk_fin_share,
+    borderColor: tc('--uk'), borderDash: [5,4], borderWidth: 2,
+    pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false,
+    _raw: UB.uk_fin_share,
+  });
+  const opts = baseOpts();
+  opts.scales.y.title = { display: true, text: 'Share of Manx-sourced income (%)', color: tc('--muted'), font: { size: 10 } };
+  opts.scales.y.max = 60;
+  opts.plugins.tooltip.callbacks = {
+    label: ctx => ctx.dataset.label.replace(/ — .*/, '') + ': ' + ctx.dataset._raw[ctx.dataIndex].toFixed(1) + '%',
+  };
+  opts.plugins.vlines = { lines: [
+    { at: '2017/18', color: tc('--muted'), label: 'eGaming peak 21.1%', dash: [2,3], dy: 10 },
+  ]};
+  // direct labels at band mid-points of the final year
+  const last = n - 1;
+  opts.plugins.endLabels = { labels: bands.map(b => ({
+    t: b.s === 'Other Finance & Business Services' ? 'Other Fin & Bus Svcs' : b.s,
+    v: (b.lo[last] + b.hi[last]) / 2, c: isLight() ? tc('--text') : '#e2e8f0', dy: 3,
+  })).concat([{ t: 'UK finance', v: UB.uk_fin_share[last], c: tc('--uk'), dy: -5 }]) };
+  charts.stack = new Chart(document.getElementById('stackChart'), {
+    type: 'line', data: { labels: UB.years, datasets }, options: opts,
+  });
+  htmlLegend(document.getElementById('stack-legend'),
+    STACK_ORDER.map(s => ({ l: s, c: C[s] }))
+      .concat([{ l: 'UK Financial & Insurance (SIC K), share of UK GVA', c: tc('--uk'), dash: true }]));
+}
+const MULTI_ORDER = ['eGaming','Insurance','Banking','Other Finance & Business Services','ICT','Professional Services'];
+function buildMiniGrid(elId, dataKey, unit, ymax){
+  const grid = document.getElementById(elId);
+  const C = SERIES_COLORS();
+  grid.innerHTML = '';
+  MULTI_ORDER.forEach((s, i) => {
+    const d = UB[dataKey][s];
+    const last = d[d.length - 1];
+    const div = document.createElement('div');
+    div.className = 'mini';
+    div.innerHTML = '<h3><span class="leg-sw" style="background:' + C[s] + '"></span>' +
+      (s === 'Other Finance & Business Services' ? 'Other Fin & Bus Svcs' : s) +
+      '<span class="val">' + (unit === '%' ? last.toFixed(1) + '%' : '£' + Math.round(last) + 'm') + ' · 23/24</span></h3>' +
+      '<div class="mini-canvas-wrap"><canvas id="' + elId + '-c' + i + '"></canvas></div>';
+    grid.appendChild(div);
+    const opts = baseOpts();
+    opts.scales.y.max = ymax; opts.scales.y.min = 0;
+    opts.scales.x.ticks.callback = function(v, ix){ return ix === 0 || ix === UB.years.length - 1 ? UB.years[ix].slice(0,4) : ''; };
+    opts.scales.x.ticks.autoSkip = false;
+    opts.scales.x.grid.display = false;
+    opts.plugins.tooltip.callbacks = { label: ctx => (unit === '%' ? ctx.parsed.y.toFixed(1) + '%' : '£' + Math.round(ctx.parsed.y) + 'm') };
+    destroy(elId + i);
+    charts[elId + i] = new Chart(document.getElementById(elId + '-c' + i), {
+      type: 'line',
+      data: { labels: UB.years, datasets: [{
+        data: d, borderColor: C[s], backgroundColor: C[s] + '15',
+        borderWidth: 2, pointRadius: 0, pointHoverRadius: 3, tension: 0.25, fill: true,
+      }]},
+      options: opts,
+    });
+  });
+}
+function buildShareMultis(){ buildMiniGrid('share-multis', 'shares', '%', 22); }
+
+// ── PANEL: real levels (small multiples) ─────────────────────────────────────
+function buildLevels(){ buildMiniGrid('level-multis', 'levels', 'm', 1000); }
+
+// ── PANEL 2: output per worker ───────────────────────────────────────────────
+let pwMode = 'real';
+function setPwMode(m, el){
+  pwMode = m;
+  document.querySelectorAll('#pw-mode-controls .pill').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  setTimeout(() => { buildPw(); reportHeight(); }, 0);
+}
+function buildPw(){
+  destroy('pw');
+  const real = pwMode === 'real';
+  document.getElementById('pw-basis').textContent = real
+    ? 'Real terms — IoM deflated to 2024/25£ via IoM CPI (pre-2008/09: UK CPI linked, indicative); UK in ~2023£ (ONS chained volume ÷ JOBS02). Mixed price bases: read trajectories, not single-year gaps.'
+    : 'Current prices. UK series synthesised from ONS DJG5 output-per-job index anchored at £149.3k/job (2023) — shape is ONS, levels approximate.';
+  const iom = real ? PW.iom_real : PW.iom_nom;
+  const uk  = real ? PW.uk_real  : PW.uk_nom;
+  const opts = baseOpts();
+  opts.scales.y.title = { display: true, text: (real ? 'Real output' : 'Output') + ' per worker (£)', color: tc('--muted'), font: { size: 10 } };
+  opts.scales.y.ticks.callback = v => '£' + (v / 1000) + 'k';
+  opts.plugins.tooltip.callbacks = {
+    label: ctx => ctx.dataset.label.split(' — ')[0] + ': £' + Math.round(ctx.parsed.y / 100) / 10 + 'k' +
+      (ctx.label < '2007/08' && ctx.datasetIndex === 0 ? '  ⚠ pre-ESA10 bundled basis' : ''),
+  };
+  const censusLines = CENSUS_FY.filter(y => PW.years.includes(y)).map(y => ({
+    at: y, color: isLight() ? 'rgba(15,23,42,0.30)' : 'rgba(255,255,255,0.30)', dash: [2,4],
+  }));
+  censusLines[0] = Object.assign({}, censusLines[0], { label: 'census years', dy: 12 });
+  opts.plugins.vlines = { lines: censusLines.concat([
+    { at: '2007/08', color: tc('--amber'), dash: [6,3], label: 'ESA10 break + eGaming enters — not growth', dy: 24 },
+  ])};
+  opts.plugins.endLabels = { labels: [
+    { t: 'IoM Finance & eGaming (bundled)', v: iom[iom.length - 1], c: tc('--iom') },
+    { t: 'UK Finance & Insurance (SIC K)', v: uk[uk.length - 1] || uk[uk.length - 2], c: tc('--uk'), dy: 14 },
+  ]};
+  charts.pw = new Chart(document.getElementById('pwChart'), {
+    type: 'line',
+    data: { labels: PW.years, datasets: [
+      { label: 'IoM — Finance & eGaming (bundled) £/worker', data: iom,
+        borderColor: tc('--iom'), backgroundColor: tc('--iom') + '15',
+        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false },
+      { label: 'UK — Financial & Insurance (SIC K) £/worker', data: uk,
+        borderColor: tc('--uk'), borderDash: [5,4],
+        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, fill: false },
+    ]},
+    options: opts,
+  });
+  htmlLegend(document.getElementById('pw-legend'), [
+    { l: 'IoM "Finance & eGaming" — bundled numerator, census-interpolated workers', c: tc('--iom') },
+    { l: 'UK Financial & Insurance (SIC K)', c: tc('--uk'), dash: true },
+  ]);
+}
+
+// ── theme sync (v3 pattern) ──────────────────────────────────────────────────
+(function() {
+  var stored = localStorage.getItem('observatory-theme');
+  if (stored === 'light') document.body.classList.add('light');
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (d && (d.type === 'theme' || d.type === 'setTheme')) {
+      document.body.classList.toggle('light', d.theme === 'light');
+      redraw();
+    }
+  });
+})();
+function redraw(){
+  const active = document.querySelector('#main-tabs .tab.active').dataset.tab;
+  if (active === 'shares') buildShares();
+  if (active === 'levels') buildLevels();
+  if (active === 'perworker') buildPw();
+}
+
+// ── height reporting ─────────────────────────────────────────────────────────
+function reportHeight() {
+  window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+}
+reportHeight();
+window.addEventListener('resize', reportHeight);
+setTimeout(reportHeight, 300);
+setTimeout(reportHeight, 800);
+setTimeout(reportHeight, 1500);
+
+// initial render
+buildShares();
+</script>
+</body>
+</html>
