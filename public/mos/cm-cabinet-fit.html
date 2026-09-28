@@ -3,7 +3,10 @@
      ============================================================
      Uses the production observatory.css tokens and shell classes.
      Assumptions to verify before shipping:
-     1. href="observatory.css" is a RELATIVE path - fix for your tree.
+     1. href="/observatory.css" is ROOT-RELATIVE - it assumes
+        observatory.css sits at the site root (confirmed live at
+        observatory.coalfinch.com/observatory.css). If it ever moves,
+        update this path.
      2. Theming follows body.light or a parent postMessage
         {type:'observatory-theme', light:true}. The local toggle
         (#topbar) is for standalone preview; delete it if unneeded.
@@ -13,7 +16,7 @@
      4. Role-to-theme weights (ROLES below) are editorial judgement,
         not official department remits. Check them.
      ============================================================ -->
-<link rel="stylesheet" href="observatory.css">
+<link rel="stylesheet" href="/observatory.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
