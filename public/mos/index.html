@@ -1,0 +1,98 @@
+<!-- ============================================================
+     MOS INDEX - site-integration version
+     Landing page listing the tools/pages in this folder. Same pattern
+     as the others: verify before shipping:
+     1. href="/observatory.css" is ROOT-RELATIVE (confirmed live at
+        observatory.coalfinch.com/observatory.css).
+     2. Theming: body.light or parent postMessage
+        {type:'observatory-theme', light:true}; #topbar toggle is for
+        standalone preview only.
+     3. Height: posts {type:'observatory-height', height}; swap for your
+        real notifyHeight() if it differs.
+     4. Links below are relative filenames assuming this file sits in
+        the SAME folder as the others (e.g. .../mos/index.html next to
+        .../mos/cm-cabinet-fit.html). comin-selection-aid.html wasn't
+        visible in the folder screenshot you sent — its card links out
+        anyway; remove it if that file isn't actually in this folder.
+     ============================================================ -->
+<link rel="stylesheet" href="/observatory.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+.topbar { display:flex; justify-content:flex-end; padding-bottom:10px; }
+.toggle-theme { background:var(--surface); border:1px solid var(--border2); color:var(--muted2); border-radius:20px; font-size:11px; padding:5px 12px; cursor:pointer; font-family:inherit; }
+.toggle-theme:hover { color:var(--text); border-color:var(--blue); }
+.shell > p, .intro { max-width:100%; }
+.section { margin-top:30px; }
+.section h2 { font-size:15px; font-weight:800; letter-spacing:-0.01em; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
+@media (max-width:700px){ .grid { grid-template-columns:1fr; } }
+.card { display:block; background:var(--surface); border:1px solid var(--border2); border-top:3px solid var(--blue); border-radius:10px; padding:16px 18px; text-decoration:none; color:inherit; transition:border-color .15s; }
+.card:hover { border-color:var(--blue); }
+.card .n { font-size:15px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px; }
+.card .n .arrow { color:var(--blue); font-weight:400; }
+.card .f { font-size:10px; color:var(--muted); font-family:'JetBrains Mono', monospace; margin-top:2px; }
+.card .d { font-size:12px; color:var(--muted2); line-height:1.6; margin-top:9px; }
+.card .tags { margin-top:10px; display:flex; gap:5px; flex-wrap:wrap; }
+.card .tag { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:2px 8px; border-radius:10px; background:rgba(148,163,184,.15); color:var(--muted2); }
+.card .tag.live { background:rgba(52,211,153,.12); color:var(--green); }
+.card .tag.check { background:rgba(251,191,36,.10); color:var(--amber); }
+</style>
+
+<div class="shell">
+  <div class="topbar"><button class="toggle-theme" id="theme-btn">☀ Light</button></div>
+  <div class="eyebrow">Coalfinch Observatory · 2026 House of Keys</div>
+  <h1>Manifesto analysis: index</h1>
+  <p>Every page built from the same source: all 24 winning manifestos, read and classified theme by theme as concrete, process, or values-only.</p>
+
+  <div class="section">
+    <h2>Briefings &amp; tools</h2>
+    <div class="grid">
+      <a class="card" href="constituency-briefings.html">
+        <div class="n">Constituency Briefings <span class="arrow">→</span></div>
+        <div class="f">constituency-briefings.html</div>
+        <div class="d">All 12 seats, two members each, side by side.</div>
+        <div class="tags"><span class="tag">12 of 12 seats</span></div>
+      </a>
+      <a class="card" href="comin-selection-aid.html">
+        <div class="n">CoMin Selection Aid <span class="arrow">→</span></div>
+        <div class="f">comin-selection-aid.html</div>
+        <div class="d">All 24 candidates in one sortable matrix against the fixed 8-theme taxonomy, plus a neutral roster of summaries.</div>
+        <div class="tags"><span class="tag check">Check CSS path</span></div>
+      </a>
+      <a class="card" href="candidate-compare.html">
+        <div class="n">Candidate Compare <span class="arrow">→</span></div>
+        <div class="f">candidate-compare.html</div>
+        <div class="d">Pick any two of the 24 members, any seats, and compare their specificity side by side.</div>
+        <div class="tags"><span class="tag live">New</span></div>
+      </a>
+      <a class="card" href="estate-consistency.html">
+        <div class="n">Across the Estate <span class="arrow">→</span></div>
+        <div class="f">estate-consistency.html</div>
+        <div class="d">All 24 together: which themes show consistent specificity across members and which diverge, and whose overall pattern is most typical.</div>
+        <div class="tags"><span class="tag live">New</span></div>
+      </a>
+      <a class="card" href="cm-cabinet-fit.html">
+        <div class="n">Cabinet Fit Tool <span class="arrow">→</span></div>
+        <div class="f">cm-cabinet-fit.html</div>
+        <div class="d">Pick a hypothetical Chief Minister; the best-fit Council is seated automatically, with pin, exclude and manual override on every role and department seat.</div>
+        <div class="tags"><span class="tag check">Review role weights</span></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="page-footer"><span>Coalfinch Observatory · Manifesto analysis index · Drawn from the 2026 House of Keys general election manifestos</span><span id="footer-date"></span></div>
+</div>
+
+<script>
+document.getElementById('footer-date').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+(function(){ const btn=document.getElementById('theme-btn'); const isL=()=>document.body.classList.contains('light'); const sync=()=>{btn.textContent=isL()?'☾ Dark':'☀ Light';}; sync();
+  btn.addEventListener('click',()=>{document.body.classList.toggle('light');sync();});
+  window.addEventListener('message',e=>{ if(e.data&&e.data.type==='observatory-theme'){document.body.classList.toggle('light',!!e.data.light);sync();} }); })();
+function notifyHeight(){ try{ window.parent.postMessage({type:'observatory-height',height:document.body.scrollHeight},'*'); }catch(e){} }
+window.addEventListener('resize',notifyHeight); window.addEventListener('load',notifyHeight);
+if(window.ResizeObserver) new ResizeObserver(notifyHeight).observe(document.body);
+notifyHeight();
+</script>
