@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keeping the lights on · A grid primer for the Isle of Man · Coalfinch Observatory</title>
+<meta name="description" content="An interactive primer on how the Isle of Man's electricity system works: balance, the interconnector, security, costs, heat pumps, renewables and the Manx home of 2030.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light dark;
+  --surface-1:#fff; --surface-2:#f1f5f9; --page:#f8fafc;
+  --ink-1:#0f172a; --ink-2:#334155; --ink-3:#64748b;
+  --grid:#cbd5e1; --ring:rgba(15,23,42,.10);
+  --gas:#ea580c; --cable:#0891b2; --diesel:#78716c; --wind:#2563eb; --sun:#d97706; --batt:#059669; --waste:#a16207; --hydro:#0e7490;
+  --live:#dc2626; --good:#059669; --warn:#d97706; --accent:#2563eb;
+  --home-wall:#f5efe6; --home-roof:#475569; --night:#1e293b;
+  --font:'Inter',system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:'Bricolage Grotesque','Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    --surface-1:#12222a; --surface-2:#0e1b23; --page:#0c1620;
+    --ink-1:#e2ecea; --ink-2:#a9c1bb; --ink-3:#7e9a94; --grid:#2b4049; --ring:rgba(255,255,255,.10);
+    --gas:#fb923c; --cable:#22d3ee; --diesel:#a8a29e; --wind:#60a5fa; --sun:#fbbf24; --batt:#34d399; --waste:#facc15; --hydro:#2dd4bf;
+    --live:#f87171; --good:#34d399; --warn:#fbbf24; --accent:#60a5fa;
+    --home-wall:#2a3a40; --home-roof:#94a3b8; --night:#020617;
+  }
+}
+:root[data-theme="dark"]{
+    --surface-1:#12222a; --surface-2:#0e1b23; --page:#0c1620;
+    --ink-1:#e2ecea; --ink-2:#a9c1bb; --ink-3:#7e9a94; --grid:#2b4049; --ring:rgba(255,255,255,.10);
+    --gas:#fb923c; --cable:#22d3ee; --diesel:#a8a29e; --wind:#60a5fa; --sun:#fbbf24; --batt:#34d399; --waste:#facc15; --hydro:#2dd4bf;
+    --live:#f87171; --good:#34d399; --warn:#fbbf24; --accent:#60a5fa;
+    --home-wall:#2a3a40; --home-roof:#94a3b8; --night:#020617;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink-1);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--grid)}
+header.site .bar{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
+.brand{font-weight:650;display:flex;align-items:center;gap:8px;color:var(--ink-1);text-decoration:none}
+.brand i{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+nav.toc{margin-left:auto;display:flex;gap:0;flex-wrap:wrap;font-size:13px}
+nav.toc a{color:var(--ink-2);text-decoration:none;padding:3px 7px;border-radius:6px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--surface-2);color:var(--ink-1)}
+#themeBtn{border:1px solid var(--grid);background:var(--surface-1);color:var(--ink-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* hero game */
+.hero{padding:44px 0 30px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,7vw,80px);line-height:.95;letter-spacing:-.03em;margin:0 0 14px;max-width:16ch}
+.hero .sf{font-size:19px;color:var(--ink-2);max-width:62ch;margin:0 0 22px}
+.console{background:var(--surface-1);border:1px solid var(--ring);border-radius:18px;padding:18px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px}
+@media (max-width:860px){.console{grid-template-columns:1fr}}
+.dial{position:relative}
+.dial svg{width:100%;max-width:260px;height:auto;display:block;margin:0 auto}
+.dial .hz{font-family:var(--mono);font-weight:700;font-size:34px;text-align:center;margin-top:-6px}
+.dial .hz small{font-size:15px;color:var(--ink-3)}
+.dial .state{text-align:center;font-weight:650;font-size:14px;min-height:22px}
+.gamebtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center}
+.trace{width:100%;height:auto;display:block;background:var(--surface-2);border-radius:12px}
+.trace text{font-size:11px;fill:var(--ink-3)}
+.levers{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.ticker{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.event{margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--surface-2);font-size:14.5px;border-left:4px solid var(--accent);min-height:42px}
+.event.bad{border-color:var(--live)} .event.good{border-color:var(--good)}
+
+section.lesson{padding:56px 0;border-top:1px solid var(--grid)}
+.lesson .num{font-family:var(--display);font-weight:800;color:var(--ink-3);font-size:18px}
+.lesson h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,4.4vw,46px);letter-spacing:-.02em;line-height:1.02;margin:2px 0 10px}
+.lede{font-size:18px;color:var(--ink-2);max-width:64ch;margin:0 0 22px}
+.stage{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:1fr}}
+.panel{background:var(--surface-1);border:1px solid var(--ring);border-radius:14px;padding:16px}
+.panel svg.ill{width:100%;height:auto;display:block;border-radius:10px}
+.controls{display:grid;gap:12px;margin-top:14px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink-2);font-weight:550}
+.ctl label output{font-family:var(--mono);color:var(--ink-1);font-weight:700;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button.act{font:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:7px 12px;border:1px solid var(--grid);background:var(--surface-2);color:var(--ink-1);cursor:pointer}
+button.act:hover{border-color:var(--ink-3)}
+button.act.danger{border-color:var(--live);color:var(--live)}
+button.act.primary{background:var(--ink-1);color:var(--page);border-color:var(--ink-1)}
+button.act[aria-pressed=true]{background:var(--ink-1);color:var(--page);border-color:var(--ink-1)}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:14px}
+.ro{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.ro b{display:block;font-family:var(--mono);font-size:21px;line-height:1.2}
+.ro span{font-size:12.5px;color:var(--ink-3)}
+.verdict{margin-top:12px;font-size:15px;padding:10px 12px;border-radius:10px;background:var(--surface-2);border-left:4px solid var(--accent)}
+.verdict.bad{border-color:var(--live)} .verdict.good{border-color:var(--good)}
+.notes p{margin:0 0 12px;color:var(--ink-2)} .notes p strong{color:var(--ink-1)}
+.notes h3{font-family:var(--display);font-size:20px;margin:0 0 8px}
+.iom{border:1px solid var(--grid);border-radius:12px;padding:12px 14px;background:var(--surface-1);font-size:15px;margin-top:6px}
+.iom b{font-family:var(--display)}
+.chart{width:100%;height:auto;display:block;margin-top:10px}
+.chart text{fill:var(--ink-3);font-size:11px}
+svg text{font-family:var(--font)}
+.applist{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.app{display:flex;align-items:center;gap:8px;font-size:14px;background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.app input[type=number]{width:52px;font:inherit;padding:2px 4px;border:1px solid var(--grid);border-radius:6px;background:var(--surface-1);color:var(--ink-1)}
+.assetgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:10px}
+.asset{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface-2);font-size:14px;cursor:pointer;border:2px solid transparent}
+.asset input{accent-color:var(--good);width:18px;height:18px}
+.asset.off{opacity:.5;border-color:var(--live)}
+.asset b{font-family:var(--mono)}
+
+/* scroll story */
+#home2030{padding:56px 0 20px;border-top:1px solid var(--grid)}
+.story{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px}
+@media (max-width:860px){.story{grid-template-columns:1fr}}
+.story .sticky{position:sticky;top:70px;align-self:start}
+@media (max-width:860px){.story .sticky{top:0;z-index:5;background:var(--page);padding:6px 0 8px}.story svg{max-height:42vh;width:auto;margin:0 auto}}
+.story svg{width:100%;height:auto;display:block;border-radius:16px}
+.steps .step{min-height:70vh;display:flex;flex-direction:column;justify-content:center;opacity:.35;transition:opacity .4s}
+@media (max-width:860px){.steps .step{min-height:55vh}}
+.steps .step.on{opacity:1}
+.step h3{font-family:var(--display);font-size:clamp(24px,3vw,32px);letter-spacing:-.015em;margin:0 0 8px;line-height:1.1}
+.step p{color:var(--ink-2);margin:0 0 10px;font-size:17px}
+.step .kpi{font-family:var(--mono);font-size:14px;color:var(--ink-1);background:var(--surface-2);border-radius:8px;padding:6px 10px;display:inline-block}
+.layer{transition:opacity .6s}
+@media (prefers-reduced-motion: reduce){.layer,.steps .step{transition:none}html{scroll-behavior:auto}}
+
+.myths{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.myth{perspective:900px;min-height:200px}
+.myth button{all:unset;display:block;width:100%;height:100%;min-height:200px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .5s}
+.myth button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:14px}
+.myth.flip button{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;padding:16px;border:1px solid var(--ring);display:flex;flex-direction:column;justify-content:space-between}
+.face.front{background:var(--surface-1)}
+.face.back{background:var(--ink-1);color:var(--page);transform:rotateY(180deg)}
+.face .q{font-family:var(--display);font-size:20px;font-weight:700;line-height:1.2}
+.face small{color:var(--ink-3);font-size:12.5px}
+.face.back small{color:var(--grid)}
+.face.back p{margin:0;font-size:15px;line-height:1.5}
+@media (prefers-reduced-motion: reduce){.myth button{transition:none}}
+dl.gl{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:6px 18px;margin:0}
+dl.gl dt{font-weight:650} dl.gl dd{margin:0;color:var(--ink-2)}
+@media (max-width:640px){dl.gl{grid-template-columns:1fr} dl.gl dd{margin-bottom:8px}}
+footer{padding:40px 0 60px;color:var(--ink-3);font-size:14px;border-top:1px solid var(--grid)}
+ol.src{font-size:14px;color:var(--ink-2);padding-left:20px} ol.src li{margin-bottom:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:760px){
+  header.site{position:static}
+  header.site .bar{flex-wrap:nowrap;gap:8px;padding:8px 12px}
+  .brand{font-size:14px;white-space:nowrap}
+  nav.toc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-left:0;flex:1;min-width:0}
+  nav.toc::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="/"><i></i>Coalfinch Observatory</a>
+  <nav class="toc" aria-label="Lessons">
+    <a href="#play">Play</a><a href="#kit">The kit</a><a href="#units">MW &amp; MWh</a><a href="#cable">The cable</a><a href="#security">Security</a><a href="#cost">Cost</a><a href="#peak">The peak</a><a href="#mix">2030 mix</a><a href="#money">Money</a><a href="#home2030">Home 2030</a><a href="#myths">Myths</a>
+  </nav>
+  <button id="themeBtn" type="button" aria-label="Toggle light or dark theme" title="Theme">◐</button>
+</div></header>
+
+<main>
+<!-- HERO GAME -->
+<section class="wrap hero" id="play">
+  <h1>Keep the Island at&nbsp;50&nbsp;Hz</h1>
+  <p class="sf">Every second of every day, the electricity made on and imported to the Island must match what 85,000 people are using. Get it wrong and the frequency drifts; get it badly wrong and the lights go out. You're in the control room for one winter's day. Good luck.</p>
+  <div class="console">
+    <div class="dial">
+      <svg id="dial" viewBox="0 0 240 150" role="img" aria-label="Frequency gauge">
+        <path d="M30 130 A90 90 0 0 1 210 130" fill="none" stroke="var(--grid)" stroke-width="16" stroke-linecap="round"/>
+        <path id="dialSafe" fill="none" stroke="var(--good)" stroke-width="16" opacity=".35"/>
+        <line id="needle" x1="120" y1="130" x2="120" y2="48" stroke="var(--ink-1)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="120" cy="130" r="8" fill="var(--ink-1)"/>
+        <text x="30" y="148" text-anchor="middle" font-size="11" fill="var(--ink-3)">48.5</text>
+        <text x="210" y="148" text-anchor="middle" font-size="11" fill="var(--ink-3)">51.5</text>
+        <text x="120" y="30" text-anchor="middle" font-size="11" fill="var(--ink-3)">50.0</text>
+      </svg>
+      <div class="hz"><span id="hz">50.00</span> <small>Hz</small></div>
+      <div class="state" id="gstate">Press start</div>
+      <div class="gamebtns">
+        <button class="act primary" id="gStart" type="button">Start the day</button>
+        <button class="act" id="gPause" type="button" disabled>Pause</button>
+      </div>
+    </div>
+    <div>
+      <svg class="trace" id="gTrace" viewBox="0 0 600 200" role="img" aria-label="Demand and supply over the day"></svg>
+      <div class="levers">
+        <div class="ctl"><label for="gGas">Pulrose gas station <output id="gGasO">30 MW</output></label><input id="gGas" type="range" min="0" max="85" step="1" value="30"></div>
+        <div class="ctl"><label for="gImp">Import on the cable <output id="gImpO">30 MW</output></label><input id="gImp" type="range" min="0" max="60" step="1" value="30"></div>
+      </div>
+      <div class="btns" style="margin-top:10px">
+        <button class="act" id="gDiesel" type="button">Fire up Peel diesels (+20 MW, pricey)</button>
+      </div>
+      <div class="ticker">
+        <div class="ro"><b id="gClock">00:00</b><span>time</span></div>
+        <div class="ro"><b id="gDem">0</b><span>demand, MW</span></div>
+        <div class="ro"><b id="gSup">0</b><span>supply, MW</span></div>
+        <div class="ro"><b id="gScore">100%</b><span>time in the green</span></div>
+        <div class="ro"><b id="gCost">£0k</b><span>fuel and import bill</span></div>
+      </div>
+      <div class="event" id="gEvent" aria-live="polite">A cold January Tuesday. Demand bottoms out overnight, climbs with breakfast and peaks around teatime. Gas costs more than imports, so lean on the cable, but it can only carry so much.</div>
+    </div>
+  </div>
+  <p style="font-size:14px;color:var(--ink-3);margin-top:10px">A simplified model on a compressed clock: one minute of play is the whole day. Real control rooms have automatic governors doing most of this in seconds. The cable rating used here is 60 MW; published figures range from 40 to 65 MW.</p>
+</section>
+
+<!-- 1 KIT -->
+<section class="lesson" id="kit"><div class="wrap">
+  <div class="num">1</div>
+  <h2>The kit, on one page</h2>
+  <p class="lede">The Island's electricity system is small enough to draw on a napkin. Tap any piece to see what it does. Notice how much hangs on two things: one gas station and one cable.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="kitSvg" viewBox="0 0 620 400" role="img" aria-label="Single-line diagram of the Isle of Man electricity system">
+        <rect width="620" height="400" fill="var(--surface-2)"/>
+        <text x="20" y="28" font-size="12" fill="var(--ink-3)">Great Britain</text>
+        <rect x="18" y="38" width="96" height="44" rx="8" fill="var(--surface-1)" stroke="var(--grid)"/><text x="66" y="65" text-anchor="middle" font-size="12" fill="var(--ink-2)">GB grid</text>
+        <path d="M66 82 C66 160 140 190 230 196" fill="none" stroke="var(--cable)" stroke-width="6" stroke-dasharray="2 8" stroke-linecap="round"/>
+        <text x="72" y="160" font-size="11" fill="var(--cable)">104 km under the sea</text>
+        <!-- island busbar -->
+        <rect x="230" y="186" width="360" height="20" rx="6" fill="var(--ink-2)"/>
+        <text x="410" y="230" text-anchor="middle" font-size="12" fill="var(--ink-3)">Island transmission network (132 kV and 33 kV)</text>
+        <g class="node" data-k="cable" tabindex="0" role="button" aria-label="Interconnector"><rect x="196" y="176" width="40" height="40" rx="20" fill="var(--cable)"/><text x="216" y="201" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">AC</text></g>
+        <g class="node" data-k="pulrose" tabindex="0" role="button" aria-label="Pulrose power station"><line x1="290" y1="186" x2="290" y2="128" stroke="var(--gas)" stroke-width="4"/><rect x="250" y="70" width="80" height="58" rx="10" fill="var(--gas)"/><text x="290" y="96" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Pulrose</text><text x="290" y="113" text-anchor="middle" font-size="11" fill="#fff">gas, ~85 MW</text></g>
+        <g class="node" data-k="reserve" tabindex="0" role="button" aria-label="Douglas reserve diesels"><line x1="380" y1="186" x2="380" y2="128" stroke="var(--diesel)" stroke-width="4"/><rect x="342" y="70" width="76" height="58" rx="10" fill="var(--diesel)"/><text x="380" y="96" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Reserve</text><text x="380" y="113" text-anchor="middle" font-size="11" fill="#fff">diesel, ~50 MW</text></g>
+        <g class="node" data-k="peel" tabindex="0" role="button" aria-label="Peel power station"><line x1="470" y1="186" x2="470" y2="128" stroke="var(--diesel)" stroke-width="4"/><rect x="432" y="70" width="76" height="58" rx="10" fill="var(--diesel)"/><text x="470" y="96" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Peel</text><text x="470" y="113" text-anchor="middle" font-size="11" fill="#fff">diesel, ~38 MW</text></g>
+        <g class="node" data-k="efw" tabindex="0" role="button" aria-label="Energy from waste"><line x1="550" y1="186" x2="550" y2="128" stroke="var(--waste)" stroke-width="4"/><rect x="516" y="70" width="70" height="58" rx="10" fill="var(--waste)"/><text x="551" y="96" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Waste</text><text x="551" y="113" text-anchor="middle" font-size="11" fill="#fff">~5.5 MW</text></g>
+        <g class="node" data-k="hydro" tabindex="0" role="button" aria-label="Sulby hydro"><line x1="300" y1="206" x2="300" y2="262" stroke="var(--hydro)" stroke-width="4"/><rect x="262" y="262" width="76" height="50" rx="10" fill="var(--hydro)"/><text x="300" y="285" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Hydro</text><text x="300" y="301" text-anchor="middle" font-size="11" fill="#fff">~1 MW</text></g>
+        <g class="node" data-k="solar" tabindex="0" role="button" aria-label="Rooftop solar"><line x1="400" y1="206" x2="400" y2="262" stroke="var(--sun)" stroke-width="4"/><rect x="358" y="262" width="84" height="50" rx="10" fill="var(--sun)"/><text x="400" y="285" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">Rooftops</text><text x="400" y="301" text-anchor="middle" font-size="11" fill="#fff">solar, ~7 MW</text></g>
+        <g class="node" data-k="homes" tabindex="0" role="button" aria-label="Homes and businesses"><line x1="510" y1="206" x2="510" y2="262" stroke="var(--ink-3)" stroke-width="4"/><rect x="460" y="262" width="100" height="50" rx="10" fill="var(--surface-1)" stroke="var(--ink-3)" stroke-width="2"/><text x="510" y="285" text-anchor="middle" font-size="12" fill="var(--ink-1)" font-weight="700">You</text><text x="510" y="301" text-anchor="middle" font-size="11" fill="var(--ink-2)">23 to 75 MW</text></g>
+        <text x="20" y="372" font-size="12" fill="var(--ink-3)">Simplified. Sizes are approximate and published figures vary.</text>
+      </svg>
+    </div>
+    <div class="notes">
+      <div class="iom" id="kitCard" aria-live="polite"><b>Tap a piece of kit.</b><br>Each card says what it does, how big it is, and what happens to it in the next decade.</div>
+      <p style="margin-top:14px"><strong>The arithmetic that matters.</strong> The Island uses about 360 GWh a year. Demand swings from roughly 23 MW on a summer night to 75 MW on a cold winter evening. Pulrose and the cable carry nearly all of it, and both reach the end of their design lives in the early-to-mid 2030s.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 2 UNITS -->
+<section class="lesson" id="units"><div class="wrap">
+  <div class="num">2</div>
+  <h2>MW is the tap, MWh is the bath</h2>
+  <p class="lede">Power (watts) is how hard you're pulling right now. Energy (watt-hours) is how much you've pulled over time. Grids are built for the first and billed for the second, and mixing them up causes half of all energy arguments.</p>
+  <div class="stage">
+    <div class="panel">
+      <div class="applist" id="apps"></div>
+      <div class="readouts">
+        <div class="ro"><b id="uKW">0</b><span>power right now, kW</span></div>
+        <div class="ro"><b id="uKWh">0</b><span>energy today, kWh</span></div>
+        <div class="ro"><b id="uCost">£0</b><span>cost today at 29.5p</span></div>
+      </div>
+      <div class="verdict" id="uScale"></div>
+    </div>
+    <div class="notes">
+      <p><strong>A kettle is a big tap, briefly.</strong> 3 kW for four minutes is only 0.2 kWh. A heat pump is a small tap left running: perhaps 1 to 2 kW, but for hours.</p>
+      <p><strong>Why the tap matters to the grid.</strong> Cables, transformers and power stations are sized for the moment everyone turns on at once. That's peak power, in MW. The bill mostly pays for energy, in MWh. A policy that shaves the peak can save more than one that saves the same energy at 3am.</p>
+      <div class="iom"><b>Island scale.</b> 360 GWh a year averages about 40 MW. The winter peak is nearly double that. The cable and Pulrose have to cover the peak, not the average.</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 3 CABLE -->
+<section class="lesson" id="cable"><div class="wrap">
+  <div class="num">3</div>
+  <h2>The cable, and why it needs reactors</h2>
+  <p class="lede">A long AC cable under the sea behaves like a giant capacitor. Before it carries a single useful watt, it soaks up current just charging and discharging fifty times a second. Big coils called shunt reactors at the ends cancel that out. Make the cable longer and the problem grows until AC stops making sense.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="chart" id="cabSvg" viewBox="0 0 560 230" role="img" aria-label="Bar showing how much of the cable's capacity is used by charging current"></svg>
+      <div class="controls">
+        <div class="ctl"><label for="cLen">Cable length <output id="cLenO">104 km</output></label><input id="cLen" type="range" min="10" max="300" step="2" value="104"></div>
+        <div class="ctl"><label for="cKV">Voltage <output id="cKVO">90 kV</output></label><input id="cKV" type="range" min="33" max="220" step="1" value="90"></div>
+        <div class="btns"><button class="act" id="cReact" aria-pressed="true" type="button">Reactors in service</button><button class="act" id="cDC" aria-pressed="false" type="button">Switch to HVDC</button></div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="cQ">0</b><span>charging, MVAr</span></div>
+        <div class="ro"><b id="cUse">0</b><span>left for real power, MW</span></div>
+      </div>
+      <div class="verdict" id="cVerdict"></div>
+    </div>
+    <div class="notes">
+      <p><strong>Reactive power is the froth on the pint.</strong> It takes up room in the glass (the cable's current rating) without quenching anyone's thirst. Reactors skim the froth so there's room for beer.</p>
+      <p><strong>Lose a reactor</strong> and the operator has to manage high voltage some other way, often by limiting how much the cable carries or running more gas at Pulrose. That costs money every hour it lasts.</p>
+      <p><strong>HVDC</strong> has no charging current at all, so it works over hundreds of kilometres. The price is converter stations at each end, which are expensive and long-lead. That's the trade-off behind any second link.</p>
+      <p style="font-size:13.5px;color:var(--ink-3)">Illustrative physics: assumes a cable capacitance of about 0.2 µF per km and a 60 MW thermal rating at 90 kV, scaled with voltage.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 4 SECURITY -->
+<section class="lesson" id="security"><div class="wrap">
+  <div class="num">4</div>
+  <h2>N-1: lose the biggest thing, keep the lights on</h2>
+  <p class="lede">Grids are planned so that losing any single piece of kit, at the worst moment, doesn't black out customers. Engineers call it N-1. Switch things off below and see whether the Island survives a cold-snap peak.</p>
+  <div class="stage">
+    <div class="panel">
+      <div class="btns" role="group" aria-label="Year">
+        <button class="act" data-yr="now" aria-pressed="true" type="button">Today</button>
+        <button class="act" data-yr="2035" aria-pressed="false" type="button">2035, nothing replaced</button>
+        <button class="act" data-yr="plan" aria-pressed="false" type="button">2035, two links + battery</button>
+      </div>
+      <div class="ctl" style="margin-top:12px"><label for="nPeak">Winter peak demand <output id="nPeakO">75 MW</output></label><input id="nPeak" type="range" min="60" max="130" step="1" value="75"></div>
+      <div class="assetgrid" id="assets"></div>
+      <svg class="chart" id="nBar" viewBox="0 0 560 120" role="img" aria-label="Available capacity against peak demand"></svg>
+      <div class="verdict" id="nVerdict"></div>
+    </div>
+    <div class="notes">
+      <p><strong>Today the Island passes, thanks to old diesels.</strong> Lose the cable on a cold evening and Pulrose plus the diesels can cover it. Lose Pulrose and the cable plus diesels can too. That's why the diesel stations, some of them decades old, are still kept fuelled.</p>
+      <p><strong>Now try 2035 with nothing replaced.</strong> Pulrose has retired and the cable is past its design life. Heat pumps and electric cars have pushed the peak up. Drag the demand slider and watch the margin vanish.</p>
+      <p><strong>Two diverse links plus a battery</strong> is one way to pass. The point of the exercise isn't the answer; it's that the question has a deadline.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 5 COST -->
+<section class="lesson" id="cost"><div class="wrap">
+  <div class="num">5</div>
+  <h2>Cheapest first: the merit order</h2>
+  <p class="lede">At any moment the system runs the cheapest source available first, then the next cheapest, until demand is met. On the Island that's mostly a choice between importing over the cable and burning gas at Pulrose. Move the prices and watch the stack reshuffle.</p>
+  <div class="stage">
+    <div class="panel">
+      <div class="controls">
+        <div class="ctl"><label for="mGas">Gas price <output id="mGasO">90p/therm</output></label><input id="mGas" type="range" min="30" max="300" step="5" value="90"></div>
+        <div class="ctl"><label for="mUK">GB wholesale power price <output id="mUKO">£75/MWh</output></label><input id="mUK" type="range" min="10" max="300" step="5" value="75"></div>
+        <div class="ctl"><label for="mDem">Demand right now <output id="mDemO">60 MW</output></label><input id="mDem" type="range" min="23" max="75" step="1" value="60"></div>
+      </div>
+      <svg class="chart" id="mSvg" viewBox="0 0 560 220" role="img" aria-label="Merit order stack"></svg>
+      <div class="readouts">
+        <div class="ro"><b id="mGasC">£0</b><span>Pulrose fuel cost, £/MWh</span></div>
+        <div class="ro"><b id="mHour">£0</b><span>cost this hour</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <p><strong>Waste and rooftop solar go first</strong> because, once built, their fuel is free. Then whichever is cheaper of the cable and Pulrose. Diesels are the expensive last resort.</p>
+      <p><strong>The cable is a ceiling.</strong> When imports are cheap you'd happily take more, but the link can only carry so much. Everything above that line is gas, at whatever gas costs that day.</p>
+      <p><strong>Hedging smooths the bumps.</strong> Gas is bought months ahead to stop one bad week landing on bills. When forward gas prices more than doubled in March 2026, Manx tariffs held because most of the year's gas was already bought.</p>
+      <p style="font-size:13.5px;color:var(--ink-3)">Fuel cost assumes about 29.3 kWh per therm and 50% efficiency. Excludes carbon, maintenance and capital costs.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 6 PEAK -->
+<section class="lesson" id="peak"><div class="wrap">
+  <div class="num">6</div>
+  <h2>Heat pumps, cars and the 5.30pm problem</h2>
+  <p class="lede">Moving heating and transport onto electricity is the biggest change coming to the grid. It's good news for the climate and for imported-fuel bills, but it lands on the winter evening peak unless we're clever about timing.</p>
+  <div class="stage">
+    <div class="panel">
+      <div class="controls">
+        <div class="ctl"><label for="pHP">Homes with heat pumps <output id="pHPO">2,000</output></label><input id="pHP" type="range" min="0" max="30000" step="500" value="2000"></div>
+        <div class="ctl"><label for="pEV">Electric cars <output id="pEVO">1,500</output></label><input id="pEV" type="range" min="0" max="25000" step="500" value="1500"></div>
+        <div class="ctl"><label for="pIns">Homes properly insulated first <output id="pInsO">20%</output></label><input id="pIns" type="range" min="0" max="100" step="5" value="20"></div>
+        <div class="btns"><button class="act" id="pSmart" aria-pressed="false" type="button">Smart charging and time-of-use tariffs</button></div>
+      </div>
+      <svg class="chart" id="pSvg" viewBox="0 0 560 220" role="img" aria-label="Winter day demand curve with added heat pump and EV load"></svg>
+      <div class="readouts">
+        <div class="ro"><b id="pPk">75</b><span>winter peak, MW</span></div>
+        <div class="ro"><b id="pGWh">360</b><span>yearly use, GWh</span></div>
+      </div>
+      <div class="verdict" id="pVerdict"></div>
+    </div>
+    <div class="notes">
+      <p><strong>Heat pumps run all day in a cold snap.</strong> Averaged across many homes, each adds perhaps 1.5 to 2 kW at peak. Good insulation cuts that sharply, which is why fabric comes first.</p>
+      <p><strong>Cars are easier.</strong> Most sit still overnight. Plug in at 5.30pm and charge immediately, and you've added to the peak. Let a smart charger wait until after 11pm and the same energy costs the grid almost nothing.</p>
+      <p><strong>Smart meters make this possible</strong> by letting tariffs reward off-peak use. The Island's rollout reached 27,500 of about 50,000 meters by August 2025, with completion targeted for the end of 2026.</p>
+      <p style="font-size:13.5px;color:var(--ink-3)">Illustrative assumptions: 1.8 kW per heat pump at peak (1.0 kW if well insulated); unmanaged EVs add 0.7 kW each at peak, managed ones 0.1 kW; yearly use about 4,000 kWh per heat pump and 2,400 kWh per car.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 7 MIX -->
+<section class="lesson" id="mix"><div class="wrap">
+  <div class="num">7</div>
+  <h2>Build a 2030 mix</h2>
+  <p class="lede">Climate policy says Manx electricity should be carbon-neutral by 2030, and the Government's own progress report rates that "at risk". Try building a mix that gets there. Then face the hard test: a windless, grey week in January.</p>
+  <div class="stage">
+    <div class="panel">
+      <div class="controls">
+        <div class="ctl"><label for="xWind">Onshore wind <output id="xWindO">0 MW</output></label><input id="xWind" type="range" min="0" max="60" step="5" value="0"></div>
+        <div class="ctl"><label for="xSol">Solar, rooftop and ground <output id="xSolO">7 MW</output></label><input id="xSol" type="range" min="0" max="80" step="1" value="7"></div>
+        <div class="ctl"><label for="xBat">Grid battery <output id="xBatO">0 MW</output></label><input id="xBat" type="range" min="0" max="60" step="5" value="0"></div>
+        <div class="ctl"><label for="xLink">Low-carbon imports, share of cable energy <output id="xLinkO">25%</output></label><input id="xLink" type="range" min="0" max="100" step="5" value="25"></div>
+        <div class="ctl"><label for="xImp">Energy imported over cables <output id="xImpO">10%</output></label><input id="xImp" type="range" min="0" max="90" step="5" value="10"></div>
+      </div>
+      <svg class="chart" id="xSvg" viewBox="0 0 560 120" role="img" aria-label="Share of yearly electricity by source"></svg>
+      <div class="readouts">
+        <div class="ro"><b id="xLow">0%</b><span>low-carbon share of the year</span></div>
+        <div class="ro"><b id="xGas">0%</b><span>still from gas</span></div>
+        <div class="ro"><b id="xDunk">0 MW</b><span>firm need, windless January evening</span></div>
+      </div>
+      <div class="verdict" id="xVerdict"></div>
+    </div>
+    <div class="notes">
+      <p><strong>Energy over the year is the easy bit.</strong> Wind and solar can supply a big share of annual MWh. The hard bit is the evening in January when the wind drops and the sun has gone: something firm has to cover the peak.</p>
+      <p><strong>Batteries help for hours, not days.</strong> They take the edge off the evening and steady the frequency, but they don't replace a cable or a power station for a fortnight-long calm.</p>
+      <p><strong>Imports count if they're clean.</strong> More than a quarter of the electricity the Island imports is classed as zero-carbon. Whatever the cable can't bring has to be made here.</p>
+      <div class="iom"><b>On the Island now.</b> Proposals on the table include MUA's five-turbine onshore wind farm (about 130 GWh a year, not yet in planning), MUA's search for land for solar, and the offshore Mooir Vannin scheme, which is mainly for export and awaiting a decision. See <a href="/how-it-works.html">How the power gets made</a> for how each technology works.</div>
+      <p style="font-size:13.5px;color:var(--ink-3)">Assumes 360 GWh demand, 30% wind and 10% solar capacity factors, and about 30 GWh a year from waste and hydro.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 8 MONEY -->
+<section class="lesson" id="money"><div class="wrap">
+  <div class="num">8</div>
+  <h2>Who pays, and for how long</h2>
+  <p class="lede">Grid kit lasts thirty to fifty years, so it's paid for like a mortgage: borrow now, repay through bills over decades. The interest rate and the repayment period matter as much as the price tag. Try it on a second interconnector.</p>
+  <div class="stage">
+    <div class="panel">
+      <div class="controls">
+        <div class="ctl"><label for="fCap">Project cost <output id="fCapO">£200m</output></label><input id="fCap" type="range" min="20" max="500" step="10" value="200"></div>
+        <div class="ctl"><label for="fRate">Interest rate <output id="fRateO">5.0%</output></label><input id="fRate" type="range" min="0" max="10" step="0.25" value="5"></div>
+        <div class="ctl"><label for="fYrs">Repaid over <output id="fYrsO">30 years</output></label><input id="fYrs" type="range" min="10" max="50" step="1" value="30"></div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="fAnn">£0m</b><span>repayment per year</span></div>
+        <div class="ro"><b id="fHH">£0</b><span>per household per year</span></div>
+        <div class="ro"><b id="fP">0p</b><span>per unit (kWh)</span></div>
+        <div class="ro"><b id="fTot">£0m</b><span>total repaid</span></div>
+      </div>
+      <div class="verdict" id="fVerdict"></div>
+    </div>
+    <div class="notes">
+      <p><strong>Today's starting point.</strong> A typical Manx unit costs 29.5p plus a 25.5p daily standing charge. Jersey pays about 22p by importing most of its power. Manx Utilities is still repaying a £185m bond that runs to 2034.</p>
+      <p><strong>Spread costs too thin and you pay twice.</strong> A longer loan lowers the yearly bill but raises the total. Too short, and today's bill payers fund assets their grandchildren will use.</p>
+      <p><strong>Not doing it isn't free.</strong> Every option for the 2030s costs money; so does a winter of diesel if a single old cable fails. The comparison is always against the cost of the alternative, not against zero.</p>
+      <p style="font-size:13.5px;color:var(--ink-3)">Simple annuity on about 38,000 households and 360 GWh a year. The £200m figure is Manx Utilities' preliminary estimate for a second interconnector (Tynwald answer, July 2026).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 9 HOME 2030 -->
+<section id="home2030"><div class="wrap">
+  <div class="num" style="font-family:var(--display);font-weight:800;color:var(--ink-3);font-size:18px">9</div>
+  <h2 style="font-family:var(--display);font-weight:800;font-size:clamp(34px,5.4vw,60px);letter-spacing:-.025em;line-height:1;margin:2px 0 10px">A Manx home, 2030</h2>
+  <p class="lede">Same house, same family, same January. Scroll down and watch it change, one sensible upgrade at a time.</p>
+  <div class="story">
+    <div class="sticky">
+      <svg id="house" viewBox="0 0 520 440" role="img" aria-label="Cutaway of a Manx house that gains insulation, a heat pump, solar panels, a battery and a smart EV charger as you scroll.">
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#e8a76b"/></linearGradient>
+          <pattern id="insul" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 5 Q2.5 0 5 5 T10 5" stroke="#f59e0b" stroke-width="2" fill="none"/></pattern>
+        </defs>
+        <rect width="520" height="440" fill="url(#skyG)"/>
+        <circle cx="440" cy="70" r="16" fill="#fde68a" opacity=".9"/>
+        <path d="M0 330 Q130 300 260 318 T520 310 V440 H0Z" fill="#3f6212"/>
+        <rect x="0" y="372" width="520" height="68" fill="#365314"/>
+        <!-- house -->
+        <polygon points="96,170 250,72 404,170" fill="var(--home-roof)"/>
+        <rect x="110" y="170" width="280" height="200" fill="var(--home-wall)"/>
+        <line x1="110" y1="270" x2="390" y2="270" stroke="#c9bfae" stroke-width="3"/>
+        <g class="layer" id="L-insul" opacity="0">
+          <polygon points="118,166 250,82 382,166" fill="url(#insul)" opacity=".9"/>
+          <rect x="110" y="170" width="10" height="200" fill="url(#insul)"/><rect x="380" y="170" width="10" height="200" fill="url(#insul)"/>
+          <rect x="110" y="362" width="280" height="8" fill="url(#insul)"/>
+        </g>
+        <!-- windows -->
+        <rect x="140" y="194" width="60" height="52" rx="3" fill="#fde68a" opacity=".85"/><rect x="300" y="194" width="60" height="52" rx="3" fill="#fde68a" opacity=".85"/>
+        <rect x="140" y="292" width="60" height="52" rx="3" fill="#fde68a" opacity=".85"/><rect x="226" y="296" width="48" height="74" rx="3" fill="#7c2d12"/>
+        <!-- heat leaks -->
+        <g class="layer" id="L-leak" opacity="1">
+          <path d="M170 168 q-8 -18 0 -36 q8 -18 0 -36" stroke="#f87171" stroke-width="4" fill="none" opacity=".8"/>
+          <path d="M330 168 q-8 -18 0 -36 q8 -18 0 -36" stroke="#f87171" stroke-width="4" fill="none" opacity=".8"/>
+          <path d="M100 230 q-18 -8 -36 0 q-18 8 -36 0" stroke="#f87171" stroke-width="4" fill="none" opacity=".8"/>
+          <path d="M400 320 q18 -8 36 0 q18 8 36 0" stroke="#f87171" stroke-width="4" fill="none" opacity=".8"/>
+        </g>
+        <!-- oil tank -->
+        <g class="layer" id="L-oil" opacity="1"><rect x="410" y="320" width="70" height="44" rx="10" fill="#166534"/><text x="445" y="347" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">OIL</text></g>
+        <!-- heat pump -->
+        <g class="layer" id="L-hp" opacity="0"><rect x="404" y="300" width="84" height="66" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/><circle cx="436" cy="333" r="22" fill="none" stroke="#64748b" stroke-width="3"/><g id="hpFan"><path d="M436 315 v36 M418 333 h36" stroke="#64748b" stroke-width="3"/></g><rect x="466" y="312" width="14" height="42" rx="3" fill="#94a3b8"/></g>
+        <!-- solar -->
+        <g class="layer" id="L-sol" opacity="0"><polygon points="132,160 250,86 262,94 148,166" fill="#1e3a8a" stroke="#93c5fd"/><polygon points="268,98 368,160 352,166 258,104" fill="#1e3a8a" stroke="#93c5fd"/></g>
+        <!-- battery -->
+        <g class="layer" id="L-bat" opacity="0"><rect x="122" y="300" width="10" height="56" rx="2" fill="#94a3b8"/><rect x="104" y="300" width="20" height="56" rx="4" fill="#10b981"/><rect x="108" y="310" width="12" height="36" rx="2" fill="#064e3b" id="batFill"/></g>
+        <!-- EV -->
+        <g class="layer" id="L-ev" opacity="0">
+          <path d="M20 372 h86 q8 0 10 -10 l-10 -18 q-4 -8 -14 -8 h-48 q-10 0 -16 8 l-14 18 q-2 10 6 10z" fill="#e11d48"/>
+          <circle cx="40" cy="374" r="9" fill="#0f172a"/><circle cx="92" cy="374" r="9" fill="#0f172a"/>
+          <path d="M110 352 C120 352 116 318 112 318" stroke="#facc15" stroke-width="3" fill="none"/>
+          <text x="62" y="400" text-anchor="middle" font-size="11" fill="#fff">charges after 11pm</text>
+        </g>
+        <!-- meter -->
+        <g class="layer" id="L-meter" opacity="0"><rect x="236" y="200" width="28" height="40" rx="4" fill="#0f172a"/><text x="250" y="224" text-anchor="middle" font-size="10" fill="#34d399" font-family="monospace">ToU</text></g>
+        <!-- bill -->
+        <g transform="translate(18 18)"><rect width="168" height="74" rx="10" fill="rgba(15,23,42,.72)"/><text x="12" y="22" font-size="11.5" fill="#cbd5e1">January evening draw</text><text x="12" y="52" font-size="26" font-weight="800" fill="#fff" font-family="monospace" id="hKW">5.6 kW</text><text x="110" y="52" font-size="11" fill="#cbd5e1" id="hTag">peak</text></g>
+      </svg>
+    </div>
+    <div class="steps">
+      <div class="step" data-s="0"><h3>Meet the Kermodes</h3><p>A 1990s semi, oil boiler in the back, teenagers who think doors close themselves. Heat leaks from the loft, the walls and the floor. The oil tank gets topped up at whatever the price is that week.</p><span class="kpi">Exposed to: heating oil prices, every draught</span></div>
+      <div class="step" data-s="1"><h3>Plug the leaks first</h3><p>Loft topped up, cavity filled, insulation under the floor, draughts sealed. Nothing glamorous, nothing you can show the neighbours. It's the cheapest upgrade per degree of warmth, and it shrinks everything that comes after.</p><span class="kpi">Heat demand down by a quarter or more</span></div>
+      <div class="step" data-s="2"><h3>Swap the boiler for a heat pump</h3><p>The oil tank goes. A heat pump pulls warmth from outside air even on a frosty night, delivering roughly three units of heat for every unit of electricity. Grants under Heat Wise Home cover a large part of the cost for eligible households.</p><span class="kpi">Imported oil bill: gone</span></div>
+      <div class="step" data-s="3"><h3>A smart meter and a smarter tariff</h3><p>The house now knows what time it is. Cheaper power off-peak, dearer at 5.30pm. The heat pump pre-warms the house in the afternoon and coasts through teatime, so nobody notices except the bill.</p><span class="kpi">Evening draw shifted out of the peak</span></div>
+      <div class="step" data-s="4"><h3>Panels on the roof, a battery in the garage</h3><p>Summer days fill the battery; it empties again at teatime. In January the panels do less, but the battery can still fill up overnight on cheap power and cover the peak instead.</p><span class="kpi">The house leans on the grid least when the grid is busiest</span></div>
+      <div class="step" data-s="5"><h3>The car waits its turn</h3><p>Plugged in at six, charging from eleven. Full by breakfast, never touching the teatime peak. One day, the car may even lend the house some power back.</p><span class="kpi">Same comfort. Lower bills. A grid that copes.</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- MYTHS -->
+<section class="lesson" id="myths"><div class="wrap">
+  <h2>Five things people say about the grid</h2>
+  <p class="lede">Tap a card to turn it over.</p>
+  <div class="myths" id="mythGrid"></div>
+</div></section>
+
+<section class="lesson" id="glossary"><div class="wrap">
+  <h2>Words worth knowing</h2>
+  <dl class="gl">
+    <dt>Frequency</dt><dd>The grid's heartbeat, 50 cycles a second. It falls when demand outruns supply and rises when supply outruns demand.</dd>
+    <dt>Interconnector</dt><dd>A cable linking two grids. The Island has one, a 104 km AC cable to Lancashire, in service since 2000.</dd>
+    <dt>Shunt reactor</dt><dd>A large coil that soaks up the excess "charging" current a long AC cable produces, keeping voltage under control.</dd>
+    <dt>N-1</dt><dd>The planning standard that the system must survive the loss of any single major component.</dd>
+    <dt>Merit order</dt><dd>Running the cheapest available source first, then the next, until demand is met.</dd>
+    <dt>Peak</dt><dd>The highest demand of the year, usually a cold weekday evening. It sets how much kit the Island needs.</dd>
+    <dt>Capacity factor</dt><dd>What a power source actually produces over a year, as a share of its maximum.</dd>
+    <dt>Time-of-use tariff</dt><dd>Electricity priced by the hour, so using power when the grid is quiet costs less.</dd>
+  </dl>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>Interactive models are simplified to show how things behave, not to forecast. Island figures come from public sources listed below and from the Observatory's <a href="/powering-mann.html">Powering Mann</a> brief; where published figures disagree, the range is given. Independent explainer by Coalfinch Observatory, November 2026. It is not Manx Utilities or Isle of Man Government material. The author has chaired Manx Utilities since October 2026; nothing here draws on board material, and it takes no position on any application in a consenting process.</p>
+  <ol class="src">
+    <li><a href="/powering-mann.html">Coalfinch Observatory: Powering Mann (system figures and sources)</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Isle_of_Man_to_England_Interconnector">Isle of Man to England Interconnector (cable length, rating range)</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/estimated-ps100m-would-need-to-be-spent-to-meet-isle-of-mans-net-zero-target-791238">IOM Today: net zero costs, 40 MW average demand (May 2025)</a></li>
+    <li><a href="https://www.manx.news/?p=60936">Manx.News: second interconnector about £200m, earliest ~2031 (Jul 2026)</a></li>
+    <li><a href="https://www.manx.news/green-party-warns-island-is-far-off-track-on-renewable-targets/">Manx.News: 2030 target still at risk (Aug 2026)</a></li>
+    <li><a href="https://motorsport.manxradio.com/news/isle-of-man-news/demand-for-green-clean-energy-is-rising-amongst-all-businesses-says-mua/">Manx Radio: over a quarter of imports zero-carbon (Nov 2025)</a></li>
+    <li><a href="https://gold.manxradio.com/news/isle-of-man-news/manx-utilities-says-strong-hedging-strategy-limits-exposure-to-gas-price-surge">Manx Radio: hedging limits exposure to gas surge (Mar 2026)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/smart-meter-rollout-due-to-be-complete-next-year-despite-22000-yet-to-be-installed">Manx Radio: smart meter rollout (Sep 2025)</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/new-proposed-government-heat-wise-home-grant-scheme-for-isle-of-man-households-922500">IOM Today: Heat Wise Home scheme (Jun 2026)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/earystane-and-scard-windfarm-site-to-be-progressed">Manx Radio: onshore wind site, about 130 GWh a year (Oct 2023)</a></li>
+    <li><a href="https://www.jec.co.uk/the-energy-blog/spring-2026-tariff-rise-of-25/">Jersey Electricity: 2026 tariffs</a></li>
+    <li><a href="https://suez.co.uk/en-gb/our-offering/success-stories/our-references/powering-self-sufficiency-on-the-isle-of-man">SUEZ: Richmond Hill energy from waste</a></li>
+  </ol>
+</div></footer>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a,p,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;if(p)p.appendChild(e);return e;};
+const fmt=n=>n.toLocaleString('en-GB');
+const root=document.documentElement;
+function setTheme(t){ if(t==='light'||t==='dark')root.setAttribute('data-theme',t); else if(t) root.setAttribute('data-theme',/health|light|paper/.test(t)?'light':'dark'); }
+$('#themeBtn').addEventListener('click',()=>{const cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');setTheme(cur==='dark'?'light':'dark');});
+addEventListener('message',e=>{const d=e.data||{};if((d.type==='setTheme'||d.type==='theme')&&d.theme)setTheme(d.theme);});
+function bindOut(id,f){const i=$('#'+id),o=$('#'+id+'O');const u=()=>{if(o)o.textContent=f(+i.value);};i.addEventListener('input',u);u();}
+
+/* ================= HERO GAME ================= */
+// winter weekday demand shape, MW by hour
+const shape=[38,35,33,32,32,34,42,55,62,61,59,58,58,57,57,59,66,74,75,71,64,56,48,42];
+const demandAt=h=>{const i=Math.floor(h)%24,j=(i+1)%24,t=h-Math.floor(h);return shape[i]*(1-t)+shape[j]*t;};
+const G={run:false,h:0,f:50,df:0,inG:0,tot:0,cost:0,cableOK:true,diesel:0,dieselT:0,tvT:-1,tvDone:false,tripDone:false,shed:0,trace:[],ended:false,windExtra:0};
+const DAYSEC=60, H=4, S=100;
+const trace=$('#gTrace');
+function gEvent(t,cls){const e=$('#gEvent');e.textContent=t;e.className='event'+(cls?' '+cls:'');}
+function arc(a0,a1){const r=90,cx=120,cy=130;const p=a=>[cx+r*Math.cos(a),cy-r*Math.sin(a)];const [x0,y0]=p(a0),[x1,y1]=p(a1);return `M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}`;}
+const fToA=f=>Math.PI*(1-(f-48.5)/3);
+$('#dialSafe').setAttribute('d',arc(fToA(49.8),fToA(50.2)));
+function drawDial(){const a=fToA(Math.max(48.5,Math.min(51.5,G.f)));$('#needle').setAttribute('x2',120+82*Math.cos(a));$('#needle').setAttribute('y2',130-82*Math.sin(a));
+  $('#hz').textContent=G.f.toFixed(2);
+  const st=$('#gstate');const d=Math.abs(G.f-50);
+  st.textContent=!G.run&&!G.ended?(G.h>0?'Paused':'Press start'):G.ended?'Day over':d<0.2?'Steady':d<0.5?(G.f<50?'Sagging: add supply':'Racing: cut supply'):(G.f<50?'Danger: frequency collapsing':'Danger: overspeed');
+  st.style.color=d<0.2?'var(--good)':d<0.5?'var(--warn)':'var(--live)';}
+function drawTrace(){
+  trace.innerHTML='';const w=600,h=200,X=hh=>30+hh/24*560,Y=mw=>180-mw/100*165;
+  for(let mw=0;mw<=100;mw+=25){el('line',{x1:30,x2:590,y1:Y(mw),y2:Y(mw),stroke:'var(--grid)','stroke-dasharray':'2 4'},trace);el('text',{x:26,y:Y(mw)+4,'text-anchor':'end'},trace,mw);}
+  [0,6,12,18,24].forEach(hh=>el('text',{x:X(hh),y:196,'text-anchor':'middle'},trace,String(hh).padStart(2,'0')+':00'));
+  let d='';for(let hh=0;hh<=24;hh+=0.25)d+=(d?'L':'M')+X(hh).toFixed(1)+' '+Y(demandAt(hh)).toFixed(1);
+  el('path',{d,fill:'none',stroke:'var(--ink-3)','stroke-width':1.5,'stroke-dasharray':'5 4'},trace);
+  el('text',{x:X(17.6),y:Y(78),'text-anchor':'middle'},trace,'teatime peak');
+  if(G.trace.length>1){let s='',dm='';G.trace.forEach(([hh,sup,dem],i)=>{s+=(i?'L':'M')+X(hh).toFixed(1)+' '+Y(sup).toFixed(1);dm+=(i?'L':'M')+X(hh).toFixed(1)+' '+Y(dem).toFixed(1);});
+    el('path',{d:dm,fill:'none',stroke:'var(--ink-1)','stroke-width':2},trace);
+    el('path',{d:s,fill:'none',stroke:'var(--gas)','stroke-width':2.5},trace);}
+  el('line',{x1:X(G.h),x2:X(G.h),y1:12,y2:180,stroke:'var(--accent)','stroke-width':1.5},trace);
+  el('text',{x:590,y:14,'text-anchor':'end',fill:'var(--gas)'},trace,'supply');el('text',{x:540,y:14,'text-anchor':'end',fill:'var(--ink-1)'},trace,'demand');
+}
+function supplyNow(){const gas=+$('#gGas').value, imp=G.cableOK?+$('#gImp').value:0;return gas+imp+G.diesel+5;} // +5 waste/hydro/solar baseline
+let lastT=0;
+function gameTick(now){
+  if(!G.run){lastT=now;return;}
+  const dt=Math.min(0.1,(now-lastT)/1000);lastT=now;
+  const dh=dt*24/DAYSEC; G.h+=dh;
+  if(G.h>=24){G.h=24;G.run=false;G.ended=true;$('#gStart').textContent='Play again';$('#gPause').disabled=true;
+    const sc=Math.round(G.inG/G.tot*100);gEvent(`Day done. You kept the Island in the green ${sc}% of the time for £${fmt(Math.round(G.cost/1000))}k.${G.shed?' Some customers were cut off along the way.':''} ${sc>85?'Control room material.':sc>60?'Respectable. The governors would have helped.':'The Island forgives you. Probably.'}`,sc>60?'good':'bad');}
+  // events
+  if(!G.tvDone&&G.h>19.45&&G.h<19.6){G.tvT=G.h;G.tvDone=true;gEvent('Corrie ad break: thousands of kettles go on at once. Demand jumps.', 'bad');}
+  if(!G.tripDone&&G.h>13.2){G.tripDone=true;G.cableOK=false;G.cableBack=G.h+2.2;gEvent('The interconnector has tripped. Imports gone in an instant. Pulrose and the diesels need to cover it, now.','bad');}
+  if(!G.cableOK&&G.h>G.cableBack){G.cableOK=true;gEvent('Cable back in service. Imports available again.','good');}
+  if(G.diesel>0&&G.h>G.dieselT){G.diesel=0;}
+  let dem=demandAt(G.h)-G.shed;
+  if(G.tvT>0&&G.h-G.tvT<0.12)dem+=5;
+  const sup=supplyNow();
+  // automatic governor helps a little
+  const gov=Math.max(-6,Math.min(6,12*(50-G.f)));
+  const imb=sup+gov-dem+1.2*(50-G.f)*S/50*0.0;
+  G.df=imb/(2*H*S)*50; G.f+=G.df*dt*3;
+  G.f+= (50-G.f)*0.02*dt; // load damping
+  if(G.f<48.8&&!G.shed){G.shed=12;gEvent('Under-frequency relays have switched off part of Douglas to save the rest. Restore balance fast.','bad');}
+  if(G.shed&&G.f>49.9){G.shed=Math.max(0,G.shed-dt*2);}
+  if(G.f>51.2){G.f=50.6;gEvent('Overspeed: a generator protects itself and trips. Too much supply for the load.','bad');$('#gGas').value=Math.max(0,+$('#gGas').value-15);$('#gGasO').textContent=$('#gGas').value+' MW';}
+  G.f=Math.max(47.5,Math.min(51.5,G.f));
+  G.tot+=dt; if(Math.abs(G.f-50)<0.2)G.inG+=dt;
+  const gasMW=+$('#gGas').value, impMW=G.cableOK?+$('#gImp').value:0;
+  G.cost+=(gasMW*95+impMW*75+G.diesel*260)*dh;
+  if(!G.trace.length||G.h-G.trace[G.trace.length-1][0]>0.08)G.trace.push([G.h,sup,dem]);
+  const hh=Math.floor(G.h)%24,mm=Math.floor((G.h%1)*60);
+  $('#gClock').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  $('#gDem').textContent=Math.round(dem);$('#gSup').textContent=Math.round(sup);
+  $('#gScore').textContent=Math.round(G.inG/G.tot*100)+'%';$('#gCost').textContent='£'+fmt(Math.round(G.cost/1000))+'k';
+  $('#gImp').disabled=!G.cableOK; $('#gImpO').textContent=G.cableOK?$('#gImp').value+' MW':'tripped';
+  drawDial();drawTrace();
+}
+bindOut('gGas',v=>v+' MW');bindOut('gImp',v=>v+' MW');
+$('#gStart').addEventListener('click',()=>{Object.assign(G,{run:true,h:0,f:50,df:0,inG:0,tot:0,cost:0,cableOK:true,diesel:0,tvT:-1,tvDone:false,tripDone:false,shed:0,trace:[],ended:false});
+  $('#gGas').value=8;$('#gImp').value=25;$('#gGasO').textContent='8 MW';$('#gImpO').textContent='25 MW';$('#gImp').disabled=false;
+  $('#gStart').textContent='Restart';$('#gPause').disabled=false;$('#gPause').textContent='Pause';gEvent('Midnight. Demand is low and falling. Imports are cheapest, so lean on the cable and keep Pulrose ticking over.');});
+$('#gPause').addEventListener('click',()=>{if(G.ended)return;G.run=!G.run;$('#gPause').textContent=G.run?'Pause':'Resume';drawDial();});
+$('#gDiesel').addEventListener('click',()=>{if(!G.run)return;G.diesel=20;G.dieselT=G.h+1.5;gEvent('Peel diesels online for 90 minutes. Reliable, loud and expensive.');});
+drawTrace();drawDial();
+
+/* ================= KIT ================= */
+const KIT={
+ cable:['The interconnector','A 104 km AC cable from Douglas Head to Bispham, near Blackpool, in service since 2000. Published ratings range from 40 to 65 MW. It brings in cheaper power, much of it low-carbon, and it is the Island\'s only electrical link to anywhere. Its design life runs out around the mid-2030s; Manx Utilities\' preliminary estimate for a second link is about £200m, with the earliest possible commissioning around 2031.'],
+ pulrose:['Pulrose power station','A combined-cycle gas turbine in Douglas, about 85 MW, running since 2003. It made roughly 82% of the Island\'s electricity at the end of 2024 and is the main backup if the cable fails. Its design life ends in the early-to-mid 2030s.'],
+ reserve:['Douglas reserve diesels','Around 50 MW of standby diesel engines. Rarely used, expensive to run, but they start quickly and keep the lights on when something big trips.'],
+ peel:['Peel power station','About 38 MW of diesel generation on the west coast. It was damaged by Storm Éowyn in January 2025; repairs were completed in November 2026. A second location matters: it keeps the west supplied if the network is split.'],
+ efw:['Energy from waste','The Richmond Hill plant burns about 50,000 tonnes of household waste a year and makes about 25 GWh of electricity, roughly a tenth of the Island\'s supply.'],
+ hydro:['Sulby hydro','A small hydro plant on the Sulby reservoir system, about 1% of demand in a good year. The reservoirs\' first job is drinking water.'],
+ solar:['Rooftop solar','Around 7 MW across roughly a thousand homes and businesses. Brilliant at a June lunchtime; next to nothing on a January evening. Manx Utilities is now looking for land for larger solar arrays.'],
+ homes:['Homes and businesses','About 85,000 people using roughly 360 GWh a year. Demand ranges from about 23 MW on a summer night to 75 MW on a cold winter evening, and that peak is what the whole system is sized for.']
+};
+$$('#kitSvg .node').forEach(n=>{n.style.cursor='pointer';const f=()=>{const [t,b]=KIT[n.dataset.k];$('#kitCard').innerHTML='<b>'+t+'.</b><br>'+b;$$('#kitSvg .node').forEach(x=>x.setAttribute('opacity',x===n?1:.55));};n.addEventListener('click',f);n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f();}});});
+
+/* ================= UNITS ================= */
+const APPS=[['Kettle',3,0.07,1],['Electric shower',9,0.15,1],['Oven',2.4,1,0],['TV',0.1,4,1],['Heat pump',1.5,10,0],['EV charger',7,3,0],['Fridge',0.05,24,1],['LED lights (10)',0.1,6,1]];
+const apps=$('#apps');
+APPS.forEach(([n,kw,hrs,on],i)=>{const d=document.createElement('label');d.className='app';d.innerHTML=`<input type="checkbox" ${on?'checked':''} data-i="${i}"> <span style="flex:1">${n}<br><small style="color:var(--ink-3)">${kw} kW</small></span><input type="number" min="0" max="24" step="0.1" value="${hrs}" data-h="${i}" aria-label="${n} hours per day"><small style="color:var(--ink-3)">h</small>`;apps.appendChild(d);});
+function units(){let kw=0,kwh=0;APPS.forEach((a,i)=>{const on=$(`[data-i="${i}"]`).checked,h=Math.max(0,+$(`[data-h="${i}"]`).value||0);if(on){kw+=a[1];kwh+=a[1]*h;}});
+  $('#uKW').textContent=kw.toFixed(1);$('#uKWh').textContent=kwh.toFixed(1);$('#uCost').textContent='£'+(kwh*0.295+0.255).toFixed(2);
+  const homes=Math.round(75000/Math.max(kw,0.1));
+  $('#uScale').textContent=`If every home pulled ${kw.toFixed(1)} kW at the same moment, the Island's 75 MW winter peak would be used up by about ${fmt(homes)} homes. There are roughly 38,000. That's why not everyone boiling the kettle at once is a design assumption.`;}
+apps.addEventListener('input',units);units();
+
+/* ================= CABLE ================= */
+let reactors=true,hvdc=false;
+function cable(){const L=+$('#cLen').value,kv=+$('#cKV').value;$('#cLenO').textContent=L+' km';$('#cKVO').textContent=kv+' kV';
+  const C=0.2e-6, Q=hvdc?0:(kv*1e3)**2*2*Math.PI*50*C*L/1e6; // MVAr
+  const Srat=60*kv/90;
+  const comp=reactors?Math.min(Q,Q*0.85):0;
+  const net=Q-comp; const avail=Math.max(0,Math.sqrt(Math.max(0,Srat*Srat-net*net)));
+  $('#cQ').textContent=Math.round(Q);$('#cUse').textContent=Math.round(avail);
+  const svg=$('#cabSvg');svg.innerHTML='';const W=520,x0=20;
+  el('text',{x:x0,y:22,'font-size':12,fill:'var(--ink-2)'},svg,`Cable current rating (${Math.round(Srat)} MVA at ${kv} kV)`);
+  el('rect',{x:x0,y:32,width:W,height:34,rx:6,fill:'var(--grid)'},svg);
+  const nw=Math.min(1,net/Srat)*W;el('rect',{x:x0,y:32,width:nw,height:34,rx:6,fill:'var(--live)',opacity:.8},svg);
+  el('rect',{x:x0+nw,y:32,width:Math.min(W-nw,avail/Srat*W),height:34,rx:6,fill:'var(--cable)'},svg);
+  el('text',{x:x0,y:88,'font-size':12,fill:'var(--live)'},svg,'■ uncompensated charging current');
+  el('text',{x:x0+240,y:88,'font-size':12,fill:'var(--cable)'},svg,'■ room left for useful power');
+  // cable drawing
+  const cy=150;el('line',{x1:x0,x2:x0+W,y1:cy,y2:cy,stroke:hvdc?'var(--accent)':'var(--cable)','stroke-width':8,'stroke-linecap':'round'},svg);
+  const waves=Math.min(14,Math.round(L/12));for(let i=0;i<waves&&!hvdc;i++){const x=x0+20+i*(W-40)/Math.max(1,waves-1);el('path',{d:`M${x-6} ${cy-14} q6 -8 12 0`,stroke:'var(--live)','stroke-width':2,fill:'none',opacity:reactors?.35:.9},svg);}
+  [x0,x0+W].forEach(x=>{if(hvdc){el('rect',{x:x-18,y:cy+16,width:36,height:30,rx:5,fill:'var(--accent)'},svg);el('text',{x,y:cy+36,'text-anchor':'middle','font-size':10,fill:'#fff'},svg,'conv');}
+    else if(reactors){el('circle',{cx:x,cy:cy+30,r:14,fill:'none',stroke:'var(--ink-2)','stroke-width':3},svg);el('path',{d:`M${x-8} ${cy+30} q4 -10 8 0 q4 10 8 0`,stroke:'var(--ink-2)','stroke-width':2,fill:'none'},svg);}});
+  el('text',{x:x0+W/2,y:cy+60,'text-anchor':'middle','font-size':12,fill:'var(--ink-3)'},svg,hvdc?'HVDC: converter stations at each end, no charging current':reactors?'shunt reactors at each end soak up charging current':'reactors out of service');
+  const v=$('#cVerdict');
+  if(hvdc){v.className='verdict good';v.textContent='Direct current has no charging current, so length stops being the enemy. The cost moves into the converter stations.';}
+  else if(avail<5){v.className='verdict bad';v.textContent='The cable spends its whole rating on charging current. Nothing useful gets through. This is why long subsea links use HVDC.';}
+  else if(!reactors){v.className='verdict bad';v.textContent=`Without reactors, charging current eats ${Math.round(100-avail/Srat*100)}% of the rating and voltage climbs at light load. The operator would have to limit flows or run more gas.`;}
+  else {v.className='verdict good';v.textContent=`Reactors cancel most of the charging current, leaving about ${Math.round(avail)} MW for useful power.`;}}
+['cLen','cKV'].forEach(i=>$('#'+i).addEventListener('input',cable));
+$('#cReact').addEventListener('click',()=>{reactors=!reactors;$('#cReact').setAttribute('aria-pressed',reactors);$('#cReact').textContent=reactors?'Reactors in service':'Reactors out of service';cable();});
+$('#cDC').addEventListener('click',()=>{hvdc=!hvdc;$('#cDC').setAttribute('aria-pressed',hvdc);cable();});
+cable();
+
+/* ================= N-1 ================= */
+const YEARS={
+ now:[['Interconnector',60,'var(--cable)'],['Pulrose gas',85,'var(--gas)'],['Peel diesel',38,'var(--diesel)'],['Douglas diesels',50,'var(--diesel)'],['Waste + hydro',6,'var(--waste)']],
+ '2035':[['Old interconnector (past design life)',60,'var(--cable)'],['Peel diesel',38,'var(--diesel)'],['Douglas diesels',50,'var(--diesel)'],['Waste + hydro',6,'var(--waste)']],
+ plan:[['Link 1 (new, 100 MW)',100,'var(--cable)'],['Link 2 (new, 100 MW)',100,'var(--cable)'],['Grid battery',40,'var(--batt)'],['Standby thermal',40,'var(--diesel)'],['Waste + hydro',6,'var(--waste)']]
+};
+let yr='now',onState=[];
+function buildAssets(){const g=$('#assets');g.innerHTML='';onState=YEARS[yr].map(()=>true);YEARS[yr].forEach(([n,mw,c],i)=>{const l=document.createElement('label');l.className='asset';l.innerHTML=`<input type="checkbox" checked data-a="${i}"><span style="flex:1"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${c};margin-right:6px"></span>${n}</span><b>${mw}</b>`;g.appendChild(l);});
+  $$('#assets input').forEach(c=>c.addEventListener('change',()=>{onState[+c.dataset.a]=c.checked;c.closest('.asset').classList.toggle('off',!c.checked);n1();}));
+  if(yr==='2035'){$('#nPeak').value=95;}else if(yr==='plan'){$('#nPeak').value=110;}else $('#nPeak').value=75;n1();}
+function n1(){const pk=+$('#nPeak').value;$('#nPeakO').textContent=pk+' MW';
+  const list=YEARS[yr];const avail=list.reduce((s,a,i)=>s+(onState[i]?a[1]:0),0);
+  const onIdx=list.map((a,i)=>i).filter(i=>onState[i]);const biggest=onIdx.reduce((m,i)=>list[i][1]>list[m]?.[1]?i:m,onIdx[0]);
+  const afterN1=avail-(biggest!=null?list[biggest][1]:0);
+  const svg=$('#nBar');svg.innerHTML='';const W=520,x0=20,sc=W/260;let x=x0;
+  list.forEach((a,i)=>{if(!onState[i])return;el('rect',{x,y:20,width:a[1]*sc-2,height:30,rx:4,fill:a[2],opacity:i===biggest?.45:1},svg);if(a[1]*sc>40)el('text',{x:x+6,y:40,'font-size':11,fill:'#fff'},svg,a[1]);x+=a[1]*sc;});
+  el('line',{x1:x0+pk*sc,x2:x0+pk*sc,y1:10,y2:64,stroke:'var(--live)','stroke-width':3},svg);
+  el('text',{x:x0+pk*sc,y:80,'text-anchor':'middle','font-size':12,fill:'var(--live)'},svg,'peak '+pk+' MW');
+  el('text',{x:x0,y:104,'font-size':12,fill:'var(--ink-3)'},svg,`Available ${avail} MW. Faded block: the biggest single item, the one N-1 assumes you lose.`);
+  const v=$('#nVerdict');
+  if(avail<pk){v.className='verdict bad';v.textContent=`Lights out. ${avail} MW available against a ${pk} MW peak: about ${fmt(Math.round((pk-avail)/pk*38000))} homes' worth of demand can't be met.`;}
+  else if(afterN1<pk){v.className='verdict bad';v.textContent=`Survives today, fails N-1. Lose the ${list[biggest][0]} on this evening and only ${afterN1} MW is left for a ${pk} MW peak.`;}
+  else {v.className='verdict good';v.textContent=`Passes N-1. Even after losing the ${list[biggest][0]}, ${afterN1} MW remains for a ${pk} MW peak.`;}}
+$$('[data-yr]').forEach(b=>b.addEventListener('click',()=>{yr=b.dataset.yr;$$('[data-yr]').forEach(x=>x.setAttribute('aria-pressed',x===b));buildAssets();}));
+$('#nPeak').addEventListener('input',n1);buildAssets();
+
+/* ================= MERIT ================= */
+function merit(){const gp=+$('#mGas').value,uk=+$('#mUK').value,dem=+$('#mDem').value;
+  $('#mGasO').textContent=gp+'p/therm';$('#mUKO').textContent='£'+uk+'/MWh';$('#mDemO').textContent=dem+' MW';
+  const gasC=gp/100/29.3*1000/0.5;
+  const stack=[['Waste, hydro, solar',6,0,'var(--waste)'],...(uk<=gasC?[['Import',60,uk,'var(--cable)'],['Pulrose gas',85,gasC,'var(--gas)']]:[['Pulrose gas',85,gasC,'var(--gas)'],['Import',60,uk,'var(--cable)']]),['Diesel',88,260,'var(--diesel)']];
+  const svg=$('#mSvg');svg.innerHTML='';const W=500,x0=46,ymax=320,Y=p=>190-Math.min(p,ymax)/ymax*170,X=mw=>x0+mw/240*W;
+  [0,100,200,300].forEach(p=>{el('line',{x1:x0,x2:x0+W,y1:Y(p),y2:Y(p),stroke:'var(--grid)','stroke-dasharray':'2 4'},svg);el('text',{x:x0-6,y:Y(p)+4,'text-anchor':'end'},svg,'£'+p);});
+  let x=0,cost=0,rem=dem,marg='';
+  stack.forEach(([n,mw,p,c])=>{const used=Math.max(0,Math.min(mw,rem));rem-=used;cost+=used*p;if(used>0)marg=n;
+    el('rect',{x:X(x),y:Y(p),width:X(x+mw)-X(x)-2,height:190-Y(p)+0.5,fill:c,opacity:used>0?1:.3},svg);
+    if(X(x+mw)-X(x)>50)el('text',{x:X(x)+5,y:Math.min(Y(p),180)-6,'font-size':11,fill:'var(--ink-2)'},svg,n);x+=mw;});
+  el('line',{x1:X(dem),x2:X(dem),y1:8,y2:192,stroke:'var(--live)','stroke-width':2.5},svg);
+  el('text',{x:X(dem)+5,y:18,'font-size':12,fill:'var(--live)'},svg,'demand '+dem+' MW');
+  el('text',{x:x0+W,y:212,'text-anchor':'end'},svg,'capacity, MW (cheapest on the left)');
+  $('#mGasC').textContent='£'+Math.round(gasC);$('#mHour').textContent='£'+fmt(Math.round(cost));}
+['mGas','mUK','mDem'].forEach(i=>$('#'+i).addEventListener('input',merit));merit();
+
+/* ================= PEAK ================= */
+let smart=false;
+const base=shape.map(v=>v);
+function peak(){const hp=+$('#pHP').value,ev=+$('#pEV').value,ins=+$('#pIns').value/100;
+  $('#pHPO').textContent=fmt(hp);$('#pEVO').textContent=fmt(ev);$('#pInsO').textContent=Math.round(ins*100)+'%';
+  const hpkw=(1.8*(1-ins)+1.0*ins)*(smart?0.85:1), hpMW=hp*hpkw/1000;
+  const hpShape=h=>[0.7,0.7,0.7,0.7,0.75,0.85,1,1,0.9,0.85,0.8,0.8,0.8,0.8,0.85,smart?1.05:0.9,smart?0.85:1,smart?0.8:1,smart?0.85:1,1,0.95,0.9,0.8,0.75][h];
+  const evShape=h=>smart?[0.9,1,1,1,0.9,0.6,0.2,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.1,0.2,0.6,0.85][h]:[0.3,0.25,0.2,0.15,0.1,0.1,0.1,0.15,0.2,0.15,0.1,0.1,0.15,0.15,0.2,0.3,0.6,0.9,1,0.9,0.7,0.5,0.4,0.35][h];
+  const evPk=smart?0.65:0.7;
+  const tot=base.map((b,h)=>b+hpMW*hpShape(h)+ev*evPk/1000*evShape(h)*(smart?1.1:1));
+  const pk=Math.max(...tot);const gwh=360+hp*4000*(1-0.35*ins)/1e6+ev*2400/1e6;
+  $('#pPk').textContent=Math.round(pk);$('#pGWh').textContent=Math.round(gwh);
+  const svg=$('#pSvg');svg.innerHTML='';const X=h=>40+h/23*500,Y=mw=>196-mw/160*180;
+  [0,40,80,120,160].forEach(m=>{el('line',{x1:40,x2:540,y1:Y(m),y2:Y(m),stroke:'var(--grid)','stroke-dasharray':'2 4'},svg);el('text',{x:34,y:Y(m)+4,'text-anchor':'end'},svg,m);});
+  [0,6,12,18,23].forEach(h=>el('text',{x:X(h),y:214,'text-anchor':'middle'},svg,String(h).padStart(2,'0')+':00'));
+  let a='',b='';base.forEach((v,h)=>a+=(h?'L':'M')+X(h)+' '+Y(v));tot.forEach((v,h)=>b+=(h?'L':'M')+X(h)+' '+Y(v));
+  el('path',{d:b+` L${X(23)} ${Y(0)} L${X(0)} ${Y(0)}Z`,fill:'var(--accent)',opacity:.12},svg);
+  el('path',{d:b,fill:'none',stroke:'var(--accent)','stroke-width':2.5},svg);el('path',{d:a,fill:'none',stroke:'var(--ink-3)','stroke-width':1.5,'stroke-dasharray':'5 4'},svg);
+  el('line',{x1:40,x2:540,y1:Y(145),y2:Y(145),stroke:'var(--live)','stroke-width':1.5},svg);el('text',{x:540,y:Y(145)-5,'text-anchor':'end',fill:'var(--live)'},svg,'today: Pulrose + cable ≈ 145 MW');
+  el('line',{x1:40,x2:540,y1:Y(94),y2:Y(94),stroke:'var(--warn)','stroke-width':1.5,'stroke-dasharray':'6 4'},svg);el('text',{x:540,y:Y(94)-5,'text-anchor':'end',fill:'var(--warn)'},svg,'after Pulrose retires: diesels + waste ≈ 94 MW');
+  const v=$('#pVerdict');v.className='verdict '+(pk<94?'good':'bad');
+  v.textContent=pk<94?`Peak of ${Math.round(pk)} MW. Manageable, but note that without Pulrose this is already close to what the Island could make on its own if the cable failed.`:`Peak of ${Math.round(pk)} MW. That's more than the Island could cover from its own diesels if the cable failed after Pulrose retires. ${smart?'Even with smart tariffs, new firm capacity is needed.':'Try smart charging and more insulation before reaching for new kit.'}`;}
+['pHP','pEV','pIns'].forEach(i=>$('#'+i).addEventListener('input',peak));
+$('#pSmart').addEventListener('click',()=>{smart=!smart;$('#pSmart').setAttribute('aria-pressed',smart);peak();});peak();
+
+/* ================= MIX ================= */
+function mix(){const w=+$('#xWind').value,s=+$('#xSol').value,b=+$('#xBat').value,lowc=+$('#xLink').value/100,impSh=+$('#xImp').value/100;
+  $('#xWindO').textContent=w+' MW';$('#xSolO').textContent=s+' MW';$('#xBatO').textContent=b+' MW';$('#xLinkO').textContent=Math.round(lowc*100)+'%';$('#xImpO').textContent=Math.round(impSh*100)+'%';
+  const D=360,wG=w*8.76*0.30,sG=s*8.76*0.10,base=30;
+  let local=Math.min(D,wG+sG+base); let imp=Math.min(D-local,D*impSh); const gas=Math.max(0,D-local-imp);
+  const low=(local+imp*lowc)/D;
+  const svg=$('#xSvg');svg.innerHTML='';const W=520,x0=20;let x=x0;
+  [['Waste + hydro',base,'var(--waste)'],['Wind',wG,'var(--wind)'],['Solar',sG,'var(--sun)'],['Clean imports',imp*lowc,'var(--cable)'],['Other imports',imp*(1-lowc),'var(--diesel)'],['Gas',gas,'var(--gas)']].forEach(([n,g,c])=>{const wd=Math.min(g,D)/D*W;if(wd<=0)return;el('rect',{x,y:24,width:wd,height:40,fill:c},svg);if(wd>46)el('text',{x:x+5,y:48,'font-size':11,fill:'#fff'},svg,n);x+=wd;});
+  el('text',{x:x0,y:16,'font-size':12,fill:'var(--ink-2)'},svg,'One year of Manx electricity, 360 GWh');
+  el('line',{x1:x0+W*0.0,x2:x0+W*0.0,y1:20,y2:70,stroke:'var(--ink-3)'},svg);
+  // windless January evening: wind 5% of nameplate, solar 0, battery for evening
+  const firm=Math.max(0,75-w*0.05-b-6);
+  $('#xLow').textContent=Math.round(low*100)+'%';$('#xGas').textContent=Math.round(gas/D*100)+'%';$('#xDunk').textContent=Math.round(firm)+' MW';
+  el('text',{x:x0,y:94,'font-size':12,fill:'var(--ink-3)'},svg,`Windless January evening: wind gives ~${Math.round(w*0.05)} MW, solar 0, battery ${b} MW for a few hours.`);
+  el('text',{x:x0,y:112,'font-size':12,fill:'var(--ink-3)'},svg,`${Math.round(firm)} MW still has to come from a cable or a power station.`);
+  const v=$('#xVerdict');v.className='verdict '+(low>=0.95?'good':'');
+  v.textContent=low>=0.95?`Carbon-neutral on paper: ${Math.round(low*100)}% low-carbon across the year. You still need ${Math.round(firm)} MW of firm, low-carbon capacity for that January evening, which in practice means cables.`:`${Math.round(low*100)}% low-carbon. ${gas>0?Math.round(gas)+' GWh still comes from gas. ':''}Most of the gap closes by importing more clean power, which needs cable capacity, or by building local wind and solar, which needs consent.`;}
+['xWind','xSol','xBat','xLink','xImp'].forEach(i=>$('#'+i).addEventListener('input',mix));mix();
+
+/* ================= MONEY ================= */
+function money(){const cap=+$('#fCap').value*1e6,r=+$('#fRate').value/100,n=+$('#fYrs').value;
+  $('#fCapO').textContent='£'+$('#fCap').value+'m';$('#fRateO').textContent=(r*100).toFixed(2).replace(/0$/,'')+'%';$('#fYrsO').textContent=n+' years';
+  const ann=r===0?cap/n:cap*r/(1-Math.pow(1+r,-n));
+  $('#fAnn').textContent='£'+(ann/1e6).toFixed(1)+'m';$('#fHH').textContent='£'+fmt(Math.round(ann/38000));$('#fP').textContent=(ann/360e6*100).toFixed(1)+'p';$('#fTot').textContent='£'+fmt(Math.round(ann*n/1e6))+'m';
+  const v=$('#fVerdict');v.className='verdict';v.textContent=`On these numbers a £${$('#fCap').value}m project adds about ${(ann/360e6*100).toFixed(1)}p to every unit, against today's 29.5p. You repay £${fmt(Math.round(ann*n/1e6))}m in total, ${Math.round((ann*n/cap-1)*100)}% more than the sticker price.`;}
+['fCap','fRate','fYrs'].forEach(i=>$('#'+i).addEventListener('input',money));money();
+
+/* ================= HOME 2030 SCROLL ================= */
+const steps=$$('.step');
+const STATES=[
+ {leak:1,oil:1,insul:0,hp:0,meter:0,sol:0,bat:0,ev:0,kw:'5.6 kW',tag:'peak'},
+ {leak:0.25,oil:1,insul:1,hp:0,meter:0,sol:0,bat:0,ev:0,kw:'4.4 kW',tag:'peak'},
+ {leak:0.25,oil:0,insul:1,hp:1,meter:0,sol:0,bat:0,ev:0,kw:'3.1 kW',tag:'peak'},
+ {leak:0.25,oil:0,insul:1,hp:1,meter:1,sol:0,bat:0,ev:0,kw:'2.0 kW',tag:'peak'},
+ {leak:0.25,oil:0,insul:1,hp:1,meter:1,sol:1,bat:1,ev:0,kw:'0.6 kW',tag:'peak'},
+ {leak:0.25,oil:0,insul:1,hp:1,meter:1,sol:1,bat:1,ev:1,kw:'0.6 kW',tag:'peak'}];
+function setStep(i){const s=STATES[i];steps.forEach((x,j)=>x.classList.toggle('on',j===i));
+  $('#L-leak').setAttribute('opacity',s.leak);$('#L-oil').setAttribute('opacity',s.oil);$('#L-insul').setAttribute('opacity',s.insul);$('#L-hp').setAttribute('opacity',s.hp);
+  $('#L-meter').setAttribute('opacity',s.meter);$('#L-sol').setAttribute('opacity',s.sol);$('#L-bat').setAttribute('opacity',s.bat);$('#L-ev').setAttribute('opacity',s.ev);
+  $('#hKW').textContent=s.kw;}
+const sio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)setStep(+e.target.dataset.s);});},{rootMargin:'-45% 0px -45% 0px'});
+steps.forEach(s=>sio.observe(s));setStep(0);
+let fan=0;(function spin(){if(!reduce&&$('#L-hp').getAttribute('opacity')==='1'){fan=(fan+6)%360;$('#hpFan').setAttribute('transform',`rotate(${fan} 436 333)`);}requestAnimationFrame(spin);})();
+
+/* ================= MYTHS ================= */
+const MYTHS=[
+ ['"We can just run the Island on wind."','Over a year, wind could supply a big share of the energy. But demand peaks on cold, still evenings, so something firm, usually a cable, still has to cover the peak. Wind lowers the bill for fuel; it doesn\'t remove the need for backup.'],
+ ['"The cable means we\'re never short."','One cable is one point of failure. Jersey lost a cable in 2012 and ran on diesel for weeks; Guernsey\'s link failed in 2018. The Island keeps Pulrose and its diesels partly for exactly that day.'],
+ ['"Heat pumps will crash the grid."','Unmanaged, a lot of them would add to the winter peak. With insulation first and smart timing, the same heat pumps add far less. The grid needs to grow, but planning beats panic.'],
+ ['"Batteries can store summer sun for winter."','Grid batteries store hours, not months. They\'re superb for steadying frequency and shaving the teatime peak. Seasonal storage at Island scale isn\'t affordable with today\'s technology.'],
+ ['"Making it all here would make it cheaper."','Small systems built for total self-sufficiency are expensive: El Hierro in the Canaries spent heavily and still peaked around half its supply from renewables. Islands that import over strong cables, like Jersey, often pay less. Security comes from having more than one way in.']
+];
+const mg=$('#mythGrid');
+MYTHS.forEach(([q,a])=>{const d=document.createElement('div');d.className='myth';d.innerHTML=`<button type="button" aria-label="${q.replace(/"/g,'')} Tap to see the reality"><div class="face front"><span class="q">${q}</span><small>Tap to turn over</small></div><div class="face back"><p>${a}</p><small>Tap to turn back</small></div></button>`;
+  d.querySelector('button').addEventListener('click',()=>d.classList.toggle('flip'));mg.appendChild(d);});
+
+/* main loop */
+function loop(now){gameTick(now);requestAnimationFrame(loop);}requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

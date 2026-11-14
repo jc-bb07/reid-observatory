@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the power gets made · Coalfinch Observatory</title>
+<meta name="description" content="How wind, solar, nuclear, hydro, tidal, batteries and gas actually make electricity, and how each one is controlled to keep the grid steady. Interactive explainers for the Isle of Man.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light dark;
+  --surface-1:#fff; --surface-2:#f1f5f9; --page:#f8fafc;
+  --ink-1:#0f172a; --ink-2:#334155; --ink-3:#64748b;
+  --grid:#cbd5e1; --ring:rgba(15,23,42,.10);
+  --wind:#2563eb; --sun:#d97706; --nuke:#7c3aed; --hydro:#0891b2; --tide:#0e7490; --batt:#059669; --gas:#ea580c;
+  --live:#dc2626; --good:#059669; --warn:#d97706;
+  --accent:#2563eb;
+  --sky:#e0f2fe; --ground:#d9f99d; --sea:#bae6fd; --steel:#94a3b8;
+  --font:'Inter',system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:'Bricolage Grotesque','Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    --surface-1:#12222a; --surface-2:#0e1b23; --page:#0c1620;
+    --ink-1:#e2ecea; --ink-2:#a9c1bb; --ink-3:#7e9a94;
+    --grid:#2b4049; --ring:rgba(255,255,255,.10);
+    --wind:#60a5fa; --sun:#fbbf24; --nuke:#a78bfa; --hydro:#22d3ee; --tide:#2dd4bf; --batt:#34d399; --gas:#fb923c;
+    --live:#f87171; --good:#34d399; --warn:#fbbf24; --accent:#60a5fa;
+    --sky:#0f2a3a; --ground:#16331f; --sea:#0c3b4a; --steel:#5b7380;
+  }
+}
+:root[data-theme="dark"]{
+  --surface-1:#12222a; --surface-2:#0e1b23; --page:#0c1620;
+  --ink-1:#e2ecea; --ink-2:#a9c1bb; --ink-3:#7e9a94;
+  --grid:#2b4049; --ring:rgba(255,255,255,.10);
+  --wind:#60a5fa; --sun:#fbbf24; --nuke:#a78bfa; --hydro:#22d3ee; --tide:#2dd4bf; --batt:#34d399; --gas:#fb923c;
+  --live:#f87171; --good:#34d399; --warn:#fbbf24; --accent:#60a5fa;
+  --sky:#0f2a3a; --ground:#16331f; --sea:#0c3b4a; --steel:#5b7380;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink-1);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--grid)}
+header.site .bar{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
+.brand{font-weight:650;display:flex;align-items:center;gap:8px;color:var(--ink-1);text-decoration:none}
+.brand i{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+nav.toc{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap;font-size:13.5px}
+nav.toc a{color:var(--ink-2);text-decoration:none;padding:3px 8px;border-radius:6px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--surface-2);color:var(--ink-1)}
+#themeBtn{border:1px solid var(--grid);background:var(--surface-1);color:var(--ink-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.hero{padding:56px 0 24px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,7.5vw,84px);line-height:.95;letter-spacing:-.03em;margin:0 0 18px;max-width:14ch}
+.hero p.sf{font-size:19px;color:var(--ink-2);max-width:60ch;margin:0}
+.hero .meta{color:var(--ink-3);font-size:13.5px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.chip{display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border:1px solid var(--grid);border-radius:999px;background:var(--surface-1);color:var(--ink-1);text-decoration:none;font-weight:600;font-size:15px}
+.chip svg{width:28px;height:28px}
+.chip:hover{border-color:var(--ink-3)}
+
+section.tech{padding:56px 0;border-top:1px solid var(--grid)}
+.tech h2{font-family:var(--display);font-weight:800;font-size:clamp(30px,4.6vw,48px);letter-spacing:-.02em;line-height:1;margin:0 0 10px;display:flex;align-items:center;gap:14px}
+.tech h2 .sw{width:14px;height:14px;border-radius:4px;flex:none}
+.lede{font-size:18px;color:var(--ink-2);max-width:64ch;margin:0 0 22px}
+.stage{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:1fr}}
+.panel{background:var(--surface-1);border:1px solid var(--ring);border-radius:14px;padding:16px}
+.panel svg.ill{width:100%;height:auto;display:block;border-radius:10px;background:var(--sky)}
+.controls{display:grid;gap:12px;margin-top:14px}
+.ctl label{display:flex;justify-content:space-between;font-size:14px;color:var(--ink-2);font-weight:550}
+.ctl label output{font-family:var(--mono);color:var(--ink-1);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button.act{font:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:7px 12px;border:1px solid var(--grid);background:var(--surface-2);color:var(--ink-1);cursor:pointer}
+button.act:hover{border-color:var(--ink-3)}
+button.act.danger{border-color:var(--live);color:var(--live)}
+button.act[aria-pressed=true]{background:var(--ink-1);color:var(--page);border-color:var(--ink-1)}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-top:14px}
+.ro{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.ro b{display:block;font-family:var(--mono);font-size:21px;line-height:1.2}
+.ro span{font-size:12.5px;color:var(--ink-3)}
+.mode{margin-top:10px;font-size:14.5px;padding:8px 12px;border-radius:8px;background:var(--surface-2);border-left:4px solid var(--accent)}
+.notes h3{font-family:var(--display);font-size:20px;margin:0 0 8px;letter-spacing:-.01em}
+.notes h3+ul,.notes h3+p{margin-top:0}
+.notes ul{padding-left:18px;margin:0 0 18px}
+.notes li{margin:0 0 6px;color:var(--ink-2)}
+.notes li strong{color:var(--ink-1)}
+.iom{border:1px solid var(--grid);border-radius:12px;padding:12px 14px;background:var(--surface-1);font-size:15px}
+.iom b{font-family:var(--display);font-size:16px}
+.rules{font-size:14px;color:var(--ink-3);margin-top:12px}
+svg text{font-family:var(--font)}
+.chart{width:100%;height:auto;display:block;margin-top:10px}
+.chart .ax{stroke:var(--grid)} .chart text{fill:var(--ink-3);font-size:11px}
+
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--surface-1);border-radius:12px;overflow:hidden}
+.cmp th,.cmp td{padding:10px 12px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
+.cmp th{font-weight:650;color:var(--ink-2);background:var(--surface-2)}
+.tablewrap{overflow-x:auto;border:1px solid var(--ring);border-radius:12px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+dl.gl{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:6px 18px;margin:0}
+dl.gl dt{font-weight:650} dl.gl dd{margin:0;color:var(--ink-2)}
+@media (max-width:640px){dl.gl{grid-template-columns:1fr} dl.gl dd{margin-bottom:8px}}
+footer{padding:40px 0 60px;color:var(--ink-3);font-size:14px;border-top:1px solid var(--grid)}
+ol.src{font-size:14px;color:var(--ink-2);padding-left:20px}
+ol.src li{margin-bottom:4px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+
+@media (max-width:760px){
+  header.site{position:static}
+  header.site .bar{flex-wrap:nowrap;gap:8px;padding:8px 12px}
+  .brand{font-size:14px;white-space:nowrap}
+  nav.toc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-left:0;flex:1;min-width:0}
+  nav.toc::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="/"><i></i>Coalfinch Observatory</a>
+  <nav class="toc" aria-label="Technologies">
+    <a href="#families">Two families</a><a href="#wind">Wind</a><a href="#solar">Solar</a><a href="#nuclear">Nuclear</a><a href="#hydro">Hydro</a><a href="#tidal">Tidal</a><a href="#batteries">Batteries</a><a href="#gas">Gas</a><a href="#compare">Compare</a>
+  </nav>
+  <button id="themeBtn" type="button" aria-label="Toggle light or dark theme" title="Theme">◐</button>
+</div></header>
+
+<main>
+<div class="wrap hero">
+  <h1>How the power gets made</h1>
+  <p class="sf">Wind, sun, atoms, water, tide, chemistry and gas. Each one makes electricity in its own way, and each one has to be tamed so the lights stay steady. Play with them below.</p>
+  <p class="meta">Coalfinch Observatory explainer, November 2026. Part of the energy series with <a href="/powering-mann.html">Powering Mann</a> and the <a href="/mua-primer.html">grid primer</a>.</p>
+  <nav class="chips" aria-label="Jump to a technology">
+    <a class="chip" href="#wind"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--wind)" opacity=".15"/><path d="M14 13 L14 4 M14 13 L6 18 M14 13 L22 18" stroke="var(--wind)" stroke-width="2.4" stroke-linecap="round"/><circle cx="14" cy="13" r="2" fill="var(--wind)"/></svg>Wind</a>
+    <a class="chip" href="#solar"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--sun)" opacity=".15"/><circle cx="14" cy="14" r="5" fill="var(--sun)"/></svg>Solar</a>
+    <a class="chip" href="#nuclear"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--nuke)" opacity=".15"/><circle cx="14" cy="14" r="3" fill="var(--nuke)"/><ellipse cx="14" cy="14" rx="9" ry="3.5" fill="none" stroke="var(--nuke)" stroke-width="1.6"/><ellipse cx="14" cy="14" rx="9" ry="3.5" fill="none" stroke="var(--nuke)" stroke-width="1.6" transform="rotate(60 14 14)"/><ellipse cx="14" cy="14" rx="9" ry="3.5" fill="none" stroke="var(--nuke)" stroke-width="1.6" transform="rotate(120 14 14)"/></svg>Nuclear</a>
+    <a class="chip" href="#hydro"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--hydro)" opacity=".15"/><path d="M14 6 C10 12 9 15 9 17 a5 5 0 0 0 10 0 C19 15 18 12 14 6Z" fill="var(--hydro)"/></svg>Hydro</a>
+    <a class="chip" href="#tidal"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--tide)" opacity=".15"/><path d="M5 12 q4.5-4 9 0 t9 0 M5 18 q4.5-4 9 0 t9 0" stroke="var(--tide)" stroke-width="2.2" fill="none"/></svg>Tidal</a>
+    <a class="chip" href="#batteries"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--batt)" opacity=".15"/><rect x="7" y="9" width="13" height="10" rx="2" fill="none" stroke="var(--batt)" stroke-width="2"/><rect x="20" y="12" width="2" height="4" fill="var(--batt)"/><rect x="9" y="11" width="6" height="6" fill="var(--batt)"/></svg>Batteries</a>
+    <a class="chip" href="#gas"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" fill="var(--gas)" opacity=".15"/><path d="M14 5 c3 5 6 7 6 11 a6 6 0 0 1 -12 0 c0-3 2-4 3-6 c0 3 2 4 3 4 c0-3 -1-6 0-9Z" fill="var(--gas)"/></svg>Gas</a>
+  </nav>
+</div>
+
+<!-- TWO FAMILIES -->
+<section class="tech" id="families"><div class="wrap">
+  <h2><span class="sw" style="background:var(--ink-1)"></span>Two ways to make AC power</h2>
+  <p class="lede">Every generator on this page belongs to one of two families. Which family it's in decides how it behaves when something goes wrong on the grid, and that matters more than the fuel.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="famSvg" viewBox="0 0 600 300" role="img" aria-label="Left: a spinning magnet inside coils produces a smooth sine wave. Right: an inverter switches DC on and off rapidly to build a stepped sine wave.">
+        <rect width="600" height="300" fill="var(--surface-2)"/>
+        <line x1="300" y1="16" x2="300" y2="284" stroke="var(--grid)"/>
+        <text x="150" y="28" text-anchor="middle" font-weight="700" fill="var(--ink-1)" font-size="15">Spinning machine</text>
+        <text x="450" y="28" text-anchor="middle" font-weight="700" fill="var(--ink-1)" font-size="15">Inverter</text>
+        <!-- stator -->
+        <circle cx="90" cy="120" r="58" fill="none" stroke="var(--steel)" stroke-width="10"/>
+        <g id="rotor"><rect x="80" y="76" width="20" height="88" rx="6" fill="var(--live)"/><rect x="80" y="120" width="20" height="44" rx="0" fill="var(--wind)"/><text x="90" y="92" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">N</text><text x="90" y="158" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">S</text></g>
+        <path id="sineA" fill="none" stroke="var(--live)" stroke-width="3"/>
+        <!-- inverter -->
+        <rect x="330" y="88" width="36" height="64" rx="5" fill="var(--batt)"/><text x="348" y="124" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">DC</text>
+        <rect x="378" y="96" width="34" height="48" rx="4" fill="none" stroke="var(--ink-2)" stroke-width="2"/>
+        <g id="switches" stroke="var(--ink-2)" stroke-width="2"><line x1="384" y1="108" x2="406" y2="108"/><line x1="384" y1="132" x2="406" y2="132"/></g>
+        <path id="pwmB" fill="none" stroke="var(--ink-3)" stroke-width="1.2" opacity=".7"/>
+        <path id="sineB" fill="none" stroke="var(--batt)" stroke-width="3"/>
+        <text x="150" y="268" text-anchor="middle" fill="var(--ink-2)" font-size="13" id="famA">Fault current: up to ~6× rated</text>
+        <text x="450" y="268" text-anchor="middle" fill="var(--ink-2)" font-size="13" id="famB">Fault current: ~1.1 to 1.5× rated</text>
+        <g id="faultFlash" opacity="0"><rect x="0" y="0" width="600" height="300" fill="var(--live)" opacity=".08"/><text x="300" y="56" text-anchor="middle" fill="var(--live)" font-weight="700" font-size="14">Short circuit on the network</text></g>
+      </svg>
+      <div class="btns" style="margin-top:12px">
+        <button class="act danger" id="faultBtn" type="button">Throw a fault at both</button>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>Spinning machines</h3>
+      <ul>
+        <li>A magnet turns inside coils of copper and the wave comes out naturally. Gas, nuclear, hydro and older wind work this way.</li>
+        <li><strong>Inertia comes free.</strong> Tonnes of spinning steel resist any change in speed, so a sudden loss of supply slows the grid gently instead of crashing it.</li>
+        <li><strong>Big fault current.</strong> In a short circuit they dump several times their rating, which is exactly what tells protection relays to trip.</li>
+      </ul>
+      <h3>Inverters</h3>
+      <ul>
+        <li>Solar panels and batteries make DC. Electronics switch it thousands of times a second to sculpt an AC wave. Modern wind turbines also sit behind inverters.</li>
+        <li><strong>No natural inertia,</strong> and limited fault current because the silicon would cook. The fix is software: a <em>grid-forming</em> inverter mimics a spinning machine on purpose.</li>
+        <li>Grids with mostly inverters already run on islands like Kauai and the Faroes. It works when the control rules are written for it.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- WIND -->
+<section class="tech" id="wind"><div class="wrap">
+  <h2><span class="sw" style="background:var(--wind)"></span>Wind</h2>
+  <p class="lede">Blades are wings. Wind flowing over them creates lift that turns a rotor, a gearbox or direct-drive generator turns that into electricity, and a power converter tidies it up for the grid. Power rises with the cube of wind speed: double the wind, eight times the power.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="windSvg" viewBox="0 0 600 340" role="img" aria-label="A wind turbine whose rotor speed and blade pitch respond to the wind speed slider.">
+        <rect width="600" height="340" fill="var(--sky)"/>
+        <g id="windStreaks" stroke="var(--wind)" stroke-width="2" stroke-linecap="round" opacity=".45"></g>
+        <path d="M0 300 Q150 280 300 296 T600 288 V340 H0Z" fill="var(--ground)"/>
+        <polygon points="196,300 204,300 202,118 198,118" fill="var(--steel)"/>
+        <rect x="186" y="106" width="40" height="18" rx="7" fill="var(--steel)"/>
+        <g id="rotorW" transform="translate(196 115)">
+          <path d="M0 0 L-6 -10 L-3 -96 L3 -96 L6 -10Z" fill="#f8fafc" stroke="var(--steel)"/>
+          <path d="M0 0 L-6 -10 L-3 -96 L3 -96 L6 -10Z" fill="#f8fafc" stroke="var(--steel)" transform="rotate(120)"/>
+          <path d="M0 0 L-6 -10 L-3 -96 L3 -96 L6 -10Z" fill="#f8fafc" stroke="var(--steel)" transform="rotate(240)"/>
+          <circle r="8" fill="var(--ink-2)"/>
+        </g>
+        <!-- pitch inset -->
+        <g transform="translate(470 92)">
+          <circle r="62" fill="var(--surface-1)" stroke="var(--grid)"/>
+          <text y="-44" text-anchor="middle" font-size="11.5" fill="var(--ink-3)">Blade seen end-on</text>
+          <g id="aerofoil"><path d="M-40 0 C-30 -12 10 -12 40 0 C10 6 -30 6 -40 0Z" fill="var(--wind)"/></g>
+          <line x1="-56" y1="0" x2="-44" y2="0" stroke="var(--ink-3)" stroke-dasharray="3 3"/>
+          <text y="50" text-anchor="middle" font-size="12" fill="var(--ink-2)" id="pitchTxt">pitch 0°</text>
+        </g>
+        <text x="300" y="30" font-size="14" fill="var(--ink-2)" id="windLbl"></text>
+      </svg>
+      <div class="controls">
+        <div class="ctl"><label for="ws">Wind speed <output id="wsOut">9 m/s</output></label><input id="ws" type="range" min="0" max="30" step="0.5" value="9"></div>
+        <div class="ctl"><label for="wcap">Grid operator's limit <output id="wcapOut">100%</output></label><input id="wcap" type="range" min="0" max="100" step="10" value="100"></div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="wP">0</b><span>output, MW (3 MW turbine)</span></div>
+        <div class="ro"><b id="wR">0</b><span>rotor speed, rpm</span></div>
+        <div class="ro"><b id="wPi">0°</b><span>blade pitch</span></div>
+      </div>
+      <div class="mode" id="wMode"></div>
+      <svg class="chart" id="windChart" viewBox="0 0 560 150" aria-label="Power curve"></svg>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>Yaw:</strong> motors turn the whole nacelle to face the wind.</li>
+        <li><strong>Below rated speed</strong> the controller adjusts rotor speed to squeeze out every last watt, a trick called maximum power point tracking.</li>
+        <li><strong>Above rated speed</strong> the blades twist (pitch) to spill wind and hold output flat. It's the same idea as feathering a propeller.</li>
+        <li><strong>Storms:</strong> at about 25 m/s the blades feather fully and the rotor parks. Newer machines ramp down gently instead of stopping dead.</li>
+        <li><strong>On command:</strong> the grid operator can cap output (curtailment), ask for headroom so the turbine can push up if frequency drops, and require it to ride through faults instead of tripping off.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> MUA's onshore scheme, Cair Vie at Earystane and Scard, plans five turbines producing about 130 GWh a year, around a third of demand; it was still at pre-application in July 2026. Offshore, Ørsted's Mooir Vannin proposes 87 turbines and 1,400 MW, mostly for export, with up to 100 MW that could be supplied to the Island. Its examination closed in September 2026 and the decision now sits with the Council of Ministers.</div>
+      <p class="rules">Who sets the rules: turbine design to the IEC 61400 standards; behaviour on the grid set by the network operator's connection requirements (in Great Britain, the Grid Code and ENA G99).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- SOLAR -->
+<section class="tech" id="solar"><div class="wrap">
+  <h2><span class="sw" style="background:var(--sun)"></span>Solar</h2>
+  <p class="lede">A solar cell is a sandwich of two kinds of silicon. Light knocks electrons loose and the junction between the layers pushes them one way round a circuit. No moving parts at all. The catch at 54° north is obvious: output follows the sun, the season and the clouds.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="solSvg" viewBox="0 0 600 340" role="img" aria-label="A house with rooftop solar panels; the sun moves across the sky with the time-of-day slider.">
+        <rect width="600" height="340" fill="var(--sky)" id="solSky"/>
+        <path id="sunArc" fill="none" stroke="var(--sun)" stroke-dasharray="4 6" opacity=".6"/>
+        <circle id="sunDot" r="20" fill="var(--sun)"/>
+        <g id="clouds" fill="var(--surface-1)" opacity="0"><ellipse cx="200" cy="80" rx="60" ry="22"/><ellipse cx="240" cy="70" rx="44" ry="24"/><ellipse cx="420" cy="100" rx="70" ry="24"/><ellipse cx="460" cy="88" rx="40" ry="22"/></g>
+        <rect x="0" y="292" width="600" height="48" fill="var(--ground)"/>
+        <rect x="200" y="210" width="200" height="82" fill="var(--surface-1)" stroke="var(--grid)"/>
+        <polygon points="186,212 300,150 414,212" fill="var(--steel)"/>
+        <g id="panels"><polygon points="214,204 300,156 300,172 228,212" fill="#1e3a8a"/><polygon points="306,159 392,206 378,212 306,175" fill="#1e3a8a"/></g>
+        <rect x="282" y="248" width="36" height="44" fill="var(--steel)"/>
+        <g id="photons" stroke="var(--sun)" stroke-width="2"></g>
+        <text x="20" y="320" font-size="13" fill="var(--ink-2)" id="solTime"></text>
+      </svg>
+      <div class="controls">
+        <div class="ctl"><label for="hr">Time of day <output id="hrOut">12:00</output></label><input id="hr" type="range" min="3" max="22" step="0.25" value="12"></div>
+        <div class="ctl"><label for="cl">Cloud cover <output id="clOut">20%</output></label><input id="cl" type="range" min="0" max="100" step="5" value="20"></div>
+        <div class="btns" role="group" aria-label="Month">
+          <button class="act" data-m="6" aria-pressed="true" type="button">June</button>
+          <button class="act" data-m="3" aria-pressed="false" type="button">March</button>
+          <button class="act" data-m="12" aria-pressed="false" type="button">December</button>
+          <button class="act danger" id="islandBtn" type="button">Grid goes down</button>
+        </div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="sG">0</b><span>sunlight, W/m²</span></div>
+        <div class="ro"><b id="sP">0</b><span>output, kW (4 kW roof)</span></div>
+        <div class="ro"><b id="sV">0</b><span>MPPT voltage, V</span></div>
+      </div>
+      <div class="mode" id="sMode"></div>
+      <svg class="chart" id="ivChart" viewBox="0 0 560 150" aria-label="Current versus voltage curve of the panel string, with the maximum power point marked"></svg>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>The inverter is the brain.</strong> Panels can run at any voltage; only one gives maximum power. The inverter hunts for it constantly as light changes: that's the dot on the curve.</li>
+        <li><strong>Anti-islanding.</strong> If the grid goes dead, the inverter must switch off within a fraction of a second, so it never back-feeds lines that engineers think are safe.</li>
+        <li><strong>Voltage support.</strong> Modern inverters can soak up or push out reactive power to steady the local voltage, and ease off output if the street's voltage climbs on a sunny day.</li>
+        <li><strong>Hot is bad.</strong> Panels lose roughly 0.3 to 0.4% of output per degree above 25°C, so a cold bright March day beats a sticky July one.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> Around a thousand homes and businesses already have rooftop solar. MUA asked landowners in February 2026 to offer sites for ground-mounted arrays, and a 735 kW roof at the National Sports Centre has approval. In winter the sun barely clears the hills, which is why solar here pairs with imports and storage.</div>
+      <p class="rules">Who sets the rules: connection standards for small generators (in Great Britain, ENA G98 and G99) fix how fast an inverter disconnects and how it behaves on voltage and frequency. MUA sets the requirements for its own network.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- NUCLEAR -->
+<section class="tech" id="nuclear"><div class="wrap">
+  <h2><span class="sw" style="background:var(--nuke)"></span>Nuclear</h2>
+  <p class="lede">Split a uranium-235 atom with a slow neutron and it releases heat plus two or three new neutrons. If, on average, exactly one of those goes on to split another atom, the reaction holds steady. The heat boils water, the steam spins a turbine. Everything about control is managing that "exactly one".</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="nukSvg" viewBox="0 0 600 340" role="img" aria-label="A reactor core with control rods that rise and fall with the slider; neutron dots show the chain reaction level.">
+        <rect width="600" height="340" fill="var(--surface-2)"/>
+        <rect x="140" y="40" width="200" height="270" rx="26" fill="var(--surface-1)" stroke="var(--steel)" stroke-width="6"/>
+        <rect x="160" y="130" width="160" height="150" rx="6" fill="color-mix(in srgb,var(--hydro) 18%,transparent)"/>
+        <g id="fuel" fill="var(--warn)" opacity=".85"></g>
+        <g id="rods" fill="var(--ink-2)"></g>
+        <g id="neutrons" fill="var(--nuke)"></g>
+        <!-- loop to steam -->
+        <path d="M340 160 H420 V110 H500" stroke="var(--live)" stroke-width="7" fill="none" opacity=".7"/>
+        <path d="M500 230 H420 V260 H340" stroke="var(--wind)" stroke-width="7" fill="none" opacity=".7"/>
+        <rect x="490" y="96" width="70" height="150" rx="10" fill="var(--surface-1)" stroke="var(--steel)" stroke-width="3"/>
+        <text x="525" y="176" text-anchor="middle" font-size="12" fill="var(--ink-2)">steam</text>
+        <text x="525" y="191" text-anchor="middle" font-size="12" fill="var(--ink-2)">generator</text>
+        <text x="240" y="26" text-anchor="middle" font-size="13" fill="var(--ink-2)">Pressurised water reactor</text>
+        <text x="380" y="150" font-size="11" fill="var(--ink-3)" id="tHot">hot 325°C</text>
+        <text x="380" y="276" font-size="11" fill="var(--ink-3)">cool return</text>
+        <g id="scramFlash" opacity="0"><text x="240" y="122" text-anchor="middle" font-weight="800" fill="var(--live)" font-size="22">TRIP</text></g>
+      </svg>
+      <div class="controls">
+        <div class="ctl"><label for="rod">Control rods withdrawn <output id="rodOut">85%</output></label><input id="rod" type="range" min="0" max="100" step="1" value="85"></div>
+        <div class="btns"><button class="act danger" id="scramBtn" type="button">Scram: drop all rods</button><button class="act" id="resetN" type="button">Restart</button></div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="nP">100%</b><span>fission power</span></div>
+        <div class="ro"><b id="nH">100%</b><span>heat to remove</span></div>
+        <div class="ro"><b id="nT">325°C</b><span>coolant temperature</span></div>
+        <div class="ro"><b id="nK">1.0000</b><span>neutron multiplication, k</span></div>
+      </div>
+      <div class="mode" id="nMode"></div>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>Control rods</strong> of boron, cadmium or hafnium soak up neutrons. Push them in and k drops below 1; pull them out and power rises.</li>
+        <li><strong>Delayed neutrons make it controllable.</strong> A small fraction of neutrons arrive seconds late, which slows the whole reaction down to a pace engineers and machines can manage.</li>
+        <li><strong>Built-in brake.</strong> In a water-cooled reactor, hotter water slows fewer neutrons, so rising temperature cuts power by itself. Try pulling the rods: power climbs, then settles at a new, hotter level.</li>
+        <li><strong>Scram</strong> drops every rod in seconds. Fission stops, but decay heat carries on at around 6% of full power and fades over hours and days. Losing the cooling, not the chain reaction, is what caused Fukushima.</li>
+        <li><strong>Steady rather than nimble.</strong> Large reactors run flat out; output can be varied, but slowly. Small modular reactors aim to be factory-built and smaller, though none yet runs in the UK.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> There is no nuclear plant on the Island and no plan for one. Nuclear reaches us indirectly: Britain's grid, which supplies the interconnector, includes stations such as Heysham across the bay in Lancashire.</div>
+      <p class="rules">Who sets the rules: in the UK, the Office for Nuclear Regulation licenses sites and approves designs (via Generic Design Assessment), with the environment agencies covering discharges and waste; internationally, IAEA safety standards.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- HYDRO -->
+<section class="tech" id="hydro"><div class="wrap">
+  <h2><span class="sw" style="background:var(--hydro)"></span>Hydro</h2>
+  <p class="lede">Water held high has stored energy. Let it fall through a turbine and you get power in proportion to two things: how much water flows, and how far it drops. It is the original grid regulator, because a gate can open in seconds.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="hydSvg" viewBox="0 0 600 320" role="img" aria-label="A reservoir behind a dam feeding a pipe down to a turbine house; water level and gate opening change with the sliders.">
+        <rect width="600" height="320" fill="var(--sky)"/>
+        <path d="M0 120 L190 120 L230 300 L0 300Z" fill="var(--steel)" opacity=".5"/>
+        <rect id="resW" x="0" y="90" width="196" height="210" fill="var(--hydro)" opacity=".55"/>
+        <polygon points="196,60 226,60 256,300 196,300" fill="var(--steel)"/>
+        <path d="M230 240 L470 286" stroke="var(--ink-3)" stroke-width="14" stroke-linecap="round"/>
+        <path id="flowPath" d="M230 240 L470 286" stroke="var(--hydro)" stroke-width="7" stroke-dasharray="10 12" fill="none"/>
+        <rect x="460" y="240" width="110" height="64" rx="6" fill="var(--surface-1)" stroke="var(--steel)" stroke-width="3"/>
+        <g id="runner" transform="translate(500 286)"><circle r="16" fill="none" stroke="var(--ink-2)" stroke-width="3"/><path d="M-14 0 H14 M0 -14 V14 M-10 -10 L10 10 M10 -10 L-10 10" stroke="var(--ink-2)" stroke-width="2"/></g>
+        <text x="535" y="292" text-anchor="middle" font-size="11" fill="var(--ink-2)">gen</text>
+        <rect x="0" y="300" width="600" height="20" fill="var(--ground)"/>
+        <line x1="40" y1="0" x2="40" y2="0" id="headLine" stroke="var(--live)" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="48" y="0" id="headTxt" font-size="12" fill="var(--live)"></text>
+      </svg>
+      <div class="controls">
+        <div class="ctl"><label for="hgate">Turbine gate opening <output id="hgateOut">60%</output></label><input id="hgate" type="range" min="0" max="100" step="5" value="60"></div>
+        <div class="ctl"><label for="hlev">Reservoir level <output id="hlevOut">full</output></label><input id="hlev" type="range" min="0" max="100" step="5" value="90"></div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="hQ">0</b><span>flow, m³/s</span></div>
+        <div class="ro"><b id="hH">0</b><span>head (drop), m</span></div>
+        <div class="ro"><b id="hP">0</b><span>output, kW</span></div>
+      </div>
+      <div class="mode">Power ≈ water density × gravity × flow × head × efficiency (about 88%). Small numbers here: Sulby-sized scheme.</div>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>The governor</strong> opens or closes the gate to hold the generator's speed, and so the grid's frequency, steady. Hydro plants were the first automatic frequency regulators.</li>
+        <li><strong>Pumped storage</strong> runs the same machine backwards: pump water uphill when power is cheap, let it down when it's needed. Dinorwig in Wales goes from standstill to full output in well under a minute.</li>
+        <li><strong>Limits are wet ones:</strong> rainfall, reservoir safety, and the water the river needs downstream for fish and for drinking supply.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> Sulby's hydro plant is tiny by grid standards: its record year, 2012 to 2013, produced 4.9 GWh, about 1% of demand. The reservoirs' first job is drinking water, which caps how much power they can ever give.</div>
+      <p class="rules">Who sets the rules: reservoir and dam safety law, abstraction and river-flow rules, plus the same grid connection requirements as any generator.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- TIDAL -->
+<section class="tech" id="tidal"><div class="wrap">
+  <h2><span class="sw" style="background:var(--tide)"></span>Tidal</h2>
+  <p class="lede">The moon drags the sea back and forth twice a day. Put an underwater turbine where the current runs fast and you can harvest it. Seawater is about 800 times denser than air, so slow currents carry serious power. Its great virtue: you can print the timetable decades ahead.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="tidSvg" viewBox="0 0 600 300" role="img" aria-label="An underwater tidal turbine; current arrows reverse as the tide clock advances.">
+        <rect width="600" height="300" fill="var(--sea)"/>
+        <rect width="600" height="54" fill="var(--sky)"/>
+        <path id="seaSurf" fill="var(--sea)"/>
+        <rect x="0" y="270" width="600" height="30" fill="var(--steel)" opacity=".6"/>
+        <rect x="296" y="180" width="8" height="90" fill="var(--steel)"/>
+        <g id="tRotor" transform="translate(300 170)"><ellipse rx="10" ry="46" fill="var(--surface-1)" stroke="var(--ink-2)" stroke-width="2"/><circle r="6" fill="var(--ink-2)"/></g>
+        <g id="current" stroke="var(--surface-1)" stroke-width="2.5" stroke-linecap="round" opacity=".8"></g>
+        <text x="16" y="30" font-size="13" fill="var(--ink-2)" id="tidTxt"></text>
+      </svg>
+      <div class="controls">
+        <div class="btns"><button class="act" id="tidPlay" aria-pressed="true" type="button">Pause the tide clock</button>
+          <button class="act" data-sp="1" aria-pressed="true" type="button">Spring tides</button><button class="act" data-sp="0" aria-pressed="false" type="button">Neap tides</button></div>
+      </div>
+      <div class="readouts">
+        <div class="ro"><b id="tV">0</b><span>current, m/s</span></div>
+        <div class="ro"><b id="tP">0</b><span>output, MW (1.5 MW unit)</span></div>
+      </div>
+      <svg class="chart" id="tidChart" viewBox="0 0 560 150" aria-label="Output over 24 hours"></svg>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>Predictable, not dispatchable.</strong> Output peaks four times a day as the flood and ebb run hardest, then falls to zero at slack water. Those peaks march about 50 minutes later each day, so they rarely line up with teatime demand.</li>
+        <li>Turbines either swing round or flip their blades when the tide reverses, and pitch or speed control caps output in the fastest flows, just like wind.</li>
+        <li>Spring tides, around new and full moon, carry far more power than neaps, because power climbs with the cube of current speed.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> The Irish Sea has strong tidal streams in places, and studies around 2015 looked at Manx sites, but nothing has progressed since. Treat tidal as a watching brief, not part of any current plan.</div>
+      <p class="rules">Who sets the rules: marine licensing and seabed leasing (on the Island, through government and the Crown's marine estate), environmental assessment, and the usual grid connection requirements.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- BATTERIES -->
+<section class="tech" id="batteries"><div class="wrap">
+  <h2><span class="sw" style="background:var(--batt)"></span>Batteries</h2>
+  <p class="lede">A battery doesn't make energy, it moves it in time. Its superpower on a grid is speed: it can go from charging to full discharge in a fraction of a second, faster than any spinning machine can react. Whether it helps or just follows depends on how its inverter is programmed.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="chart" id="battChart" viewBox="0 0 560 260" role="img" aria-label="Grid frequency after a large generator trips, with no battery, a grid-following battery, and a grid-forming battery."></svg>
+      <div class="controls"><div class="btns">
+        <button class="act danger" id="tripBtn" type="button">Trip the interconnector</button>
+        <button class="act" data-bm="none" aria-pressed="false" type="button">No battery</button>
+        <button class="act" data-bm="follow" aria-pressed="false" type="button">Grid-following</button>
+        <button class="act" data-bm="form" aria-pressed="true" type="button">Grid-forming</button>
+      </div></div>
+      <div class="readouts">
+        <div class="ro"><b id="bNadir">-</b><span>lowest frequency, Hz</span></div>
+        <div class="ro"><b id="bLoad">-</b><span>outcome</span></div>
+      </div>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>Grid-following</strong> batteries measure the grid's frequency, then react. That measuring takes a few hundred milliseconds, by which time frequency has already fallen a long way.</li>
+        <li><strong>Grid-forming</strong> batteries hold their own voltage wave steady, like a spinning generator does, so they push back instantly. That's synthetic inertia, and it's the key to running a grid without big spinning plant.</li>
+        <li><strong>Hours, not days.</strong> Grid batteries usually store one to four hours. Brilliant for shocks and evening peaks; useless for a windless fortnight in January.</li>
+        <li><strong>Under-frequency load shedding</strong> is the last line of defence: if frequency falls far enough, relays automatically switch off blocks of customers to save the rest.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> There is no grid-scale battery yet. The Faroe Islands show what a modest one can do: a 6 MW battery roughly doubled the useful output of one wind farm. Powering Mann argues for 30 to 40 MW of grid-forming storage here.</div>
+      <p class="rules">Who sets the rules: grid codes are being rewritten to define grid-forming behaviour (Great Britain introduced a grid-forming specification in 2022), plus fire-safety and siting standards for large lithium installations.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- GAS -->
+<section class="tech" id="gas"><div class="wrap">
+  <h2><span class="sw" style="background:var(--gas)"></span>Gas, for comparison</h2>
+  <p class="lede">Pulrose is a combined-cycle gas turbine: a jet engine bolted to the ground. It burns gas to spin one generator, then catches the hot exhaust to boil water and spin a second. That second trick takes efficiency from roughly a third to well over half.</p>
+  <div class="stage">
+    <div class="panel">
+      <svg class="ill" id="gasSvg" viewBox="0 0 600 300" role="img" aria-label="Flow diagram of a combined-cycle gas turbine.">
+        <rect width="600" height="300" fill="var(--surface-2)"/>
+        <polygon points="40,110 110,90 110,170 40,150" fill="var(--steel)"/><text x="75" y="186" text-anchor="middle" font-size="11" fill="var(--ink-2)">compressor</text>
+        <rect x="114" y="104" width="50" height="52" rx="6" fill="var(--gas)"/><text x="139" y="186" text-anchor="middle" font-size="11" fill="var(--ink-2)">burner</text>
+        <polygon points="168,90 238,110 238,150 168,170" fill="var(--steel)"/><text x="203" y="186" text-anchor="middle" font-size="11" fill="var(--ink-2)">gas turbine</text>
+        <rect x="246" y="112" width="44" height="36" rx="6" fill="var(--ink-2)"/><text x="268" y="134" text-anchor="middle" font-size="11" fill="var(--page)">G1</text>
+        <path id="exhaust" d="M238 100 C300 40 360 40 380 70" stroke="var(--gas)" stroke-width="10" fill="none" stroke-dasharray="8 10" opacity=".75"/>
+        <g id="hrsg"><rect x="370" y="62" width="70" height="120" rx="8" fill="var(--surface-1)" stroke="var(--steel)" stroke-width="3"/><text x="405" y="196" text-anchor="middle" font-size="11" fill="var(--ink-2)">steam boiler</text>
+        <path d="M440 90 H480" stroke="var(--live)" stroke-width="6"/><polygon points="480,80 530,95 530,140 480,155" fill="var(--steel)"/><rect x="536" y="104" width="44" height="36" rx="6" fill="var(--ink-2)"/><text x="558" y="126" text-anchor="middle" font-size="11" fill="var(--page)">G2</text>
+        <text x="505" y="170" text-anchor="middle" font-size="11" fill="var(--ink-2)">steam turbine</text></g>
+        <g id="stack"><rect x="400" y="20" width="18" height="44" fill="var(--steel)"/></g>
+        <g id="wasteHeat" opacity="0"><path d="M380 70 C400 30 420 20 430 0" stroke="var(--gas)" stroke-width="12" fill="none" opacity=".5"/><text x="440" y="40" font-size="12" fill="var(--live)">heat thrown away</text></g>
+        <!-- sankey bar -->
+        <g transform="translate(40 230)"><rect width="520" height="22" rx="4" fill="var(--grid)"/><rect id="effBar" width="300" height="22" rx="4" fill="var(--gas)"/><text id="effTxt" x="8" y="16" font-size="12.5" font-weight="700" fill="#fff"></text></g>
+      </svg>
+      <div class="controls"><div class="btns">
+        <button class="act" data-cy="open" aria-pressed="false" type="button">Open cycle only</button>
+        <button class="act" data-cy="combined" aria-pressed="true" type="button">Combined cycle</button>
+      </div></div>
+    </div>
+    <div class="notes">
+      <h3>How it's controlled</h3>
+      <ul>
+        <li><strong>Governor:</strong> fuel valves open and close to hold speed at exactly 3,000 rpm for a two-pole machine, which is 50 Hz. Lose the cable and the governor opens up to fill the gap.</li>
+        <li><strong>Exciter:</strong> varies the magnetic field in the generator to hold voltage and supply reactive power.</li>
+        <li><strong>Flexible but thirsty for money:</strong> it can follow demand up and down within limits, but every unit costs fuel bought on a volatile market, and burns carbon.</li>
+      </ul>
+      <div class="iom"><b>On the Island.</b> Pulrose's combined-cycle unit, about 85 MW and running since 2003, made roughly 82% of Manx electricity at the end of 2024. Its design life runs out in the first half of the 2030s, which is why the next decade's choices matter so much. The Richmond Hill energy-from-waste plant adds about 10%.</div>
+      <p class="rules">Who sets the rules: emissions permits, gas safety regulation, and on the grid, the operator's dispatch instructions.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- COMPARE -->
+<section class="tech" id="compare"><div class="wrap">
+  <h2><span class="sw" style="background:var(--ink-1)"></span>Side by side</h2>
+  <p class="lede">Capacity factor is the share of the year's maximum possible output a plant actually delivers. It is the single most useful number for comparing them. Figures are typical UK values, not promises.</p>
+  <div class="tablewrap"><table class="cmp">
+    <thead><tr><th>Technology</th><th>Family</th><th>Typical UK capacity factor</th><th>Can you turn it up on demand?</th><th>Inertia</th><th>Main limitation here</th></tr></thead>
+    <tbody>
+      <tr><td><span class="dot" style="background:var(--wind)"></span>Onshore wind</td><td>Inverter (modern)</td><td>about 25 to 30%</td><td>Down yes, up only if held back</td><td>Synthetic, if specified</td><td>Planning consent</td></tr>
+      <tr><td><span class="dot" style="background:var(--wind)"></span>Offshore wind</td><td>Inverter</td><td>about 35 to 45%</td><td>Down yes, up only if held back</td><td>Synthetic, if specified</td><td>Mostly built for export</td></tr>
+      <tr><td><span class="dot" style="background:var(--sun)"></span>Solar</td><td>Inverter</td><td>about 10 to 11%</td><td>Down yes</td><td>Synthetic, if specified</td><td>Near zero on winter evenings</td></tr>
+      <tr><td><span class="dot" style="background:var(--nuke)"></span>Nuclear</td><td>Spinning</td><td>about 60 to 80%</td><td>Slowly</td><td>Lots</td><td>Scale: one plant dwarfs Manx demand</td></tr>
+      <tr><td><span class="dot" style="background:var(--hydro)"></span>Hydro</td><td>Spinning</td><td>about 30 to 40%</td><td>Yes, fast</td><td>Some</td><td>Rain and drinking-water duty</td></tr>
+      <tr><td><span class="dot" style="background:var(--tide)"></span>Tidal stream</td><td>Inverter</td><td>about 30 to 40% (estimated)</td><td>No, but predictable</td><td>Synthetic, if specified</td><td>Unproven at scale, costly</td></tr>
+      <tr><td><span class="dot" style="background:var(--batt)"></span>Battery</td><td>Inverter</td><td>stores, doesn't generate</td><td>Yes, in milliseconds</td><td>Synthetic (grid-forming)</td><td>Hours of storage, not days</td></tr>
+      <tr><td><span class="dot" style="background:var(--gas)"></span>Gas CCGT</td><td>Spinning</td><td>varies with dispatch</td><td>Yes, in minutes</td><td>Lots</td><td>Fuel price and carbon</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section class="tech" id="glossary"><div class="wrap">
+  <h2><span class="sw" style="background:var(--ink-3)"></span>Words worth knowing</h2>
+  <dl class="gl">
+    <dt>MW and MWh</dt><dd>A megawatt is a rate, like speed. A megawatt-hour is an amount, like distance. A 3 MW turbine running flat out for an hour makes 3 MWh.</dd>
+    <dt>Frequency (50 Hz)</dt><dd>How fast the grid's AC wave cycles. It sags when demand exceeds supply and rises when supply exceeds demand, so it's the grid's live balance meter.</dd>
+    <dt>Inertia</dt><dd>The stored spin in big rotating machines that slows down any change in frequency, buying time for controls to act.</dd>
+    <dt>Grid-forming</dt><dd>An inverter that sets its own voltage wave and resists change like a spinning machine, instead of merely following the grid.</dd>
+    <dt>Curtailment</dt><dd>Telling a wind or solar plant to produce less than it could, usually because the network can't take or use the power.</dd>
+    <dt>Capacity factor</dt><dd>Actual yearly output divided by what the plant would make at full power all year.</dd>
+    <dt>Scram</dt><dd>Emergency shutdown of a reactor by inserting all control rods.</dd>
+    <dt>Anti-islanding</dt><dd>The rule that small generators must shut off when the grid goes dead, to protect line workers.</dd>
+  </dl>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>Simplified physics throughout: the sliders show how each machine behaves, not a design study. Island figures are from public reporting and are flagged where sources disagree. Independent analysis by Coalfinch Observatory; not Manx Utilities or Isle of Man Government material. The author chairs Manx Utilities from October 2026.</p>
+  <ol class="src">
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/examination-process-into-mooir-vannin-proposals-closes-today/">Manx Radio: Mooir Vannin examination closes (Sep 2026)</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/onshore-windfarm-planning-application-delayed-as-manx-utilities-says-more-work-needed-929460">IOM Today: onshore wind application delayed (Jul 2026)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/earystane-and-scard-windfarm-site-to-be-progressed">Manx Radio: Earystane and Scard site chosen (Oct 2023)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/manx-utilities-seeking-land-for-solar-energy-generation/">Manx Radio: MUA seeks land for solar (Feb 2026)</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-news/plans-submitted-for-rooftop-solar-array-at-nsc/">Manx Radio: NSC rooftop array (Apr 2026)</a></li>
+    <li><a href="https://motorsport.manxradio.com/news/isle-of-man-news/record-output-from-hydro-station/">Manx Radio: record Sulby hydro output (2013)</a></li>
+    <li><a href="https://www.energy-storage.news/hitachi-energy-faroe-islands-bess-project-doubles-wind-farms-utilisation">Energy Storage News: Faroe Islands battery doubles wind utilisation</a></li>
+    <li><a href="https://www.gem.wiki/Pulrose_power_station">Global Energy Monitor: Pulrose power station</a></li>
+    <li><a href="https://www.greenparty.im/news/renewablesupdate2026">Isle of Man Green Party: renewables update 2026 (Pulrose share)</a></li>
+    <li><a href="https://suez.co.uk/en-gb/our-offering/success-stories/our-references/powering-self-sufficiency-on-the-isle-of-man">SUEZ: Richmond Hill energy from waste</a></li>
+    <li><a href="https://www.gov.uk/government/collections/digest-of-uk-energy-statistics-dukes">DESNZ: Digest of UK Energy Statistics (load factors)</a></li>
+  </ol>
+</div></footer>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
+
+/* theme */
+const root=document.documentElement;
+function setTheme(t){ if(t==='light'||t==='dark'){root.setAttribute('data-theme',t);} else if(t){ root.setAttribute('data-theme', /health|light|paper/.test(t)?'light':'dark'); } }
+$('#themeBtn').addEventListener('click',()=>{const cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');setTheme(cur==='dark'?'light':'dark');});
+addEventListener('message',e=>{const d=e.data||{};if((d.type==='setTheme'||d.type==='theme')&&d.theme)setTheme(d.theme);});
+
+/* visibility gating for animation */
+const visible=new Set();
+const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting?visible.add(x.target.id):visible.delete(x.target.id)),{rootMargin:'100px'});
+$$('section.tech').forEach(s=>io.observe(s));
+
+/* chart helper */
+function lineChart(svg,{xs,ys,xmax,ymax,color,xlab,ylab,w=560,h=150,pad=34}){
+  svg.innerHTML='';
+  const X=x=>pad+(x/xmax)*(w-pad-10), Y=y=>h-22-(y/ymax)*(h-36);
+  el('line',{x1:pad,y1:h-22,x2:w-10,y2:h-22,class:'ax'},svg); el('line',{x1:pad,y1:10,x2:pad,y2:h-22,class:'ax'},svg);
+  const t1=el('text',{x:w-10,y:h-6,'text-anchor':'end'},svg); t1.textContent=xlab;
+  const t2=el('text',{x:pad+4,y:18},svg); t2.textContent=ylab;
+  let d=''; xs.forEach((x,i)=>{d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(ys[i]).toFixed(1);});
+  el('path',{d,fill:'none',stroke:color,'stroke-width':2.5},svg);
+  const dot=el('circle',{r:6,fill:color,stroke:'var(--surface-1)','stroke-width':2},svg);
+  return {move:(x,y)=>{dot.setAttribute('cx',X(x));dot.setAttribute('cy',Y(y));},X,Y};
+}
+
+/* ---------- TWO FAMILIES ---------- */
+let famT=0, faultT=-9;
+function famDraw(dt){
+  famT+=dt;
+  const ang=(famT*90)%360; $('#rotor').setAttribute('transform',`rotate(${ang} 90 120)`);
+  const f=faultT>0? Math.max(0,1-(famT-faultT)/1.6):0;
+  let a='',b='',p='';
+  for(let i=0;i<=120;i++){
+    const x=i/120, ph=x*4*Math.PI - famT*Math.PI/2;
+    const ampA=26*(1+5*f), ampB=26*(1+0.4*f);
+    a+=(i?'L':'M')+(160+x*120).toFixed(1)+' '+(120-Math.min(90,ampA)*Math.sin(ph)).toFixed(1);
+    b+=(i?'L':'M')+(420+x*160).toFixed(1)+' '+(200-ampB*Math.sin(ph)).toFixed(1);
+    const duty=Math.sin(ph), pw=((i%6)/6)<Math.abs(duty)?Math.sign(duty):0;
+    p+=(i?'L':'M')+(420+x*160).toFixed(1)+' '+(200-30*pw).toFixed(1);
+  }
+  $('#sineA').setAttribute('d',a); $('#sineB').setAttribute('d',b); $('#pwmB').setAttribute('d',p);
+  $('#faultFlash').setAttribute('opacity',f>0?Math.min(1,f*2):0);
+}
+$('#faultBtn').addEventListener('click',()=>{faultT=famT;});
+
+/* ---------- WIND ---------- */
+const W={ci:3,r:12.5,co:25,P:3};
+function windCalc(v,cap){
+  let P=0,rpm=0,pitch=0,mode;
+  if(v<W.ci){mode='Waiting for wind. Below about 3 m/s there is not enough energy to bother.';}
+  else if(v<W.r){P=W.P*(v**3-W.ci**3)/(W.r**3-W.ci**3);rpm=6+10*(v-W.ci)/(W.r-W.ci);mode='Maximising: rotor speed tracks the wind to capture as much power as possible.';}
+  else if(v<W.co){P=W.P;rpm=16;pitch=Math.min(28,(v-W.r)*2.1);mode='Limiting: the blades pitch to spill excess wind and hold output at the rated 3 MW.';}
+  else {P=0;rpm=0.5;pitch=90;mode='Storm shutdown: blades feathered to 90°, rotor parked until the wind drops.';}
+  const lim=W.P*cap/100;
+  if(P>lim+1e-9 && v<W.co){ const extra=(P-lim)/W.P; pitch=Math.min(40,pitch+6+extra*16); P=lim; rpm=Math.min(rpm,16); mode='Curtailed by the grid operator: blades pitch further to hold output at '+lim.toFixed(1)+' MW.';}
+  return {P,rpm,pitch,mode};
+}
+const wc={xs:[],ys:[]}; for(let v=0;v<=30;v+=0.25){wc.xs.push(v);wc.ys.push(windCalc(v,100).P);}
+const windChart=lineChart($('#windChart'),{...wc,xmax:30,ymax:3.3,color:'var(--wind)',xlab:'wind speed, m/s',ylab:'MW'});
+let wAng=0, windState;
+function windUpdate(){
+  const v=+$('#ws').value, cap=+$('#wcap').value;
+  windState=windCalc(v,cap);
+  $('#wsOut').textContent=v+' m/s'; $('#wcapOut').textContent=cap+'%';
+  $('#wP').textContent=windState.P.toFixed(2); $('#wR').textContent=windState.rpm.toFixed(1); $('#wPi').textContent=Math.round(windState.pitch)+'°';
+  $('#wMode').textContent=windState.mode; $('#pitchTxt').textContent='pitch '+Math.round(windState.pitch)+'°';
+  $('#aerofoil').setAttribute('transform',`rotate(${-windState.pitch})`);
+  windChart.move(v,windState.P);
+  $('#windLbl').textContent = v>=W.co?'Gale: '+v+' m/s':v<W.ci?'Calm':'';
+}
+['ws','wcap'].forEach(id=>$('#'+id).addEventListener('input',windUpdate));
+const streaks=[]; for(let i=0;i<14;i++){streaks.push({x:Math.random()*600,y:30+Math.random()*240,l:20+Math.random()*30,e:el('line',{},$('#windStreaks'))});}
+function windDraw(dt){
+  wAng=(wAng+windState.rpm*6*dt)%360; $('#rotorW').setAttribute('transform',`translate(196 115) rotate(${wAng})`);
+  const v=+$('#ws').value;
+  streaks.forEach(s=>{s.x+=v*14*dt; if(s.x>620){s.x=-40;s.y=30+Math.random()*240;} s.e.setAttribute('x1',s.x);s.e.setAttribute('x2',s.x+s.l*(0.3+v/12));s.e.setAttribute('y1',s.y);s.e.setAttribute('y2',s.y);s.e.setAttribute('opacity',v<0.5?0:Math.min(1,v/10));});
+}
+
+/* ---------- SOLAR ---------- */
+let month=6, islanded=false;
+const decl={6:23.4,3:0,12:-23.4}, LAT=54.2*Math.PI/180;
+function elev(h){const d=decl[month]*Math.PI/180,H=(h-12.3)*15*Math.PI/180;return Math.asin(Math.sin(LAT)*Math.sin(d)+Math.cos(LAT)*Math.cos(d)*Math.cos(H));}
+function solarCalc(){
+  const h=+$('#hr').value, c=+$('#cl').value/100, e=elev(h);
+  const clear=e>0?1050*Math.pow(Math.sin(e),1.15):0;
+  const G=clear*(1-0.75*c);
+  return {h,c,e,G};
+}
+function ivCurve(G){ // string of 10 panels
+  const Isc=10*G/1000, Voc=G>2?10*(41+1.4*Math.log(G/1000)):0, Vt=10*2.2;
+  const I=V=>Math.max(0,Isc*(1-Math.exp((V-Voc)/Vt)));
+  let best={V:0,P:0};for(let V=0;V<=Voc;V+=1){const P=V*I(V);if(P>best.P)best={V,P};}
+  return {Isc,Voc,I,best};
+}
+const ivSvg=$('#ivChart'); const STC=ivCurve(1000).best.P;
+const sunY=e=>290-Math.max(-0.1,e)/(Math.PI/2)*270;
+function solarUpdate(){
+  const s=solarCalc();
+  const hh=Math.floor(s.h), mm=Math.round((s.h-hh)*60);
+  $('#hrOut').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0'); $('#clOut').textContent=Math.round(s.c*100)+'%';
+  $('#solTime').textContent={6:'June',3:'March',12:'December'}[month]+', Isle of Man (54°N). Sun '+(s.e>0?Math.round(s.e*180/Math.PI)+'° above the horizon':'below the horizon');
+  // sun position along arc
+  let arc='';for(let t=3;t<=22;t+=0.5){const e=elev(t);arc+=(arc?'L':'M')+(30+(t-3)/19*540).toFixed(1)+' '+sunY(e).toFixed(1);} $('#sunArc').setAttribute('d',arc);
+  $('#sunDot').setAttribute('cx',30+(s.h-3)/19*540); $('#sunDot').setAttribute('cy',sunY(s.e)); $('#sunDot').setAttribute('opacity',s.e>-0.05?1:0);
+  $('#clouds').setAttribute('opacity',s.c*0.95);
+  const iv=ivCurve(s.G), temp=0.92;
+  let P=iv.best.P/STC*4*temp; if(islanded)P=0;
+  $('#sG').textContent=Math.round(s.G); $('#sP').textContent=P.toFixed(2); $('#sV').textContent=islanded||s.G<2?'0':Math.round(iv.best.V);
+  $('#sMode').textContent=islanded?'Grid down: the inverter has disconnected within half a second and will wait for a stable grid before reconnecting.':
+    s.G<2?'Dark: the inverter sleeps.':'Tracking: the inverter holds the panels at '+Math.round(iv.best.V)+' V, the point where current × voltage is greatest.';
+  ivSvg.innerHTML='';
+  const w=560,h=150,pad=34,Vm=460,Im=10.5; const X=v=>pad+v/Vm*(w-pad-10), Y=i=>h-22-i/Im*(h-36);
+  el('line',{x1:pad,y1:h-22,x2:w-10,y2:h-22,class:'ax'},ivSvg);el('line',{x1:pad,y1:10,x2:pad,y2:h-22,class:'ax'},ivSvg);
+  const tx=el('text',{x:w-10,y:h-6,'text-anchor':'end'},ivSvg);tx.textContent='voltage, V';const ty=el('text',{x:pad+4,y:18},ivSvg);ty.textContent='current, A';
+  if(s.G>2){let d='';for(let V=0;V<=iv.Voc;V+=4)d+=(d?'L':'M')+X(V).toFixed(1)+' '+Y(iv.I(V)).toFixed(1);el('path',{d,fill:'none',stroke:'var(--sun)','stroke-width':2.5},ivSvg);
+    el('rect',{x:pad,y:Y(iv.I(iv.best.V)),width:X(iv.best.V)-pad,height:h-22-Y(iv.I(iv.best.V)),fill:'var(--sun)',opacity:.15},ivSvg);
+    el('circle',{cx:X(iv.best.V),cy:Y(iv.I(iv.best.V)),r:6,fill:'var(--sun)',stroke:'var(--surface-1)','stroke-width':2},ivSvg);}
+  return s;
+}
+['hr','cl'].forEach(id=>$('#'+id).addEventListener('input',solarUpdate));
+$$('#solar [data-m]').forEach(b=>b.addEventListener('click',()=>{month=+b.dataset.m;$$('#solar [data-m]').forEach(x=>x.setAttribute('aria-pressed',x===b));solarUpdate();}));
+$('#islandBtn').addEventListener('click',()=>{islanded=!islanded;$('#islandBtn').textContent=islanded?'Restore the grid':'Grid goes down';solarUpdate();});
+const photons=[];for(let i=0;i<10;i++)photons.push({p:Math.random(),e:el('line',{},$('#photons'))});
+function solarDraw(dt){
+  const s=solarCalc(); const sx=30+(s.h-3)/19*540, sy=sunY(s.e), tx=300, ty=185;
+  photons.forEach((ph,i)=>{ph.p=(ph.p+dt*0.6)%1; const k=ph.p, x=sx+(tx+(i-5)*14-sx)*k, y=sy+(ty-sy)*k;
+    ph.e.setAttribute('x1',x);ph.e.setAttribute('y1',y);ph.e.setAttribute('x2',x+(tx-sx)*0.04);ph.e.setAttribute('y2',y+(ty-sy)*0.04);
+    ph.e.setAttribute('opacity',s.G>5?Math.min(1,s.G/600):0);});
+}
+
+/* ---------- NUCLEAR ---------- */
+const N={P:1,T:325,trip:false,decay:0,tTrip:0,P0:1,rodPos:0.85};
+const fuelG=$('#fuel'), rodG=$('#rods');
+for(let i=0;i<7;i++){el('rect',{x:172+i*21,y:136,width:9,height:138,rx:3},fuelG);}
+const rodEls=[];for(let i=0;i<6;i++){rodEls.push(el('rect',{x:183+i*21,y:0,width:7,height:90,rx:2},rodG));}
+const nDots=[];for(let i=0;i<60;i++)nDots.push({x:170+Math.random()*140,y:140+Math.random()*130,vx:(Math.random()-.5)*120,vy:(Math.random()-.5)*120,e:el('circle',{r:2.4},$('#neutrons'))});
+let nTime=0;
+function nukeStep(dt){
+  nTime+=dt;
+  const target=N.trip?0:(+$('#rod').value/100);
+  N.rodPos+= (target-N.rodPos)*Math.min(1,dt*(N.trip?6:2.5));
+  const rhoRod=(N.rodPos*100-50)*10;           // pcm
+  const rho=rhoRod-10*(N.T-290);              // temperature feedback
+  N.P=Math.max(1e-4,Math.min(1.4,N.P*Math.exp(rho/700*dt*3)));
+  const Teq=290+35*N.P; N.T+=(Teq-N.T)*Math.min(1,dt/2.5);
+  if(!N.trip&&N.P>1.1){N.trip=true;N.tTrip=nTime;N.P0=N.P;}
+  let decay=0; if(N.trip){const t=nTime-N.tTrip; decay=0.065*N.P0*Math.pow(1+t*4,-0.25);}
+  N.decay=decay;
+  return rho;
+}
+function nukeShow(rho){
+  rodEls.forEach(r=>r.setAttribute('y',136+(1-N.rodPos)*138-90));
+  $('#rodOut').textContent=$('#rod').value+'%';
+  const heat=Math.max(N.P,N.decay);
+  $('#nP').textContent=(N.P*100<1?(N.P*100).toFixed(2):Math.round(N.P*100))+'%';
+  $('#nH').textContent=(heat*100<10?(heat*100).toFixed(1):Math.round(heat*100))+'%';
+  $('#nT').textContent=Math.round(N.T)+'°C'; $('#tHot').textContent='hot '+Math.round(N.T)+'°C';
+  const k=1+rho/1e5; $('#nK').textContent=k.toFixed(4);
+  $('#scramFlash').setAttribute('opacity',N.trip?1:0);
+  $('#nMode').textContent=N.trip?'Scrammed: rods fully in, chain reaction dying away. Decay heat is still '+(N.decay*100).toFixed(1)+'% of full power, so the pumps must keep running.':
+    Math.abs(rho)<15?(N.P<0.01?'Shut down and subcritical: rods in, almost no fission.':'Critical: k is effectively 1. Each fission causes exactly one more, so power holds steady.'):
+    rho>0?'Supercritical: power rising. Watch the water heat up and pull k back towards 1.':'Subcritical: power falling. The water cools, which nudges k back up.';
+  const nVis=Math.round(Math.min(60,4+56*Math.sqrt(Math.min(1,N.P))));
+  nDots.forEach((d,i)=>d.e.setAttribute('opacity',i<nVis?0.9:0));
+}
+function nukeDraw(dt){
+  const rho=nukeStep(Math.min(dt,0.05)); nukeShow(rho);
+  nDots.forEach(d=>{d.x+=d.vx*dt;d.y+=d.vy*dt;if(d.x<166||d.x>314)d.vx*=-1;if(d.y<136||d.y>276)d.vy*=-1;d.e.setAttribute('cx',d.x);d.e.setAttribute('cy',d.y);});
+}
+$('#scramBtn').addEventListener('click',()=>{if(!N.trip){N.trip=true;N.tTrip=nTime;N.P0=Math.max(N.P,0.05);}});
+$('#resetN').addEventListener('click',()=>{N.trip=false;N.P=0.001;N.T=290;N.rodPos=0;$('#rod').value=40;nukeShow(0);});
+$('#rod').addEventListener('input',()=>{$('#rodOut').textContent=$('#rod').value+'%';});
+
+/* ---------- HYDRO ---------- */
+let hDash=0,hAng=0,hP=0;
+function hydroUpdate(){
+  const g=+$('#hgate').value/100, lev=+$('#hlev').value/100;
+  const top=300-(60+lev*170); const head=60+lev*40; // metres, illustrative Sulby-scale
+  const Q=g*1.6*Math.sqrt(head/100); hP=1000*9.81*Q*head*0.88/1000;
+  $('#resW').setAttribute('y',top);$('#resW').setAttribute('height',300-top);
+  $('#hgateOut').textContent=Math.round(g*100)+'%'; $('#hlevOut').textContent=lev>0.85?'full':lev<0.2?'low':Math.round(lev*100)+'%';
+  $('#hQ').textContent=Q.toFixed(2); $('#hH').textContent=Math.round(head); $('#hP').textContent=Math.round(hP);
+  $('#headLine').setAttribute('x1',40);$('#headLine').setAttribute('x2',40);$('#headLine').setAttribute('y1',top);$('#headLine').setAttribute('y2',286);
+  $('#headTxt').setAttribute('y',(top+286)/2);$('#headTxt').textContent='head '+Math.round(head)+' m';
+}
+['hgate','hlev'].forEach(id=>$('#'+id).addEventListener('input',hydroUpdate));
+function hydroDraw(dt){const g=+$('#hgate').value/100;hDash-=dt*80*g;$('#flowPath').setAttribute('stroke-dashoffset',hDash);$('#flowPath').setAttribute('opacity',g>0?1:0);hAng=(hAng+hP*0.4*dt)%360;$('#runner').setAttribute('transform',`translate(500 286) rotate(${hAng})`);}
+
+/* ---------- TIDAL ---------- */
+let tClock=6, tPlay=!reduce, spring=1;
+const PER=12.42;
+function tCur(t){return (spring?2.6:1.4)*Math.sin(2*Math.PI*t/PER);}
+function tPow(v){const a=Math.abs(v);if(a<0.8)return 0;return Math.min(1.5,1.5*((a**3-0.512)/(2.4**3-0.512)));}
+const tArr=[];for(let i=0;i<12;i++)tArr.push({x:Math.random()*600,y:90+Math.random()*170,e:el('line',{},$('#current'))});
+let tidChart;
+function tidChartDraw(){const xs=[],ys=[];for(let t=0;t<=24;t+=0.1){xs.push(t);ys.push(tPow(tCur(t)));}tidChart=lineChart($('#tidChart'),{xs,ys,xmax:24,ymax:1.7,color:'var(--tide)',xlab:'hours',ylab:'MW'});}
+tidChartDraw();
+function tidUpdate(){const v=tCur(tClock),P=tPow(v);$('#tV').textContent=Math.abs(v).toFixed(1);$('#tP').textContent=P.toFixed(2);tidChart.move(tClock%24,P);
+  const hh=Math.floor(tClock%24),mm=Math.floor((tClock%1)*60);$('#tidTxt').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+'  '+(Math.abs(v)<0.3?'slack water':v>0?'flood tide running':'ebb tide running');
+  let d='M0 54';for(let x=0;x<=600;x+=20)d+=' L'+x+' '+(50+4*Math.sin(x/40+tClock*3));d+=' L600 300 L0 300Z';$('#seaSurf').setAttribute('d',d);return v;}
+let tAng=0;
+function tidDraw(dt){if(tPlay)tClock=(tClock+dt*0.8)%24;const v=tidUpdate();tAng+=tPow(v)*200*dt;$('#tRotor').setAttribute('transform',`translate(300 170) scale(${Math.cos(tAng/57.3)>=0?1:-1} 1)`);
+  tArr.forEach(a=>{a.x+=v*40*dt;if(a.x>620)a.x=-30;if(a.x<-30)a.x=620;a.e.setAttribute('x1',a.x);a.e.setAttribute('x2',a.x+v*10);a.e.setAttribute('y1',a.y);a.e.setAttribute('y2',a.y);a.e.setAttribute('opacity',Math.min(.9,Math.abs(v)/2));});}
+$('#tidPlay').addEventListener('click',()=>{tPlay=!tPlay;$('#tidPlay').textContent=tPlay?'Pause the tide clock':'Run the tide clock';$('#tidPlay').setAttribute('aria-pressed',tPlay);});
+$$('#tidal [data-sp]').forEach(b=>b.addEventListener('click',()=>{spring=+b.dataset.sp;$$('#tidal [data-sp]').forEach(x=>x.setAttribute('aria-pressed',x===b));tidChartDraw();tidUpdate();}));
+
+/* ---------- BATTERIES ---------- */
+let bMode='form', bAnim=null;
+function freqSim(mode){ // illustrative: 40 MW infeed lost on a small island grid (swing equation)
+  const out=[];let f=50,df=0,gov=0,bat=0,shed=0;const S=100,loss=30,D=1,dt=0.005;
+  const H=4+(mode==='form'?6:0); // grid-forming adds synthetic inertia
+  const hist=[];
+  for(let t=0;t<=8;t+=dt){
+    hist.push(f); const fDel=hist[Math.max(0,hist.length-1-Math.round(0.25/dt))];
+    gov+=(Math.min(30,Math.max(0,30*(50-f)))-gov)*dt/2;
+    if(mode==='form') bat=Math.min(30,Math.max(0,60*(50-f)));
+    else if(mode==='follow') bat+=(Math.min(30,Math.max(0,40*(50-fDel)))-bat)*dt/0.3;
+    if(!shed&&f<48.8) shed=15;
+    const imb=(t>0.5?-loss:0)+gov+bat+shed+D*(50-f)*S/50;
+    df=imb/(2*H*S)*50; f+=df*dt;
+    out.push([t,f]);
+  } return out;
+}
+const bSvg=$('#battChart');
+function battFrame(progress){
+  bSvg.innerHTML='';const w=560,h=260,pad=40;const X=t=>pad+t/8*(w-pad-10),Y=f=>14+(50.2-f)/(50.2-47.8)*(h-48);
+  el('line',{x1:pad,y1:h-34,x2:w-10,y2:h-34,class:'ax'},bSvg);el('line',{x1:pad,y1:14,x2:pad,y2:h-34,class:'ax'},bSvg);
+  [50,49.5,49,48.5,48].forEach(f=>{el('line',{x1:pad,x2:w-10,y1:Y(f),y2:Y(f),stroke:'var(--grid)','stroke-dasharray':'2 4'},bSvg);const t=el('text',{x:pad-6,y:Y(f)+4,'text-anchor':'end'},bSvg);t.textContent=f.toFixed(1);});
+  el('line',{x1:pad,x2:w-10,y1:Y(48.8),y2:Y(48.8),stroke:'var(--live)','stroke-width':1.5},bSvg);
+  const lt=el('text',{x:w-12,y:Y(48.8)-6,'text-anchor':'end',fill:'var(--live)'},bSvg);lt.textContent='automatic load shedding starts';
+  const xl=el('text',{x:w-10,y:h-14,'text-anchor':'end'},bSvg);xl.textContent='seconds after the trip';
+  const yl=el('text',{x:pad+4,y:28},bSvg);yl.textContent='frequency, Hz';
+  const modes=[['none','var(--ink-3)'],['follow','var(--warn)'],['form','var(--batt)']];
+  let nadirSel=50, shedSel=false;
+  modes.forEach(([m,c])=>{const data=freqSim(m);const n=Math.floor(data.length*(m===bMode?progress:1));let d='';let nad=50,shed=false;
+    data.slice(0,Math.max(2,n)).forEach(([t,f],i)=>{d+=(i?'L':'M')+X(t).toFixed(1)+' '+Y(Math.max(47.8,f)).toFixed(1);});
+    data.forEach(([,f])=>{nad=Math.min(nad,f);if(f<48.8)shed=true;});
+    el('path',{d,fill:'none',stroke:c,'stroke-width':m===bMode?3.2:1.4,opacity:m===bMode?1:.45},bSvg);
+    if(m===bMode){nadirSel=nad;shedSel=shed;}});
+  if(progress>=1){$('#bNadir').textContent=Math.max(47.8,nadirSel).toFixed(2);$('#bLoad').textContent=shedSel?'Customers cut':'Lights stay on';}
+}
+function runTrip(){ if(reduce){battFrame(1);return;} let p=0; cancelAnimationFrame(bAnim); const step=()=>{p=Math.min(1,p+0.012);battFrame(p);if(p<1)bAnim=requestAnimationFrame(step);}; step(); }
+$('#tripBtn').addEventListener('click',runTrip);
+$$('#batteries [data-bm]').forEach(b=>b.addEventListener('click',()=>{bMode=b.dataset.bm;$$('#batteries [data-bm]').forEach(x=>x.setAttribute('aria-pressed',x===b));runTrip();}));
+battFrame(1);
+
+/* ---------- GAS ---------- */
+let cyc='combined',gDash=0;
+function gasUpdate(){const comb=cyc==='combined';const eff=comb?0.56:0.36;
+  $('#effBar').setAttribute('width',520*eff);$('#effTxt').textContent=Math.round(eff*100)+'% of the fuel\'s energy becomes electricity';
+  $('#hrsg').setAttribute('opacity',comb?1:.18);$('#wasteHeat').setAttribute('opacity',comb?0:1);}
+$$('#gas [data-cy]').forEach(b=>b.addEventListener('click',()=>{cyc=b.dataset.cy;$$('#gas [data-cy]').forEach(x=>x.setAttribute('aria-pressed',x===b));gasUpdate();}));
+function gasDraw(dt){gDash-=dt*60;$('#exhaust').setAttribute('stroke-dashoffset',gDash);}
+
+/* ---------- main loop ---------- */
+windUpdate(); solarUpdate(); hydroUpdate(); gasUpdate(); tidUpdate(); nukeShow(0); famDraw(0); windDraw(0); solarDraw(0); hydroDraw(0); tidDraw(0);
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.1,(now-last)/1000); last=now;
+  if(!reduce){
+    if(visible.has('families'))famDraw(dt);
+    if(visible.has('wind'))windDraw(dt);
+    if(visible.has('solar'))solarDraw(dt);
+    if(visible.has('hydro'))hydroDraw(dt);
+    if(visible.has('tidal'))tidDraw(dt);
+    if(visible.has('gas'))gasDraw(dt);
+  }
+  if(visible.has('nuclear')) nukeDraw(reduce?0.05:dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

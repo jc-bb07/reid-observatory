@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who earns what heating your home · Coalfinch Observatory</title>
+<meta name="description" content="Electricity, gas and heating oil on the Isle of Man: prices, profits and returns against the cost of capital, compared with the UK and Jersey.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light dark;
+  --surface-1:#fff; --surface-2:#f1f5f9; --page:#f8fafc;
+  --ink-1:#0f172a; --ink-2:#334155; --ink-3:#64748b; --grid:#cbd5e1; --ring:rgba(15,23,42,.10);
+  --elec:#2563eb; --gas:#ea580c; --oil:#7c3aed; --hp:#059669; --cmp:#94a3b8;
+  --bad:#b91c1c; --good:#047857; --accent:#2563eb;
+  --font:'Inter',system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:'Bricolage Grotesque','Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    --surface-1:#12222a; --surface-2:#0e1b23; --page:#0c1620;
+    --ink-1:#e2ecea; --ink-2:#a9c1bb; --ink-3:#7e9a94; --grid:#2b4049; --ring:rgba(255,255,255,.10);
+    --elec:#3b82f6; --gas:#ea580c; --oil:#8b5cf6; --hp:#059669; --cmp:#5b7380; --bad:#f87171; --good:#34d399; --accent:#60a5fa;
+  }
+}
+:root[data-theme="dark"]{
+    --surface-1:#12222a; --surface-2:#0e1b23; --page:#0c1620;
+    --ink-1:#e2ecea; --ink-2:#a9c1bb; --ink-3:#7e9a94; --grid:#2b4049; --ring:rgba(255,255,255,.10);
+    --elec:#3b82f6; --gas:#ea580c; --oil:#8b5cf6; --hp:#059669; --cmp:#5b7380; --bad:#f87171; --good:#34d399; --accent:#60a5fa;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink-1);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.site{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--grid)}
+header.site .bar{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
+.brand{font-weight:650;display:flex;align-items:center;gap:8px;color:var(--ink-1);text-decoration:none}
+.brand i{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+nav.toc{margin-left:auto;display:flex;flex-wrap:wrap;font-size:13.5px}
+nav.toc a{color:var(--ink-2);text-decoration:none;padding:3px 8px;border-radius:6px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--surface-2);color:var(--ink-1)}
+#themeBtn{border:1px solid var(--grid);background:var(--surface-1);color:var(--ink-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+@media (max-width:760px){header.site{position:static}header.site .bar{flex-wrap:nowrap;gap:8px;padding:8px 12px}.brand{font-size:14px;white-space:nowrap}nav.toc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:0;flex:1;min-width:0}nav.toc::-webkit-scrollbar{display:none}nav.toc a{white-space:nowrap}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.hero{padding:44px 0 20px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(38px,6.6vw,74px);line-height:.96;letter-spacing:-.03em;margin:0 0 14px;max-width:17ch}
+.hero .sf{font-size:19px;color:var(--ink-2);max-width:64ch;margin:0 0 10px}
+.decl{border:1px solid var(--grid);border-left:4px solid var(--ink-3);background:var(--surface-1);border-radius:10px;padding:10px 14px;font-size:14.5px;color:var(--ink-2);margin:16px 0 0;max-width:80ch}
+.calc{margin-top:22px;background:var(--surface-1);border:1px solid var(--ring);border-radius:18px;padding:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+button.chip{font:inherit;font-size:14px;font-weight:600;border-radius:999px;padding:6px 12px;border:1px solid var(--grid);background:var(--surface-2);color:var(--ink-1);cursor:pointer}
+button.chip[aria-pressed=true]{background:var(--ink-1);color:var(--page);border-color:var(--ink-1)}
+.ctlrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink-2);font-weight:550}
+.ctl output{font-family:var(--mono);color:var(--ink-1);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.bars{margin-top:16px;display:grid;gap:10px}
+.barrow{display:grid;grid-template-columns:150px 1fr 96px;align-items:center;gap:12px;font-size:14.5px}
+@media (max-width:600px){.barrow{grid-template-columns:96px 1fr 78px;font-size:13px}}
+.barrow .track{height:26px;background:var(--surface-2);border-radius:6px;position:relative;overflow:hidden}
+.barrow .fill{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0;transition:width .35s}
+@media (prefers-reduced-motion: reduce){.barrow .fill{transition:none}html{scroll-behavior:auto}}
+.barrow .val{font-family:var(--mono);font-weight:700;text-align:right}
+.barrow .nm{display:flex;align-items:center;gap:8px}
+.sw{width:12px;height:12px;border-radius:3px;flex:none}
+.fine{font-size:13.5px;color:var(--ink-3);margin-top:10px}
+
+section.part{padding:54px 0;border-top:1px solid var(--grid)}
+.part h2{font-family:var(--display);font-weight:800;font-size:clamp(28px,4.2vw,44px);letter-spacing:-.02em;line-height:1.02;margin:0 0 10px}
+.lede{font-size:18px;color:var(--ink-2);max-width:66ch;margin:0 0 20px}
+.panel{background:var(--surface-1);border:1px solid var(--ring);border-radius:14px;padding:16px}
+.two{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+svg.chart{width:100%;height:auto;display:block}
+.scrollx{overflow-x:auto}
+@media (max-width:600px){#retChart,#muaChart{min-width:620px}}
+svg.chart text{font-family:var(--font);fill:var(--ink-3);font-size:11px}
+svg.chart .lbl{fill:var(--ink-1);font-weight:600;font-size:12px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13.5px;color:var(--ink-2);margin:4px 0 8px}
+.legend span{display:flex;align-items:center;gap:6px}
+.notes p{margin:0 0 12px;color:var(--ink-2)} .notes strong{color:var(--ink-1)}
+.tablewrap{overflow-x:auto;border:1px solid var(--ring);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--surface-1)}
+th,td{padding:10px 12px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
+th{background:var(--surface-2);color:var(--ink-2);font-weight:650}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px}
+.verdict{background:var(--surface-1);border:1px solid var(--ring);border-radius:14px;padding:14px 16px}
+.verdict h3{font-family:var(--display);font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.verdict .tag{white-space:nowrap;font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 9px;border:1px solid currentColor}
+.verdict p{margin:0;color:var(--ink-2);font-size:15px}
+.tag.ok{color:var(--good)} .tag.warn{color:var(--gas)} .tag.unk{color:var(--ink-3)}
+#tip{position:fixed;pointer-events:none;z-index:80;background:var(--ink-1);color:var(--page);font-size:13px;line-height:1.4;padding:7px 10px;border-radius:8px;max-width:280px;opacity:0;transition:opacity .1s}
+details{margin-top:12px} summary{cursor:pointer;font-weight:600}
+button.act{font:inherit;font-size:14px;font-weight:600;border-radius:8px;padding:6px 12px;border:1px solid var(--grid);background:var(--surface-2);color:var(--ink-1);cursor:pointer}
+footer{padding:36px 0 60px;color:var(--ink-3);font-size:14px;border-top:1px solid var(--grid)}
+ol.src{font-size:14px;color:var(--ink-2);padding-left:20px} ol.src li{margin-bottom:4px}
+</style>
+</head>
+<body>
+<header class="site"><div class="bar">
+  <a class="brand" href="/"><i></i>Coalfinch Observatory</a>
+  <nav class="toc" aria-label="Sections">
+    <a href="#cost">Cost to heat</a><a href="#market">Who's who</a><a href="#prices">Prices</a><a href="#oil">Oil</a><a href="#returns">Returns</a><a href="#mua">MUA long run</a><a href="#gaps">Gaps</a>
+  </nav>
+  <button id="themeBtn" type="button" aria-label="Toggle light or dark theme" title="Theme">◐</button>
+</div></header>
+<div id="tip" role="tooltip"></div>
+
+<main>
+<section class="wrap hero" id="cost">
+  <h1>Who earns what heating your home</h1>
+  <p class="sf">Three businesses compete to keep Manx homes warm: a government-owned electricity utility, a privately owned gas monopoly and a handful of oil distributors. We pulled their figures as far back as they're published and asked the same question of each: are they earning more than it costs them to raise the money?</p>
+  <p class="decl"><strong>Declaration.</strong> The author, James Cochrane MHK, has chaired Manx Utilities since October 2026, and a close family member holds a senior role in the UK business of the group that owns Ellan Vannin Fuels. Everything here is from public sources, and nothing draws on Manx Utilities board material. Read it with that in mind, and check the sources.</p>
+
+  <div class="calc" aria-labelledby="calcH">
+    <h2 id="calcH" style="font-family:var(--display);font-size:22px;margin:0 0 10px">What a year of heat costs, by fuel</h2>
+    <div class="chips" role="group" aria-label="Price date">
+      <button class="chip" data-snap="s2019" type="button">2019/20</button>
+      <button class="chip" data-snap="s2022" type="button">2022 peak</button>
+      <button class="chip" data-snap="s2024" type="button">Mid-2024</button>
+      <button class="chip" data-snap="s2026m" type="button" aria-pressed="true">March 2026</button>
+      <button class="chip" data-snap="s2026a" type="button">April 2026 oil spike</button>
+    </div>
+    <div class="ctlrow">
+      <div class="ctl"><label for="heat">Heat your home needs a year <output id="heatO">12,000 kWh</output></label><input id="heat" type="range" min="4000" max="24000" step="500" value="12000"></div>
+      <div class="ctl"><label for="scop">Heat pump efficiency (units of heat per unit of power) <output id="scopO">3.0</output></label><input id="scop" type="range" min="2" max="4.5" step="0.1" value="3"></div>
+    </div>
+    <div class="bars" id="costBars" aria-live="polite"></div>
+    <p class="fine" id="costNote"></p>
+  </div>
+</section>
+
+<section class="part" id="market"><div class="wrap">
+  <h2>Who's who</h2>
+  <p class="lede">Each fuel is supplied in a completely different way, and regulated differently, or not at all. That shapes everything that follows.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Fuel</th><th>Who supplies it</th><th>Who owns it</th><th>Who checks the price</th><th>Accounts public?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sw" style="display:inline-block;background:var(--elec);margin-right:6px"></span>Electricity</td><td>Manx Utilities: sole generator, network and supplier</td><td>Isle of Man Government (statutory board)</td><td>Tynwald approves a five-year pricing review; no independent regulator</td><td>Yes, laid before Tynwald every year</td></tr>
+      <tr><td><span class="sw" style="display:inline-block;background:var(--gas);margin-right:6px"></span>Mains gas and LPG</td><td>Manx Gas, trading as Isle of Man Energy: sole gas supplier</td><td>Islands Energy Group, owned by infrastructure investor Ancala Partners; also owns the Jersey and Guernsey gas companies</td><td>CURA, under tariff regulations approved in 2022; before that a voluntary profit agreement with the OFT</td><td>No. The OFT refused an FOI for them after Manx Gas withheld consent</td></tr>
+      <tr><td><span class="sw" style="display:inline-block;background:var(--oil);margin-right:6px"></span>Heating oil</td><td>Ellan Vannin Fuels, Manx Petroleum, Island Fuels and Northern Fuels</td><td>EVF: the DCC group (Certas Energy). Manx Petroleum: family-owned since 1926. Others: private</td><td>Nobody. The OFT publishes price comparisons; there is no price regulation</td><td>No Island accounts published. EVF's UK-registered company is dormant</td></tr>
+    </tbody>
+  </table></div>
+  <p class="fine">Manx Utilities also sells gas to Manx Gas. Its gas segment turned over £12.2m in 2024/25, so the "competitors" are also customer and supplier.</p>
+</div></section>
+
+<section class="part" id="prices"><div class="wrap">
+  <h2>Prices, against the UK and Jersey</h2>
+  <p class="lede">Manx electricity held below UK levels through the 2022 crisis, then caught up and overtook them. Manx gas spiked harder and faster than the UK cap, because it is bought forward and priced forward, and has stayed dearer since.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="legend"><span><i class="sw" style="background:var(--elec)"></i>Manx Utilities standard domestic unit rate</span><span><i class="sw" style="background:var(--gas)"></i>Manx Gas all-island heating tariff</span></div>
+      <svg class="chart" id="tariffChart" viewBox="0 0 620 300" role="img" aria-label="Isle of Man electricity and gas unit rates, 2019 to 2026, pence per kWh excluding VAT"></svg>
+      <p class="fine">Pence per kWh, excluding VAT, from tariff announcements. Gas between 2020 and April 2022 rose by steps we couldn't date exactly, so that stretch is dashed.</p>
+    </div>
+    <div class="notes">
+      <h3 style="font-family:var(--display);font-size:20px;margin:0 0 10px">Today, side by side</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Unit rate, pence per kWh</th><th class="num">Isle of Man</th><th class="num">GB cap, Oct 2026</th><th class="num">Jersey</th></tr></thead>
+        <tbody>
+          <tr><td>Electricity</td><td class="num">31.0</td><td class="num">26.3</td><td class="num">22.2</td></tr>
+          <tr><td>Electricity standing charge, p/day</td><td class="num">26.8</td><td class="num">54.8</td><td class="num">n/a</td></tr>
+          <tr><td>Gas</td><td class="num">10.8</td><td class="num">8.0</td><td class="num">n/a</td></tr>
+        </tbody>
+      </table></div>
+      <p class="fine">Island figures include 5% VAT for a like-for-like reading. The GB electricity cap carries 0% VAT until March 2027. Jersey is Jersey Electricity's published 2026 unit rate.</p>
+      <p><strong>The standing charge cuts the other way.</strong> Manx Utilities' daily charge is half the GB level and, by its own pricing review, doesn't cover the cost of a connection. Low users do better here than the unit rate suggests; heavy users do worse.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="part" id="oil"><div class="wrap">
+  <h2>Heating oil: nobody's watching the margin</h2>
+  <p class="lede">Oil heats a large share of Manx homes, has no price regulation, and the distributors publish no Island accounts. What we can see is the shelf price. Most of the time it tracks the UK closely; in the April 2026 spike it ran well ahead of Northern Ireland.</p>
+  <div class="two">
+    <div class="panel">
+      <div class="legend"><span><i class="sw" style="background:var(--oil)"></i>Isle of Man, pence per litre incl. VAT</span><span><i class="sw" style="background:var(--cmp)"></i>Northern Ireland or UK average</span></div>
+      <svg class="chart" id="oilChart" viewBox="0 0 620 300" role="img" aria-label="Heating oil prices, Isle of Man against Northern Ireland and the UK, 2011 to 2026"></svg>
+      <p class="fine">Scattered points, not a continuous series: the OFT holds the full monthly record. Some points are converted from the OFT's pence per useful kWh at 10.18 kWh per litre and 90% boiler efficiency. Hover for each source.</p>
+    </div>
+    <div class="notes">
+      <p><strong>April 2026.</strong> One EVF customer's unit price went from 65.5p to 125.5p a litre, before VAT, between January and April. Manx Petroleum was quoting about 112p. Northern Ireland's average for 900 litres was about 101p.</p>
+      <p><strong>June 2022.</strong> At the last big spike the Island was cheaper than Northern Ireland, about 91p against 103p. Island suppliers buy in shiploads, so prices lag the market both up and down.</p>
+      <p><strong>The parent's returns.</strong> DCC, which owns EVF through Certas Energy, reports an 18.5% return on capital employed for its energy division, earning 3.52p of operating profit per litre across 15.2 billion litres. That's group-wide, not the Island, but it is the only audited figure in the chain.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="part" id="returns"><div class="wrap">
+  <h2>Returns against the cost of capital</h2>
+  <p class="lede">The Steam Packet test: is the business earning more on its assets than it costs to finance them? Persistent returns well above that line, in a market with no real competition, are the signature of supernormal profit.</p>
+  <div class="panel">
+    <div class="scrollx"><svg class="chart" id="retChart" viewBox="0 0 760 360" role="img" aria-label="Returns on capital compared with costs of capital"></svg></div>
+    <p class="fine">Measures differ: return on fixed assets for Manx Utilities, return on capital employed (ROCE) for Manx Gas and DCC, return on assets for Jersey Electricity. Treat the ladder as orders of magnitude, not decimals. The dashed line is Manx Utilities' 2034 energy bond coupon, 5.375%.</p>
+  </div>
+  <div class="verdicts">
+    <div class="verdict"><h3><span class="sw" style="background:var(--elec)"></span>Manx Utilities <span class="tag ok">No excess</span></h3><p>Operating returns of about 3 to 6.5% on assets in normal years, almost all paid straight out as roughly £20m a year in interest. Two crisis years ran deficits. Tynwald has written off £95m of its debt. It has the opposite problem: too little margin, too much debt.</p></div>
+    <div class="verdict"><h3><span class="sw" style="background:var(--gas)"></span>Manx Gas <span class="tag warn">Excess found</span></h3><p>Targeted a 10.6% rolling ROCE, then agreed 9.99% from 2015, roughly double today's regulated 5.45% WACC. Since 2022 domestic tariffs are capped, but CURA found large-customer margins of about 44% and cut those tariffs in 2026. The company is taking legal advice.</p></div>
+    <div class="verdict"><h3><span class="sw" style="background:var(--oil)"></span>Heating oil <span class="tag unk">Can't tell</span></h3><p>No Island accounts, no regulator and no margin data. The parent group's energy returns are high, and the Island price ran ahead in the 2026 spike. That is a reason to look, not proof. Only a market study with access to the books could answer it.</p></div>
+    <div class="verdict"><h3><span class="sw" style="background:var(--cmp)"></span>Jersey Electricity <span class="tag unk">Comparator</span></h3><p>A listed island utility earning a 7.4% return on assets in 2025 (6.4% over five years), paying dividends, with a lower unit rate than the Isle of Man. Proof that cheap island power and a positive return can coexist, largely thanks to cheap French imports.</p></div>
+  </div>
+</div></section>
+
+<section class="part" id="mua"><div class="wrap">
+  <h2>Manx Utilities, the long run</h2>
+  <p class="lede">Seventeen years of results. The headline surplus swings on one-offs: a £95m debt write-off in 2017/18, forward gas contracts revalued in 2021/22, the price crisis in 2022/23. Strip those out and the business has rarely made more than its interest bill.</p>
+  <div class="panel">
+    <div class="legend"><span><i class="sw" style="background:var(--elec)"></i>Surplus</span><span><i class="sw" style="background:var(--bad)"></i>Deficit</span><span><i class="sw" style="background:var(--cmp)"></i>One-off inflated (hover)</span></div>
+    <div class="scrollx"><svg class="chart" id="muaChart" viewBox="0 0 640 320" role="img" aria-label="Manx Electricity Authority and Manx Utilities surplus or deficit by year, 2008/09 to 2024/25, £ million"></svg></div>
+    <p class="fine">£ million. To 2012/13 the Manx Electricity Authority alone; from 2014/15 Manx Utilities, which adds water and sewerage. 2017/18 shown with and without the write-off.</p>
+  </div>
+  <details>
+    <summary>Show the data table</summary>
+    <div class="tablewrap" style="margin-top:10px"><table id="muaTable"><thead><tr><th>Year</th><th class="num">Turnover £m</th><th class="num">Operating result £m</th><th class="num">Surplus or deficit £m</th><th class="num">Fixed assets £m</th><th class="num">Net debt £m</th><th class="num">Return on assets</th></tr></thead><tbody></tbody></table></div>
+    <p style="margin-top:10px"><button class="act" id="copyCsv" type="button">Copy as CSV</button> <span id="copyMsg" class="fine" aria-live="polite"></span></p>
+  </details>
+</div></section>
+
+<section class="part" id="gaps"><div class="wrap">
+  <h2>What we couldn't get, and who holds it</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Missing</th><th>Who holds it</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td>Manx Gas accounts, regulated asset base and actual returns by year</td><td>CURA (in confidence); Islands Energy Group</td><td>The only way to test returns since 2022 against the 5.45% allowed</td></tr>
+      <tr><td>Island heating-oil margins and volumes by supplier</td><td>The distributors; the OFT could request them</td><td>Unregulated essential fuel with no public numbers at all</td></tr>
+      <tr><td>The OFT's full monthly heating-price series</td><td>OFT, published as monthly PDFs</td><td>A continuous record of the Island oil premium over the UK</td></tr>
+      <tr><td>Manx Utilities return on capital by business (electricity, water, sewerage)</td><td>Manx Utilities</td><td>Group figures hide whether water cross-subsidises power or the reverse</td></tr>
+      <tr><td>EVF's Island trading accounts</td><td>EVF and its parent</td><td>The UK-registered company is dormant; the Island company's filings aren't public</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <p>Independent analysis by Coalfinch Observatory, November 2026. Not Manx Utilities, CURA or Isle of Man Government material. Figures come from published accounts, regulator documents and news reports; where we derived a number (returns, conversions), the method is stated. Corrections welcome.</p>
+  <ol class="src">
+    <li><a href="https://tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2026-GD-0048.pdf">Manx Utilities Annual Report 2024/25 (GD 2026/0048)</a></li>
+    <li><a href="https://tynwald.org.im/spfile?file=/business/opqp/sittings/20212026/2023-GD-0020.pdf">Manx Utilities Annual Report 2021/22 (GD 2023/0020)</a></li>
+    <li><a href="https://www.tynwald.org.im/spfile?file=%2Fbusiness%2Fopqp%2Fsittings%2F20182021%2F2021-GD-0001.pdf">Manx Utilities Annual Report 2019/20 (GD 2021/0001)</a></li>
+    <li><a href="https://www.tynwald.org.im/spfile?file=/business/opqp/sittings/20182021/2018-GD-0081.pdf">Manx Utilities Annual Report 2017/18 (GD 2018/0081)</a></li>
+    <li><a href="https://www.tynwald.org.im/spfile?file=%2Fbusiness%2Fopqp%2Fsittings%2FTynwald+20162018%2F2017-GD-0045.pdf">Treasury: Manx Utilities Long Term Financial Plan (GD 2017/0045)</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/manx-utilities-returns-to-operating-profit-despite-fall-in-turnover-report-743427">IOM Today: Manx Utilities 2023/24 results</a> and <a href="https://iomtoday.co.im/news/manx-utilities-records-ps42-million-deficit-664182">2022/23 deficit</a></li>
+    <li><a href="https://www.manxradio.com/news/isle-of-man-business/mea-reports-deficit-of-24-million/">Manx Radio: MEA 2008/09</a>, <a href="https://manxradio.com/news/isle-of-man-business/positive-report-from-mea">2009/10</a>, <a href="https://www.manxradio.com/news/isle-of-man-business/mea-exceeds-financial-targets/">2011/12</a></li>
+    <li><a href="https://manxutilities.im/news/2022/mar/electricity-price-rises-to-be-phased-to-protect-consumers">Manx Utilities: 2022 tariff rises</a>, <a href="https://manxutilities.im/news/2023/mar/price-of-electricity-to-rise-but-rates-remain-lower-than-uk">2023</a>, <a href="https://manxutilities.im/news/2023/dec/manx-utilities-tariffs-expected-to-rise-in-line-with-inflation-in-2024">2024</a>, <a href="https://www.manxutilities.im/help-support/tariffs-rates-and-charges/tariffs-rates-charges">current tariffs</a></li>
+    <li><a href="https://www.cura.im/gas/2022-faq-gas-tariff-increases/">CURA: 2022 gas tariffs and regulated return</a></li>
+    <li><a href="https://www.manx.news/wp-content/uploads/2025/06/httpswww.cura_.immedia199220250624-consultation-commercial-customers-tariffs-publication.pdf">CURA: Commercial gas customers consultation (June 2025)</a> and <a href="https://www.manx.news/?p=58463">decision coverage</a></li>
+    <li><a href="https://www.gov.im/news/2015/may/05/voluntary-regulation-for-the-gas-supply-market/">Isle of Man Government: Manx Gas voluntary regulation, 9.99% ROCE (2015)</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/isle-of-man-gas-prices-set-to-increase-by-5-from-july-804914">IOM Today: gas tariff history to 2025</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/customers-feel-the-squeeze-as-price-of-home-heating-fuel-rockets-893724">IOM Today: heating oil prices, April 2026</a></li>
+    <li><a href="https://www.gov.im/media/1367957/annual-domestic-heating-review-2019.pdf">OFT: Comparative Domestic Heating Annual Review 2019</a> and <a href="https://gov.im/media/1384226/06-domestic-heating-10-june_compressed.pdf">June 2024 comparison</a></li>
+    <li><a href="https://www.consumercouncil.org.uk/home-heating/price-checker/archive">Consumer Council for Northern Ireland: heating oil price archive</a></li>
+    <li><a href="https://www.ofgem.gov.uk/publications/changes-energy-price-cap-between-1-october-and-31-december-2026">Ofgem: price cap, October to December 2026</a></li>
+    <li><a href="https://www.lse.co.uk/rns/JEL/annual-financial-report-7sel3ya2dr673w5.html">Jersey Electricity: results for the year to 30 September 2025</a></li>
+    <li><a href="https://www.dcc.ie/investors/annual-reports/reports-online-summary-2025">DCC: 2025 annual report summary (DCC Energy ROCE)</a></li>
+    <li><a href="https://selectra.co.uk/energy/providers/manx-gas">Selectra: Manx Gas ownership</a> and <a href="https://ancala.com/portfolio/ieg/">Ancala: Islands Energy Group</a></li>
+    <li><a href="https://www.iomtoday.co.im/news/oft-refuses-foi-request-for-manx-gass-accounts-218183">IOM Today: OFT refuses FOI for Manx Gas accounts</a></li>
+  </ol>
+</div></footer>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a,p,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;if(p)p.appendChild(e);return e;};
+const fmt=n=>Math.round(n).toLocaleString('en-GB');
+const root=document.documentElement;
+function setTheme(t){if(t==='light'||t==='dark')root.setAttribute('data-theme',t);else if(t)root.setAttribute('data-theme',/health|light|paper/.test(t)?'light':'dark');}
+$('#themeBtn').addEventListener('click',()=>{const cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');setTheme(cur==='dark'?'light':'dark');});
+addEventListener('message',e=>{const d=e.data||{};if((d.type==='setTheme'||d.type==='theme')&&d.theme)setTheme(d.theme);});
+
+/* tooltip */
+const tip=$('#tip');
+function tipOn(node,html){
+  const show=e=>{tip.innerHTML=html;tip.style.opacity=1;const x=(e.clientX??0)+14,y=(e.clientY??0)+14;tip.style.left=Math.min(x,innerWidth-300)+'px';tip.style.top=y+'px';};
+  node.addEventListener('pointermove',show);node.addEventListener('pointerenter',show);
+  node.addEventListener('pointerleave',()=>tip.style.opacity=0);
+  node.setAttribute('tabindex','0');node.addEventListener('focus',()=>{const r=node.getBoundingClientRect();show({clientX:r.left+r.width/2,clientY:r.top});});node.addEventListener('blur',()=>tip.style.opacity=0);
+}
+
+/* ===== cost to heat ===== */
+const VAT=1.05, KWH_L=10.18, EFF=0.9;
+const SNAP={
+ s2019:{label:'2019/20',elec:16.9*VAT,gas:7.64*VAT,gasSC:16.89*VAT,oil:58.0,oilSrc:'OFT 2019 annual average, 900 litres'},
+ s2022:{label:'2022 peak',elec:22.0*VAT,gas:22.2106*VAT,gasSC:16.90*VAT,oil:91.2,oilSrc:'OFT, June 2022: 9.95p per useful kWh'},
+ s2024:{label:'mid-2024',elec:31.7*VAT,gas:12.21,gasSC:16.90*VAT,oil:77.1,oilSrc:'OFT comparison, 10 June 2024'},
+ s2026m:{label:'March 2026',elec:29.1*VAT,gas:10.29*VAT,gasSC:16.90*VAT,oil:69.58,oilSrc:'OFT average, 16 March 2026'},
+ s2026a:{label:'April 2026',elec:29.5*VAT,gas:10.29*VAT,gasSC:16.90*VAT,oil:131.8,oilSrc:'EVF quote, 125.5p plus VAT (Manx Petroleum about 112p)'}
+};
+let snap='s2026m';
+function cost(){
+  const s=SNAP[snap],heat=+$('#heat').value,scop=+$('#scop').value;
+  $('#heatO').textContent=fmt(heat)+' kWh';$('#scopO').textContent=scop.toFixed(1);
+  const rows=[
+    ['Heat pump','var(--hp)',heat/scop*s.elec/100,`${(s.elec/scop).toFixed(1)}p per kWh of heat`],
+    ['Heating oil','var(--oil)',heat/EFF/KWH_L*s.oil/100,`${(s.oil/KWH_L/EFF).toFixed(1)}p per kWh of heat`],
+    ['Mains gas','var(--gas)',heat/EFF*s.gas/100+365*s.gasSC/100,`${(s.gas/EFF).toFixed(1)}p per kWh of heat, plus standing charge`],
+    ['Direct electric','var(--elec)',heat*s.elec/100,`${s.elec.toFixed(1)}p per kWh of heat`]
+  ];
+  const max=Math.max(...rows.map(r=>r[2]));const box=$('#costBars');box.innerHTML='';
+  rows.sort((a,b)=>a[2]-b[2]).forEach(([n,c,v,d])=>{const r=document.createElement('div');r.className='barrow';
+    r.innerHTML=`<span class="nm"><span class="sw" style="background:${c}"></span>${n}</span><span class="track"><span class="fill" style="width:${(v/max*100).toFixed(1)}%;background:${c}"></span></span><span class="val">£${fmt(v)}</span>`;
+    box.appendChild(r);tipOn(r,`<b>${n}, ${s.label}</b><br>${d}`);});
+  $('#costNote').textContent=`Prices include 5% VAT. Oil: ${s.oilSrc}, at ${KWH_L} kWh per litre and 90% boiler efficiency. Gas at 90% boiler efficiency. Electricity standing charges are left out because every home pays them anyway. Grants, boiler servicing and installation costs are not included.`;
+}
+$$('[data-snap]').forEach(b=>b.addEventListener('click',()=>{snap=b.dataset.snap;$$('[data-snap]').forEach(x=>x.setAttribute('aria-pressed',x===b));cost();}));
+['heat','scop'].forEach(i=>$('#'+i).addEventListener('input',cost));cost();
+
+/* ===== axis helpers ===== */
+function frame(svg,{w,h,l,r,t,b,x0,x1,y0,y1,yt,xt,yfmt=v=>v,xfmt=v=>v}){
+  svg.innerHTML='';const X=v=>l+(v-x0)/(x1-x0)*(w-l-r),Y=v=>t+(1-(v-y0)/(y1-y0))*(h-t-b);
+  yt.forEach(v=>{el('line',{x1:l,x2:w-r,y1:Y(v),y2:Y(v),stroke:'var(--grid)','stroke-dasharray':v===0?'':'2 4'},svg);el('text',{x:l-6,y:Y(v)+4,'text-anchor':'end'},svg,yfmt(v));});
+  xt.forEach(v=>el('text',{x:X(v),y:h-b+16,'text-anchor':'middle'},svg,xfmt(v)));
+  return {X,Y};
+}
+const dt=(y,m)=>y+(m-1)/12;
+
+/* ===== tariff chart ===== */
+(function(){
+  const svg=$('#tariffChart');const {X,Y}=frame(svg,{w:620,h:300,l:40,r:16,t:14,b:28,x0:2019,x1:2027,y0:0,y1:35,yt:[0,10,20,30],xt:[2019,2020,2021,2022,2023,2024,2025,2026,2027],yfmt:v=>v+'p'});
+  const E=[[dt(2019,4),16.7,'April 2019'],[dt(2020,4),16.9,'April 2020 (unchanged April 2021)'],[dt(2022,4),19.4,'April 2022'],[dt(2022,7),22.0,'July 2022'],[dt(2023,4),28.0,'April 2023'],[dt(2023,7),30.0,'July 2023 (planned 34p, cut to 30p)'],[dt(2024,4),31.7,'April 2024'],[dt(2025,4),29.1,'April 2025'],[dt(2026,4),29.5,'April 2026']];
+  const G=[[dt(2020,1),7.64,'2020: frozen at 7.64p'],[dt(2022,4),15.44,'April 2022: 15.44p'],[dt(2022,9),22.21,'September 2022: 22.21p, record high'],[dt(2022,11),16.67,'November 2022'],[dt(2023,3),13.98,'March 2023'],[dt(2024,1),11.74,'January 2024: cut 16%'],[dt(2024,7),11.44,'July 2024: cut 0.3p'],[dt(2025,1),9.76,'January 2025: cut 13.8%'],[dt(2025,7),10.29,'July 2025: up 5.3%, unchanged since']];
+  const end=dt(2026,11);
+  function step(pts,color,dashFrom){let d='';pts.forEach((p,i)=>{const nx=i<pts.length-1?pts[i+1][0]:end;d+=(i?'L':'M')+X(p[0])+' '+Y(p[1])+' L'+X(nx)+' '+Y(p[1])+(i<pts.length-1?' L'+X(nx)+' '+Y(pts[i+1][1]):'');});
+    el('path',{d,fill:'none',stroke:color,'stroke-width':2.2},svg);
+    pts.forEach(p=>{const c=el('circle',{cx:X(p[0]),cy:Y(p[1]),r:4.5,fill:color,stroke:'var(--surface-1)','stroke-width':2},svg);tipOn(c,`<b>${p[1].toFixed(2)}p per kWh</b><br>${p[2]}`);});}
+  step(E,'var(--elec)');
+  // gas with dashed gap 2020->2022-04
+  let d='';G.forEach((p,i)=>{if(i===0)return;const nx=i<G.length-1?G[i+1][0]:end;d+=(d?' ':'')+'M'+X(p[0])+' '+Y(p[1])+' L'+X(nx)+' '+Y(p[1])+(i<G.length-1?' L'+X(nx)+' '+Y(G[i+1][1]):'');});
+  el('path',{d,fill:'none',stroke:'var(--gas)','stroke-width':2.2},svg);
+  el('path',{d:`M${X(G[0][0])} ${Y(G[0][1])} L${X(dt(2021,4))} ${Y(G[0][1])} L${X(G[1][0])} ${Y(G[1][1])}`,fill:'none',stroke:'var(--gas)','stroke-width':2,'stroke-dasharray':'4 4'},svg);
+  G.forEach(p=>{const c=el('circle',{cx:X(p[0]),cy:Y(p[1]),r:4.5,fill:'var(--gas)',stroke:'var(--surface-1)','stroke-width':2},svg);tipOn(c,`<b>${p[1].toFixed(2)}p per kWh</b><br>${p[2]}`);});
+  el('text',{x:X(end)-2,y:Y(29.5)-8,'text-anchor':'end',class:'lbl'},svg,'Electricity 29.5p');
+  el('text',{x:X(end)-2,y:Y(10.29)-8,'text-anchor':'end',class:'lbl'},svg,'Gas 10.3p');
+})();
+
+/* ===== oil chart ===== */
+(function(){
+  const svg=$('#oilChart');const {X,Y}=frame(svg,{w:620,h:300,l:40,r:16,t:14,b:28,x0:2010.5,x1:2027,y0:0,y1:140,yt:[0,40,80,120],xt:[2011,2013,2015,2017,2019,2021,2023,2025,2027],yfmt:v=>v+'p'});
+  const IOM=[[dt(2011,2),60.6,'Early 2011: about £545 for 900 litres (OFT via Energy FM)'],[dt(2012,2),67.5,'Early 2012: 67.1p to 67.9p quoted by EVF, CPL and Manx Petroleum'],[dt(2019,7),58.0,'2019 average, 900 litres (OFT annual review)'],[dt(2022,6),91.2,'June 2022: OFT 9.95p per useful kWh, converted'],[dt(2024,6),77.1,'10 June 2024: OFT 7.57p per kWh, converted'],[dt(2026,1),68.8,'January 2026: EVF 65.5p plus VAT (customer bill)'],[dt(2026,3),69.6,'16 March 2026: OFT average, 900 litres'],[dt(2026,4),131.8,'April 2026: EVF 125.5p plus VAT (customer quote)'],[dt(2026,4.2),112.4,'April 2026: Manx Petroleum £1,011.15 for 900 litres']];
+  const UK=[[dt(2019,7),52.7,'2019 UK average about 50.2p excluding VAT (Fueltool), plus 5% VAT'],[dt(2021,7),41.9,'July 2021: Northern Ireland, 900 litres £377'],[dt(2021,12),50.5,'December 2021: Northern Ireland £455'],[dt(2022,6),102.6,'June 2022: Northern Ireland £924'],[dt(2022,9),106.0,'September 2022: Northern Ireland £954'],[dt(2023,12),72.4,'December 2023: Northern Ireland £652'],[dt(2026,4.6),101.0,'Spring 2026: Northern Ireland about £909 for 900 litres']];
+  UK.forEach(p=>{const c=el('rect',{x:X(p[0])-5,y:Y(p[1])-5,width:10,height:10,rx:2,fill:'var(--cmp)',stroke:'var(--surface-1)','stroke-width':2},svg);tipOn(c,`<b>${p[1].toFixed(1)}p per litre</b><br>${p[2]}`);});
+  IOM.forEach(p=>{const c=el('circle',{cx:X(p[0]),cy:Y(p[1]),r:6,fill:'var(--oil)',stroke:'var(--surface-1)','stroke-width':2},svg);tipOn(c,`<b>${p[1].toFixed(1)}p per litre</b><br>${p[2]}`);});
+  el('text',{x:X(dt(2026,4))-10,y:Y(131.8)+4,'text-anchor':'end',class:'lbl'},svg,'Isle of Man, April 2026');
+  el('text',{x:X(dt(2022,9))+10,y:Y(106)-6,class:'lbl'},svg,'NI peak 2022');
+})();
+
+/* ===== returns ladder ===== */
+(function(){
+  const svg=$('#retChart');svg.innerHTML='';const w=760,h=360,l=250,r=60,t=10;
+  const rows=[
+    ['Manx Utilities, 2024/25','var(--elec)',5.9,'Operating surplus £24.6m on £419m of fixed assets'],
+    ['Manx Utilities, typical year','var(--elec)',4.3,'Median of the seven non-crisis years, 2.8% to 6.5%'],
+    ['Manx Gas, allowed since 2022','var(--gas)',5.45,'CURA: 5.45% on the regulated asset base, plus a 2.1% retail margin'],
+    ['Manx Gas, agreed 2015 to 2022','var(--gas)',9.99,'Voluntary agreement with the OFT and Treasury'],
+    ['Manx Gas, own target before 2015','var(--gas)',10.6,'Rolling average ROCE Manx Gas was targeting'],
+    ['Jersey Electricity, 2025','var(--cmp)',7.4,'In-year return on assets (6.4% five-year average)'],
+    ['DCC Energy (owns EVF), 2025','var(--oil)',18.5,'Return on capital employed, whole energy division']
+  ];
+  const max=20,X=v=>l+v/max*(w-l-r),bh=28,gap=14;
+  [0,5,10,15,20].forEach(v=>{el('line',{x1:X(v),x2:X(v),y1:t,y2:t+rows.length*(bh+gap),stroke:'var(--grid)','stroke-dasharray':v?'2 4':''},svg);el('text',{x:X(v),y:t+rows.length*(bh+gap)+14,'text-anchor':'middle'},svg,v+'%');});
+  rows.forEach(([n,c,v,d],i)=>{const y=t+i*(bh+gap);
+    el('text',{x:l-10,y:y+bh/2+4,'text-anchor':'end',class:'lbl'},svg,n);
+    const b=el('rect',{x:l,y,width:Math.max(2,X(v)-l),height:bh,rx:4,fill:c},svg);
+    el('text',{x:X(v)+6,y:y+bh/2+4,class:'lbl'},svg,v.toFixed(v%1?1:0).replace(/\.0$/,'')+(v===5.45||v===9.99?'':'')+'%');
+    tipOn(b,`<b>${n}: ${v}%</b><br>${d}`);});
+  const bx=X(5.375);el('line',{x1:bx,x2:bx,y1:t-4,y2:t+rows.length*(bh+gap)-gap+4,stroke:'var(--ink-1)','stroke-width':1.5,'stroke-dasharray':'5 4'},svg);
+  el('text',{x:bx+4,y:t+rows.length*(bh+gap)+34,class:'lbl'},svg,'MUA bond coupon 5.375%');
+})();
+
+/* ===== MUA long run ===== */
+const MUA=[["2008/09",75.0,null,-24.3,null,null],["2009/10",74.6,null,-5.6,null,null],["2010/11",74.8,null,-10.0,null,null],["2011/12",76.0,null,-6.4,null,null],["2012/13",75.6,null,null,null,null],["2013/14",null,null,-4.8,null,null],["2014/15",null,null,2.1,null,497],["2015/16",108.1,null,1.0,null,null],["2016/17",105.7,19.4,10.4,485.7,492],["2017/18",103.4,13.1,88.4,467.9,378],["2018/19",108.7,16.8,1.9,450.7,null],["2019/20",108.5,28.8,-8.7,443.8,425],["2020/21",106.3,26.3,21.0,437.9,421],["2021/22",125.8,-29.6,18.2,427.5,445],["2022/23",176.9,-3.2,-42.2,null,null],["2023/24",156.7,23.1,-0.7,415.3,430],["2024/25",150.2,24.6,9.6,419.1,438]];
+const NOTE={"2017/18":"Includes the £95m debt write-off agreed by Tynwald. Without it, a deficit of about £6.6m.","2021/22":"Includes a £64m gain on revaluing forward gas contracts. The report puts the underlying deficit at about £48m.","2012/13":"Surplus or deficit not found in public sources.","2008/09":"Record turnover; exceptional costs and the unauthorised-borrowing legacy.","2013/14":"Combined deficit of the Manx Electricity Authority and the Water and Sewerage Authority, the year before the merger."};
+(function(){
+  const svg=$('#muaChart');const w=640,h=320,l=44,r=10,t=14,b=40;
+  const y0=-50,y1=30,n=MUA.length,bw=(w-l-r)/n;const Y=v=>t+(1-(v-y0)/(y1-y0))*(h-t-b);
+  [-50,-25,0,25].forEach(v=>{el('line',{x1:l,x2:w-r,y1:Y(v),y2:Y(v),stroke:'var(--grid)','stroke-dasharray':v?'2 4':''},svg);el('text',{x:l-6,y:Y(v)+4,'text-anchor':'end'},svg,'£'+v+'m');});
+  MUA.forEach(([yr,tu,op,s],i)=>{const x=l+i*bw+3,bwi=bw-6;
+    if(i%2===0)el('text',{x:x+bwi/2,y:h-b+16,'text-anchor':'middle'},svg,yr.slice(2));
+    if(s==null){const m=el('text',{x:x+bwi/2,y:Y(0)-6,'text-anchor':'middle'},svg,'n/a');tipOn(m,`<b>${yr}</b><br>${NOTE[yr]||'Not found in public sources.'}`);return;}
+    let v=s,col=s>=0?'var(--elec)':'var(--bad)',special=NOTE[yr]&&(yr==='2017/18'||yr==='2021/22');
+    if(yr==='2017/18'){ // draw underlying plus capped ghost
+      const g=el('rect',{x,y:Y(Math.min(30,s)),width:bwi,height:Y(0)-Y(Math.min(30,s)),rx:3,fill:'var(--cmp)',opacity:.5},svg);
+      el('text',{x:x+bwi/2,y:Y(30)-2,'text-anchor':'middle',class:'lbl'},svg,'+88');tipOn(g,`<b>${yr}: surplus £88.4m</b><br>${NOTE[yr]}`);
+      const u=el('rect',{x:x+bwi*0.2,y:Y(0),width:bwi*0.6,height:Y(-6.6)-Y(0),rx:2,fill:'var(--bad)'},svg);tipOn(u,`<b>${yr} underlying: about -£6.6m</b><br>Surplus less the write-off`);return;}
+    if(yr==='2021/22'){col='var(--cmp)';const u=el('rect',{x:x+bwi*0.2,y:Y(0),width:bwi*0.6,height:Y(-48)-Y(0),rx:2,fill:'var(--bad)'},svg);tipOn(u,`<b>${yr} underlying: about -£48m</b><br>${NOTE[yr]}`);}
+    const top=Y(Math.max(0,v)),bot=Y(Math.min(0,v));
+    const rct=el('rect',{x,y:top,width:bwi,height:Math.max(1,bot-top),rx:3,fill:col,opacity:yr==='2021/22'?.55:1},svg);
+    tipOn(rct,`<b>${yr}: ${v>=0?'surplus':'deficit'} £${Math.abs(v).toFixed(1)}m</b>${tu?`<br>Turnover £${tu}m`:''}${op!=null?`<br>Operating result £${op}m`:''}${NOTE[yr]?'<br>'+NOTE[yr]:''}`);
+  });
+  el('line',{x1:l+5*bw-0.5,x2:l+5*bw-0.5,y1:Y(0),y2:h-b,stroke:'var(--ink-3)','stroke-dasharray':'3 3'},svg);
+  el('text',{x:l+5*bw-6,y:Y(-46),'text-anchor':'end'},svg,'Electricity only');el('text',{x:l+5*bw+6,y:Y(-46)},svg,'Incl. water and sewerage');
+  el('text',{x:l+15*bw+2,y:Y(-30),class:'lbl'},svg,'2022/23');el('text',{x:l+15*bw+2,y:Y(-30)+14,class:'lbl'},svg,'crisis');
+})();
+/* table + csv */
+(function(){
+  const tb=$('#muaTable tbody');const lines=['year,turnover_m,operating_result_m,surplus_m,fixed_assets_m,net_debt_m,return_on_assets_pct'];
+  MUA.forEach(([yr,tu,op,s,fa,nd])=>{const roa=(op!=null&&fa)?(op/fa*100).toFixed(1):'';
+    const tr=document.createElement('tr');tr.innerHTML=`<td>${yr}</td><td class="num">${tu??'n/a'}</td><td class="num">${op??'n/a'}</td><td class="num">${s??'n/a'}</td><td class="num">${fa??'n/a'}</td><td class="num">${nd??'n/a'}</td><td class="num">${roa?roa+'%':'n/a'}</td>`;tb.appendChild(tr);
+    lines.push([yr,tu??'',op??'',s??'',fa??'',nd??'',roa].join(','));});
+  $('#copyCsv').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lines.join('\n'));$('#copyMsg').textContent='Copied.';}catch(e){$('#copyMsg').textContent='Copy blocked by the browser; select the table instead.';}});
+})();
+})();
+</script>
+</body>
+</html>
