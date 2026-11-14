@@ -66,6 +66,7 @@ const TAB_GROUPS = [
       { id: "poweringMannBrief", label: "Brief: Powering Mann" },
       { id: "gridPrimer", label: "Primer: Keeping the lights on" },
       { id: "howPowerWorks", label: "Explainer: How the power gets made" },
+      { id: "energyMarkets", label: "Analysis: Who earns what heating your home" },
     ]
   },
   { id: "health-group",    label: "Health & Care",       color: "#5ea99a", homeTab: "healthHome",
@@ -1557,7 +1558,7 @@ function AppContent() {
     "islandStory",
     "reid","demog","iomPopChange","kanon","areas","iomfiscaldept","inflation",
     "unemployment","suicide","workforce","iomPensionChallenge","familyPension","manxBenchmark","econperf",
-    "overview","wages","affordability","mybudget","housingApprenticeshipsBrief","poweringMannBrief","gridPrimer","howPowerWorks",
+    "overview","wages","affordability","mybudget","housingApprenticeshipsBrief","poweringMannBrief","gridPrimer","howPowerWorks","energyMarkets",
     "mcWhenWho","yourHealth","nobles-flow","nobles-v15",
     "islandsHub","islandsPH","islandsGov","islandsFin","islandsPrimary","islandsSecondary","islandsTertiary","islandsRoadmap","mcBudgetFlows",
   ]);
@@ -1637,6 +1638,9 @@ function AppContent() {
     ),
     howPowerWorks: (
       <AutoIframe src="/how-it-works.html" title="Explainer: How the power gets made" theme={themeName} autoResize={false} />
+    ),
+    energyMarkets: (
+      <AutoIframe src="/energy-markets.html" title="Analysis: Who earns what heating your home" theme={themeName} autoResize={false} />
     ),
 
     reid: (
